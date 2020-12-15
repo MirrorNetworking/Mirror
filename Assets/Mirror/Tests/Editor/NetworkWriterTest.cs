@@ -1010,9 +1010,59 @@ namespace Mirror.Tests
             Assert.That(readList, Is.Null);
         }
 
+
+        const int testArraySize = 4;
         [Test]
         [Description("ReadArray should throw if it is trying to read more than length of segement, this is to stop allocation attacks")]
-        [TestCase(sizeof(int) * 4 + 1, Description = "min read count is 1 byte, 16 array bytes are writen so 17 should throw error")]
+        public void TestArrayDoesNotThrowWithCorrectLength()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            WriteGoodArray();
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.DoesNotThrow(() =>
+            {
+                _ = reader.ReadArray<int>();
+            });
+
+            void WriteGoodArray()
+            {
+                writer.WriteInt32(testArraySize);
+                int[] array = new int[testArraySize] { 1, 2, 3, 4 };
+                for (int i = 0; i < array.Length; i++)
+                    writer.Write(array[i]);
+            }
+        }
+        [Test]
+        [Description("ReadArray should throw if it is trying to read more than length of segement, this is to stop allocation attacks")]
+        [TestCase(testArraySize * sizeof(int), Description = "max allowed value to allocate array")]
+        [TestCase(testArraySize * 2)]
+        [TestCase(testArraySize + 1, Description = "min allowed to allocate")]
+        public void TestArrayThrowsIfLengthIsWrong(int badLength)
+        {
+            NetworkWriter writer = new NetworkWriter();
+            WriteBadArray();
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            EndOfStreamException exception = Assert.Throws<EndOfStreamException>(() =>
+            {
+                _ = reader.ReadArray<int>();
+            });
+            // todo inprove this message check
+            Assert.That(exception, Has.Message.Contains($"ReadBlittable<{typeof(int)}> out of range"));
+
+            void WriteBadArray()
+            {
+                writer.WriteInt32(badLength);
+                int[] array = new int[testArraySize] { 1, 2, 3, 4 };
+                for (int i = 0; i < array.Length; i++)
+                    writer.Write(array[i]);
+            }
+        }
+
+        [Test]
+        [Description("ReadArray should throw if it is trying to read more than length of segement, this is to stop allocation attacks")]
+        [TestCase(testArraySize * sizeof(int) + 1, Description = "min read count is 1 byte, 16 array bytes are writen so 17 should throw error")]
         [TestCase(20_000)]
         [TestCase(int.MaxValue)]
         [TestCase(int.MaxValue - 1)]
@@ -1032,7 +1082,7 @@ namespace Mirror.Tests
             void WriteBadArray()
             {
                 writer.WriteInt32(badLength);
-                int[] array = new int[] { 1, 2, 3, 4 };
+                int[] array = new int[testArraySize] { 1, 2, 3, 4 };
                 for (int i = 0; i < array.Length; i++)
                     writer.Write(array[i]);
             }
