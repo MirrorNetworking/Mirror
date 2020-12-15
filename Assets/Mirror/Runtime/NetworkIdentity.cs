@@ -371,7 +371,12 @@ namespace Mirror
         /// <summary>
         /// Resets nextNetworkId = 1
         /// </summary>
-        public static void ResetNextNetworkId() => nextNetworkId = 1;
+        public static void ResetNextNetworkId()
+        {
+            nextNetworkId = 1;
+            netIds.Clear();
+        }
+
 
         /// <summary>
         /// The delegate type for the clientAuthorityCallback.
