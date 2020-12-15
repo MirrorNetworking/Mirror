@@ -143,6 +143,13 @@ namespace Mirror
             {
                 SetupArrayFields();
             }
+
+            // if client authority they might have already set and sent speed
+            // so apply speed now
+            if (clientAuthority)
+            {
+                animator.speed = animatorSpeed;
+            }
         }
 
         /// <summary>
