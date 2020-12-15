@@ -234,10 +234,15 @@ namespace Mirror
             }
         }
 
+        [Command]
         void CmdSetAnimatorSpeed(float newSpeed)
         {
             // set animator
-            animator.speed = newSpeed;
+            if (HasAnimator) 
+            {
+                animator.speed = newSpeed;
+            }
+
             animatorSpeed = newSpeed;
         }
 
