@@ -1015,6 +1015,7 @@ namespace Mirror.Tests
         [TestCase(sizeof(int) * 4 + 1, Description = "min read count is 1 byte, 16 array bytes are writen so 17 should throw error")]
         [TestCase(20_000)]
         [TestCase(int.MaxValue)]
+        [TestCase(int.MaxValue - 1)]
         // todo add fuzzy testing to check more values
         public void TestArrayThrowsIfLengthIsTooBig(int badLength)
         {
