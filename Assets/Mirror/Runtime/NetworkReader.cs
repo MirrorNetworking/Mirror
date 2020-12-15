@@ -361,10 +361,11 @@ namespace Mirror
             int length = reader.ReadInt32();
             // this assumes that a reader for T reads atleast 1 bytes
             // we can't know the exact size of T because it could have a user created reader
-            if (reader.Position + length > reader.Length)
+            // NOTE: dont add to length as it could overflow if value is int.max
+            if (length > reader.Length - reader.Position)
             {
                 throw new EndOfStreamException($"Received array that is too large {length}");
-            }            
+            }
             if (length < 0)
                 return null;
             T[] result = new T[length];
