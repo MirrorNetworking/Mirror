@@ -19,7 +19,7 @@ Some of these types are unsupported due to the complexity they would add, as men
 
 > NOTE: Types in this list can have custom writers.
 
-- Multidimensional array
+- Multidimensional array (eg `int[,]`)
 - Types that Inherit from `UnityEngine.Component`
 - `UnityEngine.Object`
 - `UnityEngine.ScriptableObject`
