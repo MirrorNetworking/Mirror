@@ -237,8 +237,14 @@ namespace Mirror
         [Command]
         void CmdSetAnimatorSpeed(float newSpeed)
         {
+            if (!clientAuthority)
+            {
+                logger.LogWarning("Client trying to set speed but clientAuthority was false");
+                return;
+            }
+
             // set animator
-            if (HasAnimator) 
+            if (HasAnimator)
             {
                 animator.speed = newSpeed;
             }
