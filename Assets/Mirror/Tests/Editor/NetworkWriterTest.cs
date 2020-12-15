@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
@@ -1007,6 +1008,32 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArray());
             List<int> readList = reader.Read<List<int>>();
             Assert.That(readList, Is.Null);
+        }
+
+        [Test]
+        [Description("ReadArray should throw if it is trying to read more than length of segement, this is to stop allocation attacks")]
+        [TestCase(sizeof(int) * 4 + 1, Description = "min read count is 1 byte, 16 array bytes are writen so 17 should throw error")]
+        [TestCase(20_000)]
+        [TestCase(int.MaxValue)]
+        public void TestArrayThrowsIfLengthIsTooBig(int badLength)
+        {
+            NetworkWriter writer = new NetworkWriter();
+            WriteBadArray();
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            EndOfStreamException exception = Assert.Throws<EndOfStreamException>(() =>
+            {
+                _ = reader.ReadArray<int>();
+            });
+            Assert.That(exception, Has.Message.EqualTo($"Received array that is too large {badLength}"));
+
+            void WriteBadArray()
+            {
+                writer.WriteInt32(badLength);
+                int[] array = new int[] { 1, 2, 3, 4 };
+                for (int i = 0; i < array.Length; i++)
+                    writer.Write(array[i]);
+            }
         }
 
         [Test]
