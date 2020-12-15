@@ -159,6 +159,9 @@ namespace Mirror
                 // clear setup message after setup
                 setupMsg = null;
             }
+
+            // invoke changed to apply speed to animator
+            onAnimatorSpeedChanged(default, animatorSpeed);
         }
 
         void SetupArrayFields()
@@ -245,7 +248,10 @@ namespace Mirror
             if (isServer || (hasAuthority && clientAuthority))
                 return;
 
-            animator.speed = value;
+            if (HasAnimator)
+            {
+                animator.speed = value;
+            }
         }
 
         bool CheckAnimStateChanged(out int stateHash, out float normalizedTime, int layerId)
