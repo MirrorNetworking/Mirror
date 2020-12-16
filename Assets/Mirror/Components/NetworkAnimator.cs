@@ -144,9 +144,14 @@ namespace Mirror
                 SetupArrayFields();
             }
 
-            // if client authority they might have already set and sent speed
+            // if host with authority, then set syncvar
+            if (hasAuthority)
+            {
+                animatorSpeed = animator.speed;
+            }
+            // if clienAuthority they might have already set and sent speed
             // so apply speed now
-            if (clientAuthority)
+            else if (clientAuthority)
             {
                 animator.speed = animatorSpeed;
             }
