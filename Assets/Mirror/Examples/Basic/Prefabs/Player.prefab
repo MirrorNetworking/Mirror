@@ -62,10 +62,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  playerUIPrefab: {fileID: 1088833923132447022, guid: 22f1fa3a0aff72b46a371f667bb4fb30,
+  playerUIPrefab: {fileID: 5152941909035078397, guid: 22f1fa3a0aff72b46a371f667bb4fb30,
     type: 3}
   playerNumber: 0
+  playerData: 0
   playerColor:
     serializedVersion: 2
     rgba: 4294967295
-  playerData: 0
