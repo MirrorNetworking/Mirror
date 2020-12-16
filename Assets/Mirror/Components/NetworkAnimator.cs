@@ -144,7 +144,7 @@ namespace Mirror
                 SetupArrayFields();
             }
 
-            // if host with authority, then set syncvar
+            // if host dont apply syncvar because it starts at 0, instead set the syncvar to the speed of the new animator
             if (hasAuthority)
             {
                 animatorSpeed = animator.speed;
