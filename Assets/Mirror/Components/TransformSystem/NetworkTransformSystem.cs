@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Mirror.PositionSyncing
 {
-    public class NetworkPositionSystem : MonoBehaviour
+    public class NetworkTransformSystem : MonoBehaviour
     {
         // todo make this work with network Visibility
         // todo replace singleton with scriptable object (find a way to read without needing static)
@@ -157,7 +157,7 @@ namespace Mirror.PositionSyncing
                 uint id = kvp.Key;
                 Vector3 position = behaviour.Position;
 
-                writer.WritePackedUInt32(id);
+                PackedWriter.WritePacked(writer, id);
 
                 if (compressPosition)
                 {
@@ -203,7 +203,7 @@ namespace Mirror.PositionSyncing
             {
                 while (reader.Position < count)
                 {
-                    uint id = reader.ReadPackedUInt32();
+                    uint id = PackedWriter.ReadPacked(reader);
                     Vector3 position = compressPosition
                         ? compression.Decompress(reader)
                         : reader.ReadVector3();
@@ -230,6 +230,86 @@ namespace Mirror.PositionSyncing
 #endif
     }
 
+    /// <summary>
+    /// packed read/write from mirror v26 and optimized
+    /// </summary>
+    public static class PackedWriter
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePacked(NetworkWriter writer, uint value)
+        {
+            if (value <= 240)
+            {
+                writer.WriteByte((byte)value);
+                return;
+            }
+            if (value <= 2287)
+            {
+                writer.WriteByte((byte)(((value - 240) >> 8) + 241));
+                writer.WriteByte((byte)(value - 240));
+                return;
+            }
+            if (value <= 67823)
+            {
+                writer.WriteByte(249);
+                writer.WriteByte((byte)((value - 2288) >> 8));
+                writer.WriteByte((byte)(value - 2288));
+                return;
+            }
+            if (value <= 16777215)
+            {
+                writer.WriteByte(250);
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                return;
+            }
+            if (value <= 4294967295)
+            {
+                writer.WriteByte(251);
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                writer.WriteByte((byte)(value >> 24));
+                return;
+            }
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadPacked(NetworkReader reader)
+        {
+            byte a0 = reader.ReadByte();
+            if (a0 < 241)
+            {
+                return a0;
+            }
+
+            byte a1 = reader.ReadByte();
+            if (a0 >= 241 && a0 <= 248)
+            {
+                return 240 + ((a0 - (uint)241) << 8) + a1;
+            }
+
+            byte a2 = reader.ReadByte();
+            if (a0 == 249)
+            {
+                return 2288 + ((uint)a1 << 8) + a2;
+            }
+
+            byte a3 = reader.ReadByte();
+            if (a0 == 250)
+            {
+                return a1 + (((uint)a2) << 8) + (((uint)a3) << 16);
+            }
+
+            byte a4 = reader.ReadByte();
+            if (a0 == 251)
+            {
+                return a1 + (((uint)a2) << 8) + (((uint)a3) << 16) + (((uint)a4) << 24);
+            }
+
+            throw new DataMisalignedException("ReadPacked() failure: " + a0);
+        }
+    }
     public interface IHasPosition
     {
         /// <summary>
@@ -279,13 +359,13 @@ namespace Mirror.PositionSyncing
 
         public static void WriteNetworkPositionSingleMessage(this NetworkWriter writer, NetworkPositionSingleMessage msg)
         {
-            writer.WritePackedUInt32(msg.id);
+            PackedWriter.WritePacked(writer, msg.id);
             PositionCompression compression = NetworkTransformSystem.Instance.compression;
             compression.Compress(writer, msg.position);
         }
         public static NetworkPositionSingleMessage ReadNetworkPositionSingleMessage(this NetworkReader reader)
         {
-            uint id = reader.ReadPackedUInt32();
+            uint id = PackedWriter.ReadPacked(reader);
             PositionCompression compression = NetworkTransformSystem.Instance.compression;
             Vector3 pos = compression.Decompress(reader);
 

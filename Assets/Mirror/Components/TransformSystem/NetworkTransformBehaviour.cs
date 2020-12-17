@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.PositionSyncing
 {
-    public class NetworkPositionBehaviour : NetworkBehaviour, IHasPosition
+    public class NetworkTransformBehaviour : NetworkBehaviour, IHasPosition
     {
         Vector3 IHasPosition.Position => target.position;
         uint IHasPosition.Id => netId;
