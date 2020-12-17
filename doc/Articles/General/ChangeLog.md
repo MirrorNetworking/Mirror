@@ -4,21 +4,30 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 30.x.x -- In Progress
-- Added: Network Reader/Writer now does Read/WriteBlittable<T> for better performance
+## Version 30.2.2 -- 2020-Dec-17
+- Added: Network Reader/Writer now does Read/WriteBlittable<T> for better performance.
 - Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.4.
-- Added: Network Authenticator now has OnStopServer and OnStopClient overrides
-- Added: Network Transform now applies compression to rotations
-- Fixed: Better presentation of Network Ping Display.
-- Fixed: Middleware Transport now listens for inner events correctly.
-- Fixed: Calling StartServer / StartClient more than once is now prevented.
-- Fixed: NRE when no host player in PlayerScore in MultipleAdditiveScenes example
-- Fixed: player collisions in MultipleAdditiveScenes example
-- Fixed: Weaver now properly generates readers and writers for structs in other assemblies, e.g. `Mathematics`
-- Fixed: NetworkServer.maxConnections is now public
-- Changed: Playmode now blocked for invalid scene id's, with error messages
-- Changed: Experimental Network Transform now uses `Channels.DefaultUnreliable`
-- Changed: Server Only scene objects in examples replaced with normal objects instantiated on server or just eliminated
+- Added: Network Authenticator now has OnStopServer and OnStopClient overrides.
+- Added: Network Transform now applies compression to rotations.
+- Added: SyncVars now support using types that inherit from NetworkBehaviour.
+- Added: SimpleWebTransport now has option for TLS outside the transport.
+- Added: MultipleMatches example featuring Network Match Checker with Lobby and Match functionality.
+- Fixed: Better presentation of Network Ping Display..
+- Fixed: Middleware Transport now listens for inner events correctly..
+- Fixed: Calling StartServer / StartClient more than once is now prevented..
+- Fixed: NRE when no host player in PlayerScore in MultipleAdditiveScenes example.
+- Fixed: player collisions in MultipleAdditiveScenes example.
+- Fixed: Weaver now properly generates readers and writers for structs in other assemblies, e.g. `Mathematics`.
+- Fixed: NetworkServer.maxConnections is now public.
+- Fixed: Skip reset of object that's being destroyed.
+- Fixed: ReadyStatusChanged in NetworkRoomManager is now public.
+- Fixed: NetworkTransform now correctly uses ArraySegment in Commands.
+- Fixed: Added OnStopServer to NetworkSceneChecker and NetworkMatchChecker.
+- Fixed: Weaver method lookup conflict with Unity 2020.2.
+- Fixed: Memory allocation vulnerability in NetworkReader.
+- Changed: Playmode now blocked for invalid scene id's, with error messages.
+- Changed: Experimental Network Transform now uses `Channels.DefaultUnreliable` and applies compression to rotations.
+- Changed: Server Only scene objects in examples replaced with normal objects instantiated on server or just eliminated.
 - Changed: **Breaking** Force NetworkMessage to use structs in all cases - classes no longer supported.
 - Changed: **Breaking** Removed ReadPacked / WritePacked functions - Use Read and Write variants instead.
 - Changed: **Breaking** LLAPI has been removed.
