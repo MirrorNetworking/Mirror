@@ -1,26 +1,24 @@
 {
-    "name": "Mirror.PositionSync.Tests",
-    "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
+   "name": "Mirror.PositionSync.Tests",
+     "references": [
         "Mirror.PositionSync",
         "Mirror"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll",
         "NSubstitute.dll",
-        "System.Threading.Tasks.Extensions.dll"
+        "Castle.Core.dll",
+        "System.Threading.Tasks.Extensions.dll",
+        "Mono.CecilX.dll"
     ],
-    "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_INCLUDE_TESTS"
-    ],
-    "versionDefines": [],
-    "noEngineReferences": false
+    "autoReferenced": true,
+    "defineConstraints": []
 }
