@@ -359,8 +359,21 @@ namespace Mirror
         public static T[] ReadArray<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt32();
+
+            //  we write -1 for null
             if (length < 0)
                 return null;
+            
+            // todo throw an exception for other negative values (we never write them, likely to be attacker)
+
+            // this assumes that a reader for T reads atleast 1 bytes
+            // we can't know the exact size of T because it could have a user created reader
+            // NOTE: dont add to length as it could overflow if value is int.max
+            if (length > reader.Length - reader.Position)
+            {
+                throw new EndOfStreamException($"Received array that is too large: {length}");
+            }
+
             T[] result = new T[length];
             for (int i = 0; i < length; i++)
             {
