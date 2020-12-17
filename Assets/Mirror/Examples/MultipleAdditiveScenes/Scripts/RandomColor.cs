@@ -12,7 +12,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         // Color32 packs to 4 bytes
         [SyncVar(hook = nameof(SetColor))]
-        [SerializeField] internal Color32 color = Color.black;
+        public Color32 color = Color.black;
 
         // Unity clones the material when GetComponent<Renderer>().material is called
         // Cache it here and destroy it in OnDestroy to prevent a memory leak

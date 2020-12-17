@@ -5,15 +5,15 @@ namespace Mirror.Examples.MultipleMatch
 {
     public class CellGUI : MonoBehaviour
     {
-        [SerializeField] MatchController matchController;
-        [SerializeField] internal CellValue cellValue;
+        public MatchController matchController;
+        public CellValue cellValue;
 
         [Header("GUI References")]
-        [SerializeField] Image image;
-        [SerializeField] Button button;
+        public Image image;
+        public Button button;
 
         [Header("Diagnostics - Do Not Modify")]
-        [SerializeField] internal NetworkIdentity playerIdentity;
+        public NetworkIdentity playerIdentity;
 
 
         public void Awake()

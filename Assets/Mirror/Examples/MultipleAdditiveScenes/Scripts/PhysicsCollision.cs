@@ -6,9 +6,9 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     public class PhysicsCollision : NetworkBehaviour
     {
         [Tooltip("how forcefully to push this object")]
-        [SerializeField] float force = 12;
+        public float force = 12;
 
-        [SerializeField] Rigidbody rigidbody3D;
+        public Rigidbody rigidbody3D;
 
         private void OnValidate()
         {

@@ -7,12 +7,12 @@ namespace Mirror.Examples.MultipleMatch
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(RoomGUI));
 
-        [SerializeField] GameObject playerList;
-        [SerializeField] GameObject playerPrefab;
-        [SerializeField] GameObject cancelButton;
-        [SerializeField] GameObject leaveButton;
-        [SerializeField] Button startButton;
-        [SerializeField] bool owner;
+        public GameObject playerList;
+        public GameObject playerPrefab;
+        public GameObject cancelButton;
+        public GameObject leaveButton;
+        public Button startButton;
+        public bool owner;
 
         public void RefreshRoomPlayers(PlayerInfo[] playerInfos)
         {

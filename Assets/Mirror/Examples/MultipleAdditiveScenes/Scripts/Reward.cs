@@ -7,8 +7,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(Reward));
 
-        [SerializeField] bool available = true;
-        [SerializeField] RandomColor randomColor;
+        public bool available = true;
+        public RandomColor randomColor;
 
         void OnValidate()
         {

@@ -11,8 +11,8 @@ namespace Mirror.Examples.MultipleMatch
     public class MatchNetworkManager : NetworkManager
     {
         [Header("Match GUI")]
-        [SerializeField] GameObject canvas;
-        [SerializeField] CanvasController canvasController;
+        public GameObject canvas;
+        public CanvasController canvasController;
 
         #region Unity Callbacks
 

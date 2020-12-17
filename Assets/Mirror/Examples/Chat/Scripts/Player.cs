@@ -6,7 +6,7 @@ namespace Mirror.Examples.Chat
     public class Player : NetworkBehaviour
     {
         [SyncVar]
-        [SerializeField] internal string playerName;
+        public string playerName;
 
         public static event Action<Player, string> OnMessage;
 

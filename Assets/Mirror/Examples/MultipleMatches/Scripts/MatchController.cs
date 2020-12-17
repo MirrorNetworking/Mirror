@@ -16,21 +16,21 @@ namespace Mirror.Examples.MultipleMatch
         bool playAgain = false;
 
         [Header("GUI References")]
-        [SerializeField] internal CanvasGroup canvasGroup;
-        [SerializeField] Text gameText;
-        [SerializeField] Button exitButton;
-        [SerializeField] Button playAgainButton;
-        [SerializeField] Text winCountLocal;
-        [SerializeField] Text winCountOpponent;
+        public CanvasGroup canvasGroup;
+        public Text gameText;
+        public Button exitButton;
+        public Button playAgainButton;
+        public Text winCountLocal;
+        public Text winCountOpponent;
 
         [Header("Diagnostics - Do Not Modify")]
-        [SerializeField] internal CanvasController canvasController;
-        [SerializeField] internal NetworkIdentity player1;
-        [SerializeField] internal NetworkIdentity player2;
-        [SerializeField] internal NetworkIdentity startingPlayer;
+        public CanvasController canvasController;
+        public NetworkIdentity player1;
+        public NetworkIdentity player2;
+        public NetworkIdentity startingPlayer;
 
         [SyncVar(hook = nameof(UpdateGameUI))]
-        [SerializeField] internal NetworkIdentity currentPlayer;
+        public NetworkIdentity currentPlayer;
 
         void Awake()
         {
