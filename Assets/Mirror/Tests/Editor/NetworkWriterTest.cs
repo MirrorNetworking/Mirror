@@ -1077,7 +1077,7 @@ namespace Mirror.Tests
             {
                 _ = reader.ReadArray<int>();
             });
-            Assert.That(exception, Has.Message.EqualTo($"Received array that is too large {badLength}"));
+            Assert.That(exception, Has.Message.EqualTo($"Received array that is too large: {badLength}"));
 
             void WriteBadArray()
             {
