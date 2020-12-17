@@ -5,18 +5,18 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     public class PlayerScore : NetworkBehaviour
     {
         [SyncVar]
-        [SerializeField] internal int playerNumber;
+        public int playerNumber;
 
         [SyncVar]
-        [SerializeField] internal int scoreIndex;
+        public int scoreIndex;
 
         [SyncVar]
-        [SerializeField] internal int matchIndex;
+        public int matchIndex;
 
         [SyncVar]
-        [SerializeField] internal uint score;
+        public uint score;
 
-        [SerializeField] int clientMatchIndex = -1;
+        public int clientMatchIndex = -1;
 
         void OnGUI()
         {

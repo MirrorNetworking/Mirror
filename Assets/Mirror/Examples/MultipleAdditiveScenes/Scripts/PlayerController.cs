@@ -9,7 +9,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
-        [SerializeField] CharacterController characterController;
+        public CharacterController characterController;
 
         void OnValidate()
         {
@@ -43,18 +43,18 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         }
 
         [Header("Movement Settings")]
-        [SerializeField] float moveSpeed = 8f;
-        [SerializeField] float turnSensitivity = 5f;
-        [SerializeField] float maxTurnSpeed = 150f;
+        public float moveSpeed = 8f;
+        public float turnSensitivity = 5f;
+        public float maxTurnSpeed = 150f;
 
         [Header("Diagnostics")]
-        [SerializeField] float horizontal;
-        [SerializeField] float vertical;
-        [SerializeField] float turn;
-        [SerializeField] float jumpSpeed;
-        [SerializeField] bool isGrounded = true;
-        [SerializeField] bool isFalling;
-        [SerializeField] Vector3 velocity;
+        public float horizontal;
+        public float vertical;
+        public float turn;
+        public float jumpSpeed;
+        public bool isGrounded = true;
+        public bool isFalling;
+        public Vector3 velocity;
 
         void Update()
         {

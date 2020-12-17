@@ -6,7 +6,7 @@ namespace Mirror.Examples.Chat
     public class ChatNetworkManager : NetworkManager
     {
         [Header("Chat GUI")]
-        [SerializeField] ChatWindow chatWindow;
+        public ChatWindow chatWindow;
 
         public string PlayerName { get; set; }
 

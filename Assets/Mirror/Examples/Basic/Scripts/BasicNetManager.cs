@@ -17,10 +17,10 @@ namespace Mirror.Examples.Basic
         [Header("Canvas UI")]
 
         [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
-        [SerializeField] internal RectTransform mainPanel;
+        public RectTransform mainPanel;
 
         [Tooltip("Assign Players Panel for instantiating PlayerUI as child")]
-        [SerializeField] internal RectTransform playersPanel;
+        public RectTransform playersPanel;
 
         /// <summary>
         /// Called on the server when a client adds a new player with ClientScene.AddPlayer.

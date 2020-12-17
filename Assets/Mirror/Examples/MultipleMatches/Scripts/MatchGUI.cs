@@ -9,13 +9,13 @@ namespace Mirror.Examples.MultipleMatch
         Guid matchId;
 
         [Header("GUI Elements")]
-        [SerializeField] Image image;
-        [SerializeField] Toggle toggleButton;
-        [SerializeField] Text matchName;
-        [SerializeField] Text playerCount;
+        public Image image;
+        public Toggle toggleButton;
+        public Text matchName;
+        public Text playerCount;
 
         [Header("Diagnostics - Do Not Modify")]
-        [SerializeField] internal CanvasController canvasController;
+        public CanvasController canvasController;
 
         public void Awake()
         {

@@ -5,7 +5,7 @@ namespace Mirror.Examples.MultipleMatch
 {
     public class PlayerGUI : MonoBehaviour
     {
-        [SerializeField] Text playerName;
+        public Text playerName;
 
         public void SetPlayerInfo(PlayerInfo info)
         {

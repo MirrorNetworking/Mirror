@@ -57,15 +57,15 @@ namespace Mirror.Examples.MultipleMatch
         int playerIndex = 1;
 
         [Header("GUI References")]
-        [SerializeField] GameObject matchList;
-        [SerializeField] GameObject matchPrefab;
-        [SerializeField] GameObject matchControllerPrefab;
-        [SerializeField] internal Button createButton;
-        [SerializeField] internal Button joinButton;
-        [SerializeField] internal GameObject lobbyView;
-        [SerializeField] internal GameObject roomView;
-        [SerializeField] RoomGUI roomGUI;
-        [SerializeField] ToggleGroup toggleGroup;
+        public GameObject matchList;
+        public GameObject matchPrefab;
+        public GameObject matchControllerPrefab;
+        public Button createButton;
+        public Button joinButton;
+        public GameObject lobbyView;
+        public GameObject roomView;
+        public RoomGUI roomGUI;
+        public ToggleGroup toggleGroup;
 
         #region UI Functions
 
