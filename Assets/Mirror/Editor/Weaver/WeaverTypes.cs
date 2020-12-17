@@ -125,9 +125,22 @@ namespace Mirror.Weaver
 
             registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
+            
             TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
-            logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogError");
-            logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, "LogWarning");
+            // these have multiple methods with same name, so need to check parameters too
+            logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, (md) =>
+            {
+                return md.Name == "LogError" &&
+                    md.Parameters.Count == 1 &&
+                    md.Parameters[0].ParameterType.FullName == typeof(object).FullName;
+            });
+            logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, (md) =>
+            {
+                return md.Name == "LogWarning" &&
+                    md.Parameters.Count == 1 &&
+                    md.Parameters[0].ParameterType.FullName == typeof(object).FullName;
+
+            });
 
             TypeReference typeType = Import(typeof(Type));
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
