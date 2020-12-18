@@ -86,17 +86,17 @@ Anything to add to this list? Please make a PR or ask in the discord.
   <summary>Host migration alternatives and work-around.</summary>
 
 Host migration as of writing is not built into Mirror, and it is best to avoid Host Migration completely if you can.
-Below are some tips as to why, and how you can add a host migation-like alternative.
+Below are some tips as to why, and how you can add a host migration-like alternative.
   - Dedicated hosts should rarely ever be closed (If you are doing games that need to stay open such as MMO's).
   - Short arena maps, take players back to the games list/matchmaker, so they can just join another, nice and simple.
 
-The work around is to basically fake the host migration, store info of a backup host on players game, upon disconnection, reconnect everyone in the game to that new host, then reset positions and variable data back to how it was before the original host dissappeared.
+The work around is to basically fake the host migration, store info of a backup host on players game, upon disconnection, reconnect everyone in the game to that new host, then restore positions and variable data back to how it was before the original host dissappeared.
 - Test players connections when they join, find one with unblocked ports, and decent ping/latency.
 - Send this players data (IP and Port) on all connected players games.
 - Save various player info, either locally or on that backup host, such as player positions, health etc
 - Upon disconnection from server, call a function to connect to the backup hoster StartClient( BackupIP - BackupPort ).
-- As the scenes will most likely reset,along with players respawning, you now need to set player position back to your stored one that was saved either via checkpoints, or in the disconnect detection callback.
-- Cover all this up with a UI, saying please wait.
+- As the scenes will most likely reset, along with players respawning, you now need to set player position back to your stored one that was saved either via checkpoints, or in the disconnect detection callback.
+- Cover all this up with a UI, saying please wait (optional, should happen in the blink of an eye).
 
 Depending on what your game is like, it'll either be easy or difficult to add the work-around.
 An example of these are:
