@@ -104,3 +104,22 @@ An example of these are:
 - (difficult) Forge of Empires, a game where created objects are placed, soldiers, vehicles, various other crafts and upgrades, all with their own levels/stats.
 
 </details>
+
+### Master / List Servers and Simple Matchmaker
+
+<details>
+  <summary>A database of world-wide registered host data.</summary>
+    
+    All the hosts, dedicated or player hosts, get added into a list database, players get the list and can chose who to join. Using a list server means players do not have to manually enter IP addresses or Ports, it is all done behind the scenes, and works for localhost, LAN, and WAN.
+    You can show as much or as little data as you like to players, such as host name, type (deathmatch), player count (45 / 50), ping, enemy difficulty, map, region etc
+    
+    - Mirror Listserver: Mirror squad manage and host this for you, you pay monthly subscription, but do not have to worry about setting up or maintaining it.
+    - Node ListServer: Free, but you host the files yourself on an unblocked PC, like a VPS.
+    Has a wide variety of customisable features, best option if you are using dedicated hosted games.
+    - Dark Reflective Mirror:  This is a list server and a relay, it is free, but you host and manage the files yourself.
+Relays offer an unblocked route of traffic, but at the cost of extra latency/increased ping. The relay will first test for a direct connection, so relayed traffic is optional (can be forced on).
+Best option for player hosted games, where router port blocks are common.
+    
+Simple Matchmaker
+- You can make matchmakers out of these list servers, simply hide the list to players, have them auto join a game with space. You could also filter out various requirements the player has set, for example, "USA" Region only, or "Lava Island" map.
+    </details>
