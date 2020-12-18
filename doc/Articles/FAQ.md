@@ -90,7 +90,7 @@ Below are some tips as to why, and how you can add a host migation-like alternat
   - Dedicated hosts should rarely ever be closed (If you are doing games that need to stay open such as MMO's).
   - Short arena maps, take players back to the games list/matchmaker, so they can just join another, nice and simple.
 
-The work around is to basically fake the host migration, store info of a backup host on players games, switch everyone in the game to this, reset all data back to how it was before the original host dissappeared.
+The work around is to basically fake the host migration, store info of a backup host on players game, upon disconnection, reconnect everyone in the game to that new host, then reset positions and variable data back to how it was before the original host dissappeared.
 - Test players connections when they join, find one with unblocked ports, and decent ping/latency.
 - Send this players data (IP and Port) on all connected players games.
 - Save various player info, either locally or on that backup host, such as player positions, health etc
@@ -98,7 +98,7 @@ The work around is to basically fake the host migration, store info of a backup 
 - As the scenes will most likely reset,along with players respawning, you now need to set player position back to your stored one that was saved either via checkpoints, or in the disconnect detection callback.
 - Cover all this up with a UI, saying please wait.
 
-Depending on what your game is like, it'l either be easy or difficult to add the work-around.
+Depending on what your game is like, it'll either be easy or difficult to add the work-around.
 An example of these are:
 - (easier) A game only needing player position data such as "Fall Guys".
 - (difficult) Forge of Empires, a game where created objects are placed, soldiers, vehicles, various other crafts and upgrades, all with their own levels/stats.
