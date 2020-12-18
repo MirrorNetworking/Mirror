@@ -4,7 +4,7 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
-## Version 30.2.1 -- 2020-Dec-17
+## Version 30.2.2 -- 2020-Dec-17
 - Added: Network Reader/Writer now does Read/WriteBlittable<T> for better performance.
 - Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.4.
 - Added: Network Authenticator now has OnStopServer and OnStopClient overrides.
