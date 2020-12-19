@@ -113,7 +113,7 @@ namespace Mirror
         /// <summary>
         /// Returns true if running as a client and this object was spawned by a server.
         /// </summary>
-        public bool IsClient => Client != null && Client.Active && NetId != 0 && !serverOnly;
+        public bool IsClient => Client != null && Client.Active && NetId != 0;
 
         /// <summary>
         /// Returns true if NetworkServer.active and server is not stopped.
@@ -156,12 +156,6 @@ namespace Mirror
         // persistent scene id <sceneHash/32,sceneId/32> (see AssignSceneID comments)
         [FormerlySerializedAs("m_SceneId"), HideInInspector]
         public ulong sceneId;
-
-        /// <summary>
-        /// Flag to make this object only exist when the game is running as a server (or host).
-        /// </summary>
-        [FormerlySerializedAs("m_ServerOnly")]
-        public bool serverOnly;
 
         /// <summary>
         /// The NetworkServer associated with this NetworkIdentity.

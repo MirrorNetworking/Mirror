@@ -424,9 +424,6 @@ namespace Mirror
 
         internal void SendSpawnMessage(NetworkIdentity identity, INetworkConnection conn)
         {
-            if (identity.serverOnly)
-                return;
-
             // for easier debugging
             if (logger.LogEnabled()) logger.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.NetId);
 
