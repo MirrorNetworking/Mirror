@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Mirror.RemoteCalls;
 using UnityEngine;
 
@@ -32,6 +33,7 @@ namespace Mirror
             {
                 server.Started.AddListener(SpawnOrActivate);
                 server.Authenticated.AddListener(OnAuthenticated);
+                server.Stopped.AddListener(OnServerStopped);
                 networkSceneManager.ServerChangeScene.AddListener(OnServerChangeScene);
                 networkSceneManager.ServerSceneChanged.AddListener(OnServerSceneChanged);
             }
@@ -79,6 +81,14 @@ namespace Mirror
         void OnAuthenticated(INetworkConnection connection)
         {
             RegisterMessageHandlers(connection);
+        }
+
+        void OnServerStopped()
+        {
+            foreach (NetworkIdentity obj in server.Spawned.Values.Reverse())
+            {
+                DestroyObject(obj, true);
+            }
         }
 
         void OnServerChangeScene(string scenePath, SceneOperation sceneOperation)

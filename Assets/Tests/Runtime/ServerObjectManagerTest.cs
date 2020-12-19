@@ -122,6 +122,22 @@ namespace Mirror.Tests
             // it should have been marked for reset now
             Assert.That(identity.NetId, Is.Zero);
         }
+
+        [UnityTest]
+        public IEnumerator DestroyAllSpawnedOnStopTest() => UniTask.ToCoroutine(async () =>
+        {
+            GameObject spawnTestObj = new GameObject("testObj", typeof(NetworkIdentity));
+            serverObjectManager.Spawn(spawnTestObj);
+
+            //1 is the player. should be 2 at this point
+            Assert.That(server.Spawned.Count, Is.GreaterThan(1));
+
+            server.Disconnect();
+
+            await AsyncUtil.WaitUntilWithTimeout(() => !server.Active);
+
+            Assert.That(server.Spawned.Count, Is.EqualTo(0));
+        });
     }
 
     public class ServerObjectManagerTest : ClientServerSetup<MockComponent>
