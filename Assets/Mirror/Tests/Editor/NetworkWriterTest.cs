@@ -1089,21 +1089,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ReadNetworkIdentityGivesWarningWhenNotFound()
-        {
-            const uint netId = 423;
-            NetworkWriter writer = new NetworkWriter();
-            writer.WriteUInt32(netId);
-            NetworkReader reader = new NetworkReader(writer.ToArray());
-
-            LogAssert.Expect(LogType.Warning, $"ReadNetworkIdentity netId:{netId} not found in spawned");
-            NetworkIdentity actual = reader.ReadNetworkIdentity();
-            Assert.That(actual, Is.Null);
-
-            Assert.That(reader.Position, Is.EqualTo(4), "should read 4 bytes");
-        }
-
-        [Test]
         public void ReadNetworkBehaviourGivesWarningWhenNotFound()
         {
             const uint netId = 424;

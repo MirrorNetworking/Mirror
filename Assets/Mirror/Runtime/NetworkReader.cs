@@ -186,7 +186,7 @@ namespace Mirror
     /// <summary>
     /// Built in Reader functions for Mirror
     /// <para>
-    ///     Weaver automatically decects all extension methods for NetworkWriter 
+    ///     Weaver automatically decects all extension methods for NetworkWriter
     /// </para>
     /// </summary>
     public static class NetworkReaderExtensions
@@ -302,7 +302,10 @@ namespace Mirror
                 return identity;
             }
 
-            if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkIdentity netId:{0} not found in spawned", netId);
+            // a netId not being in spawned is common.
+            // for example, "[SyncVar] NetworkIdentity target" netId would not
+            // be known on client if the monster walks out of proximity for a
+            // moment. no need to log any error or warning here.
             return null;
         }
 
@@ -363,7 +366,7 @@ namespace Mirror
             //  we write -1 for null
             if (length < 0)
                 return null;
-            
+
             // todo throw an exception for other negative values (we never write them, likely to be attacker)
 
             // this assumes that a reader for T reads atleast 1 bytes
