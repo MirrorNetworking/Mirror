@@ -186,7 +186,7 @@ namespace Mirror
     /// <summary>
     /// Built in Reader functions for Mirror
     /// <para>
-    ///     Weaver automatically decects all extension methods for NetworkWriter
+    ///     Weaver automatically detects all extension methods for NetworkWriter
     /// </para>
     /// </summary>
     public static class NetworkReaderExtensions
