@@ -323,7 +323,10 @@ namespace Mirror
                 return identity.NetworkBehaviours[componentIndex];
             }
 
-            if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkBehaviour netId:{0} not found in spawned", netId);
+            // a netId not being in spawned is common.
+            // for example, "[SyncVar] NetworkBehaviour target" netId would not
+            // be known on client if the monster walks out of proximity for a
+            // moment. no need to log any error or warning here.
             return null;
         }
 
