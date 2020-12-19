@@ -1,3 +1,18 @@
+# [60.0.0](https://github.com/MirrorNG/MirrorNG/compare/v59.2.1...v60.0.0) (2020-12-19)
+
+
+* remove serverOnly (#496) ([0ef5c33](https://github.com/MirrorNG/MirrorNG/commit/0ef5c33418bf1550d664ed942eede165752fca7e)), closes [#496](https://github.com/MirrorNG/MirrorNG/issues/496) [#389](https://github.com/MirrorNG/MirrorNG/issues/389) [#389](https://github.com/MirrorNG/MirrorNG/issues/389)
+
+
+### Bug Fixes
+
+* prevent DoS attacks with invalid array length ([#500](https://github.com/MirrorNG/MirrorNG/issues/500)) ([78e6077](https://github.com/MirrorNG/MirrorNG/commit/78e60777fae6ba63e34406b75ccfe074363ed593))
+
+
+### BREAKING CHANGES
+
+* Remove serverOnly option in NetworkIdentity
+
 ## [59.2.1](https://github.com/MirrorNG/MirrorNG/compare/v59.2.0...v59.2.1) (2020-11-30)
 
 
