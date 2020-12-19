@@ -318,13 +318,13 @@ namespace Mirror
             // if netId is not 0, then index is also sent to read before returning
             byte componentIndex = reader.ReadByte();
 
-            if (!NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
             {
-                if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkBehaviour netId:{0} not found in spawned", netId);
-                return null;
+                return identity.NetworkBehaviours[componentIndex];
             }
 
-            return identity.NetworkBehaviours[componentIndex];
+            if (logger.WarnEnabled()) logger.LogFormat(LogType.Warning, "ReadNetworkBehaviour netId:{0} not found in spawned", netId);
+            return null;
         }
 
         public static T ReadNetworkBehaviour<T>(this NetworkReader reader) where T : NetworkBehaviour
