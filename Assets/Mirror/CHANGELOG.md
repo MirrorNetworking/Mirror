@@ -1,3 +1,10 @@
+## [60.0.1](https://github.com/MirrorNG/MirrorNG/compare/v60.0.0...v60.0.1) (2020-12-19)
+
+
+### Bug Fixes
+
+* network objects not destroyed on server stop ([#468](https://github.com/MirrorNG/MirrorNG/issues/468)) ([abf5f2f](https://github.com/MirrorNG/MirrorNG/commit/abf5f2f4fb4375c7fece06d3e11ce79408ac9666))
+
 # [60.0.0](https://github.com/MirrorNG/MirrorNG/compare/v59.2.1...v60.0.0) (2020-12-19)
 
 
