@@ -109,6 +109,7 @@ An example of these are:
 
 <details>
   <summary>A database of world-wide registered host data.</summary>
+    
 All the hosts, dedicated or player hosts, get added into a list database, players get the list and can choose who to join.
 Using a list server means players do not have to manually enter IP addresses and Ports, it is all done behind the scenes, and works for localhost, LAN, and WAN connection types.
 You can show as much, or as little data as you like to the players, such as host name, type (deathmatch), player count (45 / 50), ping, enemy difficulty, map, region etc
