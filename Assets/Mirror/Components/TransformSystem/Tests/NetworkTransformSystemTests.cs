@@ -4,7 +4,7 @@ using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.PositionSyncing.Tests
+namespace Mirror.TransformSyncing.Tests
 {
     public class NetworkTransformSystemTests
     {

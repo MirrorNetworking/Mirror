@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Mirror.PositionSyncing
+namespace Mirror.TransformSyncing
 {
     public static class LogHelper
     {

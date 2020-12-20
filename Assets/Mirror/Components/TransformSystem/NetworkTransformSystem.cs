@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Mirror.PositionSyncing
+namespace Mirror.TransformSyncing
 {
     public class NetworkTransformSystem : MonoBehaviour
     {
