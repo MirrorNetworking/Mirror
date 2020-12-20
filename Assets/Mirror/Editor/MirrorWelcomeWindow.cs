@@ -99,28 +99,57 @@ public class MirrorWelcomeWindow : EditorWindow
 
     #endregion
 
-    //path to the version of mirror
-    private static string versionPath = "Assets/Mirror/Version.txt";
-    //path to the mirror icon
-    private static string mirrorIconPath = "Assets/Mirror/Icon/MirrorIcon.png";
-
-    //get the key
-    private static string firstStartUpKey
-    {
-        get
+    //returns the path to the Mirror folder (ex. Assets/Mirror)
+    private static string mirrorPath 
+    { 
+        get 
         {
-            //read version from text file
-            if (!File.Exists(versionPath))
-            {
-                return "Mirror" + "Unknown";
-            }    
+            //get an array of results based on the search
+            string[] results = AssetDatabase.FindAssets("Version", new string[] { "Assets" });
 
-            StreamReader sr = new StreamReader(versionPath);
-            string version = sr.ReadLine();
-            sr.Close();
-            return "Mirror" + version;
-        }
+            //loop through every result
+            foreach (string guid in results)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                //if the path contains Mirror/Version.txt, then we have found the Mirror folder
+                if (path.Contains("Mirror/Version.txt"))
+                {
+                    return path.Remove(path.IndexOf("/Version.txt"));
+                }
+            }
+
+            //return nothing if path wasn't found
+            return "";
+        } 
+    } 
+
+    //path to the mirror icon
+    private static string mirrorIconPath = string.Empty;
+
+    //get the start up key
+    private static string firstStartUpKey = string.Empty;
+
+    #region Use methods to prevent constant searching for assets
+
+    //called only once
+    private static string GetStartUpKey()
+    {
+        //if the path is empty, return unknown mirror version
+        if (mirrorPath == "") { return "MirrorUnknown"; }
+
+        //read the Version.txt file
+        StreamReader sr = new StreamReader(mirrorPath + "/Version.txt");
+        string version = sr.ReadLine();
+        sr.Close();
+        return "Mirror" + version;
     }
+
+    private static string GetMirrorIconPath()
+    {
+        return mirrorPath + "/Icon/MirrorIcon.png";
+    }
+
+    #endregion
 
     //get the icon
     private static Texture2D mirrorIcon
@@ -163,6 +192,7 @@ public class MirrorWelcomeWindow : EditorWindow
     {
         //if we haven't seen the welcome page on the current mirror version, show it
         //if there is no version, skip this
+        firstStartUpKey = GetStartUpKey();
         if(EditorPrefs.GetBool(firstStartUpKey, false) == false && firstStartUpKey != "MirrorUnknown")
         {
             OpenWindow();
@@ -177,7 +207,7 @@ public class MirrorWelcomeWindow : EditorWindow
     [MenuItem("Mirror/Welcome")]
     public static void OpenWindow()
     {
-        //changelogDescription = GetChangeLog();
+        mirrorIconPath = GetMirrorIconPath();
 
         //create the window
         MirrorWelcomeWindow window = GetWindow<MirrorWelcomeWindow>("Mirror Welcome Page");
