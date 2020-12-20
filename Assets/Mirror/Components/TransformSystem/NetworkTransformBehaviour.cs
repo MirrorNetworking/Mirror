@@ -3,18 +3,19 @@ using UnityEngine;
 
 namespace Mirror.TransformSyncing
 {
-    public class NetworkTransformBehaviour : NetworkBehaviour, IHasPosition
+    public class NetworkTransformBehaviour : NetworkBehaviour, IHasPositionRotation
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkTransformBehaviour>(LogType.Error);
 
         bool _needsUpdate;
         float _nextSyncInterval;
 
-        Vector3 IHasPosition.Position => target.localPosition;
-        uint IHasPosition.Id => netId;
+        PositionRotation IHasPositionRotation.PositionRotation => new PositionRotation(target.localPosition, target.localRotation);
+
+        uint IHasPositionRotation.Id => netId;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool IHasPosition.NeedsUpdate(float now)
+        bool IHasPositionRotation.NeedsUpdate(float now)
         {
             if (_needsUpdate && now > _nextSyncInterval)
             {
@@ -27,26 +28,30 @@ namespace Mirror.TransformSyncing
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void IHasPosition.ClearNeedsUpdate()
+        void IHasPositionRotation.ClearNeedsUpdate()
         {
             _needsUpdate = false;
         }
 
-        void IHasPosition.SetPositionClient(Vector3 position)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void IHasPositionRotation.ApplyOnClient(PositionRotation values)
         {
             if (!IsClientWithAuthority)
             {
-                DeserializeFromReader(position);
+                DeserializeFromReader(values);
             }
         }
 
-        void IHasPosition.SetPositionServer(Vector3 position)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void IHasPositionRotation.ApplyOnServer(PositionRotation values)
         {
-            target.localPosition = position;
+            target.localPosition = values.position;
+            target.localRotation = values.rotation;
             _needsUpdate = true;
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SendMessageToServer()
         {
             connectionToServer.Send(new NetworkPositionSingleMessage
@@ -117,14 +122,26 @@ namespace Mirror.TransformSyncing
         {
             public readonly bool isValid;
             public readonly float timeStamp;
-            public readonly Vector3 localPosition;
+            public readonly Vector3 position;
+            public readonly Quaternion rotation;
             public readonly float movementSpeed;
 
-            public DataPoint(float timeStamp, Vector3 localPosition, float movementSpeed)
+            public DataPoint(float timeStamp, Vector3 position, Quaternion rotation, float movementSpeed)
             {
                 isValid = true;
                 this.timeStamp = timeStamp;
-                this.localPosition = localPosition;
+                this.position = position;
+                this.rotation = rotation;
+
+                this.movementSpeed = movementSpeed;
+            }
+            public DataPoint(float timeStamp, PositionRotation positionRotation, float movementSpeed)
+            {
+                isValid = true;
+                this.timeStamp = timeStamp;
+                position = positionRotation.position;
+                rotation = positionRotation.rotation;
+
                 this.movementSpeed = movementSpeed;
             }
         }
@@ -135,67 +152,38 @@ namespace Mirror.TransformSyncing
         // local authority send time
         float lastClientSendTime;
 
-        //public override bool OnSerialize(NetworkWriter writer, bool initialState)
-        //{
-        //    // no syncvars because no base called
-        //    writer.WriteVector3(target.localPosition);
-        //    return true;
-        //}
-
-        // try to estimate movement speed for a data point based on how far it
-        // moved since the previous one
-        // => if this is the first time ever then we use our best guess:
-        //    -> delta based on target.localPosition
-        //    -> elapsed based on send interval hoping that it roughly matches
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float EstimateMovementSpeed(DataPoint from, float toTime, Vector3 toPosition)
-        {
-            float elapsed = GetTimeElapsed(from, toTime);
-            // stop NaN error
-            if (elapsed <= 0)
-            {
-                return 0;
-            }
-
-            Vector3 fromPosition = from.isValid
-                ? from.localPosition
-                : target.localPosition;
-
-            Vector3 delta = toPosition - fromPosition;
-            return delta.magnitude / elapsed;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float GetTimeElapsed(DataPoint from, float toTime)
-        {
-            return from.isValid
-                ? toTime - from.timeStamp
-                : syncInterval;
-        }
-
         // serialization is needed by OnSerialize and by manual sending from authority
-        void DeserializeFromReader(Vector3 localPosition)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void DeserializeFromReader(PositionRotation positionRotation)
         {
-            DataPoint _oldStart = start;
-            DataPoint _oldGoal = goal;
+            (DataPoint newStart, DataPoint newGoal) = CalculateGoals(positionRotation, start, goal, target, syncInterval);
+            start = newStart;
+            goal = newGoal;
+        }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static (DataPoint newStart, DataPoint newGoal) CalculateGoals(PositionRotation positionRotation, DataPoint oldStart, DataPoint oldGoal, Transform target, float syncInterval)
+        {
             float now = Time.time;
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
-            float movementSpeed = EstimateMovementSpeed(goal, now, localPosition);
+            float movementSpeed = EstimateMovementSpeed(oldGoal, now, positionRotation.position, target, syncInterval);
 
             // put it into a data point immediately
-            DataPoint newGoal = new DataPoint(now, localPosition, movementSpeed);
+            DataPoint newGoal = new DataPoint(now, positionRotation, movementSpeed);
 
             // reassign start wisely
             // -> first ever data point? then make something up for previous one
             //    so that we can start interpolation without waiting for next.
-            if (!start.isValid)
+            if (!oldStart.isValid)
             {
-                start = new DataPoint(
+                DataPoint newStart = new DataPoint(
                     now - syncInterval,
                     target.localPosition,
+                    target.localRotation,
                     newGoal.movementSpeed);
+
+                return (newStart, newGoal);
             }
             // -> second or nth data point? then update previous, but:
             //    we start at where ever we are right now, so that it's
@@ -228,23 +216,64 @@ namespace Mirror.TransformSyncing
             //
             else
             {
-                float oldDistance = Vector3.Distance(start.localPosition, goal.localPosition);
-                float newDistance = Vector3.Distance(goal.localPosition, newGoal.localPosition);
+                float oldDistance = Vector3.Distance(oldStart.position, oldGoal.position);
+                float newDistance = Vector3.Distance(oldGoal.position, newGoal.position);
 
                 // teleport / lag / obstacle detection: only continue at current
                 // position if we aren't too far away
-                Vector3 startPos = Vector3.Distance(target.localPosition, start.localPosition) < oldDistance + newDistance
-                    ? target.localPosition
-                    : goal.localPosition;
+                bool tooFar = Vector3.Distance(target.localPosition, oldStart.position) < oldDistance + newDistance;
+                Vector3 startPos;
+                Quaternion startRot;
+                if (tooFar)
+                {
+                    startPos = target.localPosition;
+                    startRot = target.localRotation;
+                }
+                else
+                {
+                    startPos = oldGoal.position;
+                    startRot = oldGoal.rotation;
+                }
 
-                start = new DataPoint(
-                    goal.timeStamp,
-                    startPos,
-                    goal.movementSpeed);
+                DataPoint newStart = new DataPoint(
+                        oldGoal.timeStamp,
+                        startPos,
+                        startRot,
+                        oldGoal.movementSpeed);
+
+                return (newStart, newGoal);
+            }
+        }
+
+        // try to estimate movement speed for a data point based on how far it
+        // moved since the previous one
+        // => if this is the first time ever then we use our best guess:
+        //    -> delta based on target.localPosition
+        //    -> elapsed based on send interval hoping that it roughly matches
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static float EstimateMovementSpeed(DataPoint from, float toTime, Vector3 toPosition, Transform target, float syncInterval)
+        {
+            float elapsed = GetTimeElapsed(from, toTime, syncInterval);
+            // stop NaN error
+            if (elapsed <= 0)
+            {
+                return 0;
             }
 
-            // set new destination in any case. new data is best data.
-            goal = newGoal;
+            Vector3 fromPosition = from.isValid
+                ? from.position
+                : target.localPosition;
+
+            Vector3 delta = toPosition - fromPosition;
+            return delta.magnitude / elapsed;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static float GetTimeElapsed(DataPoint from, float toTime, float syncInterval)
+        {
+            return from.isValid
+                ? toTime - from.timeStamp
+                : syncInterval;
         }
 
         static Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
@@ -261,7 +290,7 @@ namespace Mirror.TransformSyncing
                 // -> speed is 0 if we just started after idle, so always use max
                 //    for best results
                 float speed = Mathf.Max(start.movementSpeed, goal.movementSpeed);
-                return Vector3.MoveTowards(currentPosition, goal.localPosition, speed * Time.deltaTime);
+                return Vector3.MoveTowards(currentPosition, goal.position, speed * Time.deltaTime);
             }
             return currentPosition;
         }
@@ -350,7 +379,7 @@ namespace Mirror.TransformSyncing
                     {
 
                         // local position/rotation for VR support
-                        ApplyPosition(goal.localPosition);
+                        ApplyPosition(goal.position);
 
                         // reset data points so we don't keep interpolating
                         start = default;
@@ -442,22 +471,22 @@ namespace Mirror.TransformSyncing
 
             // draw position
             Gizmos.color = color;
-            Gizmos.DrawSphere(data.localPosition + offset, 0.5f);
+            Gizmos.DrawSphere(data.position + offset, 0.5f);
 
             // draw forward and up
             // like unity move tool
             Gizmos.color = Color.blue;
-            Gizmos.DrawRay(data.localPosition + offset, Vector3.forward);
+            Gizmos.DrawRay(data.position + offset, Vector3.forward);
 
             // like unity move tool
             Gizmos.color = Color.green;
-            Gizmos.DrawRay(data.localPosition + offset, Vector3.up);
+            Gizmos.DrawRay(data.position + offset, Vector3.up);
         }
 
         static void DrawLineBetweenDataPoints(DataPoint data1, DataPoint data2, Color color)
         {
             Gizmos.color = color;
-            Gizmos.DrawLine(data1.localPosition, data2.localPosition);
+            Gizmos.DrawLine(data1.position, data2.position);
         }
 
         // draw the data points for easier debugging

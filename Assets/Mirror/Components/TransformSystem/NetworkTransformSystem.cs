@@ -13,16 +13,16 @@ namespace Mirror.TransformSyncing
 
         public static NetworkTransformSystem Instance { get; private set; }
 
-        readonly Dictionary<uint, IHasPosition> _behaviours = new Dictionary<uint, IHasPosition>();
+        readonly Dictionary<uint, IHasPositionRotation> _behaviours = new Dictionary<uint, IHasPositionRotation>();
 
-        public IReadOnlyCollection<KeyValuePair<uint, IHasPosition>> Behaviours => _behaviours;
+        public IReadOnlyCollection<KeyValuePair<uint, IHasPositionRotation>> Behaviours => _behaviours;
 
-        public void AddBehaviour(IHasPosition behaviour)
+        public void AddBehaviour(IHasPositionRotation behaviour)
         {
             _behaviours.Add(behaviour.Id, behaviour);
         }
 
-        public void RemoveBehaviour(IHasPosition behaviour)
+        public void RemoveBehaviour(IHasPositionRotation behaviour)
         {
             _behaviours.Remove(behaviour.Id);
         }
@@ -148,25 +148,27 @@ namespace Mirror.TransformSyncing
             float now = Time.time;
 
 
-            foreach (KeyValuePair<uint, IHasPosition> kvp in _behaviours)
+            foreach (KeyValuePair<uint, IHasPositionRotation> kvp in _behaviours)
             {
-                IHasPosition behaviour = kvp.Value;
+                IHasPositionRotation behaviour = kvp.Value;
                 if (!behaviour.NeedsUpdate(now))
                     continue;
 
                 uint id = kvp.Key;
-                Vector3 position = behaviour.Position;
+                PositionRotation posRot = behaviour.PositionRotation;
 
                 PackedWriter.WritePacked(writer, id);
 
                 if (compressPosition)
                 {
-                    compression.Compress(writer, position);
+                    compression.Compress(writer, posRot.position);
                 }
                 else
                 {
-                    writer.WriteVector3(position);
+                    writer.WriteVector3(posRot.position);
                 }
+
+                writer.WriteBlittable(Compression.CompressQuaternion(posRot.rotation));
 
                 behaviour.ClearNeedsUpdate();
             }
@@ -190,10 +192,11 @@ namespace Mirror.TransformSyncing
         {
             uint id = msg.id;
             Vector3 position = msg.position;
+            Quaternion rotation = Compression.DecompressQuaternion(msg.compressedRotation);
 
-            if (_behaviours.TryGetValue(id, out IHasPosition behaviour))
+            if (_behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
             {
-                behaviour.SetPositionServer(position);
+                behaviour.ApplyOnServer(new PositionRotation(position, rotation));
             }
         }
 
@@ -210,9 +213,11 @@ namespace Mirror.TransformSyncing
                         ? compression.Decompress(reader)
                         : reader.ReadVector3();
 
-                    if (_behaviours.TryGetValue(id, out IHasPosition behaviour))
+                    Quaternion rotation = Compression.DecompressQuaternion(reader.ReadBlittable<uint>());
+
+                    if (_behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
                     {
-                        behaviour.SetPositionClient(position);
+                        behaviour.ApplyOnClient(new PositionRotation(position, rotation));
                     }
                 }
                 Debug.Assert(reader.Position == count, "should have read exact amount");
@@ -313,13 +318,13 @@ namespace Mirror.TransformSyncing
             throw new DataMisalignedException("ReadPacked() failure: " + a0);
         }
     }
-    public interface IHasPosition
+    public interface IHasPositionRotation
     {
         /// <summary>
-        /// Position of object
+        /// Position and rotation of object
         /// <para>Could be localposition or world position writer doesn't care</para>
         /// </summary>
-        Vector3 Position { get; }
+        PositionRotation PositionRotation { get; }
 
         /// <summary>
         /// Normally NetId, but could be a 
@@ -329,9 +334,33 @@ namespace Mirror.TransformSyncing
         bool NeedsUpdate(float now);
         void ClearNeedsUpdate();
 
-        void SetPositionServer(Vector3 position);
-        void SetPositionClient(Vector3 position);
+        /// <summary>
+        /// Applies position and rotation on server
+        /// </summary>
+        /// <param name="values"></param>
+        void ApplyOnServer(PositionRotation values);
+
+        /// <summary>
+        /// Applies position and rotation on server
+        /// <para>this should apply interoperation so it looks smooth to the user</para>
+        /// </summary>
+        /// <param name="values"></param>
+        void ApplyOnClient(PositionRotation values);
     }
+
+    public struct PositionRotation
+    {
+        public readonly Vector3 position;
+
+        public readonly Quaternion rotation;
+
+        public PositionRotation(Vector3 position, Quaternion rotation)
+        {
+            this.position = position;
+            this.rotation = rotation;
+        }
+    }
+
     public struct NetworkPositionMessage : NetworkMessage
     {
         public ArraySegment<byte> bytes;
@@ -340,6 +369,7 @@ namespace Mirror.TransformSyncing
     {
         public uint id;
         public Vector3 position;
+        public uint compressedRotation;
     }
     public static class PositionMessageWriter
     {

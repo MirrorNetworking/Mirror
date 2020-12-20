@@ -20,13 +20,13 @@ namespace Mirror.TransformSyncing.Tests
 
         [Test]
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
-        public void CanSynOneObject(Vector3 min, Vector3 max, float precision, Vector3 inValue)
+        public void CanSynOneObjectPosition(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
             NetworkTransformSystem system = new NetworkTransformSystem();
             system.compression = new PositionCompression(min, max, precision);
 
-            IHasPosition hasPos = Substitute.For<IHasPosition>();
-            hasPos.Position.Returns(inValue);
+            IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
+            hasPos.PositionRotation.Returns(new PositionRotation(inValue, Quaternion.identity));
             hasPos.Id.Returns(1u);
             hasPos.NeedsUpdate(Arg.Any<float>()).Returns(true);
 
@@ -38,27 +38,27 @@ namespace Mirror.TransformSyncing.Tests
                 msg = system.CreateSendToAllMessage(writer);
             }
 
-            int countPerObject = 1 + Mathf.CeilToInt(system.compression.bitCount / 8f);
-            Assert.That(msg.bytes.Count, Is.EqualTo(countPerObject));
+            int bytesPerObject = 1 + Mathf.CeilToInt(system.compression.bitCount / 8f) + 4;
+            Assert.That(msg.bytes.Count, Is.EqualTo(bytesPerObject));
 
             system.ClientHandleNetworkPositionMessage(null, msg);
 
-            hasPos.Received(1).SetPositionClient(Arg.Is<Vector3>(v => Vector3AlmostEqual(v, inValue, precision)));
+            hasPos.Received(1).ApplyOnClient(Arg.Is<PositionRotation>(v => Vector3AlmostEqual(v.position, inValue, precision)));
         }
 
 
         [Test]
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
-        public void CanSyncFiveObject(Vector3 min, Vector3 max, float precision, Vector3 inValue)
+        public void CanSyncFiveObjectPosition(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
             NetworkTransformSystem system = new NetworkTransformSystem();
             system.compression = new PositionCompression(min, max, precision);
 
-            List<IHasPosition> hasPoss = new List<IHasPosition>();
+            List<IHasPositionRotation> hasPoss = new List<IHasPositionRotation>();
             for (int i = 0; i < 5; i++)
             {
-                IHasPosition hasPos = Substitute.For<IHasPosition>();
-                hasPos.Position.Returns(inValue);
+                IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
+                hasPos.PositionRotation.Returns(new PositionRotation(inValue, Quaternion.identity));
                 hasPos.Id.Returns((uint)(i + 1));
                 hasPos.NeedsUpdate(Arg.Any<float>()).Returns(true);
 
@@ -72,15 +72,15 @@ namespace Mirror.TransformSyncing.Tests
                 msg = system.CreateSendToAllMessage(writer);
             }
 
-            int countPerObject = 1 + Mathf.CeilToInt(system.compression.bitCount / 8f);
-            Assert.That(msg.bytes.Count, Is.EqualTo(countPerObject * 5));
+            int bytesPerObject = 1 + Mathf.CeilToInt(system.compression.bitCount / 8f) + 4;
+            Assert.That(msg.bytes.Count, Is.EqualTo(bytesPerObject * 5));
 
             system.ClientHandleNetworkPositionMessage(null, msg);
 
             for (int i = 0; i < 5; i++)
             {
-                IHasPosition hasPos = hasPoss[i];
-                hasPos.Received(1).SetPositionClient(Arg.Is<Vector3>(v => Vector3AlmostEqual(v, inValue, precision)));
+                IHasPositionRotation hasPos = hasPoss[i];
+                hasPos.Received(1).ApplyOnClient(Arg.Is<PositionRotation>(v => Vector3AlmostEqual(v.position, inValue, precision)));
             }
         }
 
