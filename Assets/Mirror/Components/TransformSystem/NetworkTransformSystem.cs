@@ -167,6 +167,8 @@ namespace Mirror.TransformSyncing
                 {
                     writer.WriteVector3(position);
                 }
+
+                behaviour.ClearNeedsUpdate();
             }
 
             msg = new NetworkPositionMessage
@@ -274,6 +276,7 @@ namespace Mirror.TransformSyncing
                 return;
             }
         }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ReadPacked(NetworkReader reader)
         {
@@ -323,8 +326,8 @@ namespace Mirror.TransformSyncing
         /// </summary>
         uint Id { get; }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool NeedsUpdate(float now);
+        void ClearNeedsUpdate();
 
         void SetPositionServer(Vector3 position);
         void SetPositionClient(Vector3 position);
@@ -340,23 +343,6 @@ namespace Mirror.TransformSyncing
     }
     public static class PositionMessageWriter
     {
-        //public static void WritePositionMessage(this NetworkWriter writer, NetworkPositionMessage msg)
-        //{
-        //    int count = msg.bytes.Count;
-        //    writer.WriteUInt16((ushort)count);
-        //    writer.WriteBytes(msg.bytes.Array, msg.bytes.Offset, count);
-        //}
-        //public static NetworkPositionMessage ReadPositionMessage(this NetworkReader reader)
-        //{
-        //    ushort count = reader.ReadUInt16();
-        //    ArraySegment<byte> bytes = reader.ReadBytesSegment(count);
-
-        //    return new NetworkPositionMessage
-        //    {
-        //        bytes = bytes
-        //    };
-        //}
-
         public static void WriteNetworkPositionSingleMessage(this NetworkWriter writer, NetworkPositionSingleMessage msg)
         {
             PackedWriter.WritePacked(writer, msg.id);
@@ -372,7 +358,7 @@ namespace Mirror.TransformSyncing
             return new NetworkPositionSingleMessage
             {
                 id = id,
-                position = pos
+                position = pos,
             };
         }
     }

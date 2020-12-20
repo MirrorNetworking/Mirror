@@ -5,18 +5,20 @@ namespace Mirror.TransformSyncing
 {
     public class NetworkTransformBehaviour : NetworkBehaviour, IHasPosition
     {
-        Vector3 IHasPosition.Position => target.position;
-        uint IHasPosition.Id => netId;
+        static readonly ILogger logger = LogFactory.GetLogger<NetworkTransformBehaviour>(LogType.Error);
 
         bool _needsUpdate;
         float _nextSyncInterval;
+
+        Vector3 IHasPosition.Position => target.localPosition;
+        uint IHasPosition.Id => netId;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool NeedsUpdate(float now)
+        bool IHasPosition.NeedsUpdate(float now)
         {
             if (_needsUpdate && now > _nextSyncInterval)
             {
                 _nextSyncInterval = now + syncInterval;
-                _needsUpdate = false;
                 return true;
             }
             else
@@ -24,10 +26,18 @@ namespace Mirror.TransformSyncing
                 return false;
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void IHasPosition.ClearNeedsUpdate()
+        {
+            _needsUpdate = false;
+        }
 
         void IHasPosition.SetPositionClient(Vector3 position)
         {
-            if (!IsClientWithAuthority) { DeserializeFromReader(position); }
+            if (!IsClientWithAuthority)
+            {
+                DeserializeFromReader(position);
+            }
         }
 
         void IHasPosition.SetPositionServer(Vector3 position)
@@ -35,6 +45,17 @@ namespace Mirror.TransformSyncing
             target.localPosition = position;
             _needsUpdate = true;
         }
+
+
+        void SendMessageToServer()
+        {
+            connectionToServer.Send(new NetworkPositionSingleMessage
+            {
+                id = netId,
+                position = target.localPosition,
+            });
+        }
+
 
         public Transform target;
 
@@ -171,7 +192,6 @@ namespace Mirror.TransformSyncing
             //    so that we can start interpolation without waiting for next.
             if (!start.isValid)
             {
-                Debug.Log($"Start Time {now - syncInterval}");
                 start = new DataPoint(
                     now - syncInterval,
                     target.localPosition,
@@ -259,11 +279,7 @@ namespace Mirror.TransformSyncing
             float goalTime = goal.isValid ? goal.timeStamp : Time.time;
             float difference = goalTime - startTime;
             float timeSinceGoalReceived = Time.time - goalTime;
-            bool need = timeSinceGoalReceived > difference * 5;
-
-            if (need)
-                Debug.LogWarning($"Needs Teleport start{startTime} goal{goalTime}");
-            return need;
+            return timeSinceGoalReceived > difference * 5;
         }
 
         /// <summary>
@@ -315,11 +331,7 @@ namespace Mirror.TransformSyncing
                 {
                     if (HasMoved())
                     {
-                        connectionToServer.Send(new NetworkPositionSingleMessage
-                        {
-                            id = netId,
-                            position = target.position
-                        });
+                        SendMessageToServer();
                     }
                     lastClientSendTime = Time.time;
                 }
