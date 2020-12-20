@@ -7,6 +7,7 @@ using Mirror;
 
 namespace kcp2k
 {
+    [DisallowMultipleComponent]
     public class KcpTransport : Transport
     {
         // scheme used by this transport

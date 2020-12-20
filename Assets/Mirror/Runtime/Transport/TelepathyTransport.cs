@@ -9,6 +9,7 @@ using UnityEngine.Serialization;
 namespace Mirror
 {
     [HelpURL("https://github.com/vis2k/Telepathy/blob/master/README.md")]
+    [DisallowMultipleComponent]
     public class TelepathyTransport : Transport
     {
         // scheme used by this transport
