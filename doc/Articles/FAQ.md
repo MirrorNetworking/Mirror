@@ -109,11 +109,9 @@ An example of these are:
 
 <details>
   <summary>A database of world-wide registered host data.</summary>
-    
     All the hosts, dedicated or player hosts, get added into a list database, players get the list and can choose who to join.
     Using a list server means players do not have to manually enter IP addresses and Ports, it is all done behind the scenes, and works for localhost, LAN, and WAN connection types.
     You can show as much, or as little data as you like to the players, such as host name, type (deathmatch), player count (45 / 50), ping, enemy difficulty, map, region etc
-    
     - Mirror Listserver: Mirror squad manage and host this for you, you pay monthly subscription, but do not have to worry about setting up or maintaining it.
     - Node ListServer: Free, but you host the files yourself on an unblocked PC, like a VPS.
     Has a wide variety of customisable features, best option if you are using dedicated hosted games.
