@@ -72,7 +72,7 @@ public class MirrorWelcomeWindow : EditorWindow
     private static string quickStartDescription = "The Quick Start Guide is meant for people who just started using Mirror. The Quick Start Guide will help new users learn how to accomplish important tasks. It is highly recommended that you complete the guide.";
     private static string bestPracticesDescription = "This page describes the best practices that you should use during development. Currently a work in progress.";
     private static string templatesDescription = "Script templates make it easier to create derived class scripts that inherit from our base classes. The templates have all the possible overrides made for you and organized with comments describing functionality.";
-    private static string faqDescription = "The FAQ page holds commonly asked questions. Currently, the FAQ page contains answers to: \n\n   1. Syncing custom data types \n   2. How to connect";
+    private static string faqDescription = "The FAQ page holds commonly asked questions. Currently, the FAQ page contains answers to: \n\n   1. Syncing custom data types \n   2. How to connect \n   3. Host migration \n   4. Server lists and matchmaking";
     private static string sponsorDescription = "Sponsoring will give you access to Mirror PRO which gives you special access to tools and priority support.";
 
     //titles of the redirect buttons
@@ -135,7 +135,7 @@ public class MirrorWelcomeWindow : EditorWindow
     private static string GetStartUpKey()
     {
         //if the file doesnt exist, return unknown mirror version
-        if (File.Exists(mirrorPath + "/Version.txt")) { return "MirrorUnknown"; }
+        if (!File.Exists(mirrorPath + "/Version.txt")) { return "MirrorUnknown"; }
 
         //read the Version.txt file
         StreamReader sr = new StreamReader(mirrorPath + "/Version.txt");
