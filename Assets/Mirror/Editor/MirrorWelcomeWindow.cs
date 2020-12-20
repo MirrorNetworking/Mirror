@@ -134,8 +134,8 @@ public class MirrorWelcomeWindow : EditorWindow
     //called only once
     private static string GetStartUpKey()
     {
-        //if the path is empty, return unknown mirror version
-        if (mirrorPath == "") { return "MirrorUnknown"; }
+        //if the file doesnt exist, return unknown mirror version
+        if (File.Exists(mirrorPath + "/Version.txt")) { return "MirrorUnknown"; }
 
         //read the Version.txt file
         StreamReader sr = new StreamReader(mirrorPath + "/Version.txt");
