@@ -6,7 +6,7 @@
     "com.unity.ide.vscode": "1.2.3",
     "com.unity.test-framework": "1.1.20",
     "com.unity.test-framework.performance": "2.4.1-preview",
-    "com.unity.testtools.codecoverage": "0.3.1-preview",
+    "com.unity.testtools.codecoverage": "0.4.0-preview",
     "com.unity.ugui": "1.0.0",
     "nuget.mono-cecil": "0.1.6-preview",
     "com.unity.modules.ai": "1.0.0",
