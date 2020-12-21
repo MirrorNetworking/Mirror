@@ -4,7 +4,7 @@
     "com.unity.ext.nunit": "1.0.5",
     "com.unity.ide.visualstudio": "2.0.5",
     "com.unity.ide.vscode": "1.2.3",
-    "com.unity.test-framework": "1.1.19",
+    "com.unity.test-framework": "1.1.20",
     "com.unity.test-framework.performance": "2.3.1-preview",
     "com.unity.testtools.codecoverage": "0.3.1-preview",
     "com.unity.ugui": "1.0.0",
