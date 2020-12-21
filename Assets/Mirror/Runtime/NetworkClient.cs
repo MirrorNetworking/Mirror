@@ -193,13 +193,6 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// client that received the message
-        /// </summary>
-        /// <remarks>This is a hack, but it is needed to deserialize
-        /// gameobjects when processing the message</remarks>
-        internal static NetworkClient Current { get; set; }
-
         async UniTaskVoid OnConnected()
         {
             // reset network time stats

@@ -45,6 +45,16 @@ namespace Mirror
         public int Position;
         public int Length => buffer.Count;
 
+        /// <summary>
+        /// The network client that created this reader. May be null
+        /// </summary>
+        public NetworkClient Client { get; internal set; }
+
+        /// <summary>
+        /// The Network Server that created this reader. May be null
+        /// </summary>
+        public NetworkServer Server { get; internal set; }
+
         public NetworkReader(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);
@@ -383,14 +393,14 @@ namespace Mirror
             if (netId == 0)
                 return null;
 
-            if (NetworkClient.Current != null)
+            if (reader.Client != null)
             {
-                NetworkClient.Current.Spawned.TryGetValue(netId, out NetworkIdentity identity);
+                reader.Client.Spawned.TryGetValue(netId, out NetworkIdentity identity);
                 return identity;
             }
-            else if (NetworkServer.Current != null)
+            else if (reader.Server != null)
             {
-                NetworkServer.Current.Spawned.TryGetValue(netId, out NetworkIdentity identity);
+                reader.Server.Spawned.TryGetValue(netId, out NetworkIdentity identity);
                 return identity;
             }
 

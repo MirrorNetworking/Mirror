@@ -22,12 +22,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void CurrentTest()
-        {
-            Assert.That(NetworkClient.Current == null);
-        }
-
-        [Test]
         public void GetNewConnectionTest()
         {
             Assert.That(client.GetNewConnection(Substitute.For<IConnection>()), Is.Not.Null);
