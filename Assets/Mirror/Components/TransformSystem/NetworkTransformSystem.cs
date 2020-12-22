@@ -370,25 +370,61 @@ namespace Mirror.TransformSyncing
         public uint id;
         public Vector3 position;
         public uint compressedRotation;
-    }
-    public static class PositionMessageWriter
-    {
-        public static void WriteNetworkPositionSingleMessage(this NetworkWriter writer, NetworkPositionSingleMessage msg)
-        {
-            PackedWriter.WritePacked(writer, msg.id);
-            PositionCompression compression = NetworkTransformSystem.Instance.compression;
-            compression.Compress(writer, msg.position);
-        }
-        public static NetworkPositionSingleMessage ReadNetworkPositionSingleMessage(this NetworkReader reader)
+
+        public NetworkReader reader;
+        public PositionCompression compression;
+
+        public NetworkPositionSingleMessage FromReader(PositionCompression compression)
         {
             uint id = PackedWriter.ReadPacked(reader);
-            PositionCompression compression = NetworkTransformSystem.Instance.compression;
             Vector3 pos = compression.Decompress(reader);
+            uint rot = reader.ReadUInt32();
 
             return new NetworkPositionSingleMessage
             {
                 id = id,
                 position = pos,
+                compressedRotation = rot,
+            };
+        }
+    }
+    public static class PositionMessageWriter
+    {
+        public static void WriteNetworkPositionSingleMessage_static(this NetworkWriter writer, NetworkPositionSingleMessage msg)
+        {
+            PackedWriter.WritePacked(writer, msg.id);
+            PositionCompression compression = NetworkTransformSystem.Instance.compression;
+            compression.Compress(writer, msg.position);
+            writer.WriteUInt32(msg.compressedRotation);
+
+        }
+        public static NetworkPositionSingleMessage ReadNetworkPositionSingleMessage_static(this NetworkReader reader)
+        {
+            uint id = PackedWriter.ReadPacked(reader);
+            PositionCompression compression = NetworkTransformSystem.Instance.compression;
+            Vector3 pos = compression.Decompress(reader);
+            uint compressedRotation = reader.ReadUInt32();
+
+            return new NetworkPositionSingleMessage
+            {
+                id = id,
+                position = pos,
+                compressedRotation = compressedRotation
+            };
+        }
+
+        public static void WriteNetworkPositionSingleMessage(this NetworkWriter writer, NetworkPositionSingleMessage msg)
+        {
+            PackedWriter.WritePacked(writer, msg.id);
+            PositionCompression compression = msg.compression;
+            compression.Compress(writer, msg.position);
+            writer.WriteUInt32(msg.compressedRotation);
+        }
+        public static NetworkPositionSingleMessage ReadNetworkPositionSingleMessage(this NetworkReader reader)
+        {
+            return new NetworkPositionSingleMessage
+            {
+                reader = reader,
             };
         }
     }
