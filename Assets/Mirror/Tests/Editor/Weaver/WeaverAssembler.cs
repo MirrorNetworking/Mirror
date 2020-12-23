@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Mirror.EditorScripts;
 using UnityEditor.Compilation;
 using UnityEngine;
 
