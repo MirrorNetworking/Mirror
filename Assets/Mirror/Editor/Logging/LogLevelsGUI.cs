@@ -7,11 +7,12 @@ namespace Mirror.EditorScripts.Logging
 {
     public static class LogLevelsGUI
     {
+        const string DefaultFolder = "Assets/Mirror/";
         public static LogSettings DrawCreateNewButton()
         {
             if (GUILayout.Button("Create New"))
             {
-                return ScriptableObjectUtility.CreateAsset<LogSettings>(nameof(LogSettings));
+                return ScriptableObjectUtility.CreateAsset<LogSettings>(nameof(LogSettings), DefaultFolder);
             }
 
             return null;
