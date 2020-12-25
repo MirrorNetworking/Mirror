@@ -2,6 +2,7 @@
     "name": "Mirror.Tests",
     "references": [
         "Mirror",
+        "Mirror.Editor",
         "Mirror.Weaver",
         "Mirror.Components",
         "Mirror.Tests.Common",
