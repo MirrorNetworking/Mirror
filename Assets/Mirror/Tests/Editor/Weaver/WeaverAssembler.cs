@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -16,16 +15,7 @@ namespace Mirror.Weaver.Tests
             {
                 if (string.IsNullOrEmpty(_outputDirectory))
                 {
-                    string[] guidsFound = AssetDatabase.FindAssets($"t:Script " + nameof(WeaverAssembler));
-                    if (guidsFound.Length == 1 && !string.IsNullOrEmpty(guidsFound[0]))
-                    {
-                        string path = AssetDatabase.GUIDToAssetPath(guidsFound[0]);
-                        _outputDirectory = Path.GetDirectoryName(path);
-                    }
-                    else
-                    {
-                        Debug.LogError("Could not find WeaverAssembler for Weaver Tests");
-                    }
+                    _outputDirectory = EditorHelper.FindPath<WeaverAssembler>();
                 }
                 return _outputDirectory;
             }
