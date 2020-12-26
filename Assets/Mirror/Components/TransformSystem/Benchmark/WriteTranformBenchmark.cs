@@ -91,9 +91,9 @@ namespace Mirror.Benchmark
                 int iterations = 10000;
 
                 Console.WriteLine($"\n-------------\nPosition Only\n\n");
-                testOne(nameof(WritePositions), WritePositions, iterations);
+                testOne(nameof(WritePositions_Blitable), WritePositions_Blitable, iterations);
+                testOne(nameof(CompressedPositions), CompressedPositions, iterations);
                 testOne(nameof(PackPositions), PackPositions, iterations);
-                Console.WriteLine($"\n\n\n-------------\n\n");
 
                 Console.WriteLine($"\n-------------\nRotation Only\n\n");
                 testOne(nameof(WriteRotations_Blitable), WriteRotations_Blitable, iterations);
@@ -104,9 +104,8 @@ namespace Mirror.Benchmark
                 testOne(nameof(PackRotationsWithBuffer_Length10), PackRotationsWithBuffer_Length10, iterations);
                 testOne(nameof(PackRotationsWithBuffer_Length9_optimized), PackRotationsWithBuffer_Length9_optimized, iterations);
                 testOne(nameof(PackRotationsWithBuffer_Length9_inline), PackRotationsWithBuffer_Length9_inline, iterations);
-                Console.WriteLine($"\n\n\n-------------\n\n");
 
-                Console.WriteLine($"\n-------------\nTranform");
+                Console.WriteLine($"\n-------------\nTransform");
                 Console.WriteLine($"PositionCompression bits:{compression.bitCount}");
                 Console.WriteLine($"\n\n");
 
@@ -123,9 +122,7 @@ namespace Mirror.Benchmark
                 testOne(nameof(oldWriteTranformsCompressed), oldWriteTranformsCompressed, iterations);
                 testOne(nameof(packTranformsWithBufferOptimized), packTranformsWithBufferOptimized, iterations);
 
-                Console.WriteLine($"");
-                Console.WriteLine($"");
-                Console.WriteLine($"\n\n\n-------------\n\n");
+                Console.WriteLine($"\n\n-------------\n\n");
             }
             finally
             {
@@ -169,7 +166,19 @@ namespace Mirror.Benchmark
             Console.WriteLine($"{name,-40}{elapsed,10}{canRun.WriteCount,20}");
         }
 
-        int WritePositions()
+        int WritePositions_Blitable()
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                for (int i = 0; i < positions.Length; i++)
+                {
+                    writer.WriteVector3(positions[i]);
+                }
+                return writer.Length;
+            }
+        }
+
+        int CompressedPositions()
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
