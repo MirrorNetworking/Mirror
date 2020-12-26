@@ -1,6 +1,8 @@
 # Write Transform benchmark
 
-Trying different approaches to see how to best write Transform state to balance for cpu and bandwidth
+Trying different approaches to see how to best write Transform state to balance for cpu and bandwidth.
+
+All writing is done in foreach loops, these results do not show how well these methods will work when writing via the syncvar system.
 
 ## Results 
 
