@@ -6,6 +6,39 @@ namespace Mirror.TransformSyncing
 {
     public class PositionCompression
     {
+        /// <summary>
+        /// returns how many bits are required for inclusive range of min to max
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int BitCountFromRange(uint min, uint max)
+        {
+            if (min >= max) { throw new ArgumentException($"Min:{min} is greater or equal to than Max:{max}"); }
+
+            return BitCountFromRange(max - min);
+        }
+
+        /// <summary>
+        /// returns how many bits are required for inclusive range
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int BitCountFromRange(uint range)
+        {
+            if (range == 0u) { throw new ArgumentException($"Range is zero"); }
+
+            // plus 1 because range is inclusive
+            range++;
+
+            float logBase2 = Mathf.Log(range, 2);
+
+            return Mathf.CeilToInt(logBase2);
+        }
+
         public struct CompressFloat
         {
             public readonly float minFloat;
@@ -25,12 +58,9 @@ namespace Mirror.TransformSyncing
                 maxFloat = max;
 
                 float range = max - min;
-                float rangeUint = range / precision;
+                uint rangeUint = (uint)(range / precision);
 
-                float logBase10 = Mathf.Log10(rangeUint);
-                float logOf2 = Mathf.Log10(2);
-                float logBase2 = logBase10 / logOf2;
-                bitCount = Mathf.CeilToInt(logBase2);
+                bitCount = BitCountFromRange(rangeUint);
 
                 minUint = 0u;
                 maxUint = (1u << bitCount) - 1u;
@@ -39,6 +69,18 @@ namespace Mirror.TransformSyncing
                 readMaskLong = maxUint;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Compress(BitWriter writer, float value)
+            {
+                uint v = Compression.ScaleToUInt(value, minFloat, maxFloat, minUint, maxUint);
+                writer.Write(v, bitCount);
+            }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Compress(BitWriterUnsafeBuffer writer, float value)
+            {
+                uint v = Compression.ScaleToUInt(value, minFloat, maxFloat, minUint, maxUint);
+                writer.Write(v, bitCount);
+            }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public uint Compress(float value)
             {
@@ -81,6 +123,7 @@ namespace Mirror.TransformSyncing
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Compress(NetworkWriter writer, Vector3 value)
         {
             uint a = x.Compress(value.x);
@@ -131,6 +174,7 @@ namespace Mirror.TransformSyncing
                 }
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3 Decompress(NetworkReader reader)
         {
             uint a;
@@ -198,6 +242,35 @@ namespace Mirror.TransformSyncing
                  x.Decompress(a),
                  y.Decompress(b),
                  z.Decompress(c));
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Compress(BitWriter writer, Vector3 value)
+        {
+            x.Compress(writer, value.x);
+            y.Compress(writer, value.y);
+            z.Compress(writer, value.z);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Vector3 Decompress(BitReader reader)
+        {
+            uint a = reader.Read(x.bitCount);
+            uint b = reader.Read(x.bitCount);
+            uint c = reader.Read(x.bitCount);
+
+            return new Vector3(
+                 x.Decompress(a),
+                 y.Decompress(b),
+                 z.Decompress(c));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Compress(BitWriterUnsafeBuffer writer, Vector3 value)
+        {
+            x.Compress(writer, value.x);
+            y.Compress(writer, value.y);
+            z.Compress(writer, value.z);
         }
     }
 }

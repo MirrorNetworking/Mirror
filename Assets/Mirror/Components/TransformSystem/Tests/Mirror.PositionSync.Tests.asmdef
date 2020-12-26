@@ -1,8 +1,9 @@
 {
-   "name": "Mirror.PositionSync.Tests",
-     "references": [
+    "name": "Mirror.PositionSync.Tests",
+    "references": [
         "Mirror.PositionSync",
-        "Mirror"
+        "Mirror",
+        "Unity.PerformanceTesting"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -67,6 +68,7 @@ namespace Mirror
         /// <summary>
         /// Used to Compress Quaternion into 4 bytes
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint CompressQuaternion(Quaternion value)
         {
             // make sure value is normalized (dont trust user given value, and math here assumes normalized)
@@ -91,6 +93,7 @@ namespace Mirror
             return packed;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static int FindLargestIndex(Quaternion q)
         {
             int index = default;
@@ -110,6 +113,7 @@ namespace Mirror
             return index;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Vector3 GetSmallerDimensions(int largestIndex, Quaternion value)
         {
             float x = value.x;
@@ -137,6 +141,7 @@ namespace Mirror
         /// Used to read a Compressed Quaternion from 4 bytes
         /// <para>Quaternion is normalized</para>
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion DecompressQuaternion(uint packed)
         {
             // 10 bits
@@ -158,6 +163,7 @@ namespace Mirror
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Quaternion FromSmallerDimensions(uint largestIndex, Vector3 smallest)
         {
             float a = smallest.x;
@@ -192,6 +198,7 @@ namespace Mirror
         /// <param name="minUint">should be a power of 2, can be 0</param>
         /// <param name="maxUint">should be a power of 2, for example 1 &lt;&lt; 8 for value to take up 8 bytes</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint ScaleToUInt(float value, float minFloat, float maxFloat, uint minUint, uint maxUint)
         {
             // if out of range return min/max
@@ -218,6 +225,7 @@ namespace Mirror
         /// <param name="minUint">should be a power of 2, can be 0</param>
         /// <param name="maxUint">should be a power of 2, for example 1 &lt;&lt; 8 for value to take up 8 bytes</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ScaleFromUInt(uint value, float minFloat, float maxFloat, uint minUint, uint maxUint)
         {
             // if out of range return min/max

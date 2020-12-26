@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
@@ -79,14 +80,38 @@ namespace Mirror.TransformSyncing.Tests
         public void CompressesAndDecompressesRepeat(Vector3 min, Vector3 max, float precision)
         {
             Vector3 inValue = new Vector3(
-                Random.Range(min.x, max.x),
-                Random.Range(min.y, max.y),
-                Random.Range(min.z, max.z)
+                UnityEngine.Random.Range(min.x, max.x),
+                UnityEngine.Random.Range(min.y, max.y),
+                UnityEngine.Random.Range(min.z, max.z)
                 );
 
             CompressesAndDecompresses(min, max, precision, inValue);
             WriteHasCorrectLength(min, max, precision, inValue);
             ReadHasCorrectLength(min, max, precision, inValue);
+        }
+
+
+        [Test]
+        [TestCase(0u, 1u, ExpectedResult = 1)]
+        [TestCase(0u, 1024u, ExpectedResult = 11)]
+        [TestCase(0u, 1000u, ExpectedResult = 10)]
+        [TestCase(0u, (uint)int.MaxValue, ExpectedResult = 31)]
+        [TestCase(1000u, 2000u, ExpectedResult = 10)]
+        public int BitCountFromRangeGivesCorrectValues(uint min, uint max)
+        {
+            return PositionCompression.BitCountFromRange(min, max);
+        }
+        [Test]
+        [TestCase(0u, 0u)]
+        [TestCase(10u, 0u)]
+        public void BitCountFromRangeThrowsForBadInputs(uint min, uint max)
+        {
+            ArgumentException execption = Assert.Throws<ArgumentException>(() =>
+            {
+                PositionCompression.BitCountFromRange(min, max);
+            });
+
+            Assert.That(execption, Has.Message.EqualTo($"Min:{min} is greater or equal to than Max:{max}"));
         }
     }
 }
