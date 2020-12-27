@@ -2,12 +2,15 @@ plugins:
   - '@semantic-release/github'
   - '@semantic-release/release-notes-generator'
   - '@semantic-release/commit-analyzer'
+  - - '@semantic-release/exec'
+    - "prepare": "sed -i .bak -e '/AssemblyVersion/s/\".*\"/\"${nextRelease.version}\"/' Assets/Mirror/Runtime/AssemblyInfo.cs"
   - - '@semantic-release/changelog'
     - changelogFile: 'Assets/Mirror/CHANGELOG.md'
   - - '@semantic-release/npm'
     - npmPublish: false
       pkgRoot: "Assets/Mirror"
   - - '@semantic-release/git'
-    - assets: 
+    - assets:
+        - 'Assets/Mirror/Runtime/AssemblyInfo.cs'
         - 'Assets/Mirror/package.json'
         - 'Assets/Mirror/CHANGELOG.md'
