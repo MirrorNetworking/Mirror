@@ -1,0 +1,110 @@
+:root {
+    --window-width: 500;
+    --window-height: 600;
+    --banner-color: rgb(12, 12, 12);
+    --text-color: rgb(255, 255, 255);
+}
+
+#VersionText {
+    height: 0;
+    width: var(--window-width);
+    font-size: 10px;
+    color: var(--text-color);
+    -unity-text-align: upper-right;
+    position: relative;
+    top: 5px;
+    right: 5px;
+}
+
+#Banner {
+    height: 64px;
+    width: var(--window-width);
+    background-color: var(--banner-color);
+}
+
+#Icon {
+    height: 64px;
+    width: 64px;
+    align-self: center;
+    background-color: rgb(255, 255, 255);
+}
+
+#Title {
+    font-size: 30px;
+    align-self: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#Header {
+    font-size: 20px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    white-space: normal;
+}
+
+#Description {
+    font-size: 14px;
+    -unity-text-align: upper-left;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-top: 5px;
+    flex: 3;
+    white-space: normal;
+}
+
+#Spacer {
+    display: flex;
+    flex: 0.02;
+}
+
+Button {
+    padding: 2px;
+    height: 50px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(85, 85, 85);
+}
+
+Button:hover {
+    background-color: rgb(95, 95, 95);
+}
+
+Button:active {
+    background-color: rgb(105, 105, 105);
+}
+
+.redirect {
+    padding: 2px;
+    height: 32px;
+    width: auto;
+}
+
+#ColumnContainer {
+    border-width: 0;
+    height: 80%;
+    width: auto;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    display: flex;
+    flex-direction: row;
+}
+
+#LeftColumnBox {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding-top: 3px;
+}
+
+#RightColumnBox {
+    display: flex;
+    flex: 2;
+    flex-direction: column;
+    justify-content: space-between;
+}

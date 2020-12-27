@@ -1,0 +1,58 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="WelcomeWindow.uss" />
+    <ui:VisualElement name="Banner">
+        <ui:Label name="VersionText" text="Placeholder" />
+        <ui:Image name="Icon" style="background-image: url(&apos;/Assets/Mirror/Icon/MirrorIcon.png&apos;);" />
+    </ui:VisualElement>
+    <ui:Label name="Title" text="Welcome to MirrorNG!" />
+    <ui:Box name="ColumnContainer">
+        <ui:VisualElement name="LeftColumnBox">
+            <ui:Button name="WelcomeButton" text="Welcome" focusable="false" />
+            <ui:Button name="ChangeLogButton" text="Change Log" />
+            <ui:Button name="QuickStartButton" text="Quick Start Guide" />
+            <ui:Button name="BestPracticesButton" text="Best Practices" />
+            <ui:Button name="FaqButton" text="FAQ" />
+            <ui:Button name="SponsorButton" text="Sponsor Us" />
+            <ui:Button name="DiscordButton" text="Discord" />
+        </ui:VisualElement>
+        <ui:VisualElement name="Spacer" />
+        <ui:VisualElement name="RightColumnBox">
+            <ui:VisualElement name="Welcome" style="flex-grow: 0; width: 100%; height: 100%;">
+                <ui:Label name="Header" text="Welcome" />
+                <ui:Label name="Description" text="Hello! Thank you for installing MirrorNG. Please visit all the pages on this window. Clicking the button at the bottom of the pages will redirect you to a webpage. Additionally, there are example projects in the Mirror folder that you can look at. &#10;&#10;Have fun using Mirror!" style="-unity-text-align: upper-left;" />
+                <ui:VisualElement name="Spacer" />
+                <ui:Button name="Redirect" text="Visit API Reference" class="redirect" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ChangeLog" style="flex-grow: 0; width: 100%; height: 100%; display: none;">
+                <ui:Label name="Header" text="Change Log" />
+                <ui:Label name="Description" text="The Change Log is a list of changes made to MirrorNG. Sometimes these changes can cause your game to break." style="-unity-text-align: upper-left;" />
+                <ui:VisualElement name="Spacer" />
+                <ui:Button name="Redirect" text="Visit Change Log" class="redirect" />
+            </ui:VisualElement>
+            <ui:VisualElement name="QuickStart" style="flex-grow: 0; width: 100%; height: 100%; display: none;">
+                <ui:Label name="Header" text="Quick Start Guide" />
+                <ui:Label name="Description" text="The Quick Start Guide is meant for people who just started using MirrorNG. The Quick Start Guide will help new users learn how to accomplish important tasks. It is highly recommended that you complete the guide." style="-unity-text-align: upper-left;" />
+                <ui:VisualElement name="Spacer" />
+                <ui:Button name="Redirect" text="Visit Quick Start Guide" class="redirect" />
+            </ui:VisualElement>
+            <ui:VisualElement name="BestPractices" style="flex-grow: 0; width: 100%; height: 100%; display: none;">
+                <ui:Label name="Header" text="Best Practices" />
+                <ui:Label name="Description" text="This page describes the best practices that you should use during development. Currently a work in progress." style="-unity-text-align: upper-left;" />
+                <ui:VisualElement name="Spacer" />
+                <ui:Button name="Redirect" text="Visit Best Practices Page" class="redirect" />
+            </ui:VisualElement>
+            <ui:VisualElement name="Faq" style="flex-grow: 0; width: 100%; height: 100%; display: none;">
+                <ui:Label name="Header" text="FAQ" />
+                <ui:Label name="Description" text="The FAQ page holds commonly asked questions. Currently, the FAQ page contains answers to: &#10;&#10;   1. Syncing custom data types &#10;   2. How to connect &#10;   3. Host migration &#10;   4. Server lists and matchmaking" style="-unity-text-align: upper-left;" />
+                <ui:VisualElement name="Spacer" />
+                <ui:Button name="Redirect" text="Visit FAQ" class="redirect" />
+            </ui:VisualElement>
+            <ui:VisualElement name="Sponsor" style="flex-grow: 0; width: 100%; height: 100%; display: none;">
+                <ui:Label name="Header" text="Sponsor Us" />
+                <ui:Label name="Description" text="Sponsoring will give you access to Mirror PRO which gives you special access to tools and priority support" style="-unity-text-align: upper-left;" />
+                <ui:VisualElement name="Spacer" />
+                <ui:Button name="Redirect" text="Sponsor Us" class="redirect" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:Box>
+</ui:UXML>
