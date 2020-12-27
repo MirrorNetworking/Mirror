@@ -1,3 +1,10 @@
+# [60.2.0](https://github.com/MirrorNG/MirrorNG/compare/v60.1.1...v60.2.0) (2020-12-27)
+
+
+### Features
+
+* UIElements Welcome Window ([#510](https://github.com/MirrorNG/MirrorNG/issues/510)) ([654c5e1](https://github.com/MirrorNG/MirrorNG/commit/654c5e1a91a994d4c763281c1c22e91298826fb4))
+
 ## [60.1.1](https://github.com/MirrorNG/MirrorNG/compare/v60.1.0...v60.1.1) (2020-12-27)
 
 
