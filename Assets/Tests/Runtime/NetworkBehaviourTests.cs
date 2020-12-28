@@ -7,11 +7,6 @@ namespace Mirror.Tests
 {
     public class SampleBehavior : NetworkBehaviour
     {
-        public bool SyncVarNetworkIdentityEqualExposed(NetworkIdentity ni, uint netIdField)
-        {
-            return SyncVarNetworkIdentityEqual(ni, netIdField);
-        }
-
     }
 
     public class NetworkBehaviourTests : HostSetup<SampleBehavior>
@@ -143,99 +138,6 @@ namespace Mirror.Tests
             Assert.That(behaviour2.ComponentIndex, Is.EqualTo(1));
 
             Object.Destroy(extraObject);
-        }
-
-        // NOTE: SyncVarNetworkIdentityEqual should be static later
-        [Test]
-        public void SyncVarNetworkIdentityEqualZeroNetIdNullIsTrue()
-        {
-            // null and identity.netid==0 returns true (=equal)
-            //
-            // later we should reevaluate if this is so smart or not. might be
-            // better to return false here.
-            // => we possibly return false so that resync doesn't happen when
-            //    GO disappears? or not?
-            bool result = component.SyncVarNetworkIdentityEqualExposed(null, 0);
-            Assert.That(result, Is.True);
-        }
-
-        // NOTE: SyncVarNetworkIdentityEqual should be static later
-        [Test]
-        public void SyncVarNetworkIdentityEqualNull()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // null should return false
-            bool result = component.SyncVarNetworkIdentityEqualExposed(null, identity.NetId);
-            Assert.That(result, Is.False);
-        }
-
-        // NOTE: SyncVarNetworkIdentityEqual should be static later
-        [Test]
-        public void SyncVarNetworkIdentityEqualValidIdentityWithDifferentNetId()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // gameobject with valid networkidentity and netid that is different
-            var go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.NetId = 43;
-            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.NetId);
-            Assert.That(result, Is.False);
-
-            // clean up
-            Object.Destroy(go);
-        }
-
-        // NOTE: SyncVarNetworkIdentityEqual should be static later
-        [Test]
-        public void SyncVarNetworkIdentityEqualValidIdentityWithSameNetId()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // gameobject with valid networkidentity and netid that is different
-            var go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            ni.NetId = 42;
-            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.NetId);
-            Assert.That(result, Is.True);
-
-            // clean up
-            Object.Destroy(go);
-        }
-
-        // NOTE: SyncVarNetworkIdentityEqual should be static later
-        [Test]
-        public void SyncVarNetworkIdentityEqualUnspawnedIdentity()
-        {
-            // our identity should have a netid for comparing
-            identity.NetId = 42;
-
-            // gameobject with valid networkidentity and 0 netid that is unspawned
-            var go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, identity.NetId);
-            Assert.That(result, Is.False);
-
-            // clean up
-            Object.Destroy(go);
-        }
-
-        // NOTE: SyncVarNetworkIdentityEqual should be static later
-        [Test]
-        public void SyncVarNetworkIdentityEqualUnspawnedIdentityZeroNetIdIsTrue()
-        {
-            // unspawned go and identity.netid==0 returns true (=equal)
-            var go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            bool result = component.SyncVarNetworkIdentityEqualExposed(ni, 0);
-            Assert.That(result, Is.False);
-
-            // clean up
-            Object.Destroy(go);
         }
     }
 

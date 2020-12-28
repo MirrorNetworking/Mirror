@@ -30,7 +30,7 @@ namespace Mirror.Tests
         protected NetworkIdentity clientIdentity;
         protected T clientComponent;
 
-        private GameObject playerPrefab;
+        protected GameObject playerPrefab;
 
         protected Transport testTransport;
         protected INetworkConnection connectionToServer;
