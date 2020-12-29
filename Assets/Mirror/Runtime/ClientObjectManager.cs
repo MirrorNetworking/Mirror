@@ -165,7 +165,6 @@ namespace Mirror
         /// Useful for debuggers
         /// </summary>
         /// <param name="assetId">asset id of the prefab</param>
-        /// <param name="prefab">the prefab gameobject</param>
         /// <returns>true if prefab was registered</returns>
         public NetworkIdentity GetPrefab(Guid assetId)
         {
@@ -185,7 +184,7 @@ namespace Mirror
         /// <para>The ClientObjectManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
         /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
+        /// <param name="identity">A Prefab that will be spawned.</param>
         /// <param name="newAssetId">An assetId to be assigned to this prefab. This allows a dynamically created game object to be registered for an already known asset Id.</param>
         public void RegisterPrefab(NetworkIdentity identity, Guid newAssetId)
         {
@@ -201,7 +200,7 @@ namespace Mirror
         /// <para>The ClientObjectManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
         /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
+        /// <param name="identity">A Prefab that will be spawned.</param>
         public void RegisterPrefab(NetworkIdentity identity)
         {
             if (logger.LogEnabled()) logger.Log("Registering prefab '" + identity.name + "' as asset:" + identity.AssetId);
@@ -214,7 +213,7 @@ namespace Mirror
         /// <para>The ClientObjectManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
         /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
         /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
+        /// <param name="identity">A Prefab that will be spawned.</param>
         /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
         /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
         public void RegisterPrefab(NetworkIdentity identity, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
@@ -233,7 +232,7 @@ namespace Mirror
         /// <summary>
         /// Removes a registered spawn prefab that was setup with ClientScene.RegisterPrefab.
         /// </summary>
-        /// <param name="prefab">The prefab to be removed from registration.</param>
+        /// <param name="identity">The prefab to be removed from registration.</param>
         public void UnregisterPrefab(NetworkIdentity identity)
         {
             spawnHandlers.Remove(identity.AssetId);
