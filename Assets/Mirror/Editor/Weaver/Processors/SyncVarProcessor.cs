@@ -220,19 +220,14 @@ namespace Mirror.Weaver
 
             // NetworkIdentity SyncVars have a new field for netId
             TypeReference originalType = fd.FieldType;
-
-            if (fd.FieldType.Is<NetworkIdentity>())
-            {
-                // change the type of the field to a wrapper NetworkIDentitySyncvar
-                fd.FieldType = fd.Module.ImportReference<Mirror.NetworkIdentitySyncvar>();
-            }
+            fd.FieldType = WrapType(fd.Module, fd.FieldType);
 
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, originalType);
             MethodDefinition set = GenerateSyncVarSetter(fd, originalName, dirtyBit, originalType);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
-            var propertyDefinition = new PropertyDefinition("Network" + originalName, PropertyAttributes.None, fd.FieldType)
+            var propertyDefinition = new PropertyDefinition("Network" + originalName, PropertyAttributes.None, originalType)
             {
                 GetMethod = get,
                 SetMethod = set
@@ -251,6 +246,16 @@ namespace Mirror.Weaver
             {
                 Weaver.WeaveLists.replacementGetterProperties[fd] = get;
             }
+        }
+
+        private static TypeReference WrapType(ModuleDefinition module, TypeReference typeReference)
+        {
+            if (typeReference.Is<NetworkIdentity>())
+            {
+                // change the type of the field to a wrapper NetworkIDentitySyncvar
+                return module.ImportReference<NetworkIdentitySyncvar>();
+            }
+            return typeReference;
         }
 
         public void ProcessSyncVars(TypeDefinition td)
