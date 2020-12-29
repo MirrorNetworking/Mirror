@@ -14,11 +14,14 @@ namespace Mirror.Weaver
     /// </summary>
     public class SyncVarProcessor
     {
+
         private readonly List<FieldDefinition> syncVars = new List<FieldDefinition>();
+
+        // store the unwrapped types for every field
+        private readonly Dictionary<FieldDefinition, TypeReference> originalTypes = new Dictionary<FieldDefinition, TypeReference>();
 
         // ulong = 64 bytes
         const int SyncVarLimit = 64;
-
 
         static string HookParameterMessage(string hookName, TypeReference ValueType)
             => string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
@@ -214,13 +217,13 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ProcessSyncVar(FieldDefinition fd, long dirtyBit)
+        void ProcessSyncVar(FieldDefinition fd, long dirtyBit)
         {
             string originalName = fd.Name;
             Weaver.DLog(fd.DeclaringType, "Sync Var " + fd.Name + " " + fd.FieldType);
 
             TypeReference originalType = fd.FieldType;
-            fd.FieldType = WrapType(fd.Module, fd.FieldType);
+            fd.FieldType = WrapType(fd);
 
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, originalType);
             MethodDefinition set = GenerateSyncVarSetter(fd, originalName, dirtyBit, originalType);
@@ -244,34 +247,35 @@ namespace Mirror.Weaver
             }
         }
 
-        private static TypeReference WrapType(ModuleDefinition module, TypeReference typeReference)
+        private TypeReference WrapType(FieldDefinition syncvar)
         {
+            TypeReference typeReference = syncvar.FieldType;
+
+            originalTypes[syncvar] = typeReference;
             if (typeReference.Is<NetworkIdentity>())
             {
                 // change the type of the field to a wrapper NetworkIDentitySyncvar
-                return module.ImportReference<NetworkIdentitySyncvar>();
+                return syncvar.Module.ImportReference<NetworkIdentitySyncvar>();
             }
             if (typeReference.Is<GameObject>())
-                return module.ImportReference<GameObjectSyncvar>();
+                return syncvar.Module.ImportReference<GameObjectSyncvar>();
+
+            if (typeReference.Resolve().IsDerivedFrom<NetworkBehaviour>())
+                return syncvar.Module.ImportReference<NetworkBehaviorSyncvar>();
+
             return typeReference;
         }
 
-        private static TypeReference UnwrapType(ModuleDefinition module, TypeReference typeReference)
+        private TypeReference UnwrapType(FieldDefinition syncvar)
         {
-            if (typeReference.Is<NetworkIdentitySyncvar>())
-            {
-                // change the type of the field to a wrapper NetworkIDentitySyncvar
-                return module.ImportReference<NetworkIdentity>();
-            }
-            if (typeReference.Is<GameObjectSyncvar>())
-                return module.ImportReference<GameObject>();
-            return typeReference;
+            return originalTypes[syncvar];
         }
 
         private static bool IsWrapped(TypeReference typeReference)
         {
             return typeReference.Is<NetworkIdentitySyncvar>() ||
-                typeReference.Is<GameObjectSyncvar>();
+                typeReference.Is<GameObjectSyncvar>() ||
+                typeReference.Is<NetworkBehaviorSyncvar>();
         }
 
         public void ProcessSyncVars(TypeDefinition td)
@@ -619,7 +623,7 @@ namespace Mirror.Weaver
         /// <param name="hookResult"></param>
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
-            TypeReference originalType = UnwrapType(syncVar.Module, syncVar.FieldType);
+            TypeReference originalType = UnwrapType(syncVar);
             MethodDefinition hookMethod = GetHookMethod(syncVar, originalType);
 
             /*

@@ -19,10 +19,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsDerivedNetworkBehaviour()
         {
-            HasError("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer",
-                "WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.MyBehaviour");
-            HasError("invalidVar has unsupported type. Use a supported MirrorNG type instead",
-                "WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.MyBehaviour WeaverSyncVarTests.SyncVarsDerivedNetworkBehaviour.SyncVarsDerivedNetworkBehaviour::invalidVar");
+            IsSuccess();
         }
 
         [Test]
