@@ -1,3 +1,10 @@
+# [60.4.0](https://github.com/MirrorNG/MirrorNG/compare/v60.3.0...v60.4.0) (2020-12-29)
+
+
+### Features
+
+* SyncVar support arbitrary NetworkBehavior ([#514](https://github.com/MirrorNG/MirrorNG/issues/514)) ([67b0c9f](https://github.com/MirrorNG/MirrorNG/commit/67b0c9f16dc9a8e7065d1bcf0140a479494eb76c))
+
 # [60.3.0](https://github.com/MirrorNG/MirrorNG/compare/v60.2.0...v60.3.0) (2020-12-29)
 
 
