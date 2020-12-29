@@ -85,7 +85,7 @@ namespace Mirror.Weaver
                     originalType);
 
             ILProcessor worker = get.Body.GetILProcessor();
-            LoadField(fd, originalType, worker);
+            LoadField(fd, worker);
 
             worker.Append(worker.Create(OpCodes.Ret));
 
@@ -115,7 +115,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
             // reference to field to set
             // make generic version of SetSyncVar with field type
-            LoadField(fd, originalType, worker);
+            LoadField(fd, worker);
 
             MethodReference syncVarEqual = fd.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
             var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
@@ -126,11 +126,11 @@ namespace Mirror.Weaver
 
             // T oldValue = value;
             VariableDefinition oldValue = set.AddLocal(originalType);
-            LoadField(fd, originalType, worker);
+            LoadField(fd, worker);
             worker.Append(worker.Create(OpCodes.Stloc, oldValue));
 
             // fieldValue = value;
-            StoreField(fd, valueParam, originalType, worker);
+            StoreField(fd, valueParam, worker);
 
             // this.SetDirtyBit(dirtyBit)
             worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -177,15 +177,9 @@ namespace Mirror.Weaver
             return set;
         }
 
-        private static void StoreField(FieldDefinition fd, ParameterDefinition valueParam, TypeReference originalType, ILProcessor worker)
+        private static void StoreField(FieldDefinition fd, ParameterDefinition valueParam, ILProcessor worker)
         {
-            if (fd.FieldType == originalType)
-            {
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
-                worker.Append(worker.Create(OpCodes.Stfld, fd));
-            }
-            else
+            if (IsWrapped(fd.FieldType))
             {
                 // there is a wrapper struct, call the setter
                 MethodReference setter = fd.Module.ImportReference(fd.FieldType.Resolve().GetMethod("set_Value"));
@@ -195,21 +189,27 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
                 worker.Append(worker.Create(OpCodes.Call, setter));
             }
+            else
+            {
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldarg, valueParam));
+                worker.Append(worker.Create(OpCodes.Stfld, fd));
+            }
         }
 
-        private static void LoadField(FieldDefinition fd, TypeReference originalType, ILProcessor worker)
+        private static void LoadField(FieldDefinition fd, ILProcessor worker)
         {
             worker.Append(worker.Create(OpCodes.Ldarg_0));
 
-            if (originalType == fd.FieldType)
-            {
-                worker.Append(worker.Create(OpCodes.Ldfld, fd));
-            }
-            else
+            if (IsWrapped(fd.FieldType))
             {
                 worker.Append(worker.Create(OpCodes.Ldflda, fd));
                 MethodReference getter = fd.Module.ImportReference(fd.FieldType.Resolve().GetMethod("get_Value"));
                 worker.Append(worker.Create(OpCodes.Call, getter));
+            }
+            else
+            {
+                worker.Append(worker.Create(OpCodes.Ldfld, fd));
             }
         }
 
@@ -237,10 +237,7 @@ namespace Mirror.Weaver
             fd.DeclaringType.Properties.Add(propertyDefinition);
             Weaver.WeaveLists.replacementSetterProperties[fd] = set;
 
-            // replace getter field if type is wrapped
-            // -> only for GameObjects, otherwise an int syncvar's getter would
-            //    end up in recursion.
-            if (originalType != fd.FieldType)
+            if (IsWrapped(fd.FieldType))
             {
                 Weaver.WeaveLists.replacementGetterProperties[fd] = get;
             }
@@ -264,6 +261,11 @@ namespace Mirror.Weaver
                 return module.ImportReference<NetworkIdentity>();
             }
             return typeReference;
+        }
+
+        private static bool IsWrapped(TypeReference typeReference)
+        {
+            return typeReference.Is<NetworkIdentitySyncvar>();
         }
 
         public void ProcessSyncVars(TypeDefinition td)
@@ -634,7 +636,7 @@ namespace Mirror.Weaver
 
             // T oldValue = value;
             VariableDefinition oldValue = deserialize.AddLocal(originalType);
-            LoadField(syncVar, originalType, serWorker);
+            LoadField(syncVar, serWorker);
 
             serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
 
@@ -672,7 +674,7 @@ namespace Mirror.Weaver
                 // 'oldValue'
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
                 // 'newValue'
-                LoadField(syncVar, originalType, serWorker);
+                LoadField(syncVar, serWorker);
                 // call the function
                 MethodReference syncVarEqual = syncVar.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
                 var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
