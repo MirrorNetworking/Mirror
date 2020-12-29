@@ -1,3 +1,10 @@
+# [60.3.0](https://github.com/MirrorNG/MirrorNG/compare/v60.2.0...v60.3.0) (2020-12-29)
+
+
+### Features
+
+* Support gameobjects in syncvars ([#513](https://github.com/MirrorNG/MirrorNG/issues/513)) ([29fb101](https://github.com/MirrorNG/MirrorNG/commit/29fb1018fad55a6c392be002906da5cc0d79163c))
+
 # [60.2.0](https://github.com/MirrorNG/MirrorNG/compare/v60.1.1...v60.2.0) (2020-12-27)
 
 
