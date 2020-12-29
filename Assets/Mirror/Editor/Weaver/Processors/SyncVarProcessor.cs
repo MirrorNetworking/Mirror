@@ -258,6 +258,16 @@ namespace Mirror.Weaver
             return typeReference;
         }
 
+        private static TypeReference UnwrapType(ModuleDefinition module, TypeReference typeReference)
+        {
+            if (typeReference.Is<NetworkIdentitySyncvar>())
+            {
+                // change the type of the field to a wrapper NetworkIDentitySyncvar
+                return module.ImportReference<NetworkIdentity>();
+            }
+            return typeReference;
+        }
+
         public void ProcessSyncVars(TypeDefinition td)
         {
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
@@ -603,14 +613,7 @@ namespace Mirror.Weaver
         /// <param name="hookResult"></param>
         void DeserializeField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize)
         {
-
-            TypeReference originalType = syncVar.FieldType;
-
-            if (originalType.Is<NetworkIdentitySyncvar>())
-            {
-                originalType = syncVar.Module.ImportReference<NetworkIdentity>();
-            }
-
+            TypeReference originalType = UnwrapType(syncVar.Module, syncVar.FieldType);
             MethodDefinition hookMethod = GetHookMethod(syncVar, originalType);
 
             /*
