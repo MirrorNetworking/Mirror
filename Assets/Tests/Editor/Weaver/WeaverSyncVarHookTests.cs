@@ -29,6 +29,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void FindsHookWithGameObject()
+        {
+            IsSuccess();
+        }
+
+        [Test]
         public void FindsHookWithOtherOverloadsInOrder()
         {
             IsSuccess();

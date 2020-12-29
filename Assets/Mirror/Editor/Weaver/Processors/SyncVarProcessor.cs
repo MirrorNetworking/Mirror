@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using UnityEngine;
 using FieldAttributes = Mono.Cecil.FieldAttributes;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
 using PropertyAttributes = Mono.Cecil.PropertyAttributes;
@@ -250,6 +251,8 @@ namespace Mirror.Weaver
                 // change the type of the field to a wrapper NetworkIDentitySyncvar
                 return module.ImportReference<NetworkIdentitySyncvar>();
             }
+            if (typeReference.Is<GameObject>())
+                return module.ImportReference<GameObjectSyncvar>();
             return typeReference;
         }
 
@@ -260,12 +263,15 @@ namespace Mirror.Weaver
                 // change the type of the field to a wrapper NetworkIDentitySyncvar
                 return module.ImportReference<NetworkIdentity>();
             }
+            if (typeReference.Is<GameObjectSyncvar>())
+                return module.ImportReference<GameObject>();
             return typeReference;
         }
 
         private static bool IsWrapped(TypeReference typeReference)
         {
-            return typeReference.Is<NetworkIdentitySyncvar>();
+            return typeReference.Is<NetworkIdentitySyncvar>() ||
+                typeReference.Is<GameObjectSyncvar>();
         }
 
         public void ProcessSyncVars(TypeDefinition td)
