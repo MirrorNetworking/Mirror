@@ -97,8 +97,8 @@ namespace Mirror
             //Load the UI
             //Each editor window contains a root VisualElement object
             VisualElement root = rootVisualElement;
-            VisualTreeAsset uxml = Resources.Load<VisualTreeAsset>("WelcomeWindow.uxml");
-            StyleSheet uss = Resources.Load<StyleSheet>("WelcomeWindow.uss");
+            VisualTreeAsset uxml = Resources.Load<VisualTreeAsset>("WelcomeWindow");
+            StyleSheet uss = Resources.Load<StyleSheet>("WelcomeWindow");
 
             //Load the descriptions
 
