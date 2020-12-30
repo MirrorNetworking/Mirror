@@ -1,3 +1,10 @@
+## [60.4.1](https://github.com/MirrorNG/MirrorNG/compare/v60.4.0...v60.4.1) (2020-12-30)
+
+
+### Bug Fixes
+
+* NRE in welcome window ([e4e2fa5](https://github.com/MirrorNG/MirrorNG/commit/e4e2fa52691c201e7b051af8bbc1dfdce4be84e5))
+
 # [60.4.0](https://github.com/MirrorNG/MirrorNG/compare/v60.3.0...v60.4.0) (2020-12-29)
 
 
