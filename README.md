@@ -18,7 +18,7 @@ Mirror is a **high level** Networking library for Unity, compatible with differe
 
 Mirror is for small indie games & large scale [MMOs](https://www.youtube.com/watch?v=mDCNff1S9ZU), made by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-components-edition-159401) and [Cubica](https://www.youtube.com/watch?v=D_f_MntrLVE).
 
-Mirror is optimized for **ease of use** & **probability of success**. 
+Mirror is optimized for **ease of use** & **probability of success**.
 
 We needed a networking library that allows us to **[launch our games](https://mirror-networking.com/showcase/)** and **survive the next decade**.
 
@@ -81,3 +81,4 @@ Mirror is used **in production** by games ranging from small indie projects to l
 Keeping the next decade in mind, contributing **fixes** / **tests** / **improvements** is highly appreciated while new features have a low probability of being merged.
 
 _At this point, what we don't add to Mirror is more important than what we do add to it!_
+
