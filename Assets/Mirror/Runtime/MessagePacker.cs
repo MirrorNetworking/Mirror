@@ -121,7 +121,7 @@ namespace Mirror
             }
             catch (Exception e)
             {
-                logger.LogError($"Exception in MessageHandler: {e.GetType().Name} {e.Message} {e.StackTrace}");
+                logger.LogError($"Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
                 conn.Disconnect();
             }
         };
