@@ -1,3 +1,10 @@
+## [61.0.1](https://github.com/MirrorNG/MirrorNG/compare/v61.0.0...v61.0.1) (2020-12-31)
+
+
+### Bug Fixes
+
+* Icon in welcome window ([eb97cef](https://github.com/MirrorNG/MirrorNG/commit/eb97cefb5880372e353b45bff5084a7ebe92da3c))
+
 # [61.0.0](https://github.com/MirrorNG/MirrorNG/compare/v60.4.1...v61.0.0) (2020-12-31)
 
 
