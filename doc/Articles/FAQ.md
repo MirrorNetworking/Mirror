@@ -134,7 +134,9 @@ NetworkServer.connections.Count
 
 NetworkManager.singleton.numPlayers
 - Number of active spawned player objects across all connections on the server.
-Only host / server can check this, an example of how to sync this number to all players:
+Only host / server can check this, below is an example of how to sync this number to all players.
+
+Create a PlayerCounter.cs script, and add:
 ```cs
 public class PlayerCounter : NetworkBehaviour
 {
@@ -142,12 +144,15 @@ public class PlayerCounter : NetworkBehaviour
     public int currentNumOfPlayers;
 
     // This fires on client when value changes
-    void OnNumPlayersChanged(int _, int newValue)
+    void OnNumPlayersChanged(int oldValue, int newValue)
     {
         // Put this in a UI
         Debug.Log(newValue);
     }
+}
 ```
+
+Create a NewNetworkManager.cs, to replace the default NetworkManager and add:
 ```cs
 public class NewNetworkManager : NetworkManager
 {
@@ -168,11 +173,11 @@ public class NewNetworkManager : NetworkManager
     }
 }
 ```
+
 Find by Player tag to array.
 - Is a good way to distinguish between states, by applying the gameobjects tag for certain situtations, example states 'not ready', 'is dead', 'spectator'.
-Example:
 ```cs
-public class PlayerCounter : MonoBehaviour
+public class PlayerCounterExample : MonoBehaviour
 {
     public Text canvasPlayerCount;
     public GameObject[] playersArray;
