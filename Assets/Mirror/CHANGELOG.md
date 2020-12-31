@@ -1,3 +1,13 @@
+# [61.0.0](https://github.com/MirrorNG/MirrorNG/compare/v60.4.1...v61.0.0) (2020-12-31)
+
+
+* Removed NetworkDiscovery ([0df3afc](https://github.com/MirrorNG/MirrorNG/commit/0df3afc2616d53785aa6d2d676473251ead811b2))
+
+
+### BREAKING CHANGES
+
+* Moved NetworkDiscovery to a separate repo
+
 ## [60.4.1](https://github.com/MirrorNG/MirrorNG/compare/v60.4.0...v60.4.1) (2020-12-30)
 
 
