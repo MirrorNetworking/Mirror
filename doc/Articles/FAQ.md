@@ -168,17 +168,20 @@ public class NewNetworkManager : NetworkManager
     }
 }
 ```
-Find by Player tag to array
+Find by Player tag to array.
 - Is a good way to distinguish between states, by applying the gameobjects tag for certain situtations, example states 'not ready', 'is dead', 'spectator'.
 Example:
-  ```cs
-public Text canvasPlayerCount;
-public GameObject[] playersArray;
-
-public void ButtonFindPlayers()
+```cs
+public class PlayerCounter : MonoBehaviour
 {
-    playersArray = GameObject.FindGameObjectsWithTag("Player");
-    canvasPlayerCount.text = "Players: " + playersArray.Length;
+    public Text canvasPlayerCount;
+    public GameObject[] playersArray;
+
+    public void ButtonFindPlayers()
+    {
+       playersArray = GameObject.FindGameObjectsWithTag("Player");
+       canvasPlayerCount.text = "Players: " + playersArray.Length;
+    }
 }
 ```
     </details>
