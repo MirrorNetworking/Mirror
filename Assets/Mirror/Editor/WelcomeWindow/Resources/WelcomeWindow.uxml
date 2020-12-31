@@ -2,7 +2,7 @@
     <Style src="WelcomeWindow.uss" />
     <ui:VisualElement name="Banner">
         <ui:Label name="VersionText" text="Placeholder" />
-        <ui:Image name="Icon" style="background-image: url(&apos;/Assets/Mirror/Icon/MirrorIcon.png&apos;);" />
+        <ui:Image name="Icon" style="background-image: url(&apos;MirrorIcon.png&apos;);" />
     </ui:VisualElement>
     <ui:Label name="Title" text="Welcome to MirrorNG!" />
     <ui:Box name="ColumnContainer">
