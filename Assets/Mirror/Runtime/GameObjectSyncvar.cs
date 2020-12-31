@@ -49,12 +49,12 @@ namespace Mirror
 
     public static class GameObjectSerializers
     {
-        public static void WriteNetworkIdentity(this NetworkWriter writer, GameObjectSyncvar id)
+        public static void WriteGameObject(this NetworkWriter writer, GameObjectSyncvar id)
         {
             writer.WritePackedUInt32(id.NetId);
         }
 
-        public static GameObjectSyncvar ReadNetworkIdentity(this NetworkReader reader)
+        public static GameObjectSyncvar ReadGameObject(this NetworkReader reader)
         {
             uint netId = reader.ReadPackedUInt32();
 
