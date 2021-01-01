@@ -448,22 +448,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition syncVar in syncVars)
             {
-                // Generates a writer call for each sync variable
-                // writer
-                worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
-                // this
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
-                MethodReference writeFunc = netBehaviourSubclass.Module.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
-                {
-                    worker.Append(worker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
-                    return;
-                }
+                WriteVariable(worker, writerParameter, syncVar);
             }
 
             // always return true if forceAll
@@ -503,22 +488,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Brfalse, varLabel));
 
                 // Generates a call to the writer for that field
-                // writer
-                worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
-                // base
-                worker.Append(worker.Create(OpCodes.Ldarg_0));
-                worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
-
-                MethodReference writeFunc = netBehaviourSubclass.Module.GetWriteFunc(syncVar.FieldType);
-                if (writeFunc != null)
-                {
-                    worker.Append(worker.Create(OpCodes.Call, writeFunc));
-                }
-                else
-                {
-                    Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
-                    return;
-                }
+                WriteVariable(worker, writerParameter, syncVar);
 
                 // something was dirty
                 worker.Append(worker.Create(OpCodes.Ldc_I4_1));
@@ -532,6 +502,25 @@ namespace Mirror.Weaver
             // generate: return dirtyLocal
             worker.Append(worker.Create(OpCodes.Ldloc, dirtyLocal));
             worker.Append(worker.Create(OpCodes.Ret));
+        }
+
+        private static void WriteVariable(ILProcessor worker, ParameterDefinition writerParameter, FieldDefinition syncVar)
+        {
+            // Generates a writer call for each sync variable
+            // writer
+            worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
+            // this
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
+            MethodReference writeFunc = syncVar.Module.GetWriteFunc(syncVar.FieldType);
+            if (writeFunc != null)
+            {
+                worker.Append(worker.Create(OpCodes.Call, writeFunc));
+            }
+            else
+            {
+                Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
+            }
         }
 
         void GenerateDeSerialization(TypeDefinition netBehaviourSubclass)
