@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 
 namespace Mirror.TransformSyncing
@@ -29,6 +29,8 @@ namespace Mirror.TransformSyncing
 
             Debug.Log(builder.ToString());
         }
+        public static void LogHex(ArraySegment<byte> segment)
+            => LogHex(segment.Array, segment.Offset, segment.Count);
         public static void LogHex(byte[] bytes, int? offset = null, int? count = null)
         {
             Debug.Log(BitConverter.ToString(bytes, offset ?? 0, count ?? bytes.Length));
