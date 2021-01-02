@@ -7,7 +7,7 @@ In either case of a) the client itself terminating a connection or experiencing 
 
 ## Default disconnection strategy
 
-The NetworkManager includes settings to indicate if and when a client should be automatically disconnected, for lack of activity:
+The NetworkManager includes settings to indicate if and when a client should be automatically disconnected, for lack of activity. The settings are named 'Disconnect Inactive Connections', a boolean that, if set to true, will ensure disconnection of inactive clients within the number of seconds in the 'Disconnect Inactive Timeout' setting.
 
 ![NetworkManager automatic disconnection settings](NetworkManager_autoDiscnt_settings.jpg)
 
