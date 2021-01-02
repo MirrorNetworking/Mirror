@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using JamesFrowen.BitPacking;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -17,15 +18,18 @@ namespace Mirror.TransformSyncing.Tests
 
         [Test]
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
-        public void CompressesAndDecompresses(Vector3 min, Vector3 max, float precision, Vector3 inValue)
+        public void PackAndUnpack(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionPacker compressor = new PositionPacker(min, max, precision);
+            PositionPacker packer = new PositionPacker(min, max, precision);
 
+            NetworkWriter netWriter = new NetworkWriter();
+            BitWriter writer = new BitWriter(netWriter);
+            packer.Pack(writer, inValue);
+            writer.Flush();
 
-            NetworkWriter writer = new NetworkWriter();
-            compressor.Compress(writer, inValue);
-            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            Vector3 outValue = compressor.Decompress(reader);
+            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
+            BitReader reader = new BitReader(netReader);
+            Vector3 outValue = packer.Unpack(reader);
 
             string debugMessage = $"in{inValue} out{outValue}";
             Assert.That(outValue.x, Is.EqualTo(inValue.x).Within(precision), debugMessage);
@@ -33,32 +37,39 @@ namespace Mirror.TransformSyncing.Tests
             Assert.That(outValue.z, Is.EqualTo(inValue.z).Within(precision), debugMessage);
         }
 
+
         [Test]
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
-        public void WriteHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
+        public void PackHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionPacker compressor = new PositionPacker(min, max, precision);
-            int writeCount = Mathf.CeilToInt(compressor.bitCount / 8f);
+            PositionPacker packer = new PositionPacker(min, max, precision);
+            int writeCount = Mathf.CeilToInt(packer.bitCount / 8f);
 
-            NetworkWriter writer = new NetworkWriter();
-            compressor.Compress(writer, inValue);
+            NetworkWriter netWriter = new NetworkWriter();
+            BitWriter writer = new BitWriter(netWriter);
+            packer.Pack(writer, inValue);
+            writer.Flush();
 
-            Assert.That(writer.Length, Is.EqualTo(writeCount));
+            Assert.That(netWriter.Length, Is.EqualTo(writeCount));
         }
 
         [Test]
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
-        public void ReadHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
+        public void UnpackHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionPacker compressor = new PositionPacker(min, max, precision);
-            int readCount = Mathf.CeilToInt(compressor.bitCount / 8f);
+            PositionPacker packer = new PositionPacker(min, max, precision);
+            int readCount = Mathf.CeilToInt(packer.bitCount / 8f);
 
-            NetworkWriter writer = new NetworkWriter();
-            compressor.Compress(writer, inValue);
-            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            _ = compressor.Decompress(reader);
+            NetworkWriter netWriter = new NetworkWriter();
+            BitWriter writer = new BitWriter(netWriter);
+            packer.Pack(writer, inValue);
+            writer.Flush();
 
-            Assert.That(reader.Position, Is.EqualTo(readCount));
+            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
+            BitReader reader = new BitReader(netReader);
+            Vector3 outValue = packer.Unpack(reader);
+
+            Assert.That(netReader.Position, Is.EqualTo(readCount));
         }
 
 
@@ -77,7 +88,7 @@ namespace Mirror.TransformSyncing.Tests
         [Test]
         [Repeat(100)]
         [TestCaseSource(nameof(CompressesAndDecompressesCasesRepeat))]
-        public void CompressesAndDecompressesRepeat(Vector3 min, Vector3 max, float precision)
+        public void PackAndUnpackRepeat(Vector3 min, Vector3 max, float precision)
         {
             Vector3 inValue = new Vector3(
                 UnityEngine.Random.Range(min.x, max.x),
@@ -85,9 +96,9 @@ namespace Mirror.TransformSyncing.Tests
                 UnityEngine.Random.Range(min.z, max.z)
                 );
 
-            CompressesAndDecompresses(min, max, precision, inValue);
-            WriteHasCorrectLength(min, max, precision, inValue);
-            ReadHasCorrectLength(min, max, precision, inValue);
+            PackAndUnpack(min, max, precision, inValue);
+            PackHasCorrectLength(min, max, precision, inValue);
+            UnpackHasCorrectLength(min, max, precision, inValue);
         }
 
 
@@ -99,7 +110,7 @@ namespace Mirror.TransformSyncing.Tests
         [TestCase(1000u, 2000u, ExpectedResult = 10)]
         public int BitCountFromRangeGivesCorrectValues(uint min, uint max)
         {
-            return PositionPacker.BitCountFromRange(min, max);
+            return BitCountHelper.BitCountFromRange(min, max);
         }
         [Test]
         [TestCase(0u, 0u)]
@@ -108,7 +119,7 @@ namespace Mirror.TransformSyncing.Tests
         {
             ArgumentException execption = Assert.Throws<ArgumentException>(() =>
             {
-                PositionPacker.BitCountFromRange(min, max);
+                BitCountHelper.BitCountFromRange(min, max);
             });
 
             Assert.That(execption, Has.Message.EqualTo($"Min:{min} is greater or equal to than Max:{max}"));

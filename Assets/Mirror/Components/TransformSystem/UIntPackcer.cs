@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Mirror.TransformSyncing
+namespace JamesFrowen.BitPacking
 {
     public class UIntPackcer
     {
@@ -46,7 +46,7 @@ namespace Mirror.TransformSyncing
             }
         }
 
-        public uint UnPack(BitReader reader)
+        public uint Unpack(BitReader reader)
         {
             uint a = reader.Read(1);
             if (a == 0)

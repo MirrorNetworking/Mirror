@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using JamesFrowen.BitPacking;
 using UnityEngine;
 
 namespace Mirror.TransformSyncing
@@ -170,9 +171,9 @@ namespace Mirror.TransformSyncing
                 bitReader.Reset(netReader);
                 while (netReader.Position < count)
                 {
-                    uint id = idPacker.UnPack(bitReader);
-                    Vector3 pos = positionPacker.UnPack(bitReader);
-                    Quaternion rot = rotationPacker.UnPack(bitReader);
+                    uint id = idPacker.Unpack(bitReader);
+                    Vector3 pos = positionPacker.Unpack(bitReader);
+                    Quaternion rot = rotationPacker.Unpack(bitReader);
 
                     if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
                     {
@@ -222,9 +223,9 @@ namespace Mirror.TransformSyncing
             using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.bytes))
             {
                 bitReader.Reset(netReader);
-                uint id = idPacker.UnPack(bitReader);
-                Vector3 pos = positionPacker.UnPack(bitReader);
-                Quaternion rot = rotationPacker.UnPack(bitReader);
+                uint id = idPacker.Unpack(bitReader);
+                Vector3 pos = positionPacker.Unpack(bitReader);
+                Quaternion rot = rotationPacker.Unpack(bitReader);
 
                 if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
                 {

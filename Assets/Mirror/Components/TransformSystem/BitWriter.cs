@@ -1,8 +1,9 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Mirror;
 
-namespace Mirror.TransformSyncing
+namespace JamesFrowen.BitPacking
 {
     public class BitWriter
     {
@@ -57,9 +58,10 @@ namespace Mirror.TransformSyncing
             }
             else if (bitsInScratch > 16)
             {
-                // todo only write 3 bytes
-                uint toWrite = (uint)scratch;
-                writer.WriteBlittable(toWrite);
+                ushort toWrite1 = (ushort)scratch;
+                byte toWrite2 = (byte)(scratch >> 16);
+                writer.WriteBlittable(toWrite1);
+                writer.WriteBlittable(toWrite2);
             }
             else if (bitsInScratch > 8)
             {
@@ -145,14 +147,14 @@ namespace Mirror.TransformSyncing
                 if (extraBytesInLastScratch > 3)
                 {
                     newBits = reader.Read<uint>();
-                    count = 24 + 8;
+                    count = 32;
                 }
                 else if (extraBytesInLastScratch > 2)
                 {
-                    // todo only write 3 bytes
-                    newBits = reader.Read<uint>();
-                    // extra +8 for now, see todo above
-                    count = 16 + 8 + 8;
+                    ushort newBits1 = reader.Read<ushort>();
+                    byte newBits2 = reader.Read<byte>();
+                    newBits = newBits1 + ((uint)newBits2 << 16);
+                    count = 24;
                 }
                 else if (extraBytesInLastScratch > 1)
                 {
@@ -167,94 +169,6 @@ namespace Mirror.TransformSyncing
 
                 // set to 0 after reading
                 extraBytesInLastScratch = 0;
-            }
-        }
-    }
-
-
-    public class BitWriterUnsafeBuffer
-    {
-        private const int ScratchSize = 32;
-        byte[] buffer;
-        int bufferIndex;
-
-        ulong scratch;
-        int scratch_bits;
-
-        public ArraySegment<byte> ToSegment()
-        {
-            return new ArraySegment<byte>(buffer, 0, bufferIndex);
-        }
-        public int BufferCount => bufferIndex;
-
-        public BitWriterUnsafeBuffer(int bufferSize)
-        {
-            buffer = new byte[bufferSize];
-        }
-
-        public void Reset()
-        {
-            scratch = 0;
-            scratch_bits = 0;
-
-
-            Array.Clear(buffer, 0, buffer.Length);
-            bufferIndex = 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write(uint value, int bits)
-        {
-            if (bits > ScratchSize)
-            {
-                throw new ArgumentException($"bits must be less than {ScratchSize}");
-            }
-
-            ulong mask = (1ul << bits) - 1;
-            ulong longValue = value & mask;
-
-            scratch |= (longValue << scratch_bits);
-
-            scratch_bits += bits;
-
-            if (scratch_bits >= ScratchSize)
-            {
-                unsafeWrite();
-
-                bufferIndex += sizeof(uint);
-
-                scratch >>= ScratchSize;
-                scratch_bits -= ScratchSize;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private unsafe void unsafeWrite()
-        {
-            uint toWrite = (uint)scratch;
-            fixed (byte* ptr = &buffer[bufferIndex])
-            {
-                // cast buffer to T* pointer, then assign value to the area
-                uint* uPtr = (uint*)ptr;
-                *uPtr = toWrite;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Flush()
-        {
-            const int bitPerByte = 8;
-
-            // nothing left in scratch to write
-            if (scratch_bits != 0)
-            {
-                unsafeWrite();
-
-                // calculate how many extra bits over index*4 are needed
-                // +-1 because int is rounded down, this will mean 8 bits is 1 extra bytes
-                int extra = ((scratch_bits - 1) / bitPerByte) + 1;
-
-                bufferIndex += extra;
             }
         }
     }

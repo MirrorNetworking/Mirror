@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JamesFrowen.BitPacking;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;

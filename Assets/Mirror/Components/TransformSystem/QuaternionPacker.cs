@@ -1,8 +1,9 @@
 using System;
 using System.Runtime.CompilerServices;
+using Mirror;
 using UnityEngine;
 
-namespace Mirror.TransformSyncing
+namespace JamesFrowen.BitPacking
 {
     public class QuaternionPacker
     {
@@ -146,7 +147,7 @@ namespace Mirror.TransformSyncing
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Quaternion UnPack(BitReader reader)
+        public Quaternion Unpack(BitReader reader)
         {
             Quaternion result;
 

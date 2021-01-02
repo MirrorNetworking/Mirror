@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Mirror.TransformSyncing
+namespace JamesFrowen.BitPacking
 {
     public static class LogHelper
     {
@@ -17,6 +17,7 @@ namespace Mirror.TransformSyncing
 
             Debug.Log(builder.ToString());
         }
+
         public static void LogBits(ulong n)
         {
             System.Text.StringBuilder builder = new System.Text.StringBuilder();
@@ -29,8 +30,10 @@ namespace Mirror.TransformSyncing
 
             Debug.Log(builder.ToString());
         }
+
         public static void LogHex(ArraySegment<byte> segment)
             => LogHex(segment.Array, segment.Offset, segment.Count);
+
         public static void LogHex(byte[] bytes, int? offset = null, int? count = null)
         {
             Debug.Log(BitConverter.ToString(bytes, offset ?? 0, count ?? bytes.Length));
