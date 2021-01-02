@@ -70,10 +70,17 @@ namespace Mirror.TransformSyncing
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void Compress(BitWriter writer, float value)
+            public void Pack(BitWriter writer, float value)
             {
                 uint v = Compression.ScaleToUInt(value, minFloat, maxFloat, minUint, maxUint);
                 writer.Write(v, bitCount);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public float UnPack(BitReader reader)
+            {
+                uint v = reader.Read(bitCount);
+                return Compression.ScaleFromUInt(v, minFloat, maxFloat, minUint, maxUint);
             }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Compress(BitWriterUnsafeBuffer writer, float value)
@@ -248,21 +255,17 @@ namespace Mirror.TransformSyncing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pack(BitWriter writer, Vector3 value)
         {
-            x.Compress(writer, value.x);
-            y.Compress(writer, value.y);
-            z.Compress(writer, value.z);
+            x.Pack(writer, value.x);
+            y.Pack(writer, value.y);
+            z.Pack(writer, value.z);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3 UnPack(BitReader reader)
         {
-            uint a = reader.Read(x.bitCount);
-            uint b = reader.Read(x.bitCount);
-            uint c = reader.Read(x.bitCount);
-
             return new Vector3(
-                 x.Decompress(a),
-                 y.Decompress(b),
-                 z.Decompress(c));
+                x.UnPack(reader),
+                y.UnPack(reader),
+                z.UnPack(reader));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
