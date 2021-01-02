@@ -74,7 +74,7 @@ namespace Mirror.RemoteCalls
         /// <param name="func"></param>
         /// <param name="cmdRequireAuthority"></param>
         /// <returns>remote function hash</returns>
-        internal static int RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdRequireAuthority = true)
+        public static int RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdRequireAuthority = true)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
@@ -101,7 +101,7 @@ namespace Mirror.RemoteCalls
             return cmdHash;
         }
 
-        internal static void RegisterRequestDelegate<T>(Type invokeClass, string cmdName, RequestDelegate<T> func, bool cmdRequireAuthority = true)
+        public static void RegisterRequestDelegate<T>(Type invokeClass, string cmdName, RequestDelegate<T> func, bool cmdRequireAuthority = true)
         {
             async UniTaskVoid Wrapper(NetworkBehaviour obj, NetworkReader reader, INetworkConnection senderConnection, int replyId)
             {
