@@ -8,9 +8,18 @@ namespace Mirror.TransformSyncing.Example
         [SerializeField] int cubeCount = 10;
         [SerializeField] GameObject cubePrefab;
 
+        NetworkTransformSystem transformSystem;
+        public override void Awake()
+        {
+            base.Awake();
+            transformSystem = GetComponent<NetworkTransformSystem>();
+        }
+
         public override void OnStartClient()
         {
             ClientScene.RegisterPrefab(cubePrefab);
+
+            transformSystem.RegisterHandlers();
         }
 
         public override void OnStartServer()
@@ -20,6 +29,17 @@ namespace Mirror.TransformSyncing.Example
                 GameObject clone = Instantiate(cubePrefab);
                 NetworkServer.Spawn(clone);
             }
+
+            transformSystem.RegisterHandlers();
+        }
+
+        public override void OnStopClient()
+        {
+            transformSystem.UnregisterHandlers();
+        }
+        public override void OnStopServer()
+        {
+            transformSystem.UnregisterHandlers();
         }
     }
 }

@@ -82,6 +82,7 @@ namespace Mirror.TransformSyncing
 
         public void RegisterHandlers()
         {
+            // todo find a way to register these handles so it doesn't need to be done from NetworkManager
             if (NetworkClient.active)
             {
                 NetworkClient.RegisterHandler<NetworkPositionMessage>(ClientHandleNetworkPositionMessage);
@@ -95,6 +96,7 @@ namespace Mirror.TransformSyncing
 
         public void UnregisterHandlers()
         {
+            // todo find a way to unregister these handles so it doesn't need to be done from NetworkManager
             if (NetworkClient.active)
             {
                 NetworkClient.UnregisterHandler<NetworkPositionMessage>();
