@@ -10,7 +10,7 @@ namespace Mirror.TransformSyncing
         NetworkWriter writer;
 
         ulong scratch;
-        int scratch_bits;
+        int bitsInScratch;
 
         public BitWriter() { }
         public BitWriter(NetworkWriter writer) => Reset(writer);
@@ -18,7 +18,7 @@ namespace Mirror.TransformSyncing
         public void Reset(NetworkWriter writer)
         {
             scratch = 0;
-            scratch_bits = 0;
+            bitsInScratch = 0;
             this.writer = writer;
         }
 
@@ -27,52 +27,53 @@ namespace Mirror.TransformSyncing
         {
             if (bits > WriteSize)
             {
-                throw new System.ArgumentException($"bits must be less than {WriteSize}");
+                throw new ArgumentException($"bits must be less than {WriteSize}");
             }
 
             ulong mask = (1ul << bits) - 1;
             ulong longValue = value & mask;
 
-            scratch |= (longValue << scratch_bits);
+            scratch |= (longValue << bitsInScratch);
 
-            scratch_bits += bits;
+            bitsInScratch += bits;
 
-            if (scratch_bits >= WriteSize)
+            if (bitsInScratch >= WriteSize)
             {
                 uint toWrite = (uint)scratch;
                 writer.WriteBlittable(toWrite);
 
                 scratch >>= WriteSize;
-                scratch_bits -= WriteSize;
+                bitsInScratch -= WriteSize;
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Flush()
         {
-            if (scratch_bits > 24)
+            if (bitsInScratch > 24)
             {
                 uint toWrite = (uint)scratch;
                 writer.WriteBlittable(toWrite);
             }
-            else if (scratch_bits > 16)
+            else if (bitsInScratch > 16)
             {
                 // todo only write 3 bytes
                 uint toWrite = (uint)scratch;
                 writer.WriteBlittable(toWrite);
             }
-            else if (scratch_bits > 8)
+            else if (bitsInScratch > 8)
             {
                 ushort toWrite = (ushort)scratch;
                 writer.WriteBlittable(toWrite);
             }
-            else if (scratch_bits > 0)
+            else if (bitsInScratch > 0)
             {
                 byte toWrite = (byte)scratch;
                 writer.WriteBlittable(toWrite);
             }
         }
     }
+
     public class BitReader
     {
         private const int ReadSize = 32;
@@ -80,11 +81,11 @@ namespace Mirror.TransformSyncing
         NetworkReader reader;
 
         ulong scratch;
-        int scratch_bits;
-        int full_scratches;
-        int scratches_extra_bytes;
+        int bitsInScratch;
+        int numberOfFullScratches;
+        int extraBytesInLastScratch;
 
-        public bool IsScratchEmpty => scratch_bits == 0;
+        public int BitsInScratch => bitsInScratch;
 
         public BitReader() { }
         public BitReader(NetworkReader reader) => Reset(reader);
@@ -93,23 +94,23 @@ namespace Mirror.TransformSyncing
         {
             this.reader = reader;
             int total_bytes = reader.Length;
-            full_scratches = total_bytes / sizeof(int);
-            scratches_extra_bytes = total_bytes - (full_scratches * sizeof(int));
+            numberOfFullScratches = total_bytes / sizeof(int);
+            extraBytesInLastScratch = total_bytes - (numberOfFullScratches * sizeof(int));
         }
 
         public uint Read(int bits)
         {
             if (bits > ReadSize)
             {
-                throw new System.ArgumentException($"bits must be less than {ReadSize}");
+                throw new ArgumentException($"bits must be less than {ReadSize}");
             }
 
-            if (bits > scratch_bits)
+            if (bits > bitsInScratch)
             {
                 ReadScratch(out uint newValue, out int count);
-                scratch |= ((ulong)newValue << scratch_bits);
+                scratch |= ((ulong)newValue << bitsInScratch);
 
-                scratch_bits += count;
+                bitsInScratch += count;
             }
 
 
@@ -120,7 +121,7 @@ namespace Mirror.TransformSyncing
 
             // remove bits from scatch
             scratch >>= bits;
-            scratch_bits -= bits;
+            bitsInScratch -= bits;
 
             return (uint)value;
         }
@@ -128,32 +129,32 @@ namespace Mirror.TransformSyncing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ReadScratch(out uint newBits, out int count)
         {
-            if (full_scratches > 0)
+            if (numberOfFullScratches > 0)
             {
                 newBits = reader.ReadBlittable<uint>();
-                full_scratches--;
+                numberOfFullScratches--;
                 count = ReadSize;
             }
             else
             {
-                if (scratches_extra_bytes == 0)
+                if (extraBytesInLastScratch == 0)
                 {
                     throw new EndOfStreamException($"No bits left to read");
                 }
 
-                if (scratches_extra_bytes > 3)
+                if (extraBytesInLastScratch > 3)
                 {
                     newBits = reader.Read<uint>();
                     count = 24 + 8;
                 }
-                else if (scratches_extra_bytes > 2)
+                else if (extraBytesInLastScratch > 2)
                 {
                     // todo only write 3 bytes
                     newBits = reader.Read<uint>();
                     // extra +8 for now, see todo above
                     count = 16 + 8 + 8;
                 }
-                else if (scratches_extra_bytes > 1)
+                else if (extraBytesInLastScratch > 1)
                 {
                     newBits = reader.Read<ushort>();
                     count = 16;
@@ -165,7 +166,7 @@ namespace Mirror.TransformSyncing
                 }
 
                 // set to 0 after reading
-                scratches_extra_bytes = 0;
+                extraBytesInLastScratch = 0;
             }
         }
     }
@@ -206,7 +207,7 @@ namespace Mirror.TransformSyncing
         {
             if (bits > ScratchSize)
             {
-                throw new System.ArgumentException($"bits must be less than {ScratchSize}");
+                throw new ArgumentException($"bits must be less than {ScratchSize}");
             }
 
             ulong mask = (1ul << bits) - 1;
