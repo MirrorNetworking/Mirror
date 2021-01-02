@@ -11,7 +11,7 @@ namespace Mirror.Benchmark
     {
         private const int ObjectCount = 1000;
         Stopwatch sw = Stopwatch.StartNew();
-        private PositionCompression compression;
+        private PositionPacker compression;
         private Vector3[] positions;
         private Quaternion[] rotations;
         private Dictionary<uint, IHasPositionRotation> objects;
@@ -71,7 +71,7 @@ namespace Mirror.Benchmark
                 bitWriterBuffer = new BitWriterUnsafeBuffer(ObjectCount * 32);
 
 
-                compression = new PositionCompression(Vector3.zero, new Vector3(200, 50, 200), 0.05f);
+                compression = new PositionPacker(Vector3.zero, new Vector3(200, 50, 200), 0.05f);
                 objects = new Dictionary<uint, IHasPositionRotation>();
                 objectsArray = new IHasPositionRotation[ObjectCount];
                 positions = new Vector3[ObjectCount];
@@ -196,7 +196,7 @@ namespace Mirror.Benchmark
                 bitWriter.Reset(netWriter);
                 for (int i = 0; i < positions.Length; i++)
                 {
-                    compression.Compress(bitWriter, positions[i]);
+                    compression.Pack(bitWriter, positions[i]);
                 }
                 bitWriter.Flush();
                 return netWriter.Length;
@@ -342,12 +342,12 @@ namespace Mirror.Benchmark
         public class WriteTranforms : ICanRun
         {
             readonly Dictionary<uint, IHasPositionRotation> objects;
-            readonly PositionCompression compression;
+            readonly PositionPacker compression;
 
 
             public int writeCount = 0;
             int ICanRun.WriteCount => writeCount;
-            public WriteTranforms(Dictionary<uint, IHasPositionRotation> objects, PositionCompression compression)
+            public WriteTranforms(Dictionary<uint, IHasPositionRotation> objects, PositionPacker compression)
             {
                 this.objects = objects;
                 this.compression = compression;
@@ -383,13 +383,13 @@ namespace Mirror.Benchmark
         {
             readonly BitWriter writer;
             readonly Dictionary<uint, IHasPositionRotation> objects;
-            readonly PositionCompression compression;
+            readonly PositionPacker compression;
             readonly QuaternionPacker quaternionPacker;
 
 
             public int writeCount = 0;
             int ICanRun.WriteCount => writeCount;
-            public PackTranforms(Dictionary<uint, IHasPositionRotation> objects, PositionCompression compression)
+            public PackTranforms(Dictionary<uint, IHasPositionRotation> objects, PositionPacker compression)
             {
                 this.objects = objects;
                 this.compression = compression;
@@ -402,7 +402,7 @@ namespace Mirror.Benchmark
                 using (PooledNetworkWriter netWriter = NetworkWriterPool.GetWriter())
                 {
                     writer.Reset(netWriter);
-                    int idBitCount = PositionCompression.BitCountFromRange(ObjectCount);
+                    int idBitCount = PositionPacker.BitCountFromRange(ObjectCount);
 
                     foreach (KeyValuePair<uint, IHasPositionRotation> kvp in objects)
                     {
@@ -414,7 +414,7 @@ namespace Mirror.Benchmark
                         PositionRotation posRot = behaviour.PositionRotation;
 
                         writer.Write(id, idBitCount);
-                        compression.Compress(writer, posRot.position);
+                        compression.Pack(writer, posRot.position);
                         quaternionPacker.Pack(writer, posRot.rotation);
 
                         behaviour.ClearNeedsUpdate();
@@ -431,13 +431,13 @@ namespace Mirror.Benchmark
         {
             readonly BitWriterUnsafeBuffer writer;
             readonly Dictionary<uint, IHasPositionRotation> objects;
-            readonly PositionCompression compression;
+            readonly PositionPacker compression;
             readonly QuaternionPacker quaternionPacker;
 
 
             public int writeCount = 0;
             int ICanRun.WriteCount => writeCount;
-            public PackTranformsWithBuffer(Dictionary<uint, IHasPositionRotation> objects, PositionCompression compression)
+            public PackTranformsWithBuffer(Dictionary<uint, IHasPositionRotation> objects, PositionPacker compression)
             {
                 this.objects = objects;
                 this.compression = compression;
@@ -449,7 +449,7 @@ namespace Mirror.Benchmark
             public void Run()
             {
                 writer.Reset();
-                int idBitCount = PositionCompression.BitCountFromRange(ObjectCount);
+                int idBitCount = PositionPacker.BitCountFromRange(ObjectCount);
 
                 foreach (KeyValuePair<uint, IHasPositionRotation> kvp in objects)
                 {
@@ -477,13 +477,13 @@ namespace Mirror.Benchmark
         {
             readonly BitWriterUnsafeBuffer writer;
             readonly Dictionary<uint, IHasPositionRotation> objects;
-            readonly PositionCompression compression;
+            readonly PositionPacker compression;
             readonly QuaternionPackerOptimized quaternionPacker;
 
 
             public int writeCount = 0;
             int ICanRun.WriteCount => writeCount;
-            public PackTranformsWithBufferOptimized(Dictionary<uint, IHasPositionRotation> objects, PositionCompression compression)
+            public PackTranformsWithBufferOptimized(Dictionary<uint, IHasPositionRotation> objects, PositionPacker compression)
             {
                 this.objects = objects;
                 this.compression = compression;
@@ -495,7 +495,7 @@ namespace Mirror.Benchmark
             public void Run()
             {
                 writer.Reset();
-                int idBitCount = PositionCompression.BitCountFromRange(ObjectCount);
+                int idBitCount = PositionPacker.BitCountFromRange(ObjectCount);
 
                 foreach (KeyValuePair<uint, IHasPositionRotation> kvp in objects)
                 {
@@ -1118,6 +1118,88 @@ namespace Mirror.Benchmark
                 default:
                     throw new IndexOutOfRangeException("Invalid Quaternion index!");
             }
+        }
+    }
+
+    /// <summary>
+    /// packed read/write from mirror v26 and optimized
+    /// </summary>
+    public static class PackedWriter
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePacked(NetworkWriter writer, uint value)
+        {
+            if (value <= 240)
+            {
+                writer.WriteByte((byte)value);
+                return;
+            }
+            if (value <= 2287)
+            {
+                writer.WriteByte((byte)(((value - 240) >> 8) + 241));
+                writer.WriteByte((byte)(value - 240));
+                return;
+            }
+            if (value <= 67823)
+            {
+                writer.WriteByte(249);
+                writer.WriteByte((byte)((value - 2288) >> 8));
+                writer.WriteByte((byte)(value - 2288));
+                return;
+            }
+            if (value <= 16777215)
+            {
+                writer.WriteByte(250);
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                return;
+            }
+            if (value <= 4294967295)
+            {
+                writer.WriteByte(251);
+                writer.WriteByte((byte)value);
+                writer.WriteByte((byte)(value >> 8));
+                writer.WriteByte((byte)(value >> 16));
+                writer.WriteByte((byte)(value >> 24));
+                return;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadPacked(NetworkReader reader)
+        {
+            byte a0 = reader.ReadByte();
+            if (a0 < 241)
+            {
+                return a0;
+            }
+
+            byte a1 = reader.ReadByte();
+            if (a0 >= 241 && a0 <= 248)
+            {
+                return 240 + ((a0 - (uint)241) << 8) + a1;
+            }
+
+            byte a2 = reader.ReadByte();
+            if (a0 == 249)
+            {
+                return 2288 + ((uint)a1 << 8) + a2;
+            }
+
+            byte a3 = reader.ReadByte();
+            if (a0 == 250)
+            {
+                return a1 + (((uint)a2) << 8) + (((uint)a3) << 16);
+            }
+
+            byte a4 = reader.ReadByte();
+            if (a0 == 251)
+            {
+                return a1 + (((uint)a2) << 8) + (((uint)a3) << 16) + (((uint)a4) << 24);
+            }
+
+            throw new DataMisalignedException("ReadPacked() failure: " + a0);
         }
     }
 }
