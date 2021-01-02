@@ -36,11 +36,13 @@ namespace Mirror.TransformSyncing
         [SerializeField] int bitCount = 9;
 
 
-        [Header("Debug And Gizmo")]
+        [Header("Position Debug And Gizmo")]
+        // todo replace these serialized fields with custom editor
         [SerializeField] private bool drawGizmo;
         [SerializeField] private Color gizmoColor;
         [Tooltip("readonly")]
         [SerializeField] private int _bitCount;
+        [Tooltip("readonly")]
         [SerializeField] private Vector3Int _bitCountAxis;
         [Tooltip("readonly")]
         [SerializeField] private int _byteCount;
@@ -69,6 +71,13 @@ namespace Mirror.TransformSyncing
         private void OnDisable()
         {
             runtime.System = null;
+        }
+        private void OnValidate()
+        {
+            positionPacker = new PositionPacker(min, max, precision);
+            _bitCount = positionPacker.bitCount;
+            _bitCountAxis = positionPacker.BitCountAxis;
+            _byteCount = Mathf.CeilToInt(_bitCount / 8f);
         }
 
         public void RegisterHandlers()
@@ -247,7 +256,6 @@ namespace Mirror.TransformSyncing
             Gizmos.DrawWireCube(bounds.center, bounds.size);
         }
 #endif
-
     }
 
     public interface IHasPositionRotation
