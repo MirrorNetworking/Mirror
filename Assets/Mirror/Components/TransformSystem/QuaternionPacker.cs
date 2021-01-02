@@ -14,10 +14,13 @@ namespace Mirror.TransformSyncing
         // is also mask
         readonly uint UintMax;
 
+        public readonly int bitCount;
+
         public QuaternionPacker(int quaternionBitLength)
         {
             BitLength = quaternionBitLength;
             UintMax = (1u << BitLength) - 1u;
+            bitCount = 2 + quaternionBitLength * 3;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

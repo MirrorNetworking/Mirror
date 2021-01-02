@@ -12,7 +12,7 @@ namespace Mirror.TransformSyncing
 
 
         [Header("Reference")]
-        [SerializeField] NetworkTransformSystemRuntimeReference runtime;
+        [SerializeField] internal NetworkTransformSystemRuntimeReference runtime;
 
         [Header("Sync")]
         [Tooltip("How often 1 behaviour should update")]
@@ -45,11 +45,11 @@ namespace Mirror.TransformSyncing
         [SerializeField] private int _byteCount;
 
 
-        [NonSerialized] BitWriter bitWriter;
-        [NonSerialized] BitReader bitReader;
-        [NonSerialized] UIntPackcer idPacker;
-        [NonSerialized] PositionPacker positionPacker;
-        [NonSerialized] QuaternionPacker rotationPacker;
+        [NonSerialized] BitWriter bitWriter = new BitWriter();
+        [NonSerialized] internal BitReader bitReader = new BitReader();
+        [NonSerialized] internal UIntPackcer idPacker;
+        [NonSerialized] internal PositionPacker positionPacker;
+        [NonSerialized] internal QuaternionPacker rotationPacker;
 
 
         [NonSerialized] float nextSyncInterval;
@@ -59,8 +59,6 @@ namespace Mirror.TransformSyncing
             idPacker = new UIntPackcer(smallBitCount, mediumBitCount, largeBitCount);
             positionPacker = new PositionPacker(min, max, precision);
             rotationPacker = new QuaternionPacker(bitCount);
-            bitWriter = new BitWriter();
-            bitReader = new BitReader();
         }
 
         private void OnEnable()
@@ -129,9 +127,7 @@ namespace Mirror.TransformSyncing
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                bitWriter.Reset(writer);
-                PackBehaviours();
-                bitWriter.Flush();
+                PackBehaviours(writer);
 
                 // dont send anything if nothing was written (eg, nothing dirty)
                 if (writer.Length == 0) { return; }
@@ -143,8 +139,9 @@ namespace Mirror.TransformSyncing
             }
         }
 
-        internal void PackBehaviours()
+        internal void PackBehaviours(PooledNetworkWriter netWriter)
         {
+            bitWriter.Reset(netWriter);
             float now = Time.time;
 
             foreach (KeyValuePair<uint, IHasPositionRotation> kvp in runtime.behaviours)
@@ -162,6 +159,7 @@ namespace Mirror.TransformSyncing
 
                 behaviour.ClearNeedsUpdate();
             }
+            bitWriter.Flush();
         }
 
         internal void ClientHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionMessage msg)
@@ -182,7 +180,6 @@ namespace Mirror.TransformSyncing
                     }
                 }
                 Debug.Assert(netReader.Position == count, "should have read exact amount");
-                Debug.Assert(bitReader.IsScratchEmpty, "should have read exact amount");
             }
         }
 
@@ -235,7 +232,6 @@ namespace Mirror.TransformSyncing
                 }
 
                 Debug.Assert(netReader.Position == msg.bytes.Count, "should have read exact amount");
-                Debug.Assert(bitReader.IsScratchEmpty, "should have read exact amount");
             }
         }
 

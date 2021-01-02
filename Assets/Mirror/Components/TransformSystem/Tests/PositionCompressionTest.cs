@@ -19,7 +19,7 @@ namespace Mirror.TransformSyncing.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void CompressesAndDecompresses(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionCompression compressor = new PositionCompression(min, max, precision);
+            PositionPacker compressor = new PositionPacker(min, max, precision);
 
 
             NetworkWriter writer = new NetworkWriter();
@@ -37,7 +37,7 @@ namespace Mirror.TransformSyncing.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void WriteHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionCompression compressor = new PositionCompression(min, max, precision);
+            PositionPacker compressor = new PositionPacker(min, max, precision);
             int writeCount = Mathf.CeilToInt(compressor.bitCount / 8f);
 
             NetworkWriter writer = new NetworkWriter();
@@ -50,7 +50,7 @@ namespace Mirror.TransformSyncing.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void ReadHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionCompression compressor = new PositionCompression(min, max, precision);
+            PositionPacker compressor = new PositionPacker(min, max, precision);
             int readCount = Mathf.CeilToInt(compressor.bitCount / 8f);
 
             NetworkWriter writer = new NetworkWriter();
@@ -99,7 +99,7 @@ namespace Mirror.TransformSyncing.Tests
         [TestCase(1000u, 2000u, ExpectedResult = 10)]
         public int BitCountFromRangeGivesCorrectValues(uint min, uint max)
         {
-            return PositionCompression.BitCountFromRange(min, max);
+            return PositionPacker.BitCountFromRange(min, max);
         }
         [Test]
         [TestCase(0u, 0u)]
@@ -108,7 +108,7 @@ namespace Mirror.TransformSyncing.Tests
         {
             ArgumentException execption = Assert.Throws<ArgumentException>(() =>
             {
-                PositionCompression.BitCountFromRange(min, max);
+                PositionPacker.BitCountFromRange(min, max);
             });
 
             Assert.That(execption, Has.Message.EqualTo($"Min:{min} is greater or equal to than Max:{max}"));
