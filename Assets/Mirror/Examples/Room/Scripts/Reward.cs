@@ -46,7 +46,7 @@ namespace Mirror.Examples.NetworkRoom
                 player.GetComponent<PlayerScore>().score += points;
 
                 // spawn a replacement
-                Spawner.SpawnReward();
+                FindObjectOfType<RewardSpawner>().SpawnReward();
 
                 // destroy this one
                 NetworkServer.Destroy(gameObject);

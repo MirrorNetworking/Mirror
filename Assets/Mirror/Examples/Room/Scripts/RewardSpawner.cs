@@ -2,9 +2,14 @@ using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom
 {
-    internal class Spawner: MonoBehaviour
+    [AddComponentMenu("")]
+    public class RewardSpawner: NetworkBehaviour
     {
-        internal static void InitialSpawn()
+        [Header("Spawner Setup")]
+        [Tooltip("Reward Prefab for the Spawner")]
+        public GameObject rewardPrefab;
+
+        public override void OnStartServer()
         {
             if (!NetworkServer.active) return;
 
@@ -12,12 +17,12 @@ namespace Mirror.Examples.NetworkRoom
                 SpawnReward();
         }
 
-        internal static void SpawnReward()
+        internal void SpawnReward()
         {
             if (!NetworkServer.active) return;
 
             Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
-            NetworkServer.Spawn(Instantiate(((NetworkRoomManagerExt)NetworkManager.singleton).rewardPrefab, spawnPosition, Quaternion.identity));
+            NetworkServer.Spawn(Instantiate(rewardPrefab, spawnPosition, Quaternion.identity));
         }
     }
 }
