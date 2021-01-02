@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mirror.TransformSyncing
 {
-    public class PositionCompression
+    public class PositionPacker
     {
         /// <summary>
         /// returns how many bits are required for inclusive range of min to max
@@ -101,13 +101,13 @@ namespace Mirror.TransformSyncing
 
         public Vector3Int BitCountAxis => new Vector3Int(x.bitCount, y.bitCount, z.bitCount);
 
-        public PositionCompression(Bounds bounds, float precision)
+        public PositionPacker(Bounds bounds, float precision)
             : this(bounds.min, bounds.max, Vector3.one * precision) { }
-        public PositionCompression(Bounds bounds, Vector3 precision)
+        public PositionPacker(Bounds bounds, Vector3 precision)
             : this(bounds.min, bounds.max, precision) { }
-        public PositionCompression(Vector3 min, Vector3 max, float precision)
+        public PositionPacker(Vector3 min, Vector3 max, float precision)
             : this(min, max, Vector3.one * precision) { }
-        public PositionCompression(Vector3 min, Vector3 max, Vector3 precision)
+        public PositionPacker(Vector3 min, Vector3 max, Vector3 precision)
         {
             x = new CompressFloat(min.x, max.x, precision.x);
             y = new CompressFloat(min.y, max.y, precision.y);
@@ -246,14 +246,14 @@ namespace Mirror.TransformSyncing
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Compress(BitWriter writer, Vector3 value)
+        public void Pack(BitWriter writer, Vector3 value)
         {
             x.Compress(writer, value.x);
             y.Compress(writer, value.y);
             z.Compress(writer, value.z);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Vector3 Decompress(BitReader reader)
+        public Vector3 UnPack(BitReader reader)
         {
             uint a = reader.Read(x.bitCount);
             uint b = reader.Read(x.bitCount);

@@ -8,25 +8,11 @@ namespace Mirror.TransformSyncing
     public class NetworkTransformSystem : MonoBehaviour
     {
         // todo make this work with network Visibility
-        // todo replace singleton with scriptable object (find a way to read without needing static)
         // todo add maxMessageSize (splits up update message into multiple messages if too big)
 
-        public static NetworkTransformSystem Instance { get; private set; }
 
-        readonly Dictionary<uint, IHasPositionRotation> _behaviours = new Dictionary<uint, IHasPositionRotation>();
-
-        public IReadOnlyCollection<KeyValuePair<uint, IHasPositionRotation>> Behaviours => _behaviours;
-
-        public void AddBehaviour(IHasPositionRotation behaviour)
-        {
-            _behaviours.Add(behaviour.Id, behaviour);
-        }
-
-        public void RemoveBehaviour(IHasPositionRotation behaviour)
-        {
-            _behaviours.Remove(behaviour.Id);
-        }
-
+        [Header("Reference")]
+        [SerializeField] NetworkTransformSystemRuntimeReference runtime;
 
         [Header("Sync")]
         [Tooltip("How often 1 behaviour should update")]
@@ -34,11 +20,19 @@ namespace Mirror.TransformSyncing
         [Tooltip("Check if behaviours need update every frame, If false then checks every syncInterval")]
         public bool checkEveryFrame = true;
 
+        [Header("Id Compression")]
+        [SerializeField] int smallBitCount = 6;
+        [SerializeField] int mediumBitCount = 12;
+        [SerializeField] int largeBitCount = 18;
+
+
         [Header("Position Compression")]
-        [SerializeField] bool compressPosition = true;
         [SerializeField] Vector3 min = Vector3.one * -100;
         [SerializeField] Vector3 max = Vector3.one * 100;
         [SerializeField] float precision = 0.01f;
+
+        [Header("Rotation Compression")]
+        [SerializeField] int bitCount = 9;
 
 
         [Header("Debug And Gizmo")]
@@ -50,30 +44,32 @@ namespace Mirror.TransformSyncing
         [Tooltip("readonly")]
         [SerializeField] private int _byteCount;
 
-        // this needs to be public for reader
-        [NonSerialized]
-        public PositionCompression compression;
 
-        [NonSerialized]
-        float nextSyncInterval;
+        [NonSerialized] BitWriter bitWriter;
+        [NonSerialized] BitReader bitReader;
+        [NonSerialized] UIntPackcer idPacker;
+        [NonSerialized] PositionPacker positionPacker;
+        [NonSerialized] QuaternionPacker rotationPacker;
 
-        private void OnValidate()
-        {
-            compression = new PositionCompression(min, max, precision);
-            _bitCount = compression.bitCount;
-            _bitCountAxis = compression.BitCountAxis;
-            _byteCount = Mathf.CeilToInt(_bitCount / 8f);
-        }
+
+        [NonSerialized] float nextSyncInterval;
+
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(this);
-                return;
-            }
-            Instance = this;
+            idPacker = new UIntPackcer(smallBitCount, mediumBitCount, largeBitCount);
+            positionPacker = new PositionPacker(min, max, precision);
+            rotationPacker = new QuaternionPacker(bitCount);
+            bitWriter = new BitWriter();
+            bitReader = new BitReader();
+        }
 
-            compression = new PositionCompression(min, max, precision);
+        private void OnEnable()
+        {
+            runtime.System = this;
+        }
+        private void OnDisable()
+        {
+            runtime.System = null;
         }
 
         public void RegisterHandlers()
@@ -129,26 +125,29 @@ namespace Mirror.TransformSyncing
         internal void SendUpdateToAll()
         {
             // dont send message if no behaviours
-            if (_behaviours.Count == 0) { return; }
+            if (runtime.behaviours.Count == 0) { return; }
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                NetworkPositionMessage msg = CreateSendToAllMessage(writer);
+                bitWriter.Reset(writer);
+                PackBehaviours();
+                bitWriter.Flush();
 
-                // dont send if none were dirty
-                if (msg.bytes.Count == 0) { return; }
+                // dont send anything if nothing was written (eg, nothing dirty)
+                if (writer.Length == 0) { return; }
 
-                NetworkServer.SendToAll(msg);
+                NetworkServer.SendToAll(new NetworkPositionMessage
+                {
+                    bytes = writer.ToArraySegment()
+                });
             }
         }
 
-        internal NetworkPositionMessage CreateSendToAllMessage(NetworkWriter writer)
+        internal void PackBehaviours()
         {
-            NetworkPositionMessage msg;
             float now = Time.time;
 
-
-            foreach (KeyValuePair<uint, IHasPositionRotation> kvp in _behaviours)
+            foreach (KeyValuePair<uint, IHasPositionRotation> kvp in runtime.behaviours)
             {
                 IHasPositionRotation behaviour = kvp.Value;
                 if (!behaviour.NeedsUpdate(now))
@@ -157,31 +156,64 @@ namespace Mirror.TransformSyncing
                 uint id = kvp.Key;
                 PositionRotation posRot = behaviour.PositionRotation;
 
-                PackedWriter.WritePacked(writer, id);
-
-                if (compressPosition)
-                {
-                    compression.Compress(writer, posRot.position);
-                }
-                else
-                {
-                    writer.WriteVector3(posRot.position);
-                }
-
-                writer.WriteBlittable(Compression.CompressQuaternion(posRot.rotation));
+                idPacker.Pack(bitWriter, id);
+                positionPacker.Pack(bitWriter, posRot.position);
+                rotationPacker.Pack(bitWriter, posRot.rotation);
 
                 behaviour.ClearNeedsUpdate();
             }
+        }
 
-            msg = new NetworkPositionMessage
+        internal void ClientHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionMessage msg)
+        {
+            int count = msg.bytes.Count;
+            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.bytes))
             {
-                bytes = writer.ToArraySegment()
-            };
+                bitReader.Reset(netReader);
+                while (netReader.Position < count)
+                {
+                    uint id = idPacker.UnPack(bitReader);
+                    Vector3 pos = positionPacker.UnPack(bitReader);
+                    Quaternion rot = rotationPacker.UnPack(bitReader);
 
-            return msg;
+                    if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
+                    {
+                        behaviour.ApplyOnClient(new PositionRotation(pos, rot));
+                    }
+                }
+                Debug.Assert(netReader.Position == count, "should have read exact amount");
+                Debug.Assert(bitReader.IsScratchEmpty, "should have read exact amount");
+            }
         }
 
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SendMessageToServer(IHasPositionRotation behaviour)
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                bitWriter.Reset(writer);
+
+                uint id = behaviour.Id;
+                PositionRotation posRot = behaviour.PositionRotation;
+
+                idPacker.Pack(bitWriter, id);
+                positionPacker.Pack(bitWriter, posRot.position);
+                rotationPacker.Pack(bitWriter, posRot.rotation);
+
+                behaviour.ClearNeedsUpdate();
+
+                bitWriter.Flush();
+
+                // dont send anything if nothing was written (eg, nothing dirty)
+                if (writer.Length == 0) { return; }
+
+                NetworkServer.SendToAll(new NetworkPositionSingleMessage
+                {
+                    bytes = writer.ToArraySegment()
+                });
+            }
+        }
 
         /// <summary>
         /// Position from client to server
@@ -190,37 +222,20 @@ namespace Mirror.TransformSyncing
         /// <param name="arg2"></param>
         internal void ServerHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionSingleMessage msg)
         {
-            uint id = msg.id;
-            Vector3 position = msg.position;
-            Quaternion rotation = Compression.DecompressQuaternion(msg.compressedRotation);
-
-            if (_behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
+            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.bytes))
             {
-                behaviour.ApplyOnServer(new PositionRotation(position, rotation));
-            }
-        }
+                bitReader.Reset(netReader);
+                uint id = idPacker.UnPack(bitReader);
+                Vector3 pos = positionPacker.UnPack(bitReader);
+                Quaternion rot = rotationPacker.UnPack(bitReader);
 
-
-        internal void ClientHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionMessage msg)
-        {
-            int count = msg.bytes.Count;
-            using (PooledNetworkReader reader = NetworkReaderPool.GetReader(msg.bytes))
-            {
-                while (reader.Position < count)
+                if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
                 {
-                    uint id = PackedWriter.ReadPacked(reader);
-                    Vector3 position = compressPosition
-                        ? compression.Decompress(reader)
-                        : reader.ReadVector3();
-
-                    Quaternion rotation = Compression.DecompressQuaternion(reader.ReadBlittable<uint>());
-
-                    if (_behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
-                    {
-                        behaviour.ApplyOnClient(new PositionRotation(position, rotation));
-                    }
+                    behaviour.ApplyOnServer(new PositionRotation(pos, rot));
                 }
-                Debug.Assert(reader.Position == count, "should have read exact amount");
+
+                Debug.Assert(netReader.Position == msg.bytes.Count, "should have read exact amount");
+                Debug.Assert(bitReader.IsScratchEmpty, "should have read exact amount");
             }
         }
 
@@ -235,89 +250,9 @@ namespace Mirror.TransformSyncing
             Gizmos.DrawWireCube(bounds.center, bounds.size);
         }
 #endif
+
     }
 
-    /// <summary>
-    /// packed read/write from mirror v26 and optimized
-    /// </summary>
-    public static class PackedWriter
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void WritePacked(NetworkWriter writer, uint value)
-        {
-            if (value <= 240)
-            {
-                writer.WriteByte((byte)value);
-                return;
-            }
-            if (value <= 2287)
-            {
-                writer.WriteByte((byte)(((value - 240) >> 8) + 241));
-                writer.WriteByte((byte)(value - 240));
-                return;
-            }
-            if (value <= 67823)
-            {
-                writer.WriteByte(249);
-                writer.WriteByte((byte)((value - 2288) >> 8));
-                writer.WriteByte((byte)(value - 2288));
-                return;
-            }
-            if (value <= 16777215)
-            {
-                writer.WriteByte(250);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                return;
-            }
-            if (value <= 4294967295)
-            {
-                writer.WriteByte(251);
-                writer.WriteByte((byte)value);
-                writer.WriteByte((byte)(value >> 8));
-                writer.WriteByte((byte)(value >> 16));
-                writer.WriteByte((byte)(value >> 24));
-                return;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint ReadPacked(NetworkReader reader)
-        {
-            byte a0 = reader.ReadByte();
-            if (a0 < 241)
-            {
-                return a0;
-            }
-
-            byte a1 = reader.ReadByte();
-            if (a0 >= 241 && a0 <= 248)
-            {
-                return 240 + ((a0 - (uint)241) << 8) + a1;
-            }
-
-            byte a2 = reader.ReadByte();
-            if (a0 == 249)
-            {
-                return 2288 + ((uint)a1 << 8) + a2;
-            }
-
-            byte a3 = reader.ReadByte();
-            if (a0 == 250)
-            {
-                return a1 + (((uint)a2) << 8) + (((uint)a3) << 16);
-            }
-
-            byte a4 = reader.ReadByte();
-            if (a0 == 251)
-            {
-                return a1 + (((uint)a2) << 8) + (((uint)a3) << 16) + (((uint)a4) << 24);
-            }
-
-            throw new DataMisalignedException("ReadPacked() failure: " + a0);
-        }
-    }
     public interface IHasPositionRotation
     {
         /// <summary>
@@ -367,65 +302,6 @@ namespace Mirror.TransformSyncing
     }
     public struct NetworkPositionSingleMessage : NetworkMessage
     {
-        public uint id;
-        public Vector3 position;
-        public uint compressedRotation;
-
-        public NetworkReader reader;
-        public PositionCompression compression;
-
-        public NetworkPositionSingleMessage FromReader(PositionCompression compression)
-        {
-            uint id = PackedWriter.ReadPacked(reader);
-            Vector3 pos = compression.Decompress(reader);
-            uint rot = reader.ReadUInt32();
-
-            return new NetworkPositionSingleMessage
-            {
-                id = id,
-                position = pos,
-                compressedRotation = rot,
-            };
-        }
-    }
-    public static class PositionMessageWriter
-    {
-        public static void WriteNetworkPositionSingleMessage_static(this NetworkWriter writer, NetworkPositionSingleMessage msg)
-        {
-            PackedWriter.WritePacked(writer, msg.id);
-            PositionCompression compression = NetworkTransformSystem.Instance.compression;
-            compression.Compress(writer, msg.position);
-            writer.WriteUInt32(msg.compressedRotation);
-
-        }
-        public static NetworkPositionSingleMessage ReadNetworkPositionSingleMessage_static(this NetworkReader reader)
-        {
-            uint id = PackedWriter.ReadPacked(reader);
-            PositionCompression compression = NetworkTransformSystem.Instance.compression;
-            Vector3 pos = compression.Decompress(reader);
-            uint compressedRotation = reader.ReadUInt32();
-
-            return new NetworkPositionSingleMessage
-            {
-                id = id,
-                position = pos,
-                compressedRotation = compressedRotation
-            };
-        }
-
-        public static void WriteNetworkPositionSingleMessage(this NetworkWriter writer, NetworkPositionSingleMessage msg)
-        {
-            PackedWriter.WritePacked(writer, msg.id);
-            PositionCompression compression = msg.compression;
-            compression.Compress(writer, msg.position);
-            writer.WriteUInt32(msg.compressedRotation);
-        }
-        public static NetworkPositionSingleMessage ReadNetworkPositionSingleMessage(this NetworkReader reader)
-        {
-            return new NetworkPositionSingleMessage
-            {
-                reader = reader,
-            };
-        }
+        public ArraySegment<byte> bytes;
     }
 }

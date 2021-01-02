@@ -54,11 +54,7 @@ namespace Mirror.TransformSyncing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SendMessageToServer()
         {
-            connectionToServer.Send(new NetworkPositionSingleMessage
-            {
-                id = netId,
-                position = target.localPosition,
-            });
+            runtime.System.SendMessageToServer(this);
         }
 
 
@@ -72,27 +68,30 @@ namespace Mirror.TransformSyncing
 
         public override void OnStartClient()
         {
-            NetworkTransformSystem.Instance.AddBehaviour(this);
+            runtime.AddBehaviour(this);
         }
         public override void OnStartServer()
         {
-            NetworkTransformSystem.Instance.AddBehaviour(this);
+            runtime.AddBehaviour(this);
         }
 
         public override void OnStopClient()
         {
-            NetworkTransformSystem.Instance.RemoveBehaviour(this);
+            runtime.RemoveBehaviour(this);
         }
         public override void OnStopServer()
         {
-            NetworkTransformSystem.Instance.RemoveBehaviour(this);
+            runtime.RemoveBehaviour(this);
         }
 
         private void OnDestroy()
         {
             // make sure is removed
-            NetworkTransformSystem.Instance.RemoveBehaviour(this);
+            runtime.RemoveBehaviour(this);
         }
+
+        [Header("Reference")]
+        [SerializeField] NetworkTransformSystemRuntimeReference runtime;
 
         [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]

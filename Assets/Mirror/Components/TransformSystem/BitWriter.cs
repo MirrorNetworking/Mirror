@@ -6,7 +6,7 @@ namespace Mirror.TransformSyncing
 {
     public class BitWriter
     {
-        private const int ScratchSize = 32;
+        private const int WriteSize = 32;
         NetworkWriter writer;
 
         ulong scratch;
@@ -25,9 +25,9 @@ namespace Mirror.TransformSyncing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(uint value, int bits)
         {
-            if (bits > ScratchSize)
+            if (bits > WriteSize)
             {
-                throw new System.ArgumentException($"bits must be less than {ScratchSize}");
+                throw new System.ArgumentException($"bits must be less than {WriteSize}");
             }
 
             ulong mask = (1ul << bits) - 1;
@@ -37,13 +37,13 @@ namespace Mirror.TransformSyncing
 
             scratch_bits += bits;
 
-            if (scratch_bits >= ScratchSize)
+            if (scratch_bits >= WriteSize)
             {
                 uint toWrite = (uint)scratch;
                 writer.WriteBlittable(toWrite);
 
-                scratch >>= ScratchSize;
-                scratch_bits -= ScratchSize;
+                scratch >>= WriteSize;
+                scratch_bits -= WriteSize;
             }
         }
 
@@ -75,15 +75,21 @@ namespace Mirror.TransformSyncing
     }
     public class BitReader
     {
-        private const int ScratchSize = 32;
-        readonly NetworkReader reader;
+        private const int ReadSize = 32;
+
+        NetworkReader reader;
 
         ulong scratch;
         int scratch_bits;
         int full_scratches;
         int scratches_extra_bytes;
 
-        public BitReader(NetworkReader reader)
+        public bool IsScratchEmpty => scratch_bits == 0;
+
+        public BitReader() { }
+        public BitReader(NetworkReader reader) => Reset(reader);
+
+        public void Reset(NetworkReader reader)
         {
             this.reader = reader;
             int total_bytes = reader.Length;
@@ -93,9 +99,9 @@ namespace Mirror.TransformSyncing
 
         public uint Read(int bits)
         {
-            if (bits > ScratchSize)
+            if (bits > ReadSize)
             {
-                throw new System.ArgumentException($"bits must be less than {ScratchSize}");
+                throw new System.ArgumentException($"bits must be less than {ReadSize}");
             }
 
             if (bits > scratch_bits)
@@ -126,7 +132,7 @@ namespace Mirror.TransformSyncing
             {
                 newBits = reader.ReadBlittable<uint>();
                 full_scratches--;
-                count = ScratchSize;
+                count = ReadSize;
             }
             else
             {
