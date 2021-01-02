@@ -216,7 +216,7 @@ namespace Mirror.TransformSyncing
                 // dont send anything if nothing was written (eg, nothing dirty)
                 if (writer.Length == 0) { return; }
 
-                NetworkServer.SendToAll(new NetworkPositionSingleMessage
+                NetworkClient.Send(new NetworkPositionSingleMessage
                 {
                     bytes = writer.ToArraySegment()
                 });
