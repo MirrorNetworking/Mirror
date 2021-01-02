@@ -15,22 +15,22 @@ namespace Mirror.TransformSyncing
         uint IHasPositionRotation.Id => netId;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool IHasPositionRotation.NeedsUpdate(float now)
+        bool IHasPositionRotation.NeedsUpdate()
         {
-            if (_needsUpdate && now > _nextSyncInterval)
+            if (clientAuthority)
             {
-                _nextSyncInterval = now + syncInterval;
-                return true;
+                return _needsUpdate && Time.time > _nextSyncInterval;
             }
             else
             {
-                return false;
+                return Time.time > _nextSyncInterval && (HasMoved() || HasRotated());
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void IHasPositionRotation.ClearNeedsUpdate()
         {
             _needsUpdate = false;
+            _nextSyncInterval = Time.time + syncInterval;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -331,6 +331,17 @@ namespace Mirror.TransformSyncing
                 lastPosition = target.localPosition;
             }
             return moved;
+        }
+
+        /// <summary>
+        /// Has target moved since we last checked
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool HasRotated()
+        {
+            // todo implement this method
+            return false;
         }
 
         // set position carefully depending on the target component

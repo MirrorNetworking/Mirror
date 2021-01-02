@@ -152,12 +152,11 @@ namespace Mirror.TransformSyncing
         internal void PackBehaviours(PooledNetworkWriter netWriter)
         {
             bitWriter.Reset(netWriter);
-            float now = Time.time;
 
             foreach (KeyValuePair<uint, IHasPositionRotation> kvp in runtime.behaviours)
             {
                 IHasPositionRotation behaviour = kvp.Value;
-                if (!behaviour.NeedsUpdate(now))
+                if (!behaviour.NeedsUpdate())
                     continue;
 
                 uint id = kvp.Key;
@@ -271,7 +270,7 @@ namespace Mirror.TransformSyncing
         /// </summary>
         uint Id { get; }
 
-        bool NeedsUpdate(float now);
+        bool NeedsUpdate();
         void ClearNeedsUpdate();
 
         /// <summary>

@@ -46,7 +46,7 @@ namespace Mirror.TransformSyncing.Tests
             IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
             hasPos.PositionRotation.Returns(new PositionRotation(inValue, Quaternion.identity));
             hasPos.Id.Returns(1u);
-            hasPos.NeedsUpdate(Arg.Any<float>()).Returns(true);
+            hasPos.NeedsUpdate().Returns(true);
 
             runtime.AddBehaviour(hasPos);
 
@@ -81,7 +81,7 @@ namespace Mirror.TransformSyncing.Tests
                 IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
                 hasPos.PositionRotation.Returns(new PositionRotation(inValue, Quaternion.identity));
                 hasPos.Id.Returns((uint)(i + 1));
-                hasPos.NeedsUpdate(Arg.Any<float>()).Returns(true);
+                hasPos.NeedsUpdate().Returns(true);
 
                 hasPoss.Add(hasPos);
                 runtime.AddBehaviour(hasPos);
