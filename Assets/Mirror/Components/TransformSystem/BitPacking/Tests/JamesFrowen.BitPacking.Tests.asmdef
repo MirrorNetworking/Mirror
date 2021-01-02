@@ -1,0 +1,19 @@
+{
+    "name": "JamesFrowen.BitPacking.Tests",
+    "references": [
+        "JamesFrowen.BitPacking",
+        "Mirror"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

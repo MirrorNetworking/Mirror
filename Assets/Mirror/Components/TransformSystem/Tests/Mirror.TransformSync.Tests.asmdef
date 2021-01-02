@@ -1,7 +1,8 @@
 {
-    "name": "Mirror.PositionSync.Tests",
+    "name": "Mirror.TransformSync.Tests",
     "references": [
-        "Mirror.PositionSync",
+        "JamesFrowen.BitPacking",
+        "Mirror.TransformSync",
         "Mirror",
         "Unity.PerformanceTesting"
     ],

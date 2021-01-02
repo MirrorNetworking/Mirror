@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Mirror.PositionSync.Tests")]
+[assembly: InternalsVisibleTo("Mirror.TransformSync.Tests")]
