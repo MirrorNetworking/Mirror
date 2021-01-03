@@ -39,6 +39,8 @@ namespace Mirror.TransformSyncing
         [Tooltip("How many snapshots to leave in buffer")]
         [SerializeField] int minimumSnapsots = 1;
 
+        [SerializeField] bool showDebugGui;
+
         float localTime;
 
         /// <summary>
@@ -54,6 +56,14 @@ namespace Mirror.TransformSyncing
         // client
         SnapshotBuffer snapshotBuffer = new SnapshotBuffer();
 
+        private void OnGUI()
+        {
+            if (showDebugGui)
+            {
+                GUILayout.Label($"ServerTime: {NetworkTime.time}");
+                GUILayout.Label(snapshotBuffer.ToString());
+            }
+        }
 
         private void OnValidate()
         {
@@ -281,7 +291,9 @@ namespace Mirror.TransformSyncing
 
             // only start adding time after server has sent first snapshot
             // todo work out how to deal with time when 
-            localTime += Time.deltaTime;
+            //localTime += Time.deltaTime;
+
+            localTime = (float)NetworkTime.time;
 
             TransformState state = snapshotBuffer.GetLinearInterpolation(localTime - clientDelay);
             Position = state.position;

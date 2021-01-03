@@ -26,6 +26,7 @@ namespace JamesFrowen.BitPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(uint value, int bits)
         {
+            //Console.WriteLine($"{value},{bits}");
             if (bits > WriteSize)
             {
                 throw new ArgumentException($"bits must be less than {WriteSize}");
@@ -37,6 +38,7 @@ namespace JamesFrowen.BitPacking
             scratch |= (longValue << bitsInScratch);
 
             bitsInScratch += bits;
+
 
             if (bitsInScratch >= WriteSize)
             {
@@ -95,6 +97,10 @@ namespace JamesFrowen.BitPacking
         public void Reset(NetworkReader reader)
         {
             this.reader = reader;
+
+            scratch = 0;
+            bitsInScratch = 0;
+
             int total_bytes = reader.Length;
             numberOfFullScratches = total_bytes / sizeof(int);
             extraBytesInLastScratch = total_bytes - (numberOfFullScratches * sizeof(int));

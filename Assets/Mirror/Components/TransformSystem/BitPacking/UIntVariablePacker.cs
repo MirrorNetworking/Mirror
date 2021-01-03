@@ -39,12 +39,14 @@ namespace JamesFrowen.BitPacking
             }
             else if (value < mediumMax)
             {
-                writer.Write(0b10, 2);
+                writer.Write(1, 1);
+                writer.Write(0, 1);
                 writer.Write(value, mediumBitCount);
             }
             else if (value < largeMax)
             {
-                writer.Write(0b11, 2);
+                writer.Write(1, 1);
+                writer.Write(1, 1);
                 writer.Write(value, largeBitCount);
             }
             else

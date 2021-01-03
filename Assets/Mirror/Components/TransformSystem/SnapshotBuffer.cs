@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 using UnityEngine;
 
 namespace Mirror.TransformSyncing
@@ -45,13 +46,15 @@ namespace Mirror.TransformSyncing
         {
             if (buffer.Count == 0)
             {
-                logger.LogWarning("No snapshots, returning default");
+                logger.LogError("No snapshots, returning default");
                 return default;
             }
 
             // first snapshot
             if (buffer.Count == 1)
             {
+                if (logger.LogEnabled()) logger.Log("First snapshot");
+
                 Snapshot only = buffer[0];
                 return only.state;
             }
@@ -64,7 +67,7 @@ namespace Mirror.TransformSyncing
                 float toTime = buffer[i + 1].time;
 
                 // if between times, then use from/to
-                if (fromTime > now && toTime < now)
+                if (fromTime < now && now < toTime)
                 {
                     float alpha = Mathf.Clamp01((now - fromTime) / (toTime - fromTime));
 
@@ -78,6 +81,7 @@ namespace Mirror.TransformSyncing
             // this can happen if server hasn't sent new data
             // there could be no new data from either lag or because object hasn't moved
             Snapshot last = buffer[buffer.Count - 1];
+            if (logger.WarnEnabled()) logger.LogWarning($"No snapshot for t={now} using first t={buffer[0].time} last t={last.time}");
             return last.state;
         }
 
@@ -96,6 +100,17 @@ namespace Mirror.TransformSyncing
                     buffer.RemoveAt(i);
                 }
             }
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine($"count:{buffer.Count}, minTime:{buffer[0].time}, maxTime:{buffer[buffer.Count - 1].time}");
+            for (int i = 0; i < buffer.Count; i++)
+            {
+                builder.AppendLine($"  {i}: {buffer[i].time}");
+            }
+            return builder.ToString();
         }
     }
 }

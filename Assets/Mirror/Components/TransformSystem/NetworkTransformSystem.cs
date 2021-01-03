@@ -145,14 +145,25 @@ namespace Mirror.TransformSyncing
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                bool anyNeedUpdate = PackBehaviours(writer, Time.time);
+                bool anyNeedUpdate = PackBehaviours(writer, (float)NetworkTime.time);
 
                 // dont send anything if nothing was written (eg, nothing dirty)
                 if (!anyNeedUpdate) { return; }
+                ArraySegment<byte> payload = writer.ToArraySegment();
+                //Console.Write("[");
+                //for (int i = payload.Offset; i < payload.Count; i++)
+                //{
+                //    if (i != payload.Offset)
+                //    {
+                //        Console.Write(", ");
+                //    }
 
+                //    Console.Write($"0x{payload.Array[i]:X2}");
+                //}
+                //Console.WriteLine("]");
                 NetworkServer.SendToAll(new NetworkPositionMessage
                 {
-                    bytes = writer.ToArraySegment()
+                    payload = payload
                 });
             }
         }
@@ -185,8 +196,8 @@ namespace Mirror.TransformSyncing
 
         internal void ClientHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionMessage msg)
         {
-            int count = msg.bytes.Count;
-            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.bytes))
+            int count = msg.payload.Count;
+            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.payload))
             {
                 bitReader.Reset(netReader);
                 float time = timePacker.Unpack(bitReader);
@@ -229,7 +240,7 @@ namespace Mirror.TransformSyncing
 
                 NetworkClient.Send(new NetworkPositionSingleMessage
                 {
-                    bytes = writer.ToArraySegment()
+                    payload = writer.ToArraySegment()
                 });
             }
         }
@@ -241,7 +252,7 @@ namespace Mirror.TransformSyncing
         /// <param name="arg2"></param>
         internal void ServerHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionSingleMessage msg)
         {
-            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.bytes))
+            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.payload))
             {
                 bitReader.Reset(netReader);
                 uint id = idPacker.Unpack(bitReader);
@@ -253,7 +264,7 @@ namespace Mirror.TransformSyncing
                     behaviour.ApplyOnServer(new TransformState(pos, rot));
                 }
 
-                Debug.Assert(netReader.Position == msg.bytes.Count, "should have read exact amount");
+                Debug.Assert(netReader.Position == msg.payload.Count, "should have read exact amount");
             }
         }
 
@@ -322,10 +333,10 @@ namespace Mirror.TransformSyncing
 
     public struct NetworkPositionMessage : NetworkMessage
     {
-        public ArraySegment<byte> bytes;
+        public ArraySegment<byte> payload;
     }
     public struct NetworkPositionSingleMessage : NetworkMessage
     {
-        public ArraySegment<byte> bytes;
+        public ArraySegment<byte> payload;
     }
 }

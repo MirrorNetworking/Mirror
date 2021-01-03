@@ -11,9 +11,93 @@ namespace Mirror.TransformSyncing.Tests
 {
     public class NetworkTransformSystemFuzzyTests
     {
+        private NetworkTransformSystem system;
+        private NetworkTransformSystemRuntimeReference runtime;
+
+        [SetUp]
+        public void SetUp()
+        {
+            system = new GameObject().AddComponent<NetworkTransformSystem>();
+            runtime = ScriptableObject.CreateInstance<NetworkTransformSystemRuntimeReference>();
+            system.runtime = runtime;
+        }
+        [TearDown]
+        public void TearDown()
+        {
+            UnityEngine.Object.DestroyImmediate(system);
+            UnityEngine.Object.DestroyImmediate(runtime);
+        }
+
         [Test]
         [Repeat(100)]
-        public void CanSyncRandomValuesRepeat()
+        public void DoesNotGiveErrorWhenSyncing()
+        {
+            int smallBit = Random.Range(3, 10);
+            int mediumBit = smallBit + Random.Range(3, 10);
+            int largeBit = mediumBit + Random.Range(3, 10);
+            system.idPacker = new UIntVariablePacker(smallBit, mediumBit, largeBit);
+
+            float timeMax = Random.Range(1000, 2_000_000);
+            float timeprecision = Random.Range(1 / 1_000f, 1 / 10f);
+            system.timePacker = new FloatPacker(0, timeMax, timeprecision);
+
+
+            Vector3 posMin = RandomVector(-100, 100);
+            Vector3 posMax = posMin + RandomVector(10, 1000);
+            float posPrecsion = Random.Range(1 / 10000f, 2);
+            system.positionPacker = new PositionPacker(posMin, posMax, posPrecsion);
+
+            int rotationBits = Random.Range(7, 14);
+            system.rotationPacker = new QuaternionPacker(rotationBits);
+
+
+            int numberOfObjects = Random.Range(1, 100);
+
+
+            // todo check correct number of bits are written
+
+            float timeNow = Random.Range(0, timeMax);
+            uint idOffset = (uint)Random.Range(1, Mathf.Max(2, (int)(system.idPacker.MaxValue - numberOfObjects)));
+
+            List<IHasPositionRotation> hasPoss = new List<IHasPositionRotation>();
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                Vector3 pos = RandomPointInBounds(posMin, posMax);
+                Quaternion rot = Random.rotation;
+
+                uint id = idOffset + (uint)i;
+
+                IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
+                hasPos.State.Returns(new TransformState(id, pos, rot));
+                hasPos.NeedsUpdate().Returns(true);
+
+                hasPoss.Add(hasPos);
+                runtime.AddBehaviour(hasPos);
+            }
+
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                system.PackBehaviours(writer, timeNow);
+                ArraySegment<byte> payload = writer.ToArraySegment();
+
+                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
+            }
+
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                IHasPositionRotation hasPos = hasPoss[i];
+                TransformState state = hasPos.State;
+                // dont check exact args here, just make sure it is called
+                hasPos.Received(1).ApplyOnClient(
+                    Arg.Any<TransformState>(),
+                    Arg.Any<float>()
+                    );
+            }
+        }
+
+        [Test]
+        [Repeat(100)]
+        public void SyncsValuesCorrectly()
         {
             NetworkTransformSystem system = new NetworkTransformSystem();
             NetworkTransformSystemRuntimeReference runtime = new NetworkTransformSystemRuntimeReference();
@@ -67,7 +151,7 @@ namespace Mirror.TransformSyncing.Tests
                 system.PackBehaviours(writer, timeNow);
                 ArraySegment<byte> payload = writer.ToArraySegment();
 
-                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { bytes = payload });
+                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
             }
 
             // this isnt exact precision but it should be greater than real precision
@@ -122,6 +206,70 @@ namespace Mirror.TransformSyncing.Tests
                 Random.Range(min.z, max.z)
             );
         }
+
+
+        [Test]
+        public void PassesFailingValue()
+        {
+            byte[] bytes = new byte[] { 0, 0, 0, 0, 0, 0, 0x6E, 0x00, 0x10, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x23, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x33, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x43, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x53, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x63, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x73, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x83, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x93, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0xA3, 0xFC, 0x17, 0xF0, 0xDF, 0xFF, 0xFE, 0xFD, 0x03 };
+            var payload = new ArraySegment<byte>(bytes, 6, bytes.Length - 6);
+
+            int smallBit = 6;
+            int mediumBit = 12;
+            int largeBit = 18;
+            system.idPacker = new UIntVariablePacker(smallBit, mediumBit, largeBit);
+
+            float timeMax = 3600;
+            float timeprecision = 0.008333334f;
+            system.timePacker = new FloatPacker(0, timeMax, timeprecision);
+
+
+            Vector3 posMin = new Vector3(-50, 0, -50);
+            Vector3 posMax = new Vector3(50, 20, 50);
+            float posPrecsion = 0.1f;
+            system.positionPacker = new PositionPacker(posMin, posMax, posPrecsion);
+
+            int rotationBits = 9;
+            system.rotationPacker = new QuaternionPacker(rotationBits);
+
+
+            int numberOfObjects = 10;
+
+
+            // todo check correct number of bits are written
+
+            float timeNow = 11f;
+            uint idOffset = 1;
+
+            List<IHasPositionRotation> hasPoss = new List<IHasPositionRotation>();
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                Vector3 pos = Vector3.zero;
+                Quaternion rot = Quaternion.identity;
+
+                uint id = idOffset + (uint)i;
+
+                IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
+                hasPos.State.Returns(new TransformState(id, pos, rot));
+                hasPos.NeedsUpdate().Returns(true);
+
+                hasPoss.Add(hasPos);
+                runtime.AddBehaviour(hasPos);
+            }
+
+            system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
+
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                IHasPositionRotation hasPos = hasPoss[i];
+                TransformState state = hasPos.State;
+                // dont check exact args here, just make sure it is called
+                hasPos.Received(1).ApplyOnClient(
+                    Arg.Any<TransformState>(),
+                    Arg.Any<float>()
+                    );
+            }
+        }
     }
     public class NetworkTransformSystemTests
     {
@@ -141,13 +289,19 @@ namespace Mirror.TransformSyncing.Tests
         [SetUp]
         public void SetUp()
         {
-            system = new NetworkTransformSystem();
-            runtime = new NetworkTransformSystemRuntimeReference();
+            system = new GameObject().AddComponent<NetworkTransformSystem>();
+            runtime = ScriptableObject.CreateInstance<NetworkTransformSystemRuntimeReference>();
             system.runtime = runtime;
             // -1 because first bit is to say it is small
             system.idPacker = new UIntVariablePacker(smallIntBitCount - 1, 12, 18);
             system.timePacker = new FloatPacker(0, 3600f, 1 / 1000f);
             system.rotationPacker = new QuaternionPacker(9);
+        }
+        [TearDown]
+        public void TearDown()
+        {
+            UnityEngine.Object.DestroyImmediate(system);
+            UnityEngine.Object.DestroyImmediate(runtime);
         }
 
         [Test]
@@ -175,7 +329,7 @@ namespace Mirror.TransformSyncing.Tests
                 int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
                 Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
 
-                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { bytes = payload });
+                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
                 Assert.That(system.bitReader.BitsInScratch, Is.EqualTo(flushBits), "should have read exact amount");
             }
 
@@ -213,7 +367,7 @@ namespace Mirror.TransformSyncing.Tests
                 int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
                 Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
 
-                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { bytes = payload });
+                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
                 Assert.That(system.bitReader.BitsInScratch, Is.EqualTo(flushBits), "should have read exact amount");
             }
 
