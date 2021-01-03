@@ -2,7 +2,10 @@ using System;
 
 namespace JamesFrowen.BitPacking
 {
-    public class UIntPackcer
+    /// <summary>
+    /// Packs Uint to different sizes based on value
+    /// </summary>
+    public class UIntVariablePacker
     {
         readonly int smallBitCount;
         readonly int mediumBitCount;
@@ -12,7 +15,7 @@ namespace JamesFrowen.BitPacking
         readonly uint mediumMax;
         readonly uint largeMax;
 
-        public UIntPackcer(int smallBitCount, int mediumBitCount, int largeBitCount)
+        public UIntVariablePacker(int smallBitCount, int mediumBitCount, int largeBitCount)
         {
             smallMax = 1u << smallBitCount;
             mediumMax = 1u << mediumBitCount;
