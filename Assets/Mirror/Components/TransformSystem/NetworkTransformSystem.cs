@@ -313,6 +313,11 @@ namespace Mirror.TransformSyncing
             this.position = position;
             this.rotation = rotation;
         }
+
+        public override string ToString()
+        {
+            return $"[{id}, {position}, {rotation}]";
+        }
     }
 
     public struct NetworkPositionMessage : NetworkMessage

@@ -15,15 +15,19 @@ namespace JamesFrowen.BitPacking
         readonly uint mediumMax;
         readonly uint largeMax;
 
+        public readonly uint MaxValue;
+
         public UIntVariablePacker(int smallBitCount, int mediumBitCount, int largeBitCount)
         {
+            this.smallBitCount = smallBitCount;
+            this.mediumBitCount = mediumBitCount;
+            this.largeBitCount = largeBitCount;
+
             smallMax = 1u << smallBitCount;
             mediumMax = 1u << mediumBitCount;
             largeMax = 1u << largeBitCount;
 
-            this.smallBitCount = smallBitCount;
-            this.mediumBitCount = mediumBitCount;
-            this.largeBitCount = largeBitCount;
+            MaxValue = largeMax - 1;
         }
 
         public void Pack(BitWriter writer, uint value)

@@ -5,9 +5,112 @@ using JamesFrowen.BitPacking;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Mirror.TransformSyncing.Tests
 {
+    public class NetworkTransformSystemFuzzyTests
+    {
+        [Test]
+        [Repeat(100)]
+        public void CanSyncRandomValuesRepeat()
+        {
+            NetworkTransformSystem system = new NetworkTransformSystem();
+            NetworkTransformSystemRuntimeReference runtime = new NetworkTransformSystemRuntimeReference();
+            system.runtime = runtime;
+
+            int smallBit = Random.Range(3, 10);
+            int mediumBit = smallBit + Random.Range(3, 10);
+            int largeBit = mediumBit + Random.Range(3, 10);
+            system.idPacker = new UIntVariablePacker(smallBit, mediumBit, largeBit);
+
+            float timeMax = Random.Range(1000, 2_000_000);
+            float timeprecision = Random.Range(1 / 10000f, 1 / 10f);
+            system.timePacker = new FloatPacker(0, timeMax, timeprecision);
+
+
+            Vector3 posMin = RandomVector(-100, 100);
+            Vector3 posMax = posMin + RandomVector(10, 1000);
+            float posPrecsion = Random.Range(1 / 10000f, 2);
+            system.positionPacker = new PositionPacker(posMin, posMax, posPrecsion);
+
+            int rotationBits = Random.Range(7, 14);
+            system.rotationPacker = new QuaternionPacker(rotationBits);
+
+
+            int numberOfObjects = Random.Range(1, 100);
+
+
+            // todo check correct number of bits are written
+
+            float timeNow = Random.Range(0, timeMax);
+            uint idOffset = (uint)Random.Range(1, Mathf.Max(2, (int)(system.idPacker.MaxValue - numberOfObjects)));
+
+            List<IHasPositionRotation> hasPoss = new List<IHasPositionRotation>();
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                Vector3 pos = RandomPointInBounds(posMin, posMax);
+                Quaternion rot = Random.rotation;
+
+                uint id = idOffset + (uint)i;
+
+                IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
+                hasPos.State.Returns(new TransformState(id, pos, rot));
+                hasPos.NeedsUpdate().Returns(true);
+
+                hasPoss.Add(hasPos);
+                runtime.AddBehaviour(hasPos);
+            }
+
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                system.PackBehaviours(writer);
+                ArraySegment<byte> payload = writer.ToArraySegment();
+
+                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { bytes = payload });
+            }
+
+            // this isnt exact precision but it should be greater than real precision
+            float rotPrecision = 2f / (1 << system.rotationPacker.bitCount);
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                IHasPositionRotation hasPos = hasPoss[i];
+                TransformState state = hasPos.State;
+                hasPos.Received(1).ApplyOnClient(Arg.Is<TransformState>(arg => AreAlmostEqual(arg, state, posPrecsion, rotPrecision)), timeNow);
+            }
+        }
+
+        private static bool AreAlmostEqual(TransformState arg, TransformState state, float posPrecsion, float rotPrecision)
+        {
+            bool posEqual = NetworkTransformSystemTests.Vector3AlmostEqual(arg.position, state.position, posPrecsion);
+            bool rotEqual = NetworkTransformSystemTests.QuaternionAlmostEqual(arg.rotation, state.rotation, rotPrecision);
+            if (!posEqual)
+            {
+                Debug.LogError($"Position Not Equal A:{arg.position}, B:{state.rotation}, P:{posPrecsion}, D:{state.position - arg.position}");
+            }
+            if (!rotEqual)
+            {
+                Debug.LogError($"Rotation Not Equal A:{arg.rotation}, B:{state.rotation}, P:{rotPrecision}, A:{Quaternion.Angle(arg.rotation, state.rotation)}");
+            }
+            return posEqual && rotEqual;
+        }
+
+        Vector3 RandomVector(float min, float max)
+        {
+            return new Vector3(
+                Random.Range(min, max),
+                Random.Range(min, max),
+                Random.Range(min, max));
+        }
+        Vector3 RandomPointInBounds(Vector3 min, Vector3 max)
+        {
+            return new Vector3(
+                Random.Range(min.x, max.x),
+                Random.Range(min.y, max.y),
+                Random.Range(min.z, max.z)
+            );
+        }
+    }
     public class NetworkTransformSystemTests
     {
         const int smallIntBitCount = 7;
@@ -109,19 +212,25 @@ namespace Mirror.TransformSyncing.Tests
             }
         }
 
-        bool Vector3AlmostEqual(Vector3 actual, Vector3 expected, float precision)
+
+        public static bool Vector3AlmostEqual(Vector3 actual, Vector3 expected, float precision)
         {
             return FloatAlmostEqual(actual.x, expected.x, precision)
                 && FloatAlmostEqual(actual.y, expected.y, precision)
                 && FloatAlmostEqual(actual.z, expected.z, precision);
         }
 
-        bool FloatAlmostEqual(float actual, float expected, float precision)
+        public static bool FloatAlmostEqual(float actual, float expected, float precision)
         {
             float minAllowed = expected - precision;
             float maxnAllowed = expected + precision;
 
             return minAllowed < actual && actual < maxnAllowed;
+        }
+
+        public static bool QuaternionAlmostEqual(Quaternion actual, Quaternion expected, float precision)
+        {
+            return Quaternion.Angle(actual, expected) < precision;
         }
     }
 }
