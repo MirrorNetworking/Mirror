@@ -25,7 +25,7 @@ namespace Mirror.TransformSyncing.Tests
             system.idPacker = new UIntVariablePacker(smallBit, mediumBit, largeBit);
 
             float timeMax = Random.Range(1000, 2_000_000);
-            float timeprecision = Random.Range(1 / 10000f, 1 / 10f);
+            float timeprecision = Random.Range(1 / 1_000f, 1 / 10f);
             system.timePacker = new FloatPacker(0, timeMax, timeprecision);
 
 
@@ -64,35 +64,47 @@ namespace Mirror.TransformSyncing.Tests
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                system.PackBehaviours(writer);
+                system.PackBehaviours(writer, timeNow);
                 ArraySegment<byte> payload = writer.ToArraySegment();
 
                 system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { bytes = payload });
             }
 
             // this isnt exact precision but it should be greater than real precision
-            float rotPrecision = 2f / (1 << system.rotationPacker.bitCount);
+            float rotPrecision = 1f / (1 << (rotationBits - 6));
             for (int i = 0; i < numberOfObjects; i++)
             {
                 IHasPositionRotation hasPos = hasPoss[i];
                 TransformState state = hasPos.State;
-                hasPos.Received(1).ApplyOnClient(Arg.Is<TransformState>(arg => AreAlmostEqual(arg, state, posPrecsion, rotPrecision)), timeNow);
+                hasPos.Received(1).ApplyOnClient(
+                    Arg.Is<TransformState>(arg => StateAlmostEqual(arg, state, posPrecsion, rotPrecision)),
+                    Arg.Is<float>(arg => TimeAlmsotEqual(arg, timeNow, timeprecision * 2, system.timePacker))
+                    );
             }
         }
 
-        private static bool AreAlmostEqual(TransformState arg, TransformState state, float posPrecsion, float rotPrecision)
+        private static bool StateAlmostEqual(TransformState arg, TransformState expected, float posPrecsion, float rotPrecision)
         {
-            bool posEqual = NetworkTransformSystemTests.Vector3AlmostEqual(arg.position, state.position, posPrecsion);
-            bool rotEqual = NetworkTransformSystemTests.QuaternionAlmostEqual(arg.rotation, state.rotation, rotPrecision);
+            bool posEqual = NetworkTransformSystemTests.Vector3AlmostEqual(arg.position, expected.position, posPrecsion);
+            bool rotEqual = NetworkTransformSystemTests.QuaternionAlmostEqual(arg.rotation, expected.rotation, rotPrecision);
             if (!posEqual)
             {
-                Debug.LogError($"Position Not Equal A:{arg.position}, B:{state.rotation}, P:{posPrecsion}, D:{state.position - arg.position}");
+                Debug.LogError($"Position Not Equal A:{arg.position}, E:{expected.rotation}, P:{posPrecsion}, D:{expected.position - arg.position}");
             }
             if (!rotEqual)
             {
-                Debug.LogError($"Rotation Not Equal A:{arg.rotation}, B:{state.rotation}, P:{rotPrecision}, A:{Quaternion.Angle(arg.rotation, state.rotation)}");
+                Debug.LogError($"Rotation Not Equal A:{arg.rotation}, E:{expected.rotation}, P:{rotPrecision}, A:{Quaternion.Angle(arg.rotation, expected.rotation)}");
             }
             return posEqual && rotEqual;
+        }
+        private static bool TimeAlmsotEqual(float arg, float expected, float precision, FloatPacker timePacker)
+        {
+            bool equal = NetworkTransformSystemTests.FloatAlmostEqual(arg, expected, precision);
+            if (!equal)
+            {
+                Debug.LogError($"Time Not Equal A:{arg}, E:{expected}, P:{precision}, D:{expected - arg}, packer:{timePacker}");
+            }
+            return equal;
         }
 
         Vector3 RandomVector(float min, float max)
@@ -157,7 +169,7 @@ namespace Mirror.TransformSyncing.Tests
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                system.PackBehaviours(writer);
+                system.PackBehaviours(writer, 0f);
                 ArraySegment<byte> payload = writer.ToArraySegment();
 
                 int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
@@ -195,7 +207,7 @@ namespace Mirror.TransformSyncing.Tests
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                system.PackBehaviours(writer);
+                system.PackBehaviours(writer, 0f);
                 ArraySegment<byte> payload = writer.ToArraySegment();
 
                 int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
@@ -230,7 +242,10 @@ namespace Mirror.TransformSyncing.Tests
 
         public static bool QuaternionAlmostEqual(Quaternion actual, Quaternion expected, float precision)
         {
-            return Quaternion.Angle(actual, expected) < precision;
+            return FloatAlmostEqual(actual.x, expected.x, precision)
+                && FloatAlmostEqual(actual.y, expected.y, precision)
+                && FloatAlmostEqual(actual.z, expected.z, precision)
+                && FloatAlmostEqual(actual.w, expected.w, precision);
         }
     }
 }

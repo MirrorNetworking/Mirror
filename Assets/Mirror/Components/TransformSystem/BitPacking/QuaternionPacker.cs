@@ -37,7 +37,9 @@ namespace JamesFrowen.BitPacking
             quickNormalize(ref x, ref y, ref z, ref w);
 
             FindLargestIndex(x, y, z, w, out int index, out float largest);
+
             GetSmallerDimensions(index, x, y, z, w, out float a, out float b, out float c);
+
             // largest needs to be positive to be calculated by reader 
             // if largest is negative flip sign of others because Q = -Q
             if (largest < 0)
@@ -46,6 +48,7 @@ namespace JamesFrowen.BitPacking
                 b = -b;
                 c = -c;
             }
+
 
             uint ua = Compression.ScaleToUInt(a, MinValue, MaxValue, 0, UintMax);
             uint ub = Compression.ScaleToUInt(b, MinValue, MaxValue, 0, UintMax);
@@ -58,9 +61,13 @@ namespace JamesFrowen.BitPacking
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void quickNormalize(ref float x, ref float y, ref float z, ref float w)
+        internal static void quickNormalize(ref float x, ref float y, ref float z, ref float w)
         {
-            float dot = x * x + y * y + z * z + w + w;
+            float dot =
+                x * x +
+                y * y +
+                z * z +
+                w * w;
             const float allowedEpsilon = 1E-5f;
             const float minAllowed = 1 - allowedEpsilon;
             const float maxAllowed = 1 + allowedEpsilon;
@@ -87,7 +94,7 @@ namespace JamesFrowen.BitPacking
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal void FindLargestIndex(float x, float y, float z, float w, out int index, out float largest)
+        internal static void FindLargestIndex(float x, float y, float z, float w, out int index, out float largest)
         {
             float x2 = x * x;
             float y2 = y * y;
@@ -156,15 +163,18 @@ namespace JamesFrowen.BitPacking
             uint ub = reader.Read(BitLength);
             uint uc = reader.Read(BitLength);
 
+
             float a = Compression.ScaleFromUInt(ua, MinValue, MaxValue, 0, UintMax);
             float b = Compression.ScaleFromUInt(ub, MinValue, MaxValue, 0, UintMax);
             float c = Compression.ScaleFromUInt(uc, MinValue, MaxValue, 0, UintMax);
 
+
             result = FromSmallerDimensions(index, a, b, c);
+
             return result;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Quaternion FromSmallerDimensions(uint largestIndex, float a, float b, float c)
+        static Quaternion FromSmallerDimensions(uint largestIndex, float a, float b, float c)
         {
             float l2 = 1 - (a * a + b * b + c * c);
             float largest = (float)Math.Sqrt(l2);

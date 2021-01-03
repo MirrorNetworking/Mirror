@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
-using JamesFrowen.BitPacking;
+using Mirror;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.TransformSyncing.Tests
+namespace JamesFrowen.BitPacking.Tests
 {
     public class PositionPackerTests
     {

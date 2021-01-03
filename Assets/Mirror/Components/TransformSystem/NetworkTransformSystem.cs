@@ -145,7 +145,7 @@ namespace Mirror.TransformSyncing
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                bool anyNeedUpdate = PackBehaviours(writer);
+                bool anyNeedUpdate = PackBehaviours(writer, Time.time);
 
                 // dont send anything if nothing was written (eg, nothing dirty)
                 if (!anyNeedUpdate) { return; }
@@ -157,10 +157,10 @@ namespace Mirror.TransformSyncing
             }
         }
 
-        internal bool PackBehaviours(PooledNetworkWriter netWriter)
+        internal bool PackBehaviours(PooledNetworkWriter netWriter, float time)
         {
             bitWriter.Reset(netWriter);
-            timePacker.Pack(bitWriter, Time.time);
+            timePacker.Pack(bitWriter, time);
             bool anyNeedUpdate = false;
             foreach (KeyValuePair<uint, IHasPositionRotation> kvp in runtime.behaviours)
             {
