@@ -116,7 +116,7 @@ MonoBehaviour:
   syncInterval: 0.1
   checkEveryFrame: 1
   maxTime: 3600
-  timePrecision: 0.001
+  timePrecision: 0.008333334
   smallBitCount: 6
   mediumBitCount: 12
   largeBitCount: 18
