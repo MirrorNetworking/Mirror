@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -88,7 +88,7 @@ namespace Mirror.TransformSyncing
         /// <param name="keepCount">minium number of snapshots to keep in buffer</param>
         public void RemoveOldSnapshots(float oldTime, int keepCount)
         {
-            for (int i = buffer.Count - 1 - keepCount; i >= 0; i++)
+            for (int i = buffer.Count - 1 - keepCount; i >= 0; i--)
             {
                 // older than oldTime
                 if (buffer[i].time < oldTime)
