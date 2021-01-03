@@ -16,8 +16,10 @@ namespace Mirror.TransformSyncing.Example
         private void Awake()
         {
             navMeshAgent = GetComponent<NavMeshAgent>();
+            navMeshAgent.enabled = NetworkServer.active;
         }
 
+#if UNITY_SERVER
         [ServerCallback]
         void Update()
         {
@@ -27,6 +29,7 @@ namespace Mirror.TransformSyncing.Example
                 navMeshAgent.destination = RandomPointInBounds();
             }
         }
+#endif
 
         public Vector3 RandomPointInBounds()
         {
