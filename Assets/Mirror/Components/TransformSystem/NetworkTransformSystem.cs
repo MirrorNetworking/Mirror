@@ -21,11 +21,14 @@ namespace Mirror.TransformSyncing
         [Tooltip("Check if behaviours need update every frame, If false then checks every syncInterval")]
         public bool checkEveryFrame = true;
 
+        [Header("timer Compression")]
+        [SerializeField] float maxTime = 60 * 60 * 24;
+        [SerializeField] float timePrecision = 1 / 1000f;
+
         [Header("Id Compression")]
         [SerializeField] int smallBitCount = 6;
         [SerializeField] int mediumBitCount = 12;
         [SerializeField] int largeBitCount = 18;
-
 
         [Header("Position Compression")]
         [SerializeField] Vector3 min = Vector3.one * -100;
@@ -50,7 +53,8 @@ namespace Mirror.TransformSyncing
 
         [NonSerialized] BitWriter bitWriter = new BitWriter();
         [NonSerialized] internal BitReader bitReader = new BitReader();
-        [NonSerialized] internal UIntPackcer idPacker;
+        [NonSerialized] internal FloatPacker timePacker;
+        [NonSerialized] internal UIntVariablePacker idPacker;
         [NonSerialized] internal PositionPacker positionPacker;
         [NonSerialized] internal QuaternionPacker rotationPacker;
 
@@ -59,7 +63,9 @@ namespace Mirror.TransformSyncing
 
         private void Awake()
         {
-            idPacker = new UIntPackcer(smallBitCount, mediumBitCount, largeBitCount);
+            // time precision 1000 times more than interval
+            timePacker = new FloatPacker(0, maxTime, timePrecision);
+            idPacker = new UIntVariablePacker(smallBitCount, mediumBitCount, largeBitCount);
             positionPacker = new PositionPacker(min, max, precision);
             rotationPacker = new QuaternionPacker(bitCount);
         }
@@ -154,21 +160,22 @@ namespace Mirror.TransformSyncing
         internal void PackBehaviours(PooledNetworkWriter netWriter)
         {
             bitWriter.Reset(netWriter);
-
+            timePacker.Pack(bitWriter, Time.time);
             foreach (KeyValuePair<uint, IHasPositionRotation> kvp in runtime.behaviours)
             {
                 IHasPositionRotation behaviour = kvp.Value;
                 if (!behaviour.NeedsUpdate())
                     continue;
 
-                uint id = kvp.Key;
-                PositionRotation posRot = behaviour.PositionRotation;
 
-                idPacker.Pack(bitWriter, id);
-                positionPacker.Pack(bitWriter, posRot.position);
-                rotationPacker.Pack(bitWriter, posRot.rotation);
+                TransformState state = behaviour.State;
 
-                behaviour.ClearNeedsUpdate();
+                idPacker.Pack(bitWriter, state.id);
+                positionPacker.Pack(bitWriter, state.position);
+                rotationPacker.Pack(bitWriter, state.rotation);
+
+                // todo handle client authority updates better
+                behaviour.ClearNeedsUpdate(syncInterval);
             }
             bitWriter.Flush();
         }
@@ -179,6 +186,8 @@ namespace Mirror.TransformSyncing
             using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.bytes))
             {
                 bitReader.Reset(netReader);
+                float time = timePacker.Unpack(bitReader);
+
                 while (netReader.Position < count)
                 {
                     uint id = idPacker.Unpack(bitReader);
@@ -187,7 +196,7 @@ namespace Mirror.TransformSyncing
 
                     if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
                     {
-                        behaviour.ApplyOnClient(new PositionRotation(pos, rot));
+                        behaviour.ApplyOnClient(new TransformState(pos, rot), time);
                     }
                 }
                 Debug.Assert(netReader.Position == count, "should have read exact amount");
@@ -202,14 +211,13 @@ namespace Mirror.TransformSyncing
             {
                 bitWriter.Reset(writer);
 
-                uint id = behaviour.Id;
-                PositionRotation posRot = behaviour.PositionRotation;
+                TransformState state = behaviour.State;
 
-                idPacker.Pack(bitWriter, id);
-                positionPacker.Pack(bitWriter, posRot.position);
-                rotationPacker.Pack(bitWriter, posRot.rotation);
+                idPacker.Pack(bitWriter, state.id);
+                positionPacker.Pack(bitWriter, state.position);
+                rotationPacker.Pack(bitWriter, state.rotation);
 
-                behaviour.ClearNeedsUpdate();
+                behaviour.ClearNeedsUpdate(syncInterval);
 
                 bitWriter.Flush();
 
@@ -239,7 +247,7 @@ namespace Mirror.TransformSyncing
 
                 if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
                 {
-                    behaviour.ApplyOnServer(new PositionRotation(pos, rot));
+                    behaviour.ApplyOnServer(new TransformState(pos, rot));
                 }
 
                 Debug.Assert(netReader.Position == msg.bytes.Count, "should have read exact amount");
@@ -262,41 +270,43 @@ namespace Mirror.TransformSyncing
     public interface IHasPositionRotation
     {
         /// <summary>
-        /// Position and rotation of object
-        /// <para>Could be localposition or world position writer doesn't care</para>
+        /// ID, Position and rotation of object
+        /// <para>Could be local or world position writer doesn't care</para>
         /// </summary>
-        PositionRotation PositionRotation { get; }
-
-        /// <summary>
-        /// Normally NetId, but could be a 
-        /// </summary>
-        uint Id { get; }
+        TransformState State { get; }
 
         bool NeedsUpdate();
-        void ClearNeedsUpdate();
+        void ClearNeedsUpdate(float interval);
 
         /// <summary>
         /// Applies position and rotation on server
         /// </summary>
-        /// <param name="values"></param>
-        void ApplyOnServer(PositionRotation values);
+        /// <param name="state"></param>
+        void ApplyOnServer(TransformState state);
 
         /// <summary>
         /// Applies position and rotation on server
         /// <para>this should apply interoperation so it looks smooth to the user</para>
         /// </summary>
         /// <param name="values"></param>
-        void ApplyOnClient(PositionRotation values);
+        void ApplyOnClient(TransformState state, float serverTime);
+        bool InControl(NetworkConnection conn);
     }
-
-    public struct PositionRotation
+    public struct TransformState
     {
+        public readonly uint id;
         public readonly Vector3 position;
-
         public readonly Quaternion rotation;
 
-        public PositionRotation(Vector3 position, Quaternion rotation)
+        public TransformState(Vector3 position, Quaternion rotation)
         {
+            id = default;
+            this.position = position;
+            this.rotation = rotation;
+        }
+        public TransformState(uint id, Vector3 position, Quaternion rotation)
+        {
+            this.id = id;
             this.position = position;
             this.rotation = rotation;
         }

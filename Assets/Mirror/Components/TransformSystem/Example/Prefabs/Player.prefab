@@ -173,10 +173,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  target: {fileID: 9112519016923113237}
   runtime: {fileID: 11400000, guid: f145177ee8a96ae4db99b18723f9b45b, type: 2}
+  target: {fileID: 9112519016923113237}
   clientAuthority: 1
-  localPositionSensitivity: 0.01
+  useLocalSpace: 1
+  positionSensitivity: 0.1
+  rotationSensitivity: 0.1
+  clientDelay: 0.05
+  clientSyncInterval: 0.1
+  snapshotRemoveTime: 1
+  minimumSnapsots: 1
 --- !u!114 &114838842772499344
 MonoBehaviour:
   m_ObjectHideFlags: 0

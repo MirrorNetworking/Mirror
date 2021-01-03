@@ -28,7 +28,7 @@ namespace Mirror.TransformSyncing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddBehaviour(IHasPositionRotation behaviour)
         {
-            uint id = behaviour.Id;
+            uint id = behaviour.State.id;
             Debug.Assert(id != 0, "Behaviour had no id");
             behaviours.Add(id, behaviour);
         }
@@ -36,7 +36,7 @@ namespace Mirror.TransformSyncing
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveBehaviour(IHasPositionRotation behaviour)
         {
-            uint id = behaviour.Id;
+            uint id = behaviour.State.id;
             Debug.Assert(id != 0, "Behaviour had no id");
             behaviours.Remove(id);
         }

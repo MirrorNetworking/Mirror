@@ -115,6 +115,8 @@ MonoBehaviour:
   runtime: {fileID: 11400000, guid: f145177ee8a96ae4db99b18723f9b45b, type: 2}
   syncInterval: 0.1
   checkEveryFrame: 1
+  maxTime: 3600
+  timePrecision: 0.001
   smallBitCount: 6
   mediumBitCount: 12
   largeBitCount: 18

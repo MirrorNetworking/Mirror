@@ -30,7 +30,8 @@ namespace Mirror.TransformSyncing.Tests
             runtime = new NetworkTransformSystemRuntimeReference();
             system.runtime = runtime;
             // -1 because first bit is to say it is small
-            system.idPacker = new UIntPackcer(smallIntBitCount - 1, 12, 18);
+            system.idPacker = new UIntVariablePacker(smallIntBitCount - 1, 12, 18);
+            system.timePacker = new FloatPacker(0, 3600f, 1 / 1000f);
             system.rotationPacker = new QuaternionPacker(9);
         }
 
@@ -39,13 +40,14 @@ namespace Mirror.TransformSyncing.Tests
         public void CanSynOneObjectPosition(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
             system.positionPacker = new PositionPacker(min, max, precision);
+            int timeBits = system.timePacker.bitCount;
             int bitsPerObject = smallIntBitCount + system.positionPacker.bitCount + system.rotationPacker.bitCount;
-            int flushBits = 8 - (bitsPerObject % 8);
+            int totalBits = timeBits + bitsPerObject;
+            int flushBits = 8 - (totalBits % 8);
             if (flushBits == 8) flushBits = 0;
 
             IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
-            hasPos.PositionRotation.Returns(new PositionRotation(inValue, Quaternion.identity));
-            hasPos.Id.Returns(1u);
+            hasPos.State.Returns(new TransformState(1u, inValue, Quaternion.identity));
             hasPos.NeedsUpdate().Returns(true);
 
             runtime.AddBehaviour(hasPos);
@@ -55,14 +57,14 @@ namespace Mirror.TransformSyncing.Tests
                 system.PackBehaviours(writer);
                 ArraySegment<byte> payload = writer.ToArraySegment();
 
-                int expectedByteCount = Mathf.CeilToInt(bitsPerObject / 8f);
+                int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
                 Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
 
                 system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { bytes = payload });
                 Assert.That(system.bitReader.BitsInScratch, Is.EqualTo(flushBits), "should have read exact amount");
             }
 
-            hasPos.Received(1).ApplyOnClient(Arg.Is<PositionRotation>(v => Vector3AlmostEqual(v.position, inValue, precision)));
+            hasPos.Received(1).ApplyOnClient(Arg.Is<TransformState>(v => Vector3AlmostEqual(v.position, inValue, precision)), Arg.Any<float>());
         }
 
 
@@ -71,16 +73,17 @@ namespace Mirror.TransformSyncing.Tests
         public void CanSyncFiveObjectPosition(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
             system.positionPacker = new PositionPacker(min, max, precision);
+            int timeBits = system.timePacker.bitCount;
             int bitsPerObject = smallIntBitCount + system.positionPacker.bitCount + system.rotationPacker.bitCount;
-            int flushBits = 8 - (bitsPerObject % 8);
+            int totalBits = timeBits + bitsPerObject * 5;
+            int flushBits = 8 - (totalBits % 8);
             if (flushBits == 8) flushBits = 0;
 
             List<IHasPositionRotation> hasPoss = new List<IHasPositionRotation>();
             for (int i = 0; i < 5; i++)
             {
                 IHasPositionRotation hasPos = Substitute.For<IHasPositionRotation>();
-                hasPos.PositionRotation.Returns(new PositionRotation(inValue, Quaternion.identity));
-                hasPos.Id.Returns((uint)(i + 1));
+                hasPos.State.Returns(new TransformState((uint)(i + 1), inValue, Quaternion.identity));
                 hasPos.NeedsUpdate().Returns(true);
 
                 hasPoss.Add(hasPos);
@@ -92,7 +95,7 @@ namespace Mirror.TransformSyncing.Tests
                 system.PackBehaviours(writer);
                 ArraySegment<byte> payload = writer.ToArraySegment();
 
-                int expectedByteCount = Mathf.CeilToInt((5f * bitsPerObject) / 8f);
+                int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
                 Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
 
                 system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { bytes = payload });
@@ -102,7 +105,7 @@ namespace Mirror.TransformSyncing.Tests
             for (int i = 0; i < 5; i++)
             {
                 IHasPositionRotation hasPos = hasPoss[i];
-                hasPos.Received(1).ApplyOnClient(Arg.Is<PositionRotation>(v => Vector3AlmostEqual(v.position, inValue, precision)));
+                hasPos.Received(1).ApplyOnClient(Arg.Is<TransformState>(v => Vector3AlmostEqual(v.position, inValue, precision)), Arg.Any<float>());
             }
         }
 
