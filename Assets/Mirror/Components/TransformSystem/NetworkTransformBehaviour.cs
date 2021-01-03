@@ -283,7 +283,7 @@ namespace Mirror.TransformSyncing
             // todo work out how to deal with time when 
             localTime += Time.deltaTime;
 
-            TransformState state = snapshotBuffer.GetLinearInterpolation(localTime);
+            TransformState state = snapshotBuffer.GetLinearInterpolation(localTime - clientDelay);
             Position = state.position;
             Rotation = state.rotation;
 
