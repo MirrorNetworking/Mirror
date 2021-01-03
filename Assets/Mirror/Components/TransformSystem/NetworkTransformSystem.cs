@@ -145,10 +145,10 @@ namespace Mirror.TransformSyncing
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                PackBehaviours(writer);
+                bool anyNeedUpdate = PackBehaviours(writer);
 
                 // dont send anything if nothing was written (eg, nothing dirty)
-                if (writer.Length == 0) { return; }
+                if (!anyNeedUpdate) { return; }
 
                 NetworkServer.SendToAll(new NetworkPositionMessage
                 {
@@ -157,16 +157,18 @@ namespace Mirror.TransformSyncing
             }
         }
 
-        internal void PackBehaviours(PooledNetworkWriter netWriter)
+        internal bool PackBehaviours(PooledNetworkWriter netWriter)
         {
             bitWriter.Reset(netWriter);
             timePacker.Pack(bitWriter, Time.time);
+            bool anyNeedUpdate = false;
             foreach (KeyValuePair<uint, IHasPositionRotation> kvp in runtime.behaviours)
             {
                 IHasPositionRotation behaviour = kvp.Value;
                 if (!behaviour.NeedsUpdate())
                     continue;
 
+                anyNeedUpdate = true;
 
                 TransformState state = behaviour.State;
 
@@ -178,6 +180,7 @@ namespace Mirror.TransformSyncing
                 behaviour.ClearNeedsUpdate(syncInterval);
             }
             bitWriter.Flush();
+            return anyNeedUpdate;
         }
 
         internal void ClientHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionMessage msg)
