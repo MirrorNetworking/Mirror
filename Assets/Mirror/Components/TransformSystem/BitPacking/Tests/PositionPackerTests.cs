@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mirror.TransformSyncing.Tests
 {
-    public class PositionCompressionTests
+    public class PositionPackerTests
     {
         static IEnumerable CompressesAndDecompressesCases()
         {
