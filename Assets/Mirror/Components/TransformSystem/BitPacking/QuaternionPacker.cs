@@ -28,7 +28,6 @@ namespace JamesFrowen.BitPacking
         public void Pack(BitWriter writer, Quaternion _value)
         {
             // make sure value is normalized (dont trust user given value, and math here assumes normalized)
-            //_value = _value.normalized;
             float x = _value.x;
             float y = _value.y;
             float z = _value.z;
@@ -48,7 +47,6 @@ namespace JamesFrowen.BitPacking
                 b = -b;
                 c = -c;
             }
-
 
             uint ua = Compression.ScaleToUInt(a, MinValue, MaxValue, 0, UintMax);
             uint ub = Compression.ScaleToUInt(b, MinValue, MaxValue, 0, UintMax);
@@ -109,11 +107,13 @@ namespace JamesFrowen.BitPacking
             {
                 index = 1;
                 largest = y;
+                current = y2;
             }
             if (z2 > current)
             {
                 index = 2;
                 largest = z;
+                current = z2;
             }
             if (w2 > current)
             {
@@ -163,11 +163,9 @@ namespace JamesFrowen.BitPacking
             uint ub = reader.Read(BitLength);
             uint uc = reader.Read(BitLength);
 
-
             float a = Compression.ScaleFromUInt(ua, MinValue, MaxValue, 0, UintMax);
             float b = Compression.ScaleFromUInt(ub, MinValue, MaxValue, 0, UintMax);
             float c = Compression.ScaleFromUInt(uc, MinValue, MaxValue, 0, UintMax);
-
 
             result = FromSmallerDimensions(index, a, b, c);
 
