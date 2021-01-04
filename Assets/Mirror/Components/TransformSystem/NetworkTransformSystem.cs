@@ -149,21 +149,10 @@ namespace Mirror.TransformSyncing
 
                 // dont send anything if nothing was written (eg, nothing dirty)
                 if (!anyNeedUpdate) { return; }
-                ArraySegment<byte> payload = writer.ToArraySegment();
-                //Console.Write("[");
-                //for (int i = payload.Offset; i < payload.Count; i++)
-                //{
-                //    if (i != payload.Offset)
-                //    {
-                //        Console.Write(", ");
-                //    }
 
-                //    Console.Write($"0x{payload.Array[i]:X2}");
-                //}
-                //Console.WriteLine("]");
                 NetworkServer.SendToAll(new NetworkPositionMessage
                 {
-                    payload = payload
+                    payload =  writer.ToArraySegment()
                 });
             }
         }
