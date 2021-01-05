@@ -1,3 +1,10 @@
+# [61.1.0](https://github.com/MirrorNG/MirrorNG/compare/v61.0.2...v61.1.0) (2021-01-05)
+
+
+### Features
+
+* allow for generic NetworkBehaviors ([#519](https://github.com/MirrorNG/MirrorNG/issues/519)) ([2858ff4](https://github.com/MirrorNG/MirrorNG/commit/2858ff4cbb32cf22015389d57cdff182034624a1))
+
 ## [61.0.2](https://github.com/MirrorNG/MirrorNG/compare/v61.0.1...v61.0.2) (2021-01-02)
 
 
