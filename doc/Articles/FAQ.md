@@ -124,7 +124,7 @@ Simple Matchmaker
 - You can make matchmakers out of these list servers, simply hide the list to players, have them auto join a game with space. You could also filter out various requirements the player has set, for example, "USA" Region only, or "Lava Island" map.
     </details>
     
-### How to get player count?
+### How to get the player count?
 
 <details>
   <summary>There are a few ways to do this, each with their own unique benefit.</summary>
