@@ -169,6 +169,7 @@ namespace Mirror
             {
                 float oldDistance = Vector3.Distance(start.localPosition, goal.localPosition);
                 float newDistance = Vector3.Distance(goal.localPosition, temp.localPosition);
+                float distances = oldDistance + newDistance;
 
                 start = goal;
 
@@ -176,7 +177,7 @@ namespace Mirror
                 // position if we aren't too far away
                 //
                 // local position/rotation for VR support
-                if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
+                if (Vector3.SqrMagnitude(targetComponent.transform.localPosition, start.localPosition) < distances * distances)
                 {
                     start.localPosition = targetComponent.transform.localPosition;
                     start.localRotation = targetComponent.transform.localRotation;
@@ -290,8 +291,8 @@ namespace Mirror
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
-            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
+            bool moved = Vector3.SqrMagnitude(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity * localPositionSensitivity;
+            bool scaled = Vector3.SqrMagnitude(lastScale, targetComponent.transform.localScale) > localScaleSensitivity * localScaleSensitivity;
             bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
 
             // save last for next frame to compare
