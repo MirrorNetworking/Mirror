@@ -294,6 +294,12 @@ namespace Mirror.Weaver
                     continue;
                 }
 
+                if (fd.FieldType.IsGenericParameter)
+                {
+                    Weaver.Error($"{fd.Name} cannot be synced since it's a generic parameter", fd);
+                    continue;
+                }
+
                 if ((fd.Attributes & FieldAttributes.Static) != 0)
                 {
                     Weaver.Error($"{fd.Name} cannot be static", fd);

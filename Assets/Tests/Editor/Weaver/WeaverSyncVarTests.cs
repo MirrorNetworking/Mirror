@@ -30,6 +30,13 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void SyncVarsGenericField()
+        {
+            HasError("invalidVar cannot be synced since it's a generic parameter",
+                "T WeaverSyncVarTests.SyncVarGenericFields.SyncVarGenericFields`1::invalidVar");
+        }
+
+        [Test]
         public void SyncVarsGenericParam()
         {
             HasError("Cannot generate writer for generic type MySyncVar`1. Use a supported type or provide a custom writer",

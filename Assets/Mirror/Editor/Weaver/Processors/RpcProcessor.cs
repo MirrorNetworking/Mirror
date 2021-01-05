@@ -176,6 +176,12 @@ namespace Mirror.Weaver
                 return false;
             }
 
+            if (param.ParameterType.IsGenericParameter)
+            {
+                Weaver.Error($"{method.Name} cannot have generic parameters", method);
+                return false;
+            }
+
             if (IsNetworkConnection(param.ParameterType))
             {
                 if (callType == RemoteCallType.ClientRpc && firstParam)

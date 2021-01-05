@@ -18,6 +18,11 @@ namespace Mirror.Weaver
         {
             foreach (FieldDefinition fd in td.Fields)
             {
+                if (fd.FieldType.IsGenericParameter) // Just ignore all generic objects.
+                {
+                    continue;
+                }
+
                 if (fd.FieldType.Resolve().ImplementsInterface<ISyncObject>())
                 {
                     if (fd.IsStatic)

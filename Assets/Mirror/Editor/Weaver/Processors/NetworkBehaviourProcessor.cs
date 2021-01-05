@@ -39,13 +39,6 @@ namespace Mirror.Weaver
             }
             Weaver.DLog(netBehaviourSubclass, "Found NetworkBehaviour " + netBehaviourSubclass.FullName);
 
-            if (netBehaviourSubclass.HasGenericParameters)
-            {
-                Weaver.Error($"{netBehaviourSubclass.Name} cannot have generic parameters", netBehaviourSubclass);
-                // originally Process returned true in every case, except if already processed.
-                // maybe return false here in the future.
-                return true;
-            }
             Weaver.DLog(netBehaviourSubclass, "Process Start");
             MarkAsProcessed(netBehaviourSubclass);
 
