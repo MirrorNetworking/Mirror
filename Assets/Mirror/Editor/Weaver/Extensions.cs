@@ -15,6 +15,35 @@ namespace Mirror.Weaver
             return td.FullName == t.FullName;
         }
 
+
+        // set the value of a constant in a class
+        public static void SetConst<T>(this TypeDefinition td, string fieldName, T value) where T : struct
+        {
+            FieldDefinition field = td.Fields.FirstOrDefault(f => f.Name == fieldName);
+
+            if (field == null)
+            {
+                field = new FieldDefinition(fieldName, FieldAttributes.Literal, td.Module.ImportReference<T>());
+                td.Fields.Add(field);
+            }
+
+            field.Constant = new T?(value);
+        }
+
+        public static T GetConst<T>(this TypeDefinition td, string fieldName) where T : struct
+        {
+            FieldDefinition field = td.Fields.FirstOrDefault(f => f.Name == fieldName);
+
+            if (field == null)
+            {
+                return default(T);
+            }
+
+            var value = field.Constant as T?;
+
+            return value.GetValueOrDefault();
+        }
+
         public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));
 
         public static bool Is(this MethodReference method, Type t, string name) =>

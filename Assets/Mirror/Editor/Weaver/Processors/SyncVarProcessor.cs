@@ -22,6 +22,7 @@ namespace Mirror.Weaver
 
         // ulong = 64 bytes
         const int SyncVarLimit = 64;
+        private const string SyncVarCount = "SYNC_VAR_COUNT";
 
         static string HookParameterMessage(string hookName, TypeReference ValueType)
             => string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
@@ -282,7 +283,8 @@ namespace Mirror.Weaver
         {
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
-            int dirtyBitCounter = Weaver.WeaveLists.GetSyncVarStart(td.BaseType.FullName);
+
+            int dirtyBitCounter = td.BaseType.Resolve().GetConst<int>(SyncVarCount);
 
             var fields = new List<FieldDefinition>(td.Fields);
 
@@ -328,7 +330,7 @@ namespace Mirror.Weaver
                 Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
             }
 
-            Weaver.WeaveLists.SetNumSyncVars(td.FullName, syncVars.Count);
+            td.SetConst(SyncVarCount, syncVars.Count);
 
             GenerateSerialization(td);
             GenerateDeSerialization(td);
@@ -479,7 +481,7 @@ namespace Mirror.Weaver
             // generate a writer call for any dirty variable in this class
 
             // start at number of syncvars in parent
-            int dirtyBit = Weaver.WeaveLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = netBehaviourSubclass.BaseType.Resolve().GetConst<int>(SyncVarCount);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = worker.Create(OpCodes.Nop);
@@ -588,7 +590,7 @@ namespace Mirror.Weaver
 
             // conditionally read each syncvar
             // start at number of syncvars in parent
-            int dirtyBit = Weaver.WeaveLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = netBehaviourSubclass.BaseType.Resolve().GetConst<int>(SyncVarCount);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
