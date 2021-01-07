@@ -1056,7 +1056,7 @@ namespace Mirror.Tests
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             RpcNetworkIdentityBehaviour behaviour = gameObject.AddComponent<RpcNetworkIdentityBehaviour>();
 
-            const ushort netId = 100;
+            const uint netId = 100;
             identity.netId = netId;
 
             NetworkIdentity.spawned[netId] = identity;
