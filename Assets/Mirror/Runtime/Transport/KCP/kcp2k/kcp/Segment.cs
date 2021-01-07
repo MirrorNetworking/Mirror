@@ -9,7 +9,7 @@ namespace kcp2k
         internal uint conv;     // conversation
         internal uint cmd;      // command, e.g. Kcp.CMD_ACK etc.
         internal uint frg;      // fragment
-        internal uint wnd;      // window
+        internal uint wnd;      // window size that the receive can currently receive
         internal uint ts;       // timestamp
         internal uint sn;       // serial number
         internal uint una;

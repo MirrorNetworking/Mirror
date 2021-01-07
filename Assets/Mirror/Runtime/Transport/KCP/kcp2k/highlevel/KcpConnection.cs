@@ -349,6 +349,23 @@ namespace kcp2k
             Send(Hello);
         }
 
+        // maximum send rate per second can be calculated from kcp parameters
+        // source: https://translate.google.com/translate?sl=auto&tl=en&u=https://wetest.qq.com/lab/view/391.html
+        //
+        // KCP can send/receive a maximum of WND*MTU per interval.
+        // multiple by 1000ms / interval to get the per-second rate.
+        //
+        // example:
+        //   WND(32) * MTU(1400) = 43.75KB
+        //   => 43.75KB * 1000 / INTERVAL(10) = 4375KB/s
+        //
+        // returns bytes/second!
+        public uint MaxSendRate =>
+            kcp.snd_wnd * kcp.mtu * 1000 / kcp.interval;
+
+        public uint MaxReceiveRate =>
+            kcp.rcv_wnd * kcp.mtu * 1000 / kcp.interval;
+
         protected virtual void Dispose()
         {
         }

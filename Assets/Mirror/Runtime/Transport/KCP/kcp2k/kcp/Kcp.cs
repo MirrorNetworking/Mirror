@@ -44,12 +44,12 @@ namespace kcp2k
         readonly uint conv;          // conversation
         internal uint mtu;
         internal uint mss;           // maximum segment size := MTU - OVERHEAD
-        internal uint snd_una;       // unacknowledged
+        internal uint snd_una;       // unacknowledged. e.g. snd_una is 9 it means 8 has been confirmed, 9 and 10 have been sent
         internal uint snd_nxt;
         internal uint rcv_nxt;
         internal uint ssthresh;      // slow start threshold
-        internal int rx_rttval;
-        internal int rx_srtt;        // smoothed round trip time
+        internal int rx_rttval;      // average deviation of rtt, used to measure the jitter of rtt
+        internal int rx_srtt;        // smoothed round trip time (a weighted average of rtt)
         internal int rx_rto;
         internal int rx_minrto;
         internal uint snd_wnd;       // send window
