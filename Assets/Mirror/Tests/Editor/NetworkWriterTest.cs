@@ -4,7 +4,6 @@ using System.IO;
 using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -1057,9 +1056,8 @@ namespace Mirror.Tests
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             RpcNetworkIdentityBehaviour behaviour = gameObject.AddComponent<RpcNetworkIdentityBehaviour>();
 
-            const int netId = 100;
+            const ushort netId = 100;
             identity.netId = netId;
-            int compIndex = behaviour.ComponentIndex;
 
             NetworkIdentity.spawned[netId] = identity;
 
@@ -1111,9 +1109,8 @@ namespace Mirror.Tests
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             RpcNetworkIdentityBehaviour behaviour = gameObject.AddComponent<RpcNetworkIdentityBehaviour>();
 
-            const int netId = 100;
+            const uint netId = 100;
             identity.netId = netId;
-            int compIndex = behaviour.ComponentIndex;
 
             NetworkIdentity.spawned[netId] = identity;
 
