@@ -19,7 +19,7 @@ Some of these types are unsupported due to the complexity they would add, as men
 
 > NOTE: Types in this list can have custom writers.
 
-- Jagged and Multidimensional array
+- Multidimensional array (eg `int[,]`)
 - Types that Inherit from `UnityEngine.Component`
 - `UnityEngine.Object`
 - `UnityEngine.ScriptableObject`
@@ -55,7 +55,7 @@ Weaver will Generate Read Write functions for
 - Classes or Structs
 - Enums
 - Arrays
-    - eg `int[]`
+    - eg `int[]` and `int[][]`
 - ArraySegments
     - eg `ArraySegment<int>`
 - Lists

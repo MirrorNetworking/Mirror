@@ -8,8 +8,8 @@ namespace Mirror.Examples.Pong
     [AddComponentMenu("")]
     public class NetworkManagerPong : NetworkManager
     {
-        [SerializeField] Transform leftRacketSpawn;
-        [SerializeField] Transform rightRacketSpawn;
+        public Transform leftRacketSpawn;
+        public Transform rightRacketSpawn;
         GameObject ball;
 
         public override void OnServerAddPlayer(NetworkConnection conn)

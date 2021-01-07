@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
-    internal class Spawner : MonoBehaviour
+    internal class Spawner
     {
         internal static void InitialSpawn(Scene scene)
         {
@@ -18,7 +18,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             if (!NetworkServer.active) return;
 
             Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
-            GameObject reward = Instantiate(((MultiSceneNetManager)NetworkManager.singleton).rewardPrefab, spawnPosition, Quaternion.identity);
+            GameObject reward = Object.Instantiate(((MultiSceneNetManager)NetworkManager.singleton).rewardPrefab, spawnPosition, Quaternion.identity);
             SceneManager.MoveGameObjectToScene(reward, scene);
             NetworkServer.Spawn(reward);
         }

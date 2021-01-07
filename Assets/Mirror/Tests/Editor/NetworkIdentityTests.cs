@@ -1085,7 +1085,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnNetworkDestroy()
+        public void OnStopClient()
         {
             // add components
             NetworkDestroyExceptionNetworkBehaviour compEx = gameObject.AddComponent<NetworkDestroyExceptionNetworkBehaviour>();
@@ -1095,9 +1095,9 @@ namespace Mirror.Tests
             Assert.That(compEx.called, Is.EqualTo(0));
             Assert.That(comp.called, Is.EqualTo(0));
 
-            // call OnNetworkDestroy in identity
+            // call OnStopClient in identity
             // one component will throw an exception, but that shouldn't stop
-            // OnNetworkDestroy from being called in the second one
+            // OnStopClient from being called in the second one
             // exception will log an error
             LogAssert.ignoreFailingMessages = true;
             identity.OnStopClient();
@@ -1128,9 +1128,9 @@ namespace Mirror.Tests
             // make sure our test values are set to 0
             Assert.That(compEx.called, Is.EqualTo(0));
 
-            // call OnNetworkDestroy in identity
+            // call OnStopClient in identity
             // one component will throw an exception, but that shouldn't stop
-            // OnNetworkDestroy from being called in the second one
+            // OnStopClient from being called in the second one
             // exception will log an error
             LogAssert.ignoreFailingMessages = true;
             identity.OnStopServer();

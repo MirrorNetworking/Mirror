@@ -10,13 +10,13 @@ namespace Mirror.Examples.MultipleAdditiveScenes
     {
         [Header("Spawner Setup")]
         [Tooltip("Reward Prefab for the Spawner")]
-        [SerializeField] internal GameObject rewardPrefab;
+        public GameObject rewardPrefab;
 
         [Header("MultiScene Setup")]
-        [SerializeField] int instances = 3;
+        public int instances = 3;
 
         [Scene]
-        [SerializeField] string gameScene;
+        public string gameScene;
 
         bool subscenesLoaded;
         readonly List<Scene> subScenes = new List<Scene>();

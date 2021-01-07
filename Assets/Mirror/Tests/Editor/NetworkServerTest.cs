@@ -78,7 +78,7 @@ namespace Mirror.Tests
         public override void OnStartClient() { ++called; }
     }
 
-    public class OnNetworkDestroyTestNetworkBehaviour : NetworkBehaviour
+    public class OnStopClientTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once
         public int called;
@@ -1068,7 +1068,7 @@ namespace Mirror.Tests
             // create a gameobject and networkidentity that lives in the scene(=has sceneid)
             GameObject go = new GameObject("Test");
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            OnNetworkDestroyTestNetworkBehaviour comp = go.AddComponent<OnNetworkDestroyTestNetworkBehaviour>();
+            OnStopClientTestNetworkBehaviour comp = go.AddComponent<OnStopClientTestNetworkBehaviour>();
             // lives in the scene from the start
             identity.sceneId = 42;
             // spawned objects are active
