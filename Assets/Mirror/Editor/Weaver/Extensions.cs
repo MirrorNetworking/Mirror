@@ -57,7 +57,7 @@ namespace Mirror.Weaver
                 td.Fields.Add(field);
             }
 
-            field.Constant = new T?(value);
+            field.Constant = value;
         }
 
         public static T GetConst<T>(this TypeDefinition td, string fieldName) where T : struct
