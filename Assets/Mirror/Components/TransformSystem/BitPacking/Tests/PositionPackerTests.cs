@@ -1,13 +1,14 @@
+using NUnit.Framework;
 using System;
 using System.Collections;
-using Mirror;
-using NUnit.Framework;
 using UnityEngine;
 
 namespace JamesFrowen.BitPacking.Tests
 {
     public class PositionPackerTests
     {
+        private const int BufferSize = 1000;
+
         static IEnumerable CompressesAndDecompressesCases()
         {
             yield return new TestCaseData(new Vector3(0, 0, 0), new Vector3(100, 100, 100), 0.01f, new Vector3(0, 0, 0));
@@ -20,18 +21,16 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void PackAndUnpack(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionPacker packer = new PositionPacker(min, max, precision);
+            var packer = new PositionPacker(min, max, precision);
 
-            NetworkWriter netWriter = new NetworkWriter();
-            BitWriter writer = new BitWriter(netWriter);
+            var writer = new BitWriter(BufferSize);
             packer.Pack(writer, inValue);
             writer.Flush();
 
-            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
-            BitReader reader = new BitReader(netReader);
-            Vector3 outValue = packer.Unpack(reader);
+            var reader = new BitReader(writer.ToArraySegment());
+            var outValue = packer.Unpack(reader);
 
-            string debugMessage = $"in{inValue} out{outValue}";
+            var debugMessage = $"in{inValue} out{outValue}";
             Assert.That(outValue.x, Is.EqualTo(inValue.x).Within(precision), debugMessage);
             Assert.That(outValue.y, Is.EqualTo(inValue.y).Within(precision), debugMessage);
             Assert.That(outValue.z, Is.EqualTo(inValue.z).Within(precision), debugMessage);
@@ -42,34 +41,31 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void PackHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionPacker packer = new PositionPacker(min, max, precision);
-            int writeCount = Mathf.CeilToInt(packer.bitCount / 8f);
+            var packer = new PositionPacker(min, max, precision);
+            var writeCount = Mathf.CeilToInt(packer.bitCount / 8f);
 
-            NetworkWriter netWriter = new NetworkWriter();
-            BitWriter writer = new BitWriter(netWriter);
+            var writer = new BitWriter(BufferSize);
             packer.Pack(writer, inValue);
             writer.Flush();
 
-            Assert.That(netWriter.Length, Is.EqualTo(writeCount));
+            Assert.That(writer.Length, Is.EqualTo(writeCount));
         }
 
         [Test]
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void UnpackHasCorrectLength(Vector3 min, Vector3 max, float precision, Vector3 inValue)
         {
-            PositionPacker packer = new PositionPacker(min, max, precision);
-            int readCount = Mathf.CeilToInt(packer.bitCount / 8f);
+            var packer = new PositionPacker(min, max, precision);
+            var readCount = Mathf.CeilToInt(packer.bitCount / 8f);
 
-            NetworkWriter netWriter = new NetworkWriter();
-            BitWriter writer = new BitWriter(netWriter);
+            var writer = new BitWriter(BufferSize);
             packer.Pack(writer, inValue);
             writer.Flush();
 
-            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
-            BitReader reader = new BitReader(netReader);
-            Vector3 outValue = packer.Unpack(reader);
+            var reader = new BitReader(writer.ToArraySegment());
+            var outValue = packer.Unpack(reader);
 
-            Assert.That(netReader.Position, Is.EqualTo(readCount));
+            Assert.That(reader.Position, Is.EqualTo(readCount));
         }
 
 
@@ -90,15 +86,15 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCasesRepeat))]
         public void PackAndUnpackRepeat(Vector3 min, Vector3 max, float precision)
         {
-            Vector3 inValue = new Vector3(
+            var inValue = new Vector3(
                 UnityEngine.Random.Range(min.x, max.x),
                 UnityEngine.Random.Range(min.y, max.y),
                 UnityEngine.Random.Range(min.z, max.z)
                 );
 
-            PackAndUnpack(min, max, precision, inValue);
-            PackHasCorrectLength(min, max, precision, inValue);
-            UnpackHasCorrectLength(min, max, precision, inValue);
+            this.PackAndUnpack(min, max, precision, inValue);
+            this.PackHasCorrectLength(min, max, precision, inValue);
+            this.UnpackHasCorrectLength(min, max, precision, inValue);
         }
 
 
@@ -117,7 +113,7 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCase(10u, 0u)]
         public void BitCountFromRangeThrowsForBadInputs(uint min, uint max)
         {
-            ArgumentException execption = Assert.Throws<ArgumentException>(() =>
+            var execption = Assert.Throws<ArgumentException>(() =>
             {
                 BitCountHelper.BitCountFromRange(min, max);
             });

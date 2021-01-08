@@ -1,12 +1,13 @@
-using System.Collections;
-using Mirror;
 using NUnit.Framework;
+using System.Collections;
 using UnityEngine;
 
 namespace JamesFrowen.BitPacking.Tests
 {
     public class FloatPackerTests
     {
+        private const int BufferSize = 1000;
+
         static IEnumerable CompressesAndDecompressesCases()
         {
             yield return new TestCaseData(1269679f, 0.1005143f, 558430.4f);
@@ -16,16 +17,14 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void PackAndUnpack(float max, float percision, float inValue)
         {
-            FloatPacker packer = new FloatPacker(0, max, percision);
+            var packer = new FloatPacker(0, max, percision);
 
-            NetworkWriter netWriter = new NetworkWriter();
-            BitWriter writer = new BitWriter(netWriter);
+            var writer = new BitWriter(BufferSize);
             packer.Pack(writer, inValue);
             writer.Flush();
 
-            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
-            BitReader reader = new BitReader(netReader);
-            float outValue = packer.Unpack(reader);
+            var reader = new BitReader(writer.ToArraySegment());
+            var outValue = packer.Unpack(reader);
 
 
             Assert.That(outValue, Is.Not.NaN, "x was NaN");

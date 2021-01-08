@@ -75,13 +75,11 @@ namespace Mirror.TransformSyncing.Tests
                 runtime.AddBehaviour(hasPos);
             }
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                system.PackBehaviours(writer, timeNow);
-                ArraySegment<byte> payload = writer.ToArraySegment();
+            BitWriter writer = new BitWriter(32 * numberOfObjects);
+            system.PackBehaviours(writer, timeNow);
+            ArraySegment<byte> payload = writer.ToArraySegment();
 
-                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
-            }
+            system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
 
             for (int i = 0; i < numberOfObjects; i++)
             {
@@ -146,13 +144,12 @@ namespace Mirror.TransformSyncing.Tests
                 runtime.AddBehaviour(hasPos);
             }
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                system.PackBehaviours(writer, timeNow);
-                ArraySegment<byte> payload = writer.ToArraySegment();
+            BitWriter writer = new BitWriter(32 * numberOfObjects);
+            system.PackBehaviours(writer, timeNow);
+            ArraySegment<byte> payload = writer.ToArraySegment();
 
-                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
-            }
+            system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
+
 
             // this isnt exact precision but it should be greater than real precision
             float rotPrecision = 1f / (1 << (rotationBits - 6));
@@ -321,17 +318,15 @@ namespace Mirror.TransformSyncing.Tests
 
             runtime.AddBehaviour(hasPos);
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                system.PackBehaviours(writer, 0f);
-                ArraySegment<byte> payload = writer.ToArraySegment();
+            BitWriter writer = new BitWriter(32 * 1);
+            system.PackBehaviours(writer, 0f);
+            ArraySegment<byte> payload = writer.ToArraySegment();
 
-                int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
-                Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
+            int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
+            Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
 
-                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
-                Assert.That(system.bitReader.BitsInScratch, Is.EqualTo(flushBits), "should have read exact amount");
-            }
+            system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
+
 
             hasPos.Received(1).ApplyOnClient(Arg.Is<TransformState>(v => Vector3AlmostEqual(v.position, inValue, precision)), Arg.Any<float>());
         }
@@ -359,17 +354,15 @@ namespace Mirror.TransformSyncing.Tests
                 runtime.AddBehaviour(hasPos);
             }
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                system.PackBehaviours(writer, 0f);
-                ArraySegment<byte> payload = writer.ToArraySegment();
+            BitWriter writer = new BitWriter(32 * 5);
+            system.PackBehaviours(writer, 0f);
+            ArraySegment<byte> payload = writer.ToArraySegment();
 
-                int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
-                Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
+            int expectedByteCount = Mathf.CeilToInt(totalBits / 8f);
+            Assert.That(payload.Count, Is.EqualTo(expectedByteCount));
 
-                system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
-                Assert.That(system.bitReader.BitsInScratch, Is.EqualTo(flushBits), "should have read exact amount");
-            }
+            system.ClientHandleNetworkPositionMessage(null, new NetworkPositionMessage { payload = payload });
+
 
             for (int i = 0; i < 5; i++)
             {

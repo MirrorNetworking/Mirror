@@ -51,8 +51,6 @@ namespace Mirror.TransformSyncing
         [SerializeField] private int _byteCount;
 
 
-        [NonSerialized] BitWriter bitWriter = new BitWriter();
-        [NonSerialized] internal BitReader bitReader = new BitReader();
         [NonSerialized] internal FloatPacker timePacker;
         [NonSerialized] internal UIntVariablePacker idPacker;
         [NonSerialized] internal PositionPacker positionPacker;
@@ -143,23 +141,21 @@ namespace Mirror.TransformSyncing
             // dont send message if no behaviours
             if (runtime.behaviours.Count == 0) { return; }
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            // todo dont create new buffer each time
+            BitWriter bitWriter = new BitWriter(runtime.behaviours.Count * 32);
+            bool anyNeedUpdate = PackBehaviours(bitWriter, (float)NetworkTime.time);
+
+            // dont send anything if nothing was written (eg, nothing dirty)
+            if (!anyNeedUpdate) { return; }
+
+            NetworkServer.SendToAll(new NetworkPositionMessage
             {
-                bool anyNeedUpdate = PackBehaviours(writer, (float)NetworkTime.time);
-
-                // dont send anything if nothing was written (eg, nothing dirty)
-                if (!anyNeedUpdate) { return; }
-
-                NetworkServer.SendToAll(new NetworkPositionMessage
-                {
-                    payload =  writer.ToArraySegment()
-                });
-            }
+                payload = bitWriter.ToArraySegment()
+            });
         }
 
-        internal bool PackBehaviours(PooledNetworkWriter netWriter, float time)
+        internal bool PackBehaviours(BitWriter bitWriter, float time)
         {
-            bitWriter.Reset(netWriter);
             timePacker.Pack(bitWriter, time);
             bool anyNeedUpdate = false;
             foreach (KeyValuePair<uint, IHasPositionRotation> kvp in runtime.behaviours)
@@ -186,52 +182,45 @@ namespace Mirror.TransformSyncing
         internal void ClientHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionMessage msg)
         {
             int count = msg.payload.Count;
-            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.payload))
+            BitReader bitReader = new BitReader(msg.payload);
+            float time = timePacker.Unpack(bitReader);
+
+            while (bitReader.Position < count)
             {
-                bitReader.Reset(netReader);
-                float time = timePacker.Unpack(bitReader);
+                uint id = idPacker.Unpack(bitReader);
+                Vector3 pos = positionPacker.Unpack(bitReader);
+                Quaternion rot = rotationPacker.Unpack(bitReader);
 
-                while (netReader.Position < count)
+                if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
                 {
-                    uint id = idPacker.Unpack(bitReader);
-                    Vector3 pos = positionPacker.Unpack(bitReader);
-                    Quaternion rot = rotationPacker.Unpack(bitReader);
-
-                    if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
-                    {
-                        behaviour.ApplyOnClient(new TransformState(pos, rot), time);
-                    }
+                    behaviour.ApplyOnClient(new TransformState(pos, rot), time);
                 }
-                Debug.Assert(netReader.Position == count, "should have read exact amount");
+
             }
+            Debug.Assert(bitReader.Position == count, "should have read exact amount");
         }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SendMessageToServer(IHasPositionRotation behaviour)
         {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            // todo dont create new buffer each time
+            BitWriter bitWriter = new BitWriter(32);
+
+            TransformState state = behaviour.State;
+
+            idPacker.Pack(bitWriter, state.id);
+            positionPacker.Pack(bitWriter, state.position);
+            rotationPacker.Pack(bitWriter, state.rotation);
+
+            behaviour.ClearNeedsUpdate(syncInterval);
+
+            bitWriter.Flush();
+
+            NetworkClient.Send(new NetworkPositionSingleMessage
             {
-                bitWriter.Reset(writer);
-
-                TransformState state = behaviour.State;
-
-                idPacker.Pack(bitWriter, state.id);
-                positionPacker.Pack(bitWriter, state.position);
-                rotationPacker.Pack(bitWriter, state.rotation);
-
-                behaviour.ClearNeedsUpdate(syncInterval);
-
-                bitWriter.Flush();
-
-                // dont send anything if nothing was written (eg, nothing dirty)
-                if (writer.Length == 0) { return; }
-
-                NetworkClient.Send(new NetworkPositionSingleMessage
-                {
-                    payload = writer.ToArraySegment()
-                });
-            }
+                payload = bitWriter.ToArraySegment()
+            });
         }
 
         /// <summary>
@@ -241,20 +230,17 @@ namespace Mirror.TransformSyncing
         /// <param name="arg2"></param>
         internal void ServerHandleNetworkPositionMessage(NetworkConnection _conn, NetworkPositionSingleMessage msg)
         {
-            using (PooledNetworkReader netReader = NetworkReaderPool.GetReader(msg.payload))
+            BitReader bitReader = new BitReader(msg.payload);
+            uint id = idPacker.Unpack(bitReader);
+            Vector3 pos = positionPacker.Unpack(bitReader);
+            Quaternion rot = rotationPacker.Unpack(bitReader);
+
+            if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
             {
-                bitReader.Reset(netReader);
-                uint id = idPacker.Unpack(bitReader);
-                Vector3 pos = positionPacker.Unpack(bitReader);
-                Quaternion rot = rotationPacker.Unpack(bitReader);
-
-                if (runtime.behaviours.TryGetValue(id, out IHasPositionRotation behaviour))
-                {
-                    behaviour.ApplyOnServer(new TransformState(pos, rot));
-                }
-
-                Debug.Assert(netReader.Position == msg.payload.Count, "should have read exact amount");
+                behaviour.ApplyOnServer(new TransformState(pos, rot));
             }
+
+            Debug.Assert(bitReader.Position == msg.payload.Count, "should have read exact amount");
         }
 
 #if UNITY_EDITOR

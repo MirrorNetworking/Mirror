@@ -40,5 +40,24 @@ namespace Mirror.TransformSyncing
             Debug.Assert(id != 0, "Behaviour had no id");
             behaviours.Remove(id);
         }
+
+#if UNITY_EDITOR
+        public void OnEnable()
+        {
+            UnityEditor.EditorApplication.playModeStateChanged += PlayModeStateChanged;
+        }
+        public void OnDisable()
+        {
+            UnityEditor.EditorApplication.playModeStateChanged -= PlayModeStateChanged;
+        }
+        void PlayModeStateChanged(UnityEditor.PlayModeStateChange state)
+        {
+            if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode)
+            {
+                _system = null;
+                behaviours.Clear();
+            }
+        }
+#endif
     }
 }

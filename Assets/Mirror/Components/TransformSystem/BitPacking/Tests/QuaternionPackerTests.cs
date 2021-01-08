@@ -1,34 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
-using Mirror;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace JamesFrowen.BitPacking.Tests
 {
     public class QuaternionPackerTests
     {
+        private const int BufferSize = 1000;
+
         static IEnumerable ReturnsCorrectIndexCases()
         {
-            List<float> values = new List<float>() { 0.1f, 0.2f, 0.3f, 0.4f };
+            var values = new List<float>() { 0.1f, 0.2f, 0.3f, 0.4f };
             // abcd are index
             // testing all permutation, index can only be used once
-            for (int a = 0; a < 4; a++)
+            for (var a = 0; a < 4; a++)
             {
-                for (int b = 0; b < 4; b++)
+                for (var b = 0; b < 4; b++)
                 {
                     if (b == a) { continue; }
 
-                    for (int c = 0; c < 4; c++)
+                    for (var c = 0; c < 4; c++)
                     {
                         if (c == a || c == b) { continue; }
 
-                        for (int d = 0; d < 4; d++)
+                        for (var d = 0; d < 4; d++)
                         {
                             if (d == a || d == b || d == c) { continue; }
 
-                            int largest = 0;
+                            var largest = 0;
                             // index 3 is the largest, 
                             if (a == 3) { largest = 0; }
                             if (b == 3) { largest = 1; }
@@ -46,14 +48,14 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCaseSource(nameof(ReturnsCorrectIndexCases))]
         public int ReturnsCorrectIndex(float x, float y, float z, float w)
         {
-            QuaternionPacker.FindLargestIndex(x, y, z, w, out int index, out float largest);
+            QuaternionPacker.FindLargestIndex(x, y, z, w, out var index, out var largest);
             return index;
         }
 
 
         static IEnumerable CompressesAndDecompressesCases()
         {
-            for (int i = 8; i < 12; i++)
+            for (var i = 8; i < 12; i++)
             {
                 yield return new TestCaseData(i, Quaternion.identity);
                 yield return new TestCaseData(i, Quaternion.Euler(25, 30, 0));
@@ -69,18 +71,16 @@ namespace JamesFrowen.BitPacking.Tests
         public void PackAndUnpack(int bits, Quaternion inValue)
         {
             // this isnt exact precision but it should be greater than real precision
-            float precision = 2f / ((1 << bits) - 1) * 1.5f;
+            var precision = 2f / ((1 << bits) - 1) * 1.5f;
 
-            QuaternionPacker packer = new QuaternionPacker(bits);
+            var packer = new QuaternionPacker(bits);
 
-            NetworkWriter netWriter = new NetworkWriter();
-            BitWriter writer = new BitWriter(netWriter);
+            var writer = new BitWriter(BufferSize);
             packer.Pack(writer, inValue);
             writer.Flush();
 
-            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
-            BitReader reader = new BitReader(netReader);
-            Quaternion outValue = packer.Unpack(reader);
+            var reader = new BitReader(writer.ToArraySegment());
+            var outValue = packer.Unpack(reader);
 
 
             Assert.That(outValue.x, Is.Not.NaN, "x was NaN");
@@ -88,8 +88,8 @@ namespace JamesFrowen.BitPacking.Tests
             Assert.That(outValue.z, Is.Not.NaN, "z was NaN");
             Assert.That(outValue.w, Is.Not.NaN, "w was NaN");
 
-            QuaternionPacker.FindLargestIndex(outValue.x, outValue.y, outValue.z, outValue.w, out int _, out float larggest);
-            float sign = Mathf.Sign(larggest);
+            QuaternionPacker.FindLargestIndex(outValue.x, outValue.y, outValue.z, outValue.w, out var _, out var larggest);
+            var sign = Mathf.Sign(larggest);
             // flip sign of A if largest is is negative
             // Q == (-Q)
 
@@ -103,8 +103,8 @@ namespace JamesFrowen.BitPacking.Tests
                 return Is.EqualTo(v).Within(precision).Or.EqualTo(sign * v).Within(precision);
             }
 
-            Vector3 inVec = inValue * Vector3.forward;
-            Vector3 outVec = outValue * Vector3.forward;
+            var inVec = inValue * Vector3.forward;
+            var outVec = outValue * Vector3.forward;
 
             // allow for extra precision when rotating vector
             Assert.AreEqual(inVec.x, outVec.x, precision * 2, $"vx off by {Mathf.Abs(inVec.x - outVec.x)}");
@@ -116,12 +116,13 @@ namespace JamesFrowen.BitPacking.Tests
 
         [Test]
         [Repeat(100)]
+        [Ignore("Requires mirror")]
         public void PackerGivesSameValuesAsCompression()
         {
-            Quaternion inValue = Random.rotation;
-            QuaternionPacker packer = new QuaternionPacker(10);
-            Quaternion outValuePacked = PackUnpack(inValue, packer);
-            Quaternion outValueCompressed = CompressDecompress(inValue);
+            var inValue = UnityEngine.Random.rotation;
+            var packer = new QuaternionPacker(10);
+            var outValuePacked = PackUnpack(inValue, packer);
+            var outValueCompressed = CompressDecompress(inValue);
 
             Assert.That(QuaternionAlmostEqual(outValuePacked, outValueCompressed, 0.00001f),
                 $"Out Values should be the same, Angle:{Quaternion.Angle(outValuePacked, outValueCompressed)}\n" +
@@ -135,22 +136,19 @@ namespace JamesFrowen.BitPacking.Tests
 
         private static Quaternion CompressDecompress(Quaternion inValue)
         {
-            NetworkWriter netWriter = new NetworkWriter();
-            netWriter.WriteUInt32(Compression.CompressQuaternion(inValue));
+            throw new NotSupportedException("Requires mirror");
+            //netWriter.WriteUInt32(Compression.CompressQuaternion(inValue));
 
-            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
-            return Compression.DecompressQuaternion(netReader.ReadUInt32());
+            //return Compression.DecompressQuaternion(netReader.ReadUInt32());
         }
 
         private static Quaternion PackUnpack(Quaternion inValue, QuaternionPacker packer)
         {
-            NetworkWriter netWriter = new NetworkWriter();
-            BitWriter writer = new BitWriter(netWriter);
+            var writer = new BitWriter(BufferSize);
             packer.Pack(writer, inValue);
             writer.Flush();
 
-            NetworkReader netReader = new NetworkReader(netWriter.ToArraySegment());
-            BitReader reader = new BitReader(netReader);
+            var reader = new BitReader(writer.ToArraySegment());
             return packer.Unpack(reader);
         }
 
@@ -165,8 +163,8 @@ namespace JamesFrowen.BitPacking.Tests
 
         public static bool FloatAlmostEqual(float actual, float expected, float precision)
         {
-            float minAllowed = expected - precision;
-            float maxnAllowed = expected + precision;
+            var minAllowed = expected - precision;
+            var maxnAllowed = expected + precision;
 
             return minAllowed < actual && actual < maxnAllowed;
         }
