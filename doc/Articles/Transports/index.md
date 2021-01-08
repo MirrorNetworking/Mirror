@@ -8,10 +8,6 @@ Mirror is a high level Networking Library that can use several different low lev
 
 -   [TCP - Telepathy](Telepathy.md) Simple, message based, MMO Scale TCP networking in C\#. And no magic.
 
--   [TCP - Apathy](https://mirror-networking.com/apathy/) Apathy is a fast, lightweight, allocation-free low level TCP library for Unity developed by vis2k. Apathy was developed in native C for maximum MMO Scale networking performance.
-
--   [TCP - Booster](https://mirror-networking.com/booster/) The Mirror Booster uncorks your multiplayer game by moving the Networking load out of Unity!
-
 -   [WebSockets - SimpleWebTransport](SimpleWebTransport.md) WebSockets transport layer for Mirror that target WebGL clients.
 
 -   [Multiplexer](Multiplexer.md) Multiplexer is a bridging transport to allow a server to handle clients on different transports concurrently, for example desktop clients using Telepathy together with WebGL clients using Websockets.
@@ -25,3 +21,5 @@ Mirror is a high level Networking Library that can use several different low lev
 -   [Steam - FizzySteamworks](FizzySteamworks.md) Transport utilising Steam P2P network, building on Steamworks.NET.
 
 -   [Steam - FizzyFacepunch](FizzyFacepunch.md) Transport utilising Steam P2P network, building on Facepunch.Steamworks.
+
+-   [Epic - EpicTransport](EpicTransport.md) Transport utilising Epic Online Services for lobbies and relay.
