@@ -12,7 +12,7 @@ namespace JamesFrowen.BitPacking
         readonly FloatPacker z;
         public readonly int bitCount;
 
-        public Vector3Int BitCountAxis => new Vector3Int(x.bitCount, y.bitCount, z.bitCount);
+        public Vector3Int BitCountAxis => new Vector3Int(this.x.bitCount, this.y.bitCount, this.z.bitCount);
 
         public PositionPacker(Bounds bounds, float precision)
             : this(bounds.min, bounds.max, Vector3.one * precision) { }
@@ -22,14 +22,14 @@ namespace JamesFrowen.BitPacking
             : this(min, max, Vector3.one * precision) { }
         public PositionPacker(Vector3 min, Vector3 max, Vector3 precision)
         {
-            x = new FloatPacker(min.x, max.x, precision.x);
-            y = new FloatPacker(min.y, max.y, precision.y);
-            z = new FloatPacker(min.z, max.z, precision.z);
+            this.x = new FloatPacker(min.x, max.x, precision.x);
+            this.y = new FloatPacker(min.y, max.y, precision.y);
+            this.z = new FloatPacker(min.z, max.z, precision.z);
 
-            bitCount = x.bitCount + y.bitCount + z.bitCount;
+            this.bitCount = this.x.bitCount + this.y.bitCount + this.z.bitCount;
 
             const int maxBitCount = sizeof(ulong) * 8;
-            if (bitCount > maxBitCount)
+            if (this.bitCount > maxBitCount)
             {
                 // todo support this. check performance to see if it is event worth compressing over 64 bits
                 throw new NotSupportedException($"Compressing to sizes over {maxBitCount}");
@@ -39,18 +39,18 @@ namespace JamesFrowen.BitPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Pack(BitWriter writer, Vector3 value)
         {
-            x.Pack(writer, value.x);
-            y.Pack(writer, value.y);
-            z.Pack(writer, value.z);
+            this.x.Pack(writer, value.x);
+            this.y.Pack(writer, value.y);
+            this.z.Pack(writer, value.z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3 Unpack(BitReader reader)
         {
             return new Vector3(
-                x.Unpack(reader),
-                y.Unpack(reader),
-                z.Unpack(reader));
+                this.x.Unpack(reader),
+                this.y.Unpack(reader),
+                this.z.Unpack(reader));
         }
     }
 }

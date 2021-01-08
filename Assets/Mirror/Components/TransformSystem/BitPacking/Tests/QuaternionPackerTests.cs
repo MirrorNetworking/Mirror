@@ -11,6 +11,13 @@ namespace JamesFrowen.BitPacking.Tests
     {
         private const int BufferSize = 1000;
 
+        float Precision(int bits)
+        {
+            // sqrt2 / range * 3
+            // * 3 because largest value is caculated from smallest 3, their precision error is additive
+            return 1.404f / ((1 << bits) - 1) * 3f;
+        }
+
         static IEnumerable ReturnsCorrectIndexCases()
         {
             var values = new List<float>() { 0.1f, 0.2f, 0.3f, 0.4f };
@@ -70,8 +77,7 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void PackAndUnpack(int bits, Quaternion inValue)
         {
-            // this isnt exact precision but it should be greater than real precision
-            var precision = 2f / ((1 << bits) - 1) * 1.5f;
+            var precision = this.Precision(bits);
 
             var packer = new QuaternionPacker(bits);
 
@@ -98,10 +104,6 @@ namespace JamesFrowen.BitPacking.Tests
             Assert.That(outValue.z, IsUnSignedEqualWithIn(inValue.z), $"z off by {Mathf.Abs(sign * inValue.z - outValue.z)}");
             Assert.That(outValue.w, IsUnSignedEqualWithIn(inValue.w), $"w off by {Mathf.Abs(sign * inValue.w - outValue.w)}");
 
-            EqualConstraint IsUnSignedEqualWithIn(float v)
-            {
-                return Is.EqualTo(v).Within(precision).Or.EqualTo(sign * v).Within(precision);
-            }
 
             var inVec = inValue * Vector3.forward;
             var outVec = outValue * Vector3.forward;
@@ -111,6 +113,11 @@ namespace JamesFrowen.BitPacking.Tests
             Assert.AreEqual(inVec.y, outVec.y, precision * 2, $"vy off by {Mathf.Abs(inVec.y - outVec.y)}");
             Assert.AreEqual(inVec.z, outVec.z, precision * 2, $"vz off by {Mathf.Abs(inVec.z - outVec.z)}");
 
+
+            EqualConstraint IsUnSignedEqualWithIn(float v)
+            {
+                return Is.EqualTo(v).Within(precision).Or.EqualTo(sign * v).Within(precision);
+            }
         }
 
 

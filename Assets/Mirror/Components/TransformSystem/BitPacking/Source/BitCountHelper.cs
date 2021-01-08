@@ -34,7 +34,7 @@ namespace JamesFrowen.BitPacking
             // plus 1 because range is inclusive
             range++;
 
-            float logBase2 = Mathf.Log(range, 2);
+            var logBase2 = Mathf.Log(range, 2);
 
             return Mathf.CeilToInt(logBase2);
         }

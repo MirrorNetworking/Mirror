@@ -23,31 +23,31 @@ namespace JamesFrowen.BitPacking
             this.mediumBitCount = mediumBitCount;
             this.largeBitCount = largeBitCount;
 
-            smallMax = 1u << smallBitCount;
-            mediumMax = 1u << mediumBitCount;
-            largeMax = 1u << largeBitCount;
+            this.smallMax = 1u << smallBitCount;
+            this.mediumMax = 1u << mediumBitCount;
+            this.largeMax = 1u << largeBitCount;
 
-            MaxValue = largeMax - 1;
+            this.MaxValue = this.largeMax - 1;
         }
 
         public void Pack(BitWriter writer, uint value)
         {
-            if (value < smallMax)
+            if (value < this.smallMax)
             {
                 writer.Write(0, 1);
-                writer.Write(value, smallBitCount);
+                writer.Write(value, this.smallBitCount);
             }
-            else if (value < mediumMax)
+            else if (value < this.mediumMax)
             {
                 writer.Write(1, 1);
                 writer.Write(0, 1);
-                writer.Write(value, mediumBitCount);
+                writer.Write(value, this.mediumBitCount);
             }
-            else if (value < largeMax)
+            else if (value < this.largeMax)
             {
                 writer.Write(1, 1);
                 writer.Write(1, 1);
-                writer.Write(value, largeBitCount);
+                writer.Write(value, this.largeBitCount);
             }
             else
             {
@@ -57,21 +57,21 @@ namespace JamesFrowen.BitPacking
 
         public uint Unpack(BitReader reader)
         {
-            uint a = reader.Read(1);
+            var a = reader.Read(1);
             if (a == 0)
             {
-                return reader.Read(smallBitCount);
+                return reader.Read(this.smallBitCount);
             }
             else
             {
-                uint b = reader.Read(1);
+                var b = reader.Read(1);
                 if (b == 0)
                 {
-                    return reader.Read(mediumBitCount);
+                    return reader.Read(this.mediumBitCount);
                 }
                 else
                 {
-                    return reader.Read(largeBitCount);
+                    return reader.Read(this.largeBitCount);
                 }
             }
         }
