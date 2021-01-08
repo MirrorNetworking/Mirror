@@ -34,8 +34,8 @@ Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirro
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Many Transports Available
--   [KCP - KCP Transport](https://mirror-networking.com/docs/Articles/Transports/KCPTransport.md) based on kcp.c v1.7, nearly translated 1:1.
--   [TCP - Libuv2k](https://mirror-networking.com/docs/Articles/Transports/Libuv2k.md) based on Native C networking backend used by Node.js.
+-   [KCP - kcp2k](https://mirror-networking.com/docs/Articles/Transports/KCPTransport.md) line-by-line kcp.c translation.
+-   [TCP - libuv2k](https://mirror-networking.com/docs/Articles/Transports/Libuv2k.md) based on Native C networking backend used by Node.js.
 -   [TCP - Telepathy](https://mirror-networking.com/docs/Articles/Transports/Telepathy.md) Simple, message based, MMO Scale TCP networking in C\#. And no magic.
 -   [WebSockets - SimpleWebTransport](https://mirror-networking.com/docs/Articles/Transports/SimpleWebTransport.md) WebSockets transport layer for Mirror that target WebGL clients.
 -   [WebSockets - AsioTransport](https://mirror-networking.com/docs/Articles/Transports/AsioTransport.md) WebSockets transport layer for Mirror that target WebGL clients.
