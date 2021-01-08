@@ -9,7 +9,23 @@ namespace Mirror.Weaver
 {
     public abstract class RpcProcessor
     {
+        public const string SkeletonPrefix = "Skeleton_";
+        public const string UserCodePrefix = "UserCode_";
+
+        protected readonly ModuleDefinition  module;
+        protected readonly Readers readers;
+        protected readonly Writers writers;
+        protected readonly IWeaverLogger logger;
+
         public static string InvokeRpcPrefix => "InvokeUserCode_";
+
+        protected RpcProcessor(ModuleDefinition module, Readers readers, Writers writers, IWeaverLogger logger)
+        {
+            this.module = module;
+            this.readers = readers;
+            this.writers = writers;
+            this.logger = logger;
+        }
 
         // helper functions to check if the method has a NetworkConnection parameter
         public bool HasNetworkConnectionParameter(MethodDefinition md)
@@ -53,10 +69,10 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference writeFunc = method.Module.GetWriteFunc(param.ParameterType);
+                MethodReference writeFunc = writers.GetWriteFunc(param.ParameterType);
                 if (writeFunc == null)
                 {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}", method);
+                    logger.Error($"{method.Name} has invalid parameter {param}", method);
                     return false;
                 }
 
@@ -73,7 +89,7 @@ namespace Mirror.Weaver
         }
 
 
-        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, bool skipFirst)
+        public bool ReadArguments(MethodDefinition method, ILProcessor worker, bool skipFirst)
         {
             // read each argument
             // example result
@@ -99,11 +115,11 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference readFunc = method.Module.GetReadFunc(param.ParameterType);
+                MethodReference readFunc = readers.GetReadFunc(param.ParameterType);
 
                 if (readFunc == null)
                 {
-                    Weaver.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported MirrorNG type instead", method);
+                    logger.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported MirrorNG type instead", method);
                     return false;
                 }
 
@@ -124,29 +140,29 @@ namespace Mirror.Weaver
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
-        public static bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
+        public bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
         {
             if (method.IsAbstract)
             {
-                Weaver.Error("Abstract Rpcs are currently not supported, use virtual method instead", method);
+                logger.Error("Abstract Rpcs are currently not supported, use virtual method instead", method);
                 return false;
             }
 
             if (method.IsStatic)
             {
-                Weaver.Error($"{method.Name} must not be static", method);
+                logger.Error($"{method.Name} must not be static", method);
                 return false;
             }
 
             if (method.ReturnType.Is<System.Collections.IEnumerator>())
             {
-                Weaver.Error($"{method.Name} cannot be a coroutine", method);
+                logger.Error($"{method.Name} cannot be a coroutine", method);
                 return false;
             }
 
             if (method.HasGenericParameters)
             {
-                Weaver.Error($"{method.Name} cannot have generic parameters", method);
+                logger.Error($"{method.Name} cannot have generic parameters", method);
                 return false;
             }
 
@@ -154,7 +170,7 @@ namespace Mirror.Weaver
         }
 
         // check if all Command/TargetRpc/Rpc function's parameters are valid for weaving
-        static bool ValidateParameters(MethodReference method, RemoteCallType callType)
+        bool ValidateParameters(MethodReference method, RemoteCallType callType)
         {
             for (int i = 0; i < method.Parameters.Count; ++i)
             {
@@ -168,17 +184,17 @@ namespace Mirror.Weaver
         }
 
         // validate parameters for a remote function call like Rpc/Cmd
-        static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
+        bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
             if (param.IsOut)
             {
-                Weaver.Error($"{method.Name} cannot have out parameters", method);
+                logger.Error($"{method.Name} cannot have out parameters", method);
                 return false;
             }
 
             if (param.ParameterType.IsGenericParameter)
             {
-                Weaver.Error($"{method.Name} cannot have generic parameters", method);
+                logger.Error($"{method.Name} cannot have generic parameters", method);
                 return false;
             }
 
@@ -195,23 +211,22 @@ namespace Mirror.Weaver
                     return true;
                 }
 
-                Weaver.Error($"{method.Name} has invalid parameter {param}, Cannot pass NetworkConnections", method);
+                logger.Error($"{method.Name} has invalid parameter {param}, Cannot pass NetworkConnections", method);
                 return false;
             }
 
             if (param.IsOptional)
             {
-                Weaver.Error($"{method.Name} cannot have optional parameters", method);
+                logger.Error($"{method.Name} cannot have optional parameters", method);
                 return false;
             }
 
             return true;
         }
 
-        public static void CreateRpcDelegate(ILProcessor worker, MethodDefinition func)
+        public void CreateRpcDelegate(ILProcessor worker, MethodDefinition func)
         {
             MethodReference CmdDelegateConstructor;
-
 
             if (func.ReturnType.Is(typeof(void)))
             {
@@ -236,12 +251,127 @@ namespace Mirror.Weaver
             }
             else
             {
-                Log.Error("Use UniTask<x> to return a value from ServerRpc in" + func);
+                logger.Error("Use UniTask<x> to return a value from ServerRpc in" + func);
                 return;
             }
 
             worker.Append(worker.Create(OpCodes.Ldftn, func));
             worker.Append(worker.Create(OpCodes.Newobj, CmdDelegateConstructor));
         }
+
+        // creates a method substitute
+        // For example, if we have this:
+        //  public void CmdThrust(float thrusting, int spin)
+        //  {
+        //      xxxxx   
+        //  }
+        //
+        //  it will substitute the method and move the code to a new method with a provided name
+        //  for example:
+        //
+        //  public void CmdTrust(float thrusting, int spin)
+        //  {
+        //  }
+        //
+        //  public void <newName>(float thrusting, int spin)
+        //  {
+        //      xxxxx
+        //  }
+        //
+        //  Note that all the calls to the method remain untouched
+        //
+        //  the original method definition loses all code
+        //  this returns the newly created method with all the user provided code
+        public MethodDefinition SubstituteMethod(MethodDefinition md)
+        {
+            string newName = UserCodePrefix + md.Name;
+            MethodDefinition cmd = md.DeclaringType.AddMethod(newName, md.Attributes, md.ReturnType);
+
+            // add parameters
+            foreach (ParameterDefinition pd in md.Parameters)
+            {
+                _ = cmd.AddParam(pd.ParameterType, pd.Name);
+            }
+
+            // swap bodies
+            (cmd.Body, md.Body) = (md.Body, cmd.Body);
+
+            // Move over all the debugging information
+            foreach (SequencePoint sequencePoint in md.DebugInformation.SequencePoints)
+                cmd.DebugInformation.SequencePoints.Add(sequencePoint);
+            md.DebugInformation.SequencePoints.Clear();
+
+            foreach (CustomDebugInformation customInfo in md.CustomDebugInformations)
+                cmd.CustomDebugInformations.Add(customInfo);
+            md.CustomDebugInformations.Clear();
+
+            (md.DebugInformation.Scope, cmd.DebugInformation.Scope) = (cmd.DebugInformation.Scope, md.DebugInformation.Scope);
+
+            FixRemoteCallToBaseMethod(md.DeclaringType, cmd);
+            return cmd;
+        }
+
+
+        /// <summary>
+        /// Finds and fixes call to base methods within remote calls
+        /// <para>For example, changes `base.CmdDoSomething` to `base.UserCode_CmdDoSomething` within `this.UserCode_CmdDoSomething`</para>
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="method"></param>
+        public void FixRemoteCallToBaseMethod(TypeDefinition type, MethodDefinition method)
+        {
+            string callName = method.Name;
+
+            // all ServerRpcs/Rpc start with "UserCode_"
+            // eg CallCmdDoSomething
+            if (!callName.StartsWith(UserCodePrefix))
+                return;
+
+            // eg CmdDoSomething
+            string baseRemoteCallName = method.Name.Substring(UserCodePrefix.Length);
+
+            foreach (Instruction instruction in method.Body.Instructions)
+            {
+                // if call to base.CmdDoSomething within this.CallCmdDoSomething
+                if (IsCallToMethod(instruction, out MethodDefinition calledMethod) &&
+                    calledMethod.Name == baseRemoteCallName)
+                {
+                    TypeDefinition baseType = type.BaseType.Resolve();
+                    MethodDefinition baseMethod = baseType.GetMethodInBaseType(callName);
+
+                    if (baseMethod == null)
+                    {
+                        logger.Error($"Could not find base method for {callName}", method);
+                        return;
+                    }
+
+                    if (!baseMethod.IsVirtual)
+                    {
+                        logger.Error($"Could not find base method that was virtual {callName}", method);
+                        return;
+                    }
+
+                    instruction.Operand = method.Module.ImportReference(baseMethod);
+
+                    Weaver.DLog(type, "Replacing call to '{0}' with '{1}' inside '{2}'", calledMethod.FullName, baseMethod.FullName, method.FullName);
+                }
+            }
+        }
+
+        static bool IsCallToMethod(Instruction instruction, out MethodDefinition calledMethod)
+        {
+            if (instruction.OpCode == OpCodes.Call &&
+                instruction.Operand is MethodDefinition method)
+            {
+                calledMethod = method;
+                return true;
+            }
+            else
+            {
+                calledMethod = null;
+                return false;
+            }
+        }
+
     }
 }

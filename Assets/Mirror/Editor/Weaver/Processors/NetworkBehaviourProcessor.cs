@@ -18,15 +18,21 @@ namespace Mirror.Weaver
     class NetworkBehaviourProcessor
     {
         readonly TypeDefinition netBehaviourSubclass;
-        readonly ServerRpcProcessor serverRpcProcessor = new ServerRpcProcessor();
-        readonly ClientRpcProcessor clientRpcProcessor = new ClientRpcProcessor();
-        readonly SyncVarProcessor syncVarProcessor = new SyncVarProcessor();
-        readonly SyncObjectProcessor syncObjectProcessor = new SyncObjectProcessor();
+        private readonly IWeaverLogger logger;
+        readonly ServerRpcProcessor serverRpcProcessor;
+        readonly ClientRpcProcessor clientRpcProcessor;
+        readonly SyncVarProcessor syncVarProcessor;
+        readonly SyncObjectProcessor syncObjectProcessor;
 
-        public NetworkBehaviourProcessor(TypeDefinition td)
+        public NetworkBehaviourProcessor(TypeDefinition td, Readers readers, Writers writers, PropertySiteProcessor propertySiteProcessor, IWeaverLogger logger)
         {
             Weaver.DLog(td, "NetworkBehaviourProcessor");
             netBehaviourSubclass = td;
+            this.logger = logger;
+            serverRpcProcessor = new ServerRpcProcessor(netBehaviourSubclass.Module, readers, writers, logger);
+            clientRpcProcessor = new ClientRpcProcessor(netBehaviourSubclass.Module, readers, writers, logger);
+            syncVarProcessor = new SyncVarProcessor(netBehaviourSubclass.Module, readers, writers, propertySiteProcessor, logger);
+            syncObjectProcessor = new SyncObjectProcessor(readers, writers, logger);
         }
 
         // return true if modified
@@ -90,7 +96,7 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        Weaver.Error($"{netBehaviourSubclass.Name} has invalid class constructor", cctor);
+                        logger.Error($"{netBehaviourSubclass.Name} has invalid class constructor", cctor);
                         return;
                     }
                 }
@@ -148,7 +154,7 @@ namespace Mirror.Weaver
                 {
                     if (names.Contains(md.Name))
                     {
-                        Weaver.Error($"Duplicate Rpc name {md.Name}", md);
+                        logger.Error($"Duplicate Rpc name {md.Name}", md);
                     }
                     names.Add(md.Name);
                 }

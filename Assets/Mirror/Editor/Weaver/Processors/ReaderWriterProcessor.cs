@@ -22,16 +22,25 @@ namespace Mirror.Weaver
             return obj.FullName.GetHashCode();
         }
     }
-    public static class ReaderWriterProcessor
-    {
-        private static readonly HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
 
-        public static bool Process(ModuleDefinition module, Assembly unityAssembly)
+    public class ReaderWriterProcessor
+    {
+        private readonly HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
+
+        private readonly ModuleDefinition module;
+        private readonly Readers readers;
+        private readonly Writers writers;
+
+        public ReaderWriterProcessor(ModuleDefinition module, Readers readers, Writers writers)
+        {
+            this.module = module;
+            this.readers = readers;
+            this.writers = writers;
+        }
+
+        public bool Process(Assembly unityAssembly)
         {
             // darn global state causing bugs
-            Readers.Init();
-            Writers.Init();
-            messages.Clear();
             foreach (Assembly unityAsm in unityAssembly.assemblyReferences)
             {
                 if (unityAsm.name == "Mirror")
@@ -39,20 +48,20 @@ namespace Mirror.Weaver
                     using (var asmResolver = new DefaultAssemblyResolver())
                     using (var assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
                     {
-                        ProcessAssemblyClasses(module, assembly.MainModule);
+                        ProcessAssemblyClasses(assembly.MainModule);
                     }
                 }
             }
 
-            int writeCount = Writers.Count;
-            int readCount = Readers.Count;
+            int writeCount = writers.Count;
+            int readCount = readers.Count;
 
-            ProcessAssemblyClasses(module, module);
+            ProcessAssemblyClasses(module);
 
-            return Writers.Count != writeCount || Readers.Count != readCount;
+            return writers.Count != writeCount || readers.Count != readCount;
         }
 
-        static void ProcessAssemblyClasses(ModuleDefinition module, ModuleDefinition dependencyModule)
+        void ProcessAssemblyClasses(ModuleDefinition dependencyModule)
         {
             foreach (TypeDefinition klass in dependencyModule.Types)
             {
@@ -60,34 +69,34 @@ namespace Mirror.Weaver
                 // static classes are represented as sealed and abstract
                 if (klass.IsAbstract && klass.IsSealed)
                 {
-                    LoadDeclaredWriters(module, klass);
-                    LoadDeclaredReaders(module, klass);
+                    LoadDeclaredWriters(klass);
+                    LoadDeclaredReaders(klass);
                 }
             }
 
             // Generate readers and writers
             // find all the Send<> and Register<> calls and generate
             // readers and writers for them.
-            CodePass.ForEachInstruction(dependencyModule, (md, instr) => GenerateReadersWriters(module, instr));
+            CodePass.ForEachInstruction(dependencyModule, (md, instr) => GenerateReadersWriters(instr));
         }
 
-        private static Instruction GenerateReadersWriters(ModuleDefinition module, Instruction instruction)
+        private Instruction GenerateReadersWriters(Instruction instruction)
         {
             if (instruction.OpCode == OpCodes.Ldsfld)
             {
-                GenerateReadersWriters(module, (FieldReference)instruction.Operand);
+                GenerateReadersWriters((FieldReference)instruction.Operand);
             }
 
             // We are looking for calls to some specific types
             if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt)
             {
-                GenerateReadersWriters(module, (MethodReference)instruction.Operand);
+                GenerateReadersWriters((MethodReference)instruction.Operand);
             }
 
             return instruction;
         }
 
-        private static void GenerateReadersWriters(ModuleDefinition module, FieldReference field)
+        private void GenerateReadersWriters(FieldReference field)
         {
             TypeReference type = field.DeclaringType;
 
@@ -97,11 +106,11 @@ namespace Mirror.Weaver
 
                 TypeReference parameterType = typeGenericInstance.GenericArguments[0];
 
-                GenerateReadersWriters(module, parameterType);
+                GenerateReadersWriters(parameterType);
             }
         }
 
-        private static void GenerateReadersWriters(ModuleDefinition module, MethodReference method)
+        private void GenerateReadersWriters(MethodReference method)
         {
             if (!method.IsGenericInstance)
                 return;
@@ -139,13 +148,13 @@ namespace Mirror.Weaver
                 if (parameterType.IsGenericParameter)
                     return;
 
-                GenerateReadersWriters(module, parameterType);
+                GenerateReadersWriters(parameterType);
                 if (isMessage)
                     messages.Add(parameterType);
             }
         }
 
-        private static void GenerateReadersWriters(ModuleDefinition module, TypeReference parameterType)
+        private void GenerateReadersWriters(TypeReference parameterType)
         {
             if (!parameterType.IsGenericParameter && parameterType.CanBeResolved())
             {
@@ -162,12 +171,12 @@ namespace Mirror.Weaver
                         return;
                 }
 
-                module.GetWriteFunc(parameterType);
-                module.GetReadFunc(parameterType);
+                writers.GetWriteFunc(parameterType);
+                readers.GetReadFunc(parameterType);
             }
         }
 
-        static void LoadDeclaredWriters(ModuleDefinition module, TypeDefinition klass)
+        void LoadDeclaredWriters(TypeDefinition klass)
         {
             // register all the writers in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
@@ -188,11 +197,11 @@ namespace Mirror.Weaver
                     continue;
 
                 TypeReference dataType = method.Parameters[1].ParameterType;
-                Writers.Register(dataType, module.ImportReference(method));
+                writers.Register(dataType, module.ImportReference(method));
             }
         }
 
-        static void LoadDeclaredReaders(ModuleDefinition module, TypeDefinition klass)
+        void LoadDeclaredReaders( TypeDefinition klass)
         {
             // register all the reader in this class.  Skip the ones with wrong signature
             foreach (MethodDefinition method in klass.Methods)
@@ -212,7 +221,7 @@ namespace Mirror.Weaver
                 if (method.HasGenericParameters)
                     continue;
 
-                Readers.Register(method.ReturnType, module.ImportReference(method));
+                readers.Register(method.ReturnType, module.ImportReference(method));
             }
         }
 
@@ -231,7 +240,7 @@ namespace Mirror.Weaver
         /// executed before mirror runtime code
         /// </summary>
         /// <param name="currentAssembly"></param>
-        public static void InitializeReaderAndWriters(ModuleDefinition module)
+        public void InitializeReaderAndWriters()
         {
             MethodDefinition rwInitializer = module.GeneratedClass().AddMethod(
                 "InitReadWriters",
@@ -253,15 +262,15 @@ namespace Mirror.Weaver
 
             ILProcessor worker = rwInitializer.Body.GetILProcessor();
 
-            Writers.InitializeWriters(worker);
-            Readers.InitializeReaders(worker);
+            writers.InitializeWriters(worker);
+            readers.InitializeReaders(worker);
 
-            RegisterMessages(module, worker);
+            RegisterMessages(worker);
 
             worker.Append(worker.Create(OpCodes.Ret));
         }
 
-        private static void RegisterMessages(ModuleDefinition module, ILProcessor worker)
+        private void RegisterMessages(ILProcessor worker)
         {
             System.Reflection.MethodInfo method = typeof(MessagePacker).GetMethod(nameof(MessagePacker.RegisterMessage));
             MethodReference registerMethod = module.ImportReference(method);

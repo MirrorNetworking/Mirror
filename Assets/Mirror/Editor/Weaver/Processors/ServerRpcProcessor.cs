@@ -25,6 +25,10 @@ namespace Mirror.Weaver
 
         readonly List<ServerRpcMethod> serverRpcs = new List<ServerRpcMethod>();
 
+        public ServerRpcProcessor(ModuleDefinition module, Readers readers, Writers writers, IWeaverLogger logger) : base(module, readers, writers, logger)
+        {            
+        }
+
         /// <summary>
         /// Replaces the user code with a stub.
         /// Moves the original code to a new method
@@ -53,7 +57,7 @@ namespace Mirror.Weaver
         /// </remarks>
         MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute serverRpcAttr)
         {
-            MethodDefinition cmd = MethodProcessor.SubstituteMethod(md);
+            MethodDefinition cmd = SubstituteMethod(md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
@@ -141,7 +145,7 @@ namespace Mirror.Weaver
         /// </remarks>
         MethodDefinition GenerateSkeleton(MethodDefinition method, MethodDefinition userCodeFunc)
         {
-            MethodDefinition cmd = method.DeclaringType.AddMethod(MethodProcessor.SkeletonPrefix + method.Name,
+            MethodDefinition cmd = method.DeclaringType.AddMethod(SkeletonPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
                 userCodeFunc.ReturnType);
 
@@ -187,7 +191,7 @@ namespace Mirror.Weaver
             Type unitaskType = typeof(UniTask<int>).GetGenericTypeDefinition();
             if (!md.ReturnType.Is(typeof(void)) && !md.ReturnType.Is(unitaskType))
             {
-                Weaver.Error($"Use UniTask<{ md.ReturnType}> to return values from [ServerRpc]", md);
+                logger.Error($"Use UniTask<{ md.ReturnType}> to return values from [ServerRpc]", md);
                 return false;
             }
 

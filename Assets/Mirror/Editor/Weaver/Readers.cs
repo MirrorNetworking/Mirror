@@ -8,26 +8,30 @@ using UnityEngine;
 
 namespace Mirror.Weaver
 {
-    public static class Readers
+    public class Readers
     {
-        static Dictionary<string, MethodReference> readFuncs;
+        readonly Dictionary<string, MethodReference> readFuncs = new Dictionary<string, MethodReference>();
 
-        public static int Count => readFuncs.Count;
+        private readonly ModuleDefinition module;
+        private readonly IWeaverLogger logger;
 
-        public static void Init()
+        public int Count => readFuncs.Count;
+
+        public Readers(ModuleDefinition module, IWeaverLogger logger)
         {
-            readFuncs = new Dictionary<string, MethodReference>();
+            this.module = module;
+            this.logger = logger;
         }
 
-        internal static void Register(TypeReference dataType, MethodReference methodReference)
+        internal void Register(TypeReference dataType, MethodReference methodReference)
         {
             readFuncs[dataType.FullName] = methodReference;
         }
 
-        public static MethodReference GetReadFunc<T>(this ModuleDefinition module) =>
-            GetReadFunc(module, module.ImportReference<T>());
+        public MethodReference GetReadFunc<T>() =>
+            GetReadFunc(module.ImportReference<T>());
 
-        public static MethodReference GetReadFunc(this ModuleDefinition module, TypeReference typeReference)
+        public MethodReference GetReadFunc(TypeReference typeReference)
         {
             if (readFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
             {
@@ -37,116 +41,116 @@ namespace Mirror.Weaver
             typeReference = module.ImportReference(typeReference);
             if (typeReference.IsMultidimensionalArray())
             {
-                Weaver.Error($"{typeReference.Name} is an unsupported type. Multidimensional arrays are not supported", typeReference);
+                logger.Error($"{typeReference.Name} is an unsupported type. Multidimensional arrays are not supported", typeReference);
                 return null;
             }
 
             if (typeReference.IsArray)
             {
-                return GenerateReadCollection(module, typeReference, typeReference.GetElementType(), () => NetworkReaderExtensions.ReadArray<object>(default));
+                return GenerateReadCollection(typeReference, typeReference.GetElementType(), () => NetworkReaderExtensions.ReadArray<object>(default));
             }
 
             TypeDefinition variableDefinition = typeReference.Resolve();
 
             if (variableDefinition == null)
             {
-                Weaver.Error($"{typeReference.Name} is not a supported type", typeReference);
+                logger.Error($"{typeReference.Name} is not a supported type", typeReference);
                 return null;
             }
             if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
-                return GenerateArraySegmentReadFunc(module, typeReference);
+                return GenerateArraySegmentReadFunc(typeReference);
             }
             if (variableDefinition.Is(typeof(List<>)))
             {
                 var genericInstance = (GenericInstanceType)typeReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateReadCollection(module, typeReference, elementType, () => NetworkReaderExtensions.ReadList<object>(default));
+                return GenerateReadCollection(typeReference, elementType, () => NetworkReaderExtensions.ReadList<object>(default));
             }
             if (variableDefinition.IsEnum)
             {
-                return GenerateEnumReadFunc(module, typeReference);
+                return GenerateEnumReadFunc(typeReference);
             }
             if (variableDefinition.IsDerivedFrom<Component>())
             {
-                Weaver.Error($"Cannot generate reader for component type {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
+                logger.Error($"Cannot generate reader for component type {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (typeReference.Is<UnityEngine.Object>())
             {
-                Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
+                logger.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (typeReference.Is<ScriptableObject>())
             {
-                Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
+                logger.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (typeReference.Is<GameObject>())
             {
-                Weaver.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
+                logger.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (typeReference.IsByReference)
             {
                 // error??
-                Weaver.Error($"Cannot pass type {typeReference.Name} by reference", typeReference);
+                logger.Error($"Cannot pass type {typeReference.Name} by reference", typeReference);
                 return null;
             }
             if (variableDefinition.HasGenericParameters)
             {
-                Weaver.Error($"Cannot generate reader for generic variable {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
+                logger.Error($"Cannot generate reader for generic variable {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (variableDefinition.IsInterface)
             {
-                Weaver.Error($"Cannot generate reader for interface {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
+                logger.Error($"Cannot generate reader for interface {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
             if (variableDefinition.IsAbstract)
             {
-                Weaver.Error($"Cannot generate reader for abstract class {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
+                logger.Error($"Cannot generate reader for abstract class {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
             }
 
-            return GenerateClassOrStructReadFunction(module, typeReference);
+            return GenerateClassOrStructReadFunction(typeReference);
         }
 
-        static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
+        void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
             readFuncs[typeReference.FullName] = newReaderFunc;
         }
 
-        static MethodDefinition GenerateEnumReadFunc(ModuleDefinition module, TypeReference variable)
+        MethodDefinition GenerateEnumReadFunc(TypeReference variable)
         {
-            MethodDefinition readerFunc = GenerateReaderFunction(module, variable);
+            MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             worker.Append(worker.Create(OpCodes.Ldarg_0));
 
             TypeReference underlyingType = variable.Resolve().GetEnumUnderlyingType();
-            MethodReference underlyingFunc = module.GetReadFunc(underlyingType);
+            MethodReference underlyingFunc = GetReadFunc(underlyingType);
 
             worker.Append(worker.Create(OpCodes.Call, underlyingFunc));
             worker.Append(worker.Create(OpCodes.Ret));
             return readerFunc;
         }
 
-        static MethodDefinition GenerateArraySegmentReadFunc(ModuleDefinition module, TypeReference variable)
+        MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable)
         {
             var genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
 
-            MethodDefinition readerFunc = GenerateReaderFunction(module, variable);
+            MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
             // $array = reader.Read<[T]>()
             ArrayType arrayType = elementType.MakeArrayType();
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc(arrayType)));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(arrayType)));
 
             // return new ArraySegment<T>($array);
             MethodReference arraySegmentConstructor = module.ImportReference(() => new ArraySegment<object>());
@@ -155,7 +159,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        private static MethodDefinition GenerateReaderFunction(ModuleDefinition module, TypeReference variable)
+        private MethodDefinition GenerateReaderFunction(TypeReference variable)
         {
             string functionName = "_Read_" + variable.FullName;
 
@@ -173,11 +177,11 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateReadCollection(ModuleDefinition module, TypeReference variable, TypeReference elementType, Expression<Action> readerFunction)
+        MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, Expression<Action> readerFunction)
         {
-            MethodDefinition readerFunc = GenerateReaderFunction(module, variable);
+            MethodDefinition readerFunc = GenerateReaderFunction(variable);
             // generate readers for the element
-            module.GetReadFunc(elementType);
+            GetReadFunc(elementType);
 
             MethodReference listReader = module.ImportReference(readerFunction);
 
@@ -196,9 +200,9 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateClassOrStructReadFunction(ModuleDefinition module, TypeReference type)
+        MethodDefinition GenerateClassOrStructReadFunction(TypeReference type)
         {
-            MethodDefinition readerFunc = GenerateReaderFunction(module, type);
+            MethodDefinition readerFunc = GenerateReaderFunction(type);
 
             // create local for return value
             VariableDefinition variable = readerFunc.AddLocal(type);
@@ -219,15 +223,13 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        private static void GenerateNullCheck(ILProcessor worker)
+        private void GenerateNullCheck(ILProcessor worker)
         {
-            ModuleDefinition module = worker.Body.Method.Module;
-
             // if (!reader.ReadBoolean()) {
             //   return null;
             // }
             worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Call, module.GetReadFunc<bool>()));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc<bool>()));
 
             Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
             worker.Append(worker.Create(OpCodes.Brtrue, labelEmptyArray));
@@ -238,7 +240,7 @@ namespace Mirror.Weaver
         }
 
         // Initialize the local variable with a new instance
-        static void CreateNew(VariableDefinition variable, ILProcessor worker, TypeDefinition td)
+        void CreateNew(VariableDefinition variable, ILProcessor worker, TypeDefinition td)
         {
             TypeReference type = variable.VariableType;
             if (type.IsValueType)
@@ -261,7 +263,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(type);
                 if (ctor == null)
                 {
-                    Weaver.Error($"{type.Name} can't be deserialized because it has no default constructor", type);
+                    logger.Error($"{type.Name} can't be deserialized because it has no default constructor", type);
                     return;
                 }
 
@@ -272,10 +274,8 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ReadAllFields(TypeReference variable, ILProcessor worker)
+        void ReadAllFields(TypeReference variable, ILProcessor worker)
         {
-            ModuleDefinition module = worker.Body.Method.Module;
-
             uint fields = 0;
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
@@ -283,7 +283,7 @@ namespace Mirror.Weaver
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Append(worker.Create(opcode, 0));
 
-                MethodReference readFunc = module.GetReadFunc(field.FieldType);
+                MethodReference readFunc = GetReadFunc(field.FieldType);
                 if (readFunc != null)
                 {
                     worker.Append(worker.Create(OpCodes.Ldarg_0));
@@ -291,7 +291,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.Error($"{field.Name} has an unsupported type", field);
+                    logger.Error($"{field.Name} has an unsupported type", field);
                 }
                 FieldReference fieldRef = module.ImportReference(field);
 
@@ -304,10 +304,8 @@ namespace Mirror.Weaver
         /// Save a delegate for each one of the readers into <see cref="Reader{T}.Read"/>
         /// </summary>
         /// <param name="worker"></param>
-        internal static void InitializeReaders(ILProcessor worker)
+        internal void InitializeReaders(ILProcessor worker)
         {
-            ModuleDefinition module = worker.Body.Method.Module;
-
             TypeReference genericReaderClassRef = module.ImportReference(typeof(Reader<>));
 
             System.Reflection.PropertyInfo readProperty = typeof(Reader<>).GetProperty(nameof(Reader<object>.Read));

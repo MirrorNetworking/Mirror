@@ -6,9 +6,16 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    static class ServerClientAttributeProcessor
+    class ServerClientAttributeProcessor
     {
-        public static bool Process(TypeDefinition td)
+        private readonly IWeaverLogger logger;
+
+        public ServerClientAttributeProcessor (IWeaverLogger logger)
+        {
+            this.logger = logger;
+        }
+
+        public bool Process(TypeDefinition td)
         {
             bool modified = false;
             foreach (MethodDefinition md in td.Methods)
@@ -23,7 +30,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool ProcessSiteMethod(MethodDefinition md)
+        bool ProcessSiteMethod(MethodDefinition md)
         {
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
@@ -33,7 +40,7 @@ namespace Mirror.Weaver
             return ProcessMethodAttributes(md);
         }
 
-        static bool ProcessMethodAttributes(MethodDefinition md)
+        bool ProcessMethodAttributes(MethodDefinition md)
         {
             bool modified = InjectGuard<ServerAttribute>(md,  nb => nb.IsServer, "[Server] function '" + md.FullName + "' called on client");
 
@@ -46,7 +53,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool InjectGuard<TAttribute>(MethodDefinition md, Expression<Func<NetworkBehaviour, bool>> predExpression, string message)
+        bool InjectGuard<TAttribute>(MethodDefinition md, Expression<Func<NetworkBehaviour, bool>> predExpression, string message)
         {
             MethodReference predicate = md.Module.ImportReference(predExpression);
             CustomAttribute attribute = md.GetCustomAttribute<TAttribute>();
@@ -55,7 +62,7 @@ namespace Mirror.Weaver
 
             if (md.IsAbstract)
             {
-                Weaver.Error($" {typeof(TAttribute)} can't be applied to abstract method. Apply to override methods instead.", md);
+                logger.Error($" {typeof(TAttribute)} can't be applied to abstract method. Apply to override methods instead.", md);
                 return false;
             }
 
@@ -63,7 +70,7 @@ namespace Mirror.Weaver
 
             if (!md.DeclaringType.IsDerivedFrom<NetworkBehaviour>())
             {
-                Weaver.Error($"{attribute.AttributeType.Name} method {md.Name} must be declared in a NetworkBehaviour", md);
+                logger.Error($"{attribute.AttributeType.Name} method {md.Name} must be declared in a NetworkBehaviour", md);
                 return true;
             }
             ILProcessor worker = md.Body.GetILProcessor();

@@ -14,11 +14,24 @@ namespace Mirror.Weaver
     /// </summary>
     public class SyncVarProcessor
     {
-
         private readonly List<FieldDefinition> syncVars = new List<FieldDefinition>();
 
         // store the unwrapped types for every field
         private readonly Dictionary<FieldDefinition, TypeReference> originalTypes = new Dictionary<FieldDefinition, TypeReference>();
+        private readonly ModuleDefinition module;
+        private readonly Readers readers;
+        private readonly Writers writers;
+        private readonly PropertySiteProcessor propertySiteProcessor;
+        private readonly IWeaverLogger logger;
+
+        public SyncVarProcessor(ModuleDefinition module, Readers readers, Writers writers, PropertySiteProcessor propertySiteProcessor, IWeaverLogger logger)
+        {
+            this.module = module;
+            this.readers = readers;
+            this.writers = writers;
+            this.propertySiteProcessor = propertySiteProcessor;
+            this.logger = logger;
+        }
 
         // ulong = 64 bytes
         const int SyncVarLimit = 64;
@@ -28,7 +41,7 @@ namespace Mirror.Weaver
             => string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
 
         // Get hook method if any
-        static MethodDefinition GetHookMethod(FieldDefinition syncVar, TypeReference originalType)
+        MethodDefinition GetHookMethod(FieldDefinition syncVar, TypeReference originalType)
         {
             CustomAttribute syncVarAttr = syncVar.GetCustomAttribute<SyncVarAttribute>();
 
@@ -43,7 +56,7 @@ namespace Mirror.Weaver
             return FindHookMethod(syncVar, hookFunctionName, originalType);
         }
 
-        static MethodDefinition FindHookMethod(FieldDefinition syncVar, string hookFunctionName, TypeReference originalType)
+        MethodDefinition FindHookMethod(FieldDefinition syncVar, string hookFunctionName, TypeReference originalType)
         {
             List<MethodDefinition> methods = syncVar.DeclaringType.GetMethods(hookFunctionName);
 
@@ -51,7 +64,7 @@ namespace Mirror.Weaver
 
             if (methodsWith2Param.Count == 0)
             {
-                Weaver.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+                logger.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                     $"Method signature should be {HookParameterMessage(hookFunctionName, originalType)}",
                     syncVar);
 
@@ -66,7 +79,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+            logger.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                      $"Method signature should be {HookParameterMessage(hookFunctionName, originalType)}",
                    syncVar);
 
@@ -80,7 +93,7 @@ namespace Mirror.Weaver
                    method.Parameters[1].ParameterType.FullName == originalType.FullName;
         }
 
-        static MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, TypeReference originalType)
+        MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, TypeReference originalType)
         {
             //Create the get method
             MethodDefinition get = fd.DeclaringType.AddMethod(
@@ -99,7 +112,7 @@ namespace Mirror.Weaver
             return get;
         }
 
-        static MethodDefinition GenerateSyncVarSetter(FieldDefinition fd, string originalName, long dirtyBit, TypeReference originalType)
+        MethodDefinition GenerateSyncVarSetter(FieldDefinition fd, string originalName, long dirtyBit, TypeReference originalType)
         {
 
             //Create the set method
@@ -122,7 +135,7 @@ namespace Mirror.Weaver
             // make generic version of SetSyncVar with field type
             LoadField(fd, worker);
 
-            MethodReference syncVarEqual = fd.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
+            MethodReference syncVarEqual = module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
             var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
             syncVarEqualGm.GenericArguments.Add(originalType);
             worker.Append(worker.Create(OpCodes.Call, syncVarEqualGm));
@@ -182,12 +195,12 @@ namespace Mirror.Weaver
             return set;
         }
 
-        private static void StoreField(FieldDefinition fd, ParameterDefinition valueParam, ILProcessor worker)
+        private void StoreField(FieldDefinition fd, ParameterDefinition valueParam, ILProcessor worker)
         {
             if (IsWrapped(fd.FieldType))
             {
                 // there is a wrapper struct, call the setter
-                MethodReference setter = fd.Module.ImportReference(fd.FieldType.Resolve().GetMethod("set_Value"));
+                MethodReference setter = module.ImportReference(fd.FieldType.Resolve().GetMethod("set_Value"));
 
                 worker.Append(worker.Create(OpCodes.Ldarg_0));
                 worker.Append(worker.Create(OpCodes.Ldflda, fd));
@@ -202,14 +215,14 @@ namespace Mirror.Weaver
             }
         }
 
-        private static void LoadField(FieldDefinition fd, ILProcessor worker)
+        private void LoadField(FieldDefinition fd, ILProcessor worker)
         {
             worker.Append(worker.Create(OpCodes.Ldarg_0));
 
             if (IsWrapped(fd.FieldType))
             {
                 worker.Append(worker.Create(OpCodes.Ldflda, fd));
-                MethodReference getter = fd.Module.ImportReference(fd.FieldType.Resolve().GetMethod("get_Value"));
+                MethodReference getter = module.ImportReference(fd.FieldType.Resolve().GetMethod("get_Value"));
                 worker.Append(worker.Create(OpCodes.Call, getter));
             }
             else
@@ -240,11 +253,11 @@ namespace Mirror.Weaver
             propertyDefinition.DeclaringType = fd.DeclaringType;
             //add the methods and property to the type.
             fd.DeclaringType.Properties.Add(propertyDefinition);
-            Weaver.WeaveLists.replacementSetterProperties[fd] = set;
+            propertySiteProcessor.Setters[fd] = set;
 
             if (IsWrapped(fd.FieldType))
             {
-                Weaver.WeaveLists.replacementGetterProperties[fd] = get;
+                propertySiteProcessor.Getters[fd] = get;
             }
         }
 
@@ -256,13 +269,13 @@ namespace Mirror.Weaver
             if (typeReference.Is<NetworkIdentity>())
             {
                 // change the type of the field to a wrapper NetworkIDentitySyncvar
-                return syncvar.Module.ImportReference<NetworkIdentitySyncvar>();
+                return module.ImportReference<NetworkIdentitySyncvar>();
             }
             if (typeReference.Is<GameObject>())
-                return syncvar.Module.ImportReference<GameObjectSyncvar>();
+                return module.ImportReference<GameObjectSyncvar>();
 
             if (typeReference.Resolve().IsDerivedFrom<NetworkBehaviour>())
-                return syncvar.Module.ImportReference<NetworkBehaviorSyncvar>();
+                return module.ImportReference<NetworkBehaviorSyncvar>();
 
             return typeReference;
         }
@@ -298,25 +311,25 @@ namespace Mirror.Weaver
 
                 if (fd.FieldType.IsGenericParameter)
                 {
-                    Weaver.Error($"{fd.Name} cannot be synced since it's a generic parameter", fd);
+                    logger.Error($"{fd.Name} cannot be synced since it's a generic parameter", fd);
                     continue;
                 }
 
                 if ((fd.Attributes & FieldAttributes.Static) != 0)
                 {
-                    Weaver.Error($"{fd.Name} cannot be static", fd);
+                    logger.Error($"{fd.Name} cannot be static", fd);
                     continue;
                 }
 
                 if (fd.FieldType.IsArray)
                 {
-                    Weaver.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
+                    logger.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
                     continue;
                 }
 
                 if (SyncObjectProcessor.ImplementsSyncObject(fd.FieldType))
                 {
-                    Weaver.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
+                    logger.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
                     continue;
                 }
                 syncVars.Add(fd);
@@ -327,7 +340,7 @@ namespace Mirror.Weaver
 
             if (dirtyBitCounter >= SyncVarLimit)
             {
-                Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
+                logger.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
             }
 
             td.SetConst(SyncVarCount, syncVars.Count);
@@ -341,11 +354,11 @@ namespace Mirror.Weaver
             WriteCallHookMethod(worker, hookMethod, oldValue, null);
         }
 
-        static void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
+        void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
         {
             if (newValue == null)
             {
-                Weaver.Error("NewValue field was null when writing SyncVar hook");
+                logger.Error("NewValue field was null when writing SyncVar hook");
             }
 
             WriteCallHookMethod(worker, hookMethod, oldValue, newValue);
@@ -423,7 +436,7 @@ namespace Mirror.Weaver
 
             MethodDefinition serialize = netBehaviourSubclass.AddMethod(SerializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    netBehaviourSubclass.Module.ImportReference<bool>());
+                    module.ImportReference<bool>());
 
             ParameterDefinition writerParameter = serialize.AddParam<NetworkWriter>("writer");
             ParameterDefinition initializeParameter = serialize.AddParam<bool>("initialize");
@@ -443,7 +456,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Ldarg, writerParameter));
                 // forceAll
                 worker.Append(worker.Create(OpCodes.Ldarg, initializeParameter));
-                worker.Append(worker.Create(OpCodes.Call, netBehaviourSubclass.Module.ImportReference(baseSerialize)));
+                worker.Append(worker.Create(OpCodes.Call, module.ImportReference(baseSerialize)));
                 // set dirtyLocal to result of base.OnSerialize()
                 worker.Append(worker.Create(OpCodes.Stloc, dirtyLocal));
             }
@@ -475,7 +488,7 @@ namespace Mirror.Weaver
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, (NetworkBehaviour nb) => nb.SyncVarDirtyBits));
-            MethodReference writeUint64Func = netBehaviourSubclass.Module.GetWriteFunc<ulong>();
+            MethodReference writeUint64Func = writers.GetWriteFunc<ulong>();
             worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
             // generate a writer call for any dirty variable in this class
@@ -512,7 +525,7 @@ namespace Mirror.Weaver
             worker.Append(worker.Create(OpCodes.Ret));
         }
 
-        private static void WriteVariable(ILProcessor worker, ParameterDefinition writerParameter, FieldDefinition syncVar)
+        private void WriteVariable(ILProcessor worker, ParameterDefinition writerParameter, FieldDefinition syncVar)
         {
             // Generates a writer call for each sync variable
             // writer
@@ -520,14 +533,14 @@ namespace Mirror.Weaver
             // this
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
-            MethodReference writeFunc = syncVar.Module.GetWriteFunc(syncVar.FieldType);
+            MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType);
             if (writeFunc != null)
             {
                 worker.Append(worker.Create(OpCodes.Call, writeFunc));
             }
             else
             {
-                Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
+                logger.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
             }
         }
 
@@ -564,7 +577,7 @@ namespace Mirror.Weaver
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg,readerParam));
                 // initialState
                 serWorker.Append(serWorker.Create(OpCodes.Ldarg,initializeParam));
-                serWorker.Append(serWorker.Create(OpCodes.Call, netBehaviourSubclass.Module.ImportReference(baseDeserialize)));
+                serWorker.Append(serWorker.Create(OpCodes.Call, module.ImportReference(baseDeserialize)));
             }
 
             // Generates: if (initialState);
@@ -585,7 +598,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg, readerParam));
-            serWorker.Append(serWorker.Create(OpCodes.Call, netBehaviourSubclass.Module.GetReadFunc<ulong>()));
+            serWorker.Append(serWorker.Create(OpCodes.Call, readers.GetReadFunc<ulong>()));
             serWorker.Append(serWorker.Create(OpCodes.Stloc, dirtyBitsLocal));
 
             // conditionally read each syncvar
@@ -633,11 +646,10 @@ namespace Mirror.Weaver
                     OnSetA(oldValue, Networka);
                 }
              */
-            ModuleDefinition module = serWorker.Body.Method.Module;
-            MethodReference readFunc = module.GetReadFunc(syncVar.FieldType);
+            MethodReference readFunc = readers.GetReadFunc(syncVar.FieldType);
             if (readFunc == null)
             {
-                Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
+                logger.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);
                 return;
             }
 
@@ -683,7 +695,7 @@ namespace Mirror.Weaver
                 // 'newValue'
                 LoadField(syncVar, serWorker);
                 // call the function
-                MethodReference syncVarEqual = syncVar.Module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
+                MethodReference syncVarEqual = module.ImportReference<NetworkBehaviour>(nb => nb.SyncVarEqual<object>(default, default));
                 var syncVarEqualGm = new GenericInstanceMethod(syncVarEqual.GetElementMethod());
                 syncVarEqualGm.GenericArguments.Add(originalType);
                 serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));

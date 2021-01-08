@@ -1,12 +1,18 @@
 using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class PropertySiteProcessor
+    public class PropertySiteProcessor
     {
-        public static void Process(ModuleDefinition moduleDef)
+        // setter functions that replace [SyncVar] member variable references. dict<field, replacement>
+        public Dictionary<FieldDefinition, MethodDefinition> Setters = new Dictionary<FieldDefinition, MethodDefinition>();
+        // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
+        public Dictionary<FieldDefinition, MethodDefinition> Getters = new Dictionary<FieldDefinition, MethodDefinition>();
+
+        public void Process(ModuleDefinition moduleDef)
         {
             DateTime startTime = DateTime.Now;
 
@@ -23,10 +29,10 @@ namespace Mirror.Weaver
                         !md.IsConstructor;
 
         // replaces syncvar write access with the NetworkXYZ.get property calls
-        static void ProcessInstructionSetterField(Instruction i, FieldDefinition opField)
+        void ProcessInstructionSetterField(Instruction i, FieldDefinition opField)
         {
             // does it set a field that we replaced?
-            if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            if (Setters.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
                 i.OpCode = OpCodes.Call;
@@ -35,10 +41,10 @@ namespace Mirror.Weaver
         }
 
         // replaces syncvar read access with the NetworkXYZ.get property calls
-        static void ProcessInstructionGetterField(Instruction i, FieldDefinition opField)
+        void ProcessInstructionGetterField(Instruction i, FieldDefinition opField)
         {
             // does it set a field that we replaced?
-            if (Weaver.WeaveLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            if (Getters.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
                 i.OpCode = OpCodes.Call;
@@ -46,7 +52,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static Instruction ProcessInstruction(MethodDefinition md, Instruction instr)
+        Instruction ProcessInstruction(MethodDefinition md, Instruction instr)
         {
             if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {
@@ -70,10 +76,10 @@ namespace Mirror.Weaver
             return instr;
         }
 
-        static Instruction ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField)
+        Instruction ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField)
         {
             // does it set a field that we replaced?
-            if (Weaver.WeaveLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            if (Setters.TryGetValue(opField, out MethodDefinition replacement))
             {
                 // we have a replacement for this property
                 // is the next instruction a initobj?

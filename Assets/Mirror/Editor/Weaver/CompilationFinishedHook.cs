@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -13,31 +12,10 @@ namespace Mirror.Weaver
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
-        // delegate for subscription to Weaver debug messages
-        public static Action<string> OnWeaverMessage;
-        // delegate for subscription to Weaver warning messages
-        public static Action<string> OnWeaverWarning;
-        // delete for subscription to Weaver error messages
-        public static Action<string> OnWeaverError;
-
         // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
         public static bool WeaverEnabled { get; set; }
-        // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
-        public static bool UnityLogEnabled = true;
 
-        // warning message handler that also calls OnWarningMethod delegate
-        static void HandleWarning(string msg)
-        {
-            if (UnityLogEnabled) Debug.LogWarning(msg);
-            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
-        }
-
-        // error message handler that also calls OnErrorMethod delegate
-        static void HandleError(string msg)
-        {
-            if (UnityLogEnabled) Debug.LogError(msg);
-            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
-        }
+        public static IWeaverLogger logger;
 
         [InitializeOnLoadMethod]
         public static void OnInitializeOnLoad()
@@ -111,14 +89,13 @@ namespace Mirror.Weaver
             if (!assembly.allReferences.Any(path => Path.GetFileNameWithoutExtension(path) == MirrorRuntimeAssemblyName))
                 return;
 
-            Log.WarningMethod = HandleWarning;
-            Log.ErrorMethod = HandleError;
 
-            if (!Weaver.WeaveAssembly(assembly))
+            var weaver = new Weaver(logger ?? new Logger());
+
+            if (!weaver.WeaveAssembly(assembly))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
             }
         }
 

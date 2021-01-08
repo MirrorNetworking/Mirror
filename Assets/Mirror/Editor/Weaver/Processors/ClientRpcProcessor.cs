@@ -22,6 +22,11 @@ namespace Mirror.Weaver
 
         readonly List<ClientRpcMethod> clientRpcs = new List<ClientRpcMethod>();
 
+        public ClientRpcProcessor(ModuleDefinition module, Readers readers, Writers writers, IWeaverLogger logger) : base(module, readers, writers, logger)
+        {
+        }
+
+
         /// <summary>
         /// Generates a skeleton for an RPC
         /// </summary>
@@ -45,7 +50,7 @@ namespace Mirror.Weaver
         MethodDefinition GenerateSkeleton(MethodDefinition md, MethodDefinition userCodeFunc, CustomAttribute clientRpcAttr)
         {
             MethodDefinition rpc = md.DeclaringType.AddMethod(
-                MethodProcessor.SkeletonPrefix + md.Name,
+                SkeletonPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig);
 
             _ = rpc.AddParam<NetworkBehaviour>("obj");
@@ -135,7 +140,7 @@ namespace Mirror.Weaver
         /// </remarks>
         MethodDefinition GenerateStub(MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(md);
+            MethodDefinition rpc = SubstituteMethod(md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
@@ -196,21 +201,21 @@ namespace Mirror.Weaver
         {
             if (!md.ReturnType.Is(typeof(void)))
             {
-                Weaver.Error($"{md.Name} cannot return a value.  Make it void instead", md);
+                logger.Error($"{md.Name} cannot return a value.  Make it void instead", md);
                 return false;
             }
 
             Client target = clientRpcAttr.GetField("target", Client.Observers); 
             if (target == Client.Connection && !HasNetworkConnectionParameter(md))
             {
-                Weaver.Error("ClientRpc with Client.Connection needs a network connection parameter", md);
+                logger.Error("ClientRpc with Client.Connection needs a network connection parameter", md);
                 return false;
             }
 
             bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
             if (target == Client.Owner && excludeOwner)
             {
-                Weaver.Error("ClientRpc with Client.Owner cannot have excludeOwner set as true", md);
+                logger.Error("ClientRpc with Client.Owner cannot have excludeOwner set as true", md);
                 return false;
             }
             return true;

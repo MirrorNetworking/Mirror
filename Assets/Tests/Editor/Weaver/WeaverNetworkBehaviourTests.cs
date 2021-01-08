@@ -139,13 +139,13 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnection()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.That(weaverLog.errors, Is.Empty);
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnectionNotFirst()
         {
-            Assert.That(weaverErrors, Contains.Item("ClientRpcCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NetworkConnections (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst::ClientRpcCantHaveParamOptional(System.Int32,Mirror.INetworkConnection))"));
+            Assert.That(weaverLog.errors, Contains.Item("ClientRpcCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NetworkConnections (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst::ClientRpcCantHaveParamOptional(System.Int32,Mirror.INetworkConnection))"));
         }
 
         [Test]
@@ -221,7 +221,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
-            Assert.That(weaverErrors, Contains.Item("Duplicate Rpc name CmdCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32))"));
+            Assert.That(weaverLog.errors, Contains.Item("Duplicate Rpc name CmdCantHaveSameName (at System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32))"));
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourServer()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.That(weaverLog.errors, Is.Empty);
             CheckAddedCode(
                 (NetworkBehaviour nb) => nb.IsServer,
                 "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
@@ -23,7 +23,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClient()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.That(weaverLog.errors, Is.Empty);
             CheckAddedCode(
                 (NetworkBehaviour nb) => nb.IsClient,
                 "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
@@ -32,7 +32,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourHasAuthority()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.That(weaverLog.errors, Is.Empty);
             CheckAddedCode(
                 (NetworkBehaviour nb) => nb.HasAuthority,
                 "WeaverClientServerAttributeTests.NetworkBehaviourHasAuthority.NetworkBehaviourHasAuthority", "HasAuthorityMethod");
@@ -41,7 +41,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourLocalPlayer()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            Assert.That(weaverLog.errors, Is.Empty);
             CheckAddedCode(
                 (NetworkBehaviour nb) => nb.IsLocalPlayer,
                 "WeaverClientServerAttributeTests.NetworkBehaviourLocalPlayer.NetworkBehaviourLocalPlayer", "LocalPlayerMethod");
