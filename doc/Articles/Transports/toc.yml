@@ -8,6 +8,8 @@
   href: Telepathy.md
 - name: WebGL - SimpleWebTransport
   href: SimpleWebTransport.md
+- name: WebGL - AsioTransport
+  href: AsioTransport.md
 - name: Multiplexer
   href: Multiplexer.md
 - name: Fallback
