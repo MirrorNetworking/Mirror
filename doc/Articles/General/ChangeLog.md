@@ -4,6 +4,15 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version 31.x.x -- In Progress
+- Added: Default folder arguement for Scriptable Object Utility.
+- Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.5 with bigger window size default of 2048.
+- Added: [WebSockets - AsioTransport](../Transports/AsioTransport.md) WebSockets transport layer for Mirror that target WebGL clients.
+- Added: [WebRTC - WebRTCTransport](../TransportsWebRTCTransport.md) WebRTC transport layer for Mirror that target WebRTC clients.
+- Added: [Epic - EpicTransport](../Transports/EpicTransport.md) Transport utilising Epic Online Services for lobbies and relay.
+- Added: [Relay - DarkReflectiveMirror](../Transports/DarkReflectiveMirror.md) Relay service transport for Mirror.
+- Changed: **Breaking** Removed ReadBlittable / WriteBlittable as it did not perform as well as expected.
+
 ## Version 30.2.2 -- 2020-Dec-17
 - Added: Network Reader/Writer now does Read/WriteBlittable<T> for better performance.
 - Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.4.
