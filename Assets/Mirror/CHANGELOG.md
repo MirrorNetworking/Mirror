@@ -1,3 +1,10 @@
+## [61.1.1](https://github.com/MirrorNG/MirrorNG/compare/v61.1.0...v61.1.1) (2021-01-08)
+
+
+### Bug Fixes
+
+* warning with missing Transport folder ([be5aa69](https://github.com/MirrorNG/MirrorNG/commit/be5aa693fc439f309e257e202cc77172597218c0))
+
 # [61.1.0](https://github.com/MirrorNG/MirrorNG/compare/v61.0.2...v61.1.0) (2021-01-05)
 
 
