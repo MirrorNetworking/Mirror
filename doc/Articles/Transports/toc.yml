@@ -10,6 +10,8 @@
   href: SimpleWebTransport.md
 - name: WebGL - AsioTransport
   href: AsioTransport.md
+- name: WebRTC - WebRTC
+  href: WebRTCTransport.md
 - name: Multiplexer
   href: Multiplexer.md
 - name: Fallback
