@@ -28,13 +28,7 @@ namespace Mirror.Tests
 
             secondClient.Transport = secondTestTransport;
 
-            var builder = new UriBuilder
-            {
-                Host = "localhost",
-                Scheme = secondClient.Transport.Scheme.First(),
-            };
-
-            secondClient.ConnectAsync(builder.Uri).Forget();
+            secondClient.ConnectAsync("localhost").Forget();
 
             Assert.That(server.connections, Has.Count.EqualTo(1));
 

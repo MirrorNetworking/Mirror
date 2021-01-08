@@ -88,14 +88,8 @@ namespace Mirror.Tests
 
             await started.Task;
 
-            var builder = new UriBuilder
-            {
-                Host = "localhost",
-                Scheme = client.Transport.Scheme.First(),
-            };
-
             // now start the client
-            await client.ConnectAsync(builder.Uri);
+            await client.ConnectAsync("localhost");
 
             await AsyncUtil.WaitUntilWithTimeout(() => server.connections.Count > 0);
 
