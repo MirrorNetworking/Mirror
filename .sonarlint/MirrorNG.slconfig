@@ -1,0 +1,15 @@
+{
+  "ServerUri": "https://sonarcloud.io/",
+  "Organization": {
+    "Key": "mirrorng",
+    "Name": "MirrorNG"
+  },
+  "ProjectKey": "MirrorNG_MirrorNG",
+  "ProjectName": "MirrorNG",
+  "Profiles": {
+    "CSharp": {
+      "ProfileKey": "AW9kJ6JohW2TosXBdsFb",
+      "ProfileTimestamp": "2021-01-01T18:24:59Z"
+    }
+  }
+}
