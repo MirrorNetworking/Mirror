@@ -33,16 +33,18 @@ Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirro
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
-## Low Level Transports
-* (built in) [KCP](https://github.com/skywind3000/kcp): reliable UDP
-* (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
-* (built in) [UNET LLAPI](https://github.com/SoftwareGuy/Mirror-UnityLLAPI): UDP
-* (built in) [Ninja.Websockets](https://github.com/ninjasource/Ninja.WebSockets): Websockets
-* Libuv: TCP powered by Node.js' native C networking
-* [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
-* [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
-* [Apathy](https://mirror-networking.com/apathy/): Native TCP
-* [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): SteamNetwork
+## Many Transports Available
+-   [KCP - KCP Transport](https://mirror-networking.com/docs/Articles/Transports/KCPTransport.md) based on kcp.c v1.7, nearly translated 1:1.
+-   [TCP - Libuv2k](https://mirror-networking.com/docs/Articles/Transports/Libuv2k.md) based on Native C networking backend used by Node.js.
+-   [TCP - Telepathy](https://mirror-networking.com/docs/Articles/Transports/Telepathy.md) Simple, message based, MMO Scale TCP networking in C\#. And no magic.
+-   [WebSockets - SimpleWebTransport](https://mirror-networking.com/docs/Articles/Transports/SimpleWebTransport.md) WebSockets transport layer for Mirror that target WebGL clients.
+-   [Multiplexer](https://mirror-networking.com/docs/Articles/Transports/Multiplexer.md) Multiplexer is a bridging transport to allow a server to handle clients on different transports concurrently, for example desktop clients using Telepathy together with WebGL clients using Websockets.
+-   [Fallback](https://mirror-networking.com/docs/Articles/Transports/Fallback.md) Fallback is a compatibility transport for transports that don't run on all platforms and need fallback options to cover all other platforms.
+-   [UDP - Ignorance](https://mirror-networking.com/docs/Articles/Transports/Ignorance.md) Ignorance implements a reliable and unreliable sequenced UDP transport based on ENet.
+-   [UDP - LiteNetLibTransport](https://mirror-networking.com/docs/Articles/Transports/LiteNetLibTransport.md) LiteNetLibTransport implements a UDP transport based on [LiteNetLib](https://github.com/RevenantX/LiteNetLib).
+-   [Steam - FizzySteamworks](https://mirror-networking.com/docs/Articles/Transports/FizzySteamworks.md) Transport utilising Steam P2P network, building on Steamworks.NET.
+-   [Steam - FizzyFacepunch](https://mirror-networking.com/docs/Articles/Transports/FizzyFacepunch.md) Transport utilising Steam P2P network, building on Facepunch.Steamworks.
+-   [Epic - EpicTransport](https://mirror-networking.com/docs/Articles/Transports/EpicTransport.md) Transport utilising Epic Online Services for lobbies and relay.
 
 ## Getting Started
 Get **Unity 2018/2019 LTS**, download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!

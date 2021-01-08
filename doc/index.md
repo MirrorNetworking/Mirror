@@ -14,12 +14,17 @@ uMMORPG was possible with \<6000 lines of code. We needed a networking library t
 -   Alpha / Beta Unity versions cannot be supported
 
 **Multiple Transports Available:**
--   **TCP** ([Telepathy](Articles/Transports/Telepathy.md) and [Apathy](https://mirror-networking.com/apathy/) and [Booster](https://mirror-networking.com/booster/))
--   **UDP** ([ENet](Articles/Transports/Ignorance.md) and [LiteNetLib](Articles/Transports/LiteNetLibTransport.md))
--   **WebGL** ([Secure Web Sockets](Articles/Transports/SimpleWebTransport.md))
--   **Steam** ([Steamworks.Net](Articles/Transports/FizzySteamworks.md)) and ([FacePunch](Articles/Transports/FizzyFacepunch.md))
--   **Multiplexer** ([Multiplexer](Articles/Transports/Multiplexer.md))
--   **Fallback** ([Fallback](Articles/Transports/Fallback.md))
+-   [KCP - KCP Transport](Articles/Transports/KCPTransport.md) based on kcp.c v1.7, nearly translated 1:1.
+-   [TCP - Libuv2k](Articles/Transports/Libuv2k.md) based on Native C networking backend used by Node.js.
+-   [TCP - Telepathy](Articles/Transports/Telepathy.md) Simple, message based, MMO Scale TCP networking in C\#. And no magic.
+-   [WebSockets - SimpleWebTransport](Articles/Transports/SimpleWebTransport.md) WebSockets transport layer for Mirror that target WebGL clients.
+-   [Multiplexer](Articles/Transports/Multiplexer.md) Multiplexer is a bridging transport to allow a server to handle clients on different transports concurrently, for example desktop clients using Telepathy together with WebGL clients using Websockets.
+-   [Fallback](Articles/Transports/Fallback.md) Fallback is a compatibility transport for transports that don't run on all platforms and need fallback options to cover all other platforms.
+-   [UDP - Ignorance](Articles/Transports/Ignorance.md) Ignorance implements a reliable and unreliable sequenced UDP transport based on ENet.
+-   [UDP - LiteNetLibTransport](Articles/Transports/LiteNetLibTransport.md) LiteNetLibTransport implements a UDP transport based on [LiteNetLib](https://github.com/RevenantX/LiteNetLib).
+-   [Steam - FizzySteamworks](Articles/Transports/FizzySteamworks.md) Transport utilising Steam P2P network, building on Steamworks.NET.
+-   [Steam - FizzyFacepunch](Articles/Transports/FizzyFacepunch.md) Transport utilising Steam P2P network, building on Facepunch.Steamworks.
+-   [Epic - EpicTransport](Articles/Transports/EpicTransport.md) Transport utilising Epic Online Services for lobbies and relay.
 
 **List Server**
 

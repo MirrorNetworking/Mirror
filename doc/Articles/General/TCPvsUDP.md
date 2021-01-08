@@ -1,11 +1,10 @@
 # TCP vs UDP
 
-TCP and UDP are protocol used to send information over the internet. 
+TCP and UDP are protocols used to send information over the internet. 
 
 Key difference between UDP and TCP
 -   TCP has higher latency, reliable
 -   UDP has lower latency, unreliable
-
 
 ## [TCP (Transmission Control Protocol)](https://en.wikipedia.org/wiki/Transmission_Control_Protocol)
 
@@ -22,11 +21,9 @@ TCP is better for slower paced games where latency isn't important.
 * **Connection oriented:** TCP has the concept of a connection. A connection will say open until either the client or server decides to close it. Both the client and server get notified when the connection ends.
 * **Congestion control:** If a server is being overwhelmed, TCP will throttle the data to avoid congestion collapse.
 
-
-#### Transports
+#### TCP Transports
 
 * [Telepathy](../Transports/Telepathy.md)
-* [Apathy](https://mirror-networking.com/apathy/)
 * [WebGL](../Transports/SimpleWebTransport.md)
 
 ## [UDP (User Datagram Protocol)](https://en.wikipedia.org/wiki/User_Datagram_Protocol)
@@ -43,9 +40,10 @@ UDP is better for fast paced games where latency is important and if a few packe
 * **Channel support:** Channels allow for different delivery types. One channel can be used for critical data that needs to get to the destination, while a different channel can just be specified by send and forget without any reliability.
 * **Different packet types:** Reliable Ordered, Reliable Unordered, Unreliable, and more depending on the implementation
 
-#### Transports
+#### UDP Transports
 
 * [Ignorance](../Transports/Ignorance.md)
+* [KCP](../Transports/KCPTransport.md)
 * [LiteNetLib](../Transports/LiteNetLibTransport.md)
 
 ## The choice is yours
