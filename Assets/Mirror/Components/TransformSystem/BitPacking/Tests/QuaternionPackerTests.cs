@@ -11,7 +11,7 @@ namespace JamesFrowen.BitPacking.Tests
     {
         private const int BufferSize = 1000;
 
-        float Precision(int bits)
+        static float Precision(int bits)
         {
             // sqrt2 / range * 3
             // * 3 because largest value is caculated from smallest 3, their precision error is additive
@@ -77,7 +77,7 @@ namespace JamesFrowen.BitPacking.Tests
         [TestCaseSource(nameof(CompressesAndDecompressesCases))]
         public void PackAndUnpack(int bits, Quaternion inValue)
         {
-            var precision = this.Precision(bits);
+            var precision = Precision(bits);
 
             var packer = new QuaternionPacker(bits);
 

@@ -14,6 +14,13 @@ namespace Mirror.TransformSyncing.Tests
         private NetworkTransformSystem system;
         private NetworkTransformSystemRuntimeReference runtime;
 
+        static float RotationPrecision(int bits)
+        {
+            // sqrt2 / range * 3
+            // * 3 because largest value is caculated from smallest 3, their precision error is additive
+            return 1.404f / ((1 << bits) - 1) * 3f;
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -97,10 +104,6 @@ namespace Mirror.TransformSyncing.Tests
         [Repeat(100)]
         public void SyncsValuesCorrectly()
         {
-            NetworkTransformSystem system = new NetworkTransformSystem();
-            NetworkTransformSystemRuntimeReference runtime = new NetworkTransformSystemRuntimeReference();
-            system.runtime = runtime;
-
             int smallBit = Random.Range(3, 10);
             int mediumBit = smallBit + Random.Range(3, 10);
             int largeBit = mediumBit + Random.Range(3, 10);
@@ -152,7 +155,7 @@ namespace Mirror.TransformSyncing.Tests
 
 
             // this isnt exact precision but it should be greater than real precision
-            float rotPrecision = 1f / (1 << (rotationBits - 6));
+            float rotPrecision = RotationPrecision(rotationBits);
             for (int i = 0; i < numberOfObjects; i++)
             {
                 IHasPositionRotation hasPos = hasPoss[i];
@@ -167,13 +170,17 @@ namespace Mirror.TransformSyncing.Tests
         private static bool StateAlmostEqual(TransformState arg, TransformState expected, float posPrecsion, float rotPrecision)
         {
             bool posEqual = NetworkTransformSystemTests.Vector3AlmostEqual(arg.position, expected.position, posPrecsion);
-            bool rotEqual = NetworkTransformSystemTests.QuaternionAlmostEqual(arg.rotation, expected.rotation, rotPrecision);
+            bool rotEqual = NetworkTransformSystemTests.QuaternionAlmostEqual(arg.rotation, expected.rotation, rotPrecision, log: false)
+                         // test negative quaternion too
+                         || NetworkTransformSystemTests.QuaternionAlmostEqual(arg.rotation, new Quaternion(-expected.rotation.x, -expected.rotation.y, -expected.rotation.z, -expected.rotation.w), rotPrecision, log: false);
             if (!posEqual)
             {
                 Debug.LogError($"Position Not Equal A:{arg.position}, E:{expected.rotation}, P:{posPrecsion}, D:{expected.position - arg.position}");
             }
             if (!rotEqual)
             {
+                // call again with logs
+                NetworkTransformSystemTests.QuaternionAlmostEqual(arg.rotation, expected.rotation, rotPrecision, log: true);
                 Debug.LogError($"Rotation Not Equal A:{arg.rotation}, E:{expected.rotation}, P:{rotPrecision}, A:{Quaternion.Angle(arg.rotation, expected.rotation)}");
             }
             return posEqual && rotEqual;
@@ -379,20 +386,26 @@ namespace Mirror.TransformSyncing.Tests
                 && FloatAlmostEqual(actual.z, expected.z, precision);
         }
 
-        public static bool FloatAlmostEqual(float actual, float expected, float precision)
+        public static bool FloatAlmostEqual(float actual, float expected, float precision, bool log = true)
         {
             float minAllowed = expected - precision;
             float maxnAllowed = expected + precision;
 
-            return minAllowed < actual && actual < maxnAllowed;
+            bool equal = minAllowed <= actual && actual <= maxnAllowed;
+            if (!equal && log)
+            {
+                Debug.LogError($"Float Not Equal A:{actual} E:{expected} P:{precision} Dif:{Mathf.Abs(expected - actual)}");
+            }
+
+            return equal;
         }
 
-        public static bool QuaternionAlmostEqual(Quaternion actual, Quaternion expected, float precision)
+        public static bool QuaternionAlmostEqual(Quaternion actual, Quaternion expected, float precision, bool log)
         {
-            return FloatAlmostEqual(actual.x, expected.x, precision)
-                && FloatAlmostEqual(actual.y, expected.y, precision)
-                && FloatAlmostEqual(actual.z, expected.z, precision)
-                && FloatAlmostEqual(actual.w, expected.w, precision);
+            return FloatAlmostEqual(actual.x, expected.x, precision, log)
+                && FloatAlmostEqual(actual.y, expected.y, precision, log)
+                && FloatAlmostEqual(actual.z, expected.z, precision, log)
+                && FloatAlmostEqual(actual.w, expected.w, precision, log);
         }
     }
 }

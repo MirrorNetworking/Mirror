@@ -11,6 +11,7 @@ namespace JamesFrowen.BitPacking
         private const int ReadSize = 32;
 
         private byte[] buffer;
+        private int startOffset;
         private int readOffset;
 
         ulong scratch;
@@ -25,7 +26,7 @@ namespace JamesFrowen.BitPacking
         public BitReader(byte[] buffer, int offset, int byteLength)
         {
             this.buffer = buffer;
-            this.readOffset = offset;
+            this.startOffset = offset;
             this.numberOfFullScratches = byteLength / sizeof(int);
             this.extraBytesInLastScratch = byteLength - (this.numberOfFullScratches * sizeof(int));
         }
@@ -117,7 +118,7 @@ namespace JamesFrowen.BitPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint read32bitToBuffer()
         {
-            var offset = this.readOffset;
+            var offset = this.startOffset + this.readOffset;
             this.readOffset += 4;
             return this.buffer[offset]
                 | ((uint)this.buffer[offset + 1] << 8)
@@ -128,7 +129,7 @@ namespace JamesFrowen.BitPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint read24bitToBuffer()
         {
-            var offset = this.readOffset;
+            var offset = this.startOffset + this.readOffset;
             this.readOffset += 3;
             return this.buffer[offset]
                 | ((uint)this.buffer[offset + 1] << 8)
@@ -138,7 +139,7 @@ namespace JamesFrowen.BitPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint read16bitToBuffer()
         {
-            var offset = this.readOffset;
+            var offset = this.startOffset + this.readOffset;
             this.readOffset += 2;
             return this.buffer[offset]
                 | ((uint)this.buffer[offset + 1] << 8);
@@ -147,7 +148,7 @@ namespace JamesFrowen.BitPacking
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private uint read8bitToBuffer()
         {
-            var offset = this.readOffset;
+            var offset = this.startOffset + this.readOffset;
             this.readOffset += 1;
             return this.buffer[offset];
         }
