@@ -1,3 +1,10 @@
+## [61.1.2](https://github.com/MirrorNG/MirrorNG/compare/v61.1.1...v61.1.2) (2021-01-09)
+
+
+### Bug Fixes
+
+* NullReferenceException destroying objects ([#526](https://github.com/MirrorNG/MirrorNG/issues/526)) ([3ad2608](https://github.com/MirrorNG/MirrorNG/commit/3ad2608e9e5223f72aba2458b97e5ec45ca15d94))
+
 ## [61.1.1](https://github.com/MirrorNG/MirrorNG/compare/v61.1.0...v61.1.1) (2021-01-08)
 
 
