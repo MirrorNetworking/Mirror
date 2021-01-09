@@ -70,14 +70,6 @@ namespace Mirror
             connection.RegisterHandler<ServerRpcMessage>(OnServerRpcMessage);
         }
 
-        void OnDestroy()
-        {
-            server.Started.RemoveListener(SpawnOrActivate);
-            server.Authenticated.RemoveListener(OnAuthenticated);
-            networkSceneManager.ServerChangeScene.RemoveListener(OnServerChangeScene);
-            networkSceneManager.ServerSceneChanged.RemoveListener(OnServerSceneChanged);
-        }
-
         void OnAuthenticated(INetworkConnection connection)
         {
             RegisterMessageHandlers(connection);
