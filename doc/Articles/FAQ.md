@@ -135,4 +135,20 @@ NetworkServer.connections.Count
 NetworkManager.singleton.numPlayers
 - Number of active spawned player objects across all connections on the server.
 Only host / server can check this, below is an example of how to sync this number to all players.
+</details>
 
+### Changing Transports
+
+<details>
+   <summary>Changing transports is very easy and only requires a few steps</summary>
+
+- Go to the GameObject that has a NetworkManager attached
+- Remove the current transport script
+- Add another transport script via the Add Component button
+- Drag the transport script to the "Transport" field in the NetworkManager
+
+You have successfully changed transports. If you have connection issues, make sure to portforward the correct protocol (TCP/UDP).
+
+NOTE: Some transports are not included with Mirror and need to be downloaded from their resepective GitHub pages.
+
+</details>
