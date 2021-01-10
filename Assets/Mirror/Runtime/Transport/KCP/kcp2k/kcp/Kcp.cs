@@ -10,28 +10,28 @@ namespace kcp2k
         // original Kcp has a define option, which is not defined by default:
         // #define FASTACK_CONSERVE
 
-        public const int RTO_NDL = 30;           // no delay min rto
-        public const int RTO_MIN = 100;          // normal min rto
-        public const int RTO_DEF = 200;          // default RTO
-        public const int RTO_MAX = 60000;        // maximum RTO
-        public const int CMD_PUSH = 81;          // cmd: push data
-        public const int CMD_ACK  = 82;          // cmd: ack
-        public const int CMD_WASK = 83;          // cmd: window probe (ask)
-        public const int CMD_WINS = 84;          // cmd: window size (tell)
-        public const int ASK_SEND = 1;           // need to send CMD_WASK
-        public const int ASK_TELL = 2;           // need to send CMD_WINS
-        public const int WND_SND = 32;           // default send window
-        public const int WND_RCV = 128;          // default receive window. must be >= max fragment size
-        public const int MTU_DEF = 1200;         // default MTU (reduced to 1200 to fit all cases: https://en.wikipedia.org/wiki/Maximum_transmission_unit ; steam uses 1200 too!)
+        public const int RTO_NDL = 30;             // no delay min rto
+        public const int RTO_MIN = 100;            // normal min rto
+        public const int RTO_DEF = 200;            // default RTO
+        public const int RTO_MAX = 60000;          // maximum RTO
+        public const int CMD_PUSH = 81;            // cmd: push data
+        public const int CMD_ACK  = 82;            // cmd: ack
+        public const int CMD_WASK = 83;            // cmd: window probe (ask)
+        public const int CMD_WINS = 84;            // cmd: window size (tell)
+        public const int ASK_SEND = 1;             // need to send CMD_WASK
+        public const int ASK_TELL = 2;             // need to send CMD_WINS
+        public const int WND_SND = 32;             // default send window
+        public const int WND_RCV = 128;            // default receive window. must be >= max fragment size
+        public const int MTU_DEF = 1200;           // default MTU (reduced to 1200 to fit all cases: https://en.wikipedia.org/wiki/Maximum_transmission_unit ; steam uses 1200 too!)
         public const int ACK_FAST = 3;
         public const int INTERVAL = 100;
         public const int OVERHEAD = 24;
         public const int DEADLINK = 20;
         public const int THRESH_INIT = 2;
         public const int THRESH_MIN = 2;
-        public const int PROBE_INIT = 7000;      // 7 secs to probe window size
-        public const int PROBE_LIMIT = 120000;   // up to 120 secs to probe window
-        public const int FASTACK_LIMIT = 5;      // max times to trigger fastack
+        public const int PROBE_INIT = 7000;        // 7 secs to probe window size
+        public const int PROBE_LIMIT = 120000;     // up to 120 secs to probe window
+        public const int FASTACK_LIMIT = 5;        // max times to trigger fastack
 
         internal struct AckItem
         {
@@ -475,8 +475,10 @@ namespace kcp2k
         }
 
         // ikcp_input
-        /// used when you receive a low level packet (eg. UDP packet)
-        public int Input(byte[] data, int size)
+        // used when you receive a low level packet (eg. UDP packet)
+        // => original kcp uses offset=0, we made it a parameter so that high
+        //    level can skip the channel byte more easily
+        public int Input(byte[] data, int offset, int size)
         {
             uint prev_una = snd_una;
             uint maxack = 0;
@@ -484,8 +486,6 @@ namespace kcp2k
             int flag = 0;
 
             if (data == null || size < OVERHEAD) return -1;
-
-            int offset = 0;
 
             while (true)
             {
@@ -961,10 +961,6 @@ namespace kcp2k
 
         // ikcp_setmtu
         // Change MTU (Maximum Transmission Unit) size.
-        // -> runtime MTU changes disabled so that MaxMessageSize can be a const
-        // -> makes KcpClient/KcpServer significantly more simple if we can
-        //    assume a const max message size.
-        /*
         public void SetMtu(uint mtu)
         {
             if (mtu < 50 || mtu < OVERHEAD)
@@ -974,7 +970,6 @@ namespace kcp2k
             this.mtu = mtu;
             mss = mtu - OVERHEAD;
         }
-        */
 
         // ikcp_interval
         public void SetInterval(uint interval)
