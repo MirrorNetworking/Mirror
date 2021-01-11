@@ -52,13 +52,13 @@
 
     public static class NetworkBehaviorSerializers
     {
-        public static void WriteNetworkBehavior(this NetworkWriter writer, NetworkBehaviorSyncvar id)
+        public static void WriteNetworkBehaviorSyncVar(this NetworkWriter writer, NetworkBehaviorSyncvar id)
         {
             writer.WritePackedUInt32(id.NetId);
             writer.WritePackedInt32(id.ComponentId);
         }
 
-        public static NetworkBehaviorSyncvar ReadNetworkBehaviour(this NetworkReader reader)
+        public static NetworkBehaviorSyncvar ReadNetworkBehaviourSyncVar(this NetworkReader reader)
         {
             uint netId = reader.ReadPackedUInt32();
             int componentId = reader.ReadPackedInt32();

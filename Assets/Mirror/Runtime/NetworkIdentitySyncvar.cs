@@ -46,12 +46,12 @@
 
     public static class NetworkIdentitySerializers
     {
-        public static void WriteNetworkIdentity(this NetworkWriter writer, NetworkIdentitySyncvar id)
+        public static void WriteNetworkIdentitySyncVar(this NetworkWriter writer, NetworkIdentitySyncvar id)
         {
             writer.WritePackedUInt32(id.NetId);
         }
 
-        public static NetworkIdentitySyncvar ReadNetworkIdentity(this NetworkReader reader)
+        public static NetworkIdentitySyncvar ReadNetworkIdentitySyncVar(this NetworkReader reader)
         {
             uint netId = reader.ReadPackedUInt32();
 
