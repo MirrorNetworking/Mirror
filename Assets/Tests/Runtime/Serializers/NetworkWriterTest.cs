@@ -130,7 +130,7 @@ namespace Mirror.Tests
         [Test]
         public void TestResetSetsPotionAndLength()
         {
-            var writer = new NetworkWriter();
+            NetworkWriter writer = new NetworkWriter();
             writer.WriteString("I saw");
             writer.WriteInt64(0xA_FADED_DEAD_EEL);
             writer.WriteString("and ate it");
@@ -234,25 +234,24 @@ namespace Mirror.Tests
             EnsureThrows(r => r.ReadGuid());
         }
 
-        [Test]
-        public void TestVector2()
+        static readonly Vector2[] vector2s =
         {
-            Vector2[] inputs = {
-                Vector2.right,
+            Vector2.right,
                 Vector2.up,
                 Vector2.zero,
                 Vector2.one,
                 Vector2.positiveInfinity,
                 new Vector2(0.1f,3.1f)
-            };
-            foreach (Vector2 input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteVector2(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Vector2 output = reader.ReadVector2();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(vector2s))]
+        public void TestVector2(Vector2 vector)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteVector2(vector);
+            var reader = new NetworkReader(writer.ToArray());
+            Vector2 output = reader.ReadVector2();
+            Assert.That(output, Is.EqualTo(vector));
         }
 
         [Test]
