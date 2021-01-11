@@ -541,10 +541,7 @@ namespace Mirror.Tests
             Assert.That(u2, Is.EqualTo(u));
         }
 
-        [Test]
-        public void TestUnicodeString()
-        {
-            string[] weirdUnicode = {
+        static readonly string[] weirdUnicode = {
                 "𝔲𝔫𝔦𝔠𝔬𝔡𝔢 𝔱𝔢𝔰𝔱",
                 "𝖚𝖓𝖎𝖈𝖔𝖉𝖊 𝖙𝖊𝖘𝖙",
                 "𝐮𝐧𝐢𝐜𝐨𝐝𝐞 𝐭𝐞𝐬𝐭",
@@ -580,16 +577,17 @@ namespace Mirror.Tests
                 "\u00F7\u00F8\u00F9\u00FA",
                 "\u00FB\u00FC\u00FD\u00FE",
                 "\u00FF"
-            };
-            foreach (string weird in weirdUnicode)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteString(weird);
-                byte[] data = writer.ToArray();
-                var reader = new NetworkReader(data);
-                string str = reader.ReadString();
-                Assert.That(str, Is.EqualTo(weird));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(weirdUnicode))]
+        public void TestUnicodeString(string weird)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteString(weird);
+            byte[] data = writer.ToArray();
+            var reader = new NetworkReader(data);
+            string str = reader.ReadString();
+            Assert.That(str, Is.EqualTo(weird));
         }
 
         [Test]
