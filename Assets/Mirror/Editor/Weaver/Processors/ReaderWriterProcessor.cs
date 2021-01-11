@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace Mirror.Weaver
@@ -22,7 +22,6 @@ namespace Mirror.Weaver
             return obj.FullName.GetHashCode();
         }
     }
-
     public class ReaderWriterProcessor
     {
         private readonly HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
@@ -38,32 +37,77 @@ namespace Mirror.Weaver
             this.writers = writers;
         }
 
-        public bool Process(Assembly unityAssembly)
+        public bool Process()
         {
-            // darn global state causing bugs
-            foreach (Assembly unityAsm in unityAssembly.assemblyReferences)
-            {
-                if (unityAsm.name == "Mirror")
-                {
-                    using (var asmResolver = new DefaultAssemblyResolver())
-                    using (var assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
-                    {
-                        ProcessAssemblyClasses(assembly.MainModule);
-                    }
-                }
-            }
+            messages.Clear();
+
+
+            LoadBuiltInReadersAndWriters();
 
             int writeCount = writers.Count;
             int readCount = readers.Count;
 
-            ProcessAssemblyClasses(module);
+            ProcessAssemblyClasses();
 
             return writers.Count != writeCount || readers.Count != readCount;
         }
 
-        void ProcessAssemblyClasses(ModuleDefinition dependencyModule)
+        private static bool IsExtension(MethodInfo method) => Attribute.IsDefined(method, typeof(System.Runtime.CompilerServices.ExtensionAttribute));
+
+        #region Load MirrorNG built in readers and writers
+        private void LoadBuiltInReadersAndWriters()
         {
-            foreach (TypeDefinition klass in dependencyModule.Types)
+            // find all extension methods
+            IEnumerable<Type> types = typeof(NetworkReaderExtensions).Module.GetTypes().Where(t => t.IsSealed && t.IsAbstract);
+            foreach (Type type in types)
+            {
+                IEnumerable<MethodInfo> methods = type.GetMethods(BindingFlags.Static | BindingFlags.Public)
+                    .Where(IsExtension)
+                    .Where(m => !m.IsGenericMethod);
+
+                foreach (MethodInfo method in methods)
+                {
+                    RegisterReader(method);
+                    RegisterWriter(method);
+                }
+            }
+        }
+
+        private void RegisterReader(MethodInfo method)
+        {
+            if (method.GetParameters().Length != 1)
+                return;
+
+            if (method.GetParameters()[0].ParameterType.FullName != typeof(NetworkReader).FullName)
+                return;
+
+            if (method.ReturnType == typeof(void))
+                return;
+            readers.Register(module.ImportReference(method.ReturnType), module.ImportReference(method));
+        }
+
+        private void RegisterWriter(MethodInfo method)
+        {
+            if (method.GetParameters().Length != 2)
+                return;
+
+            if (method.GetParameters()[0].ParameterType.FullName != typeof(NetworkWriter).FullName)
+                return;
+
+            if (method.ReturnType != typeof(void))
+                return;
+
+            Type dataType = method.GetParameters()[1].ParameterType;
+            writers.Register(module.ImportReference(dataType), module.ImportReference(method));
+        }
+        #endregion
+
+        #region Assembly defined reader/writer
+        void ProcessAssemblyClasses()
+        {
+            var types = new List<TypeDefinition>(module.Types);
+
+            foreach (TypeDefinition klass in types)
             {
                 // extension methods only live in static classes
                 // static classes are represented as sealed and abstract
@@ -77,7 +121,7 @@ namespace Mirror.Weaver
             // Generate readers and writers
             // find all the Send<> and Register<> calls and generate
             // readers and writers for them.
-            CodePass.ForEachInstruction(dependencyModule, (md, instr) => GenerateReadersWriters(instr));
+            CodePass.ForEachInstruction(module, (md, instr) => GenerateReadersWriters(instr));
         }
 
         private Instruction GenerateReadersWriters(Instruction instruction)
@@ -228,7 +272,7 @@ namespace Mirror.Weaver
         private static bool IsEditorAssembly(ModuleDefinition module)
         {
             return module.AssemblyReferences.Any(assemblyReference =>
-                assemblyReference.Name == nameof(UnityEditor)
+                assemblyReference.Name == "Mirror.Editor"
                 ) ;
         }
 
@@ -244,9 +288,9 @@ namespace Mirror.Weaver
         {
             MethodDefinition rwInitializer = module.GeneratedClass().AddMethod(
                 "InitReadWriters",
-                MethodAttributes.Public | MethodAttributes.Static);
+                Mono.Cecil.MethodAttributes.Public | Mono.Cecil.MethodAttributes.Static);
 
-            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
+            ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 
             var customAttributeRef = new CustomAttribute(module.ImportReference(attributeconstructor));
             customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(module.ImportReference<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
@@ -255,7 +299,7 @@ namespace Mirror.Weaver
             if (IsEditorAssembly(module))
             {
                 // editor assembly,  add InitializeOnLoadMethod too.  Useful for the editor tests
-                System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
+                ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
                 var initializeCustomConstructorRef = new CustomAttribute(module.ImportReference(initializeOnLoadConstructor));
                 rwInitializer.CustomAttributes.Add(initializeCustomConstructorRef);
             }
@@ -272,7 +316,7 @@ namespace Mirror.Weaver
 
         private void RegisterMessages(ILProcessor worker)
         {
-            System.Reflection.MethodInfo method = typeof(MessagePacker).GetMethod(nameof(MessagePacker.RegisterMessage));
+            MethodInfo method = typeof(MessagePacker).GetMethod(nameof(MessagePacker.RegisterMessage));
             MethodReference registerMethod = module.ImportReference(method);
 
             foreach (TypeReference message in messages)
@@ -282,5 +326,7 @@ namespace Mirror.Weaver
                 worker.Append(worker.Create(OpCodes.Call, genericMethodCall));
             }
         }
+
+        #endregion
     }
 }

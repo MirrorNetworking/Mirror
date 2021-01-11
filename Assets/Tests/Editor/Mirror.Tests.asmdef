@@ -5,10 +5,10 @@
         "UnityEditor.TestRunner",
         "Mirror",
         "Mirror.Tests.Common",
-        "MirrorNG",
+        "Mirror.Components",
         "Mirror.Editor",
-        "Mirror.Weaver",
-        "UniTask"
+        "UniTask",
+        "Unity.Mirror.CodeGen"
     ],
     "includePlatforms": [
         "Editor"
@@ -19,7 +19,6 @@
     "precompiledReferences": [
         "nunit.framework.dll",
         "NSubstitute.dll",
-        "Mono.Cecil.dll",
         "System.Threading.Tasks.Extensions.dll"
     ],
     "autoReferenced": false,

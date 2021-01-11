@@ -6,10 +6,9 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Mirror.Authenticators",
-        "Mirror.Weaver",
-        "Mirror.Experimental",
         "MirrorNG",
-        "UniTask"
+        "UniTask",
+        "Mirror.Components"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

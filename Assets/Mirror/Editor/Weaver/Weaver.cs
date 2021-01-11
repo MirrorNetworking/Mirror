@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Mono.Cecil;
-using UnityEditor.Compilation;
+using Mono.Cecil.Cil;
+using Unity.CompilationPipeline.Common.ILPostProcessing;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
 
-    internal class Weaver
+    public class Weaver
     {
         private readonly IWeaverLogger logger;
         private Readers readers;
@@ -90,7 +92,9 @@ namespace Mirror.Weaver
                 watch.Start();
                 var attributeProcessor = new ServerClientAttributeProcessor(logger);
 
-                foreach (TypeDefinition td in module.Types)
+                var types = new List<TypeDefinition>(module.Types);
+
+                foreach (TypeDefinition td in types)
                 {
                     if (td.IsClass && td.BaseType.CanBeResolved())
                     {
@@ -98,6 +102,7 @@ namespace Mirror.Weaver
                         modified |= attributeProcessor.Process(td);
                     }
                 }
+
                 watch.Stop();
                 Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
 
@@ -113,21 +118,43 @@ namespace Mirror.Weaver
             }
         }
 
-        bool Weave(Assembly unityAssembly)
+        public static AssemblyDefinition AssemblyDefinitionFor(ICompiledAssembly compiledAssembly)
         {
-            using (var asmResolver = new DefaultAssemblyResolver())
-            using (CurrentAssembly = AssemblyDefinition.ReadAssembly(unityAssembly.outputPath, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
+            var assemblyResolver = new PostProcessorAssemblyResolver(compiledAssembly);
+            var readerParameters = new ReaderParameters
             {
+                SymbolStream = new MemoryStream(compiledAssembly.InMemoryAssembly.PdbData),
+                SymbolReaderProvider = new PortablePdbReaderProvider(),
+                AssemblyResolver = assemblyResolver,
+                ReflectionImporterProvider = new PostProcessorReflectionImporterProvider(),
+                ReadingMode = ReadingMode.Immediate
+            };
 
-                AddPaths(asmResolver, unityAssembly);
+            var assemblyDefinition = AssemblyDefinition.ReadAssembly(new MemoryStream(compiledAssembly.InMemoryAssembly.PeData), readerParameters);
+
+            //apparently, it will happen that when we ask to resolve a type that lives inside MLAPI.Runtime, and we
+            //are also postprocessing MLAPI.Runtime, type resolving will fail, because we do not actually try to resolve
+            //inside the assembly we are processing. Let's make sure we do that, so that we can use postprocessor features inside
+            //MLAPI.Runtime itself as well.
+            assemblyResolver.AddAssemblyDefinitionBeingOperatedOn(assemblyDefinition);
+
+            return assemblyDefinition;
+        }
+
+        public AssemblyDefinition Weave(ICompiledAssembly compiledAssembly)
+        {
+            try
+            {
+                CurrentAssembly = AssemblyDefinitionFor(compiledAssembly);
+
                 ModuleDefinition module = CurrentAssembly.MainModule;
                 readers = new Readers(module, logger);
                 writers = new Writers(module, logger);
+                var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 propertySiteProcessor = new PropertySiteProcessor();
                 var rwProcessor = new ReaderWriterProcessor(module, readers, writers);
 
-                var rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
-                bool modified = rwProcessor.Process(unityAssembly);
+                bool modified = rwProcessor.Process();
                 rwstopwatch.Stop();
                 Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 
@@ -135,37 +162,17 @@ namespace Mirror.Weaver
 
                 modified |= WeaveModule(module);
 
-                if (modified)
-                {
-                    rwProcessor.InitializeReaderAndWriters();
+                if (!modified)
+                    return CurrentAssembly;
 
-                    // write to outputDir if specified, otherwise perform in-place write
-                    var writeParams = new WriterParameters { WriteSymbols = true };
-                    CurrentAssembly.Write(writeParams);
-                }
-            }
+                rwProcessor.InitializeReaderAndWriters();
 
-            return true;
-        }
-
-        private static void AddPaths(DefaultAssemblyResolver asmResolver, Assembly assembly)
-        {
-            foreach (string path in assembly.allReferences)
-            {
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(path));
-            }
-        }
-
-        public bool WeaveAssembly(Assembly assembly)
-        {
-            try
-            {
-                return Weave(assembly);
+                return CurrentAssembly;
             }
             catch (Exception e)
             {
                 logger.Error("Exception :" + e);
-                return false;
+                return null;
             }
         }
     }

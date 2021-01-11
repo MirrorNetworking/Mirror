@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -27,7 +28,9 @@ namespace Mirror.Weaver
         /// <param name="processor">The function that processes each instruction</param>
         public static void ForEachInstruction(ModuleDefinition module, Predicate<MethodDefinition> selector, InstructionProcessor processor)
         {
-            foreach (TypeDefinition td in module.Types)
+            var types = new List<TypeDefinition>(module.Types);
+
+            foreach (TypeDefinition td in types)
             {
                 if (td.IsClass)
                 {
