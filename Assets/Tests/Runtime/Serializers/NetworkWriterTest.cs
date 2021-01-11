@@ -663,27 +663,20 @@ namespace Mirror.Tests
             Assert.That(reader.ReadPackedInt32(), Is.EqualTo(data));
         }
 
-        [Test]
-        public void TestPackedInt32Failure()
+        static readonly long[] int32Fail =
+        {
+            1099511627775,
+            281474976710655,
+            72057594037927935
+        };
+
+        [Test, TestCaseSource(nameof(int32Fail))]
+        public void TestPackedInt32Failure(long data)
         {
             Assert.Throws<OverflowException>(() =>
             {
                 var writer = new NetworkWriter();
-                writer.WritePackedInt64(1099511627775);
-                var reader = new NetworkReader(writer.ToArray());
-                reader.ReadPackedInt32();
-            });
-            Assert.Throws<OverflowException>(() =>
-            {
-                var writer = new NetworkWriter();
-                writer.WritePackedInt64(281474976710655);
-                var reader = new NetworkReader(writer.ToArray());
-                reader.ReadPackedInt32();
-            });
-            Assert.Throws<OverflowException>(() =>
-            {
-                var writer = new NetworkWriter();
-                writer.WritePackedInt64(72057594037927935);
+                writer.WritePackedInt64(data);
                 var reader = new NetworkReader(writer.ToArray());
                 reader.ReadPackedInt32();
             });
