@@ -430,23 +430,21 @@ namespace Mirror.Tests
             Assert.That(output.distance, Is.EqualTo(input.distance));
         }
 
-        [Test]
-        public void TestRay()
-        {
-            Ray[] inputs = {
+        static readonly Ray[] rays = {
                 new Ray(Vector3.up,Vector3.down),
                 new Ray(new Vector3(0.1f,0.2f,0.3f), new Vector3(0.4f,0.5f,0.6f)),
                 new Ray(new Vector3(-0.3f,0.5f,0.999f), new Vector3(1f,100.1f,20f))
-            };
-            foreach (Ray input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteRay(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Ray output = reader.ReadRay();
-                Assert.That((output.direction - input.direction).magnitude, Is.LessThan(1e-6f));
-                Assert.That(output.origin, Is.EqualTo(input.origin));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(rays))]
+        public void TestRay(Ray input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteRay(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Ray output = reader.ReadRay();
+            Assert.That((output.direction - input.direction).magnitude, Is.LessThan(1e-6f));
+            Assert.That(output.origin, Is.EqualTo(input.origin));
         }
 
         [Test]
