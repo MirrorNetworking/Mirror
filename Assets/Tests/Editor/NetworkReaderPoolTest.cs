@@ -1,9 +1,6 @@
 using System;
 using System.Linq;
-using NSubstitute;
 using NUnit.Framework;
-using UnityEngine;
-using static Mirror.Tests.LogExpect;
 
 namespace Mirror.Tests
 {

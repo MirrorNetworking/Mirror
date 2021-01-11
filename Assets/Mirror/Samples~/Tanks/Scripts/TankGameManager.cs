@@ -69,18 +69,15 @@ namespace Mirror.Examples.Tanks
                 CheckPlayersNotInList();
 
                 //If minimum connections has been check if they are all ready
-                if (players.Count >= MinimumPlayersForGame)
+                if (players.Count >= MinimumPlayersForGame && GetAllReadyState())
                 {
-                    if (GetAllReadyState())
-                    {
-                        IsGameReady = true;
-                        AllowTankMovement();
+                    IsGameReady = true;
+                    AllowTankMovement();
 
-                        //Update Local GUI:
-                        StartPanel.SetActive(false);
-                        HealthTextLabel.SetActive(true);
-                        ScoreTextLabel.SetActive(true);
-                    }
+                    //Update Local GUI:
+                    StartPanel.SetActive(false);
+                    HealthTextLabel.SetActive(true);
+                    ScoreTextLabel.SetActive(true);
                 }
             }
         }

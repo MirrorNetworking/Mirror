@@ -507,7 +507,7 @@ namespace Mirror.Tests
         public void OnSetHostVisibilityCallsComponentsAndCatchesExceptions()
         {
             // add component
-            SetHostVisibilityExceptionNetworkBehaviour comp = gameObject.AddComponent<SetHostVisibilityExceptionNetworkBehaviour>();
+            gameObject.AddComponent<SetHostVisibilityExceptionNetworkBehaviour>();
 
             Assert.Throws<Exception>(() =>
             {
@@ -519,14 +519,14 @@ namespace Mirror.Tests
         public void OnCheckObserverCatchesException()
         {
             // add component
-            CheckObserverExceptionNetworkBehaviour compExc = gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
+            gameObject.AddComponent<CheckObserverExceptionNetworkBehaviour>();
 
             var connection = new NetworkConnection(tconn42);
 
             // should catch the exception internally and not throw it
             Assert.Throws<Exception>(() =>
             {
-                bool result = identity.OnCheckObserver(connection);
+                identity.OnCheckObserver(connection);
             });
         }
 
@@ -610,7 +610,7 @@ namespace Mirror.Tests
         {
             // add components
             SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            SerializeMismatchNetworkBehaviour compMiss = gameObject.AddComponent<SerializeMismatchNetworkBehaviour>();
+            gameObject.AddComponent<SerializeMismatchNetworkBehaviour>();
             SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
 
             // set some unique values to serialize

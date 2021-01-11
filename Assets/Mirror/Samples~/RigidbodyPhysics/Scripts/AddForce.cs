@@ -8,12 +8,9 @@ namespace Mirror.Examples.RigidbodyPhysics
 
         void Update()
         {
-            if (IsServer)
+            if (IsServer && Input.GetKeyDown(KeyCode.Space))
             {
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    GetComponent<Rigidbody>().AddForce(Vector3.up * force);
-                }
+                GetComponent<Rigidbody>().AddForce(Vector3.up * force);
             }
         }
     }

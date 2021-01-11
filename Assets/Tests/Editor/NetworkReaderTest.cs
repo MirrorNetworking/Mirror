@@ -35,7 +35,7 @@ namespace Mirror.Tests
             {
                 try
                 {
-                    byte[] result = reader.ReadBytes(bytes, bytes.Length + 1);
+                    reader.ReadBytes(bytes, bytes.Length + 1);
                     // BAD: IF WE GOT HERE, THEN NO EXCEPTION WAS THROWN
                     Assert.Fail();
                 }

@@ -136,23 +136,20 @@ namespace Mirror.Weaver.Tests
             try
             {
                 File.Delete(projPathFile);
-
             }
-            catch { }
+            catch { /* Do Nothing */ }
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".pdb"));
-
             }
-            catch { }
+            catch { /* Do Nothing */ }
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".dll.mdb"));
-
             }
-            catch { }
+            catch { /* Do Nothing */ }
         }
 
         // clear all settings except for referenced assemblies (which are cleared with ClearReferences)
