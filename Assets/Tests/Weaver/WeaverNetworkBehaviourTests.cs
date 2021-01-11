@@ -208,14 +208,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdParamGameObject()
         {
-            HasError("Cannot generate writer for GameObject. Use a supported type or provide a custom writer",
-                "UnityEngine.GameObject");
-            HasError("CmdCantHaveGameObjectComponent has invalid parameter monkeyComp",
-                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamGameObject.NetworkBehaviourCmdParamGameObject::CmdCantHaveGameObjectComponent(UnityEngine.GameObject)");
-            HasError("Cannot generate reader for GameObject. Use a supported type or provide a custom reader",
-                "UnityEngine.GameObject");
-            HasError("CmdCantHaveGameObjectComponent has invalid parameter monkeyComp.  Unsupported type UnityEngine.GameObject,  use a supported MirrorNG type instead",
-                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamGameObject.NetworkBehaviourCmdParamGameObject::CmdCantHaveGameObjectComponent(UnityEngine.GameObject)");
+            IsSuccess();
         }
 
         [Test]
@@ -223,6 +216,12 @@ namespace Mirror.Weaver.Tests
         {
             HasError("Duplicate Rpc name CmdCantHaveSameName",
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32)");
+        }
+
+        [Test]
+        public void NetworkBehaviourChild()
+        {
+            IsSuccess();
         }
     }
 }

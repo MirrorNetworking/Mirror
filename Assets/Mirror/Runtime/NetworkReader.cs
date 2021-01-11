@@ -440,5 +440,32 @@ namespace Mirror
         {
             return new Uri(reader.ReadString());
         }
+
+        public static NetworkBehaviour ReadNetworkBehaviour(this NetworkReader reader)
+        {
+            NetworkIdentity identity = reader.ReadNetworkIdentity();
+            if (identity == null)
+            {
+                return null;
+            }
+
+            byte componentIndex = reader.ReadByte();
+            return identity.NetworkBehaviours[componentIndex];
+        }
+
+        public static T ReadNetworkBehaviour<T>(this NetworkReader reader) where T : NetworkBehaviour
+        {
+            return reader.ReadNetworkBehaviour() as T;
+        }
+
+        public static GameObject ReadGameObject(this NetworkReader reader)
+        {
+            NetworkIdentity identity = reader.ReadNetworkIdentity();
+            if (identity == null)
+            {
+                return null;
+            }
+            return identity.gameObject;
+        }
     }
 }

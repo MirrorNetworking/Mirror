@@ -64,7 +64,7 @@ namespace Mirror.Weaver
         }
 
         /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
-        MethodDefinition GenerateWriter(TypeReference typeReference)
+        MethodReference GenerateWriter(TypeReference typeReference)
         {
             if (typeReference.IsByReference)
             {
@@ -112,6 +112,10 @@ namespace Mirror.Weaver
             {
                 throw new GenerateWriterException($"{typeReference.Name} is not a supported type. Use a supported type or provide a custom writer", typeReference);
             }
+            if (typeDefinition.IsDerivedFrom<NetworkBehaviour>())
+            {
+                return GetNetworkBehaviourWriter(typeReference);
+            }
             if (typeDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
                 throw new GenerateWriterException($"Cannot generate writer for component type {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
@@ -121,10 +125,6 @@ namespace Mirror.Weaver
                 throw new GenerateWriterException($"Cannot generate writer for {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
             if (typeReference.Is<UnityEngine.ScriptableObject>())
-            {
-                throw new GenerateWriterException($"Cannot generate writer for {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
-            }
-            if (typeReference.Is<UnityEngine.GameObject>())
             {
                 throw new GenerateWriterException($"Cannot generate writer for {typeReference.Name}. Use a supported type or provide a custom writer", typeReference);
             }
@@ -143,6 +143,13 @@ namespace Mirror.Weaver
 
             // generate writer for class/struct
             return GenerateClassOrStructWriterFunction(typeReference);
+        }
+
+        private MethodReference GetNetworkBehaviourWriter(TypeReference typeReference)
+        {
+            MethodReference writeFunc = module.ImportReference<NetworkWriter>((nw) => nw.WriteNetworkBehaviour(default));
+            Register(typeReference, writeFunc);
+            return writeFunc;
         }
 
         private MethodDefinition GenerateEnumWriteFunc(TypeReference typeReference)

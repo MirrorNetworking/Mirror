@@ -72,6 +72,10 @@ namespace Mirror.Weaver
             {
                 return GenerateEnumReadFunc(typeReference);
             }
+            if (variableDefinition.IsDerivedFrom<NetworkBehaviour>())
+            {
+                return GetNetworkBehaviourReader(typeReference);
+            }
             if (variableDefinition.IsDerivedFrom<Component>())
             {
                 logger.Error($"Cannot generate reader for component type {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
@@ -83,11 +87,6 @@ namespace Mirror.Weaver
                 return null;
             }
             if (typeReference.Is<ScriptableObject>())
-            {
-                logger.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
-                return null;
-            }
-            if (typeReference.Is<GameObject>())
             {
                 logger.Error($"Cannot generate reader for {typeReference.Name}. Use a supported type or provide a custom reader", typeReference);
                 return null;
@@ -115,6 +114,13 @@ namespace Mirror.Weaver
             }
 
             return GenerateClassOrStructReadFunction(typeReference);
+        }
+
+        private MethodReference GetNetworkBehaviourReader(TypeReference typeReference)
+        {
+            MethodReference readFunc = module.ImportReference<NetworkReader>((reader) => reader.ReadNetworkBehaviour());
+            Register(typeReference, readFunc);
+            return readFunc;
         }
 
         void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
