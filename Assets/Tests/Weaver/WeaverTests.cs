@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
@@ -7,6 +8,8 @@ using UnityEngine;
 
 namespace Mirror.Weaver.Tests
 {
+    public class AssertionMethodAttribute : Attribute { }
+
     public abstract class WeaverTestsBuildFromTestName : WeaverTests
     {
         [SetUp]
@@ -18,11 +21,13 @@ namespace Mirror.Weaver.Tests
             
         }
 
+        [AssertionMethod]
         protected void IsSuccess()
         {
             Assert.That(weaverLog.Diagnostics, Is.Empty);
         }
 
+        [AssertionMethod]
         protected void HasError(string messsage, string atType)
         {
             Assert.That(weaverLog.Diagnostics
@@ -30,6 +35,7 @@ namespace Mirror.Weaver.Tests
                 .Select(d=> d.MessageData), Contains.Item($"{messsage} (at {atType})"));
         }
 
+        [AssertionMethod]
         protected void HasWarning(string messsage, string atType)
         {
             Assert.That(weaverLog.Diagnostics
