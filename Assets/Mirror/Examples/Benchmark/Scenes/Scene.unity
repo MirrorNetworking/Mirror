@@ -328,10 +328,10 @@ MonoBehaviour:
   Interval: 10
   FastResend: 2
   CongestionWindow: 0
-  SendWindowSize: 512
-  ReceiveWindowSize: 512
+  SendWindowSize: 2048
+  ReceiveWindowSize: 2048
   debugLog: 0
-  debugGUI: 1
+  debugGUI: 0
 --- !u!1 &2054208274
 GameObject:
   m_ObjectHideFlags: 0

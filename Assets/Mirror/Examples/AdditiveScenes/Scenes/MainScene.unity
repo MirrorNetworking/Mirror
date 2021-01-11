@@ -1794,8 +1794,8 @@ MonoBehaviour:
   Interval: 10
   FastResend: 2
   CongestionWindow: 0
-  SendWindowSize: 128
-  ReceiveWindowSize: 128
+  SendWindowSize: 2048
+  ReceiveWindowSize: 2048
   debugLog: 0
   debugGUI: 0
 --- !u!114 &1661834281

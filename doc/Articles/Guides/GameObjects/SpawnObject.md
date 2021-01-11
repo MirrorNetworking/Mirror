@@ -143,8 +143,10 @@ The actual flow of internal operations that takes place for spawning game object
 -   `OnStartClient` is called on the instance on each client, and `isClient` is set to `true`
 -   As game play progresses, changes to SyncVar values are automatically synchronized to clients. This continues until game ends.
 -   `NetworkServer.Destroy` is called on the instance on the server.
+-   `OnStopServer` is called on the instance on the server
 -   A network message of type `ObjectDestroy` is sent to clients.
--   `OnNetworkDestroy` is called on the instance on clients, then the instance is destroyed.
+-   `OnStopClient` is called on the instance on clients
+-   The instance is destroyed (or disabled if it is a scene object)
 
 ### Player Game Objects
 

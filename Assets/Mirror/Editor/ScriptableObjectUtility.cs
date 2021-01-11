@@ -5,12 +5,18 @@ namespace Mirror.EditorScripts
 {
     public static class ScriptableObjectUtility
     {
-        /// <summary>
-        //	This makes it easy to create, name and place unique new ScriptableObject asset files.
-        /// </summary>
+        const string DefaultMirrorFolder = "Assets/Mirror/";
+
+        [System.Obsolete("Use CreateAsset<T>(string defaultName, string defaultFolder) instead")]
         public static T CreateAsset<T>(string defaultName) where T : ScriptableObject
+            => CreateAsset<T>(defaultName, DefaultMirrorFolder);
+
+        /// <summary>
+        ///	This makes it easy to create, name and place unique new ScriptableObject asset files.
+        /// </summary>
+        public static T CreateAsset<T>(string defaultName, string defaultFolder) where T : ScriptableObject
         {
-            string path = SavePanel(defaultName);
+            string path = SavePanel(defaultName, defaultFolder);
             // user click cancel
             if (string.IsNullOrEmpty(path)) { return null; }
 
@@ -21,11 +27,11 @@ namespace Mirror.EditorScripts
             return asset;
         }
 
-        static string SavePanel(string name)
+        static string SavePanel(string name, string defaultFolder)
         {
             string path = EditorUtility.SaveFilePanel(
                            "Save ScriptableObject",
-                           "Assets/Mirror/",
+                           defaultFolder,
                            name + ".asset",
                            "asset");
 

@@ -77,7 +77,7 @@ public class NetStreamer : NetworkBehaviour
 }
 ```
 
-Please note that the default transport [Telpathy](../Transports/Telepathy.md), completely ignores channels, all messages are reliable, sequenced and fragmented. They just work with no fuss. If you want to take advantage of unreliable channels use LLAPITransport instead.
+Please note that the default transport [Telpathy](../Transports/Telepathy.md), completely ignores channels, all messages are reliable, sequenced and fragmented. They just work with no fuss. If you want to take advantage of unreliable channels try a UDP or Steam [transport](../Transports/index.md) instead.
 
 ### 6. Change SyncListStruct to SyncList
 

@@ -1,5 +1,12 @@
+V1.5 [2021-01-07]
+- KcpConnection.MaxSend/ReceiveRate calculation based on the article
+- MirrorTransport: large send/recv window size defaults to avoid high latencies caused
+  by packets not being processed fast enough
+- MirrorTransport: show MaxSend/ReceiveRate in debug gui
+- MirrorTransport: don't Log.Info to console in headless mode if debug log is disabled
+
 V1.4 [2020-11-27]
-- fix: fix: OnCheckEnabled added. KcpConnection message processing while loop can now
+- fix: OnCheckEnabled added. KcpConnection message processing while loop can now
   be interrupted immediately. fixes Mirror Transport scene changes which need to stop
   processing any messages immediately after a scene message)
 - perf: Mirror KcpTransport: FastResend enabled by default. turbo mode according to:
