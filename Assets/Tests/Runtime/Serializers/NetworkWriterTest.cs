@@ -8,7 +8,6 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkWriterTest
     {
-
         [Test]
         public void TestWritingSmallMessage()
         {
@@ -949,27 +948,17 @@ namespace Mirror.Tests
         [Test]
         public void TestIntEndianness()
         {
-            uint[] values = { 0x12345678, 0xabcdef09, 0xdeadbeef };
-            byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
             var writer = new NetworkWriter();
-            foreach (uint value in values)
-            {
-                writer.WriteInt32((int)value);
-            }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            writer.WriteInt32(0x12345678);
+            Assert.That(writer.ToArray(), Is.EqualTo(new byte[] { 0x78, 0x56, 0x34, 0x12 }));
         }
 
         [Test]
         public void TestLongEndianness()
         {
-            ulong[] values = { 0x0123456789abcdef, 0xdeaded_beef_c0ffee };
-            byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
             var writer = new NetworkWriter();
-            foreach (ulong value in values)
-            {
-                writer.WriteInt64((long)value);
-            }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            writer.WriteInt64(0x0123456789abcdef);
+            Assert.That(writer.ToArray(), Is.EqualTo(new byte[] { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01 }));
         }
 
         [Test]
