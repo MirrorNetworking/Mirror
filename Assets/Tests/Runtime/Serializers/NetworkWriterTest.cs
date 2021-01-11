@@ -234,8 +234,7 @@ namespace Mirror.Tests
             EnsureThrows(r => r.ReadGuid());
         }
 
-        static readonly Vector2[] vector2s =
-        {
+        static readonly Vector2[] vector2s = {
             Vector2.right,
                 Vector2.up,
                 Vector2.zero,
@@ -254,10 +253,7 @@ namespace Mirror.Tests
             Assert.That(output, Is.EqualTo(vector));
         }
 
-        [Test]
-        public void TestVector3()
-        {
-            Vector3[] inputs = {
+        static readonly Vector3[] vector3s = {
                 Vector3.right,
                 Vector3.up,
                 Vector3.zero,
@@ -265,15 +261,16 @@ namespace Mirror.Tests
                 Vector3.positiveInfinity,
                 Vector3.forward,
                 new Vector3(0.1f,3.1f,1.4f)
-            };
-            foreach (Vector3 input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteVector3(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Vector3 output = reader.ReadVector3();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(vector3s))]
+        public void TestVector3(Vector3 input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteVector3(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Vector3 output = reader.ReadVector3();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         static readonly Vector4[] vector4s = {
@@ -283,7 +280,7 @@ namespace Mirror.Tests
                 Vector4.one,
                 Vector4.positiveInfinity,
                 new Vector4(0.1f,3.1f,1.4f,4.9f)
-            };
+        };
 
         [Test, TestCaseSource(nameof(vector4s))]
         public void TestVector4(Vector4 input)
