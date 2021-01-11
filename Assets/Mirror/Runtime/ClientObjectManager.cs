@@ -4,7 +4,6 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using Mirror.RemoteCalls;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Mirror
 {
