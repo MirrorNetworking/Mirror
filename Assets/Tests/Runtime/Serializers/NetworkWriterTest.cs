@@ -333,10 +333,7 @@ namespace Mirror.Tests
             Assert.That(output, Is.EqualTo(input));
         }
 
-        [Test]
-        public void TestColor()
-        {
-            Color[] inputs = {
+        static readonly Color[] colors = {
                 Color.black,
                 Color.blue,
                 Color.cyan,
@@ -344,21 +341,19 @@ namespace Mirror.Tests
                 Color.magenta,
                 Color.white,
                 new Color(0.401f,0.2f,1.0f,0.123f)
-            };
-            foreach (Color input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteColor(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Color output = reader.ReadColor();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(colors))]
+        public void TestColor(Color input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteColor(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Color output = reader.ReadColor();
+            Assert.That(output, Is.EqualTo(input));
         }
 
-        [Test]
-        public void TestColor32()
-        {
-            Color32[] inputs = {
+        static readonly Color32[] color32s = {
                 Color.black,
                 Color.blue,
                 Color.cyan,
@@ -367,15 +362,16 @@ namespace Mirror.Tests
                 Color.white,
                 new Color32(0xab,0xcd,0xef,0x12),
                 new Color32(125,126,0,255)
-            };
-            foreach (Color32 input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteColor32(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Color32 output = reader.ReadColor32();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(color32s))]
+        public void TestColor32(Color32 input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteColor32(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Color32 output = reader.ReadColor32();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
