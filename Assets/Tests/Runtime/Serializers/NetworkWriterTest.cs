@@ -292,10 +292,7 @@ namespace Mirror.Tests
             Assert.That(output, Is.EqualTo(input));
         }
 
-        [Test]
-        public void TestVector2Int()
-        {
-            Vector2Int[] inputs = {
+        static readonly Vector2Int[] vector2Ints = {
                 Vector2Int.down,
                 Vector2Int.up,
                 Vector2Int.left,
@@ -303,15 +300,16 @@ namespace Mirror.Tests
                 new Vector2Int(-1023,-999999),
                 new Vector2Int(257,12345),
                 new Vector2Int(0x7fffffff,-12345)
-            };
-            foreach (Vector2Int input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteVector2Int(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Vector2Int output = reader.ReadVector2Int();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(vector2Ints))]
+        public void TestVector2Int(Vector2Int input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteVector2Int(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Vector2Int output = reader.ReadVector2Int();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
