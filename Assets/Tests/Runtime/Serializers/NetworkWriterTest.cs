@@ -130,7 +130,7 @@ namespace Mirror.Tests
         [Test]
         public void TestResetSetsPotionAndLength()
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
             writer.WriteString("I saw");
             writer.WriteInt64(0xA_FADED_DEAD_EEL);
             writer.WriteString("and ate it");
@@ -783,7 +783,7 @@ namespace Mirror.Tests
             Assert.That(readFloat, Is.EqualTo(weird));
         }
 
-        readonly static double[] weirdDoubles =
+        static readonly double[] weirdDoubles =
         {
             0d,
             -0d,
