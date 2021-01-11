@@ -904,40 +904,25 @@ namespace Mirror.Tests
         [Test]
         public void TestUShortEndianness()
         {
-            ushort[] values = { 0x0000, 0x1234, 0xabcd, 0xF00F, 0x0FF0, 0xbeef };
-            byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
             var writer = new NetworkWriter();
-            foreach (ushort value in values)
-            {
-                writer.WriteUInt16(value);
-            }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            writer.WriteUInt16(0x1234);
+            Assert.That(writer.ToArray(), Is.EqualTo(new byte[] { 0x34, 0x12 }));
         }
 
         [Test]
         public void TestUIntEndianness()
         {
-            uint[] values = { 0x12345678, 0xabcdef09, 0xdeadbeef };
-            byte[] expected = { 0x78, 0x56, 0x34, 0x12, 0x09, 0xef, 0xcd, 0xab, 0xef, 0xbe, 0xad, 0xde };
             var writer = new NetworkWriter();
-            foreach (uint value in values)
-            {
-                writer.WriteUInt32(value);
-            }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            writer.WriteUInt32(0x12345678);
+            Assert.That(writer.ToArray(), Is.EqualTo(new byte[] { 0x78, 0x56, 0x34, 0x12 }));
         }
 
         [Test]
         public void TestULongEndianness()
         {
-            ulong[] values = { 0x0123456789abcdef, 0xdeaded_beef_c0ffee };
-            byte[] expected = { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01, 0xee, 0xff, 0xc0, 0xef, 0xbe, 0xed, 0xad, 0xde };
             var writer = new NetworkWriter();
-            foreach (ulong value in values)
-            {
-                writer.WriteUInt64(value);
-            }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            writer.WriteUInt64(0x0123456789abcdef);
+            Assert.That(writer.ToArray(), Is.EqualTo(new byte[] { 0xef, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x01 }));
         }
 
         [Test]
@@ -956,14 +941,9 @@ namespace Mirror.Tests
         [Test]
         public void TestShortEndianness()
         {
-            ushort[] values = { 0x0000, 0x1234, 0xabcd, 0xF00F, 0x0FF0, 0xbeef };
-            byte[] expected = { 0x00, 0x00, 0x34, 0x12, 0xcd, 0xab, 0x0F, 0xF0, 0xF0, 0x0F, 0xef, 0xbe };
             var writer = new NetworkWriter();
-            foreach (ushort value in values)
-            {
-                writer.WriteInt16((short)value);
-            }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            writer.WriteInt16(0x1234);
+            Assert.That(writer.ToArray(), Is.EqualTo(new byte[] { 0x34, 0x12 }));
         }
 
         [Test]
