@@ -682,34 +682,28 @@ namespace Mirror.Tests
             });
         }
 
-        [Test]
-        public void TestPackedUInt64()
+        static readonly ulong[] uint64s =
+        {
+            0,
+            234,
+            2284,
+            67821,
+            16777210,
+            16777219,
+            4294967295,
+            1099511627775,
+            281474976710655,
+            72057594037927935,
+            ulong.MaxValue,
+        };
+
+        [Test, TestCaseSource(nameof(uint64s))]
+        public void TestPackedUInt64(ulong data)
         {
             var writer = new NetworkWriter();
-            writer.WritePackedUInt64(0);
-            writer.WritePackedUInt64(234);
-            writer.WritePackedUInt64(2284);
-            writer.WritePackedUInt64(67821);
-            writer.WritePackedUInt64(16777210);
-            writer.WritePackedUInt64(16777219);
-            writer.WritePackedUInt64(4294967295);
-            writer.WritePackedUInt64(1099511627775);
-            writer.WritePackedUInt64(281474976710655);
-            writer.WritePackedUInt64(72057594037927935);
-            writer.WritePackedUInt64(ulong.MaxValue);
-
+            writer.WritePackedUInt64(data);
             var reader = new NetworkReader(writer.ToArray());
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(0));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(234));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(2284));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(67821));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(16777210));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(16777219));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(4294967295));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(1099511627775));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(281474976710655));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(72057594037927935));
-            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(ulong.MaxValue));
+            Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(data));
         }
 
         [Test]
