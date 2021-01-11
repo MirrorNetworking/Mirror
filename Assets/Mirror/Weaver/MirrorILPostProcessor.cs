@@ -6,7 +6,7 @@ using Mono.Cecil.Cil;
 
 namespace Mirror.Weaver
 {
-    public class MirrorIlPostProcessor : ILPostProcessor
+    public class MirrorILPostProcessor : ILPostProcessor
     {
         public const string RuntimeAssemblyName = "Mirror";
 
