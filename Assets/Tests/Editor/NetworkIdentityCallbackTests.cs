@@ -249,7 +249,7 @@ namespace Mirror.Tests
             identity.AssetId = guid1;
 
             // assign a guid
-            var guid2 = Guid.NewGuid();
+            var guid2 = Guid.Empty;
             ArgumentException exception = Assert.Throws<ArgumentException>(() =>
             {
                 identity.AssetId = guid2;
@@ -264,7 +264,7 @@ namespace Mirror.Tests
         {
             Debug.Assert(identity.AssetId == Guid.Empty, "assetId needs to be empty at the start of this test");
             // assign a guid
-            var guid2 = Guid.NewGuid();
+            var guid2 = Guid.Empty;
             // expect no errors
             identity.AssetId = guid2;
 
