@@ -391,24 +391,22 @@ namespace Mirror.Tests
             Assert.That(output, Is.EqualTo(input));
         }
 
-        [Test]
-        public void TestRect()
-        {
-            Rect[] inputs = {
+        static readonly Rect[] rects = {
                 Rect.zero,
                 new Rect(1004.1f,2.001f,4636,400f),
                 new Rect(-100.622f,-200f,300f,975.6f),
                 new Rect(-100f,435,-30.04f,400f),
                 new Rect(55,-200f,-44,-123)
             };
-            foreach (Rect input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteRect(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Rect output = reader.ReadRect();
-                Assert.That(output, Is.EqualTo(input));
-            }
+
+        [Test, TestCaseSource(nameof(rects))]
+        public void TestRect(Rect input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteRect(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Rect output = reader.ReadRect();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
