@@ -590,26 +590,24 @@ namespace Mirror.Tests
             Assert.That(str, Is.EqualTo(weird));
         }
 
-        [Test]
-        public void TestPackedUInt32()
+        static readonly uint[] uint32s =
+        {
+            0,
+            234,
+            2284,
+            67821,
+            16777210,
+            16777219,
+            uint.MaxValue
+        };
+
+        [Test, TestCaseSource(nameof(uint32s))]
+        public void TestPackedUInt32(uint value)
         {
             var writer = new NetworkWriter();
-            writer.WritePackedUInt32(0);
-            writer.WritePackedUInt32(234);
-            writer.WritePackedUInt32(2284);
-            writer.WritePackedUInt32(67821);
-            writer.WritePackedUInt32(16777210);
-            writer.WritePackedUInt32(16777219);
-            writer.WritePackedUInt32(uint.MaxValue);
-
+            writer.WritePackedUInt32(value);
             var reader = new NetworkReader(writer.ToArray());
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(0));
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(234));
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(2284));
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(67821));
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(16777210));
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(16777219));
-            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(uint.MaxValue));
+            Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(value));
         }
 
         [Test]
