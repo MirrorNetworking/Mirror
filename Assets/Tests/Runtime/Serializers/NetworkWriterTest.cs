@@ -584,6 +584,14 @@ namespace Mirror.Tests
             Assert.That(reader.ReadPackedUInt32(), Is.EqualTo(value));
         }
 
+        [Test, TestCaseSource(nameof(uint32s))]
+        public void TestUInt32(uint value)
+        {
+            writer.WriteUInt32(value);
+            var reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadUInt32(), Is.EqualTo(value));
+        }
+
         static readonly long[] int32Fail =
         {
             1099511627775,
@@ -628,6 +636,14 @@ namespace Mirror.Tests
             Assert.That(reader.ReadPackedInt32(), Is.EqualTo(data));
         }
 
+        [Test, TestCaseSource(nameof(int32s))]
+        public void TestInt32(int data)
+        {
+            writer.WriteInt32(data);
+            var reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadInt32(), Is.EqualTo(data));
+        }
+
         [Test, TestCaseSource(nameof(int32Fail))]
         public void TestPackedInt32Failure(long data)
         {
@@ -662,6 +678,14 @@ namespace Mirror.Tests
             Assert.That(reader.ReadPackedUInt64(), Is.EqualTo(data));
         }
 
+        [Test, TestCaseSource(nameof(uint64s))]
+        public void TestUInt64(ulong data)
+        {
+            writer.WriteUInt64(data);
+            var reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadUInt64(), Is.EqualTo(data));
+        }
+
         static readonly long[] int64s =
         {
             0,
@@ -694,6 +718,14 @@ namespace Mirror.Tests
             writer.WritePackedInt64(data);
             var reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadPackedInt64(), Is.EqualTo(data));
+        }
+
+        [Test, TestCaseSource(nameof(int64s))]
+        public void TestInt64(long data)
+        {
+            writer.WriteInt64(data);
+            var reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadInt64(), Is.EqualTo(data));
         }
 
         [Test]
