@@ -10,18 +10,6 @@ using UnityEngine;
 
 namespace Mirror.Weaver
 {
-    class TypeReferenceComparer : IEqualityComparer<TypeReference>
-    {
-        public bool Equals(TypeReference x, TypeReference y)
-        {
-            return x.FullName == y.FullName;
-        }
-
-        public int GetHashCode(TypeReference obj)
-        {
-            return obj.FullName.GetHashCode();
-        }
-    }
     public class ReaderWriterProcessor
     {
         private readonly HashSet<TypeReference> messages = new HashSet<TypeReference>(new TypeReferenceComparer());
