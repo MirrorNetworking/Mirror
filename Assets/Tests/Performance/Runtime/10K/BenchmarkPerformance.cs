@@ -1,6 +1,5 @@
 using System.Collections;
 using Cysharp.Threading.Tasks;
-using Mirror.Examples;
 using NUnit.Framework;
 using Unity.PerformanceTesting;
 using UnityEditor.SceneManagement;
