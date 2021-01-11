@@ -783,35 +783,34 @@ namespace Mirror.Tests
             Assert.That(readFloat, Is.EqualTo(weird));
         }
 
-        [Test]
-        public void TestDoubles()
+        readonly static double[] weirdDoubles =
         {
-            double[] weirdDoubles = {
-                0d,
-                -0d,
-                double.Epsilon,
-                -double.Epsilon,
-                double.MaxValue,
-                double.MinValue,
-                double.NaN,
-                -double.NaN,
-                double.PositiveInfinity,
-                double.NegativeInfinity,
-                float.MaxValue,
-                float.MinValue,
-                (double) decimal.MaxValue,
-                (double) decimal.MinValue,
-                Math.PI,
-                Math.E
-            };
-            foreach (double weird in weirdDoubles)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteDouble(weird);
-                var reader = new NetworkReader(writer.ToArray());
-                double readDouble = reader.ReadDouble();
-                Assert.That(readDouble, Is.EqualTo(weird));
-            }
+            0d,
+            -0d,
+            double.Epsilon,
+            -double.Epsilon,
+            double.MaxValue,
+            double.MinValue,
+            double.NaN,
+            -double.NaN,
+            double.PositiveInfinity,
+            double.NegativeInfinity,
+            float.MaxValue,
+            float.MinValue,
+            (double) decimal.MaxValue,
+            (double) decimal.MinValue,
+            Math.PI,
+            Math.E
+        };
+
+        [Test, TestCaseSource(nameof(weirdDoubles))]
+        public void TestDoubles(double weird)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteDouble(weird);
+            var reader = new NetworkReader(writer.ToArray());
+            double readDouble = reader.ReadDouble();
+            Assert.That(readDouble, Is.EqualTo(weird));
         }
 
         [Test]
