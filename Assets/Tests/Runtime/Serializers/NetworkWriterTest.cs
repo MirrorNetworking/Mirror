@@ -836,7 +836,7 @@ namespace Mirror.Tests
         [Test]
         public void TestFloatBinaryCompatibility()
         {
-            float[] weirdFloats = {
+            float[] inputFloats = {
                 ((float) Math.PI) / 3.0f,
                 ((float) Math.E) / 3.0f
             };
@@ -845,7 +845,7 @@ namespace Mirror.Tests
                 197,245,103, 63
             };
             var writer = new NetworkWriter();
-            foreach (float weird in weirdFloats)
+            foreach (float weird in inputFloats)
             {
                 writer.WriteSingle(weird);
             }
@@ -855,7 +855,7 @@ namespace Mirror.Tests
         [Test]
         public void TestDoubleBinaryCompatibility()
         {
-            double[] weirdDoubles = {
+            double[] inputDoubles = {
                 Math.PI / 3.0d,
                 Math.E / 3.0d
             };
@@ -864,7 +864,7 @@ namespace Mirror.Tests
                 140,116,112,185,184,254,236, 63
             };
             var writer = new NetworkWriter();
-            foreach (double weird in weirdDoubles)
+            foreach (double weird in inputDoubles)
             {
                 writer.WriteDouble(weird);
             }
@@ -874,7 +874,7 @@ namespace Mirror.Tests
         [Test]
         public void TestDecimalBinaryCompatibility()
         {
-            decimal[] weirdDecimals = {
+            decimal[] inputDecimals = {
                 ((decimal) Math.PI) / 3.0m,
                 ((decimal) Math.E) / 3.0m
             };
@@ -885,7 +885,7 @@ namespace Mirror.Tests
                 0x00, 0x00
             };
             var writer = new NetworkWriter();
-            foreach (decimal weird in weirdDecimals)
+            foreach (decimal weird in inputDecimals)
             {
                 writer.WriteDecimal(weird);
             }
