@@ -1,3 +1,10 @@
+## [62.0.1](https://github.com/MirrorNG/MirrorNG/compare/v62.0.0...v62.0.1) (2021-01-11)
+
+
+### Bug Fixes
+
+* Use Guid.Empty in the tests ([e900d33](https://github.com/MirrorNG/MirrorNG/commit/e900d33f23486d0acb0794a9ff3932caae06ced0))
+
 # [62.0.0](https://github.com/MirrorNG/MirrorNG/compare/v61.1.2...v62.0.0) (2021-01-11)
 
 
