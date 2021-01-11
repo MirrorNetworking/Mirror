@@ -13,7 +13,7 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            this.writer = new NetworkWriter();
+            writer = new NetworkWriter();
         }
 
         [Test]
@@ -845,7 +845,7 @@ namespace Mirror.Tests
             [Values(0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20)] byte value)
         {
             writer.WriteByte(value);
-            Assert.That(writer.ToArray(), Is.EqualTo(new [] { value }));
+            Assert.That(writer.ToArray(), Is.EqualTo(new[] { value }));
         }
 
         [Test]
