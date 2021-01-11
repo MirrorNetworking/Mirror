@@ -9,7 +9,7 @@ namespace Mirror.Weaver
 {
     public class Writers
     {
-        readonly Dictionary<string, MethodReference> writeFuncs = new Dictionary<string, MethodReference>();
+        readonly Dictionary<TypeReference, MethodReference> writeFuncs = new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
         public int Count => writeFuncs.Count;
 
@@ -24,12 +24,12 @@ namespace Mirror.Weaver
 
         public void Register(TypeReference dataType, MethodReference methodReference)
         {
-            writeFuncs[dataType.FullName] = methodReference;
+            writeFuncs[dataType] = methodReference;
         }
 
         void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
         {
-            writeFuncs[typeReference.FullName] = newWriterFunc;
+            writeFuncs[typeReference] = newWriterFunc;
         }
 
         public MethodReference GetWriteFunc<T>() =>
@@ -44,7 +44,7 @@ namespace Mirror.Weaver
         /// <returns>Returns <see cref="MethodReference"/> or null</returns>
         public MethodReference GetWriteFunc(TypeReference typeReference)
         {
-            if (writeFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
+            if (writeFuncs.TryGetValue(typeReference, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
