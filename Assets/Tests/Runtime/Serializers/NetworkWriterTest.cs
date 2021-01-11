@@ -893,16 +893,12 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestByteEndianness()
+        public void TestByteEndianness(
+            [Values(0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20)] byte value)
         {
-            byte[] values = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
-            byte[] expected = { 0x12, 0x43, 0x00, 0xff, 0xab, 0x02, 0x20 };
             var writer = new NetworkWriter();
-            foreach (byte value in values)
-            {
-                writer.WriteByte(value);
-            }
-            Assert.That(writer.ToArray(), Is.EqualTo(expected));
+            writer.WriteByte(value);
+            Assert.That(writer.ToArray(), Is.EqualTo(new byte[] { value }));
         }
 
         [Test]
