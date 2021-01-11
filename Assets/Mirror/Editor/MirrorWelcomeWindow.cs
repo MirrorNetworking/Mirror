@@ -117,22 +117,8 @@ namespace Mirror
         {
             get
             {
-                //get an array of results based on the search
-                string[] results = AssetDatabase.FindAssets("Version", new string[] { "Assets" });
-
-                //loop through every result
-                foreach (string guid in results)
-                {
-                    string path = AssetDatabase.GUIDToAssetPath(guid);
-                    //if the path contains Mirror/Version.txt, then we have found the Mirror folder
-                    if (path.Contains("Mirror/Version.txt"))
-                    {
-                        return path.Remove(path.IndexOf("/Version.txt"));
-                    }
-                }
-
-                //return nothing if path wasn't found
-                return "";
+                string path = EditorHelper.FindPath<MirrorWelcomeWindow>();
+                return path.Split(new[] { "\\Editor" }, System.StringSplitOptions.None)[0];
             }
         }
 
