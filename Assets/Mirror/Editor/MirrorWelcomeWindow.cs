@@ -10,7 +10,7 @@ namespace Mirror
         #region Sizes and Positions
 
         //window size of the welcome screen
-        private static Vector2 windowSize = new Vector2(500, 600);
+        private static Vector2 windowSize = new Vector2(500, 415);
 
         //size and position of the mirror icon
         private static Vector2 iconSize = new Vector2(64, 64);
@@ -36,7 +36,7 @@ namespace Mirror
         private static Vector2 rightColumnSize = new Vector2(2 * (windowSize.x - edgePadding) / 3 - edgePadding * 2, windowSize.y - height);
 
         //minimum button height (in case flexible space is used in the future)
-        private static int minButtonHeight = 50;
+        private static int minButtonHeight = 35;
 
         //redirect button position and size
         private static int redirectButtonHeight = 30;
@@ -67,6 +67,7 @@ namespace Mirror
         private static string templatesHeader = "Script Templates";
         private static string faqHeader = "FAQ";
         private static string sponsorHeader = "Sponsor Us";
+        private static string discordHeader = "Discord";
 
         //descriptions of the different pages
         private static string welcomePageDescription = "Hello! Thank you for installing Mirror. Please visit all the pages on this window. Clicking the button at the bottom of the pages will redirect you to a webpage. Additionally, there are example projects in the Mirror folder that you can look at. \n\nHave fun using Mirror!";
@@ -74,23 +75,25 @@ namespace Mirror
         private static string quickStartDescription = "The Quick Start Guide is meant for people who just started using Mirror. The Quick Start Guide will help new users learn how to accomplish important tasks. It is highly recommended that you complete the guide.";
         private static string bestPracticesDescription = "This page describes the best practices that you should use during development. Currently a work in progress.";
         private static string templatesDescription = "Script templates make it easier to create derived class scripts that inherit from our base classes. The templates have all the possible overrides made for you and organized with comments describing functionality.";
-        private static string faqDescription = "The FAQ page holds commonly asked questions. Currently, the FAQ page contains answers to: \n\n   1. Syncing custom data types \n   2. How to connect \n   3. Host migration \n   4. Server lists and matchmaking";
+        private static string faqDescription = "The FAQ page holds commonly asked questions. Currently, the FAQ page contains answers to: \n\n   1. Syncing custom data types \n   2. How to connect \n   3. Host migration \n   4. Server lists and matchmaking \n   5. How to get the player count";
         private static string sponsorDescription = "Sponsoring will give you access to Mirror PRO which gives you special access to tools and priority support.";
+        private static string discordDescription = "Mirror has an official Discord channel that you can join. Discord is the best way to contact the developers and request help with your code.";
 
         //titles of the redirect buttons
-        private static string welcomePageButtonTitle = "Visit API Reference";
-        private static string changelogPageButtonTitle = "Visit Change Log";
-        private static string quickStartPageButtonTitle = "Visit Quick Start Guide";
-        private static string bestPracticesPageButtonTitle = "Visit Best Practices Page";
+        private static string welcomePageButtonTitle = "Open Documentation";
+        private static string changelogPageButtonTitle = "Open Change Log";
+        private static string quickStartPageButtonTitle = "Open Quick Start Guide";
+        private static string bestPracticesPageButtonTitle = "Open Best Practices Page";
         private static string templatesPageButtonTitle = "Download Script Templates";
-        private static string faqPageButtonTitle = "Visit FAQ";
+        private static string faqPageButtonTitle = "Open FAQ";
         private static string sponsorPageButtonTitle = "Sponsor Us";
+        private static string discordPageButtonTitle = "Join Discord";
 
         #endregion
 
         #region Urls
 
-        private static string welcomePageUrl = "https://mirror-networking.com/docs/api/Mirror.html";
+        private static string welcomePageUrl = "https://mirror-networking.com/docs/index.html";
         private static string quickStartUrl = "https://mirror-networking.com/docs/Articles/CommunityGuides/MirrorQuickStartGuide/index.html";
         private static string changelogUrl = "https://mirror-networking.com/docs/Articles/General/ChangeLog.html";
         private static string bestPracticesUrl = "https://mirror-networking.com/docs/Articles/Guides/BestPractices.html";
@@ -307,6 +310,13 @@ namespace Mirror
             #endregion
         }
 
+        private void OnValidate()
+        {
+            //reset the key and path so that we dont have missing values when the editor compiles
+            firstStartUpKey = GetStartUpKey();
+            mirrorIconPath = GetMirrorIconPath();
+        }
+
         //display the welcome menu
         private void OnGUI()
         {
@@ -350,11 +360,11 @@ namespace Mirror
                 //buttons
                 //if you add additional buttons here, make sure to update the page variables and GetPageData()
                 CheckPageButtonClicked(GUILayout.Button("Welcome", GUILayout.MinHeight(minButtonHeight)), Screens.welcome);
-                CheckPageButtonClicked(GUILayout.Button("Change Log", GUILayout.MinHeight(minButtonHeight)), Screens.changelog);
                 CheckPageButtonClicked(GUILayout.Button("Quick Start Guide", GUILayout.MinHeight(minButtonHeight)), Screens.quickstart);
-                CheckPageButtonClicked(GUILayout.Button("Best Practices", GUILayout.MinHeight(minButtonHeight)), Screens.bestpractices);
                 CheckPageButtonClicked(GUILayout.Button("Script Templates", GUILayout.MinHeight(minButtonHeight)), Screens.templates);
                 CheckPageButtonClicked(GUILayout.Button("FAQ", GUILayout.MinHeight(minButtonHeight)), Screens.faq);
+                CheckPageButtonClicked(GUILayout.Button("Best Practices", GUILayout.MinHeight(minButtonHeight)), Screens.bestpractices);
+                CheckPageButtonClicked(GUILayout.Button("Change Log", GUILayout.MinHeight(minButtonHeight)), Screens.changelog);
                 CheckPageButtonClicked(GUILayout.Button("Sponsor Us", GUILayout.MinHeight(minButtonHeight)), Screens.sponsor);
                 CheckPageButtonClicked(GUILayout.Button("Discord", GUILayout.MinHeight(minButtonHeight)), Screens.discord);
 
@@ -396,15 +406,10 @@ namespace Mirror
         //ran when the button has been clicked
         private void CheckPageButtonClicked(bool button, Screens newScreen)
         {
-            //if the newScreen isn't discord then get the description for the newScreen
-            if (button && newScreen != Screens.discord)
+            //get the description for the newScreen
+            if (button)
             {
                 currentScreen = newScreen;
-            }
-            //otherwise, redirect directly to the discord invite link
-            else if (button && newScreen == Screens.discord)
-            {
-                CheckRedirectButtonClicked(button, discordInviteUrl);
             }
         }
 
@@ -430,19 +435,19 @@ namespace Mirror
             //check the data type, set return types based on data type
             if (type == PageDataType.header)
             {
-                returnTypes = new string[] { welcomePageHeader, quickStartHeader, bestPracticesHeader, templatesHeader, faqHeader, sponsorHeader, changelogHeader };
+                returnTypes = new string[] { welcomePageHeader, quickStartHeader, bestPracticesHeader, templatesHeader, faqHeader, sponsorHeader, changelogHeader, discordHeader };
             }
             else if (type == PageDataType.description)
             {
-                returnTypes = new string[] { welcomePageDescription, quickStartDescription, bestPracticesDescription, templatesDescription, faqDescription, sponsorDescription, changelogDescription };
+                returnTypes = new string[] { welcomePageDescription, quickStartDescription, bestPracticesDescription, templatesDescription, faqDescription, sponsorDescription, changelogDescription, discordDescription };
             }
             else if (type == PageDataType.redirectButtonTitle)
             {
-                returnTypes = new string[] { welcomePageButtonTitle, quickStartPageButtonTitle, bestPracticesPageButtonTitle, templatesPageButtonTitle, faqPageButtonTitle, sponsorPageButtonTitle, changelogPageButtonTitle };
+                returnTypes = new string[] { welcomePageButtonTitle, quickStartPageButtonTitle, bestPracticesPageButtonTitle, templatesPageButtonTitle, faqPageButtonTitle, sponsorPageButtonTitle, changelogPageButtonTitle, discordPageButtonTitle };
             }
             else if (type == PageDataType.redirectButtonUrl)
             {
-                returnTypes = new string[] { welcomePageUrl, quickStartUrl, bestPracticesUrl, templatesUrl, faqUrl, sponsorUrl, changelogUrl };
+                returnTypes = new string[] { welcomePageUrl, quickStartUrl, bestPracticesUrl, templatesUrl, faqUrl, sponsorUrl, changelogUrl, discordInviteUrl };
             }
 
             //return results based on the current page
@@ -453,6 +458,7 @@ namespace Mirror
             else if (currentScreen == Screens.faq) { return returnTypes[4]; }
             else if (currentScreen == Screens.sponsor) { return returnTypes[5]; }
             else if (currentScreen == Screens.changelog) { return returnTypes[6]; }
+            else if (currentScreen == Screens.discord) { return returnTypes[7]; }
 
             return "You forgot to update GetPageData()";
         }
