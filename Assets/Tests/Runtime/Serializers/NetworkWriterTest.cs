@@ -753,35 +753,34 @@ namespace Mirror.Tests
             Assert.That(readGuid, Is.EqualTo(originalGuid));
         }
 
-        [Test]
-        public void TestFloats()
+        static readonly float[] weirdFloats =
         {
-            float[] weirdFloats = {
-                0f,
-                -0f,
-                float.Epsilon,
-                -float.Epsilon,
-                float.MaxValue,
-                float.MinValue,
-                float.NaN,
-                -float.NaN,
-                float.PositiveInfinity,
-                float.NegativeInfinity,
-                (float) double.MaxValue,
-                (float) double.MinValue,
-                (float) decimal.MaxValue,
-                (float) decimal.MinValue,
-                (float) Math.PI,
-                (float) Math.E
-            };
-            foreach (float weird in weirdFloats)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteSingle(weird);
-                var reader = new NetworkReader(writer.ToArray());
-                float readFloat = reader.ReadSingle();
-                Assert.That(readFloat, Is.EqualTo(weird));
-            }
+            0f,
+            -0f,
+            float.Epsilon,
+            -float.Epsilon,
+            float.MaxValue,
+            float.MinValue,
+            float.NaN,
+            -float.NaN,
+            float.PositiveInfinity,
+            float.NegativeInfinity,
+            (float) double.MaxValue,
+            (float) double.MinValue,
+            (float) decimal.MaxValue,
+            (float) decimal.MinValue,
+            (float) Math.PI,
+            (float) Math.E
+        };
+
+        [Test, TestCaseSource(nameof(weirdFloats))]
+        public void TestFloats(float weird)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteSingle(weird);
+            var reader = new NetworkReader(writer.ToArray());
+            float readFloat = reader.ReadSingle();
+            Assert.That(readFloat, Is.EqualTo(weird));
         }
 
         [Test]
