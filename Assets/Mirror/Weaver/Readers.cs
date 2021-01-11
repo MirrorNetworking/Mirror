@@ -10,7 +10,7 @@ namespace Mirror.Weaver
 {
     public class Readers
     {
-        readonly Dictionary<string, MethodReference> readFuncs = new Dictionary<string, MethodReference>();
+        readonly Dictionary<TypeReference, MethodReference> readFuncs = new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
         private readonly ModuleDefinition module;
         private readonly IWeaverLogger logger;
@@ -25,7 +25,7 @@ namespace Mirror.Weaver
 
         internal void Register(TypeReference dataType, MethodReference methodReference)
         {
-            readFuncs[dataType.FullName] = methodReference;
+            readFuncs[dataType] = methodReference;
         }
 
         public MethodReference GetReadFunc<T>() =>
@@ -33,7 +33,7 @@ namespace Mirror.Weaver
 
         public MethodReference GetReadFunc(TypeReference typeReference)
         {
-            if (readFuncs.TryGetValue(typeReference.FullName, out MethodReference foundFunc))
+            if (readFuncs.TryGetValue(typeReference, out MethodReference foundFunc))
             {
                 return foundFunc;
             }
@@ -119,7 +119,7 @@ namespace Mirror.Weaver
 
         void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
-            readFuncs[typeReference.FullName] = newReaderFunc;
+            readFuncs[typeReference] = newReaderFunc;
         }
 
         MethodDefinition GenerateEnumReadFunc(TypeReference variable)
