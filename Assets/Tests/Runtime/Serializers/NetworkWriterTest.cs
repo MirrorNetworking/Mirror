@@ -447,24 +447,22 @@ namespace Mirror.Tests
             Assert.That(output.origin, Is.EqualTo(input.origin));
         }
 
-        [Test]
-        public void TestMatrix()
-        {
-            Matrix4x4[] inputs = {
+        static readonly Matrix4x4[] matrix4X4s = {
                 Matrix4x4.identity,
                 Matrix4x4.zero,
                 Matrix4x4.Scale(Vector3.one * 0.12345f),
                 Matrix4x4.LookAt(Vector2.up,Vector3.right,Vector3.forward),
                 Matrix4x4.Rotate(Quaternion.LookRotation(Vector3.one))
-            };
-            foreach (Matrix4x4 input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteMatrix4X4(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Matrix4x4 output = reader.ReadMatrix4x4();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(matrix4X4s))]
+        public void TestMatrix(Matrix4x4 input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteMatrix4X4(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Matrix4x4 output = reader.ReadMatrix4x4();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
