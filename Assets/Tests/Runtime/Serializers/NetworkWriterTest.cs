@@ -276,10 +276,7 @@ namespace Mirror.Tests
             }
         }
 
-        [Test]
-        public void TestVector4()
-        {
-            Vector4[] inputs = {
+        static readonly Vector4[] vector4s = {
                 Vector3.right,
                 Vector3.up,
                 Vector4.zero,
@@ -287,14 +284,15 @@ namespace Mirror.Tests
                 Vector4.positiveInfinity,
                 new Vector4(0.1f,3.1f,1.4f,4.9f)
             };
-            foreach (Vector4 input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteVector4(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Vector4 output = reader.ReadVector4();
-                Assert.That(output, Is.EqualTo(input));
-            }
+
+        [Test, TestCaseSource(nameof(vector4s))]
+        public void TestVector4(Vector4 input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteVector4(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Vector4 output = reader.ReadVector4();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
