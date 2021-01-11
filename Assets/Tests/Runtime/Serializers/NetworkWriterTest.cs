@@ -312,10 +312,7 @@ namespace Mirror.Tests
             Assert.That(output, Is.EqualTo(input));
         }
 
-        [Test]
-        public void TestVector3Int()
-        {
-            Vector3Int[] inputs = {
+        static readonly Vector3Int[] vector3Ints = {
                 Vector3Int.down,
                 Vector3Int.up,
                 Vector3Int.left,
@@ -324,15 +321,16 @@ namespace Mirror.Tests
                 new Vector3Int(-1023,-999999,1392),
                 new Vector3Int(257,12345,-6132),
                 new Vector3Int(0x7fffffff,-12345,-1)
-            };
-            foreach (Vector3Int input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteVector3Int(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Vector3Int output = reader.ReadVector3Int();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(vector3Ints))]
+        public void TestVector3Int(Vector3Int input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteVector3Int(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Vector3Int output = reader.ReadVector3Int();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
