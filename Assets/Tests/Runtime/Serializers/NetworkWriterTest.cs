@@ -374,23 +374,21 @@ namespace Mirror.Tests
             Assert.That(output, Is.EqualTo(input));
         }
 
-        [Test]
-        public void TestQuaternion()
-        {
-            Quaternion[] inputs = {
+        static readonly Quaternion[] quaternions = {
                 Quaternion.identity,
                 default,
                 Quaternion.LookRotation(new Vector3(0.3f,0.4f,0.5f)),
                 Quaternion.Euler(45f,56f,Mathf.PI)
-            };
-            foreach (Quaternion input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteQuaternion(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Quaternion output = reader.ReadQuaternion();
-                Assert.That(output, Is.EqualTo(input));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(quaternions))]
+        public void TestQuaternion(Quaternion input)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteQuaternion(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Quaternion output = reader.ReadQuaternion();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
