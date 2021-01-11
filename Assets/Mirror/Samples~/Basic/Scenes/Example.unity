@@ -349,23 +349,43 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Levels:
+  - Name: NetworkSceneManager
+    level: 2
+  - Name: NetworkClient
+    level: 2
+  - Name: NetworkTime
+    level: 2
+  - Name: NetworkServer
+    level: 2
+  - Name: PlayerSpawner
+    level: 2
+  - Name: ClientObjectManager
+    level: 2
+  - Name: NetworkIdentity
+    level: 2
   - Name: ServerObjectManager
     level: 2
   - Name: NetworkBehaviour
     level: 2
-  - Name: NetworkIdentity
+  - Name: NetworkBehaviourInspector
     level: 2
-  - Name: NetworkServer
+  - Name: NetworkRigidbody
     level: 2
-  - Name: NetworkTime
+  - Name: RemoteCallHelper
     level: 2
-  - Name: ClientObjectManager
+  - Name: Reward
     level: 2
-  - Name: NetworkSceneManager
+  - Name: NetworkSceneChecker
     level: 2
-  - Name: PlayerSpawner
+  - Name: ChatWindow
     level: 2
-  - Name: NetworkClient
+  - Name: NetworkProximityChecker
+    level: 2
+  - Name: AdditiveNetworkManager
+    level: 2
+  - Name: NetworkAnimator
+    level: 2
+  - Name: ZoneHandler
     level: 2
   - Name: EnterPlayModeSettingsCheck
     level: 2
@@ -379,11 +399,13 @@ MonoBehaviour:
     level: 2
   - Name: NetworkReaderPool
     level: 2
-  - Name: RemoteCallHelper
+  - Name: SceneDrawer
     level: 2
   - Name: BasicAuthenticator
     level: 2
-  - Name: NetworkRigidbody
+  - Name: NetworkDiscovery
+    level: 2
+  - Name: NetworkDiscoveryBase`2
     level: 2
 --- !u!1 &283483315
 GameObject:
