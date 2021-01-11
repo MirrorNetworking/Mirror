@@ -813,25 +813,24 @@ namespace Mirror.Tests
             Assert.That(readDouble, Is.EqualTo(weird));
         }
 
-        [Test]
-        public void TestDecimals()
+        static readonly decimal[] weirdDecimals =
         {
-            decimal[] weirdDecimals = {
-                decimal.Zero,
-                -decimal.Zero,
-                decimal.MaxValue,
-                decimal.MinValue,
-                (decimal) Math.PI,
-                (decimal) Math.E
-            };
-            foreach (decimal weird in weirdDecimals)
-            {
-                var writer = new NetworkWriter();
-                writer.WriteDecimal(weird);
-                var reader = new NetworkReader(writer.ToArray());
-                decimal readDecimal = reader.ReadDecimal();
-                Assert.That(readDecimal, Is.EqualTo(weird));
-            }
+            decimal.Zero,
+            -decimal.Zero,
+            decimal.MaxValue,
+            decimal.MinValue,
+            (decimal) Math.PI,
+            (decimal) Math.E
+        };
+
+        [Test, TestCaseSource(nameof(weirdDecimals))]
+        public void TestDecimals(decimal weird)
+        {
+            var writer = new NetworkWriter();
+            writer.WriteDecimal(weird);
+            var reader = new NetworkReader(writer.ToArray());
+            decimal readDecimal = reader.ReadDecimal();
+            Assert.That(readDecimal, Is.EqualTo(weird));
         }
 
         [Test]
