@@ -65,19 +65,6 @@ namespace Mirror.Weaver.Tests
             }
         }
 
-        
-        [OneTimeSetUp]
-        public void FixtureSetup()
-        {
-
-        }
-
-        [OneTimeTearDown]
-        public void FixtureCleanup()
-        {
-        }
-        
-
         [TearDown]
         public void TestCleanup()
         {
