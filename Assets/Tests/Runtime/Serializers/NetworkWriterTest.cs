@@ -397,7 +397,7 @@ namespace Mirror.Tests
                 new Rect(-100.622f,-200f,300f,975.6f),
                 new Rect(-100f,435,-30.04f,400f),
                 new Rect(55,-200f,-44,-123)
-            };
+        };
 
         [Test, TestCaseSource(nameof(rects))]
         public void TestRect(Rect input)
@@ -409,27 +409,25 @@ namespace Mirror.Tests
             Assert.That(output, Is.EqualTo(input));
         }
 
-        [Test]
-        public void TestPlane()
-        {
-            Plane[] inputs = {
+        static readonly Plane[] planes = {
                 new Plane(new Vector3(-0.24f,0.34f,0.2f), 120.2f),
                 new Plane(new Vector3(0.133f,0.34f,0.122f), -10.135f),
                 new Plane(new Vector3(0.133f,-0.0f,float.MaxValue), -13.3f),
                 new Plane(new Vector3(0.1f,-0.2f,0.3f), 14.5f)
-            };
-            foreach (Plane input in inputs)
-            {
-                var writer = new NetworkWriter();
-                writer.WritePlane(input);
-                var reader = new NetworkReader(writer.ToArray());
-                Plane output = reader.ReadPlane();
-                // note: Plane constructor does math internally, resulting in
-                // floating point precision loss that causes exact comparison
-                // to fail the test. So we test that the difference is small.
-                Assert.That((output.normal - input.normal).magnitude, Is.LessThan(1e-6f));
-                Assert.That(output.distance, Is.EqualTo(input.distance));
-            }
+        };
+
+        [Test, TestCaseSource(nameof(planes))]
+        public void TestPlane(Plane input)
+        {
+            var writer = new NetworkWriter();
+            writer.WritePlane(input);
+            var reader = new NetworkReader(writer.ToArray());
+            Plane output = reader.ReadPlane();
+            // note: Plane constructor does math internally, resulting in
+            // floating point precision loss that causes exact comparison
+            // to fail the test. So we test that the difference is small.
+            Assert.That((output.normal - input.normal).magnitude, Is.LessThan(1e-6f));
+            Assert.That(output.distance, Is.EqualTo(input.distance));
         }
 
         [Test]
