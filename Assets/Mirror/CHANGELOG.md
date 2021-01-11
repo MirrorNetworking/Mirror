@@ -1,3 +1,16 @@
+# [62.0.0](https://github.com/MirrorNG/MirrorNG/compare/v61.1.2...v62.0.0) (2021-01-11)
+
+
+### Features
+
+* use ILPostProcessor for weaver ([#525](https://github.com/MirrorNG/MirrorNG/issues/525)) ([def64cd](https://github.com/MirrorNG/MirrorNG/commit/def64cd1db525398738f057b3d1eb1fe8afc540c)), closes [/forum.unity.com/threads/how-does-unity-do-codegen-and-why-cant-i-do-it-myself.853867/#post-5646937](https://github.com//forum.unity.com/threads/how-does-unity-do-codegen-and-why-cant-i-do-it-myself.853867//issues/post-5646937)
+
+
+### BREAKING CHANGES
+
+* MirrorNG assembly no longer contains the components.  Reference Mirror.Components instead.
+* Editor scripts are no longer weaved
+
 ## [61.1.2](https://github.com/MirrorNG/MirrorNG/compare/v61.1.1...v61.1.2) (2021-01-09)
 
 
