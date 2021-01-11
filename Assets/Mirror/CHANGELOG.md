@@ -1,3 +1,10 @@
+# [62.1.0](https://github.com/MirrorNG/MirrorNG/compare/v62.0.1...v62.1.0) (2021-01-11)
+
+
+### Features
+
+* send NI, NB and GO in RPC ([#528](https://github.com/MirrorNG/MirrorNG/issues/528)) ([428ca63](https://github.com/MirrorNG/MirrorNG/commit/428ca63711020cac9accf555ac63feb2495fe965))
+
 ## [62.0.1](https://github.com/MirrorNG/MirrorNG/compare/v62.0.0...v62.0.1) (2021-01-11)
 
 
