@@ -8,7 +8,7 @@ using UnityEngine.Events;
 
 using static Mirror.Tests.LocalConnections;
 
-namespace Mirror.Tests
+namespace Mirror
 {
     public class NetworkIdentityCallbackTests
     {

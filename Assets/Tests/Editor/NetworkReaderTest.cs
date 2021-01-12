@@ -1,7 +1,7 @@
 using System.IO;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror
 {
     // NetworkWriterTest already covers most cases for NetworkReader.
     // only a few are left

@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror
 {
     [TestFixture(Category = "ClientObjectManager")]
     public class ClientObjectManagerInspectorTest

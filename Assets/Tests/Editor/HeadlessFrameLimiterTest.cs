@@ -2,7 +2,7 @@ using UnityEngine;
 using NUnit.Framework;
 using Object = UnityEngine.Object;
 
-namespace Mirror.Tests
+namespace Mirror
 {
     [TestFixture]
     public class HeadlessFrameLimiterTest : MonoBehaviour

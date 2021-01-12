@@ -2,7 +2,7 @@ using Mirror;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Tests
+namespace Mirror
 {
     public class CompressionTests
     {
