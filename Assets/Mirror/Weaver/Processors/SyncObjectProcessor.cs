@@ -64,7 +64,7 @@ namespace Mirror.Weaver
                 {
                     if (!argument.IsGenericParameter)
                     {
-                        readers.GetReadFunc(argument);
+                        readers.GetReadFunc(argument, null);
                         writers.GetWriteFunc(argument);
                     }
                 }

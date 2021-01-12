@@ -27,6 +27,11 @@ namespace Mirror.Weaver
             AddMessage($"{message} (at {md})", md.DebugInformation.SequencePoints.FirstOrDefault(), DiagnosticType.Error);
         }
 
+        public void Error(string message, MemberReference mr, SequencePoint sequencePoint)
+        {
+            AddMessage($"{message} (at {mr})", sequencePoint, DiagnosticType.Error);
+        }
+
         public void Warning(string message, MemberReference mr)
         {
             Warning($"{message} (at {mr})");

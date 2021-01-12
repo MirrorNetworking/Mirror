@@ -109,26 +109,26 @@ namespace Mirror.Weaver
             // Generate readers and writers
             // find all the Send<> and Register<> calls and generate
             // readers and writers for them.
-            CodePass.ForEachInstruction(module, (md, instr) => GenerateReadersWriters(instr));
+            CodePass.ForEachInstruction(module, (md, instr, sequencePoint) => GenerateReadersWriters(instr, sequencePoint));
         }
 
-        private Instruction GenerateReadersWriters(Instruction instruction)
+        private Instruction GenerateReadersWriters(Instruction instruction, SequencePoint sequencePoint)
         {
             if (instruction.OpCode == OpCodes.Ldsfld)
             {
-                GenerateReadersWriters((FieldReference)instruction.Operand);
+                GenerateReadersWriters((FieldReference)instruction.Operand, sequencePoint);
             }
 
             // We are looking for calls to some specific types
             if (instruction.OpCode == OpCodes.Call || instruction.OpCode == OpCodes.Callvirt)
             {
-                GenerateReadersWriters((MethodReference)instruction.Operand);
+                GenerateReadersWriters((MethodReference)instruction.Operand, sequencePoint);
             }
 
             return instruction;
         }
 
-        private void GenerateReadersWriters(FieldReference field)
+        private void GenerateReadersWriters(FieldReference field, SequencePoint sequencePoint)
         {
             TypeReference type = field.DeclaringType;
 
@@ -138,11 +138,11 @@ namespace Mirror.Weaver
 
                 TypeReference parameterType = typeGenericInstance.GenericArguments[0];
 
-                GenerateReadersWriters(parameterType);
+                GenerateReadersWriters(parameterType, sequencePoint);
             }
         }
 
-        private void GenerateReadersWriters(MethodReference method)
+        private void GenerateReadersWriters(MethodReference method, SequencePoint sequencePoint)
         {
             if (!method.IsGenericInstance)
                 return;
@@ -180,13 +180,13 @@ namespace Mirror.Weaver
                 if (parameterType.IsGenericParameter)
                     return;
 
-                GenerateReadersWriters(parameterType);
+                GenerateReadersWriters(parameterType, sequencePoint);
                 if (isMessage)
                     messages.Add(parameterType);
             }
         }
 
-        private void GenerateReadersWriters(TypeReference parameterType)
+        private void GenerateReadersWriters(TypeReference parameterType, SequencePoint sequencePoint)
         {
             if (!parameterType.IsGenericParameter && parameterType.CanBeResolved())
             {
@@ -204,7 +204,7 @@ namespace Mirror.Weaver
                 }
 
                 writers.GetWriteFunc(parameterType);
-                readers.GetReadFunc(parameterType);
+                readers.GetReadFunc(parameterType, sequencePoint);
             }
         }
 

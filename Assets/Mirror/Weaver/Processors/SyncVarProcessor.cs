@@ -598,7 +598,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg, readerParam));
-            serWorker.Append(serWorker.Create(OpCodes.Call, readers.GetReadFunc<ulong>()));
+            serWorker.Append(serWorker.Create(OpCodes.Call, readers.GetReadFunc<ulong>(null)));
             serWorker.Append(serWorker.Create(OpCodes.Stloc, dirtyBitsLocal));
 
             // conditionally read each syncvar
@@ -646,7 +646,7 @@ namespace Mirror.Weaver
                     OnSetA(oldValue, Networka);
                 }
              */
-            MethodReference readFunc = readers.GetReadFunc(syncVar.FieldType);
+            MethodReference readFunc = readers.GetReadFunc(syncVar.FieldType, null);
             if (readFunc == null)
             {
                 logger.Error($"{syncVar.Name} has unsupported type. Use a supported MirrorNG type instead", syncVar);

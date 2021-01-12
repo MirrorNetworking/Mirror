@@ -52,7 +52,7 @@ namespace Mirror.Weaver
             }
         }
 
-        Instruction ProcessInstruction(MethodDefinition md, Instruction instr)
+        Instruction ProcessInstruction(MethodDefinition md, Instruction instr, SequencePoint sequencePoint)
         {
             if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {

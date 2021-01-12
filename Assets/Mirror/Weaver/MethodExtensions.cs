@@ -46,5 +46,11 @@ namespace Mirror.Weaver
             MethodReference typeref = worker.Body.Method.Module.ImportReference(expression);
             return worker.Create(code, typeref);
         }
+
+        public static SequencePoint GetSequencePoint(this MethodDefinition method, Instruction instruction)
+        {
+            SequencePoint sequencePoint = method.DebugInformation.GetSequencePoint(instruction);
+            return sequencePoint;
+        }
     }
 }

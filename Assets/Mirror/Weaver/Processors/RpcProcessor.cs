@@ -115,7 +115,8 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference readFunc = readers.GetReadFunc(param.ParameterType);
+                SequencePoint sequencePoint = method.DebugInformation.SequencePoints.ElementAtOrDefault(0);
+                MethodReference readFunc = readers.GetReadFunc(param.ParameterType, sequencePoint);
 
                 if (readFunc == null)
                 {

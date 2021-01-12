@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Mono.Collections.Generic;
 
 namespace Mirror.Weaver
 {
@@ -18,7 +19,7 @@ namespace Mirror.Weaver
         /// <param name="md">The method containing the instruction</param>
         /// <param name="instruction">The instruction being processed</param>
         /// <returns>return the same instruction, or replace the instruction and return the replacement</returns>
-        public delegate Instruction InstructionProcessor(MethodDefinition md, Instruction instruction);
+        public delegate Instruction InstructionProcessor(MethodDefinition md, Instruction instruction, SequencePoint sequencePoint);
 
         /// <summary>
         /// Executes a method for every instruction in a module
@@ -65,14 +66,43 @@ namespace Mirror.Weaver
 
             if (md.Body.CodeSize> 0 && selector(md))
             {
+                var sequencePoints = md.DebugInformation.SequencePoints;
+
+                int sequencePointIndex = 0;
+                SequencePoint sequencePoint = null;
+
                 Instruction instr = md.Body.Instructions[0];
 
                 while (instr != null)
                 {
-                    instr = processor(md, instr);
+                    (sequencePoint, sequencePointIndex) = GetSequencePoint(sequencePoints, sequencePointIndex, instr);
+                    instr = processor(md, instr, sequencePoint);
                     instr = instr.Next;
                 }
             }
+        }
+
+        // I need the sequence point for an instructions,  but the mapping is odd,  and MethodDebugInformation.GetSequencePoint
+        // only maps exact locations.
+        // this gets executed for every instruction in an assembly, so it must be efficient
+        private static (SequencePoint sequencePoint, int sequencePointIndex) GetSequencePoint(Collection<SequencePoint> sequencePoints, int index, Instruction instr)
+        {
+            if (sequencePoints.Count == 0)
+            {
+                return (null, 0);
+            }
+
+            SequencePoint sequencePoint = sequencePoints[index];
+
+            if (index + 1 >= sequencePoints.Count)
+                return (sequencePoint, index);
+
+            SequencePoint next = sequencePoints[index + 1];
+
+            if (next.Offset > instr.Offset)
+                return (sequencePoint, index);
+
+            return (next, index + 1);
         }
     }
 }
