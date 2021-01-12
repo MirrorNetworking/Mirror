@@ -1,4 +1,4 @@
-namespace Mirror.Weaver.Tests.Extra
+namespace Mirror.Weaver.Extra
 {
     public struct SomeDataWithWriter
     {

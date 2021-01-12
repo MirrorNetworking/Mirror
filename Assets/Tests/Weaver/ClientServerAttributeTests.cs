@@ -5,7 +5,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using NUnit.Framework;
 
-namespace Mirror.Weaver.Tests
+namespace Mirror.Weaver
 {
     public class ClientServerAttributeTests : TestsBuildFromTestName
     {

@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace Mirror.Weaver.Tests
+namespace Mirror.Weaver
 {
     public class ServerRpcTests : TestsBuildFromTestName
     {

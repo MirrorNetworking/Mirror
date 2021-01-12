@@ -1,5 +1,5 @@
 using Mirror;
-using Mirror.Weaver.Tests.Extra;
+using Mirror.Weaver.Extra;
 
 namespace GeneratedReaderWriter.CreatesForClassFromDifferentAssembliesWithValidConstructor
 {

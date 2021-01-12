@@ -7,7 +7,7 @@ using UnityEngine;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 using Mono.Cecil;
 
-namespace Mirror.Weaver.Tests
+namespace Mirror.Weaver
 {
     public class CompiledAssembly : ICompiledAssembly
     {
