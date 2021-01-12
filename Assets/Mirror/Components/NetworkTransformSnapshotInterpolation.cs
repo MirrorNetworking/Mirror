@@ -134,16 +134,16 @@ namespace Mirror
             }
         }
 
-        TransformState State
+        TransformState TransformState
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => new TransformState(Position, Rotation);
         }
 
-        bool TimeToUpdate
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool IsTimeToUpdate()
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Time.time > _nextSyncInterval;
+            return Time.time > _nextSyncInterval;
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace Mirror
         {
             if (IsControlledByServer)
             {
-                return TimeToUpdate && (HasMoved() || HasRotated());
+                return IsTimeToUpdate() && (HasMoved() || HasRotated());
             }
             else
             {
@@ -244,7 +244,7 @@ namespace Mirror
         {
             // if client has send update, then we want to use the state it gave us
             // this is to make sure we are not sending host's interpolations position as the snapshot insteading sending the client auth snapshot
-            TransformState state = IsControlledByServer ? State : _latestState;
+            TransformState state = IsControlledByServer ? TransformState : _latestState;
             // todo is this correct time?
             RpcServerSync(state, NetworkTime.time);
         }
@@ -279,7 +279,7 @@ namespace Mirror
         #region Client Sync Update 
         void ClientAuthorityUpdate()
         {
-            if (TimeToUpdate && (HasMoved() || HasRotated()))
+            if (IsTimeToUpdate() && (HasMoved() || HasRotated()))
             {
                 SendMessageToServer();
                 ClearNeedsUpdate(clientSyncInterval);
@@ -290,14 +290,14 @@ namespace Mirror
         void SendMessageToServer()
         {
             // todo, is this the correct time?
-            CmdClientAuthoritySync(State, NetworkTime.time);
+            CmdClientAuthoritySync(TransformState, NetworkTime.time);
         }
 
         [Command]
         void CmdClientAuthoritySync(TransformState state, double time)
         {
             // this should not happen, Exception to disconnect attacker
-            if (!clientAuthority) { throw new Exception("Client is not allowed to send updated when clientAuthority is false"); }
+            if (!clientAuthority) { throw new InvalidOperationException("Client is not allowed to send updated when clientAuthority is false"); }
 
             _latestState = state;
 
