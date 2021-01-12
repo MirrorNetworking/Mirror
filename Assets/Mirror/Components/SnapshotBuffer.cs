@@ -21,6 +21,7 @@ namespace Mirror.TransformSyncing
             return $"[{position}, {rotation}]";
         }
     }
+
     public static class TransformStateWriter
     {
         public static void WriteTransformState(this NetworkWriter writer, TransformState value)
@@ -28,6 +29,7 @@ namespace Mirror.TransformSyncing
             writer.WriteVector3(value.position);
             writer.WriteUInt32(Compression.CompressQuaternion(value.rotation));
         }
+
         public static TransformState ReadTransformState(this NetworkReader reader)
         {
             Vector3 position = reader.ReadVector3();
@@ -40,6 +42,7 @@ namespace Mirror.TransformSyncing
     public class SnapshotBuffer
     {
         static readonly ILogger logger = LogFactory.GetLogger<SnapshotBuffer>(LogType.Error);
+
         struct Snapshot
         {
             /// <summary>
@@ -69,7 +72,7 @@ namespace Mirror.TransformSyncing
         }
 
         /// <summary>
-        /// Gets snapshot to use for interoplation
+        /// Gets snapshot to use for interpolation
         /// <para>this method should not be called when there are no snapshots in buffer</para>
         /// </summary>
         /// <param name="now"></param>

@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkTransformSnapshotInterpolation")]
     // placeholder name, can be renamed when old component gets removed
     // when renaming name sure GUID of component stays the same
@@ -63,7 +62,7 @@ namespace Mirror
         // client
         SnapshotBuffer snapshotBuffer = new SnapshotBuffer();
 
-        private void OnGUI()
+        void OnGUI()
         {
             if (showDebugGui)
             {
@@ -73,27 +72,27 @@ namespace Mirror
             }
         }
 
-        private void OnValidate()
+        void OnValidate()
         {
             if (target == null)
                 target = transform;
         }
 
-        public bool IsControlledByServer
+        bool IsControlledByServer
         {
             // server auth or no owner
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => !clientAuthority || connectionToClient == null;
         }
 
-        public bool IsLocalClientInControl
+        bool IsLocalClientInControl
         {
             // client auth and owner
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => clientAuthority && hasAuthority;
         }
 
-        public Vector3 Position
+        Vector3 Position
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -114,7 +113,7 @@ namespace Mirror
             }
         }
 
-        public Quaternion Rotation
+        Quaternion Rotation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -151,7 +150,7 @@ namespace Mirror
         /// Resets values, called after syncing to client
         /// <para>Called on server</para>
         /// </summary>
-        public void ClearNeedsUpdate(float interval)
+        void ClearNeedsUpdate(float interval)
         {
             _needsUpdate = false;
             _nextSyncInterval = Time.time + interval;
@@ -191,7 +190,7 @@ namespace Mirror
             return rotated;
         }
 
-        private void Update()
+        void Update()
         {
             if (isServer)
             {
@@ -212,7 +211,7 @@ namespace Mirror
         }
 
         #region Server Sync Update
-        private void ServerSyncUpdate()
+        void ServerSyncUpdate()
         {
             if (ServerNeedsToSendUpdate())
             {
@@ -244,14 +243,14 @@ namespace Mirror
         void SendMessageToClient()
         {
             // if client has send update, then we want to use the state it gave us
-            // this is to make sure we are not sending host's interoplations position as the snapshot insteading sending the client auth snapshot
+            // this is to make sure we are not sending host's interpolations position as the snapshot insteading sending the client auth snapshot
             TransformState state = IsControlledByServer ? State : _latestState;
             // todo is this correct time?
             RpcServerSync(state, NetworkTime.time);
         }
 
         [ClientRpc]
-        public void RpcServerSync(TransformState state, double time)
+        void RpcServerSync(TransformState state, double time)
         {
             // not host
             // host will have already handled movement in servers code
@@ -278,7 +277,7 @@ namespace Mirror
 
 
         #region Client Sync Update 
-        private void ClientAuthorityUpdate()
+        void ClientAuthorityUpdate()
         {
             if (TimeToUpdate && (HasMoved() || HasRotated()))
             {
@@ -295,21 +294,21 @@ namespace Mirror
         }
 
         [Command]
-        public void CmdClientAuthoritySync(TransformState state, double time)
+        void CmdClientAuthoritySync(TransformState state, double time)
         {
             // this should not happen, Exception to disconnect attacker
             if (!clientAuthority) { throw new Exception("Client is not allowed to send updated when clientAuthority is false"); }
 
             _latestState = state;
 
-            // if host apply using interoplation otherwise apply exact 
+            // if host apply using interpolation otherwise apply exact 
             if (isClient)
             {
                 AddSnapShotToBuffer(state, time);
             }
             else
             {
-                ApplyStateNoInteroplation(state);
+                ApplyStateNoInterpolation(state);
             }
         }
 
@@ -318,17 +317,17 @@ namespace Mirror
         /// <para>no need to interpolate on server</para>
         /// </summary>
         /// <param name="state"></param>
-        void ApplyStateNoInteroplation(TransformState state)
+        void ApplyStateNoInterpolation(TransformState state)
         {
             Position = state.position;
             Rotation = state.rotation;
             _needsUpdate = true;
         }
-
         #endregion
 
+
         #region Client Interpolation
-        private void ClientInterpolation()
+        void ClientInterpolation()
         {
             if (snapshotBuffer.IsEmpty) { return; }
 
