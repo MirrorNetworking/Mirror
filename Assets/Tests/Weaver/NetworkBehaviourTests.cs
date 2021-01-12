@@ -105,35 +105,26 @@ namespace Mirror.Weaver
                 "System.Int32&");
             HasError("RpcCantHaveParamRef has invalid parameter monkeys",
                 "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&)");
-            // TODO change weaver to run checks for write/read at the same time
-            //HasError("Cannot pass type Int32& by reference",
-            //    "System.Int32&");
-            //HasError("RpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported MirrorNG type instead",
-            //    "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&)");
+            HasError("RpcCantHaveParamRef has invalid parameter monkeys.  Unsupported type System.Int32&,  use a supported MirrorNG type instead",
+                "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamRef.NetworkBehaviourClientRpcParamRef::RpcCantHaveParamRef(System.Int32&)");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamAbstract()
         {
-            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer",
-                "NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
-            // TODO change weaver to run checks for write/read at the same time
-            //HasError("AbstractClass can't be deserialized because it has no default constructor",
-            //    "NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
+            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer", "NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
+            HasError("RpcCantHaveParamAbstract has invalid parameter monkeys", "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract::RpcCantHaveParamAbstract(NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass)");
+            HasError("Cannot generate reader for abstract class AbstractClass. Use a supported type or provide a custom reader", "NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass");
+            HasError("RpcCantHaveParamAbstract has invalid parameter monkeys.  Unsupported type NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass,  use a supported MirrorNG type instead", "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract::RpcCantHaveParamAbstract(NetworkBehaviourTests.NetworkBehaviourClientRpcParamAbstract.NetworkBehaviourClientRpcParamAbstract/AbstractClass)");
         }
 
         [Test]
         public void NetworkBehaviourClientRpcParamComponent()
         {
-            HasError("Cannot generate writer for component type ComponentClass. Use a supported type or provide a custom writer",
-                "NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass");
-            HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp",
-                "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)");
-            // TODO change weaver to run checks for write/read at the same time
-            //HasError("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader",
-            //    "NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass");
-            //HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass,  use a supported MirrorNG type instead",
-            //    "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)");
+            HasError("Cannot generate writer for component type ComponentClass. Use a supported type or provide a custom writer", "NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass");
+            HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp", "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)");
+            HasError("Cannot generate reader for component type ComponentClass. Use a supported type or provide a custom reader", "NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass");
+            HasError("RpcCantHaveParamComponent has invalid parameter monkeyComp.  Unsupported type NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass,  use a supported MirrorNG type instead", "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent::RpcCantHaveParamComponent(NetworkBehaviourTests.NetworkBehaviourClientRpcParamComponent.NetworkBehaviourClientRpcParamComponent/ComponentClass)");
         }
 
         [Test]
@@ -145,7 +136,7 @@ namespace Mirror.Weaver
         [Test]
         public void NetworkBehaviourClientRpcParamNetworkConnectionNotFirst()
         {
-            HasError("ClientRpcCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NetworkConnections","System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst::ClientRpcCantHaveParamOptional(System.Int32,Mirror.INetworkConnection)");
+            HasError("ClientRpcCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NetworkConnections", "System.Void NetworkBehaviourTests.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst.NetworkBehaviourClientRpcParamNetworkConnectionNotFirst::ClientRpcCantHaveParamOptional(System.Int32,Mirror.INetworkConnection)");
         }
 
         [Test]
@@ -185,11 +176,10 @@ namespace Mirror.Weaver
         [Test]
         public void NetworkBehaviourCmdParamAbstract()
         {
-            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer",
-                "NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
-            // TODO change weaver to run checks for write/read at the same time
-            //HasError("AbstractClass can't be deserialized because it has no default constructor",
-            //    "NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
+            HasError("Cannot generate writer for abstract class AbstractClass. Use a supported type or provide a custom writer", "NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
+            HasError("CmdCantHaveParamAbstract has invalid parameter monkeys", "System.Void NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract::CmdCantHaveParamAbstract(NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass)");
+            HasError("Cannot generate reader for abstract class AbstractClass. Use a supported type or provide a custom reader", "NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass");
+            HasError("CmdCantHaveParamAbstract has invalid parameter monkeys.  Unsupported type NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass,  use a supported MirrorNG type instead", "System.Void NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract::CmdCantHaveParamAbstract(NetworkBehaviourTests.NetworkBehaviourCmdParamAbstract.NetworkBehaviourCmdParamAbstract/AbstractClass)");
         }
 
         [Test]
