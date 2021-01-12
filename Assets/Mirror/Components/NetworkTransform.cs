@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using Mirror.TransformSyncing;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace Mirror
 
         [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField] bool clientAuthority;
+        [SerializeField] bool clientAuthority = false;
 
         [Tooltip("If true uses local position and rotation, if value uses world position and rotation")]
         [SerializeField] bool useLocalSpace = true;
@@ -47,6 +48,10 @@ namespace Mirror
         /// Set when client with authority updates the server
         /// </summary>
         bool _needsUpdate;
+        /// <summary>
+        /// latest values from client
+        /// </summary>
+        TransformState _latestState;
         float _nextSyncInterval;
 
         // server
@@ -133,22 +138,7 @@ namespace Mirror
         }
 
 
-        /// <summary>
-        /// Checks if object needs syncing to clients
-        /// <para>Called on server</para>
-        /// </summary>
-        /// <returns></returns>
-        bool NeedsUpdate()
-        {
-            if (clientAuthority)
-            {
-                return _needsUpdate && TimeToUpdate;
-            }
-            else
-            {
-                return TimeToUpdate && (HasMoved() || HasRotated());
-            }
-        }
+
 
         bool TimeToUpdate
         {
@@ -170,16 +160,6 @@ namespace Mirror
 
 
         /// <summary>
-        /// Is the connection in control of this object? is is allowed to apply the values on the server
-        /// </summary>
-        /// <param name="conn"></param>
-        /// <returns></returns>
-        bool InControl(NetworkConnection conn)
-        {
-            return clientAuthority && connectionToClient == conn;
-        }
-
-        /// <summary>
         /// Applies values to target transform on server
         /// <para>no need to interpolate on server</para>
         /// </summary>
@@ -191,31 +171,7 @@ namespace Mirror
             _needsUpdate = true;
         }
 
-        /// <summary>
-        /// Applies values to target transform on client
-        /// <para>Adds to buffer for interpolation</para>
-        /// </summary>
-        /// <param name="state"></param>
-        void ApplyOnClient(TransformState state, double serverTime)
-        {
-            // dont apply on local owner
-            if (IsLocalClientInControl)
-                return;
 
-            snapshotBuffer.AddSnapShot(state, serverTime);
-        }
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void SendMessageToServer()
-        {
-            CmdClientAuthoritySync(State, NetworkTime.time);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void SendMessageToClient()
-        {
-            RpcServerSync(State, NetworkTime.time);
-        }
 
 
         /// <summary>
@@ -270,15 +226,73 @@ namespace Mirror
             }
         }
 
+        #region Server Sync Update
         private void ServerSyncUpdate()
         {
-            if (NeedsUpdate())
+            if (ServerNeedsToSendUpdate())
             {
                 SendMessageToClient();
                 ClearNeedsUpdate(clientSyncInterval);
             }
         }
 
+        /// <summary>
+        /// Checks if object needs syncing to clients
+        /// <para>Called on server</para>
+        /// </summary>
+        /// <returns></returns>
+        bool ServerNeedsToSendUpdate()
+        {
+            if (IsControlledByServer)
+            {
+                return TimeToUpdate && (HasMoved() || HasRotated());
+            }
+            else
+            {
+                // dont care about time here, if client authority has sent snapshot then always relay it to other clients
+                // todo do we need a check for attackers sending too many snapshots?
+                return _needsUpdate;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SendMessageToClient()
+        {
+            // if client has send update, then we want to use the state it gave us
+            // this is to make sure we are not sending host's interoplations position as the snapshot insteading sending the client auth snapshot
+            TransformState state = IsControlledByServer ? State : _latestState;
+            // todo is this correct time?
+            RpcServerSync(state, NetworkTime.time);
+        }
+
+        [ClientRpc]
+        public void RpcServerSync(TransformState state, double time)
+        {
+            // not host
+            // host will have already handled movement in servers code
+            if (isServer)
+                return;
+
+            ApplyOnClient(state, time);
+        }
+
+        /// <summary>
+        /// Applies values to target transform on client
+        /// <para>Adds to buffer for interpolation</para>
+        /// </summary>
+        /// <param name="state"></param>
+        void ApplyOnClient(TransformState state, double serverTime)
+        {
+            // dont apply on local owner
+            if (IsLocalClientInControl)
+                return;
+
+            snapshotBuffer.AddSnapShot(state, serverTime);
+        }
+        #endregion
+
+
+        #region Client Sync Update 
         private void ClientAuthorityUpdate()
         {
             if (TimeToUpdate && (HasMoved() || HasRotated()))
@@ -288,6 +302,34 @@ namespace Mirror
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SendMessageToServer()
+        {
+            // todo, is this the correct time?
+            CmdClientAuthoritySync(State, NetworkTime.time);
+        }
+
+        [Command]
+        public void CmdClientAuthoritySync(TransformState state, double time)
+        {
+            // this should not happen, Exception to disconnect attacker
+            if (!clientAuthority) { throw new Exception("Client is not allowed to send updated when clientAuthority is false"); }
+
+            _latestState = state;
+
+            // if host apply using interoplation otherwise apply exact 
+            if (isClient)
+            {
+                ApplyOnClient(state, time);
+            }
+            else
+            {
+                ApplyOnServer(state);
+            }
+        }
+        #endregion
+
+        #region Client Interpolation
         private void ClientInterpolation()
         {
             if (snapshotBuffer.IsEmpty) { return; }
@@ -305,29 +347,9 @@ namespace Mirror
 
             snapshotBuffer.RemoveOldSnapshots((float)(localTime - snapshotRemoveTime), minimumSnapsots);
         }
+        #endregion
 
 
 
-        [Command]
-        public void CmdClientAuthoritySync(TransformState state, double time)
-        {
-            if (isClient) // host
-            {
-                ApplyOnClient(state, time);
-            }
-            else
-            {
-                ApplyOnServer(state);
-            }
-        }
-
-        [ClientRpc]
-        public void RpcServerSync(TransformState state, double time)
-        {
-            if (!isServer) // not host
-            {
-                ApplyOnClient(state, time);
-            }
-        }
     }
 }
