@@ -15,11 +15,6 @@ namespace Mirror.TransformSyncing
             this.position = position;
             this.rotation = rotation;
         }
-        public TransformState(uint id, Vector3 position, Quaternion rotation)
-        {
-            this.position = position;
-            this.rotation = rotation;
-        }
 
         public override string ToString()
         {
