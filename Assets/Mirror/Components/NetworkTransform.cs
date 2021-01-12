@@ -61,6 +61,7 @@ namespace Mirror
             if (showDebugGui)
             {
                 GUILayout.Label($"ServerTime: {NetworkTime.time}");
+                GUILayout.Label($"LocalTime: {NetworkTime.time - NetworkTime.rtt / 2}");
                 GUILayout.Label(snapshotBuffer.ToString());
             }
         }
