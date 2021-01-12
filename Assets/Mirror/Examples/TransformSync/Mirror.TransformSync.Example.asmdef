@@ -1,0 +1,16 @@
+{
+    "name": "Mirror.TransformSync.Example",
+    "references": [
+        "Mirror",
+        "JamesFrowen.BitPacking",
+        "Mirror.TransformSync"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
