@@ -60,7 +60,7 @@ namespace Mirror.Weaver
             Instruction top = body.Instructions[0];
             Assert.That(top.OpCode, Is.EqualTo(OpCodes.Ldarg_0));
 
-            var methodRef = assembly.MainModule.ImportReference(pred);
+            MethodReference methodRef = assembly.MainModule.ImportReference(pred);
 
             Instruction call = body.Instructions[1];
 

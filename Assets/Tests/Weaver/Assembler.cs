@@ -55,7 +55,7 @@ namespace Mirror.Weaver
             {
                 if (string.IsNullOrEmpty(_outputDirectory))
                 {
-                    ScriptableObject assemblerObj = ScriptableObject.CreateInstance<Assembler>();
+                    ScriptableObject assemblerObj = CreateInstance<Assembler>();
 
                     var monoScript = MonoScript.FromScriptableObject(assemblerObj);
                     string myPath = AssetDatabase.GetAssetPath(monoScript);
