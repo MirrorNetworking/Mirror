@@ -29,8 +29,8 @@ namespace Mirror
         [SerializeField] float rotationSensitivity = 0.1f;
 
         [Header("Snapshot Interpolation")]
-        [Tooltip("delay to add to client time to make sure there is always a snapshot to interpolate towards")]
-        [SerializeField] float clientDelay = 1 / 20f;
+        [Tooltip("Delay to add to client time to make sure there is always a snapshot to interpolate towards. High delay can handle more jitter, but adds latancy to the position.")]
+        [SerializeField] float clientDelay = 0.1f;
 
         [Tooltip("Client Authority Sync Interval")]
         [SerializeField] float clientSyncInterval = 0.1f;
@@ -41,7 +41,7 @@ namespace Mirror
 
         [SerializeField] bool showDebugGui;
 
-        float localTime;
+        double localTime;
 
         /// <summary>
         /// Set when client with authority updates the server
@@ -291,17 +291,17 @@ namespace Mirror
         {
             if (snapshotBuffer.IsEmpty) { return; }
 
-            // only start adding time after server has sent first snapshot
-            // todo work out how to deal with time when 
-            //localTime += Time.deltaTime;
+            // we want to set local time to the estimated time that the server was when it send the snapshot
+            double serverTime = NetworkTime.time;
+            localTime = serverTime - NetworkTime.rtt / 2;
 
-            localTime = (float)NetworkTime.time;
+            // we then subtract clientDelay to handle any jitter
 
             TransformState state = snapshotBuffer.GetLinearInterpolation(localTime - clientDelay);
             Position = state.position;
             Rotation = state.rotation;
 
-            snapshotBuffer.RemoveOldSnapshots(localTime - snapshotRemoveTime, minimumSnapsots);
+            snapshotBuffer.RemoveOldSnapshots((float)(localTime - snapshotRemoveTime), minimumSnapsots);
         }
 
 
