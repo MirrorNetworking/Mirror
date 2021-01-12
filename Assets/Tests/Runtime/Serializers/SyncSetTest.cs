@@ -182,7 +182,7 @@ namespace Mirror.Tests
         {
             serverSyncSet.ExceptWith(serverSyncSet);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new String[] { }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] { }));
         }
 
         [Test]
@@ -262,7 +262,7 @@ namespace Mirror.Tests
         {
             serverSyncSet.SymmetricExceptWith(serverSyncSet);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new String[] { }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] { }));
         }
 
         [Test]
@@ -301,7 +301,7 @@ namespace Mirror.Tests
 
             // make old client the host
             SyncSetString hostList = clientSyncSet;
-            SyncSetString clientList2 = new SyncSetString();
+            var clientList2 = new SyncSetString();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 

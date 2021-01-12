@@ -56,7 +56,7 @@ namespace Mirror.Tests
         public IEnumerator SpawnWithTarget() => UniTask.ToCoroutine(async () =>
         {
             // create an object, set the target and spawn it
-            UnityEngine.GameObject newObject = UnityEngine.Object.Instantiate(playerPrefab);
+            GameObject newObject = Object.Instantiate(playerPrefab);
             SampleBehaviorWithGO newBehavior = newObject.GetComponent<SampleBehaviorWithGO>();
             newBehavior.target = serverPlayerGO;
             serverObjectManager.Spawn(newObject);
@@ -66,8 +66,8 @@ namespace Mirror.Tests
             await UniTask.WaitUntil(() => client.Spawned.ContainsKey(newObjectId));
 
             // check if the target was set correctly in the client
-            var newClientObject = client.Spawned[newObjectId];
-            var newClientBehavior = newClientObject.GetComponent<SampleBehaviorWithGO>();
+            NetworkIdentity newClientObject = client.Spawned[newObjectId];
+            SampleBehaviorWithGO newClientBehavior = newClientObject.GetComponent<SampleBehaviorWithGO>();
             Assert.That(newClientBehavior.target, Is.SameAs(clientPlayerGO));
 
             // cleanup

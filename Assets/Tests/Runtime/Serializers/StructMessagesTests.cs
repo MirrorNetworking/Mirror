@@ -13,7 +13,7 @@ namespace Mirror.Tests.StructMessages
         [Test]
         public void SerializeAreAddedWhenEmptyInStruct()
         {
-            NetworkWriter writer = new NetworkWriter();
+            var writer = new NetworkWriter();
 
             const int someValue = 3;
             writer.Write(new SomeStructMessage
@@ -23,7 +23,7 @@ namespace Mirror.Tests.StructMessages
 
             byte[] arr = writer.ToArray();
 
-            NetworkReader reader = new NetworkReader(arr);
+            var reader = new NetworkReader(arr);
             SomeStructMessage received = reader.Read<SomeStructMessage>();
 
             Assert.AreEqual(someValue, received.someValue);
