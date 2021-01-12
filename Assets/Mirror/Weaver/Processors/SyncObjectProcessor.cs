@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -65,7 +66,7 @@ namespace Mirror.Weaver
                     if (!argument.IsGenericParameter)
                     {
                         readers.GetReadFunc(argument, null);
-                        writers.GetWriteFunc(argument);
+                        writers.GetWriteFunc(argument, null);
                     }
                 }
             }
@@ -96,7 +97,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                logger.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
+                logger.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor, ctor.DebugInformation.SequencePoints.FirstOrDefault());
                 return;
             }
 

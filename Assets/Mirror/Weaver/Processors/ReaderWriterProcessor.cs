@@ -203,7 +203,7 @@ namespace Mirror.Weaver
                         return;
                 }
 
-                writers.GetWriteFunc(parameterType);
+                writers.GetWriteFunc(parameterType, sequencePoint);
                 readers.GetReadFunc(parameterType, sequencePoint);
             }
         }

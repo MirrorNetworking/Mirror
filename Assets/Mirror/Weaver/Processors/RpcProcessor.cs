@@ -69,10 +69,10 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference writeFunc = writers.GetWriteFunc(param.ParameterType);
+                MethodReference writeFunc = writers.GetWriteFunc(param.ParameterType, method.DebugInformation.SequencePoints.FirstOrDefault());
                 if (writeFunc == null)
                 {
-                    logger.Error($"{method.Name} has invalid parameter {param}", method);
+                    logger.Error($"{method.Name} has invalid parameter {param}", method, method.DebugInformation.SequencePoints.FirstOrDefault());
                     return false;
                 }
 

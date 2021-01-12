@@ -488,7 +488,7 @@ namespace Mirror.Weaver
             // base
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Call, (NetworkBehaviour nb) => nb.SyncVarDirtyBits));
-            MethodReference writeUint64Func = writers.GetWriteFunc<ulong>();
+            MethodReference writeUint64Func = writers.GetWriteFunc<ulong>(null);
             worker.Append(worker.Create(OpCodes.Call, writeUint64Func));
 
             // generate a writer call for any dirty variable in this class
@@ -533,7 +533,7 @@ namespace Mirror.Weaver
             // this
             worker.Append(worker.Create(OpCodes.Ldarg_0));
             worker.Append(worker.Create(OpCodes.Ldfld, syncVar));
-            MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType);
+            MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType, null);
             if (writeFunc != null)
             {
                 worker.Append(worker.Create(OpCodes.Call, writeFunc));
