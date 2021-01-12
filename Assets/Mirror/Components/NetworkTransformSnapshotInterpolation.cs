@@ -6,8 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/NetworkTransform")]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkTransform.html")]
+    [AddComponentMenu("Network/NetworkTransformSnapshotInterpolation")]
     // placeholder name, can be renamed when old component gets removed
     // when renaming name sure GUID of component stays the same
     public class NetworkTransformSnapshotInterpolation : NetworkBehaviour
