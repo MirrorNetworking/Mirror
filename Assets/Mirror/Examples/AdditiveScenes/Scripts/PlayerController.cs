@@ -4,7 +4,7 @@ namespace Mirror.Examples.Additive
 {
     [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(NetworkTransformSnapshotInterpolation ))]
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
