@@ -53,6 +53,7 @@ namespace Mirror
         /// latest values from client
         /// </summary>
         TransformState _latestState;
+        // todo does this need to be a double, it uses Time.time
         float _nextSyncInterval;
 
         // server
@@ -84,6 +85,7 @@ namespace Mirror
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => !clientAuthority || connectionToClient == null;
         }
+
         public bool IsLocalClientInControl
         {
             // client auth and owner
@@ -111,6 +113,7 @@ namespace Mirror
                 }
             }
         }
+
         public Quaternion Rotation
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -138,9 +141,6 @@ namespace Mirror
             get => new TransformState(Position, Rotation);
         }
 
-
-
-
         bool TimeToUpdate
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -158,22 +158,6 @@ namespace Mirror
             lastPosition = Position;
             lastRotation = Rotation;
         }
-
-
-        /// <summary>
-        /// Applies values to target transform on server
-        /// <para>no need to interpolate on server</para>
-        /// </summary>
-        /// <param name="state"></param>
-        void ApplyOnServer(TransformState state)
-        {
-            Position = state.position;
-            Rotation = state.rotation;
-            _needsUpdate = true;
-        }
-
-
-
 
         /// <summary>
         /// Has target moved since we last checked
@@ -274,7 +258,7 @@ namespace Mirror
             if (isServer)
                 return;
 
-            ApplyOnClient(state, time);
+            AddSnapShotToBuffer(state, time);
         }
 
         /// <summary>
@@ -282,7 +266,7 @@ namespace Mirror
         /// <para>Adds to buffer for interpolation</para>
         /// </summary>
         /// <param name="state"></param>
-        void ApplyOnClient(TransformState state, double serverTime)
+        void AddSnapShotToBuffer(TransformState state, double serverTime)
         {
             // dont apply on local owner
             if (IsLocalClientInControl)
@@ -321,13 +305,26 @@ namespace Mirror
             // if host apply using interoplation otherwise apply exact 
             if (isClient)
             {
-                ApplyOnClient(state, time);
+                AddSnapShotToBuffer(state, time);
             }
             else
             {
-                ApplyOnServer(state);
+                ApplyStateNoInteroplation(state);
             }
         }
+
+        /// <summary>
+        /// Applies values to target transform on server
+        /// <para>no need to interpolate on server</para>
+        /// </summary>
+        /// <param name="state"></param>
+        void ApplyStateNoInteroplation(TransformState state)
+        {
+            Position = state.position;
+            Rotation = state.rotation;
+            _needsUpdate = true;
+        }
+
         #endregion
 
         #region Client Interpolation
@@ -349,8 +346,5 @@ namespace Mirror
             snapshotBuffer.RemoveOldSnapshots((float)(localTime - snapshotRemoveTime), minimumSnapsots);
         }
         #endregion
-
-
-
     }
 }
