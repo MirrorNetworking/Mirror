@@ -70,15 +70,11 @@ namespace Mirror.Weaver
                 "System.Int32[] SyncVarTests.SyncVarsCantBeArray.SyncVarsCantBeArray::thisShouldntWork");
         }
 
-        //[Test] TODO: Fix me
-        //public void SyncVarsSyncList()
-        //{
-        //    HasNoErrors();
-        //    HasWarning("syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
-        //        "SyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer SyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj");
-        //    HasWarning("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
-        //        "Mirror.SyncList`1<System.Int32> SyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncints");
-        //}
+        [Test]
+        public void SyncVarsSyncList()
+        {
+            HasWarning("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar", "Mirror.SyncList`1<System.Int32> SyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncints");
+        }
 
         [Test]
         public void SyncVarsMoreThan63()
