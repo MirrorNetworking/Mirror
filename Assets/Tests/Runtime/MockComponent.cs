@@ -10,8 +10,8 @@ namespace Mirror.Tests
         [ServerRpc]
         public void Test(int arg1, string arg2)
         {
-            this.cmdArg1 = arg1;
-            this.cmdArg2 = arg2;
+            cmdArg1 = arg1;
+            cmdArg2 = arg2;
         }
 
         public NetworkIdentity cmdNi;
@@ -19,7 +19,7 @@ namespace Mirror.Tests
         [ServerRpc]
         public void CmdNetworkIdentity(NetworkIdentity ni)
         {
-            this.cmdNi = ni;
+            cmdNi = ni;
         }
 
         public int rpcResult;
@@ -36,8 +36,8 @@ namespace Mirror.Tests
         [ClientRpc]
         public void RpcTest(int arg1, string arg2)
         {
-            this.rpcArg1 = arg1;
-            this.rpcArg2 = arg2;
+            rpcArg1 = arg1;
+            rpcArg2 = arg2;
         }
 
         public int targetRpcArg1;
@@ -47,9 +47,9 @@ namespace Mirror.Tests
         [ClientRpc(target = Mirror.Client.Connection)]
         public void ClientConnRpcTest(INetworkConnection conn, int arg1, string arg2)
         {
-            this.targetRpcConn = conn;
-            this.targetRpcArg1 = arg1;
-            this.targetRpcArg2 = arg2;
+            targetRpcConn = conn;
+            targetRpcArg1 = arg1;
+            targetRpcArg2 = arg2;
         }
 
         public int rpcOwnerArg1;
@@ -58,8 +58,8 @@ namespace Mirror.Tests
         [ClientRpc(target = Mirror.Client.Owner)]
         public void RpcOwnerTest(int arg1, string arg2)
         {
-            this.rpcOwnerArg1 = arg1;
-            this.rpcOwnerArg2 = arg2;
+            rpcOwnerArg1 = arg1;
+            rpcOwnerArg2 = arg2;
         }
     }
 }
