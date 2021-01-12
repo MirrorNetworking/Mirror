@@ -1,6 +1,5 @@
 ﻿using Mirror.Authenticators;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
