@@ -65,8 +65,8 @@ namespace Mirror.Tests
             await UniTask.WaitUntil(() => client.Spawned.ContainsKey(newObjectId));
 
             // check if the target was set correctly in the client
-            var newClientObject = client.Spawned[newObjectId];
-            var newClientBehavior = newClientObject.GetComponent<SampleBehaviorWithNI>();
+            NetworkIdentity newClientObject = client.Spawned[newObjectId];
+            SampleBehaviorWithNI newClientBehavior = newClientObject.GetComponent<SampleBehaviorWithNI>();
             Assert.That(newClientBehavior.target, Is.SameAs(clientIdentity));
 
             // cleanup

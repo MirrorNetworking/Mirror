@@ -66,7 +66,7 @@ namespace Mirror.Weaver
 
             if (field == null)
             {
-                return default(T);
+                return default;
             }
 
             var value = field.Constant as T?;

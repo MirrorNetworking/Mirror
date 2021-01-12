@@ -37,7 +37,7 @@ namespace Mirror.Tests
         {
             Assert.Throws<InvalidOperationException>(() =>
             {
-                server.SendToClientOfPlayer<ServerRpcMessage>(null, new ServerRpcMessage());
+                server.SendToClientOfPlayer(null, new ServerRpcMessage());
             });
         }
 

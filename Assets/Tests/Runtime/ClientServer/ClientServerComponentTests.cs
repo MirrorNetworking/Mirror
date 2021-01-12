@@ -114,7 +114,7 @@ namespace Mirror.Tests
             NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
             identity.AssetId = guid;
 
-            var unspawnDelegate = Substitute.For<UnSpawnDelegate>();
+            UnSpawnDelegate unspawnDelegate = Substitute.For<UnSpawnDelegate>();
 
             clientObjectManager.RegisterSpawnHandler(guid, SpawnDelegateTest, unspawnDelegate);
             clientObjectManager.RegisterPrefab(identity, guid);

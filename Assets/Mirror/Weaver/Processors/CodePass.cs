@@ -66,15 +66,14 @@ namespace Mirror.Weaver
 
             if (md.Body.CodeSize> 0 && selector(md))
             {
-                var sequencePoints = md.DebugInformation.SequencePoints;
+                Collection<SequencePoint> sequencePoints = md.DebugInformation.SequencePoints;
 
                 int sequencePointIndex = 0;
-                SequencePoint sequencePoint = null;
-
                 Instruction instr = md.Body.Instructions[0];
 
                 while (instr != null)
                 {
+                    SequencePoint sequencePoint;
                     (sequencePoint, sequencePointIndex) = GetSequencePoint(sequencePoints, sequencePointIndex, instr);
                     instr = processor(md, instr, sequencePoint);
                     instr = instr.Next;
