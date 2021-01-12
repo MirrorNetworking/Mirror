@@ -7,26 +7,38 @@ namespace Mirror.TransformSyncing
 {
     public struct TransformState
     {
-        public readonly uint id;
         public readonly Vector3 position;
         public readonly Quaternion rotation;
 
         public TransformState(Vector3 position, Quaternion rotation)
         {
-            id = default;
             this.position = position;
             this.rotation = rotation;
         }
         public TransformState(uint id, Vector3 position, Quaternion rotation)
         {
-            this.id = id;
             this.position = position;
             this.rotation = rotation;
         }
 
         public override string ToString()
         {
-            return $"[{id}, {position}, {rotation}]";
+            return $"[{position}, {rotation}]";
+        }
+    }
+    public static class TransformStateWriter
+    {
+        public static void WriteTransformState(this NetworkWriter writer, TransformState value)
+        {
+            writer.WriteVector3(value.position);
+            writer.WriteUInt32(Compression.CompressQuaternion(value.rotation));
+        }
+        public static TransformState ReadTransformState(this NetworkReader reader)
+        {
+            Vector3 position = reader.ReadVector3();
+            Quaternion rotation = Compression.DecompressQuaternion(reader.ReadUInt32());
+
+            return new TransformState(position, rotation);
         }
     }
 
@@ -38,10 +50,10 @@ namespace Mirror.TransformSyncing
             /// <summary>
             /// Server Time
             /// </summary>
-            public readonly float time;
+            public readonly double time;
             public readonly TransformState state;
 
-            public Snapshot(TransformState state, float time) : this()
+            public Snapshot(TransformState state, double time) : this()
             {
                 this.state = state;
                 this.time = time;
@@ -56,7 +68,7 @@ namespace Mirror.TransformSyncing
             get => buffer.Count == 0;
         }
 
-        public void AddSnapShot(TransformState state, float serverTime)
+        public void AddSnapShot(TransformState state, double serverTime)
         {
             buffer.Add(new Snapshot(state, serverTime));
         }
@@ -67,7 +79,7 @@ namespace Mirror.TransformSyncing
         /// </summary>
         /// <param name="now"></param>
         /// <returns></returns>
-        public TransformState GetLinearInterpolation(float now)
+        public TransformState GetLinearInterpolation(double now)
         {
             if (buffer.Count == 0)
             {
@@ -88,13 +100,13 @@ namespace Mirror.TransformSyncing
             {
                 Snapshot from = buffer[i];
                 Snapshot to = buffer[i + 1];
-                float fromTime = buffer[i].time;
-                float toTime = buffer[i + 1].time;
+                double fromTime = buffer[i].time;
+                double toTime = buffer[i + 1].time;
 
                 // if between times, then use from/to
                 if (fromTime < now && now < toTime)
                 {
-                    float alpha = Mathf.Clamp01((now - fromTime) / (toTime - fromTime));
+                    float alpha = (float)Clamp01((now - fromTime) / (toTime - fromTime));
 
                     Vector3 pos = Vector3.Lerp(from.state.position, to.state.position, alpha);
                     Quaternion rot = Quaternion.Slerp(from.state.rotation, to.state.rotation, alpha);
@@ -108,6 +120,14 @@ namespace Mirror.TransformSyncing
             Snapshot last = buffer[buffer.Count - 1];
             if (logger.WarnEnabled()) logger.LogWarning($"No snapshot for t={now} using first t={buffer[0].time} last t={last.time}");
             return last.state;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private double Clamp01(double v)
+        {
+            if (v < 0) { return 0; }
+            if (v > 0) { return 1; }
+            else { return v; }
         }
 
         /// <summary>
