@@ -107,7 +107,7 @@ namespace Mirror.TransformSyncing
                 if (fromTime < now && now < toTime)
                 {
                     float alpha = (float)Clamp01((now - fromTime) / (toTime - fromTime));
-
+                    if (logger.LogEnabled()) { logger.Log($"alpha:{alpha}"); }
                     Vector3 pos = Vector3.Lerp(from.state.position, to.state.position, alpha);
                     Quaternion rot = Quaternion.Slerp(from.state.rotation, to.state.rotation, alpha);
                     return new TransformState(pos, rot);
@@ -126,7 +126,7 @@ namespace Mirror.TransformSyncing
         private double Clamp01(double v)
         {
             if (v < 0) { return 0; }
-            if (v > 0) { return 1; }
+            if (v > 1) { return 1; }
             else { return v; }
         }
 

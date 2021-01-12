@@ -298,6 +298,7 @@ namespace Mirror
             // we then subtract clientDelay to handle any jitter
 
             TransformState state = snapshotBuffer.GetLinearInterpolation(localTime - clientDelay);
+            if (logger.LogEnabled()) { logger.Log($"p1:{Position.x} p2:{state.position.x} delta:{Position.x - state.position.x}"); }
             Position = state.position;
             Rotation = state.rotation;
 
