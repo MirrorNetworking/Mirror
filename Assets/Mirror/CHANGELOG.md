@@ -1,3 +1,10 @@
+# [62.3.0](https://github.com/MirrorNG/MirrorNG/compare/v62.2.0...v62.3.0) (2021-01-12)
+
+
+### Features
+
+* writer generation errors link to code ([b76e873](https://github.com/MirrorNG/MirrorNG/commit/b76e87311aaf23f7292a14887a5d5bc2cb319239))
+
 # [62.2.0](https://github.com/MirrorNG/MirrorNG/compare/v62.1.0...v62.2.0) (2021-01-12)
 
 
