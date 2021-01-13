@@ -147,6 +147,8 @@ namespace Mirror.TransformSyncing
 
         public override string ToString()
         {
+            if (buffer.Count == 0) { return "Buffer Empty"; }
+
             StringBuilder builder = new StringBuilder();
             builder.AppendLine($"count:{buffer.Count}, minTime:{buffer[0].time}, maxTime:{buffer[buffer.Count - 1].time}");
             for (int i = 0; i < buffer.Count; i++)
