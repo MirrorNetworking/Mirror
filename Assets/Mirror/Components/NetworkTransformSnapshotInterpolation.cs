@@ -82,9 +82,9 @@ namespace Mirror
 
         bool IsControlledByServer
         {
-            // server auth or no owner
+            // server auth or no owner, or host
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => !clientAuthority || connectionToClient == null;
+            get => !clientAuthority || connectionToClient == null || connectionToClient == NetworkServer.localConnection;
         }
 
         bool IsLocalClientInControl
