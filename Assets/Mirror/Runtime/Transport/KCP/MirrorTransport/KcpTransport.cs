@@ -1,4 +1,4 @@
-//#if MIRROR <- commented out because MIRROR isn't defined on first import yet
+#if MIRROR
 using System;
 using System.Linq;
 using System.Net;
@@ -26,9 +26,9 @@ namespace kcp2k
         [Tooltip("KCP congestion window. Enabled in normal mode, disabled in turbo mode. Disable this for high scale games if connections get chocked regularly.")]
         public bool CongestionWindow = false; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
         [Tooltip("KCP window size can be modified to support higher loads.")]
-        public uint SendWindowSize = 2048; //Kcp.WND_SND; 32 by default. Mirror sends a lot, so we need a lot more.
+        public uint SendWindowSize = 4096; //Kcp.WND_SND; 32 by default. Mirror sends a lot, so we need a lot more.
         [Tooltip("KCP window size can be modified to support higher loads.")]
-        public uint ReceiveWindowSize = 2048; //Kcp.WND_RCV; 128 by default. Mirror sends a lot, so we need a lot more.
+        public uint ReceiveWindowSize = 4096; //Kcp.WND_RCV; 128 by default. Mirror sends a lot, so we need a lot more.
 
         // server & client
         KcpServer server;
@@ -37,7 +37,10 @@ namespace kcp2k
         // debugging
         [Header("Debug")]
         public bool debugLog;
-        public bool debugGUI;
+        // show statistics in OnGUI
+        public bool statisticsGUI;
+        // log statistics for headless servers that can't show them in GUI
+        public bool statisticsLog;
 
         void Awake()
         {
@@ -71,11 +74,8 @@ namespace kcp2k
                 ReceiveWindowSize
             );
 
-            // scene change message will disable transports.
-            // kcp processes messages in an internal loop which should be
-            // stopped immediately after scene change (= after disabled)
-            client.OnCheckEnabled = () => enabled;
-            server.OnCheckEnabled = () => enabled;
+            if (statisticsLog)
+                InvokeRepeating(nameof(OnLogStatistics), 1, 1);
 
             Debug.Log("KcpTransport initialized!");
         }
@@ -124,6 +124,25 @@ namespace kcp2k
 
             server.Tick();
             client.Tick();
+        }
+
+        // scene change message will disable transports.
+        // kcp processes messages in an internal loop which should be
+        // stopped immediately after scene change (= after disabled)
+        // => kcp has tests to guaranteed that calling .Pause() during the
+        //    receive loop stops the receive loop immediately, not after.
+        void OnEnable()
+        {
+            // unpause when enabled again
+            client?.Unpause();
+            server?.Unpause();
+        }
+
+        void OnDisable()
+        {
+            // pause immediately when not enabled anymore
+            client?.Pause();
+            server?.Pause();
         }
 
         // server
@@ -222,7 +241,7 @@ namespace kcp2k
 
         void OnGUI()
         {
-            if (!debugGUI) return;
+            if (!statisticsGUI) return;
 
             GUILayout.BeginArea(new Rect(5, 110, 300, 300));
 
@@ -255,6 +274,34 @@ namespace kcp2k
 
             GUILayout.EndArea();
         }
+
+        void OnLogStatistics()
+        {
+            if (ServerActive())
+            {
+                string log = "kcp SERVER @ time: " + NetworkTime.time + "\n";
+                log += $"  connections: {server.connections.Count}\n";
+                log += $"  MaxSendRate (avg): {PrettyBytes(GetAverageMaxSendRate())}/s\n";
+                log += $"  MaxRecvRate (avg): {PrettyBytes(GetAverageMaxReceiveRate())}/s\n";
+                log += $"  SendQueue: {GetTotalSendQueue()}\n";
+                log += $"  ReceiveQueue: {GetTotalReceiveQueue()}\n";
+                log += $"  SendBuffer: {GetTotalSendBuffer()}\n";
+                log += $"  ReceiveBuffer: {GetTotalReceiveBuffer()}\n\n";
+                Debug.Log(log);
+            }
+
+            if (ClientConnected())
+            {
+                string log = "kcp CLIENT @ time: " + NetworkTime.time + "\n";
+                log += $"  MaxSendRate: {PrettyBytes(client.connection.MaxSendRate)}/s\n";
+                log += $"  MaxRecvRate: {PrettyBytes(client.connection.MaxReceiveRate)}/s\n";
+                log += $"  SendQueue: {client.connection.SendQueueCount}\n";
+                log += $"  ReceiveQueue: {client.connection.ReceiveQueueCount}\n";
+                log += $"  SendBuffer: {client.connection.SendBufferCount}\n";
+                log += $"  ReceiveBuffer: {client.connection.ReceiveBufferCount}\n\n";
+                Debug.Log(log);
+            }
+        }
     }
 }
-//#endif MIRROR <- commented out because MIRROR isn't defined on first import yet
+#endif
