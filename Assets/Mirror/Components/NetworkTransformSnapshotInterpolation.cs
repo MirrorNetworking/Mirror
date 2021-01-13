@@ -48,14 +48,16 @@ namespace Mirror
         /// Set when client with authority updates the server
         /// </summary>
         bool _needsUpdate;
+
         /// <summary>
         /// latest values from client
         /// </summary>
         TransformState _latestState;
+
         // todo does this need to be a double, it uses Time.time
         float _nextSyncInterval;
 
-        // server
+        // values for HasMoved/Rotated
         Vector3 lastPosition;
         Quaternion lastRotation;
 
@@ -67,7 +69,7 @@ namespace Mirror
             if (showDebugGui)
             {
                 GUILayout.Label($"ServerTime: {NetworkTime.time}");
-                GUILayout.Label($"LocalTime: {NetworkTime.time - NetworkTime.rtt / 2}");
+                GUILayout.Label($"LocalTime: {localTime}");
                 GUILayout.Label(snapshotBuffer.ToString());
             }
         }
