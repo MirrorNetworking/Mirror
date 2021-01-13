@@ -129,18 +129,30 @@ namespace Mirror.TransformSyncing
         }
 
         /// <summary>
-        /// removes snapshots older than <paramref name="oldTime"/>, but keeps atleast <paramref name="keepCount"/> snapshots in buffer
+        /// removes snapshots older than <paramref name="oldTime"/>, but keeps atleast <paramref name="keepCount"/> snapshots in buffer that are older than oldTime
+        /// <para>
+        /// Keep atleast 1 snapshot older than old time so there is something to interoplate from
+        /// </para>
         /// </summary>
         /// <param name="oldTime"></param>
         /// <param name="keepCount">minium number of snapshots to keep in buffer</param>
         public void RemoveOldSnapshots(float oldTime, int keepCount)
         {
-            for (int i = buffer.Count - 1 - keepCount; i >= 0; i--)
+            int kept = 0;
+            // loop from newest to oldest
+            for (int i = buffer.Count - 1; i >= 0; i--)
             {
                 // older than oldTime
                 if (buffer[i].time < oldTime)
                 {
-                    buffer.RemoveAt(i);
+                    if (kept < keepCount)
+                    {
+                        kept++;
+                    }
+                    else
+                    {
+                        buffer.RemoveAt(i);
+                    }
                 }
             }
         }

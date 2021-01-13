@@ -37,8 +37,8 @@ namespace Mirror
         [SerializeField] float clientSyncInterval = 0.1f;
         [Tooltip("remove old snapshots from buffer older than SyncInterval * this value")]
         [SerializeField] float snapshotRemoveTime = 1;
-        [Tooltip("How many snapshots to leave in buffer")]
-        [SerializeField] int minimumSnapsots = 1;
+        [Tooltip("How many snapshots older than RemoveTIme to leave in buffer")]
+        [SerializeField] int minimumOldSnapsots = 2;
 
         [SerializeField] bool showDebugGui;
 
@@ -344,7 +344,7 @@ namespace Mirror
             Position = state.position;
             Rotation = state.rotation;
 
-            snapshotBuffer.RemoveOldSnapshots((float)(localTime - snapshotRemoveTime), minimumSnapsots);
+            snapshotBuffer.RemoveOldSnapshots((float)(localTime - snapshotRemoveTime), minimumOldSnapsots);
         }
         #endregion
     }
