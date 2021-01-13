@@ -1,3 +1,10 @@
+# [62.4.0](https://github.com/MirrorNG/MirrorNG/compare/v62.3.0...v62.4.0) (2021-01-13)
+
+
+### Features
+
+* set the assembly version in all assemblies ([#531](https://github.com/MirrorNG/MirrorNG/issues/531)) ([da381bd](https://github.com/MirrorNG/MirrorNG/commit/da381bd575298ddc44a7f3ac9c5291f704ff5e54))
+
 # [62.3.0](https://github.com/MirrorNG/MirrorNG/compare/v62.2.0...v62.3.0) (2021-01-12)
 
 
