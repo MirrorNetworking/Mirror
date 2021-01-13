@@ -3,7 +3,17 @@ plugins:
   - '@semantic-release/release-notes-generator'
   - '@semantic-release/commit-analyzer'
   - - '@semantic-release/exec'
-    - prepareCmd: "sed -i -e '/AssemblyVersion/s/\".*\"/\"${nextRelease.version}\"/' Assets/Mirror/Runtime/AssemblyInfo.cs"
+    - prepareCmd: >
+        sed -i -e '/AssemblyVersion/s/\".*\"/\"${nextRelease.version}\"/' 
+          Assets/Mirror/Runtime/AssemblyInfo.cs
+          Assets/Mirror/AssemblyInfo.cs
+          Assets/Mirror/Runtime/Transport/Kcp/AssemblyInfo.cs
+          Assets/Mirror/Weaver/AssemblyInfo.cs
+          Assets/Mirror/Components/AssemblyInfo.cs
+          Assets/Mirror/Cloud/AssemblyInfo.cs
+          Assets/Mirror/Samples~/AssemblyInfo.cs
+          Assets/Mirror/Samples~/RigidbodyPhysics/Scripts/AssemblyInfo.cs
+          Assets/Mirror/Authenticators/AssemblyInfo.cs
   - - '@semantic-release/changelog'
     - changelogFile: 'Assets/Mirror/CHANGELOG.md'
   - - '@semantic-release/npm'
