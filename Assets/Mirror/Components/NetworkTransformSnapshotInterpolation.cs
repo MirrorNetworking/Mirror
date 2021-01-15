@@ -58,7 +58,7 @@ namespace Mirror
         Quaternion lastRotation;
 
         // client
-        SnapshotBuffer snapshotBuffer = new SnapshotBuffer();
+        readonly SnapshotBuffer snapshotBuffer = new SnapshotBuffer();
 
         void OnGUI()
         {
