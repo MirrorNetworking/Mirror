@@ -426,7 +426,7 @@ namespace Mirror
             int length = reader.ReadPackedInt32();
             if (length < 0)
                 return null;
-            if (reader.Position + length > reader.Length)
+            if (length > reader.Length - reader.Position)
                 throw new EndOfStreamException("Can't read " + length + " elements because it would read past the end of the stream. ");
             var result = new T[length];
             for (int i = 0; i < length; i++)
