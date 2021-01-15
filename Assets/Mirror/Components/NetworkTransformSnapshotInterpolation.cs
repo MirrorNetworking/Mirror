@@ -35,10 +35,6 @@ namespace Mirror
 
         [Tooltip("Client Authority Sync Interval")]
         [SerializeField] float clientSyncInterval = 0.1f;
-        [Tooltip("remove old snapshots from buffer older than SyncInterval * this value")]
-        [SerializeField] float snapshotRemoveTime = 1;
-        [Tooltip("How many snapshots older than RemoveTIme to leave in buffer")]
-        [SerializeField] int minimumOldSnapsots = 2;
 
         [SerializeField] bool showDebugGui;
 
@@ -273,6 +269,13 @@ namespace Mirror
             if (IsLocalClientInControl)
                 return;
 
+            // buffer will be empty if first snapshot or hasn't moved for a while.
+            // in this case we can add a snapshot for (serverTime-syncinterval) for interoplation
+            // this assumes snapshots are sent in order!
+            if (snapshotBuffer.IsEmpty)
+            {
+                snapshotBuffer.AddSnapShot(TransformState, serverTime - clientSyncInterval);
+            }
             snapshotBuffer.AddSnapShot(state, serverTime);
         }
         #endregion
@@ -338,13 +341,14 @@ namespace Mirror
             localTime = serverTime - NetworkTime.rtt / 2;
 
             // we then subtract clientDelay to handle any jitter
-
-            TransformState state = snapshotBuffer.GetLinearInterpolation(localTime - clientDelay);
+            double snapshotTime = localTime - clientDelay;
+            TransformState state = snapshotBuffer.GetLinearInterpolation(snapshotTime);
             if (logger.LogEnabled()) { logger.Log($"p1:{Position.x} p2:{state.position.x} delta:{Position.x - state.position.x}"); }
             Position = state.position;
             Rotation = state.rotation;
 
-            snapshotBuffer.RemoveOldSnapshots((float)(localTime - snapshotRemoveTime), minimumOldSnapsots);
+            // remove snapshots older than 2times sync interval, they will never be used by Interpolation
+            snapshotBuffer.RemoveOldSnapshots((float)(snapshotTime - (clientSyncInterval * 2)), 0);
         }
         #endregion
     }
