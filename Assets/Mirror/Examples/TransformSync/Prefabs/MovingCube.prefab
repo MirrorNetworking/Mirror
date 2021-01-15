@@ -189,8 +189,6 @@ MonoBehaviour:
   rotationSensitivity: 0.1
   clientDelay: 0.2
   clientSyncInterval: 0.1
-  snapshotRemoveTime: 1
-  minimumSnapsots: 1
   showDebugGui: 0
 --- !u!114 &114398882619098174
 MonoBehaviour:
