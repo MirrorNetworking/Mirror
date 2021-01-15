@@ -50,7 +50,7 @@ namespace Mirror
         /// </summary>
         TransformState _latestState;
 
-        // todo does this need to be a double, it uses Time.time
+        // todo does this need to be a double, it uses NetworkTime.time
         float _nextSyncInterval;
 
         // values for HasMoved/Rotated
