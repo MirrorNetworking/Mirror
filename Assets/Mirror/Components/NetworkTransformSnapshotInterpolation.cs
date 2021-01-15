@@ -36,7 +36,7 @@ namespace Mirror
         [Tooltip("Client Authority Sync Interval")]
         [SerializeField] float clientSyncInterval = 0.1f;
 
-        [SerializeField] bool showDebugGui;
+        [SerializeField] bool showDebugGui = false;
 
         double localTime;
 
