@@ -94,6 +94,15 @@ namespace Mirror.TransformSyncing
                 return only.state;
             }
 
+            // if first snapshot is after now, there is no from, so return same as first snapshot
+            if (buffer[0].time > now)
+            {
+                if (logger.LogEnabled()) logger.Log($"No snapshots for t={now:0.000}, using earliest t={buffer[0].time:0.000}");
+
+                Snapshot first = buffer[0];
+                return first.state;
+            }
+
             for (int i = 0; i < buffer.Count - 1; i++)
             {
                 Snapshot from = buffer[i];
@@ -116,7 +125,7 @@ namespace Mirror.TransformSyncing
             // this can happen if server hasn't sent new data
             // there could be no new data from either lag or because object hasn't moved
             Snapshot last = buffer[buffer.Count - 1];
-            if (logger.WarnEnabled()) logger.LogWarning($"No snapshot for t={now} using first t={buffer[0].time} last t={last.time}");
+            if (logger.WarnEnabled()) logger.LogWarning($"No snapshots for t={now:0.000}, using first t={buffer[0].time:0.000} last t={last.time:0.000}");
             return last.state;
         }
 
