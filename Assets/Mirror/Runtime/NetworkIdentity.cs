@@ -365,14 +365,6 @@ namespace Mirror
             ConnectionToClient = conn;
         }
 
-        static uint nextNetworkId = 1;
-        internal static uint GetNextNetworkId() => nextNetworkId++;
-
-        /// <summary>
-        /// Resets nextNetworkId = 1
-        /// </summary>
-        public static void ResetNextNetworkId() => nextNetworkId = 1;
-
         /// <summary>
         /// The delegate type for the clientAuthorityCallback.
         /// </summary>
@@ -663,26 +655,7 @@ namespace Mirror
             if (IsServer)
                 return;
 
-            // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
-            // NOTE: this might not be necessary because the above m_IsServer
-            //       check already checks netId. BUT this case here checks only
-            //       netId, so it would still check cases where isServer=false
-            //       but netId!=0.
-            if (NetId != 0)
-            {
-                // This object has already been spawned, this method might be called again
-                // if we try to respawn all objects.  This can happen when we add a scene
-                // in that case there is nothing else to do.
-                return;
-            }
-
-            NetId = GetNextNetworkId();
-
             if (logger.LogEnabled()) logger.Log("OnStartServer " + this + " NetId:" + NetId + " SceneId:" + sceneId);
-
-            // add to spawned (note: the original EnableIsServer isn't needed
-            // because we already set m_isServer=true above)
-            Server.Spawned[NetId] = this;
 
             OnStartServer.Invoke();
         }
