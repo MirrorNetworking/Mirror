@@ -16,8 +16,7 @@ namespace Mirror.TransformSyncing.Tests.Runtime
 
         protected override bool AutoAddPlayer => false;
 
-        [SetUp]
-        public void SetUp()
+        protected override void afterStartHost()
         {
             GameObject serverGO = new GameObject("server object");
             GameObject clientGO = new GameObject("client object");
@@ -43,6 +42,14 @@ namespace Mirror.TransformSyncing.Tests.Runtime
             clientGO.transform.position = Vector3.zero;
         }
 
+        protected override void beforeStopHost()
+        {
+            foreach (GameObject obj in spawned)
+            {
+                Object.Destroy(obj);
+            }
+        }
+
         [UnityTest]
         public IEnumerator SyncPositionFromServerToClient()
         {
@@ -53,13 +60,13 @@ namespace Mirror.TransformSyncing.Tests.Runtime
                 new Vector3(2, 3, 5),
             };
 
-            for (int i = 0; i < positions.Length; i++)
+            foreach (Vector3 position in positions)
             {
-                serverNT.transform.position = positions[i];
+                serverNT.transform.position = position;
                 // wait more than needed to check end position is reached
                 yield return new WaitForSeconds(0.5f);
 
-                Assert.That(clientNT.transform.position, Is.EqualTo(positions[i]));
+                Assert.That(clientNT.transform.position, Is.EqualTo(position));
             }
         }
     }
