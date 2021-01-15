@@ -94,15 +94,27 @@ namespace Mirror.TransformSyncing
                 return only.state;
             }
 
-            // if first snapshot is after now, there is no from, so return same as first snapshot
-            if (buffer[0].time > now)
+            // if first snapshot is after now, there is no "from", so return same as first snapshot
+            Snapshot first = buffer[0];
+            if (first.time > now)
             {
                 if (logger.LogEnabled()) logger.Log($"No snapshots for t={now:0.000}, using earliest t={buffer[0].time:0.000}");
 
-                Snapshot first = buffer[0];
                 return first.state;
             }
 
+            // if last snapshot is before now, there is no "to", so return last snapshot
+            // this can happen if server hasn't sent new data
+            // there could be no new data from either lag or because object hasn't moved
+            Snapshot last = buffer[buffer.Count - 1];
+            if (last.time < now)
+            {
+                if (logger.WarnEnabled()) logger.LogWarning($"No snapshots for t={now:0.000}, using first t={buffer[0].time:0.000} last t={last.time:0.000}");
+
+                return last.state;
+            }
+
+            // edge cases are returned about, if code gets to this for loop then a valid from/to should exist
             for (int i = 0; i < buffer.Count - 1; i++)
             {
                 Snapshot from = buffer[i];
@@ -121,11 +133,7 @@ namespace Mirror.TransformSyncing
                 }
             }
 
-            // if no valid snapshot use last
-            // this can happen if server hasn't sent new data
-            // there could be no new data from either lag or because object hasn't moved
-            Snapshot last = buffer[buffer.Count - 1];
-            if (logger.WarnEnabled()) logger.LogWarning($"No snapshots for t={now:0.000}, using first t={buffer[0].time:0.000} last t={last.time:0.000}");
+            logger.LogError("Should never be here! Code should have return from if or for loop above.");
             return last.state;
         }
 
