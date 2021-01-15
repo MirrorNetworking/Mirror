@@ -38,7 +38,6 @@ namespace Mirror.TransformSyncing
             return new TransformState(position, rotation);
         }
     }
-
     public class SnapshotBuffer
     {
         static readonly ILogger logger = LogFactory.GetLogger<SnapshotBuffer>(LogType.Error);
@@ -65,9 +64,30 @@ namespace Mirror.TransformSyncing
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => buffer.Count == 0;
         }
+        public int SnapshotCount
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => buffer.Count;
+        }
+
+        Snapshot First
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => buffer[0];
+        }
+        Snapshot Last
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => buffer[buffer.Count - 1];
+        }
 
         public void AddSnapShot(TransformState state, double serverTime)
         {
+            if (!IsEmpty && serverTime < Last.time)
+            {
+                logger.LogError($"Adding Snapshot to buffer out of order, last t={Last.time:0.000}, new t={serverTime:0.000}");
+            }
+
             buffer.Add(new Snapshot(state, serverTime));
         }
 
@@ -90,28 +110,25 @@ namespace Mirror.TransformSyncing
             {
                 if (logger.LogEnabled()) logger.Log("First snapshot");
 
-                Snapshot only = buffer[0];
-                return only.state;
+                return First.state;
             }
 
             // if first snapshot is after now, there is no "from", so return same as first snapshot
-            Snapshot first = buffer[0];
-            if (first.time > now)
+            if (First.time > now)
             {
                 if (logger.LogEnabled()) logger.Log($"No snapshots for t={now:0.000}, using earliest t={buffer[0].time:0.000}");
 
-                return first.state;
+                return First.state;
             }
 
             // if last snapshot is before now, there is no "to", so return last snapshot
             // this can happen if server hasn't sent new data
             // there could be no new data from either lag or because object hasn't moved
-            Snapshot last = buffer[buffer.Count - 1];
-            if (last.time < now)
+            if (Last.time < now)
             {
-                if (logger.WarnEnabled()) logger.LogWarning($"No snapshots for t={now:0.000}, using first t={buffer[0].time:0.000} last t={last.time:0.000}");
+                if (logger.WarnEnabled()) logger.LogWarning($"No snapshots for t={now:0.000}, using first t={buffer[0].time:0.000} last t={Last.time:0.000}");
 
-                return last.state;
+                return Last.state;
             }
 
             // edge cases are returned about, if code gets to this for loop then a valid from/to should exist
@@ -123,10 +140,10 @@ namespace Mirror.TransformSyncing
                 double toTime = buffer[i + 1].time;
 
                 // if between times, then use from/to
-                if (fromTime < now && now < toTime)
+                if (fromTime <= now && now <= toTime)
                 {
                     float alpha = (float)Clamp01((now - fromTime) / (toTime - fromTime));
-                    if (logger.LogEnabled()) { logger.Log($"alpha:{alpha}"); }
+                    if (logger.LogEnabled()) { logger.Log($"alpha:{alpha:0.000}"); }
                     Vector3 pos = Vector3.Lerp(from.state.position, to.state.position, alpha);
                     Quaternion rot = Quaternion.Slerp(from.state.rotation, to.state.rotation, alpha);
                     return new TransformState(pos, rot);
@@ -134,7 +151,7 @@ namespace Mirror.TransformSyncing
             }
 
             logger.LogError("Should never be here! Code should have return from if or for loop above.");
-            return last.state;
+            return Last.state;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -153,23 +170,15 @@ namespace Mirror.TransformSyncing
         /// </summary>
         /// <param name="oldTime"></param>
         /// <param name="keepCount">minium number of snapshots to keep in buffer</param>
-        public void RemoveOldSnapshots(float oldTime, int keepCount)
+        public void RemoveOldSnapshots(float oldTime)
         {
-            int kept = 0;
             // loop from newest to oldest
             for (int i = buffer.Count - 1; i >= 0; i--)
             {
                 // older than oldTime
                 if (buffer[i].time < oldTime)
                 {
-                    if (kept < keepCount)
-                    {
-                        kept++;
-                    }
-                    else
-                    {
-                        buffer.RemoveAt(i);
-                    }
+                    buffer.RemoveAt(i);
                 }
             }
         }

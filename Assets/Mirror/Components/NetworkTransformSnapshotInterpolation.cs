@@ -348,7 +348,8 @@ namespace Mirror
             Rotation = state.rotation;
 
             // remove snapshots older than 2times sync interval, they will never be used by Interpolation
-            snapshotBuffer.RemoveOldSnapshots((float)(snapshotTime - (clientSyncInterval * 2)), 0);
+            float removeTime = (float)(snapshotTime - (clientSyncInterval * 2));
+            snapshotBuffer.RemoveOldSnapshots(removeTime);
         }
         #endregion
     }
