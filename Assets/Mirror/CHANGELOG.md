@@ -1,3 +1,10 @@
+## [62.4.1](https://github.com/MirrorNG/MirrorNG/compare/v62.4.0...v62.4.1) (2021-01-15)
+
+
+### Bug Fixes
+
+* unbound allocation ([1fe1bf6](https://github.com/MirrorNG/MirrorNG/commit/1fe1bf6905eb1e860736781e01f309689051ee38))
+
 # [62.4.0](https://github.com/MirrorNG/MirrorNG/compare/v62.3.0...v62.4.0) (2021-01-13)
 
 
