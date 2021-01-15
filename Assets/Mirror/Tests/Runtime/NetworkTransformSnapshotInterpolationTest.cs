@@ -14,6 +14,8 @@ namespace Mirror.TransformSyncing.Tests.Runtime
         private NetworkTransformSnapshotInterpolation serverNT;
         private NetworkTransformSnapshotInterpolation clientNT;
 
+        protected override bool AutoAddPlayer => false;
+
         [SetUp]
         public void SetUp()
         {

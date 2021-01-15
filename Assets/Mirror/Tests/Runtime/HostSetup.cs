@@ -14,6 +14,8 @@ namespace Mirror.Tests.Runtime
         protected GameObject playerGO;
         protected NetworkIdentity identity;
 
+        protected virtual bool AutoAddPlayer => true;
+
         [UnitySetUp]
         public IEnumerator SetupHost()
         {
@@ -28,6 +30,7 @@ namespace Mirror.Tests.Runtime
 
             manager.playerPrefab = playerGO;
             manager.autoStartServerBuild = false;
+            manager.autoCreatePlayer = AutoAddPlayer;
 
             yield return null;
 
