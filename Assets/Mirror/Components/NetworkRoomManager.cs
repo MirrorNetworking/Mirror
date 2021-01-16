@@ -33,6 +33,14 @@ namespace Mirror
         [Tooltip("This flag controls whether the default UI is shown for the room")]
         public bool showRoomGUI = true;
 
+        [Tooltip("Automatically starts the game when all players are ready")]
+        [SerializeField]
+        public bool StartWhenPlayersReady = true;
+
+        [Tooltip("Allows players to join when the game scene is active")]
+        [SerializeField]
+        public bool AllowJoinGameInProgress;
+
         [FormerlySerializedAs("m_MinPlayers")]
         [SerializeField]
         [Tooltip("Minimum number of players to auto-start the game")]
@@ -254,8 +262,7 @@ namespace Mirror
                 return;
             }
 
-            // cannot join game in progress
-            if (!IsSceneActive(RoomScene))
+            if (!IsSceneActive(RoomScene) && !AllowJoinGameInProgress)
             {
                 conn.Disconnect();
                 return;
@@ -609,8 +616,10 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomServerPlayersReady()
         {
-            // all players are readyToBegin, start the game
-            ServerChangeScene(GameplayScene);
+            if (StartWhenPlayersReady)
+            {
+                ServerChangeScene(GameplayScene);
+            }
         }
 
         /// <summary>
