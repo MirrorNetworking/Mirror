@@ -25,7 +25,7 @@ namespace Mirror.Examples.NetworkRoom
             if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "OnClientExitRoom {0}", SceneManager.GetActiveScene().path);
         }
 
-        public override void ReadyStateChanged(bool _, bool newReadyState)
+        public override void ReadyStateChanged(bool oldReadyState, bool newReadyState)
         {
             if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "ReadyStateChanged {0}", newReadyState);
         }
