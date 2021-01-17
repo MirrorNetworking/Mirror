@@ -651,10 +651,6 @@ namespace Mirror
 
         internal void StartServer()
         {
-            // do nothing if already spawned
-            if (IsServer)
-                return;
-
             if (logger.LogEnabled()) logger.Log("OnStartServer " + this + " NetId:" + NetId + " SceneId:" + sceneId);
 
             OnStartServer.Invoke();

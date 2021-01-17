@@ -68,10 +68,7 @@ namespace Mirror.Tests
             netIdentity.OnStartServer.AddListener(comp.OnStartServer);
 
             Assert.That(comp.called, Is.False);
-
             serverObjectManager.Spawn(gameObject);
-
-            netIdentity.StartServer();
 
             Assert.That(comp.called, Is.True);
 
