@@ -737,12 +737,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This is invoked on clients when the server has caused this object to be destroyed.
-        /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
-        /// </summary>
-        public virtual void OnStopClient() { }
-
-        /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.
         /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
         /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
@@ -760,6 +754,12 @@ namespace Mirror
         /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
         /// </summary>
         public virtual void OnStartClient() { }
+
+        /// <summary>
+        /// This is invoked on clients when the server has caused this object to be destroyed.
+        /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
+        /// </summary>
+        public virtual void OnStopClient() { }
 
         /// <summary>
         /// Called when the local player object has been set up.
