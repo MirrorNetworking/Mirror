@@ -1,13 +1,13 @@
 # Handling client disconnects
 
-A networked application should implement disconnect-functionality - i.e. take the client to an offline scene, for example, and allow for the opportunity to reconnect.
+A networked application should implement disconnection functionality - i.e. take the client to an offline scene, for example, and allow for the opportunity to reconnect.
 
 _In case of a) the client itself terminating a connection or experiencing a disconnection, or b) the server dropping the client, the networked objects of which the client has authority will be destroyed by the server. This is the intended design; keep in mind [Authority](Authority.md) is a way of deciding who owns an object and has control over it; so these objects must have their ownership transferred to the server and/or other clients, if they are to 'survive' when their owner is disconnected._
 
 
 ## Acting on disconnects
 
-The NetworkManager has a [OnClientDisconnect](https://mirror-networking.com/docs/api/Mirror.NetworkManager.html#Mirror_NetworkManager_OnClientDisconnect_Mirror_NetworkConnection_) method that can be overridden to  allow for custom functionality on the client when that client disconnects. For example:
+The NetworkManager has a [OnClientDisconnect](https://mirror-networking.com/docs/api/Mirror.NetworkManager.html#Mirror_NetworkManager_OnClientDisconnect_Mirror_NetworkConnection_) method that can be overridden to allow for custom functionality on the client when that client disconnects. For example:
 
 ```cs
 public class CustomNetworkManager : NetworkManager
@@ -15,7 +15,7 @@ public class CustomNetworkManager : NetworkManager
     public override void OnClientDisconnect(NetworkConnection conn)
     {
         /*
-         *  Execute custom functionality to react, client-side, to disconnects here. For example, send the client to an offline-scene.
+         *  Execute custom functionality to react, client side, to disconnects here. For example, send the client to an offline scene.
          */
 
         base.OnClientDisconnect(conn);
@@ -31,7 +31,7 @@ public class CustomNetworkManager : NetworkManager
     public override void OnServerDisconnect(NetworkConnection conn)
     {
         /*
-         *  Execute custom functionality to react, server-side, to disconnects here.
+         *  Execute custom functionality to react, server side, to disconnects here.
          */
 
         base.OnServerDisconnect(conn);
@@ -55,5 +55,5 @@ For the purpose of disconnecting all clients, the NetworkServer-class has two su
 
 ## Disconnects at the transport level
 
-Mirror's high-level API abstracts away the low-level specificities of the selected transport. These transports may offer their own disconnect-methods, or disconnect-events, that can be handled to further deal with disconnects on a lower level - if, though unlikely, Mirror's high-level approach do not cover a specific scenario.
+Mirror's high-level API abstracts away the low-level specificities of the selected transport. These transports may offer their own disconnection methods, or disconnection events, that can be handled to further deal with disconnects on a lower level - if, though unlikely, Mirror's high-level approach do not cover a specific scenario.
 
