@@ -141,13 +141,13 @@ NetworkManager.singleton.numPlayers
 <details>
    <summary>Changing transports is very easy and only requires a few steps</summary>
 
-- Go to the GameObject that has a NetworkManager attached
-- Remove the current transport script
+- Go to the game object that has the `NetworkManager` component
 - Add another transport script via the Add Component button
-- Drag the transport script to the "Transport" field in the NetworkManager
+- Drag the transport script to the "Transport" field in the `NetworkManager`
+- Remove the old transport script (optional)
 
-You have successfully changed transports. If you have connection issues with a transport that requires portforwarding, make sure to portforward the correct protocol (TCP/UDP).
+You have successfully changed transports. If you have connection issues with a transport that requires port forwarding, make sure to port forward the correct protocol (TCP / UDP).
 
-NOTE: Some transports are not included with Mirror and need to be downloaded from their resepective GitHub pages.
+NOTE: Some transports are not included with Mirror and need to be downloaded from their respective GitHub pages.
 
 </details>
