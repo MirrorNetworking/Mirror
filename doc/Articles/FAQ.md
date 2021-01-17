@@ -133,7 +133,7 @@ NetworkServer.connections.Count
 - Socket connections, includes people without spawned prefabs, non authenticated, or that may have bugged out but during spawn, but have connected temporarily (Android users minimising game).  Only host / server can check this.
 
 NetworkManager.singleton.numPlayers
-- Number of active spawned player objects across all connections on the server (only the host / server can check this)
+- Number of active spawned player objects on the server (only the host / server can check this)
 </details>
 
 ### Changing Transports
