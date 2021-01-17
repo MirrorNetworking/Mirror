@@ -190,8 +190,11 @@ namespace Mirror
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            // deserialize
-            DeserializeFromReader(reader);
+            // Deserialize and process except on client with Client Authority checked
+            // This saves no bandwidth, but otherwise has the effect of "exclude owner" by not
+            // having server updates fight with the client's inputs or conflict with Character Controller
+            if (!IsClientWithAuthority)
+                DeserializeFromReader(reader);
         }
 
         // local authority client sends sync message to server for broadcasting
