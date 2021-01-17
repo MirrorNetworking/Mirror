@@ -31,7 +31,7 @@ namespace Mirror
 
         [Header("Snapshot Interpolation")]
         [Tooltip("Delay to add to client time to make sure there is always a snapshot to interpolate towards. High delay can handle more jitter, but adds latancy to the position.")]
-        [SerializeField] float clientDelay = 0.1f;
+        [SerializeField] float clientDelay = 0.2f;
 
         [Tooltip("Client Authority Sync Interval")]
         [SerializeField] float clientSyncInterval = 0.1f;
