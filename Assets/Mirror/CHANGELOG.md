@@ -1,3 +1,10 @@
+# [62.5.0](https://github.com/MirrorNG/MirrorNG/compare/v62.4.1...v62.5.0) (2021-01-18)
+
+
+### Features
+
+* Add ConnectAsync overload with port. ([#516](https://github.com/MirrorNG/MirrorNG/issues/516)) ([0a9558f](https://github.com/MirrorNG/MirrorNG/commit/0a9558f1d474e3463fa5b79f38c6044da7bf856b))
+
 ## [62.4.1](https://github.com/MirrorNG/MirrorNG/compare/v62.4.0...v62.4.1) (2021-01-15)
 
 
