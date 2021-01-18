@@ -321,21 +321,30 @@ namespace Mirror
 
             if (IsSceneActive(RoomScene))
             {
-                if (roomSlots.Count == maxConnections)
-                    return;
+                CreateRoomPlayer(conn);
+            }
+            else if (AllowJoinGameInProgress && conn.identity == null)
+            {
+                CreateRoomPlayer(conn);
+                SceneLoadedForPlayer(conn, conn.identity.gameObject);
+                OnClientSceneChanged(conn);
+            }
+        }
 
-                allPlayersReady = false;
+        private void CreateRoomPlayer(NetworkConnection conn)
+        {
+            if (roomSlots.Count == maxConnections)
+                return;
 
                 // Debug.LogFormat(LogType.Log, "NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
+            
+            allPlayersReady = false;
 
-                GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
-                if (newRoomGameObject == null)
-                    newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
+            GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
+            if (newRoomGameObject == null)
+                newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
-                NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
-            }
-            else
-                OnRoomServerAddPlayer(conn);
+            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
         }
 
         [Server]
