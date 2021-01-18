@@ -53,6 +53,9 @@ namespace Mirror
                 if (room.dontDestroyOnLoad)
                     DontDestroyOnLoad(gameObject);
 
+                // The roomPlayer will already be in the server's room slots so the server can handle indexing.
+                if (!isServer)
+                    room.roomSlots.Add(this);
             }
             else
                 logger.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
