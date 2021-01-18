@@ -116,6 +116,26 @@ namespace Mirror
 
             return ConnectAsync(builder.Uri);
         }
+
+        /// <summary>
+        /// Connect client to a NetworkServer instance.
+        /// </summary>
+        /// <param name="serverIp">Address of the server to connect to</param>
+        /// <param name="port">The port of the server to connect to</param>
+        public UniTask ConnectAsync(string serverIp, ushort port)
+        {
+            if (logger.LogEnabled()) logger.Log("Client address and port:" + serverIp + ":" + port);
+
+            var builder = new UriBuilder
+            {
+                Host = serverIp,
+                Port = port,
+                Scheme = Transport.Scheme.First()
+            };
+
+            return ConnectAsync(builder.Uri);
+        }
+
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
