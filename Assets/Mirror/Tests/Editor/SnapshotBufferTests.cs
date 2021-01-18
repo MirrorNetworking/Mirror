@@ -171,5 +171,23 @@ namespace Mirror.TransformSyncing.Tests
                 Assert.That(value, Is.EqualTo(expected));
             }
         }
+
+        public class DebugToString
+        {
+            [Test]
+            public void ShouldSayEmptyBuffer()
+            {
+                SnapshotBuffer buffer = new SnapshotBuffer();
+                string str = buffer.ToString();
+                Assert.That(str, Is.EqualTo("Buffer Empty"));
+            }
+            [Test]
+            public void ShouldListSnapshotsInBuffer()
+            {
+                SnapshotBuffer buffer = new SnapshotBuffer();
+                string str = buffer.ToString();
+                Assert.Ignore("NotImplemented");
+            }
+        }
     }
 }
