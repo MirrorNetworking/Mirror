@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 using Cysharp.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
-using NSubstitute;
 using UnityEngine.Events;
+using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Host
 {
     public class HostComponentTests : HostSetup<MockComponent>
     {

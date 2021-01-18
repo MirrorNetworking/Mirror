@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 
 using Object = UnityEngine.Object;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.ClientServer
 {
     // set's up a client and a server
     public class ClientServerSetup<T> where T : NetworkBehaviour

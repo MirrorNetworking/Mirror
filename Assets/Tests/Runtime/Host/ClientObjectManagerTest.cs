@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
-using Cysharp.Threading.Tasks;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Host
 {
     [TestFixture]
     public class ClientObjectManagerTest : HostSetup<MockComponent>

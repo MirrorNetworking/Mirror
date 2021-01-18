@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 using System.Linq;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.ClientServer
 {
     public class SampleBehaviorWithRpc : NetworkBehaviour
     {

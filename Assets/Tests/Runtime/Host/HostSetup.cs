@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Host
 {
     // set's up a host
     public class HostSetup<T> where T : NetworkBehaviour

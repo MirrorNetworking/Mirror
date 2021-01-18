@@ -1,18 +1,11 @@
 using System;
+using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using Cysharp.Threading.Tasks;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Host
 {
-
-    struct WovenTestMessage
-    {
-        public int IntValue;
-        public string StringValue;
-        public double DoubleValue;
-    }
 
     [TestFixture]
     public class NetworkServerTest : HostSetup<MockComponent>

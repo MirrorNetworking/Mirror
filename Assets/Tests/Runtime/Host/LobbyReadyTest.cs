@@ -4,7 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Host
 {
     [TestFixture]
     public class LobbyReadyTest : HostSetup<MockComponent>

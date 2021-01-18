@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Host
 {
     [TestFixture]
     public class NetworkManagerHudTest : HostSetup<MockComponent>
@@ -69,40 +69,5 @@ namespace Mirror.Tests
 
             Assert.That(manager.IsNetworkActive, Is.False);
         });
-    }
-
-    [TestFixture]
-    public class NetworkManagerHudClientServerTest : ClientServerSetup<MockComponent>
-    {
-        GameObject gameObject;
-        NetworkManagerHud networkManagerHud;
-        public override void ExtraSetup()
-        {
-            gameObject = new GameObject("NetworkManagerHud", typeof(NetworkManagerHud));
-            networkManagerHud = gameObject.GetComponent<NetworkManagerHud>();
-            networkManagerHud.NetworkManager = clientGo.AddComponent<NetworkManager>();
-            networkManagerHud.NetworkManager.client = client;
-            networkManagerHud.OfflineGO = new GameObject();
-            networkManagerHud.OnlineGO = new GameObject();
-
-            //Initial state in the prefab
-            networkManagerHud.OfflineGO.SetActive(true);
-            networkManagerHud.OnlineGO.SetActive(false);
-        }
-
-        public override void ExtraTearDown()
-        {
-            Object.DestroyImmediate(networkManagerHud.OfflineGO);
-            Object.DestroyImmediate(networkManagerHud.OnlineGO);
-            Object.DestroyImmediate(gameObject);
-        }
-
-        [Test]
-        public void StartClientButtonTest()
-        {
-            networkManagerHud.StartClientButtonHandler();
-            Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.False);
-            Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.True);
-        }
     }
 }

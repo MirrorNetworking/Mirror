@@ -1,3 +1,4 @@
+using Mirror.Tests.ClientServer;
 using NUnit.Framework;
 using UnityEngine;
 

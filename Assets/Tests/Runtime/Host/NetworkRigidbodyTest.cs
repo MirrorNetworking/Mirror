@@ -1,7 +1,7 @@
 using Mirror.Experimental;
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.Host
 {
     [TestFixture]
     public class NetworkRigidbodyTest : HostSetup<NetworkRigidbody>

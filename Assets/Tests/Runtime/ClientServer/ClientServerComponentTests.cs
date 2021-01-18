@@ -1,14 +1,13 @@
 using System.Collections;
+using Cysharp.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-
 using Guid = System.Guid;
 using Object = UnityEngine.Object;
-using NSubstitute;
-using Cysharp.Threading.Tasks;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.ClientServer
 {
     public class ClientServerComponentTests : ClientServerSetup<MockComponent>
     {
