@@ -53,7 +53,7 @@ namespace Mirror.Weaver
 
             if (field == null)
             {
-                field = new FieldDefinition(fieldName, FieldAttributes.Literal, td.Module.ImportReference<T>());
+                field = new FieldDefinition(fieldName, FieldAttributes.Literal| FieldAttributes.NotSerialized | FieldAttributes.Private, td.Module.ImportReference<T>());
                 td.Fields.Add(field);
             }
 
