@@ -349,7 +349,7 @@ namespace Mirror.Weaver
             GenerateDeSerialization(td);
         }
 
-        static void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
+        void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
         {
             WriteCallHookMethod(worker, hookMethod, oldValue, null);
         }
@@ -364,7 +364,7 @@ namespace Mirror.Weaver
             WriteCallHookMethod(worker, hookMethod, oldValue, newValue);
         }
 
-        static void WriteCallHookMethod(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
+        void WriteCallHookMethod(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
         {
             WriteStartFunctionCall();
 
@@ -392,10 +392,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    // this.
-                    worker.Append(worker.Create(OpCodes.Ldarg_0));
-                    // syncvar.get
-                    worker.Append(worker.Create(OpCodes.Ldfld, newValue));
+                    LoadField(newValue, worker);
                 }
             }
 

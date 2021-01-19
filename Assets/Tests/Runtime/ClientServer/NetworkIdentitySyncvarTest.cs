@@ -7,8 +7,13 @@ namespace Mirror.Tests.ClientServer
 {
     public class SampleBehaviorWithNI : NetworkBehaviour
     {
-        [SyncVar]
+        [SyncVar(hook = nameof(OnTargetChange))]
         public NetworkIdentity target;
+
+        public void OnTargetChange(NetworkIdentity _, NetworkIdentity networkIdentity)
+        {
+            Assert.That(networkIdentity, Is.SameAs(target));
+        }
     }
 
     public class NetworkIdentitySyncvarTest : ClientServerSetup<SampleBehaviorWithNI>
