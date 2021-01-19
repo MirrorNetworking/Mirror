@@ -1,3 +1,10 @@
+## [62.5.4](https://github.com/MirrorNG/MirrorNG/compare/v62.5.3...v62.5.4) (2021-01-19)
+
+
+### Bug Fixes
+
+* don't destroy network scene objects on server stop ([#518](https://github.com/MirrorNG/MirrorNG/issues/518)) ([c9d0387](https://github.com/MirrorNG/MirrorNG/commit/c9d03870210a130fa47237d14144a033585de481))
+
 ## [62.5.3](https://github.com/MirrorNG/MirrorNG/compare/v62.5.2...v62.5.3) (2021-01-19)
 
 
