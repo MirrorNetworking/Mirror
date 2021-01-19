@@ -1,3 +1,10 @@
+## [62.5.1](https://github.com/MirrorNG/MirrorNG/compare/v62.5.0...v62.5.1) (2021-01-19)
+
+
+### Bug Fixes
+
+* invalid IL with NI syncvars with hooks ([#535](https://github.com/MirrorNG/MirrorNG/issues/535)) ([49f6141](https://github.com/MirrorNG/MirrorNG/commit/49f614169b5deae4a4dd93e22b003f3f11b7ea03))
+
 # [62.5.0](https://github.com/MirrorNG/MirrorNG/compare/v62.4.1...v62.5.0) (2021-01-18)
 
 
