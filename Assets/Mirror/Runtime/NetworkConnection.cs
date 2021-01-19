@@ -323,7 +323,7 @@ namespace Mirror
             foreach (NetworkIdentity netIdentity in tmp)
             {
                 //dont destroy self yet.
-                if (netIdentity != null && netIdentity != Identity)
+                if (netIdentity != null && netIdentity != Identity && Identity.ServerObjectManager != null)
                 {
                     Identity.ServerObjectManager.Destroy(netIdentity.gameObject);
                 }

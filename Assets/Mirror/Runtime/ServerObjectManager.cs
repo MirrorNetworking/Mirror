@@ -83,7 +83,8 @@ namespace Mirror
         {
             foreach (NetworkIdentity obj in server.Spawned.Values.Reverse())
             {
-                DestroyObject(obj, true);
+                if(obj.AssetId != Guid.Empty)
+                    DestroyObject(obj, true);
             }
         }
 
