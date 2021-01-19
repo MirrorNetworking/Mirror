@@ -311,6 +311,7 @@ namespace QuickStart
 - Attach the ButtonSendMessage function to your Canvas Button.
 - Attach Canvas Scene Text to SceneScript variable.
     - ignore SceneScript’s, playerScript variable, it automatically sets this!
+- Attach a NetworkIdentity component to the SceneScript gameobject, if it has not automatically done so.
 
 ![](./image--012.jpg) 
 ![](./image--013.jpg)
