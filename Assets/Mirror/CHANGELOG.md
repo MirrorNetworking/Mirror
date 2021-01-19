@@ -1,3 +1,10 @@
+## [62.5.3](https://github.com/MirrorNG/MirrorNG/compare/v62.5.2...v62.5.3) (2021-01-19)
+
+
+### Performance Improvements
+
+* avoid weaving editor scripts ([#537](https://github.com/MirrorNG/MirrorNG/issues/537)) ([42967f3](https://github.com/MirrorNG/MirrorNG/commit/42967f3b407d0fcfbcd7b1bd92f6b1a525ccf307))
+
 ## [62.5.2](https://github.com/MirrorNG/MirrorNG/compare/v62.5.1...v62.5.2) (2021-01-19)
 
 
