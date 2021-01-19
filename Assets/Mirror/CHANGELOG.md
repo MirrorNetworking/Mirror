@@ -1,3 +1,10 @@
+## [62.5.2](https://github.com/MirrorNG/MirrorNG/compare/v62.5.1...v62.5.2) (2021-01-19)
+
+
+### Bug Fixes
+
+* error saving field name SYNC_VAR_COUNT ([#536](https://github.com/MirrorNG/MirrorNG/issues/536)) ([cbc52e5](https://github.com/MirrorNG/MirrorNG/commit/cbc52e5fecc2c9aaadc3b7e2a0d886b2a6353afa))
+
 ## [62.5.1](https://github.com/MirrorNG/MirrorNG/compare/v62.5.0...v62.5.1) (2021-01-19)
 
 
