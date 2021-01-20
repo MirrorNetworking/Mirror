@@ -188,7 +188,7 @@ namespace Mirror.HeadlessBenchmark
                 {
                     newTransport.Port = ushort.Parse(port);
                 }
-                networkManager.server.transport = newTransport;
+                networkManager.server.Transport = newTransport;
                 networkManager.client.Transport = newTransport;
 
                 kcpTransport = newTransport;

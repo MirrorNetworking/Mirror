@@ -112,7 +112,7 @@ namespace Mirror
         public readonly NetworkTime Time = new NetworkTime();
 
         // transport to use to accept connections
-        public Transport transport;
+        public Transport Transport;
 
         /// <summary>
         /// This shuts down the server and disconnects all clients.
@@ -133,8 +133,8 @@ namespace Mirror
             {
                 conn.Disconnect();
             }
-            if (transport != null)
-                transport.Disconnect();
+            if (Transport != null)
+                Transport.Disconnect();
         }
 
         void Initialize()
@@ -150,9 +150,9 @@ namespace Mirror
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
 
-            if (transport is null)
-                transport = GetComponent<Transport>();
-            if (transport == null)
+            if (Transport is null)
+                Transport = GetComponent<Transport>();
+            if (Transport == null)
                 throw new InvalidOperationException("Transport could not be found for NetworkServer");
 
             if (authenticator != null)
@@ -182,9 +182,9 @@ namespace Mirror
                 // only start server if we want to listen
                 if (Listening)
                 {
-                    transport.Started.AddListener(TransportStarted);
-                    transport.Connected.AddListener(TransportConnected);
-                    await transport.ListenAsync();
+                    Transport.Started.AddListener(TransportStarted);
+                    Transport.Connected.AddListener(TransportConnected);
+                    await Transport.ListenAsync();
                 }
             }
             catch (Exception ex)
@@ -193,8 +193,8 @@ namespace Mirror
             }
             finally
             {
-                transport.Connected.RemoveListener(TransportConnected);
-                transport.Started.RemoveListener(TransportStarted);
+                Transport.Connected.RemoveListener(TransportConnected);
+                Transport.Started.RemoveListener(TransportStarted);
                 Cleanup();
             }
         }

@@ -50,7 +50,7 @@ namespace Mirror.Tests.ClientServer
             server = serverGo.GetComponent<NetworkServer>();
             client = clientGo.GetComponent<NetworkClient>();
 
-            server.transport = testTransport;
+            server.Transport = testTransport;
             client.Transport = testTransport;
 
             serverSceneManager = serverGo.GetComponent<NetworkSceneManager>();
