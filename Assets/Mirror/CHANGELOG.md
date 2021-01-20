@@ -1,3 +1,10 @@
+## [62.5.5](https://github.com/MirrorNG/MirrorNG/compare/v62.5.4...v62.5.5) (2021-01-20)
+
+
+### Bug Fixes
+
+* additive scene example not working ([#534](https://github.com/MirrorNG/MirrorNG/issues/534)) ([1580627](https://github.com/MirrorNG/MirrorNG/commit/1580627f8de7ba521c3b105074e293f92e8fbee0))
+
 ## [62.5.4](https://github.com/MirrorNG/MirrorNG/compare/v62.5.3...v62.5.4) (2021-01-19)
 
 
