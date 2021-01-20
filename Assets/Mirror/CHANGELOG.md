@@ -1,3 +1,10 @@
+## [62.6.1](https://github.com/MirrorNG/MirrorNG/compare/v62.6.0...v62.6.1) (2021-01-20)
+
+
+### Bug Fixes
+
+* additive scene example fixes ([#540](https://github.com/MirrorNG/MirrorNG/issues/540)) ([81c6d95](https://github.com/MirrorNG/MirrorNG/commit/81c6d95a253825922dd127e32a393c2288b1e823))
+
 # [62.6.0](https://github.com/MirrorNG/MirrorNG/compare/v62.5.5...v62.6.0) (2021-01-20)
 
 
