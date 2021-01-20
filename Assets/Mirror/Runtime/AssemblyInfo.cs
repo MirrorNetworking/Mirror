@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly:AssemblyVersion("62.5.5")]
+[assembly:AssemblyVersion("62.6.0")]
 
 [assembly: InternalsVisibleTo("Mirror.Tests.Common")]
 [assembly: InternalsVisibleTo("Mirror.Tests")]

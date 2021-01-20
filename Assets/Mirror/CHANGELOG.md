@@ -1,3 +1,10 @@
+# [62.6.0](https://github.com/MirrorNG/MirrorNG/compare/v62.5.5...v62.6.0) (2021-01-20)
+
+
+### Features
+
+* add Online and Offline scene support via optional component ([#505](https://github.com/MirrorNG/MirrorNG/issues/505)) ([a83dd5f](https://github.com/MirrorNG/MirrorNG/commit/a83dd5fa263900eae7882b2434940e20393fd674))
+
 ## [62.5.5](https://github.com/MirrorNG/MirrorNG/compare/v62.5.4...v62.5.5) (2021-01-20)
 
 
