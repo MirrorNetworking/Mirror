@@ -296,7 +296,7 @@ MonoBehaviour:
   serverObjectManager: {fileID: 69965675}
   clientObjectManager: {fileID: 69965667}
   instances: 3
-  gameScene: 
+  gameScene: Assets/Examples/MultipleAdditiveScenes/Scenes/Game.unity
 --- !u!4 &69965670
 Transform:
   m_ObjectHideFlags: 0
@@ -383,8 +383,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Started:
+    m_PersistentCalls:
+      m_Calls: []
   Port: 7777
   HashCashBits: 18
+  SendWindowSize: 32
+  ReceiveWindowSize: 8192
   delayMode: 0
 --- !u!114 &69965674
 MonoBehaviour:
