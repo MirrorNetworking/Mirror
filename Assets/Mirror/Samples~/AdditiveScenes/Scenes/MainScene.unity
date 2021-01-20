@@ -474,6 +474,10 @@ PrefabInstance:
       value: reconTank
       objectReference: {fileID: 0}
     - target: {fileID: 160176458, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 160176458, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
       propertyPath: forceHidden
       value: 0
       objectReference: {fileID: 0}
@@ -497,7 +501,8 @@ PrefabInstance:
       propertyPath: Animator
       value: 
       objectReference: {fileID: 816117415}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 160176458, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
 --- !u!4 &160176456 stripped
 Transform:
@@ -866,6 +871,10 @@ PrefabInstance:
       value: Sphere
       objectReference: {fileID: 0}
     - target: {fileID: 855244094988030908, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 855244094988030908, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
       propertyPath: forceHidden
       value: 0
       objectReference: {fileID: 0}
@@ -925,7 +934,8 @@ PrefabInstance:
       propertyPath: m_SceneId
       value: 529586728
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 855244094988030908, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: f6d08eb9a8e35d84fa30a7e3ae64181a, type: 3}
 --- !u!4 &748207075 stripped
 Transform:
@@ -1184,6 +1194,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6852530814182375317, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6852530814182375317, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
       propertyPath: forceHidden
       value: 0
       objectReference: {fileID: 0}
@@ -1195,7 +1209,8 @@ PrefabInstance:
       propertyPath: m_SceneId
       value: 568164022
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6852530814182375317, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 12a4c14e672c00b4b840f937d824b890, type: 3}
 --- !u!4 &901271863 stripped
 Transform:
@@ -1862,7 +1877,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1661834277}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34d1daf9e7dbcb64aa647cb332054ea6, type: 3}
+  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   server: {fileID: 1661834283}
@@ -1870,8 +1885,6 @@ MonoBehaviour:
   sceneManager: {fileID: 1661834284}
   serverObjectManager: {fileID: 1661834286}
   clientObjectManager: {fileID: 1661834281}
-  subScenes:
-  - Assets/Examples/AdditiveScenes/Scenes/SubScene.unity
 --- !u!4 &1661834279
 Transform:
   m_ObjectHideFlags: 0
@@ -2065,23 +2078,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Levels:
-  - Name: PlayerSpawner
-    level: 2
-  - Name: NetworkSceneManager
-    level: 2
-  - Name: NetworkIdentity
+  - Name: ZoneHandler
     level: 2
   - Name: NetworkBehaviour
     level: 2
-  - Name: ClientObjectManager
+  - Name: NetworkIdentity
     level: 2
-  - Name: NetworkServer
+  - Name: NetworkProximityChecker
+    level: 2
+  - Name: NetworkClient
     level: 2
   - Name: NetworkTime
     level: 2
+  - Name: NetworkSceneManager
+    level: 2
+  - Name: NetworkAnimator
+    level: 2
+  - Name: RemoteCallHelper
+    level: 2
   - Name: ServerObjectManager
     level: 2
-  - Name: NetworkClient
+  - Name: NetworkServer
+    level: 2
+  - Name: AdditiveNetworkManager
+    level: 2
+  - Name: ClientObjectManager
+    level: 2
+  - Name: PlayerSpawner
+    level: 2
+  - Name: NetworkBehaviourInspector
+    level: 2
+  - Name: NetworkSceneChecker
+    level: 2
+  - Name: Reward
     level: 2
   - Name: EnterPlayModeSettingsCheck
     level: 2
@@ -2095,17 +2124,17 @@ MonoBehaviour:
     level: 2
   - Name: NetworkReaderPool
     level: 2
-  - Name: ZoneHandler
+  - Name: BasicAuthenticator
     level: 2
-  - Name: AdditiveNetworkManager
-    level: 2
-  - Name: NetworkProximityChecker
-    level: 2
-  - Name: RemoteCallHelper
-    level: 2
-  - Name: NetworkAnimator
+  - Name: NetworkRigidbody
     level: 2
   - Name: SceneDrawer
+    level: 2
+  - Name: ChatWindow
+    level: 2
+  - Name: NetworkDiscovery
+    level: 2
+  - Name: NetworkDiscoveryBase`2
     level: 2
 --- !u!1 &1727677796
 GameObject:
@@ -3692,10 +3721,15 @@ PrefabInstance:
       value: 2061538488
       objectReference: {fileID: 0}
     - target: {fileID: 5697694911122891659, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5697694911122891659, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
       propertyPath: forceHidden
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5697694911122891659, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
 --- !u!114 &1398763119726924939
 MonoBehaviour:
