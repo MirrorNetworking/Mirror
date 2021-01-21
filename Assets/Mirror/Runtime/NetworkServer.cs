@@ -499,10 +499,12 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("Server accepted client:" + connectionId);
 
-            // connectionId needs to be > 0 because 0 is reserved for local player
-            if (connectionId <= 0)
+            // connectionId needs to be != 0 because 0 is reserved for local player
+            // note that some transports like kcp generate connectionId by
+            // hashing which can be < 0 as well, so we need to allow < 0!
+            if (connectionId == 0)
             {
-                logger.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
+                logger.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be != 0, because 0 is reserved for local player.");
                 Transport.activeTransport.ServerDisconnect(connectionId);
                 return;
             }

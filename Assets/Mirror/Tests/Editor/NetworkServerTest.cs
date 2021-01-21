@@ -209,7 +209,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnConnectedOnlyAllowsGreaterZeroConnectionIdsTest()
+        public void OnConnectedOnlyAllowsNonZeroConnectionIdsTest()
         {
             // OnConnected should only allow connectionIds >= 0
             // 0 is for local player
@@ -230,8 +230,8 @@ namespace Mirror.Tests
             Transport.activeTransport.OnServerConnected.Invoke(0);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
-            // connect <0
-            Transport.activeTransport.OnServerConnected.Invoke(-1);
+            // connect == 0 should fail
+            Transport.activeTransport.OnServerConnected.Invoke(0);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             LogAssert.ignoreFailingMessages = false;
         }
