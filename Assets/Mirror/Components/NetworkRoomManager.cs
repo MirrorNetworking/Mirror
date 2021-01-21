@@ -330,7 +330,7 @@ namespace Mirror
             {
                 CreateRoomPlayer(conn);
                 SceneLoadedForPlayer(conn, conn.identity.gameObject);
-                OnClientSceneChanged(conn);
+                OnRoomServerPlayerJoinedInProgress(conn);
             }
         }
 
@@ -624,6 +624,13 @@ namespace Mirror
         {
             return true;
         }
+
+        /// <summary>
+        /// This allows custom late joiner code to be ran on the room.
+        /// <para>This is called on the server after a player has joined a game that has already started.</para>
+        /// <param name="conn">The connection of the player</param>
+        /// </summary>
+        public virtual void OnRoomServerPlayerJoinedInProgress(NetworkConnection conn) { }
 
         /// <summary>
         /// This is called on the server when all the players in the room are ready.
