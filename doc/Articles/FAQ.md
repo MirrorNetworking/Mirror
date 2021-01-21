@@ -133,6 +133,21 @@ NetworkServer.connections.Count
 - Socket connections, includes people without spawned prefabs, non authenticated, or that may have bugged out but during spawn, but have connected temporarily (Android users minimising game).  Only host / server can check this.
 
 NetworkManager.singleton.numPlayers
-- Number of active spawned player objects across all connections on the server.
-Only host / server can check this, below is an example of how to sync this number to all players.
+- Number of active spawned player objects on the server (only the host / server can check this)
+</details>
 
+### Changing Transports
+
+<details>
+   <summary>Changing transports is very easy and only requires a few steps</summary>
+
+- Go to the game object that has the `NetworkManager` component
+- Add another transport script via the Add Component button
+- Drag the transport script to the "Transport" field in the `NetworkManager`
+- Remove the old transport script (optional)
+
+You have successfully changed transports. If you have connection issues with a transport that requires port forwarding, make sure to port forward the correct protocol (TCP / UDP).
+
+NOTE: Some transports are not included with Mirror and need to be downloaded from their respective GitHub pages.
+
+</details>
