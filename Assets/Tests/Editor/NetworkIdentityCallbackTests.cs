@@ -16,14 +16,10 @@ namespace Mirror
 
         class SetHostVisibilityExceptionNetworkBehaviour : NetworkVisibility
         {
-            public int called;
-            public bool valuePassed;
             public override void OnRebuildObservers(HashSet<INetworkConnection> observers, bool initialize) {}
             public override bool OnCheckObserver(INetworkConnection conn) { return true; }
             public override void OnSetHostVisibility(bool visible)
             {
-                ++called;
-                valuePassed = visible;
                 throw new Exception("some exception");
             }
         }
