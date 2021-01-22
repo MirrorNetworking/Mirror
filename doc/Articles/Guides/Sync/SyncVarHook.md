@@ -43,3 +43,31 @@ public class PlayerController : NetworkBehaviour
     }
 }
 ```
+
+
+## Hook call order
+
+Hooks are invoked in the order the syncvars are defined in the file.
+
+
+```cs
+public class MyBehaviour : NetworkBehaviour 
+{
+    [SyncVar] 
+    int X;
+
+    [SyncVar(hook = nameof(Hook1))] 
+    int Y;
+
+    [SyncVar(hook = nameof(Hook2))]
+    int Z;
+}
+```
+
+if X, Y, and Z are all set on the server at the same time then the call order will be:
+
+1) X value is set
+2) Y value is set
+3) Hook1 is called
+4) Z value is set 
+5) Hook2 is called
