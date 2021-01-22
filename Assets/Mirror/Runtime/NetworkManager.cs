@@ -208,9 +208,7 @@ namespace Mirror
                     transport = gameObject.AddComponent<KcpTransport>();
                     logger.Log("NetworkManager: added default Transport because there was none yet.");
                 }
-#if UNITY_EDITOR
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
-#endif
             }
 
             // always >= 0
