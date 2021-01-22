@@ -8,6 +8,8 @@ namespace Mirror.KCP
 {
     public class KcpServerConnection : KcpConnection
     {
+        internal event Action<int> DataSent;
+
         public KcpServerConnection(Socket socket, EndPoint remoteEndpoint, KcpDelayMode delayMode, int sendWindowSize, int receiveWindowSize) : base(delayMode, sendWindowSize, receiveWindowSize)
         {
             this.socket = socket;
@@ -34,8 +36,10 @@ namespace Mirror.KCP
                 throw new InvalidDataException("No handshake received", ex);
             }
         }
+
         protected override void RawSend(byte[] data, int length)
         {
+            DataSent?.Invoke(length);
             socket.SendTo(data, 0, length, SocketFlags.None, remoteEndpoint);
         }
     }

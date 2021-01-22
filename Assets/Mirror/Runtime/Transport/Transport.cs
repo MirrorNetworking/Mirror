@@ -60,5 +60,15 @@ namespace Mirror
         /// </summary>
         /// <returns>the url at which this server can be reached</returns>
         public abstract IEnumerable<Uri> ServerUri();
+
+        /// <summary>
+        /// Gets the total amount of received data
+        /// </summary>
+        public virtual long ReceivedBytes => 0;
+
+        /// <summary>
+        /// Gets the total amount of sent data
+        /// </summary>
+        public virtual long SentBytes => 0;
     }
 }

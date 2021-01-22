@@ -32,6 +32,9 @@ namespace Mirror.KCP
 
         public long ReceivedMessageCount { get; private set; }
 
+        private long receivedBytes;
+        private long sentBytes;
+
         private AutoResetUniTaskCompletionSource ListenCompletionSource;
 
         /// <summary>
@@ -89,6 +92,7 @@ namespace Mirror.KCP
                 if (channel != Channel.Reliable)
                     return;
 
+                receivedBytes += msgLength;
                 // fire a separate task for handshake
                 // that way if the client does not cooperate
                 // we can continue with other clients
@@ -96,6 +100,7 @@ namespace Mirror.KCP
             }
             else
             {
+                receivedBytes += msgLength;
                 connection.RawInput(data, msgLength);
             }
         }
@@ -108,6 +113,11 @@ namespace Mirror.KCP
             connection.Disconnected += () =>
             {
                 connectedClients.Remove(endpoint as IPEndPoint);
+            };
+
+            connection.DataSent += (length) =>
+            {
+                sentBytes += length;
             };
 
             connection.RawInput(data, msgLength);
@@ -213,5 +223,9 @@ namespace Mirror.KCP
             await client.ConnectAsync(uri.Host, port);
             return client;
         }
+
+        public override long ReceivedBytes => receivedBytes;
+
+        public override long SentBytes => sentBytes;
     }
 }
