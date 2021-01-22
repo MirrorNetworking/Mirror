@@ -768,17 +768,10 @@ namespace Mirror
             NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
             if (playerPrefab != null)
-            {
                 ClientScene.RegisterPrefab(playerPrefab);
-            }
-            for (int i = 0; i < spawnPrefabs.Count; i++)
-            {
-                GameObject prefab = spawnPrefabs[i];
-                if (prefab != null)
-                {
-                    ClientScene.RegisterPrefab(prefab);
-                }
-            }
+
+            foreach (GameObject prefab in spawnPrefabs.Where(t => t != null))
+                ClientScene.RegisterPrefab(prefab);
         }
 
         /// <summary>
