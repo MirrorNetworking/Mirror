@@ -1,3 +1,10 @@
+# [62.7.0](https://github.com/MirrorNG/MirrorNG/compare/v62.6.1...v62.7.0) (2021-01-22)
+
+
+### Features
+
+* transports can report bandwidth ([#542](https://github.com/MirrorNG/MirrorNG/issues/542)) ([d84b3bb](https://github.com/MirrorNG/MirrorNG/commit/d84b3bbc9e0cee127c2fc2c0ee8aefc8fcce2250))
+
 ## [62.6.1](https://github.com/MirrorNG/MirrorNG/compare/v62.6.0...v62.6.1) (2021-01-20)
 
 
