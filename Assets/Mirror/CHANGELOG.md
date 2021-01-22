@@ -1,3 +1,10 @@
+## [62.7.1](https://github.com/MirrorNG/MirrorNG/compare/v62.7.0...v62.7.1) (2021-01-22)
+
+
+### Bug Fixes
+
+* simplified SetHostVisibilityExceptionNetworkBehaviour test ([#544](https://github.com/MirrorNG/MirrorNG/issues/544)) ([b7465a5](https://github.com/MirrorNG/MirrorNG/commit/b7465a5ba139884157b3d63bd11710d68c9abb9a))
+
 # [62.7.0](https://github.com/MirrorNG/MirrorNG/compare/v62.6.1...v62.7.0) (2021-01-22)
 
 
