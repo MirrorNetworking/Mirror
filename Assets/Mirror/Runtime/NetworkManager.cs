@@ -209,6 +209,8 @@ namespace Mirror
                     logger.Log("NetworkManager: added default Transport because there was none yet.");
                 }
 #if UNITY_EDITOR
+                // For some insane reason, this line fails when building unless wrapped in this define. Stupid but true.
+                // error CS0234: The type or namespace name 'Undo' does not exist in the namespace 'UnityEditor' (are you missing an assembly reference?)
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
 #endif
             }
