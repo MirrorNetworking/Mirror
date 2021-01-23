@@ -970,11 +970,8 @@ namespace Mirror.KCP
                 snd_wnd = sendWindow;
             }
 
-            if (receiveWindow > 0)
-            {
-                // must >= max fragment size
-                rcv_wnd = Math.Max(receiveWindow, WND_RCV);
-            }
+            // must >= max fragment size
+            rcv_wnd = Math.Max(receiveWindow, WND_RCV);
         }
     }
 }
