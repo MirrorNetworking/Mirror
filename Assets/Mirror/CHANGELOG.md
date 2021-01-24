@@ -1,3 +1,10 @@
+## [62.7.2](https://github.com/MirrorNG/MirrorNG/compare/v62.7.1...v62.7.2) (2021-01-24)
+
+
+### Bug Fixes
+
+* use unity's cecil ([#545](https://github.com/MirrorNG/MirrorNG/issues/545)) ([4da7a45](https://github.com/MirrorNG/MirrorNG/commit/4da7a45d16d8262046a6ae4f5cb2015189d6e019))
+
 ## [62.7.1](https://github.com/MirrorNG/MirrorNG/compare/v62.7.0...v62.7.1) (2021-01-22)
 
 
