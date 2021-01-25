@@ -6,11 +6,17 @@ namespace Mirror.Tests
 {
     public class NetworkConnectionTest 
     {
+        private NetworkConnection connection;
+
+        [SetUp]
+        public void SetUp()
+        {
+            connection = new NetworkConnection(Substitute.For<IConnection>());
+        }
+
         [Test]
         public void NoHandler()
         {
-            var connection = new NetworkConnection(Substitute.For<IConnection>());
-
             int messageId = MessagePacker.GetId<SceneMessage>();
             var reader = new NetworkReader(new byte[] { 1, 2, 3, 4 });
             InvalidDataException exception = Assert.Throws<InvalidDataException>(() =>
@@ -24,8 +30,6 @@ namespace Mirror.Tests
         [Test]
         public void UnknownMessage()
         {
-            var connection = new NetworkConnection(Substitute.For<IConnection>());
-
             _ = MessagePacker.GetId<SceneMessage>();
             var reader = new NetworkReader(new byte[] { 1, 2, 3, 4 });
             InvalidDataException exception = Assert.Throws<InvalidDataException>(() =>
