@@ -7,9 +7,9 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger<NetworkConnectionToClient>();
 
-        public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId) { }
-
         public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
+
+        public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId) { }
 
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
