@@ -22,7 +22,7 @@ namespace Mirror
         // internal so it can be tested
         internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
-        Dictionary<int, NetworkMessageDelegate> messageHandlers;
+        protected Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>
         /// Unique identifier for this connection that is assigned by the transport layer.
@@ -222,7 +222,7 @@ namespace Mirror
         }
 
         // helper function
-        protected void UnpackAndInvoke(NetworkReader reader, int channelId)
+        protected bool UnpackAndInvoke(NetworkReader reader, int channelId)
         {
             if (MessagePacker.Unpack(reader, out int msgType))
             {
@@ -231,30 +231,27 @@ namespace Mirror
                 {
                     msgDelegate.Invoke(this, reader, channelId);
                     lastMessageTime = Time.time;
+                    return true;
                 }
                 else
                 {
                     if (logger.LogEnabled()) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    return false;
                 }
             }
             else
             {
                 logger.LogError("Closed connection: " + this + ". Invalid message header.");
                 Disconnect();
+                return false;
             }
         }
 
-        // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
-        //       anymore because NetworkServer/NetworkClient Update both use while loops to handle >1 data events per
-        //       frame already.
-        //       -> in other words, we always receive 1 message per Receive call, never two.
-        //       -> can be tested easily with a 1000ms send delay and then logging amount received in while loops here
-        //          and in NetworkServer/Client Update. HandleBytes already takes exactly one.
         /// <summary>
         /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data received.</param>
-        internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        internal virtual void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             if (buffer.Count < MessagePacker.HeaderSize)
             {
@@ -266,7 +263,13 @@ namespace Mirror
             // unpack message
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(buffer))
             {
-                UnpackAndInvoke(reader, channelId);
+                // the other end might batch multiple messages into one packet.
+                // we need to try to unpack multiple times.
+                while (reader.Position < reader.Length)
+                {
+                    if (!UnpackAndInvoke(reader, channelId))
+                        break;
+                }
             }
         }
 

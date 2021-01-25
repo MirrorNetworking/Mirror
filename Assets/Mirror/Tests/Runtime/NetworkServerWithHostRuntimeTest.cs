@@ -55,7 +55,7 @@ namespace Mirror.Tests.Runtime
             GameObject remotePlayer = new GameObject("RemotePlayer", typeof(NetworkIdentity));
             const int remoteConnectionId = 1;
             const int localConnectionId = 0;
-            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(remoteConnectionId);
+            NetworkConnectionToClient remoteConnection = new NetworkConnectionToClient(remoteConnectionId, 0);
             NetworkServer.OnConnected(remoteConnection);
             NetworkServer.AddPlayerForConnection(remoteConnection, remotePlayer);
 
