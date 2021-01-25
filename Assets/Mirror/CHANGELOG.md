@@ -1,3 +1,10 @@
+# [62.8.0](https://github.com/MirrorNG/MirrorNG/compare/v62.7.2...v62.8.0) (2021-01-25)
+
+
+### Features
+
+* sequence generator ([#548](https://github.com/MirrorNG/MirrorNG/issues/548)) ([1137865](https://github.com/MirrorNG/MirrorNG/commit/113786562272efbfb79438bb0733061cec82b718))
+
 ## [62.7.2](https://github.com/MirrorNG/MirrorNG/compare/v62.7.1...v62.7.2) (2021-01-24)
 
 
