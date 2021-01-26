@@ -119,7 +119,7 @@ namespace Mirror
                     kvp.Value.writer.Position > 0)
                 {
                     // send the batch. time will be reset internally.
-                    //Debug.Log($"sending batch of {kvp.Value.writer.Position} bytes after {elapsed:F2}s for channel={kvp.Key} connId={connectionId}");
+                    //Debug.Log($"sending batch of {kvp.Value.writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
                     SendBatch(kvp.Key, kvp.Value);
                 }
             }
