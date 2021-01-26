@@ -1,3 +1,10 @@
+## [62.9.1](https://github.com/MirrorNG/MirrorNG/compare/v62.9.0...v62.9.1) (2021-01-26)
+
+
+### Performance Improvements
+
+* cache component index in network behavior ([#550](https://github.com/MirrorNG/MirrorNG/issues/550)) ([e566545](https://github.com/MirrorNG/MirrorNG/commit/e566545c544c218a7c4c9d8df78c7914e47b051a))
+
 # [62.9.0](https://github.com/MirrorNG/MirrorNG/compare/v62.8.0...v62.9.0) (2021-01-26)
 
 
