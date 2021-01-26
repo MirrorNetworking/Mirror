@@ -169,6 +169,7 @@ namespace Mirror
             }
         }
 
+        private int componentIndex = -1;
         /// <summary>
         /// Returns the index of the component on this object
         /// </summary>
@@ -176,12 +177,18 @@ namespace Mirror
         {
             get
             {
+                if (componentIndex >= 0)
+                    return componentIndex;
+
                 // note: FindIndex causes allocations, we search manually instead
                 for (int i = 0; i < NetIdentity.NetworkBehaviours.Length; i++)
                 {
                     NetworkBehaviour component = NetIdentity.NetworkBehaviours[i];
                     if (component == this)
+                    {
+                        componentIndex = i;
                         return i;
+                    }
                 }
 
                 // this should never happen
