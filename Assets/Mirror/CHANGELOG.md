@@ -1,3 +1,10 @@
+# [62.9.0](https://github.com/MirrorNG/MirrorNG/compare/v62.8.0...v62.9.0) (2021-01-26)
+
+
+### Features
+
+* notify algorithm in connection ([#549](https://github.com/MirrorNG/MirrorNG/issues/549)) ([64e4bbc](https://github.com/MirrorNG/MirrorNG/commit/64e4bbcc5f218e3bac8c8d9f74b3a95cc26de77f))
+
 # [62.8.0](https://github.com/MirrorNG/MirrorNG/compare/v62.7.2...v62.8.0) (2021-01-25)
 
 
