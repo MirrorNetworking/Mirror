@@ -8,6 +8,7 @@ using UnityEngine.Assertions;
 
 namespace Mirror
 {
+
     /// <summary>
     /// A High level network connection. This is used for connections from client-to-server and for connection from server-to-client.
     /// </summary>
@@ -45,7 +46,7 @@ namespace Mirror
         /// General purpose object to hold authentication data, character selection, tokens, etc.
         /// associated with the connection for reference after Authentication completes.
         /// </summary>
-        public object AuthenticationData { get ; set; }
+        public object AuthenticationData { get; set; }
 
         /// <summary>
         /// Flag that tells if the connection has been marked as "ready" by a client calling ClientScene.Ready().
@@ -291,8 +292,17 @@ namespace Mirror
                 {
                     int msgType = MessagePacker.UnpackId(networkReader);
 
-                    // try to invoke the handler for that message
-                    InvokeHandler(msgType, networkReader, channelId);
+                    if (msgType == MessagePacker.GetId<NotifyPacket>())
+                    {
+                        // this is a notify message, send to the notify receive
+                        NotifyPacket notifyPacket = networkReader.ReadNotifyPacket();
+                        ReceiveNotify(notifyPacket, networkReader, channelId);
+                    }
+                    else
+                    {
+                        // try to invoke the handler for that message
+                        InvokeHandler(msgType, networkReader, channelId);
+                    }
                 }
                 catch (InvalidDataException ex)
                 {
@@ -357,5 +367,127 @@ namespace Mirror
                 // connection closed,  normal
             }
         }
+
+        #region Notify
+
+        internal struct PacketEnvelope
+        {
+            internal ushort Sequence;
+            internal object Token;
+        }
+        const int ACK_MASK_BITS = sizeof(ulong) * 8;
+        const int WINDOW_SIZE = 512;
+
+        private Sequencer sequencer = new Sequencer(16);
+        readonly Queue<PacketEnvelope> sendWindow = new Queue<PacketEnvelope>(WINDOW_SIZE);
+
+        private ushort receiveSequence;
+        private ulong receiveMask;
+
+
+        /// <summary>
+        /// Sends a message, but notify when it is delivered or lost
+        /// </summary>
+        /// <typeparam name="T">type of message to send</typeparam>
+        /// <param name="msg">message to send</param>
+        /// <param name="token">a arbitrary object that the sender will receive with their notification</param>
+        public void SendNotify<T>(T msg, object token, int channelId = Channel.Unreliable)
+        {
+            if (sendWindow.Count == WINDOW_SIZE)
+            {
+                NotifyLost?.Invoke(this, token);
+                return;
+            }
+
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                var notifyPacket = new NotifyPacket
+                {
+                    Sequence = (ushort)sequencer.Next(),
+                    ReceiveSequence = receiveSequence,
+                    AckMask = receiveMask
+                };
+
+                sendWindow.Enqueue(new PacketEnvelope
+                {
+                    Sequence = notifyPacket.Sequence,
+                    Token = token
+                });
+
+                MessagePacker.Pack(notifyPacket, writer);
+                MessagePacker.Pack(msg, writer);
+                NetworkDiagnostics.OnSend(msg, channelId, writer.Length, 1);
+                SendAsync(writer.ToArraySegment(), channelId).Forget();
+            }
+
+        }
+
+        internal void ReceiveNotify(NotifyPacket notifyPacket, NetworkReader networkReader, int channelId)
+        {
+            int sequenceDistance = (int)sequencer.Distance(notifyPacket.Sequence, receiveSequence);
+
+            // sequence is so far out of bounds we can't save, just kick him (or her!)
+            if (Math.Abs(sequenceDistance) > WINDOW_SIZE)
+            {
+                Disconnect();
+                return;
+            }
+
+            // this message is old,  we already received
+            // a newer or duplicate packet.  Discard it
+            if (sequenceDistance <= 0)
+                return;
+
+            receiveSequence = notifyPacket.Sequence;
+
+            if (sequenceDistance >= ACK_MASK_BITS)
+                receiveMask = 1;
+            else
+                receiveMask = (receiveMask << sequenceDistance) | 1;
+
+            AckPackets(notifyPacket.ReceiveSequence, notifyPacket.AckMask);
+
+            int msgType = MessagePacker.UnpackId(networkReader);
+            InvokeHandler(msgType, networkReader, channelId);
+        }
+
+        // the other end just sent us a message
+        // and it told us the latest message it got
+        // and the ack mask
+        private void AckPackets(ushort receiveSequence, ulong ackMask)
+        {
+            while (sendWindow.Count > 0)
+            {
+                PacketEnvelope envelope = sendWindow.Peek();
+
+                int distance = (int)sequencer.Distance(envelope.Sequence, receiveSequence);
+
+                if (distance > 0)
+                    break;
+
+                sendWindow.Dequeue();
+
+                // if any of these cases trigger, packet is most likely lost
+                if ((distance <= -ACK_MASK_BITS) || ((ackMask & (1UL << -distance)) == 0UL))
+                {
+                    NotifyLost?.Invoke(this, envelope.Token);
+                }
+                else
+                {
+                    NotifyDelivered?.Invoke(this, envelope.Token);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Raised when a message is delivered
+        /// </summary>
+        public event Action<INetworkConnection, object> NotifyDelivered;
+
+        /// <summary>
+        /// Raised when a message is lost
+        /// </summary>
+        public event Action<INetworkConnection, object> NotifyLost;
+        #endregion
     }
 }

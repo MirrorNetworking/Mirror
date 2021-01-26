@@ -25,6 +25,23 @@ namespace Mirror
 
         UniTask ProcessMessagesAsync();
 
+        /// <summary>
+        /// Sends a message, but notify when it is delivered or lost
+        /// </summary>
+        /// <typeparam name="T">type of message to send</typeparam>
+        /// <param name="msg">message to send</param>
+        /// <param name="token">a arbitrary object that the sender will receive with their notification</param>
+        void SendNotify<T>(T msg, object token, int channelId = Channel.Unreliable);
+
+        /// <summary>
+        /// Raised when a message is delivered
+        /// </summary>
+        event Action<INetworkConnection, object> NotifyDelivered;
+
+        /// <summary>
+        /// Raised when a message is lost
+        /// </summary>
+        event Action<INetworkConnection, object> NotifyLost;
     }
 
     /// <summary>
