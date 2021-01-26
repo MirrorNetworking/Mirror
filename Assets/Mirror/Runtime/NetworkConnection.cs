@@ -221,6 +221,29 @@ namespace Mirror
             }
         }
 
+        // helper function
+        protected void UnpackAndInvoke(NetworkReader reader, int channelId)
+        {
+            if (MessagePacker.Unpack(reader, out int msgType))
+            {
+                // try to invoke the handler for that message
+                if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+                {
+                    msgDelegate.Invoke(this, reader, channelId);
+                    lastMessageTime = Time.time;
+                }
+                else
+                {
+                    if (logger.LogEnabled()) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                }
+            }
+            else
+            {
+                logger.LogError("Closed connection: " + this + ". Invalid message header.");
+                Disconnect();
+            }
+        }
+
         // note: original HLAPI HandleBytes function handled >1 message in a while loop, but this wasn't necessary
         //       anymore because NetworkServer/NetworkClient Update both use while loops to handle >1 data events per
         //       frame already.
@@ -243,21 +266,7 @@ namespace Mirror
             // unpack message
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(buffer))
             {
-                if (MessagePacker.Unpack(reader, out int msgType))
-                {
-                    // try to invoke the handler for that message
-                    if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
-                    {
-                        msgDelegate.Invoke(this, reader, channelId);
-                        lastMessageTime = Time.time;
-                    }
-                    else if (logger.LogEnabled()) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
-                }
-                else
-                {
-                    logger.LogError("Closed connection: " + this + ". Invalid message header.");
-                    Disconnect();
-                }
+                UnpackAndInvoke(reader, channelId);
             }
         }
 
