@@ -89,10 +89,17 @@ namespace Mirror
                 // always batch!
                 // (even if interval == 0, in which case we flush in Update())
                 //
-                // if batch would become bigger than MaxPacketSize for this
-                // channel then send out the previous batch first
+                // if batch would become bigger than MaxBatchPacketSize for this
+                // channel then send out the previous batch first.
+                //
+                // IMPORTANT: we use maxBATCHsize not maxPACKETsize.
+                //            some transports like kcp have large maxPACKETsize
+                //            like 144kb, but those would extremely slow to use
+                //            all the time for batching.
+                //            (maxPACKETsize messages still work fine, we just
+                //             aim for maxBATCHsize where possible)
                 Batch batch = GetBatchForChannelId(channelId);
-                int max = Transport.activeTransport.GetMaxPacketSize(channelId);
+                int max = Transport.activeTransport.GetMaxBatchSize(channelId);
                 if (batch.writer.Position + segment.Count > max)
                 {
                     //UnityEngine.Debug.LogWarning($"sending batch {batch.writer.Position} / {max} after full for segment={segment.Count} for connectionId={connectionId}");

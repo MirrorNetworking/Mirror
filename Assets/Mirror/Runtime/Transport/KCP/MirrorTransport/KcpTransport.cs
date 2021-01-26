@@ -197,6 +197,17 @@ namespace kcp2k
             }
         }
 
+        // kcp reliable channel max packet size is MTU * WND_RCV
+        // this allows 144kb messages. but due to head of line blocking, all
+        // other messages would have to wait until the maxed size one is
+        // delivered. batching 144kb messages each time would be EXTREMELY slow
+        // and fill the send queue nearly immediately when using it over the
+        // network.
+        // => instead we always use MTU sized batches.
+        // => people can still send maxed size if needed.
+        public override int GetMaxBatchSize(int channelId) =>
+            KcpConnection.UnreliableMaxMessageSize;
+
         public override string ToString()
         {
             return "KCP";
