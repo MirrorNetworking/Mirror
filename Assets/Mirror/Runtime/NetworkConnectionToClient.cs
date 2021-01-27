@@ -37,7 +37,7 @@ namespace Mirror
             //    we would often flush in Send() and then flush again in Update
             //    even though we just flushed in Send().
             // -> initialize with current NetworkTime so first update doesn't
-            //    check elapsed between '0' and 'now'
+            //    calculate elapsed via 'now - 0'
             internal double lastSendTime = NetworkTime.time;
         }
         Dictionary<int, Batch> batches = new Dictionary<int, Batch>();
