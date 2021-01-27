@@ -98,6 +98,7 @@ namespace Mirror
 
             CleanupNetworkIdentities();
             NetworkIdentity.ResetNextNetworkId();
+            RemoveTransportHandlers();
         }
 
         static void CleanupNetworkIdentities()
@@ -489,10 +490,18 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnServerConnected = OnConnected;
-            Transport.activeTransport.OnServerDataReceived = OnDataReceived;
-            Transport.activeTransport.OnServerDisconnected = OnDisconnected;
-            Transport.activeTransport.OnServerError = OnError;
+            Transport.activeTransport.OnServerConnected += OnConnected;
+            Transport.activeTransport.OnServerDataReceived += OnDataReceived;
+            Transport.activeTransport.OnServerDisconnected += OnDisconnected;
+            Transport.activeTransport.OnServerError += OnError;
+        }
+
+        static void RemoveTransportHandlers()
+        {
+            Transport.activeTransport.OnServerConnected -= OnConnected;
+            Transport.activeTransport.OnServerDataReceived -= OnDataReceived;
+            Transport.activeTransport.OnServerDisconnected -= OnDisconnected;
+            Transport.activeTransport.OnServerError -= OnError;
         }
 
         static void OnConnected(int connectionId)

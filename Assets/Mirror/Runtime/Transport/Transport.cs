@@ -8,7 +8,7 @@ namespace Mirror
     /// </summary>
     /// <remarks>
     /// <h2>
-    ///   Transport Rules 
+    ///   Transport Rules
     /// </h2>
     /// <list type="bullet">
     ///   <listheader><description>
@@ -58,25 +58,25 @@ namespace Mirror
         /// Notify subscribers when when this client establish a successful connection to the server
         /// <para>callback()</para>
         /// </summary>
-        public Action OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
+        public Action OnClientConnected;
 
         /// <summary>
         /// Notify subscribers when this client receive data from the server
         /// <para>callback(ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public Action<ArraySegment<byte>, int> OnClientDataReceived = (data, channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
+        public Action<ArraySegment<byte>, int> OnClientDataReceived;
 
         /// <summary>
         /// Notify subscribers when this client encounters an error communicating with the server
         /// <para>callback(Exception e)</para>
         /// </summary>
-        public Action<Exception> OnClientError = (error) => Debug.LogWarning("OnClientError called with no handler");
+        public Action<Exception> OnClientError;
 
         /// <summary>
         /// Notify subscribers when this client disconnects from the server
         /// <para>callback()</para>
         /// </summary>
-        public Action OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
+        public Action OnClientDisconnected;
 
         /// <summary>
         /// Determines if we are currently connected to the server
@@ -131,25 +131,25 @@ namespace Mirror
         /// Notify subscribers when a client connects to this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public Action<int> OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
+        public Action<int> OnServerConnected;
 
         /// <summary>
         /// Notify subscribers when this server receives data from the client
         /// <para>callback(int connId, ArraySegment&lt;byte&gt; data, int channel)</para>
         /// </summary>
-        public Action<int, ArraySegment<byte>, int> OnServerDataReceived = (connId, data, channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
+        public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
 
         /// <summary>
         /// Notify subscribers when this server has some problem communicating with the client
         /// <para>callback(int connId, Exception e)</para>
         /// </summary>
-        public Action<int, Exception> OnServerError = (connId, error) => Debug.LogWarning("OnServerError called with no handler");
+        public Action<int, Exception> OnServerError;
 
         /// <summary>
         /// Notify subscribers when a client disconnects from this server
         /// <para>callback(int connId)</para>
         /// </summary>
-        public Action<int> OnServerDisconnected = (connId) => Debug.LogWarning("OnServerDisconnected called with no handler");
+        public Action<int> OnServerDisconnected;
 
         /// <summary>
         /// Determines if the server is up and running
