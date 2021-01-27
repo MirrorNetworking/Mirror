@@ -42,9 +42,6 @@ namespace Mirror
 
         // batch interval is 0 by default, meaning that we send immediately.
         // (useful to run tests without waiting for intervals too)
-        // TODO what should 0 do?
-        // a) send immediately
-        // b) send each update immediately (makes tests harder)
         float batchInterval;
 
         public NetworkConnectionToClient(int networkConnectionId, float batchInterval)
