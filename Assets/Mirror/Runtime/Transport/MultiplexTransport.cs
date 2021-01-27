@@ -47,8 +47,8 @@ namespace Mirror
         {
             foreach (Transport t in transports)
             {
-                t.Connected.AddListener(c => Connected.Invoke(c));
-                t.Started.AddListener(() => Started.Invoke());
+                t.Connected.AddListener(c => Connected?.Invoke(c));
+                t.Started.AddListener(() => Started?.Invoke());
             }
         }
         

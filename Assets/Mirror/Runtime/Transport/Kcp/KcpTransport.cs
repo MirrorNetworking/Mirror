@@ -54,7 +54,7 @@ namespace Mirror.KCP
                 socket.Bind(new IPEndPoint(IPAddress.IPv6Any, Port));
 
                 // transport started
-                Started.Invoke();
+                Started?.Invoke();
 
                 ListenCompletionSource = AutoResetUniTaskCompletionSource.Create();
                 return ListenCompletionSource.Task;
@@ -125,7 +125,7 @@ namespace Mirror.KCP
             await connection.HandshakeAsync();
 
             // once handshake is completed,  then the connection has been accepted
-            Connected.Invoke(connection);
+            Connected?.Invoke(connection);
         }
 
         private readonly HashSet<HashCash> used = new HashSet<HashCash>();

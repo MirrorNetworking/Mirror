@@ -653,12 +653,12 @@ namespace Mirror
         {
             if (logger.LogEnabled()) logger.Log("OnStartServer " + this + " NetId:" + NetId + " SceneId:" + sceneId);
 
-            OnStartServer.Invoke();
+            OnStartServer?.Invoke();
         }
 
         internal void StopServer()
         {
-            OnStopServer.Invoke();
+            OnStopServer?.Invoke();
         }
 
         bool clientStarted;
@@ -668,7 +668,7 @@ namespace Mirror
                 return;
             clientStarted = true;
 
-            OnStartClient.Invoke();
+            OnStartClient?.Invoke();
         }
 
         bool localPlayerStarted;
@@ -678,7 +678,7 @@ namespace Mirror
                 return;
             localPlayerStarted = true;
 
-            OnStartLocalPlayer.Invoke();
+            OnStartLocalPlayer?.Invoke();
         }
 
         bool hadAuthority;
@@ -693,12 +693,12 @@ namespace Mirror
 
         internal void StartAuthority()
         {
-            OnStartAuthority.Invoke();
+            OnStartAuthority?.Invoke();
         }
 
         internal void StopAuthority()
         {
-            OnStopAuthority.Invoke();
+            OnStopAuthority?.Invoke();
         }
 
         internal void OnSetHostVisibility(bool visible)
@@ -733,7 +733,7 @@ namespace Mirror
 
         internal void StopClient()
         {
-            OnStopClient.Invoke();
+            OnStopClient?.Invoke();
         }
 
         // random number that is unlikely to appear in a regular data stream
@@ -906,7 +906,7 @@ namespace Mirror
             if (componentIndex >= 0 && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                skeleton.Invoke(reader, invokeComponent, senderConnection, replyId);
+                skeleton?.Invoke(reader, invokeComponent, senderConnection, replyId);
             }
             else
             {

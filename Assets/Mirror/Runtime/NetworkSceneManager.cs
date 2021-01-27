@@ -149,7 +149,7 @@ namespace Mirror
         /// <param name="sceneOperation">Scene operation that's about to happen</param>
         internal void OnClientChangeScene(string scenePath, SceneOperation sceneOperation)
         {
-            ClientChangeScene.Invoke(scenePath, sceneOperation);
+            ClientChangeScene?.Invoke(scenePath, sceneOperation);
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Mirror
         /// <param name="sceneOperation">Scene operation that was just  happen</param>
         internal void OnClientSceneChanged(string scenePath, SceneOperation sceneOperation)
         {
-            ClientSceneChanged.Invoke(scenePath, sceneOperation);
+            ClientSceneChanged?.Invoke(scenePath, sceneOperation);
 
             if (pendingAdditiveSceneList.Count > 0 && client && !client.IsLocalClient)
             {
@@ -240,7 +240,7 @@ namespace Mirror
         {
             logger.Log("OnServerChangeScene");
 
-            ServerChangeScene.Invoke(scenePath, operation);
+            ServerChangeScene?.Invoke(scenePath, operation);
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace Mirror
 
             server.SendToAll(new SceneReadyMessage());
 
-            ServerSceneChanged.Invoke(scenePath, operation);
+            ServerSceneChanged?.Invoke(scenePath, operation);
         }
 
         #endregion

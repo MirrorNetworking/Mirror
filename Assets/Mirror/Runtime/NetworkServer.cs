@@ -121,7 +121,7 @@ namespace Mirror
         {
             if (LocalClient != null)
             {
-                OnStopHost.Invoke();
+                OnStopHost?.Invoke();
                 LocalClient.Disconnect();
             }
 
@@ -204,7 +204,7 @@ namespace Mirror
             logger.Log("Server started listening");
             Active = true;
             // (useful for loading & spawning stuff from database etc.)
-            Started.Invoke();
+            Started?.Invoke();
         }
 
         private void TransportConnected(IConnection connection)
@@ -232,7 +232,7 @@ namespace Mirror
             // call OnStartHost AFTER SetupServer. this way we can use
             // NetworkServer.Spawn etc. in there too. just like OnStartServer
             // is called after the server is actually properly started.
-            OnStartHost.Invoke();
+            OnStartHost?.Invoke();
 
             logger.Log("NetworkServer StartHost");
             return task;
@@ -263,7 +263,7 @@ namespace Mirror
                 Connected.RemoveListener(OnAuthenticated);
             }
 
-            Stopped.Invoke();
+            Stopped?.Invoke();
             initialized = false;
             Active = false;
         }
@@ -388,7 +388,7 @@ namespace Mirror
             AddConnection(conn);
 
             // let everyone know we just accepted a connection
-            Connected.Invoke(conn);
+            Connected?.Invoke(conn);
 
             // now process messages until the connection closes
             try
@@ -412,7 +412,7 @@ namespace Mirror
 
             RemoveConnection(connection);
 
-            Disconnected.Invoke(connection);
+            Disconnected?.Invoke(connection);
 
             connection.DestroyOwnedObjects();
             connection.Identity = null;

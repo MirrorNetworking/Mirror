@@ -220,7 +220,7 @@ namespace Mirror
             // the handler may want to send messages to the client
             // thus we should set the connected state before calling the handler
             connectState = ConnectState.Connected;
-            Connected.Invoke(Connection);
+            Connected?.Invoke(Connection);
 
             // start processing messages
             try
@@ -235,7 +235,7 @@ namespace Mirror
             {
                 Cleanup();
 
-                Disconnected.Invoke();
+                Disconnected?.Invoke();
             }
         }
 
