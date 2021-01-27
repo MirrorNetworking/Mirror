@@ -1,3 +1,10 @@
+## [62.9.3](https://github.com/MirrorNG/MirrorNG/compare/v62.9.2...v62.9.3) (2021-01-27)
+
+
+### Bug Fixes
+
+* use logger in KcpConnection ([#553](https://github.com/MirrorNG/MirrorNG/issues/553)) ([90df76d](https://github.com/MirrorNG/MirrorNG/commit/90df76d590306cbbaa96089d83892f8a2f50c0ce))
+
 ## [62.9.2](https://github.com/MirrorNG/MirrorNG/compare/v62.9.1...v62.9.2) (2021-01-27)
 
 
