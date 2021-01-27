@@ -1,3 +1,10 @@
+## [62.9.2](https://github.com/MirrorNG/MirrorNG/compare/v62.9.1...v62.9.2) (2021-01-27)
+
+
+### Bug Fixes
+
+* add nullable to event invokes ([#554](https://github.com/MirrorNG/MirrorNG/issues/554)) ([8236614](https://github.com/MirrorNG/MirrorNG/commit/823661456a78b05bd5642167fdbbf1ea925f93e6))
+
 ## [62.9.1](https://github.com/MirrorNG/MirrorNG/compare/v62.9.0...v62.9.1) (2021-01-26)
 
 
