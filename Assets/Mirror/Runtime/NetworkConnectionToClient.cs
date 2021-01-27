@@ -70,7 +70,7 @@ namespace Mirror
             Transport.activeTransport.ServerSend(connectionId, channelId, batch.writer.ToArraySegment());
 
             // clear batch
-            batch.writer.Position = 0;
+            batch.writer.Reset();
 
             // reset send time for this channel's batch
             batch.lastSendTime = NetworkTime.time;
