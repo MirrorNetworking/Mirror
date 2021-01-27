@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -33,6 +34,7 @@ namespace Mirror.Tests
         [TearDown]
         public void TearDown()
         {
+            clientReceived.Clear();
             GameObject.DestroyImmediate(transportGO);
         }
 
@@ -49,6 +51,30 @@ namespace Mirror.Tests
             Assert.That(clientReceived.Count, Is.EqualTo(0));
 
             // updating the connection should now send
+            connection.Update();
+            transport.LateUpdate();
+            Assert.That(clientReceived.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Send_BatchesUntilInterval()
+        {
+            // create connection and send
+            int intervalMilliseconds = 10;
+            float intervalSeconds = intervalMilliseconds / 1000f;
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, intervalSeconds);
+            byte[] message = {0x01, 0x02};
+            connection.Send(new ArraySegment<byte>(message));
+
+            // Send() and update shouldn't send yet until interval elapsed
+            connection.Update();
+            transport.LateUpdate();
+            Assert.That(clientReceived.Count, Is.EqualTo(0));
+
+            // wait 'interval'
+            Thread.Sleep(intervalMilliseconds);
+
+            // updating again should flush out the batch
             connection.Update();
             transport.LateUpdate();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
