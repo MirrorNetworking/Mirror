@@ -99,22 +99,6 @@ namespace Mirror
             connectionToClient.TransportReceive(segment, channelId);
         }
 
-        // overwrite TransportReceive.
-        // regular connections process batches in a while loop.
-        // local connections don't do batching and we can't use a while loop
-        // because host doesn't react to all messages, hence doesn't always read
-        // the reader's full content, so a while loop would continue with
-        // unprocessed data.
-        internal override void TransportReceive(ArraySegment<byte> buffer, int channelId)
-        {
-            // unpack message
-            using (PooledNetworkReader reader = NetworkReaderPool.GetReader(buffer))
-            {
-                //Debug.Log("NetworkConnection.TransportReceive: " + BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count));
-                UnpackAndInvoke(reader, channelId);
-            }
-        }
-
         internal void Update()
         {
             // process internal messages so they are applied at the correct time

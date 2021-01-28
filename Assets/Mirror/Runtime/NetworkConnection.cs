@@ -22,7 +22,7 @@ namespace Mirror
         // internal so it can be tested
         internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
 
-        protected Dictionary<int, NetworkMessageDelegate> messageHandlers;
+        Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>
         /// Unique identifier for this connection that is assigned by the transport layer.
@@ -251,7 +251,7 @@ namespace Mirror
         /// This function allows custom network connection classes to process data from the network before it is passed to the application.
         /// </summary>
         /// <param name="buffer">The data received.</param>
-        internal virtual void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
             if (buffer.Count < MessagePacker.HeaderSize)
             {
