@@ -79,5 +79,41 @@ namespace Mirror.Tests
             transport.LateUpdate();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
         }
+
+        // IMPORTANT
+        //
+        // there was a bug where batching resets .Position instead of .Length,
+        // resulting in extremely high bandwidth where if the last message's
+        // Length was 2, and the current message's Length was 1, then we would
+        // still send a writer with Length = 2 because we did not reset .Length!
+        // -> let's try to send a big message, update, then send a small message
+        [Test]
+        public void SendBatchingResetsPreviousWriter()
+        {
+            // create connection
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, 0);
+
+            // send and update big message
+            byte[] message = {0x01, 0x02};
+            connection.Send(new ArraySegment<byte>(message));
+            connection.Update();
+            transport.LateUpdate();
+            Assert.That(clientReceived.Count, Is.EqualTo(1));
+            Assert.That(clientReceived[0].Length, Is.EqualTo(2));
+            Assert.That(clientReceived[0][0], Is.EqualTo(0x01));
+            Assert.That(clientReceived[0][1], Is.EqualTo(0x02));
+
+            // clear previous
+            clientReceived.Clear();
+
+            // send a smaller message
+            message = new byte[]{0xFF};
+            connection.Send(new ArraySegment<byte>(message));
+            connection.Update();
+            transport.LateUpdate();
+            Assert.That(clientReceived.Count, Is.EqualTo(1));
+            Assert.That(clientReceived[0].Length, Is.EqualTo(1));
+            Assert.That(clientReceived[0][0], Is.EqualTo(0xFF));
+        }
     }
 }
