@@ -5,7 +5,7 @@ namespace Mirror.Tests.Performance
 {
     public class FakeNetworkConnection : NetworkConnectionToClient
     {
-        public FakeNetworkConnection(int networkConnectionId) : base(networkConnectionId, 0)
+        public FakeNetworkConnection(int networkConnectionId) : base(networkConnectionId, false, 0)
         {
         }
 

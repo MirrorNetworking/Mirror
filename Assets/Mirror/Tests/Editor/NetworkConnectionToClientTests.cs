@@ -39,10 +39,23 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void Send_WithoutBatching_SendsImmediately()
+        {
+            // create connection and send
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false, 0);
+            byte[] message = {0x01, 0x02};
+            connection.Send(new ArraySegment<byte>(message));
+
+            // Send() should send immediately, not only in server.update flushing
+            transport.LateUpdate();
+            Assert.That(clientReceived.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void Send_BatchesUntilUpdate()
         {
             // create connection and send
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, 0);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, 0);
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
 
@@ -62,7 +75,7 @@ namespace Mirror.Tests
             // create connection and send
             int intervalMilliseconds = 10;
             float intervalSeconds = intervalMilliseconds / 1000f;
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, intervalSeconds);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, intervalSeconds);
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
 
@@ -91,7 +104,7 @@ namespace Mirror.Tests
         public void SendBatchingResetsPreviousWriter()
         {
             // create connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, 0);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, 0);
 
             // send and update big message
             byte[] message = {0x01, 0x02};

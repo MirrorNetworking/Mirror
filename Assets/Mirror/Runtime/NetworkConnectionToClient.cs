@@ -42,13 +42,26 @@ namespace Mirror
         }
         Dictionary<int, Batch> batches = new Dictionary<int, Batch>();
 
+        // batching is optional because due to mirror's non-optimal update order
+        // it would increase latency.
+
+        // batching is still optional until we improve mirror's update order.
+        // right now it increases latency because:
+        //   enabling batching flushes all state updates in same frame, but
+        //   transport processes incoming messages afterwards so server would
+        //   batch them until next frame's flush
+        // => disable it for super fast paced games
+        // => enable it for high scale / cpu heavy games
+        bool batching;
+
         // batch interval is 0 by default, meaning that we send immediately.
         // (useful to run tests without waiting for intervals too)
         float batchInterval;
 
-        public NetworkConnectionToClient(int networkConnectionId, float batchInterval)
+        public NetworkConnectionToClient(int networkConnectionId, bool batching, float batchInterval)
             : base(networkConnectionId)
         {
+            this.batching = batching;
             this.batchInterval = batchInterval;
         }
 
@@ -85,28 +98,37 @@ namespace Mirror
             // validate packet size first.
             if (ValidatePacketSize(segment, channelId))
             {
-                // always batch!
-                // (even if interval == 0, in which case we flush in Update())
-                //
-                // if batch would become bigger than MaxBatchPacketSize for this
-                // channel then send out the previous batch first.
-                //
-                // IMPORTANT: we use maxBATCHsize not maxPACKETsize.
-                //            some transports like kcp have large maxPACKETsize
-                //            like 144kb, but those would extremely slow to use
-                //            all the time for batching.
-                //            (maxPACKETsize messages still work fine, we just
-                //             aim for maxBATCHsize where possible)
-                Batch batch = GetBatchForChannelId(channelId);
-                int max = Transport.activeTransport.GetMaxBatchSize(channelId);
-                if (batch.writer.Position + segment.Count > max)
+                // batching?
+                if (batching)
                 {
-                    //UnityEngine.Debug.LogWarning($"sending batch {batch.writer.Position} / {max} after full for segment={segment.Count} for connectionId={connectionId}");
-                    SendBatch(channelId, batch);
-                }
+                    // always batch!
+                    // (even if interval == 0, in which case we flush in Update())
+                    //
+                    // if batch would become bigger than MaxBatchPacketSize for this
+                    // channel then send out the previous batch first.
+                    //
+                    // IMPORTANT: we use maxBATCHsize not maxPACKETsize.
+                    //            some transports like kcp have large maxPACKETsize
+                    //            like 144kb, but those would extremely slow to use
+                    //            all the time for batching.
+                    //            (maxPACKETsize messages still work fine, we just
+                    //             aim for maxBATCHsize where possible)
+                    Batch batch = GetBatchForChannelId(channelId);
+                    int max = Transport.activeTransport.GetMaxBatchSize(channelId);
+                    if (batch.writer.Position + segment.Count > max)
+                    {
+                        //UnityEngine.Debug.LogWarning($"sending batch {batch.writer.Position} / {max} after full for segment={segment.Count} for connectionId={connectionId}");
+                        SendBatch(channelId, batch);
+                    }
 
-                // now add segment to batch
-                batch.writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                    // now add segment to batch
+                    batch.writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                }
+                // otherwise send directly to minimize latency
+                else
+                {
+                    Transport.activeTransport.ServerSend(connectionId, channelId, segment);
+                }
             }
         }
 
@@ -115,18 +137,22 @@ namespace Mirror
         // (avoids 30s latency if batches would only get full every 30s)
         internal void Update()
         {
-            // go through batches for all channels
-            foreach (KeyValuePair<int, Batch> kvp in batches)
+            // batching?
+            if (batching)
             {
-                // enough time elapsed to flush this channel's batch?
-                // and not empty?
-                double elapsed = NetworkTime.time - kvp.Value.lastSendTime;
-                if (elapsed >= batchInterval &&
-                    kvp.Value.writer.Position > 0)
+                // go through batches for all channels
+                foreach (KeyValuePair<int, Batch> kvp in batches)
                 {
-                    // send the batch. time will be reset internally.
-                    //Debug.Log($"sending batch of {kvp.Value.writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
-                    SendBatch(kvp.Key, kvp.Value);
+                    // enough time elapsed to flush this channel's batch?
+                    // and not empty?
+                    double elapsed = NetworkTime.time - kvp.Value.lastSendTime;
+                    if (elapsed >= batchInterval &&
+                        kvp.Value.writer.Position > 0)
+                    {
+                        // send the batch. time will be reset internally.
+                        //Debug.Log($"sending batch of {kvp.Value.writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+                        SendBatch(kvp.Key, kvp.Value);
+                    }
                 }
             }
         }

@@ -57,9 +57,23 @@ namespace Mirror
         /// </summary>
         public static bool active { get; internal set; }
 
-        // batching from server to client.
-        // fewer transport calls give us significantly better performance/scale.
-        // if batch interval is 0, then we only batch until the Update() call.
+
+        /// <summary>
+        /// batching is still optional until we improve mirror's update order.
+        /// right now it increases latency because:
+        ///   enabling batching flushes all state updates in same frame, but
+        ///   transport processes incoming messages afterwards so server would
+        ///   batch them until next frame's flush
+        /// => disable it for super fast paced games
+        /// => enable it for high scale / cpu heavy games
+        /// </summary>
+        public static bool batching;
+
+        /// <summary>
+        /// batching from server to client.
+        /// fewer transport calls give us significantly better performance/scale.
+        /// if batch interval is 0, then we only batch until the Update() call.
+        /// </summary>
         public static float batchInterval = 0;
 
         /// <summary>
@@ -536,7 +550,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, batchInterval);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, batching, batchInterval);
                 OnConnected(conn);
             }
             else
