@@ -1,3 +1,10 @@
+## [62.9.4](https://github.com/MirrorNG/MirrorNG/compare/v62.9.3...v62.9.4) (2021-01-29)
+
+
+### Bug Fixes
+
+* running weaver for editor scripts ([#557](https://github.com/MirrorNG/MirrorNG/issues/557)) ([12a1d73](https://github.com/MirrorNG/MirrorNG/commit/12a1d73061766d3c8d1bfb406a20ba4f44d18d50)), closes [#537](https://github.com/MirrorNG/MirrorNG/issues/537) [#552](https://github.com/MirrorNG/MirrorNG/issues/552)
+
 ## [62.9.3](https://github.com/MirrorNG/MirrorNG/compare/v62.9.2...v62.9.3) (2021-01-27)
 
 
