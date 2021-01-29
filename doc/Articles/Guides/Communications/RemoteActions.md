@@ -99,7 +99,7 @@ public class Door : NetworkBehaviour
     [SyncVar]
     public DoorState doorState;
 
-    [ServerRpc(requrieAuthority = false)]
+    [ServerRpc(requireAuthority = false)]
     public void CmdSetDoorState(DoorState newDoorState, NetworkConnectionToClient sender = null)
     {
         if (sender.identity.GetComponent<Player>().hasDoorKey)
