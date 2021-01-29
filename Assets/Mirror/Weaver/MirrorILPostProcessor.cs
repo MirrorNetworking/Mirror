@@ -9,7 +9,6 @@ namespace Mirror.Weaver
     public class MirrorILPostProcessor : ILPostProcessor
     {
         public const string RuntimeAssemblyName = "Mirror";
-        public const string EditorAssemblyName = "Mirror.Editor";
 
         public override ILPostProcessor GetInstance() => this;
 
@@ -39,16 +38,8 @@ namespace Mirror.Weaver
             return new ILPostProcessResult(new InMemoryAssembly(pe.ToArray(), pdb.ToArray()), logger.Diagnostics);
         }
 
-        public override bool WillProcess(ICompiledAssembly compiledAssembly)
-        {
-            bool usesMirror = 
+        public override bool WillProcess(ICompiledAssembly compiledAssembly) =>
                 compiledAssembly.Name == RuntimeAssemblyName ||
                 compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == RuntimeAssemblyName);
-
-            bool usesMirrorEditor =
-                compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == EditorAssemblyName);
-
-            return usesMirror && !usesMirrorEditor;
-        }
     }
 }
