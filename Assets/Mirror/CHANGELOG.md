@@ -1,3 +1,11 @@
+## [62.9.5](https://github.com/MirrorNG/MirrorNG/compare/v62.9.4...v62.9.5) (2021-01-30)
+
+
+### Bug Fixes
+
+* bug cleaning up networkscenemanager ([8db98db](https://github.com/MirrorNG/MirrorNG/commit/8db98db50268e478b52fd78642e9c34a29796cfc))
+* fast domain reload with Kcp ([bd3676d](https://github.com/MirrorNG/MirrorNG/commit/bd3676d4d93c3d113241f95577c4ac581133696b)), closes [#547](https://github.com/MirrorNG/MirrorNG/issues/547)
+
 ## [62.9.4](https://github.com/MirrorNG/MirrorNG/compare/v62.9.3...v62.9.4) (2021-01-29)
 
 
