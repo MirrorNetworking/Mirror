@@ -94,7 +94,8 @@ namespace Mirror
 
         void OnDestroy()
         {
-            client?.Authenticated?.RemoveListener(OnClientAuthenticated);
+            if (client != null)
+                client.Authenticated?.RemoveListener(OnClientAuthenticated);
         }
 
         internal void ClientSceneMessage(INetworkConnection conn, SceneMessage msg)
