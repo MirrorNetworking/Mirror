@@ -35,7 +35,7 @@ namespace Mirror.KCP
         private long receivedBytes;
         private long sentBytes;
 
-        private AutoResetUniTaskCompletionSource ListenCompletionSource;
+        private UniTaskCompletionSource ListenCompletionSource;
 
         /// <summary>
         ///     Open up the port and listen for connections
@@ -56,7 +56,7 @@ namespace Mirror.KCP
                 // transport started
                 Started?.Invoke();
 
-                ListenCompletionSource = AutoResetUniTaskCompletionSource.Create();
+                ListenCompletionSource = new UniTaskCompletionSource();
                 return ListenCompletionSource.Task;
             }
             catch (Exception ex)
