@@ -29,7 +29,7 @@ namespace Mirror.Tests
 
             server = serverGO.GetComponent<NetworkServer>();
             serverObjectManager = serverGO.GetComponent<ServerObjectManager>();
-            serverObjectManager.server = server;
+            serverObjectManager.Server = server;
 
             player1 = new GameObject("TestPlayer1", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
             player2 = new GameObject("TestPlayer2", typeof(NetworkIdentity), typeof(NetworkMatchChecker));

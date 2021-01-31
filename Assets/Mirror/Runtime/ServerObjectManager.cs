@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mirror.RemoteCalls;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -21,8 +22,10 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(ServerObjectManager));
 
-        public NetworkServer server;
-        public NetworkSceneManager networkSceneManager;
+        [FormerlySerializedAs("server")]
+        public NetworkServer Server;
+        [FormerlySerializedAs("networkSceneManager")]
+        public NetworkSceneManager NetworkSceneManager;
 
         uint nextNetworkId = 1;
         uint GetNextNetworkId() => nextNetworkId++;
@@ -33,20 +36,20 @@ namespace Mirror
 
         public void Start()
         {
-            if (server != null)
+            if (Server != null)
             {
-                server.Started.AddListener(SpawnOrActivate);
-                server.Authenticated.AddListener(OnAuthenticated);
-                server.Stopped.AddListener(OnServerStopped);
-                networkSceneManager.ServerChangeScene.AddListener(OnServerChangeScene);
-                networkSceneManager.ServerSceneChanged.AddListener(OnServerSceneChanged);
+                Server.Started.AddListener(SpawnOrActivate);
+                Server.Authenticated.AddListener(OnAuthenticated);
+                Server.Stopped.AddListener(OnServerStopped);
+                NetworkSceneManager.ServerChangeScene.AddListener(OnServerChangeScene);
+                NetworkSceneManager.ServerSceneChanged.AddListener(OnServerSceneChanged);
             }
         }
 
         // The user should never need to pump the update loop manually
         internal void Update()
         {
-            if (!server || !server.Active)
+            if (!Server || !Server.Active)
                 return;
 
             DirtyObjectsTmp.Clear();
@@ -81,7 +84,7 @@ namespace Mirror
 
         void OnServerStopped()
         {
-            foreach (NetworkIdentity obj in server.Spawned.Values.Reverse())
+            foreach (NetworkIdentity obj in Server.Spawned.Values.Reverse())
             {
                 if(obj.AssetId != Guid.Empty)
                     DestroyObject(obj, true);
@@ -101,13 +104,13 @@ namespace Mirror
         void SpawnOrActivate()
         {
             // host mode?
-            if (server.LocalClientActive)
+            if (Server.LocalClientActive)
             {
                 // server scene was loaded. now spawn all the objects
                 ActivateHostScene();
             }
             // server-only mode?
-            else if (server && server.Active)
+            else if (Server && Server.Active)
             {
                 SpawnObjects();
             }
@@ -120,7 +123,7 @@ namespace Mirror
         {
             SpawnObjects();
 
-            foreach (NetworkIdentity identity in server.Spawned.Values)
+            foreach (NetworkIdentity identity in Server.Spawned.Values)
             {
                 if (!identity.IsClient)
                 {
@@ -164,7 +167,7 @@ namespace Mirror
 
         void SpawnObserversForConnection(INetworkConnection conn)
         {
-            if (logger.LogEnabled()) logger.Log("Spawning " + server.Spawned.Count + " objects for conn " + conn);
+            if (logger.LogEnabled()) logger.Log("Spawning " + Server.Spawned.Count + " objects for conn " + conn);
 
             if (!conn.IsReady)
             {
@@ -175,7 +178,7 @@ namespace Mirror
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in server.Spawned.Values)
+            foreach (NetworkIdentity identity in Server.Spawned.Values)
             {
                 if (identity.gameObject.activeSelf)
                 {
@@ -235,18 +238,18 @@ namespace Mirror
             conn.Identity = identity;
 
             // set server to the NetworkIdentity
-            identity.Server = server;
+            identity.Server = Server;
             identity.ServerObjectManager = this;
-            identity.Client = server.LocalClient;
+            identity.Client = Server.LocalClient;
 
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn == server.LocalConnection)
+            if (conn == Server.LocalConnection)
             {
                 identity.HasAuthority = true;
-                server.LocalClient.Connection.Identity = identity;
+                Server.LocalClient.Connection.Identity = identity;
             }
 
             // set ready if not set yet
@@ -299,10 +302,10 @@ namespace Mirror
             identity.SetClientOwner(conn);
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn == server.LocalConnection)
+            if (conn == Server.LocalConnection)
             {
                 identity.HasAuthority = true;
-                server.LocalClient.Connection.Identity = identity;
+                Server.LocalClient.Connection.Identity = identity;
             }
 
             // add connection to observers AFTER the playerController was set.
@@ -372,7 +375,7 @@ namespace Mirror
         /// <param name="msg"></param>
         void OnServerRpcMessage(INetworkConnection conn, ServerRpcMessage msg)
         {
-            if (!server.Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity is null)
+            if (!Server.Spawned.TryGetValue(msg.netId, out NetworkIdentity identity) || identity is null)
             {
                 if (logger.WarnEnabled()) logger.LogWarning("Spawned object not found when handling ServerRpc message [netId=" + msg.netId + "]");
                 return;
@@ -401,7 +404,7 @@ namespace Mirror
 
         internal void SpawnObject(GameObject obj, INetworkConnection ownerConnection)
         {
-            if (!server || !server.Active)
+            if (!Server || !Server.Active)
             {
                 throw new InvalidOperationException("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
             }
@@ -413,20 +416,20 @@ namespace Mirror
             }
 
             identity.ConnectionToClient = ownerConnection;
-            identity.Server = server;
+            identity.Server = Server;
             identity.ServerObjectManager = this;
-            identity.Client = server.LocalClient;
+            identity.Client = Server.LocalClient;
 
             // special case to make sure hasAuthority is set
             // on start server in host mode
-            if (ownerConnection == server.LocalConnection)
+            if (ownerConnection == Server.LocalConnection)
                 identity.HasAuthority = true;
 
             if (identity.NetId == 0)
             {
                 // the object has not been spawned yet
                 identity.NetId = GetNextNetworkId();
-                server.Spawned[identity.NetId] = identity;
+                Server.Spawned[identity.NetId] = identity;
                 identity.StartServer();
             }
 
@@ -563,13 +566,13 @@ namespace Mirror
         void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
             if (logger.LogEnabled()) logger.Log("DestroyObject instance:" + identity.NetId);
-            server.Spawned.Remove(identity.NetId);
+            Server.Spawned.Remove(identity.NetId);
             identity.ConnectionToClient?.RemoveOwnedObject(identity);
 
-            server.SendToObservers(identity, new ObjectDestroyMessage { netId = identity.NetId });
+            Server.SendToObservers(identity, new ObjectDestroyMessage { netId = identity.NetId });
 
             identity.ClearObservers();
-            if (server.LocalClientActive)
+            if (Server.LocalClientActive)
             {
                 identity.StopClient();
             }
@@ -651,7 +654,7 @@ namespace Mirror
         public bool SpawnObjects()
         {
             // only if server active
-            if (!server || !server.Active)
+            if (!Server || !Server.Active)
                 return false;
 
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
@@ -694,7 +697,7 @@ namespace Mirror
         /// </summary>
         public void SetAllClientsNotReady()
         {
-            foreach (INetworkConnection conn in server.connections)
+            foreach (INetworkConnection conn in Server.connections)
             {
                 SetClientNotReady(conn);
             }

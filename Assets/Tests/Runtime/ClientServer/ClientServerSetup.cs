@@ -61,8 +61,8 @@ namespace Mirror.Tests.ClientServer
             clientSceneManager.Start();
 
             serverObjectManager = serverGo.GetComponent<ServerObjectManager>();
-            serverObjectManager.server = server;
-            serverObjectManager.networkSceneManager = serverSceneManager;
+            serverObjectManager.Server = server;
+            serverObjectManager.NetworkSceneManager = serverSceneManager;
             serverObjectManager.Start();
 
             clientObjectManager = clientGo.GetComponent<ClientObjectManager>();

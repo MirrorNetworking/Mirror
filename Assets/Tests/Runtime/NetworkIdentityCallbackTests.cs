@@ -39,7 +39,7 @@ namespace Mirror.Tests
             networkServerGameObject = new GameObject();
             server = networkServerGameObject.AddComponent<NetworkServer>();
             serverObjectManager = networkServerGameObject.AddComponent<ServerObjectManager>();
-            serverObjectManager.server = server;
+            serverObjectManager.Server = server;
             client = networkServerGameObject.AddComponent<NetworkClient>();
 
             gameObject = new GameObject();

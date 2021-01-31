@@ -33,7 +33,7 @@ namespace Mirror
             spawner.sceneManager = sceneManager;
             sceneManager.Client = client;
             sceneManager.Server = server;
-            serverObjectManager.server = server;
+            serverObjectManager.Server = server;
             clientObjectManager.client = client;
             clientObjectManager.networkSceneManager = sceneManager;
             spawner.client = client;
