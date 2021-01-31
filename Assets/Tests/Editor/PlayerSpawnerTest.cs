@@ -31,8 +31,8 @@ namespace Mirror
             serverObjectManager = go.AddComponent<ServerObjectManager>();
             clientObjectManager = go.AddComponent<ClientObjectManager>();
             spawner.sceneManager = sceneManager;
-            sceneManager.client = client;
-            sceneManager.server = server;
+            sceneManager.Client = client;
+            sceneManager.Server = server;
             serverObjectManager.server = server;
             clientObjectManager.client = client;
             clientObjectManager.networkSceneManager = sceneManager;

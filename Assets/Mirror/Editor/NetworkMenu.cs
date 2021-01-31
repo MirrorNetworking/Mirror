@@ -44,8 +44,8 @@ namespace Mirror
             playerSpawner.serverObjectManager = serverObjectManager;
             playerSpawner.clientObjectManager = clientObjectManager;
 
-            nsm.client = networkClient;
-            nsm.server = networkServer;
+            nsm.Client = networkClient;
+            nsm.Server = networkServer;
             return go;
         }
     }

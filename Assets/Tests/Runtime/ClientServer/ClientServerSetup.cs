@@ -55,8 +55,8 @@ namespace Mirror.Tests.ClientServer
 
             serverSceneManager = serverGo.GetComponent<NetworkSceneManager>();
             clientSceneManager = clientGo.GetComponent<NetworkSceneManager>();
-            serverSceneManager.server = server;
-            clientSceneManager.client = client;
+            serverSceneManager.Server = server;
+            clientSceneManager.Client = client;
             serverSceneManager.Start();
             clientSceneManager.Start();
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -20,8 +21,10 @@ namespace Mirror
 
         [Serializable] public class ClientSceneChangeEvent : UnityEvent<string, SceneOperation> { }
 
-        public NetworkClient client;
-        public NetworkServer server;
+        [FormerlySerializedAs("client")]
+        public NetworkClient Client;
+        [FormerlySerializedAs("server")]
+        public NetworkServer Server;
 
         /// <summary>
         /// Event fires when the Client starts changing scene.
@@ -63,13 +66,13 @@ namespace Mirror
         {
             DontDestroyOnLoad(gameObject);
 
-            if (client != null)
+            if (Client != null)
             {
-                client.Authenticated.AddListener(OnClientAuthenticated);
+                Client.Authenticated.AddListener(OnClientAuthenticated);
             }
-            if (server != null)
+            if (Server != null)
             {
-                server.Authenticated.AddListener(OnServerAuthenticated);
+                Server.Authenticated.AddListener(OnServerAuthenticated);
             }
         }
 
@@ -78,7 +81,7 @@ namespace Mirror
         void RegisterClientMessages(INetworkConnection connection)
         {
             connection.RegisterHandler<SceneMessage>(ClientSceneMessage);
-            if (!client.IsLocalClient)
+            if (!Client.IsLocalClient)
             {
                 connection.RegisterHandler<SceneReadyMessage>(ClientSceneReadyMessage);
                 connection.RegisterHandler<NotReadyMessage>(ClientNotReadyMessage);
@@ -94,13 +97,13 @@ namespace Mirror
 
         void OnDestroy()
         {
-            if (client != null)
-                client.Authenticated?.RemoveListener(OnClientAuthenticated);
+            if (Client != null)
+                Client.Authenticated?.RemoveListener(OnClientAuthenticated);
         }
 
         internal void ClientSceneMessage(INetworkConnection conn, SceneMessage msg)
         {
-            if (!client.IsConnected)
+            if (!Client.IsConnected)
             {
                 throw new InvalidOperationException("ClientSceneMessage: cannot change network scene while client is disconnected");
             }
@@ -115,7 +118,7 @@ namespace Mirror
             OnClientChangeScene(msg.scenePath, msg.sceneOperation);
 
             //Additive are scenes loaded on server and this client is not a host client
-            if(msg.additiveScenes != null && msg.additiveScenes.Length > 0 && client && !client.IsLocalClient)
+            if(msg.additiveScenes != null && msg.additiveScenes.Length > 0 && Client && !Client.IsLocalClient)
             {
                 foreach (string scene in msg.additiveScenes)
                 {
@@ -139,7 +142,7 @@ namespace Mirror
         {
             logger.Log("NetworkSceneManager.OnClientNotReadyMessageInternal");
 
-            client.Connection.IsReady = false;
+            Client.Connection.IsReady = false;
         }
 
         /// <summary>
@@ -163,7 +166,7 @@ namespace Mirror
         {
             ClientSceneChanged?.Invoke(scenePath, sceneOperation);
 
-            if (pendingAdditiveSceneList.Count > 0 && client && !client.IsLocalClient)
+            if (pendingAdditiveSceneList.Count > 0 && Client && !Client.IsLocalClient)
             {
                 StartCoroutine(ApplySceneOperation(pendingAdditiveSceneList[0], SceneOperation.LoadAdditive));
                 pendingAdditiveSceneList.RemoveAt(0);
@@ -171,7 +174,7 @@ namespace Mirror
             }
 
             //set ready after scene change has completed
-            if (!client.Connection.IsReady)
+            if (!Client.Connection.IsReady)
                 SetClientReady();
         }
 
@@ -181,17 +184,17 @@ namespace Mirror
         /// </summary>
         public void SetClientReady()
         {
-            if (!client || !client.Active)
+            if (!Client || !Client.Active)
                 throw new InvalidOperationException("Ready() called with an null or disconnected client");
 
             if (logger.LogEnabled()) logger.Log("ClientScene.Ready() called.");
 
             // Set these before sending the ReadyMessage, otherwise host client
             // will fail in InternalAddPlayer with null readyConnection.
-            client.Connection.IsReady = true;
+            Client.Connection.IsReady = true;
 
             // Tell server we're ready to have a player object spawned
-            client.Connection.Send(new ReadyMessage());
+            Client.Connection.Send(new ReadyMessage());
         }
 
         #endregion
@@ -225,11 +228,11 @@ namespace Mirror
             // Let server prepare for scene change
             OnServerChangeScene(scenePath, sceneOperation);
 
-            if(!server.LocalClientActive)
+            if(!Server.LocalClientActive)
                 StartCoroutine(ApplySceneOperation(scenePath, sceneOperation));
 
             // notify all clients about the new scene
-            server.SendToAll(new SceneMessage { scenePath = scenePath, sceneOperation = sceneOperation });
+            Server.SendToAll(new SceneMessage { scenePath = scenePath, sceneOperation = sceneOperation });
         }
 
         /// <summary>
@@ -252,7 +255,7 @@ namespace Mirror
         {
             logger.Log("OnServerSceneChanged");
 
-            server.SendToAll(new SceneReadyMessage());
+            Server.SendToAll(new SceneReadyMessage());
 
             ServerSceneChanged?.Invoke(scenePath, operation);
         }
@@ -275,7 +278,7 @@ namespace Mirror
                         asyncOperation.completed += OnAsyncComplete;
 
                         //If non host client. Wait for server to finish scene change
-                        if (client && client.Active && !client.IsLocalClient)
+                        if (Client && Client.Active && !Client.IsLocalClient)
                         {
                             asyncOperation.allowSceneActivation = false;
                         }
@@ -322,28 +325,28 @@ namespace Mirror
         internal void FinishLoadScene(string scenePath, SceneOperation sceneOperation)
         {
             // host mode?
-            if (client && client.IsLocalClient)
+            if (Client && Client.IsLocalClient)
             {
                 if (logger.LogEnabled()) logger.Log("Host: " + sceneOperation.ToString() + " operation for scene: " + scenePath);
 
                 // call OnServerSceneChanged
                 OnServerSceneChanged(scenePath, sceneOperation);
 
-                if (client.IsConnected)
+                if (Client.IsConnected)
                 {
                     // let client know that we changed scene
                     OnClientSceneChanged(scenePath, sceneOperation);
                 }
             }
             // server-only mode?
-            else if (server && server.Active)
+            else if (Server && Server.Active)
             {
                 if (logger.LogEnabled()) logger.Log("Server: " + sceneOperation.ToString() + " operation for scene: " + scenePath);
 
                 OnServerSceneChanged(scenePath, sceneOperation);
             }
             // client-only mode?
-            else if (client && client.Active && !client.IsLocalClient)
+            else if (Client && Client.Active && !Client.IsLocalClient)
             {
                 if (logger.LogEnabled()) logger.Log("Client: " + sceneOperation.ToString() + " operation for scene: " + scenePath);
 

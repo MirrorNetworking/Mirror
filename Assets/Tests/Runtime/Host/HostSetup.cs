@@ -37,8 +37,8 @@ namespace Mirror.Tests.Host
             manager.server = networkManagerGo.GetComponent<NetworkServer>();
             server = manager.server;
             client = manager.client;
-            sceneManager.client = client;
-            sceneManager.server = server;
+            sceneManager.Client = client;
+            sceneManager.Server = server;
             serverObjectManager.server = server;
             serverObjectManager.networkSceneManager = sceneManager;
             clientObjectManager.client = client;

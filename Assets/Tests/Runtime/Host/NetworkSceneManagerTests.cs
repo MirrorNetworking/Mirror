@@ -105,9 +105,9 @@ namespace Mirror.Tests.Host
         [UnityTest]
         public IEnumerator ReadyExceptionTest() => UniTask.ToCoroutine(async () =>
         {
-            sceneManager.client.Disconnect();
+            sceneManager.Client.Disconnect();
 
-            await AsyncUtil.WaitUntilWithTimeout(() => !sceneManager.client.Active);
+            await AsyncUtil.WaitUntilWithTimeout(() => !sceneManager.Client.Active);
 
             Assert.Throws<InvalidOperationException>(() =>
             {
