@@ -1,3 +1,11 @@
+## [62.9.6](https://github.com/MirrorNG/MirrorNG/compare/v62.9.5...v62.9.6) (2021-01-31)
+
+
+### Bug Fixes
+
+* move method not firing and too slow ([56ce2fd](https://github.com/MirrorNG/MirrorNG/commit/56ce2fd12a8801139c7fcbd38d421abb46fc00da))
+* nre in headless example ([9e8dccc](https://github.com/MirrorNG/MirrorNG/commit/9e8dcccea5c2f40d947dfeddb285c05ebc607405))
+
 ## [62.9.5](https://github.com/MirrorNG/MirrorNG/compare/v62.9.4...v62.9.5) (2021-01-30)
 
 
