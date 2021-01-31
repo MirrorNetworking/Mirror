@@ -13,7 +13,7 @@ namespace Mirror.HeadlessBenchmark
 
         public void Start()
         {
-            NetIdentity.OnStartAuthority.AddListener(() => StartCoroutine(Move()));
+            StartCoroutine(Move());
         }
 
         private IEnumerator Move()
@@ -23,7 +23,7 @@ namespace Mirror.HeadlessBenchmark
                 transform.position += transform.up * MovementSpeed * Time.deltaTime;
                 transform.Rotate(0, 0, Time.deltaTime * RotateSpeed);
 
-                yield return new WaitForSeconds(Random.Range(0f, 5f));
+                yield return new WaitForSeconds(Random.Range(0f, 0.5f));
             }
         }
     }
