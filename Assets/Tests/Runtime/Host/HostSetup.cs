@@ -41,8 +41,8 @@ namespace Mirror.Tests.Host
             sceneManager.Server = server;
             serverObjectManager.Server = server;
             serverObjectManager.NetworkSceneManager = sceneManager;
-            clientObjectManager.client = client;
-            clientObjectManager.networkSceneManager = sceneManager;
+            clientObjectManager.Client = client;
+            clientObjectManager.NetworkSceneManager = sceneManager;
 
             ExtraSetup();
 

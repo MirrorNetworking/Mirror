@@ -27,8 +27,8 @@ namespace Mirror
             serverObjectManager.NetworkSceneManager = nsm;
 
             ClientObjectManager clientObjectManager = go.GetComponent<ClientObjectManager>();
-            clientObjectManager.client = networkClient;
-            clientObjectManager.networkSceneManager = nsm;
+            clientObjectManager.Client = networkClient;
+            clientObjectManager.NetworkSceneManager = nsm;
 
             NetworkManager networkManager = go.GetComponent<NetworkManager>();
             networkManager.client = networkClient;

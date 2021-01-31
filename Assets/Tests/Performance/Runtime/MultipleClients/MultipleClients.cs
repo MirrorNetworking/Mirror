@@ -70,7 +70,7 @@ namespace Mirror.Tests.Performance.Runtime
             var clientGo = new GameObject($"Client {i}", typeof(NetworkClient), typeof(ClientObjectManager));
             NetworkClient client = clientGo.GetComponent<NetworkClient>();
             ClientObjectManager objectManager = clientGo.GetComponent<ClientObjectManager>();
-            objectManager.client = client;
+            objectManager.Client = client;
             objectManager.Start();
             client.Transport = transport;
 
