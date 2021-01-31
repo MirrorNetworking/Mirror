@@ -51,7 +51,7 @@ namespace Mirror.Examples.Tanks
 
         void ShowReadyMenu()
         {
-            if (NetworkManager.client.Active)
+            if (NetworkManager.Client.Active)
             {
 
                 if (LocalPlayer.isReady)
@@ -84,7 +84,7 @@ namespace Mirror.Examples.Tanks
 
         void CheckPlayersNotInList()
         {
-            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkManager.client.Spawned)
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkManager.Client.Spawned)
             {
                 Tank comp = kvp.Value.GetComponent<Tank>();
                 if (comp != null && !players.Contains(comp))
@@ -144,10 +144,10 @@ namespace Mirror.Examples.Tanks
         void FindLocalTank()
         {
             //Check to see if the player is loaded in yet
-            if (NetworkManager.client.LocalPlayer == null)
+            if (NetworkManager.Client.LocalPlayer == null)
                 return;
 
-            LocalPlayer = NetworkManager.client.LocalPlayer.GetComponent<Tank>();
+            LocalPlayer = NetworkManager.Client.LocalPlayer.GetComponent<Tank>();
         }
 
         void UpdateStats()

@@ -13,8 +13,8 @@ namespace Mirror.Examples.Chat
 
         void Awake()
         {
-            server.Authenticated.AddListener(OnServerAuthenticated);
-            client.Authenticated.AddListener(OnClientAuthenticated);
+            Server.Authenticated.AddListener(OnServerAuthenticated);
+            Client.Authenticated.AddListener(OnClientAuthenticated);
         }
 
         public struct CreatePlayerMessage
@@ -40,7 +40,7 @@ namespace Mirror.Examples.Chat
             playergo.GetComponent<Player>().playerName = createPlayerMessage.name;
 
             // set it as the player
-            serverObjectManager.AddPlayerForConnection(connection, playergo);
+            ServerObjectManager.AddPlayerForConnection(connection, playergo);
 
             chatWindow.gameObject.SetActive(true);
         }

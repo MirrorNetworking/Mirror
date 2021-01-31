@@ -14,7 +14,7 @@ namespace Mirror.Tests.ClientServer
             gameObject = new GameObject("NetworkManagerHud", typeof(NetworkManagerHud));
             networkManagerHud = gameObject.GetComponent<NetworkManagerHud>();
             networkManagerHud.NetworkManager = clientGo.AddComponent<NetworkManager>();
-            networkManagerHud.NetworkManager.client = client;
+            networkManagerHud.NetworkManager.Client = client;
             networkManagerHud.OfflineGO = new GameObject();
             networkManagerHud.OnlineGO = new GameObject();
 

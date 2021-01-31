@@ -31,11 +31,11 @@ namespace Mirror
             clientObjectManager.NetworkSceneManager = nsm;
 
             NetworkManager networkManager = go.GetComponent<NetworkManager>();
-            networkManager.client = networkClient;
-            networkManager.server = networkServer;
-            networkManager.serverObjectManager = serverObjectManager;
-            networkManager.clientObjectManager = clientObjectManager;
-            networkManager.sceneManager = nsm;
+            networkManager.Client = networkClient;
+            networkManager.Server = networkServer;
+            networkManager.ServerObjectManager = serverObjectManager;
+            networkManager.ClientObjectManager = clientObjectManager;
+            networkManager.SceneManager = nsm;
 
             PlayerSpawner playerSpawner = go.GetComponent<PlayerSpawner>();
             playerSpawner.client = networkClient;

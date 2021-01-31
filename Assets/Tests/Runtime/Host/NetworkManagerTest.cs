@@ -18,7 +18,7 @@ namespace Mirror.Tests.Host
         [UnityTest]
         public IEnumerator IsNetworkActiveStopTest() => UniTask.ToCoroutine(async () =>
         {
-            manager.server.Disconnect();
+            manager.Server.Disconnect();
 
             await AsyncUtil.WaitUntilWithTimeout(() => !client.Active);
 
@@ -30,7 +30,7 @@ namespace Mirror.Tests.Host
         [UnityTest]
         public IEnumerator StopClientTest() => UniTask.ToCoroutine(async () =>
         {
-            manager.client.Disconnect();
+            manager.Client.Disconnect();
 
             await AsyncUtil.WaitUntilWithTimeout(() => !client.Active);
         });
@@ -38,10 +38,10 @@ namespace Mirror.Tests.Host
         [Test]
         public void StartHostException()
         {
-            manager.client = null;
+            manager.Client = null;
             Assert.Throws<InvalidOperationException>(() =>
             {
-                manager.server.StartHost(manager.client).GetAwaiter().GetResult();
+                manager.Server.StartHost(manager.Client).GetAwaiter().GetResult();
             });
         }
     }

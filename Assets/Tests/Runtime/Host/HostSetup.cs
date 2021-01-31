@@ -33,10 +33,10 @@ namespace Mirror.Tests.Host
             serverObjectManager = networkManagerGo.AddComponent<ServerObjectManager>();
             clientObjectManager = networkManagerGo.AddComponent<ClientObjectManager>();
             manager = networkManagerGo.AddComponent<NetworkManager>();
-            manager.client = networkManagerGo.GetComponent<NetworkClient>();
-            manager.server = networkManagerGo.GetComponent<NetworkServer>();
-            server = manager.server;
-            client = manager.client;
+            manager.Client = networkManagerGo.GetComponent<NetworkClient>();
+            manager.Server = networkManagerGo.GetComponent<NetworkServer>();
+            server = manager.Server;
+            client = manager.Client;
             sceneManager.Client = client;
             sceneManager.Server = server;
             serverObjectManager.Server = server;
@@ -73,7 +73,7 @@ namespace Mirror.Tests.Host
 
             server.Started.AddListener(Started);
             // now start the host
-            manager.server.StartHost(client).Forget();
+            manager.Server.StartHost(client).Forget();
 
             await completionSource.Task;
             server.Started.RemoveListener(Started);
@@ -85,7 +85,7 @@ namespace Mirror.Tests.Host
         public IEnumerator ShutdownHost() => UniTask.ToCoroutine(async () =>
         {
             Object.Destroy(playerGO);
-            manager.server.StopHost();
+            manager.Server.StopHost();
 
             await UniTask.Delay(1);
             Object.Destroy(networkManagerGo);

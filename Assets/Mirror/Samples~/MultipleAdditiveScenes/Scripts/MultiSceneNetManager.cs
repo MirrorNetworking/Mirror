@@ -42,7 +42,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             playerScore.matchIndex = playerId % subScenes.Count;
 
             if (subScenes.Count > 0)
-                SceneManager.MoveGameObjectToScene(conn.Identity.gameObject, subScenes[playerId % subScenes.Count]);
+                UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(conn.Identity.gameObject, subScenes[playerId % subScenes.Count]);
 
             playerId++;
         }
@@ -64,8 +64,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         {
             for (int index = 0; index < instances; index++)
             {
-                yield return SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
-                subScenes.Add(SceneManager.GetSceneAt(index + 1));
+                yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(gameScene, new LoadSceneParameters { loadSceneMode = LoadSceneMode.Additive, localPhysicsMode = LocalPhysicsMode.Physics3D });
+                subScenes.Add(UnityEngine.SceneManagement.SceneManager.GetSceneAt(index + 1));
             }
         }
 
@@ -74,29 +74,29 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         /// </summary>
         public void OnStopServer()
         {
-            server.SendToAll(new SceneMessage { scenePath = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
+            Server.SendToAll(new SceneMessage { scenePath = gameScene, sceneOperation = SceneOperation.UnloadAdditive });
             StartCoroutine(UnloadSubScenes());
         }
 
         public void OnStopClient()
         {
-            if (!server.Active)
+            if (!Server.Active)
                 StartCoroutine(UnloadClientSubScenes());
         }
 
         IEnumerator UnloadClientSubScenes()
         {
-            for (int index = 0; index < SceneManager.sceneCount; index++)
+            for (int index = 0; index < UnityEngine.SceneManagement.SceneManager.sceneCount; index++)
             {
-                if (SceneManager.GetSceneAt(index) != SceneManager.GetActiveScene())
-                    yield return SceneManager.UnloadSceneAsync(SceneManager.GetSceneAt(index));
+                if (UnityEngine.SceneManagement.SceneManager.GetSceneAt(index) != UnityEngine.SceneManagement.SceneManager.GetActiveScene())
+                    yield return UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(UnityEngine.SceneManagement.SceneManager.GetSceneAt(index));
             }
         }
 
         IEnumerator UnloadSubScenes()
         {
             for (int index = 0; index < subScenes.Count; index++)
-                yield return SceneManager.UnloadSceneAsync(subScenes[index]);
+                yield return UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(subScenes[index]);
 
             subScenes.Clear();
 

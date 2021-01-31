@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -10,16 +11,21 @@ namespace Mirror
     [DisallowMultipleComponent]
     public class NetworkManager : MonoBehaviour
     {
-        public NetworkServer server;
-        public NetworkClient client;
-        public NetworkSceneManager sceneManager;
-        public ServerObjectManager serverObjectManager;
-        public ClientObjectManager clientObjectManager;
+        [FormerlySerializedAs("server")]
+        public NetworkServer Server;
+        [FormerlySerializedAs("client")]
+        public NetworkClient Client;
+        [FormerlySerializedAs("sceneManager")]
+        public NetworkSceneManager SceneManager;
+        [FormerlySerializedAs("serverObjectManager")]
+        public ServerObjectManager ServerObjectManager;
+        [FormerlySerializedAs("clientObjectManager")]
+        public ClientObjectManager ClientObjectManager;
 
         /// <summary>
         /// True if the server or client is started and running
         /// <para>This is set True in StartServer / StartClient, and set False in StopServer / StopClient</para>
         /// </summary>
-        public bool IsNetworkActive => server.Active || client.Active;
+        public bool IsNetworkActive => Server.Active || Client.Active;
     }
 }

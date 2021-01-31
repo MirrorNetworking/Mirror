@@ -52,9 +52,9 @@ namespace Mirror.HeadlessBenchmark
                 long messages = messageCount - previousMessageCount;
 
 #if UNITY_EDITOR
-                Debug.LogFormat("{0} FPS {1} messages {2} clients", frames, messages, networkManager.server.NumPlayers);
+                Debug.LogFormat("{0} FPS {1} messages {2} clients", frames, messages, networkManager.Server.NumPlayers);
 #else
-                Console.WriteLine("{0} FPS {1} messages {2} clients", frames, messages, networkManager.server.NumPlayers);
+                Console.WriteLine("{0} FPS {1} messages {2} clients", frames, messages, networkManager.Server.NumPlayers);
 #endif
                 previousFrameCount = frameCount;
                 previousMessageCount = messageCount;
@@ -126,9 +126,9 @@ namespace Mirror.HeadlessBenchmark
         {
             if (!string.IsNullOrEmpty(GetArg("-server")))
             {
-                networkManager.server.Started.AddListener(OnServerStarted);
-                networkManager.server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
-                _ = networkManager.server.ListenAsync();
+                networkManager.Server.Started.AddListener(OnServerStarted);
+                networkManager.Server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
+                _ = networkManager.Server.ListenAsync();
                 Console.WriteLine("Starting Server Only Mode");
             }
         }
@@ -158,7 +158,7 @@ namespace Mirror.HeadlessBenchmark
                 // connect from a bunch of clients
                 for (int i = 0; i < clonesCount; i++)
                 {
-                    await StartClient(i, networkManager.client.Transport, address);
+                    await StartClient(i, networkManager.Client.Transport, address);
                     await UniTask.Delay(500);
 
                     Debug.LogFormat("Started {0} clients", i + 1);
@@ -196,8 +196,8 @@ namespace Mirror.HeadlessBenchmark
                 {
                     newTransport.Port = ushort.Parse(port);
                 }
-                networkManager.server.Transport = newTransport;
-                networkManager.client.Transport = newTransport;
+                networkManager.Server.Transport = newTransport;
+                networkManager.Client.Transport = newTransport;
 
                 this.transport = newTransport;
             }

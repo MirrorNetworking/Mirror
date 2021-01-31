@@ -12,12 +12,12 @@ namespace Mirror.Examples.Chat
 
         public void StartClient()
         {
-            NetworkManager.client.ConnectAsync(serverIp);
+            NetworkManager.Client.ConnectAsync(serverIp);
         }
 
         public void StartHost()
         {
-            NetworkManager.server.StartHost(NetworkManager.client).Forget();
+            NetworkManager.Server.StartHost(NetworkManager.Client).Forget();
         }
 
         public void SetServerIp(string serverIp)

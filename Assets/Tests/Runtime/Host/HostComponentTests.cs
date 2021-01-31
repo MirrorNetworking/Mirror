@@ -66,11 +66,11 @@ namespace Mirror.Tests.Host
         [UnityTest]
         public IEnumerator ClientConnRpc() => UniTask.ToCoroutine(async () =>
         {
-            component.ClientConnRpcTest(manager.server.LocalConnection, 1, "hello");
+            component.ClientConnRpcTest(manager.Server.LocalConnection, 1, "hello");
             // process spawn message from server
             await AsyncUtil.WaitUntilWithTimeout(() => component.targetRpcArg1 != 0);
 
-            Assert.That(component.targetRpcConn, Is.SameAs(manager.client.Connection));
+            Assert.That(component.targetRpcConn, Is.SameAs(manager.Client.Connection));
             Assert.That(component.targetRpcArg1, Is.EqualTo(1));
             Assert.That(component.targetRpcArg2, Is.EqualTo("hello"));
         });

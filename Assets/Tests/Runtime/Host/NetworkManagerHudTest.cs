@@ -55,7 +55,7 @@ namespace Mirror.Tests.Host
             Assert.That(networkManagerHud.OfflineGO.activeSelf, Is.False);
             Assert.That(networkManagerHud.OnlineGO.activeSelf, Is.True);
 
-            Assert.That(manager.server.Active, Is.True);
+            Assert.That(manager.Server.Active, Is.True);
         }
 
         [UnityTest]

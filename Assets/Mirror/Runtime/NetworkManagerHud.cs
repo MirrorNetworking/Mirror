@@ -42,29 +42,29 @@ namespace Mirror
         public void StartHostButtonHandler()
         {
             labelText = "Host Mode";
-            NetworkManager.server.StartHost(NetworkManager.client).Forget();
+            NetworkManager.Server.StartHost(NetworkManager.Client).Forget();
             OnlineSetActive();
         }
 
         public void StartServerOnlyButtonHandler()
         {
             labelText = "Server Mode";
-            NetworkManager.server.ListenAsync().Forget();
+            NetworkManager.Server.ListenAsync().Forget();
             OnlineSetActive();
         }
 
         public void StartClientButtonHandler()
         {
             labelText = "Client Mode";
-            NetworkManager.client.ConnectAsync(NetworkAddress).Forget();
+            NetworkManager.Client.ConnectAsync(NetworkAddress).Forget();
             OnlineSetActive();
         }
 
         public void StopButtonHandler()
         {
             labelText = string.Empty;
-            NetworkManager.server.StopHost();
-            NetworkManager.client.Disconnect();
+            NetworkManager.Server.StopHost();
+            NetworkManager.Client.Disconnect();
             OfflineSetActive();
         }
 

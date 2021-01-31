@@ -30,7 +30,7 @@ namespace Mirror.Tests.Performance.Runtime
             // load host
             benchmarker = Object.FindObjectOfType<NetworkManager>();
 
-            benchmarker.server.StartHost(benchmarker.client).Forget();
+            benchmarker.Server.StartHost(benchmarker.Client).Forget();
 
         });
 
@@ -38,7 +38,7 @@ namespace Mirror.Tests.Performance.Runtime
         public IEnumerator TearDown()
         {
             // shutdown
-            benchmarker.server.StopHost();
+            benchmarker.Server.StopHost();
             yield return null;
 
             // unload scene
