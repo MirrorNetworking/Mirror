@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -12,36 +13,42 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(PlayerSpawner));
 
-        public NetworkClient client;
-        public NetworkServer server;
-        public NetworkSceneManager sceneManager;
-        public ClientObjectManager clientObjectManager;
-        public ServerObjectManager serverObjectManager;
-        public NetworkIdentity playerPrefab;
+        [FormerlySerializedAs("client")]
+        public NetworkClient Client;
+        [FormerlySerializedAs("server")]
+        public NetworkServer Server;
+        [FormerlySerializedAs("sceneManager")]
+        public NetworkSceneManager SceneManager;
+        [FormerlySerializedAs("clientObjectManager")]
+        public ClientObjectManager ClientObjectManager;
+        [FormerlySerializedAs("serverObjectManager")]
+        public ServerObjectManager ServerObjectManager;
+        [FormerlySerializedAs("playerPrefab")]
+        public NetworkIdentity PlayerPrefab;
 
         // Start is called before the first frame update
         public virtual void Start()
         {
-            if (playerPrefab == null)
+            if (PlayerPrefab == null)
             {
                 throw new InvalidOperationException("Assign a player in the PlayerSpawner");
             }
-            if (client != null)
+            if (Client != null)
             {
-                sceneManager.ClientSceneChanged.AddListener(OnClientSceneChanged);
-                if(clientObjectManager != null)
+                SceneManager.ClientSceneChanged.AddListener(OnClientSceneChanged);
+                if(ClientObjectManager != null)
                 {
-                    clientObjectManager.RegisterPrefab(playerPrefab);
+                    ClientObjectManager.RegisterPrefab(PlayerPrefab);
                 }
                 else
                 {
                     throw new InvalidOperationException("Assign a ClientObjectManager");
                 }
             }
-            if (server != null)
+            if (Server != null)
             {
-                server.Authenticated.AddListener(OnServerAuthenticated);
-                if (serverObjectManager == null)
+                Server.Authenticated.AddListener(OnServerAuthenticated);
+                if (ServerObjectManager == null)
                 {
                     throw new InvalidOperationException("Assign a ServerObjectManager");
                 }
@@ -50,13 +57,13 @@ namespace Mirror
 
         void OnDestroy()
         {
-            if (client != null)
+            if (Client != null)
             {
-                sceneManager.ClientSceneChanged.RemoveListener(OnClientSceneChanged);
+                SceneManager.ClientSceneChanged.RemoveListener(OnClientSceneChanged);
             }
-            if (server != null)
+            if (Server != null)
             {
-                server.Authenticated.RemoveListener(OnServerAuthenticated);
+                Server.Authenticated.RemoveListener(OnServerAuthenticated);
             }
         }
 
@@ -74,7 +81,7 @@ namespace Mirror
         private void OnClientSceneChanged(string sceneName, SceneOperation sceneOperation)
         {
             if(sceneOperation == SceneOperation.Normal)
-                client.Send(new AddPlayerMessage());
+                Client.Send(new AddPlayerMessage());
         }
 
         void OnServerAddPlayerInternal(INetworkConnection conn, AddPlayerMessage msg)
@@ -98,10 +105,10 @@ namespace Mirror
         {
             Transform startPos = GetStartPosition();
             NetworkIdentity player = startPos != null
-                ? Instantiate(playerPrefab, startPos.position, startPos.rotation)
-                : Instantiate(playerPrefab);
+                ? Instantiate(PlayerPrefab, startPos.position, startPos.rotation)
+                : Instantiate(PlayerPrefab);
 
-            serverObjectManager.AddPlayerForConnection(conn, player.gameObject);
+            ServerObjectManager.AddPlayerForConnection(conn, player.gameObject);
         }
 
         /// <summary>

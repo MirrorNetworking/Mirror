@@ -13,15 +13,15 @@ namespace Mirror.Examples.Pong
         public override void OnServerAddPlayer(INetworkConnection conn)
         {
             // add player at correct spawn position
-            Transform start = server.NumPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
-            NetworkIdentity player = Instantiate(playerPrefab, start.position, start.rotation);
-            serverObjectManager.AddPlayerForConnection(conn, player.gameObject);
+            Transform start = Server.NumPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
+            NetworkIdentity player = Instantiate(PlayerPrefab, start.position, start.rotation);
+            ServerObjectManager.AddPlayerForConnection(conn, player.gameObject);
 
             // spawn ball if two players
-            if (server.NumPlayers == 2)
+            if (Server.NumPlayers == 2)
             {
                 ball = Instantiate(ballPrefab);
-                serverObjectManager.Spawn(ball);
+                ServerObjectManager.Spawn(ball);
             }
         }
 
@@ -30,7 +30,7 @@ namespace Mirror.Examples.Pong
         {
             // destroy ball
             if (ball != null)
-                serverObjectManager.Destroy(ball);
+                ServerObjectManager.Destroy(ball);
         }
     }
 }

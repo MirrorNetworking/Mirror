@@ -30,21 +30,21 @@ namespace Mirror
             sceneManager = go.AddComponent<NetworkSceneManager>();
             serverObjectManager = go.AddComponent<ServerObjectManager>();
             clientObjectManager = go.AddComponent<ClientObjectManager>();
-            spawner.sceneManager = sceneManager;
+            spawner.SceneManager = sceneManager;
             sceneManager.Client = client;
             sceneManager.Server = server;
             serverObjectManager.Server = server;
             clientObjectManager.Client = client;
             clientObjectManager.NetworkSceneManager = sceneManager;
-            spawner.client = client;
-            spawner.server = server;
-            spawner.serverObjectManager = serverObjectManager;
-            spawner.clientObjectManager = clientObjectManager;
+            spawner.Client = client;
+            spawner.Server = server;
+            spawner.ServerObjectManager = serverObjectManager;
+            spawner.ClientObjectManager = clientObjectManager;
 
             playerPrefab = new GameObject();
             NetworkIdentity playerId = playerPrefab.AddComponent<NetworkIdentity>();
 
-            spawner.playerPrefab = playerId;
+            spawner.PlayerPrefab = playerId;
 
             pos1 = new GameObject().transform;
             pos2 = new GameObject().transform;
@@ -65,7 +65,7 @@ namespace Mirror
         [Test]
         public void StartExceptionTest()
         {
-            spawner.playerPrefab = null;
+            spawner.PlayerPrefab = null;
             Assert.Throws<InvalidOperationException>(() =>
             {
                 spawner.Start();
@@ -75,7 +75,7 @@ namespace Mirror
         [Test]
         public void StartExceptionMissingServerObjectManagerTest()
         {
-            spawner.serverObjectManager = null;
+            spawner.ServerObjectManager = null;
             Assert.Throws<InvalidOperationException>(() =>
             {
                 spawner.Start();
@@ -86,14 +86,14 @@ namespace Mirror
         public void AutoConfigureClient()
         {
             spawner.Start();
-            Assert.That(spawner.client, Is.SameAs(client));
+            Assert.That(spawner.Client, Is.SameAs(client));
         }
 
         [Test]
         public void AutoConfigureServer()
         {
             spawner.Start();
-            Assert.That(spawner.server, Is.SameAs(server));
+            Assert.That(spawner.Server, Is.SameAs(server));
         }
 
         [Test]
@@ -129,7 +129,7 @@ namespace Mirror
         [Test]
         public void MissingClientObjectSpawnerExceptionTest()
         {
-            spawner.clientObjectManager = null;
+            spawner.ClientObjectManager = null;
             Assert.Throws<InvalidOperationException>(() =>
             {
                 spawner.Start();
