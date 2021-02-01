@@ -13,7 +13,7 @@ namespace Mirror.HeadlessBenchmark
         public GameObject MonsterPrefab;
         public GameObject PlayerPrefab;
         public string editorArgs;
-        public KcpTransport kcpTransport;
+        public Transport transport;
 
         string[] cachedArgs;
         string port;
@@ -40,7 +40,12 @@ namespace Mirror.HeadlessBenchmark
                 int frameCount = Time.frameCount;
                 int frames = frameCount - previousFrameCount;
 
-                long messageCount = kcpTransport != null ? kcpTransport.ReceivedMessageCount : 0;
+                long messageCount = 0;
+                if (transport is KcpTransport)
+                {
+                    messageCount = transport != null ? ((KcpTransport)transport).ReceivedMessageCount : 0;
+                }
+                
                 long messages = messageCount - previousMessageCount;
 
 #if UNITY_EDITOR
@@ -191,7 +196,7 @@ namespace Mirror.HeadlessBenchmark
                 networkManager.server.Transport = newTransport;
                 networkManager.client.Transport = newTransport;
 
-                kcpTransport = newTransport;
+                this.transport = newTransport;
             }
 
         }
