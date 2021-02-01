@@ -11,8 +11,12 @@ namespace Mirror.HeadlessBenchmark
         [SyncVar]
         public float Floaty;
 
+        public static WaitForSeconds wait1Sec;
+        public static float waitAmount;
+
         public void Start()
         {
+            wait1Sec = new WaitForSeconds(waitAmount);
             StartCoroutine(Move());
         }
 
@@ -23,7 +27,8 @@ namespace Mirror.HeadlessBenchmark
                 transform.position += transform.up * MovementSpeed * Time.deltaTime;
                 transform.Rotate(0, 0, Time.deltaTime * RotateSpeed);
 
-                yield return new WaitForSeconds(Random.Range(0f, 0.5f));
+                waitAmount = Random.Range(0, 0.5f);
+                yield return wait1Sec;
             }
         }
     }
