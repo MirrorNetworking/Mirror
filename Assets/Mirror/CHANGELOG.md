@@ -1,3 +1,10 @@
+# [62.10.0](https://github.com/MirrorNG/MirrorNG/compare/v62.9.8...v62.10.0) (2021-02-01)
+
+
+### Features
+
+* recommend Fast3 as default for performance ([#559](https://github.com/MirrorNG/MirrorNG/issues/559)) ([8cbf6e6](https://github.com/MirrorNG/MirrorNG/commit/8cbf6e69a0075310d720e21897fe22a66b6e28e8))
+
 ## [62.9.8](https://github.com/MirrorNG/MirrorNG/compare/v62.9.7...v62.9.8) (2021-02-01)
 
 
