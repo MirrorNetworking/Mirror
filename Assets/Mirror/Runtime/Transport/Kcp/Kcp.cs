@@ -5,7 +5,16 @@ using UnityEngine;
 namespace Mirror.KCP
 {
     //See SetNoDelay for details
-    public enum KcpDelayMode { Normal, Fast, Fast2, Fast3 }
+    public enum KcpDelayMode {
+        ///<summary>No Delay Off, 40ms rate, No Fast Resend, No Congestion Window</summary>
+        Normal,
+        ///<summary>No Delay Off, 30ms rate, No Fast Resend, Congestion Window</summary>
+        Fast,
+        ///<summary>No Delay ON, 20ms rate, No Fast Resend, Congestion Window</summary>
+        Fast2,
+        ///<summary>No Delay ON, 10ms rate, No Fast Resend, Congestion Window</summary>
+        Fast3
+    }
 
     /// <summary>
     /// A reliability algorithm over an unreliable transport such as UDP.
