@@ -1,3 +1,10 @@
+## [62.9.8](https://github.com/MirrorNG/MirrorNG/compare/v62.9.7...v62.9.8) (2021-02-01)
+
+
+### Bug Fixes
+
+* remove GC from demo ([2474a0c](https://github.com/MirrorNG/MirrorNG/commit/2474a0cad61261160a361ddf4c64be7a3343ccd5))
+
 ## [62.9.7](https://github.com/MirrorNG/MirrorNG/compare/v62.9.6...v62.9.7) (2021-02-01)
 
 
