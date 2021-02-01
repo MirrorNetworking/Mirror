@@ -23,7 +23,7 @@ namespace Mirror.KCP
         [Tooltip("How many messages can be received")]
         public int ReceiveWindowSize = 8192;
 
-        public KcpDelayMode delayMode = KcpDelayMode.Normal;
+        public KcpDelayMode delayMode = KcpDelayMode.Fast3;
         internal readonly Dictionary<IPEndPoint, KcpServerConnection> connectedClients = new Dictionary<IPEndPoint, KcpServerConnection>(new IPEndpointComparer());
 
         public override IEnumerable<string> Scheme => new[] { "kcp" };
