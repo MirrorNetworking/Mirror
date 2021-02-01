@@ -1,3 +1,11 @@
+## [62.9.7](https://github.com/MirrorNG/MirrorNG/compare/v62.9.6...v62.9.7) (2021-02-01)
+
+
+### Bug Fixes
+
+* add ignorance support with defines for test ([35634d5](https://github.com/MirrorNG/MirrorNG/commit/35634d599c4d8a7b71a1866491200745bcf5928f))
+* make test transport agnostic ([cbb00b3](https://github.com/MirrorNG/MirrorNG/commit/cbb00b3501c7d5fe83f42deec5dfe964fdea7592))
+
 ## [62.9.6](https://github.com/MirrorNG/MirrorNG/compare/v62.9.5...v62.9.6) (2021-01-31)
 
 
