@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Performance.Runtime
@@ -23,11 +24,14 @@ namespace Mirror.Tests.Performance.Runtime
         const int ClientCount = 10;
         const int MonsterCount = 10;
 
-        public NetworkServer server;
-        public ServerObjectManager serverObjectManager;
-        public Transport transport;
+        [FormerlySerializedAs("server")]
+        public NetworkServer Server;
+        [FormerlySerializedAs("serverObjectManager")]
+        public ServerObjectManager ServerObjectManager;
+        [FormerlySerializedAs("transport")]
+        public Transport Transport;
 
-        public NetworkIdentity monsterPrefab;
+        public NetworkIdentity MonsterPrefab;
 
 
         [UnitySetUp]
@@ -38,24 +42,24 @@ namespace Mirror.Tests.Performance.Runtime
             Scene scene = SceneManager.GetSceneByPath(ScenePath);
             SceneManager.SetActiveScene(scene);
 
-            monsterPrefab = AssetDatabase.LoadAssetAtPath<NetworkIdentity>(MonsterPath);
+            MonsterPrefab = AssetDatabase.LoadAssetAtPath<NetworkIdentity>(MonsterPath);
             // load host
-            server = Object.FindObjectOfType<NetworkServer>();
-            serverObjectManager = Object.FindObjectOfType<ServerObjectManager>();
+            Server = Object.FindObjectOfType<NetworkServer>();
+            ServerObjectManager = Object.FindObjectOfType<ServerObjectManager>();
 
-            server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
+            Server.Authenticated.AddListener(conn => ServerObjectManager.SetClientReady(conn));
 
             var started = new UniTaskCompletionSource();
-            server.Started.AddListener(()=> started.TrySetResult());
-            server.ListenAsync().Forget();
+            Server.Started.AddListener(()=> started.TrySetResult());
+            Server.ListenAsync().Forget();
 
             await started.Task;
 
-            transport = Object.FindObjectOfType<Transport>();
+            Transport = Object.FindObjectOfType<Transport>();
 
             // connect from a bunch of clients
             for (int i = 0; i < ClientCount; i++)
-                await StartClient(i, transport);
+                await StartClient(i, Transport);
 
             // spawn a bunch of monsters
             for (int i = 0; i < MonsterCount; i++)
@@ -74,7 +78,7 @@ namespace Mirror.Tests.Performance.Runtime
             objectManager.Start();
             client.Transport = transport;
 
-            objectManager.RegisterPrefab(monsterPrefab);
+            objectManager.RegisterPrefab(MonsterPrefab);
             client.ConnectAsync("localhost");
             while (!client.IsConnected)
                 yield return null;
@@ -82,18 +86,18 @@ namespace Mirror.Tests.Performance.Runtime
 
         private void SpawnMonster(int i)
         {
-            NetworkIdentity monster = Object.Instantiate(monsterPrefab);
+            NetworkIdentity monster = Object.Instantiate(MonsterPrefab);
 
             monster.GetComponent<MonsterBehavior>().MonsterId = i;
             monster.gameObject.name = $"Monster {i}";
-            serverObjectManager.Spawn(monster.gameObject);
+            ServerObjectManager.Spawn(monster.gameObject);
         }
 
         [UnityTearDown]
         public IEnumerator TearDown()
         {
             // shutdown
-            server.Disconnect();
+            Server.Disconnect();
             yield return null;
 
             // unload scene
