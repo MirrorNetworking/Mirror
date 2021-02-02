@@ -1,12 +1,14 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
     public class HeadlessAutoStart : MonoBehaviour
     {
-        public NetworkServer server;
+        [FormerlySerializedAs("server")]
+        public NetworkServer Server;
 
         /// <summary>
         /// Automatically invoke StartServer()
@@ -20,9 +22,9 @@ namespace Mirror
             // headless mode? then start the server
             // can't do this in Awake because Awake is for initialization.
             // some transports might not be ready until Start.
-            if (server && SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
+            if (Server && SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null && startOnHeadless)
             {
-                server.ListenAsync().Forget();
+                Server.ListenAsync().Forget();
             }
         }
     }
