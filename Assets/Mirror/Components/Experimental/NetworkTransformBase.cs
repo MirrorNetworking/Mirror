@@ -89,7 +89,7 @@ namespace Mirror.Experimental
 
         // client
         // use local position/rotation for VR support
-        [Serializable]
+        [System.Serializable]
         public struct DataPoint
         {
             public float timeStamp;

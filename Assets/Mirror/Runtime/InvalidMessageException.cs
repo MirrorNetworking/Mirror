@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Mirror
 {
 
-    [Serializable]
+    [System.Serializable]
     public class InvalidMessageException : Exception
     {
         public InvalidMessageException()

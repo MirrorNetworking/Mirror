@@ -56,11 +56,18 @@ namespace Mirror
         public bool error = true;
     }
 
+    /// <summary>
+    /// Tell the weaver to generate  reader and writer for a class
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+    public class SerializableAttribute : Attribute
+    {
+    }
 
     /// <summary>
     /// Exception thrown if a guarded method is invoked incorrectly
     /// </summary>
-    [Serializable]
+    [System.Serializable]
     public class MethodInvocationException : Exception
     {
         /// <summary>

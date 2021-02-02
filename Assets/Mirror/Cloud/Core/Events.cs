@@ -4,9 +4,9 @@ using UnityEngine.Events;
 
 namespace Mirror.Cloud
 {
-    [Serializable]
+    [System.Serializable]
     public class ServerListEvent : UnityEvent<ServerCollectionJson> { }
 
-    [Serializable]
+    [System.Serializable]
     public class MatchFoundEvent : UnityEvent<ServerJson> { }
 }

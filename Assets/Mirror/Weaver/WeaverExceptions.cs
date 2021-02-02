@@ -3,7 +3,7 @@ using Mono.Cecil;
 
 namespace Mirror.Weaver
 {
-    [Serializable]
+    [System.Serializable]
     public abstract class WeaverException : Exception
     {
         public MemberReference MemberReference { get; }
@@ -16,7 +16,7 @@ namespace Mirror.Weaver
         protected WeaverException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) : base(serializationInfo, streamingContext) { }
     }
 
-    [Serializable]
+    [System.Serializable]
     public class GenerateWriterException : WeaverException
     {
         public GenerateWriterException(string message, MemberReference member) : base(message, member) { }

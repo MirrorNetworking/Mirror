@@ -2,13 +2,13 @@ using System;
 
 namespace Mirror.Cloud
 {
-    [Serializable]
+    [System.Serializable]
     public struct CreatedIdJson : ICanBeJson
     {
         public string id;
     }
 
-    [Serializable]
+    [System.Serializable]
     public struct ErrorJson : ICanBeJson
     {
         public string code;
@@ -17,7 +17,7 @@ namespace Mirror.Cloud
         public int HtmlCode => int.Parse(code);
     }
 
-    [Serializable]
+    [System.Serializable]
     public struct EmptyJson : ICanBeJson
     {
     }

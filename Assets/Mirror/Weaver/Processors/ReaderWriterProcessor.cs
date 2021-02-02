@@ -30,7 +30,8 @@ namespace Mirror.Weaver
             messages.Clear();
 
 
-            LoadBuiltInReadersAndWriters();
+            LoadBuiltinExtensions();
+            LoadBuiltinSerializable();
 
             int writeCount = writers.Count;
             int readCount = readers.Count;
@@ -43,7 +44,7 @@ namespace Mirror.Weaver
         private static bool IsExtension(MethodInfo method) => Attribute.IsDefined(method, typeof(System.Runtime.CompilerServices.ExtensionAttribute));
 
         #region Load MirrorNG built in readers and writers
-        private void LoadBuiltInReadersAndWriters()
+        private void LoadBuiltinExtensions()
         {
             // find all extension methods
             IEnumerable<Type> types = typeof(NetworkReaderExtensions).Module.GetTypes().Where(t => t.IsSealed && t.IsAbstract);
@@ -60,6 +61,17 @@ namespace Mirror.Weaver
                 }
             }
         }
+
+        private void LoadBuiltinSerializable()
+        {
+            IEnumerable<Type> types = typeof(NetworkReaderExtensions).Module.GetTypes().Where(t => t.GetCustomAttribute<SerializableAttribute>() != null);
+            foreach (Type type in types)
+            {
+                writers.GetWriteFunc(module.ImportReference(type), null);
+                readers.GetReadFunc(module.ImportReference(type), null);
+            }
+        }
+
 
         private void RegisterReader(MethodInfo method)
         {

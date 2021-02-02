@@ -8,7 +8,7 @@ namespace Mirror
     [AddComponentMenu("Network/LogSettings")]
     public class LogSettings : MonoBehaviour
     {
-        [Serializable]
+        [System.Serializable]
         public struct Level
         {
             public string Name;

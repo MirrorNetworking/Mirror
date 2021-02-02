@@ -6,12 +6,16 @@ namespace Mirror
 
     #region Public System Messages
 
+    [Serializable]
     public struct ReadyMessage { }
 
+    [Serializable]
     public struct NotReadyMessage { }
 
+    [Serializable]
     public struct AddPlayerMessage { }
 
+    [Serializable]
     public struct SceneMessage 
     {
         public string scenePath;
@@ -20,6 +24,7 @@ namespace Mirror
         public string[] additiveScenes;
     }
 
+    [Serializable]
     public struct SceneReadyMessage { }
 
     public enum SceneOperation : byte
@@ -32,6 +37,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
+    [Serializable]
     public struct ServerRpcMessage
     {
         public uint netId;
@@ -46,12 +52,14 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
+    [Serializable]
     public struct ServerRpcReply
     {
         public int replyId;
         public ArraySegment<byte> payload;
     }
 
+    [Serializable]
     public struct RpcMessage
     {
         public uint netId;
@@ -64,6 +72,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
+    [Serializable]
     public struct SpawnMessage
     {
         /// <summary>
@@ -106,16 +115,19 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
+    [Serializable]
     public struct ObjectDestroyMessage
     {
         public uint netId;
     }
 
+    [Serializable]
     public struct ObjectHideMessage
     {
         public uint netId;
     }
 
+    [Serializable]
     public struct UpdateVarsMessage
     {
         public uint netId;
@@ -126,6 +138,7 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
+    [Serializable]
     public struct NetworkPingMessage
     {
         public double clientTime;
@@ -133,6 +146,7 @@ namespace Mirror
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
+    [Serializable]
     public struct NetworkPongMessage 
     {
         public double clientTime;

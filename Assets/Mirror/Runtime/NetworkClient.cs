@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 namespace Mirror
 {
-    [Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
+    [System.Serializable] public class NetworkConnectionEvent : UnityEvent<INetworkConnection> { }
 
     public enum ConnectState
     {

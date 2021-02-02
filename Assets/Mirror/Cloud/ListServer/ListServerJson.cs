@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace Mirror.Cloud.ListServerService
 {
-    [Serializable]
+    [System.Serializable]
     public struct ServerCollectionJson : ICanBeJson
     {
         public ServerJson[] servers;
     }
 
-    [Serializable]
+    [System.Serializable]
     public struct ServerJson : ICanBeJson
     {
         public string protocol;
@@ -97,7 +97,7 @@ namespace Mirror.Cloud.ListServerService
         }
     }
 
-    [Serializable]
+    [System.Serializable]
     public struct PartialServerJson : ICanBeJson
     {
         /// <summary>
@@ -174,7 +174,7 @@ namespace Mirror.Cloud.ListServerService
         }
     }
 
-    [Serializable]
+    [System.Serializable]
     public struct KeyValue
     {
         const int MaxKeySize = 32;
