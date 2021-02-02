@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -7,8 +8,10 @@ namespace Mirror
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(OnlineOfflineScene));
 
-        public NetworkClient client;
-        public NetworkServer server;
+        [FormerlySerializedAs("client")]
+        public NetworkClient Client;
+        [FormerlySerializedAs("server")]
+        public NetworkServer Server;
 
         [Scene]
         [Tooltip("Assign the OnlineScene to load for this zone")]
@@ -27,14 +30,14 @@ namespace Mirror
             if (string.IsNullOrEmpty(OfflineScene))
                 throw new MissingReferenceException("OfflineScene missing. Please assign to OnlineOfflineScene component.");
 
-            if (client != null)
+            if (Client != null)
             {
-                client.Disconnected.AddListener(OnClientDisconnected);
+                Client.Disconnected.AddListener(OnClientDisconnected);
             }
-            if (server != null)
+            if (Server != null)
             {
-                server.Started.AddListener(OnServerStarted);
-                server.Stopped.AddListener(OnServerStopped);
+                Server.Started.AddListener(OnServerStarted);
+                Server.Stopped.AddListener(OnServerStopped);
             }
         }
 
