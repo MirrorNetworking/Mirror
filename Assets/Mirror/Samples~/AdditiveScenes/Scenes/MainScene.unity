@@ -1880,11 +1880,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 1661834283}
-  client: {fileID: 1661834282}
-  sceneManager: {fileID: 1661834284}
-  serverObjectManager: {fileID: 1661834286}
-  clientObjectManager: {fileID: 1661834281}
+  Server: {fileID: 1661834283}
+  Client: {fileID: 1661834282}
+  SceneManager: {fileID: 1661834284}
+  ServerObjectManager: {fileID: 1661834286}
+  ClientObjectManager: {fileID: 1661834281}
 --- !u!4 &1661834279
 Transform:
   m_ObjectHideFlags: 0
@@ -1911,12 +1911,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 1661834282}
-  server: {fileID: 1661834283}
-  sceneManager: {fileID: 1661834284}
-  clientObjectManager: {fileID: 1661834281}
-  serverObjectManager: {fileID: 1661834286}
-  playerPrefab: {fileID: 8537344390966522168, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
+  Client: {fileID: 1661834282}
+  Server: {fileID: 1661834283}
+  SceneManager: {fileID: 1661834284}
+  ClientObjectManager: {fileID: 1661834281}
+  ServerObjectManager: {fileID: 1661834286}
+  PlayerPrefab: {fileID: 8537344390966522168, guid: a5bdca0a2315d43499be7dcef473fbc7, type: 3}
   startPositionIndex: 0
   startPositions:
   - {fileID: 178547538}
@@ -1936,8 +1936,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 1661834282}
-  networkSceneManager: {fileID: 1661834284}
+  Client: {fileID: 1661834282}
+  NetworkSceneManager: {fileID: 1661834284}
   spawnPrefabs:
   - {fileID: 2648107611936813301, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
   - {fileID: 5623359707189648404, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}
@@ -2004,7 +2004,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 1661834285}
+  Transport: {fileID: 1661834285}
 --- !u!114 &1661834284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2017,8 +2017,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 1661834282}
-  server: {fileID: 1661834283}
+  Client: {fileID: 1661834282}
+  Server: {fileID: 1661834283}
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -2063,8 +2063,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 1661834283}
-  networkSceneManager: {fileID: 1661834284}
+  Server: {fileID: 1661834283}
+  NetworkSceneManager: {fileID: 1661834284}
 --- !u!114 &1661834287
 MonoBehaviour:
   m_ObjectHideFlags: 0

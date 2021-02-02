@@ -158,12 +158,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 493337953}
-  server: {fileID: 493337954}
-  sceneManager: {fileID: 493337957}
-  clientObjectManager: {fileID: 493337958}
-  serverObjectManager: {fileID: 493337959}
-  playerPrefab: {fileID: 4169741493956293168, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
+  Client: {fileID: 493337953}
+  Server: {fileID: 493337954}
+  SceneManager: {fileID: 493337957}
+  ClientObjectManager: {fileID: 493337958}
+  ServerObjectManager: {fileID: 493337959}
+  PlayerPrefab: {fileID: 4169741493956293168, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
   startPositionIndex: 0
   startPositions: []
   playerSpawnMethod: 0
@@ -253,11 +253,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 493337954}
-  client: {fileID: 493337953}
-  sceneManager: {fileID: 493337957}
-  serverObjectManager: {fileID: 493337959}
-  clientObjectManager: {fileID: 493337958}
+  Server: {fileID: 493337954}
+  Client: {fileID: 493337953}
+  SceneManager: {fileID: 493337957}
+  ServerObjectManager: {fileID: 493337959}
+  ClientObjectManager: {fileID: 493337958}
 --- !u!114 &493337957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270,8 +270,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 493337953}
-  server: {fileID: 493337954}
+  Client: {fileID: 493337953}
+  Server: {fileID: 493337954}
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -296,8 +296,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 493337953}
-  networkSceneManager: {fileID: 493337957}
+  Client: {fileID: 493337953}
+  NetworkSceneManager: {fileID: 493337957}
   spawnPrefabs: []
 --- !u!114 &493337959
 MonoBehaviour:
@@ -311,8 +311,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 493337954}
-  networkSceneManager: {fileID: 493337957}
+  Server: {fileID: 493337954}
+  NetworkSceneManager: {fileID: 493337957}
 --- !u!1 &1064133783
 GameObject:
   m_ObjectHideFlags: 0
@@ -418,7 +418,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkManager: {fileID: 493337956}
-  serverObjectManager: {fileID: 493337959}
+  ServerObjectManager: {fileID: 493337959}
   MonsterPrefab: {fileID: 6374416922608025457, guid: 28d1af38d0173324ea03798dd86eac8f, type: 3}
   PlayerPrefab: {fileID: 7039704267495960125, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
   editorArgs: -transport kcp -server -port 3333

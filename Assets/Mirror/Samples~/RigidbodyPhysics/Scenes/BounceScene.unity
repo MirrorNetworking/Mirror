@@ -256,8 +256,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 492096641}
-  server: {fileID: 492096640}
+  Client: {fileID: 492096641}
+  Server: {fileID: 492096640}
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -282,11 +282,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 492096640}
-  client: {fileID: 492096641}
-  sceneManager: {fileID: 492096634}
-  serverObjectManager: {fileID: 492096642}
-  clientObjectManager: {fileID: 492096637}
+  Server: {fileID: 492096640}
+  Client: {fileID: 492096641}
+  SceneManager: {fileID: 492096634}
+  ServerObjectManager: {fileID: 492096642}
+  ClientObjectManager: {fileID: 492096637}
 --- !u!4 &492096636
 Transform:
   m_ObjectHideFlags: 0
@@ -313,8 +313,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 492096641}
-  networkSceneManager: {fileID: 492096634}
+  Client: {fileID: 492096641}
+  NetworkSceneManager: {fileID: 492096634}
   spawnPrefabs:
   - {fileID: 1287874831399521600, guid: 4ab0a427bdc13244499c6e044ad7eb40, type: 3}
 --- !u!114 &492096638
@@ -329,8 +329,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3fbf0a5cb914b1c9bbb8a42e081f4bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Started:
+    m_PersistentCalls:
+      m_Calls: []
   Port: 7777
   HashCashBits: 18
+  SendWindowSize: 32
+  ReceiveWindowSize: 8192
   delayMode: 0
 --- !u!114 &492096639
 MonoBehaviour:
@@ -344,12 +349,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 492096641}
-  server: {fileID: 492096640}
-  sceneManager: {fileID: 492096634}
-  clientObjectManager: {fileID: 492096637}
-  serverObjectManager: {fileID: 492096642}
-  playerPrefab: {fileID: 1287874831399521600, guid: 4ab0a427bdc13244499c6e044ad7eb40, type: 3}
+  Client: {fileID: 492096641}
+  Server: {fileID: 492096640}
+  SceneManager: {fileID: 492096634}
+  ClientObjectManager: {fileID: 492096637}
+  ServerObjectManager: {fileID: 492096642}
+  PlayerPrefab: {fileID: 1287874831399521600, guid: 4ab0a427bdc13244499c6e044ad7eb40, type: 3}
   startPositionIndex: 0
   startPositions: []
   playerSpawnMethod: 0
@@ -389,7 +394,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 492096638}
+  Transport: {fileID: 492096638}
 --- !u!114 &492096641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,8 +430,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 492096640}
-  networkSceneManager: {fileID: 492096634}
+  Server: {fileID: 492096640}
+  NetworkSceneManager: {fileID: 492096634}
 --- !u!114 &492096643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -440,23 +445,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Levels:
-  - Name: NetworkIdentity
-    level: 2
   - Name: NetworkBehaviour
     level: 2
-  - Name: ServerObjectManager
-    level: 2
   - Name: ClientObjectManager
+    level: 2
+  - Name: NetworkIdentity
+    level: 2
+  - Name: NetworkSceneManager
     level: 2
   - Name: NetworkServer
     level: 2
   - Name: NetworkTime
     level: 2
-  - Name: NetworkSceneManager
+  - Name: NetworkClient
+    level: 2
+  - Name: ServerObjectManager
     level: 2
   - Name: PlayerSpawner
     level: 2
-  - Name: NetworkClient
+  - Name: RemoteCallHelper
     level: 2
   - Name: EnterPlayModeSettingsCheck
     level: 2
@@ -464,36 +471,50 @@ MonoBehaviour:
     level: 2
   - Name: NetworkConnection
     level: 2
-  - Name: NetworkWriterPool
-    level: 2
   - Name: NetworkReaderExtensions
+    level: 2
+  - Name: NetworkWriterPool
     level: 2
   - Name: NetworkReaderPool
     level: 2
-  - Name: ZoneHandler
+  - Name: BasicAuthenticator
     level: 2
-  - Name: AdditiveNetworkManager
+  - Name: NetworkRigidbody
     level: 2
   - Name: NetworkProximityChecker
     level: 2
-  - Name: RemoteCallHelper
-    level: 2
   - Name: NetworkAnimator
-    level: 2
-  - Name: SceneDrawer
-    level: 2
-  - Name: ChatWindow
-    level: 2
-  - Name: NetworkDiscovery
-    level: 2
-  - Name: NetworkDiscoveryBase`2
     level: 2
   - Name: NetworkSceneChecker
     level: 2
   - Name: Reward
     level: 2
-  - Name: NetworkRigidbody
+  - Name: HeadlessFrameLimiter
     level: 2
+  - Name: LogFactoryTests
+    level: 2
+  - Name: NetworkManager
+    level: 2
+  - Name: WeaverTests
+    level: 4
+  - Name: NetworkBehaviourInspector
+    level: 2
+  - Name: ChatWindow
+    level: 2
+  - Name: AdditiveNetworkManager
+    level: 2
+  - Name: ZoneHandler
+    level: 2
+  - Name: SceneDrawer
+    level: 2
+  - Name: NetworkDiscovery
+    level: 2
+  - Name: NetworkDiscoveryBase`2
+    level: 2
+  - Name: KcpConnection
+    level: 2
+  - Name: Tests
+    level: 4
 --- !u!1 &746548597
 GameObject:
   m_ObjectHideFlags: 0
@@ -639,7 +660,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 4215798323
-  serverOnly: 0
   ServerObjectManager: {fileID: 0}
   ClientObjectManager: {fileID: 0}
   m_AssetId: 
@@ -941,7 +961,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 707906828
-  serverOnly: 0
   ServerObjectManager: {fileID: 0}
   ClientObjectManager: {fileID: 0}
   m_AssetId: 

@@ -272,7 +272,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 1193428350}
+  Transport: {fileID: 1193428350}
 --- !u!114 &1193428349
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,8 +285,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 0}
-  server: {fileID: 1193428348}
+  Client: {fileID: 0}
+  Server: {fileID: 1193428348}
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -340,8 +340,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 0}
-  networkSceneManager: {fileID: 1193428349}
+  Client: {fileID: 0}
+  NetworkSceneManager: {fileID: 1193428349}
   spawnPrefabs: []
 --- !u!114 &1193428353
 MonoBehaviour:
@@ -355,8 +355,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 1193428348}
-  networkSceneManager: {fileID: 1193428349}
+  Server: {fileID: 1193428348}
+  NetworkSceneManager: {fileID: 1193428349}
 --- !u!1 &1615514841
 GameObject:
   m_ObjectHideFlags: 0

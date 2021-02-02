@@ -180,12 +180,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 249891958}
-  server: {fileID: 249891959}
-  sceneManager: {fileID: 249891960}
-  clientObjectManager: {fileID: 249891961}
-  serverObjectManager: {fileID: 249891962}
-  playerPrefab: {fileID: 1088833923132447018, guid: 22f1fa3a0aff72b46a371f667bb4fb30, type: 3}
+  Client: {fileID: 249891958}
+  Server: {fileID: 249891959}
+  SceneManager: {fileID: 249891960}
+  ClientObjectManager: {fileID: 249891961}
+  ServerObjectManager: {fileID: 249891962}
+  PlayerPrefab: {fileID: 1088833923132447018, guid: 22f1fa3a0aff72b46a371f667bb4fb30, type: 3}
   startPositionIndex: 0
   startPositions: []
   playerSpawnMethod: 1
@@ -201,11 +201,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 249891959}
-  client: {fileID: 249891958}
-  sceneManager: {fileID: 249891960}
-  serverObjectManager: {fileID: 249891962}
-  clientObjectManager: {fileID: 249891961}
+  Server: {fileID: 249891959}
+  Client: {fileID: 249891958}
+  SceneManager: {fileID: 249891960}
+  ServerObjectManager: {fileID: 249891962}
+  ClientObjectManager: {fileID: 249891961}
 --- !u!4 &249891957
 Transform:
   m_ObjectHideFlags: 0
@@ -279,7 +279,7 @@ MonoBehaviour:
       m_Calls: []
   authenticator: {fileID: 0}
   Listening: 1
-  transport: {fileID: 249891954}
+  Transport: {fileID: 249891954}
 --- !u!114 &249891960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,8 +292,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 249891958}
-  server: {fileID: 249891959}
+  Client: {fileID: 249891958}
+  Server: {fileID: 249891959}
   ClientChangeScene:
     m_PersistentCalls:
       m_Calls: []
@@ -318,8 +318,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  client: {fileID: 249891958}
-  networkSceneManager: {fileID: 249891960}
+  Client: {fileID: 249891958}
+  NetworkSceneManager: {fileID: 249891960}
   spawnPrefabs:
   - {fileID: 1088833923132447018, guid: 22f1fa3a0aff72b46a371f667bb4fb30, type: 3}
 --- !u!114 &249891962
@@ -334,8 +334,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 249891959}
-  networkSceneManager: {fileID: 249891960}
+  Server: {fileID: 249891959}
+  NetworkSceneManager: {fileID: 249891960}
 --- !u!114 &249891963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,43 +349,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Levels:
-  - Name: NetworkSceneManager
-    level: 2
-  - Name: NetworkClient
-    level: 2
-  - Name: NetworkTime
-    level: 2
-  - Name: NetworkServer
-    level: 2
-  - Name: PlayerSpawner
+  - Name: NetworkBehaviour
     level: 2
   - Name: ClientObjectManager
     level: 2
   - Name: NetworkIdentity
     level: 2
+  - Name: NetworkSceneManager
+    level: 2
+  - Name: NetworkServer
+    level: 2
+  - Name: NetworkTime
+    level: 2
+  - Name: NetworkClient
+    level: 2
   - Name: ServerObjectManager
     level: 2
-  - Name: NetworkBehaviour
-    level: 2
-  - Name: NetworkBehaviourInspector
-    level: 2
-  - Name: NetworkRigidbody
+  - Name: PlayerSpawner
     level: 2
   - Name: RemoteCallHelper
-    level: 2
-  - Name: Reward
-    level: 2
-  - Name: NetworkSceneChecker
-    level: 2
-  - Name: ChatWindow
-    level: 2
-  - Name: NetworkProximityChecker
-    level: 2
-  - Name: AdditiveNetworkManager
-    level: 2
-  - Name: NetworkAnimator
-    level: 2
-  - Name: ZoneHandler
     level: 2
   - Name: EnterPlayModeSettingsCheck
     level: 2
@@ -393,20 +375,50 @@ MonoBehaviour:
     level: 2
   - Name: NetworkConnection
     level: 2
-  - Name: NetworkWriterPool
-    level: 2
   - Name: NetworkReaderExtensions
+    level: 2
+  - Name: NetworkWriterPool
     level: 2
   - Name: NetworkReaderPool
     level: 2
-  - Name: SceneDrawer
-    level: 2
   - Name: BasicAuthenticator
+    level: 2
+  - Name: NetworkRigidbody
+    level: 2
+  - Name: NetworkProximityChecker
+    level: 2
+  - Name: NetworkAnimator
+    level: 2
+  - Name: NetworkSceneChecker
+    level: 2
+  - Name: Reward
+    level: 2
+  - Name: HeadlessFrameLimiter
+    level: 2
+  - Name: LogFactoryTests
+    level: 2
+  - Name: NetworkManager
+    level: 2
+  - Name: WeaverTests
+    level: 4
+  - Name: NetworkBehaviourInspector
+    level: 2
+  - Name: ChatWindow
+    level: 2
+  - Name: AdditiveNetworkManager
+    level: 2
+  - Name: ZoneHandler
+    level: 2
+  - Name: SceneDrawer
     level: 2
   - Name: NetworkDiscovery
     level: 2
   - Name: NetworkDiscoveryBase`2
     level: 2
+  - Name: KcpConnection
+    level: 2
+  - Name: Tests
+    level: 4
 --- !u!1 &283483315
 GameObject:
   m_ObjectHideFlags: 0
