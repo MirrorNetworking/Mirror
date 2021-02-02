@@ -1,3 +1,35 @@
+# [63.0.0](https://github.com/MirrorNG/MirrorNG/compare/v62.10.0...v63.0.0) (2021-02-02)
+
+
+### Bug Fixes
+
+* object references in examples ([06d89c0](https://github.com/MirrorNG/MirrorNG/commit/06d89c07262b2562bbef33de37615a32356cd1ee))
+
+
+### Styles
+
+* Use PascalCase for public fields ([9dc94c1](https://github.com/MirrorNG/MirrorNG/commit/9dc94c10e05396a14514ea3bf43276830fe061f1))
+* Use PascalCase for public fields ([8a195f6](https://github.com/MirrorNG/MirrorNG/commit/8a195f607f671f05ffaa9cf9b9cc9067e46cba35))
+* Use PascalCase for public fields ([8366e80](https://github.com/MirrorNG/MirrorNG/commit/8366e80e7887112a23f0b03a97bae47893be3bf4))
+* Use PascalCase for public fields ([2717957](https://github.com/MirrorNG/MirrorNG/commit/2717957b13523f4d93199f7afda46a5f41ec53ce))
+* Use PascalCase for public fields ([f1758d3](https://github.com/MirrorNG/MirrorNG/commit/f1758d306e4c300e1f357f7fb3c242b34df421fc))
+* Use PascalCase for public fields ([e478d8d](https://github.com/MirrorNG/MirrorNG/commit/e478d8d2df6611fc572f49693cc66eb0bf89a856))
+* Use PascalCase for public fields ([5f88032](https://github.com/MirrorNG/MirrorNG/commit/5f880329539eebaa84bed45dfb6e5ed3aedb7dec))
+
+
+### BREAKING CHANGES
+
+* HeadlessAutoStart.* renamed to follow PascalCase
+* OnlineOfflineScene to use PascalCase
+* PlayerSpawner.* renamed to follow PascalCase
+* NetworkManager fields renamed to PascalCase
+* ClientObjectManager.client renamed to .Client
+* ClientObjectManager.networkSceneManager renamed to .NetworkSceneManager
+* ServerObjectManager.server renamed to .Server
+* ServerObjectManager.networkSceneManager renamed to .NetworkSceneManager
+* NetworkSceneManager.client renamed to .Client
+* NetworkSceneManager.server renamed to .Server
+
 # [62.10.0](https://github.com/MirrorNG/MirrorNG/compare/v62.9.8...v62.10.0) (2021-02-01)
 
 
