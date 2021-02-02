@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Mirror.Examples.Chat
@@ -8,10 +9,14 @@ namespace Mirror.Examples.Chat
     {
         static readonly ILogger logger = LogFactory.GetLogger(typeof(ChatWindow));
 
-        public NetworkClient client;
-        public InputField chatMessage;
-        public Text chatHistory;
-        public Scrollbar scrollbar;
+        [FormerlySerializedAs("client")]
+        public NetworkClient Client;
+        [FormerlySerializedAs("chatMessage")]
+        public InputField ChatMessage;
+        [FormerlySerializedAs("chatHistory")]
+        public Text ChatHistory;
+        [FormerlySerializedAs("scrollbar")]
+        public Scrollbar Scrollbar;
 
         public void Awake()
         {
@@ -30,16 +35,16 @@ namespace Mirror.Examples.Chat
 
         public void OnSend()
         {
-            if (chatMessage.text.Trim() == "")
+            if (ChatMessage.text.Trim() == "")
                 return;
 
             // get our player
-            Player player = client.Connection.Identity.GetComponent<Player>();
+            Player player = Client.Connection.Identity.GetComponent<Player>();
 
             // send a message
-            player.CmdSend(chatMessage.text.Trim());
+            player.CmdSend(ChatMessage.text.Trim());
 
-            chatMessage.text = "";
+            ChatMessage.text = "";
         }
 
         internal void AppendMessage(string message)
@@ -49,14 +54,14 @@ namespace Mirror.Examples.Chat
 
         IEnumerator AppendAndScroll(string message)
         {
-            chatHistory.text += message + "\n";
+            ChatHistory.text += message + "\n";
 
             // it takes 2 frames for the UI to update ?!?!
             yield return null;
             yield return null;
 
             // slam the scrollbar down
-            scrollbar.value = 0;
+            Scrollbar.value = 0;
         }
     }
 }
