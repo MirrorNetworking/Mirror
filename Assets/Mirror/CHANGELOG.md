@@ -1,3 +1,10 @@
+## [63.2.1](https://github.com/MirrorNG/MirrorNG/compare/v63.2.0...v63.2.1) (2021-02-03)
+
+
+### Bug Fixes
+
+* built in messages get an id ([fe71bcd](https://github.com/MirrorNG/MirrorNG/commit/fe71bcdfe4a4af3b3018d05a8e2b37b452868931))
+
 # [63.2.0](https://github.com/MirrorNG/MirrorNG/compare/v63.1.0...v63.2.0) (2021-02-03)
 
 
