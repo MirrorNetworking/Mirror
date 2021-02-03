@@ -1,3 +1,10 @@
+# [63.2.0](https://github.com/MirrorNG/MirrorNG/compare/v63.1.0...v63.2.0) (2021-02-03)
+
+
+### Features
+
+* raise event when spawning objects ([#564](https://github.com/MirrorNG/MirrorNG/issues/564)) ([60725d9](https://github.com/MirrorNG/MirrorNG/commit/60725d951cd6dc9718dd2801b8cf648b86b474fc))
+
 # [63.1.0](https://github.com/MirrorNG/MirrorNG/compare/v63.0.1...v63.1.0) (2021-02-03)
 
 
