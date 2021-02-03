@@ -82,7 +82,6 @@ namespace Mirror.Tests.ClientServer
         public void SpawnSceneObject()
         {
             serverIdentity.sceneId = 42;
-            // unspawned scene objects are set to inactive before spawning
             serverIdentity.gameObject.SetActive(false);
             Assert.That(serverObjectManager.SpawnObjects(), Is.True);
             Assert.That(serverIdentity.gameObject.activeSelf, Is.True);
@@ -92,7 +91,6 @@ namespace Mirror.Tests.ClientServer
         public void SpawnPrefabObject()
         {
             serverIdentity.sceneId = 0;
-            // unspawned scene objects are set to inactive before spawning
             serverIdentity.gameObject.SetActive(false);
             Assert.That(serverObjectManager.SpawnObjects(), Is.True);
             Assert.That(serverIdentity.gameObject.activeSelf, Is.False);
