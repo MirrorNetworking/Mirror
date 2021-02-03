@@ -1,3 +1,15 @@
+# [63.3.0](https://github.com/MirrorNG/MirrorNG/compare/v63.2.1...v63.3.0) (2021-02-03)
+
+
+### Bug Fixes
+
+* remove last start call ([b8fc97d](https://github.com/MirrorNG/MirrorNG/commit/b8fc97d1b22f18447849929d056305b34859face))
+
+
+### Features
+
+* explicit declaration of network messages ([#565](https://github.com/MirrorNG/MirrorNG/issues/565)) ([b0610e2](https://github.com/MirrorNG/MirrorNG/commit/b0610e2c6fb8fb99d9accc02a3f464cae24b6f85))
+
 ## [63.2.1](https://github.com/MirrorNG/MirrorNG/compare/v63.2.0...v63.2.1) (2021-02-03)
 
 
