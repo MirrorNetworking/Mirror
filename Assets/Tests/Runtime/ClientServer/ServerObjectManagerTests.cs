@@ -70,8 +70,8 @@ namespace Mirror.Tests.ClientServer
 
             connectionToClient.IsReady = true;
 
-        // call ShowForConnection
-        serverObjectManager.ShowForConnection(serverIdentity, connectionToClient);
+            // call ShowForConnection
+            serverObjectManager.ShowForConnection(serverIdentity, connectionToClient);
 
             connectionToServer.ProcessMessagesAsync().Forget();
 
