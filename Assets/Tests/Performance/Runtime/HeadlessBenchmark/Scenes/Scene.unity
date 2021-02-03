@@ -123,196 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &493337951
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 493337955}
-  - component: {fileID: 493337954}
-  - component: {fileID: 493337953}
-  - component: {fileID: 493337956}
-  - component: {fileID: 493337957}
-  - component: {fileID: 493337952}
-  - component: {fileID: 493337958}
-  - component: {fileID: 493337959}
-  m_Layer: 0
-  m_Name: Network
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &493337952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7aaac73a16c040fd871cb977b5c557b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Client: {fileID: 493337953}
-  Server: {fileID: 493337954}
-  SceneManager: {fileID: 493337957}
-  ClientObjectManager: {fileID: 493337958}
-  ServerObjectManager: {fileID: 493337959}
-  PlayerPrefab: {fileID: 4169741493956293168, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
-  startPositionIndex: 0
-  startPositions: []
-  playerSpawnMethod: 0
---- !u!114 &493337953
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abe6be14204d94224a3e7cd99dd2ea73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  authenticator: {fileID: 0}
-  Connected:
-    m_PersistentCalls:
-      m_Calls: []
-  Authenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  Disconnected:
-    m_PersistentCalls:
-      m_Calls: []
-  Transport: {fileID: 0}
---- !u!114 &493337954
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5f5ec068f5604c32b160bc49ee97b75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MaxConnections: 100000
-  Started:
-    m_PersistentCalls:
-      m_Calls: []
-  Connected:
-    m_PersistentCalls:
-      m_Calls: []
-  Authenticated:
-    m_PersistentCalls:
-      m_Calls: []
-  Disconnected:
-    m_PersistentCalls:
-      m_Calls: []
-  Stopped:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStartHost:
-    m_PersistentCalls:
-      m_Calls: []
-  OnStopHost:
-    m_PersistentCalls:
-      m_Calls: []
-  authenticator: {fileID: 0}
-  Listening: 1
-  Transport: {fileID: 0}
---- !u!4 &493337955
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &493337956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Server: {fileID: 493337954}
-  Client: {fileID: 493337953}
-  SceneManager: {fileID: 493337957}
-  ServerObjectManager: {fileID: 493337959}
-  ClientObjectManager: {fileID: 493337958}
---- !u!114 &493337957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30967dfd80dbb6c46a270a64ebecb951, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Client: {fileID: 493337953}
-  Server: {fileID: 493337954}
-  ClientChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ClientSceneChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  ServerChangeScene:
-    m_PersistentCalls:
-      m_Calls: []
-  ServerSceneChanged:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!114 &493337958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2cbc85c1c2f1c249bbe95ae110bbcde, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Client: {fileID: 493337953}
-  NetworkSceneManager: {fileID: 493337957}
-  spawnPrefabs: []
---- !u!114 &493337959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 493337951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b750203ddb2d9f84abd799a5c2c32cb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Server: {fileID: 493337954}
-  NetworkSceneManager: {fileID: 493337957}
 --- !u!1 &1064133783
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,6 +208,7 @@ GameObject:
   - component: {fileID: 2043118187}
   - component: {fileID: 2043118186}
   - component: {fileID: 2043118188}
+  - component: {fileID: 2043118189}
   m_Layer: 0
   m_Name: HeadlessBenchmark
   m_TagString: Untagged
@@ -417,12 +228,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6d998ffbd3bb34dbaeaba6d44db15b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkManager: {fileID: 493337956}
-  ServerObjectManager: {fileID: 493337959}
+  server: {fileID: 0}
+  serverObjectManager: {fileID: 0}
   MonsterPrefab: {fileID: 6374416922608025457, guid: 28d1af38d0173324ea03798dd86eac8f, type: 3}
   PlayerPrefab: {fileID: 7039704267495960125, guid: bebeb0dfd33f4074894ef25112ab4a8d, type: 3}
-  editorArgs: -transport kcp -server -port 3333
-  kcpTransport: {fileID: 0}
+  editorArgs: -transport kcp -server -port 3333 -client 1
+  transport: {fileID: 0}
 --- !u!4 &2043118187
 Transform:
   m_ObjectHideFlags: 0
@@ -435,7 +246,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2043118188
 MonoBehaviour:
@@ -450,3 +261,78 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serverTickRate: 30
+--- !u!114 &2043118189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2043118185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac6e8eccf4b6f4dc7b24c276ef47fde8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Levels:
+  - Name: NetworkBehaviour
+    level: 2
+  - Name: HeadlessFrameLimiter
+    level: 2
+  - Name: NetworkIdentity
+    level: 2
+  - Name: RemoteCallHelper
+    level: 2
+  - Name: ClientObjectManager
+    level: 2
+  - Name: NetworkClient
+    level: 2
+  - Name: NetworkTime
+    level: 2
+  - Name: NetworkServer
+    level: 2
+  - Name: PlayerSpawner
+    level: 2
+  - Name: NetworkSceneManager
+    level: 2
+  - Name: ServerObjectManager
+    level: 2
+  - Name: NetworkProximityChecker
+    level: 2
+  - Name: NetworkAnimator
+    level: 2
+  - Name: NetworkSceneChecker
+    level: 2
+  - Name: Reward
+    level: 2
+  - Name: NetworkBehaviourInspector
+    level: 2
+  - Name: NetworkRigidbody
+    level: 2
+  - Name: ZoneHandler
+    level: 2
+  - Name: AdditiveNetworkManager
+    level: 2
+  - Name: EnterPlayModeSettingsCheck
+    level: 2
+  - Name: NetworkScenePostProcess
+    level: 2
+  - Name: NetworkConnection
+    level: 2
+  - Name: NetworkWriterPool
+    level: 2
+  - Name: NetworkReaderExtensions
+    level: 2
+  - Name: NetworkReaderPool
+    level: 2
+  - Name: BasicAuthenticator
+    level: 2
+  - Name: SceneDrawer
+    level: 2
+  - Name: ChatWindow
+    level: 2
+  - Name: NetworkDiscovery
+    level: 2
+  - Name: NetworkDiscoveryBase`2
+    level: 2
+  - Name: KcpConnection
+    level: 2

@@ -5,31 +5,41 @@ namespace Mirror.HeadlessBenchmark
 {
     public class AdjustableLoad : NetworkBehaviour
     {
-        public float MovementSpeed = 1;
-        public float RotateSpeed = 50;
+        private float movementDuration = 5.0f;
+        private float waitBeforeMoving = 5.0f;
+        private bool hasArrived = false;
 
-        [SyncVar]
-        public float Floaty;
-
-        public static WaitForSeconds wait1Sec;
-        public static float waitAmount;
-
-        public void Start()
+        private void Update()
         {
-            wait1Sec = new WaitForSeconds(waitAmount);
-            StartCoroutine(Move());
+            if (!IsLocalPlayer)
+                return;
+
+            if (!hasArrived)
+            {
+                hasArrived = true;
+                float randX = Random.Range(-15.0f, 15.0f);
+                float randY = Random.Range(-15.0f, 15.0f);
+                StartCoroutine(MoveToPoint(new Vector3(randX, randY, 0)));
+            }
         }
 
-        private IEnumerator Move()
+        private IEnumerator MoveToPoint(Vector3 targetPos)
         {
-            while (true)
-            {
-                transform.position += transform.up * MovementSpeed * Time.deltaTime;
-                transform.Rotate(0, 0, Time.deltaTime * RotateSpeed);
+            float timer = 0.0f;
+            Vector3 startPos = transform.position;
 
-                waitAmount = Random.Range(0, 0.5f);
-                yield return wait1Sec;
+            while (timer < movementDuration)
+            {
+                timer += Time.deltaTime;
+                float t = timer / movementDuration;
+                t = t * t * t * (t * (6f * t - 15f) + 10f);
+                transform.position = Vector3.Lerp(startPos, targetPos, t);
+
+                yield return null;
             }
+
+            yield return new WaitForSeconds(waitBeforeMoving);
+            hasArrived = false;
         }
     }
 }

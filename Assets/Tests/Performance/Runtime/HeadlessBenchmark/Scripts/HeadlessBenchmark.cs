@@ -11,7 +11,7 @@ namespace Mirror.HeadlessBenchmark
 {
     public class HeadlessBenchmark : MonoBehaviour
     {
-        public NetworkManager networkManager;
+        public NetworkServer server;
         public ServerObjectManager serverObjectManager;
         public GameObject MonsterPrefab;
         public GameObject PlayerPrefab;
@@ -52,9 +52,9 @@ namespace Mirror.HeadlessBenchmark
                 long messages = messageCount - previousMessageCount;
 
 #if UNITY_EDITOR
-                Debug.LogFormat("{0} FPS {1} messages {2} clients", frames, messages, networkManager.Server.NumPlayers);
+                Debug.LogFormat("{0} FPS {1} messages {2} clients", frames, messages, server.NumPlayers);
 #else
-                Console.WriteLine("{0} FPS {1} messages {2} clients", frames, messages, networkManager.Server.NumPlayers);
+                Console.WriteLine("{0} FPS {1} messages {2} clients", frames, messages, server.NumPlayers);
 #endif
                 previousFrameCount = frameCount;
                 previousMessageCount = messageCount;
@@ -97,46 +97,44 @@ namespace Mirror.HeadlessBenchmark
             serverObjectManager.Spawn(monster.gameObject);
         }
 
-        async UniTask StartClient(int i, Transport transport, string networkAddress)
-        {
-            var clientGo = new GameObject($"Client {i}", typeof(NetworkClient), typeof(ClientObjectManager));
-            NetworkClient client = clientGo.GetComponent<NetworkClient>();
-            ClientObjectManager objectManager = clientGo.GetComponent<ClientObjectManager>();
-            objectManager.Client = client;
-            objectManager.Start();
-            client.Transport = transport;
-
-            objectManager.RegisterPrefab(MonsterPrefab.GetComponent<NetworkIdentity>());
-            objectManager.RegisterPrefab(PlayerPrefab.GetComponent<NetworkIdentity>());
-
-            try
-            {
-                await client.ConnectAsync(networkAddress);
-                client.Send(new AddPlayerMessage());
-
-            }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-
-        }
-
         void ParseForServerMode()
         {
             if (!string.IsNullOrEmpty(GetArg("-server")))
             {
-                networkManager.Server.Started.AddListener(OnServerStarted);
-                networkManager.Server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
-                _ = networkManager.Server.ListenAsync();
+                var serverGo = new GameObject($"Server", typeof(NetworkServer), typeof(ServerObjectManager), typeof(NetworkSceneManager), typeof(PlayerSpawner));
+
+                server = serverGo.GetComponent<NetworkServer>();
+                server.MaxConnections = 9999;
+                server.Transport = transport;
+                serverObjectManager = serverGo.GetComponent<ServerObjectManager>();
+
+                NetworkSceneManager networkSceneManager = serverGo.GetComponent<NetworkSceneManager>();
+                networkSceneManager.Server = server;
+
+                serverObjectManager.Server = server;
+                serverObjectManager.NetworkSceneManager = networkSceneManager;
+                serverObjectManager.Start();
+
+                PlayerSpawner spawner = serverGo.GetComponent<PlayerSpawner>();
+                spawner.PlayerPrefab = PlayerPrefab.GetComponent<NetworkIdentity>();
+                spawner.ServerObjectManager = serverObjectManager;
+                spawner.Server = server;
+                spawner.Start();
+
+                server.Started.AddListener(OnServerStarted);
+                server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
+                _ = server.ListenAsync();
                 Console.WriteLine("Starting Server Only Mode");
             }
         }
 
         async UniTaskVoid StartClients()
         {
-            string client = GetArg("-client");
-            if (!string.IsNullOrEmpty(client))
+            if (!string.IsNullOrEmpty(GetArg("-server")))
+                throw new InvalidOperationException("Cannot run server and client in this benchmark. Run them in seperate instances.");
+
+            string clientArg = GetArg("-client");
+            if (!string.IsNullOrEmpty(clientArg))
             {
                 //network address provided?
                 string address = GetArgValue("-address");
@@ -158,11 +156,44 @@ namespace Mirror.HeadlessBenchmark
                 // connect from a bunch of clients
                 for (int i = 0; i < clonesCount; i++)
                 {
-                    await StartClient(i, networkManager.Client.Transport, address);
+                    await StartClient(i, address);
                     await UniTask.Delay(500);
 
                     Debug.LogFormat("Started {0} clients", i + 1);
                 }
+            }
+        }
+
+        async UniTask StartClient(int i, string networkAddress)
+        {
+            var clientGo = new GameObject($"Client {i}", typeof(NetworkClient), typeof(ClientObjectManager), typeof(PlayerSpawner), typeof(NetworkSceneManager));
+            NetworkClient client = clientGo.GetComponent<NetworkClient>();
+            ClientObjectManager objectManager = clientGo.GetComponent<ClientObjectManager>();
+            PlayerSpawner spawner = clientGo.GetComponent<PlayerSpawner>();
+            NetworkSceneManager networkSceneManager = clientGo.GetComponent<NetworkSceneManager>();
+            networkSceneManager.Client = client;
+
+            objectManager.Client = client;
+            objectManager.NetworkSceneManager = networkSceneManager;
+            objectManager.Start();
+            objectManager.RegisterPrefab(MonsterPrefab.GetComponent<NetworkIdentity>());
+            objectManager.RegisterPrefab(PlayerPrefab.GetComponent<NetworkIdentity>());
+
+            spawner.Client = client;
+            spawner.PlayerPrefab = PlayerPrefab.GetComponent<NetworkIdentity>();
+            spawner.ClientObjectManager = objectManager;
+            spawner.SceneManager = networkSceneManager;
+            spawner.Start();
+
+            client.Transport = transport;
+
+            try
+            {
+                await client.ConnectAsync(networkAddress);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
             }
         }
 
@@ -189,17 +220,14 @@ namespace Mirror.HeadlessBenchmark
             string transport = GetArgValue("-transport");
             if (string.IsNullOrEmpty(transport) || transport.Equals("kcp"))
             {
-                KcpTransport newTransport = networkManager.gameObject.AddComponent<KcpTransport>();
+                KcpTransport newTransport = gameObject.AddComponent<KcpTransport>();
+                this.transport = newTransport;
 
                 //Try to apply port if exists and needed by transport.
                 if (!string.IsNullOrEmpty(port))
                 {
                     newTransport.Port = ushort.Parse(port);
                 }
-                networkManager.Server.Transport = newTransport;
-                networkManager.Client.Transport = newTransport;
-
-                this.transport = newTransport;
             }
 
 #if IGNORANCE
