@@ -1,3 +1,10 @@
+# [63.1.0](https://github.com/MirrorNG/MirrorNG/compare/v63.0.1...v63.1.0) (2021-02-03)
+
+
+### Features
+
+* spawn an object by network identity ref ([#561](https://github.com/MirrorNG/MirrorNG/issues/561)) ([87a520d](https://github.com/MirrorNG/MirrorNG/commit/87a520df3361bf030af6734f955571f36bab6f40))
+
 ## [63.0.1](https://github.com/MirrorNG/MirrorNG/compare/v63.0.0...v63.0.1) (2021-02-03)
 
 
