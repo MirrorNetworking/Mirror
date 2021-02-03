@@ -1,3 +1,10 @@
+## [63.0.1](https://github.com/MirrorNG/MirrorNG/compare/v63.0.0...v63.0.1) (2021-02-03)
+
+
+### Bug Fixes
+
+* better benchmark ([#562](https://github.com/MirrorNG/MirrorNG/issues/562)) ([731f13b](https://github.com/MirrorNG/MirrorNG/commit/731f13bdc23f93a8a5808cfc59d263115609e3c4))
+
 # [63.0.0](https://github.com/MirrorNG/MirrorNG/compare/v62.10.0...v63.0.0) (2021-02-02)
 
 
