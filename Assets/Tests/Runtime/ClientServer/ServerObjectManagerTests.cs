@@ -3,7 +3,10 @@ using System.Collections;
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
+using NSubstitute;
 using UnityEngine.TestTools;
+using System.Linq;
 
 namespace Mirror.Tests.ClientServer
 {
@@ -95,6 +98,57 @@ namespace Mirror.Tests.ClientServer
             serverIdentity.gameObject.SetActive(false);
             Assert.That(serverObjectManager.SpawnObjects(), Is.True);
             Assert.That(serverIdentity.gameObject.activeSelf, Is.False);
+        }
+
+        [Test]
+        public void SpawnEvent()
+        {
+
+            UnityAction<NetworkIdentity> mockHandler = Substitute.For<UnityAction<NetworkIdentity>>();
+            serverObjectManager.Spawned.AddListener(mockHandler);
+            var newObj = GameObject.Instantiate(playerPrefab);
+            serverObjectManager.Spawn(newObj);
+
+            mockHandler.Received().Invoke(Arg.Any<NetworkIdentity>());
+            serverObjectManager.Destroy(newObj);
+        }
+
+        [UnityTest]
+        public IEnumerator ClientSpawnEvent() => UniTask.ToCoroutine(async () =>
+        {
+            UnityAction<NetworkIdentity> mockHandler = Substitute.For<UnityAction<NetworkIdentity>>();
+            clientObjectManager.Spawned.AddListener(mockHandler);
+            var newObj = GameObject.Instantiate(playerPrefab);
+            serverObjectManager.Spawn(newObj);
+
+            await UniTask.WaitUntil(() => mockHandler.ReceivedCalls().Any()).Timeout(TimeSpan.FromMilliseconds(200));
+
+            mockHandler.Received().Invoke(Arg.Any<NetworkIdentity>());
+            serverObjectManager.Destroy(newObj);
+        });
+
+        [UnityTest]
+        public IEnumerator ClientUnSpawnEvent() => UniTask.ToCoroutine(async () =>
+        {
+            UnityAction<NetworkIdentity> mockHandler = Substitute.For<UnityAction<NetworkIdentity>>();
+            clientObjectManager.UnSpawned.AddListener(mockHandler);
+            var newObj = GameObject.Instantiate(playerPrefab);
+            serverObjectManager.Spawn(newObj);
+            serverObjectManager.Destroy(newObj);
+
+            await UniTask.WaitUntil(() => mockHandler.ReceivedCalls().Any()).Timeout(TimeSpan.FromMilliseconds(200));
+            mockHandler.Received().Invoke(Arg.Any<NetworkIdentity>());
+        });
+
+        [Test]
+        public void UnSpawnEvent()
+        {
+            UnityAction<NetworkIdentity> mockHandler = Substitute.For<UnityAction<NetworkIdentity>>();
+            serverObjectManager.UnSpawned.AddListener(mockHandler);
+            var newObj = GameObject.Instantiate(playerPrefab);
+            serverObjectManager.Spawn(newObj);
+            serverObjectManager.Destroy(newObj);
+            mockHandler.Received().Invoke(newObj.GetComponent<NetworkIdentity>());
         }
 
         [Test]

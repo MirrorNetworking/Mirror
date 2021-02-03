@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mirror.RemoteCalls;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 namespace Mirror
@@ -26,6 +27,19 @@ namespace Mirror
         public NetworkServer Server;
         [FormerlySerializedAs("networkSceneManager")]
         public NetworkSceneManager NetworkSceneManager;
+
+        [System.Serializable]
+        public class SpawnEvent : UnityEvent<NetworkIdentity> { }
+
+        /// <summary>
+        /// Raised when the client spawns an object
+        /// </summary>
+        public SpawnEvent Spawned = new SpawnEvent();
+
+        /// <summary>
+        /// Raised when the client unspawns an object
+        /// </summary>
+        public SpawnEvent UnSpawned = new SpawnEvent();
 
         uint nextNetworkId = 1;
         uint GetNextNetworkId() => nextNetworkId++;
@@ -431,6 +445,7 @@ namespace Mirror
                 identity.NetId = GetNextNetworkId();
                 Server.Spawned[identity.NetId] = identity;
                 identity.StartServer();
+                Spawned.Invoke(identity);
             }
 
             if (logger.LogEnabled()) logger.Log("SpawnObject instance ID " + identity.NetId + " asset ID " + identity.AssetId);
@@ -575,6 +590,8 @@ namespace Mirror
         void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
             if (logger.LogEnabled()) logger.Log("DestroyObject instance:" + identity.NetId);
+            UnSpawned.Invoke(identity);
+
             Server.Spawned.Remove(identity.NetId);
             identity.ConnectionToClient?.RemoveOwnedObject(identity);
 

@@ -4,6 +4,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using Mirror.RemoteCalls;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
 namespace Mirror
@@ -23,6 +24,19 @@ namespace Mirror
         // spawn handlers. internal for testing purposes. do not use directly.
         internal readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
         internal readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+
+        [System.Serializable]
+        public class SpawnEvent : UnityEvent<NetworkIdentity> { }
+
+        /// <summary>
+        /// Raised when the client spawns an object
+        /// </summary>
+        public SpawnEvent Spawned = new SpawnEvent();
+
+        /// <summary>
+        /// Raised when the client unspawns an object
+        /// </summary>
+        public SpawnEvent UnSpawned = new SpawnEvent();
 
         /// <summary>
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
@@ -275,6 +289,8 @@ namespace Mirror
 
         void UnSpawn(NetworkIdentity identity)
         {
+            UnSpawned.Invoke(identity);
+
             Guid assetId = identity.AssetId;
 
             identity.StopClient();
@@ -358,6 +374,8 @@ namespace Mirror
             }
             if (logger.LogEnabled()) logger.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId} pos={msg.position}");
 
+            bool spawned = false;
+
             // was the object already spawned?
             NetworkIdentity identity = GetExistingObject(msg.netId);
 
@@ -365,6 +383,7 @@ namespace Mirror
             {
                 //is the object on the prefab or scene object lists?
                 identity = msg.sceneId == 0 ? SpawnPrefab(msg) : SpawnSceneObject(msg);
+                spawned = true;
             }
 
             if (identity == null)
@@ -374,6 +393,9 @@ namespace Mirror
             }
 
             ApplySpawnPayload(identity, msg);
+
+            if (spawned)
+                Spawned.Invoke(identity);
         }
 
         NetworkIdentity GetExistingObject(uint netid)

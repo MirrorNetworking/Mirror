@@ -320,6 +320,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Client: {fileID: 249891958}
   NetworkSceneManager: {fileID: 249891960}
+  Spawned:
+    m_PersistentCalls:
+      m_Calls: []
+  UnSpawned:
+    m_PersistentCalls:
+      m_Calls: []
   spawnPrefabs:
   - {fileID: 1088833923132447018, guid: 22f1fa3a0aff72b46a371f667bb4fb30, type: 3}
 --- !u!114 &249891962
@@ -336,6 +342,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Server: {fileID: 249891959}
   NetworkSceneManager: {fileID: 249891960}
+  Spawned:
+    m_PersistentCalls:
+      m_Calls: []
+  UnSpawned:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &249891963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,21 +361,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Levels:
-  - Name: NetworkBehaviour
+  - Name: NetworkIdentity
     level: 2
   - Name: ClientObjectManager
     level: 2
-  - Name: NetworkIdentity
-    level: 2
-  - Name: NetworkSceneManager
-    level: 2
-  - Name: NetworkServer
-    level: 2
-  - Name: NetworkTime
+  - Name: ServerObjectManager
     level: 2
   - Name: NetworkClient
     level: 2
-  - Name: ServerObjectManager
+  - Name: NetworkTime
+    level: 2
+  - Name: NetworkServer
+    level: 2
+  - Name: NetworkSceneManager
+    level: 2
+  - Name: NetworkBehaviour
     level: 2
   - Name: PlayerSpawner
     level: 2
