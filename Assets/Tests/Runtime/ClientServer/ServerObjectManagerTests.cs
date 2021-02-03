@@ -7,13 +7,6 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.ClientServer
 {
-    public class SimpleServerObjectManager : ServerObjectManager
-    {
-        public void SpawnObjectExpose(GameObject obj, INetworkConnection ownerConnection)
-        {
-            SpawnObject(obj, ownerConnection);
-        }
-    }
 
     [TestFixture]
     public class ServerObjectManagerTest : ClientServerSetup<MockComponent>
@@ -24,13 +17,13 @@ namespace Mirror.Tests.ClientServer
         public void SpawnObjectExposeExceptionTest()
         {
             var gameObject = new GameObject();
-            SimpleServerObjectManager comp = gameObject.AddComponent<SimpleServerObjectManager>();
+            ServerObjectManager comp = gameObject.AddComponent<ServerObjectManager>();
 
             var obj = new GameObject();
 
             InvalidOperationException ex = Assert.Throws<InvalidOperationException>(() =>
             {
-                comp.SpawnObjectExpose(obj, connectionToServer);
+                comp.SpawnObject(obj, connectionToServer);
             });
 
             Assert.That(ex.Message, Is.EqualTo("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server."));
