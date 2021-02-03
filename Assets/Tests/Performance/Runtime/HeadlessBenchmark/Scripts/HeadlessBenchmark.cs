@@ -179,7 +179,6 @@ namespace Mirror.HeadlessBenchmark
             spawner.PlayerPrefab = PlayerPrefab.GetComponent<NetworkIdentity>();
             spawner.ClientObjectManager = objectManager;
             spawner.SceneManager = networkSceneManager;
-            spawner.Start();
 
             client.Transport = transport;
 
