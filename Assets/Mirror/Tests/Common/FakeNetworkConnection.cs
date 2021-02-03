@@ -4,7 +4,7 @@ namespace Mirror.Tests
 {
     public class FakeNetworkConnection : NetworkConnectionToClient
     {
-        public FakeNetworkConnection() : base(1)
+        public FakeNetworkConnection() : base(1, false, 0)
         {
         }
 

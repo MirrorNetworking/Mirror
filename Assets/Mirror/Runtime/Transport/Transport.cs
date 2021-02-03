@@ -8,7 +8,7 @@ namespace Mirror
     /// </summary>
     /// <remarks>
     /// <h2>
-    ///   Transport Rules 
+    ///   Transport Rules
     /// </h2>
     /// <list type="bullet">
     ///   <listheader><description>
@@ -205,6 +205,18 @@ namespace Mirror
         /// <param name="channelId">channel id</param>
         /// <returns>the size in bytes that can be sent via the provided channel</returns>
         public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
+
+        /// <summary>
+        /// The maximum batch(!) size for a given channel.
+        /// Uses GetMaxPacketSize by default.
+        /// Some transports like kcp support large max packet sizes which should
+        /// not be used for batching all the time because they end up being too
+        /// slow (head of line blocking etc.).
+        /// </summary>
+        /// <param name="channelId">channel id</param>
+        /// <returns>the size in bytes that should be batched via the provided channel</returns>
+        public virtual int GetMaxBatchSize(int channelId) =>
+            GetMaxPacketSize(channelId);
 
         /// <summary>
         /// Shut down the transport, both as client and server

@@ -57,6 +57,25 @@ namespace Mirror
         /// </summary>
         public static bool active { get; internal set; }
 
+
+        /// <summary>
+        /// batching is still optional until we improve mirror's update order.
+        /// right now it increases latency because:
+        ///   enabling batching flushes all state updates in same frame, but
+        ///   transport processes incoming messages afterwards so server would
+        ///   batch them until next frame's flush
+        /// => disable it for super fast paced games
+        /// => enable it for high scale / cpu heavy games
+        /// </summary>
+        public static bool batching;
+
+        /// <summary>
+        /// batching from server to client.
+        /// fewer transport calls give us significantly better performance/scale.
+        /// if batch interval is 0, then we only batch until the Update() call.
+        /// </summary>
+        public static float batchInterval = 0;
+
         /// <summary>
         /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
         /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
@@ -470,6 +489,12 @@ namespace Mirror
                     logger.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
             }
+
+            // update all connections to send out batched messages in interval
+            foreach (NetworkConnectionToClient conn in connections.Values)
+            {
+                conn.Update();
+            }
         }
 
         static void CheckForInactiveConnections()
@@ -525,7 +550,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, batching, batchInterval);
                 OnConnected(conn);
             }
             else
