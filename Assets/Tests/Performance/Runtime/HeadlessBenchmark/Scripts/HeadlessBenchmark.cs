@@ -119,7 +119,6 @@ namespace Mirror.HeadlessBenchmark
                 spawner.PlayerPrefab = PlayerPrefab.GetComponent<NetworkIdentity>();
                 spawner.ServerObjectManager = serverObjectManager;
                 spawner.Server = server;
-                spawner.Start();
 
                 server.Started.AddListener(OnServerStarted);
                 server.Authenticated.AddListener(conn => serverObjectManager.SetClientReady(conn));
@@ -130,9 +129,6 @@ namespace Mirror.HeadlessBenchmark
 
         async UniTaskVoid StartClients()
         {
-            if (!string.IsNullOrEmpty(GetArg("-server")))
-                throw new InvalidOperationException("Cannot run server and client in this benchmark. Run them in seperate instances.");
-
             string clientArg = GetArg("-client");
             if (!string.IsNullOrEmpty(clientArg))
             {
