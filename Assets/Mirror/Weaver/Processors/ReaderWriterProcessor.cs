@@ -67,7 +67,7 @@ namespace Mirror.Weaver
             IEnumerable<Type> types = typeof(NetworkReaderExtensions).Module.GetTypes().Where(t => t.GetCustomAttribute<NetworkMessageAttribute>() != null);
             foreach (Type type in types)
             {
-                var typeReference = module.ImportReference(type);
+                TypeReference typeReference = module.ImportReference(type);
                 writers.GetWriteFunc(typeReference, null);
                 readers.GetReadFunc(typeReference, null);
                 messages.Add(typeReference);
