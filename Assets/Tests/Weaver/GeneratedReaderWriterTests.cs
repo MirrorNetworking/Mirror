@@ -17,6 +17,12 @@ namespace Mirror.Weaver
         }
 
         [Test]
+        public void CreateForExplicitNetworkMessage()
+        {
+            IsSuccess();
+        }
+
+        [Test]
         public void CreatesForClass()
         {
             IsSuccess();

@@ -29,7 +29,6 @@ namespace Mirror.Weaver
         {
             messages.Clear();
 
-
             LoadBuiltinExtensions();
             LoadBuiltinMessages();
 
@@ -117,6 +116,13 @@ namespace Mirror.Weaver
                 {
                     LoadDeclaredWriters(klass);
                     LoadDeclaredReaders(klass);
+                }
+
+                if (klass.GetCustomAttribute<NetworkMessageAttribute>()  != null)
+                {
+                    readers.GetReadFunc(klass, null);
+                    writers.GetWriteFunc(klass, null);
+                    messages.Add(klass);
                 }
             }
 
