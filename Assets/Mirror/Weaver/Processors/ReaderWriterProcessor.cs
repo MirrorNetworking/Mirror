@@ -31,7 +31,7 @@ namespace Mirror.Weaver
 
 
             LoadBuiltinExtensions();
-            LoadBuiltinSerializable();
+            LoadBuiltinMessages();
 
             int writeCount = writers.Count;
             int readCount = readers.Count;
@@ -62,13 +62,15 @@ namespace Mirror.Weaver
             }
         }
 
-        private void LoadBuiltinSerializable()
+        private void LoadBuiltinMessages()
         {
-            IEnumerable<Type> types = typeof(NetworkReaderExtensions).Module.GetTypes().Where(t => t.GetCustomAttribute<SerializableAttribute>() != null);
+            IEnumerable<Type> types = typeof(NetworkReaderExtensions).Module.GetTypes().Where(t => t.GetCustomAttribute<NetworkMessageAttribute>() != null);
             foreach (Type type in types)
             {
-                writers.GetWriteFunc(module.ImportReference(type), null);
-                readers.GetReadFunc(module.ImportReference(type), null);
+                var typeReference = module.ImportReference(type);
+                writers.GetWriteFunc(typeReference, null);
+                readers.GetReadFunc(typeReference, null);
+                messages.Add(typeReference);
             }
         }
 

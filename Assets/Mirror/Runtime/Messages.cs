@@ -6,16 +6,16 @@ namespace Mirror
 
     #region Public System Messages
 
-    [Serializable]
+    [NetworkMessage]
     public struct ReadyMessage { }
 
-    [Serializable]
+    [NetworkMessage]
     public struct NotReadyMessage { }
 
-    [Serializable]
+    [NetworkMessage]
     public struct AddPlayerMessage { }
 
-    [Serializable]
+    [NetworkMessage]
     public struct SceneMessage 
     {
         public string scenePath;
@@ -24,7 +24,7 @@ namespace Mirror
         public string[] additiveScenes;
     }
 
-    [Serializable]
+    [NetworkMessage]
     public struct SceneReadyMessage { }
 
     public enum SceneOperation : byte
@@ -37,7 +37,7 @@ namespace Mirror
     #endregion
 
     #region System Messages requried for code gen path
-    [Serializable]
+    [NetworkMessage]
     public struct ServerRpcMessage
     {
         public uint netId;
@@ -52,14 +52,14 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    [Serializable]
+    [NetworkMessage]
     public struct ServerRpcReply
     {
         public int replyId;
         public ArraySegment<byte> payload;
     }
 
-    [Serializable]
+    [NetworkMessage]
     public struct RpcMessage
     {
         public uint netId;
@@ -72,7 +72,7 @@ namespace Mirror
     #endregion
 
     #region Internal System Messages
-    [Serializable]
+    [NetworkMessage]
     public struct SpawnMessage
     {
         /// <summary>
@@ -115,19 +115,19 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    [Serializable]
+    [NetworkMessage]
     public struct ObjectDestroyMessage
     {
         public uint netId;
     }
 
-    [Serializable]
+    [NetworkMessage]
     public struct ObjectHideMessage
     {
         public uint netId;
     }
 
-    [Serializable]
+    [NetworkMessage]
     public struct UpdateVarsMessage
     {
         public uint netId;
@@ -138,7 +138,7 @@ namespace Mirror
 
     // A client sends this message to the server
     // to calculate RTT and synchronize time
-    [Serializable]
+    [NetworkMessage]
     public struct NetworkPingMessage
     {
         public double clientTime;
@@ -146,7 +146,7 @@ namespace Mirror
 
     // The server responds with this message
     // The client can use this to calculate RTT and sync time
-    [Serializable]
+    [NetworkMessage]
     public struct NetworkPongMessage 
     {
         public double clientTime;

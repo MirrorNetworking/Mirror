@@ -60,7 +60,7 @@ namespace Mirror
     /// Tell the weaver to generate  reader and writer for a class
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class SerializableAttribute : Attribute
+    public class NetworkMessageAttribute : Attribute
     {
     }
 
