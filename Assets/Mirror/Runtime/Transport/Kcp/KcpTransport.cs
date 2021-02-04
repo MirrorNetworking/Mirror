@@ -68,11 +68,20 @@ namespace Mirror.KCP
         EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
         public void Update()
         {
-            while (socket != null && socket.Poll(0, SelectMode.SelectRead)) {
-                int msgLength = socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP);
+            try
+            {
+                while (socket != null && socket.Poll(0, SelectMode.SelectRead))
+                {
+                    int msgLength = socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP);
 
-                ReceivedMessageCount++;
-                RawInput(newClientEP, buffer, msgLength);
+                    ReceivedMessageCount++;
+                    RawInput(newClientEP, buffer, msgLength);
+                }
+            }
+            catch (SocketException)
+            {
+                //Client disconnected
+                Disconnect();
             }
         }
 
