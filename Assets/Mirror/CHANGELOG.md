@@ -1,3 +1,10 @@
+## [63.3.1](https://github.com/MirrorNG/MirrorNG/compare/v63.3.0...v63.3.1) (2021-02-04)
+
+
+### Bug Fixes
+
+* client throwing exception when force disconnecting ([#567](https://github.com/MirrorNG/MirrorNG/issues/567)) ([a69b498](https://github.com/MirrorNG/MirrorNG/commit/a69b4989309fc00520be394e71bcb49d67d9889b))
+
 # [63.3.0](https://github.com/MirrorNG/MirrorNG/compare/v63.2.1...v63.3.0) (2021-02-03)
 
 
