@@ -1,3 +1,10 @@
+## [63.3.2](https://github.com/MirrorNG/MirrorNG/compare/v63.3.1...v63.3.2) (2021-02-04)
+
+
+### Bug Fixes
+
+* support legacy Weaver ([#546](https://github.com/MirrorNG/MirrorNG/issues/546)) ([e1bbc03](https://github.com/MirrorNG/MirrorNG/commit/e1bbc035169a7d0f15293afabf2b362f949e8a78))
+
 ## [63.3.1](https://github.com/MirrorNG/MirrorNG/compare/v63.3.0...v63.3.1) (2021-02-04)
 
 
