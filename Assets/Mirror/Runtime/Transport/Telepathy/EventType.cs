@@ -1,9 +1,1 @@
-﻿namespace Telepathy
-{
-    public enum EventType
-    {
-        Connected,
-        Data,
-        Disconnected
-    }
-}
+﻿// removed 2021-02-04
