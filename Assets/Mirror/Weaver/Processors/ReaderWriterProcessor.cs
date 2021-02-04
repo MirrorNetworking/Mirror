@@ -300,9 +300,15 @@ namespace Mirror.Weaver
 
             ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new [] { typeof(RuntimeInitializeLoadType)});
 
-            var customAttributeRef = new CustomAttribute(module.ImportReference(attributeconstructor));
-            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(module.ImportReference<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
-            rwInitializer.CustomAttributes.Add(customAttributeRef);
+
+            if (module.AssemblyReferences.Any(assembly => typeof(RuntimeInitializeLoadType).Assembly.FullName == assembly.FullName))
+            {
+
+                var customAttributeRef = new CustomAttribute(module.ImportReference(attributeconstructor));
+                customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(module.ImportReference<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
+                rwInitializer.CustomAttributes.Add(customAttributeRef);
+
+            }
 
             if (IsEditorAssembly(module))
             {
