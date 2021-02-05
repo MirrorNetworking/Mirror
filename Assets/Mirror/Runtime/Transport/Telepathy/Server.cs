@@ -97,7 +97,7 @@ namespace Telepathy
                         {
                             // run the send loop
                             // IMPORTANT: DO NOT SHARE STATE ACROSS MULTIPLE THREADS!
-                            ThreadFunctions.SendLoop(connectionId, client, connection.sendPipe, connection.sendPending);
+                            ThreadFunctions.SendLoop(connectionId, client, connection.sendPipe, connection.sendPending, MaxMessageSize);
                         }
                         catch (ThreadAbortException)
                         {

@@ -41,13 +41,12 @@ namespace Telepathy
         // overwrite clear to also clear the flags
         public override void Clear()
         {
-            // pool & queue usage always needs to be locked
+            // base clears queue & pool
+            base.Clear();
+
+            // clear flags
             lock (this)
             {
-                // base clears queue & pool
-                base.Clear();
-
-                // clear flags
                 connectedFlag = false;
                 disconnectedFlag = false;
             }

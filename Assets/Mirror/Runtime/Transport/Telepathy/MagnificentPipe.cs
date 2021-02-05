@@ -7,17 +7,17 @@
 // => easy to switch between stack/queue/concurrentqueue/etc.
 // => easy to test
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Telepathy
 {
     public abstract class MagnificentPipe
     {
         // message queue
-        // ConcurrentQueue allocates. lock{} instead.
-        //
-        // IMPORTANT: lock{} all usages!
-        protected readonly Queue<ArraySegment<byte>> queue = new Queue<ArraySegment<byte>>();
+        // => ConcurrentQueue allocates.
+        // => lock{} doesn't, but locking with 150 CCU/threads is way slower!
+        protected readonly ConcurrentQueue<ArraySegment<byte>> queue =
+            new ConcurrentQueue<ArraySegment<byte>>();
 
         // max message size for pooling
         readonly int MaxMessageSize;
@@ -27,8 +27,9 @@ namespace Telepathy
         // the outside does not need to worry about anything.
         // and it can be tested easily.
         //
-        // IMPORTANT: lock{} all usages!
-        protected readonly Stack<byte[]> pool = new Stack<byte[]>();
+        // => ConcurrentStack allocates.
+        // => lock{} doesn't, but locking with 150 CCU/threads is way slower!
+        protected readonly ConcurrentStack<byte[]> pool = new ConcurrentStack<byte[]>();
 
         // constructor
         protected MagnificentPipe(int MaxMessageSize)
@@ -38,42 +39,32 @@ namespace Telepathy
 
         // for statistics. don't call Count and assume that it's the same after
         // the call.
-        public int Count
-        {
-            get { lock (this) { return queue.Count; } }
-        }
+        public int Count => queue.Count;
 
         // pool count for testing
-        public int PoolCount
-        {
-            get { lock (this) { return pool.Count; } }
-        }
+        public int PoolCount => pool.Count;
 
         // enqueue a message
         // arraysegment for allocation free sends later.
         // -> the segment's array is only used until Enqueue() returns!
         public void Enqueue(ArraySegment<byte> message)
         {
-            // pool & queue usage always needs to be locked
-            lock (this)
-            {
-                // ArraySegment array is only valid until returning, so copy
-                // it into a byte[] that we can queue safely.
+            // ArraySegment array is only valid until returning, so copy
+            // it into a byte[] that we can queue safely.
 
-                // to avoid allocations, try to get a byte[] from the pool first
-                byte[] bytes = pool.Count > 0
-                               ? pool.Pop()
-                               : new byte[MaxMessageSize];
+            // to avoid allocations, try to get a byte[] from the pool first
+            byte[] bytes;
+            if (!pool.TryPop(out bytes))
+                bytes = new byte[MaxMessageSize];
 
-                // copy into it
-                Buffer.BlockCopy(message.Array, message.Offset, bytes, 0, message.Count);
+            // copy into it
+            Buffer.BlockCopy(message.Array, message.Offset, bytes, 0, message.Count);
 
-                // indicate which part is the message
-                ArraySegment<byte> segment = new ArraySegment<byte>(bytes, 0, message.Count);
+            // indicate which part is the message
+            ArraySegment<byte> segment = new ArraySegment<byte>(bytes, 0, message.Count);
 
-                // now enqueue it
-                queue.Enqueue(segment);
-            }
+            // now enqueue it
+            queue.Enqueue(segment);
         }
 
         // peek the next message
@@ -82,21 +73,9 @@ namespace Telepathy
         // -> TryDequeue should be called after processing, so that the message
         //    is actually dequeued and the byte[] is returned to pool!
         // => see TryDequeue comments!
-        public bool TryPeek(out ArraySegment<byte> data)
-        {
-            data = default;
-
-            // pool & queue usage always needs to be locked
-            lock (this)
-            {
-                if (queue.Count > 0)
-                {
-                    data = queue.Peek();
-                    return true;
-                }
-                return false;
-            }
-        }
+        //
+        // IMPORTANT: TryPeek & Dequeue need to be called from the SAME THREAD!
+        public bool TryPeek(out ArraySegment<byte> data) => queue.TryPeek(out data);
 
         // dequeue the next message
         // -> simply dequeues and returns the byte[] to pool (if any)
@@ -107,32 +86,23 @@ namespace Telepathy
         //    byte[] that is already returned to pool.
         // => Peek & Dequeue is the most simple, clean solution for receive
         //    pipe pooling to avoid allocations!
+        //
+        // IMPORTANT: TryPeek & Dequeue need to be called from the SAME THREAD!
         public bool TryDequeue()
         {
-            // pool & queue usage always needs to be locked
-            lock (this)
+            // dequeue and return byte[] to pool
+            if (queue.TryDequeue(out ArraySegment<byte> segment))
             {
-                if (queue.Count > 0)
-                {
-                    // dequeue and return byte[] to pool
-                    pool.Push(queue.Dequeue().Array);
-                    return true;
-                }
-                return false;
+                pool.Push(segment.Array);
+                return true;
             }
+            return false;
         }
 
         public virtual void Clear()
         {
-            // pool & queue usage always needs to be locked
-            lock (this)
-            {
-                // clear queue, but via dequeue to return each byte[] to pool
-                while (queue.Count > 0)
-                {
-                    pool.Push(queue.Dequeue().Array);
-                }
-            }
+            while (queue.TryDequeue(out ArraySegment<byte> segment))
+                pool.Push(segment.Array);
         }
     }
 }

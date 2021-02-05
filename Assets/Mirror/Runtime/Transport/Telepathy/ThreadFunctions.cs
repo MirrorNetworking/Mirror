@@ -21,7 +21,7 @@ namespace Telepathy
         // this function is blocking sometimes!
         // (e.g. if someone has high latency or wire was cut off)
         // -> payload is of multiple <<size, content, size, content, ...> parts
-        public static bool SendMessagesBlocking(NetworkStream stream, byte[] payload, int packetSize)
+        public static bool SendMessageBlocking(NetworkStream stream, byte[] payload, int packetSize)
         {
             // stream.Write throws exceptions if client sends with high
             // frequency and the server stops
@@ -176,17 +176,15 @@ namespace Telepathy
         // thread send function
         // note: we really do need one per connection, so that if one connection
         //       blocks, the rest will still continue to get sends
-        public static void SendLoop(int connectionId, TcpClient client, MagnificentSendPipe sendPipe, ManualResetEvent sendPending)
+        public static void SendLoop(int connectionId, TcpClient client, MagnificentSendPipe sendPipe, ManualResetEvent sendPending, int MaxMessageSize)
         {
             // get NetworkStream from client
             NetworkStream stream = client.GetStream();
 
-            // avoid payload[packetSize] allocations. size increases dynamically as
-            // needed for batching.
-            //
+            // only allocate payload buffer once to avoid allocations
             // IMPORTANT: DO NOT make this a member, otherwise every connection
             //            on the server would use the same buffer simulatenously
-            byte[] payload = null;
+            byte[] payload = new byte[4 + MaxMessageSize];
 
             try
             {
@@ -200,15 +198,23 @@ namespace Telepathy
                     //    the next Send call.
                     sendPending.Reset(); // WaitOne() blocks until .Set() again
 
-                    // dequeue & serialize all
-                    // a locked{} TryDequeueAll is twice as fast as
-                    // ConcurrentQueue, see SafeQueue.cs!
-                    if (sendPipe.DequeueAndSerializeAll(ref payload, out int packetSize))
+                    // dequeue & serialize as many as we can
+                    while (sendPipe.TryPeek(out ArraySegment<byte> message))
                     {
-                        // send messages (blocking) or stop if stream is closed
-                        if (!SendMessagesBlocking(stream, payload, packetSize))
+                        // serialize
+                        // write header (size) into payload
+                        Utils.IntToBytesBigEndianNonAlloc(message.Count, payload, 0);
+
+                        // copy message into payload after header
+                        Buffer.BlockCopy(message.Array, message.Offset, payload, 4, message.Count);
+
+                        // send message (blocking) or stop if stream is closed
+                        if (!SendMessageBlocking(stream, payload, 4 + message.Count))
                             // break instead of return so stream close still happens!
                             break;
+
+                        // dequeue to free and return the byte[]
+                        sendPipe.TryDequeue();
                     }
 
                     // don't choke up the CPU: wait until queue not empty anymore
