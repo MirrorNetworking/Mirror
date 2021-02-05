@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Unity.Mirror.CodeGen.Tests")]
+[assembly: InternalsVisibleTo("Mirror.Tests")]

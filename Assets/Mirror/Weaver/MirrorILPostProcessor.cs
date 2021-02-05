@@ -4,10 +4,6 @@ using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-#if LEGACY_ILPP
-using ILPostProcessor = Mirror.Weaver.ILegacyPostProcessor;
-#endif
-
 namespace Mirror.Weaver
 {
     public class MirrorILPostProcessor : ILPostProcessor
