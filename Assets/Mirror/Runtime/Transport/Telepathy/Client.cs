@@ -114,7 +114,7 @@ namespace Telepathy
 
                 // start send thread only after connected
                 // IMPORTANT: DO NOT SHARE STATE ACROSS MULTIPLE THREADS!
-                sendThread = new Thread(() => { ThreadFunctions.SendLoop(0, state.client, state.sendPipe, state.sendPending); });
+                sendThread = new Thread(() => { ThreadFunctions.SendLoop(0, state.client, state.sendPipe, state.sendPending, MaxMessageSize); });
                 sendThread.IsBackground = true;
                 sendThread.Start();
 
