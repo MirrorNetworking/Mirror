@@ -1,3 +1,10 @@
+## [63.3.3](https://github.com/MirrorNG/MirrorNG/compare/v63.3.2...v63.3.3) (2021-02-05)
+
+
+### Reverts
+
+* Revert "fix: support legacy Weaver (#546)" ([d58725f](https://github.com/MirrorNG/MirrorNG/commit/d58725f1d1a5a96262cc0ecd007663983de354d4)), closes [#546](https://github.com/MirrorNG/MirrorNG/issues/546)
+
 ## [63.3.2](https://github.com/MirrorNG/MirrorNG/compare/v63.3.1...v63.3.2) (2021-02-04)
 
 
