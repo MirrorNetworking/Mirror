@@ -137,7 +137,7 @@ jobs:
   
       - name: Package
         run: |
-          unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror LICENSE Assets/Mirror/LICENSE
+          unity-packer pack Mirror.unitypackage Assets/Mirror Assets/Mirror Assets/ScriptTemplates Assets/ScriptTemplates LICENSE Assets/Mirror/LICENSE
 
       - uses: actions/upload-artifact@v1
         with:
