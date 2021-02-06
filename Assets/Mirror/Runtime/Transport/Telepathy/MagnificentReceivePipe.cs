@@ -1,54 +1,181 @@
+// a magnificent receive pipe to shield us from all of life's complexities.
+// safely sends messages from receive thread to main thread.
+// -> thread safety built in
+// -> byte[] pooling coming in the future
+//
+// => hides all the complexity from telepathy
+// => easy to switch between stack/queue/concurrentqueue/etc.
+// => easy to test
+using System;
+using System.Collections.Generic;
+
 namespace Telepathy
 {
-    public class MagnificentReceivePipe : MagnificentPipe
+    public class MagnificentReceivePipe
     {
-        // connect/disconnect messages can be simple flags
-        // no need have a Message<EventType, data> queue if connect & disconnect
-        // only happen once.
-        bool connectedFlag;
-        bool disconnectedFlag;
+        // queue entry message. only used in here.
+        // -> byte arrays are always of 4 + MaxMessageSize
+        // -> ArraySegment indicates the actual message content
+        struct Entry
+        {
+            public int connectionId;
+            public EventType eventType;
+            public ArraySegment<byte> data;
+            public Entry(int connectionId, EventType eventType, ArraySegment<byte> data)
+            {
+                this.connectionId = connectionId;
+                this.eventType = eventType;
+                this.data = data;
+            }
+        }
+
+        // message queue
+        // ConcurrentQueue allocates. lock{} instead.
+        //
+        // IMPORTANT: lock{} all usages!
+        readonly Queue<Entry> queue = new Queue<Entry>();
+
+        // byte[] pool to avoid allocations
+        // Take & Return is beautifully encapsulated in the pipe.
+        // the outside does not need to worry about anything.
+        // and it can be tested easily.
+        //
+        // IMPORTANT: lock{} all usages!
+        Pool<byte[]> pool;
 
         // constructor
-        public MagnificentReceivePipe(int MaxMessageSize) : base(MaxMessageSize) {}
-
-        // set connected/disconnected flags
-        public void SetConnected() { lock (this) { connectedFlag = true; } }
-        public void SetDisconnected() { lock (this) { disconnectedFlag = true; } }
-
-        // check & reset connected/disconnected flags
-        // => immediately resets them so Tick() doesn't process (dis)connected
-        //    multiple times!
-        public bool CheckConnected()
+        public MagnificentReceivePipe(int MaxMessageSize)
         {
+            // initialize pool to create max message sized byte[]s each time
+            pool = new Pool<byte[]>(() => new byte[MaxMessageSize]);
+        }
+
+        // for statistics. don't call Count and assume that it's the same after
+        // the call.
+        public int Count
+        {
+            get { lock (this) { return queue.Count; } }
+        }
+
+        // pool count for testing
+        public int PoolCount
+        {
+            get { lock (this) { return pool.Count(); } }
+        }
+
+        // enqueue a message
+        // -> ArraySegment to avoid allocations later
+        // -> parameters passed directly so it's more obvious that we don't just
+        //    queue a passed 'Message', instead we copy the ArraySegment into
+        //    a byte[] and store it internally, etc.)
+        public void Enqueue(int connectionId, EventType eventType, ArraySegment<byte> message)
+        {
+            // pool & queue usage always needs to be locked
             lock (this)
             {
-                bool result = connectedFlag;
-                connectedFlag = false;
-                return result;
+                // does this message have a data array content?
+                ArraySegment<byte> segment = default;
+                if (message != default)
+                {
+                    // ArraySegment is only valid until returning.
+                    // copy it into a byte[] that we can store.
+                    // ArraySegment array is only valid until returning, so copy
+                    // it into a byte[] that we can queue safely.
+
+                    // get one from the pool first to avoid allocations
+                    byte[] bytes = pool.Take();
+
+                    // copy into it
+                    Buffer.BlockCopy(message.Array, message.Offset, bytes, 0, message.Count);
+
+                    // indicate which part is the message
+                    segment = new ArraySegment<byte>(bytes, 0, message.Count);
+                }
+
+                // enqueue it
+                // IMPORTANT: pass the segment around pool byte[],
+                //            NOT the 'message' that is only valid until returning!
+                Entry entry = new Entry(connectionId, eventType, segment);
+                queue.Enqueue(entry);
             }
         }
 
-        public bool CheckDisconnected()
+        // peek the next message
+        // -> allows the caller to process it while pipe still holds on to the
+        //    byte[]
+        // -> TryDequeue should be called after processing, so that the message
+        //    is actually dequeued and the byte[] is returned to pool!
+        // => see TryDequeue comments!
+        public bool TryPeek(out int connectionId, out EventType eventType, out ArraySegment<byte> data)
         {
+            connectionId = 0;
+            eventType = EventType.Disconnected;
+            data = default;
+
+            // pool & queue usage always needs to be locked
             lock (this)
             {
-                bool result = disconnectedFlag;
-                disconnectedFlag = false;
-                return result;
+                if (queue.Count > 0)
+                {
+                    Entry entry = queue.Peek();
+                    connectionId = entry.connectionId;
+                    eventType = entry.eventType;
+                    data = entry.data;
+                    return true;
+                }
+                return false;
             }
         }
 
-        // overwrite clear to also clear the flags
-        public override void Clear()
+        // dequeue the next message
+        // -> simply dequeues and returns the byte[] to pool (if any)
+        // -> use Peek to actually process the first element while the pipe
+        //    still holds on to the byte[]
+        // -> doesn't return the element because the byte[] needs to be returned
+        //    to the pool in dequeue. caller can't be allowed to work with a
+        //    byte[] that is already returned to pool.
+        // => Peek & Dequeue is the most simple, clean solution for receive
+        //    pipe pooling to avoid allocations!
+        public bool TryDequeue()
         {
-            // base clears queue & pool
-            base.Clear();
-
-            // clear flags
+            // pool & queue usage always needs to be locked
             lock (this)
             {
-                connectedFlag = false;
-                disconnectedFlag = false;
+                if (queue.Count > 0)
+                {
+                    // dequeue from queue
+                    Entry entry = queue.Dequeue();
+
+                    // return byte[] to pool (if any).
+                    // not all message types have byte[] contents.
+                    if (entry.data != default)
+                    {
+                        pool.Return(entry.data.Array);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        public void Clear()
+        {
+            // pool & queue usage always needs to be locked
+            lock (this)
+            {
+                // clear queue, but via dequeue to return each byte[] to pool
+                while (queue.Count > 0)
+                {
+                    // dequeue
+                    Entry entry = queue.Dequeue();
+
+                    // return byte[] to pool (if any).
+                    // not all message types have byte[] contents.
+                    if (entry.data != default)
+                    {
+                        pool.Return(entry.data.Array);
+                    }
+                }
             }
         }
     }

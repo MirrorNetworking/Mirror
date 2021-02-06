@@ -4,17 +4,23 @@ namespace Telepathy
     public abstract class Common
     {
         // IMPORTANT: DO NOT SHARE STATE ACROSS SEND/RECV LOOPS (DATA RACES)
+        // (except receive pipe which is used for all threads)
 
-        // disconnect if message queue gets too big.
-        // -> avoids ever growing queue memory if network is slower than input
-        // -> disconnecting is great for load balancing. better to disconnect
-        //    one connection than risking every connection / the whole server
-        // -> huge queue would introduce multiple seconds of latency anyway
-        //
-        // Mirror/DOTSNET use MaxMessageSize batching, so for a 16kb max size:
-        //   limit =  1,000 means  16 MB of memory/connection
-        //   limit = 10,000 means 160 MB of memory/connection
-        public int QueueLimit = 10000;
+        // thread safe pipe for received messages
+        // (not a HashSet because one connection can have multiple new messages)
+        protected readonly MagnificentReceivePipe receivePipe;
+
+        // pipe count, useful for debugging / benchmarks
+        public int ReceivePipeCount => receivePipe.Count;
+
+        // warning if message queue gets too big
+        // if the average message is about 20 bytes then:
+        // -   1k messages are   20KB
+        // -  10k messages are  200KB
+        // - 100k messages are 1.95MB
+        // 2MB are not that much, but it is a bad sign if the caller process
+        // can't call GetNextMessage faster than the incoming messages.
+        public static int messageQueueSizeWarning = 100000;
 
         // NoDelay disables nagle algorithm. lowers CPU% and latency but
         // increases bandwidth
@@ -36,6 +42,9 @@ namespace Telepathy
         protected Common(int MaxMessageSize)
         {
             this.MaxMessageSize = MaxMessageSize;
+
+            // create receive pipe with max message size for pooling
+            receivePipe = new MagnificentReceivePipe(MaxMessageSize);
         }
     }
 }

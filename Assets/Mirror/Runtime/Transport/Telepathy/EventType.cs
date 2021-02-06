@@ -1,1 +1,9 @@
-﻿// removed 2021-02-04
+﻿namespace Telepathy
+{
+    public enum EventType
+    {
+        Connected,
+        Data,
+        Disconnected
+    }
+}
