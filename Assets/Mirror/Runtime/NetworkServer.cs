@@ -1200,13 +1200,13 @@ namespace Mirror
         static bool CheckForPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
-#if UNITY_2018_3_OR_NEWER
+    #if UNITY_2018_3_OR_NEWER
             return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
-#elif UNITY_2018_2_OR_NEWER
+    #elif UNITY_2018_2_OR_NEWER
             return (UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
-#else
+    #else
             return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
-#endif
+    #endif
 #else
             return false;
 #endif
