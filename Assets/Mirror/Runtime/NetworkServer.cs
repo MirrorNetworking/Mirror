@@ -555,9 +555,9 @@ namespace Mirror
             }
             else
             {
-                // kick
+                // kick because full
                 Transport.activeTransport.ServerDisconnect(connectionId);
-                if (logger.LogEnabled()) logger.Log("Server full, kicked client:" + connectionId);
+                if (logger.WarnEnabled()) logger.LogWarning($"Server full, kicked client: {connectionId}");
             }
         }
 
