@@ -132,40 +132,12 @@ namespace Mirror
             // process a maximum amount of client messages per tick
             // IMPORTANT: check .enabled to stop processing immediately after a
             //            scene change message arrives!
-            for (int i = 0; i < clientMaxReceivesPerTick; ++i)
-            {
-                // stop when there are no more message
-                if (!client.Tick())
-                {
-                    break;
-                }
-
-                // Some messages can disable transport
-                // If this is disabled stop processing message in queue
-                if (!enabled)
-                {
-                    break;
-                }
-            }
+            client.Tick(clientMaxReceivesPerTick);
 
             // process a maximum amount of server messages per tick
             // IMPORTANT: check .enabled to stop processing immediately after a
             //            scene change message arrives!
-            for (int i = 0; i < serverMaxReceivesPerTick; ++i)
-            {
-                // stop when there are no more message
-                if (!server.Tick())
-                {
-                    break;
-                }
-
-                // Some messages can disable transport
-                // If this is disabled stop processing message in queue
-                if (!enabled)
-                {
-                    break;
-                }
-            }
+            server.Tick(serverMaxReceivesPerTick);
         }
 
         // server

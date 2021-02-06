@@ -38,6 +38,9 @@ namespace Telepathy
         volatile bool _Connecting;
         public bool Connecting => _Connecting;
 
+        // thread safe pipe for received messages
+        readonly MagnificentReceivePipe receivePipe;
+
         // thread safe pipe to send messages from main thread to send thread
         readonly MagnificentSendPipe sendPipe;
 
@@ -50,7 +53,8 @@ namespace Telepathy
         // constructor
         public Client(int MaxMessageSize) : base(MaxMessageSize)
         {
-            // create send pipe with max message size for pooling
+            // create pipes with max message size for pooling
+            receivePipe = new MagnificentReceivePipe(MaxMessageSize);
             sendPipe = new MagnificentSendPipe(MaxMessageSize);
         }
 
@@ -77,8 +81,8 @@ namespace Telepathy
                 sendThread.Start();
 
                 // run the receive loop
-                // (receive pipe is shared across all loops)
-                ThreadFunctions.ReceiveLoop(0, client, MaxMessageSize, receivePipe, messageQueueSizeWarning);
+                // IMPORTANT: DO NOT SHARE STATE ACROSS MULTIPLE THREADS!
+                ThreadFunctions.ReceiveLoop(0, client, MaxMessageSize, receivePipe, QueueLimit);
             }
             catch (SocketException exception)
             {
@@ -88,7 +92,7 @@ namespace Telepathy
 
                 // add 'Disconnected' event to receive pipe so that the caller
                 // knows that the Connect failed. otherwise they will never know
-                receivePipe.Enqueue(0, EventType.Disconnected, default);
+                receivePipe.Enqueue(EventType.Disconnected, default);
             }
             catch (ThreadInterruptedException)
             {
@@ -209,12 +213,34 @@ namespace Telepathy
                 // respect max message size to avoid allocation attacks.
                 if (message.Count <= MaxMessageSize)
                 {
-                    // add to thread safe send pipe and return immediately.
-                    // calling Send here would be blocking (sometimes for long
-                    // times if other side lags or wire was disconnected)
-                    sendPipe.Enqueue(message);
-                    sendPending.Set(); // interrupt SendThread WaitOne()
-                    return true;
+                    // check send pipe limit
+                    if (sendPipe.Count < QueueLimit)
+                    {
+                        // add to thread safe send pipe and return immediately.
+                        // calling Send here would be blocking (sometimes for long
+                        // times if other side lags or wire was disconnected)
+                        sendPipe.Enqueue(message);
+                        sendPending.Set(); // interrupt SendThread WaitOne()
+                        return true;
+                    }
+                    // disconnect if send queue gets too big.
+                    // -> avoids ever growing queue memory if network is slower
+                    //    than input
+                    // -> avoids ever growing latency as well
+                    //
+                    // note: while SendThread always grabs the WHOLE send queue
+                    //       immediately, it's still possible that the sending
+                    //       blocks for so long that the send queue just gets
+                    //       way too big. have a limit - better safe than sorry.
+                    else
+                    {
+                        // log the reason
+                        Log.Warning($"Client.Send: sendPipe reached limit of {QueueLimit}. This can happen if we call send faster than the network can process messages. Disconnecting to avoid ever growing memory & latency.");
+
+                        // just close it. send thread will take care of the rest.
+                        client.Close();
+                        return false;
+                    }
                 }
                 Log.Error("Client.Send: message too big: " + message.Count + ". Limit: " + MaxMessageSize);
                 return false;
@@ -223,33 +249,45 @@ namespace Telepathy
             return false;
         }
 
-        // tick once, processes the next message (if any)
-        // -> tick it while returning true (or up to a limit to avoid deadlocks)
-        public bool Tick()
+        // tick: processes up to 'limit' messages
+        // => limit parameter to avoid deadlocks / too long freezes if server or
+        //    client is too slow to process network load
+        // => Mirror & DOTSNET need to have a process limit anyway.
+        //    might as well do it here and make life easier.
+        // => returns amount of remaining messages to process, so the caller
+        //    can call tick again as many times as needed (or up to a limit)
+        public int Tick(int processLimit)
         {
-            // peek first. allows us to process the first queued entry while
-            // still keeping the pooled byte[] alive by not removing anything.
-            if (receivePipe.TryPeek(out int _, out EventType eventType, out ArraySegment<byte> message))
+            // process up to 'processLimit' messages
+            for (int i = 0; i < processLimit; ++i)
             {
-                switch (eventType)
+                // peek first. allows us to process the first queued entry while
+                // still keeping the pooled byte[] alive by not removing anything.
+                if (receivePipe.TryPeek(out EventType eventType, out ArraySegment<byte> message))
                 {
-                    case EventType.Connected:
-                        OnConnected?.Invoke();
-                        break;
-                    case EventType.Data:
-                        OnData?.Invoke(message);
-                        break;
-                    case EventType.Disconnected:
-                        OnDisconnected?.Invoke();
-                        break;
-                }
+                    switch (eventType)
+                    {
+                        case EventType.Connected:
+                            OnConnected?.Invoke();
+                            break;
+                        case EventType.Data:
+                            OnData?.Invoke(message);
+                            break;
+                        case EventType.Disconnected:
+                            OnDisconnected?.Invoke();
+                            break;
+                    }
 
-                // IMPORTANT: now dequeue and return it to pool AFTER we are
-                //            done processing the event.
-                receivePipe.TryDequeue();
-                return true;
+                    // IMPORTANT: now dequeue and return it to pool AFTER we are
+                    //            done processing the event.
+                    receivePipe.TryDequeue();
+                }
+                // no more messages. stop the loop.
+                else break;
             }
-            return false;
+
+            // return what's left to process for next time
+            return receivePipe.Count;
         }
     }
 }
