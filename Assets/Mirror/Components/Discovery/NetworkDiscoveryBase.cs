@@ -178,7 +178,7 @@ namespace Mirror.Discovery
         /// Override if you wish to ignore server requests based on
         /// custom criteria such as language, full server game mode or difficulty
         /// </remarks>
-        /// <param name="request">Request comming from client</param>
+        /// <param name="request">Request coming from client</param>
         /// <param name="endpoint">Address of the client that sent the request</param>
         protected virtual void ProcessClientRequest(Request request, IPEndPoint endpoint)
         {
@@ -214,7 +214,7 @@ namespace Mirror.Discovery
         /// Override if you wish to provide more information to the clients
         /// such as the name of the host player
         /// </remarks>
-        /// <param name="request">Request comming from client</param>
+        /// <param name="request">Request coming from client</param>
         /// <param name="endpoint">Address of the client that sent the request</param>
         /// <returns>The message to be sent back to the client or null</returns>
         protected abstract Response ProcessRequest(Request request, IPEndPoint endpoint);

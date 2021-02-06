@@ -1,7 +1,7 @@
 namespace Mirror
 {
     // implementation of N-day EMA
-    // it calculates an exponential moving average roughy equivalent to the last n observations
+    // it calculates an exponential moving average roughly equivalent to the last n observations
     // https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
     public class ExponentialMovingAverage
     {

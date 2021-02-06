@@ -8,7 +8,7 @@ namespace Mirror.Tests
 {
 
     /// <summary>
-    /// Used by both runtime and edittime tests
+    /// Used by both runtime and edit time tests
     /// </summary>
     [TestFixture]
     public abstract class ClientSceneTestsBase
@@ -55,7 +55,7 @@ namespace Mirror.Tests
         public virtual void TearDown()
         {
             ClientScene.Shutdown();
-            // reset asset id incase they are changed by tests
+            // reset asset id in case they are changed by tests
             validPrefabNetworkIdentity.assetId = validPrefabGuid;
 
             foreach (GameObject item in _createdObjects)

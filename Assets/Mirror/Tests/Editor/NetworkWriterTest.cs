@@ -973,7 +973,7 @@ namespace Mirror.Tests
 
         const int testArraySize = 4;
         [Test]
-        [Description("ReadArray should throw if it is trying to read more than length of segement, this is to stop allocation attacks")]
+        [Description("ReadArray should throw if it is trying to read more than length of segment, this is to stop allocation attacks")]
         public void TestArrayDoesNotThrowWithCorrectLength()
         {
             NetworkWriter writer = new NetworkWriter();
@@ -994,7 +994,7 @@ namespace Mirror.Tests
             }
         }
         [Test]
-        [Description("ReadArray should throw if it is trying to read more than length of segement, this is to stop allocation attacks")]
+        [Description("ReadArray should throw if it is trying to read more than length of segment, this is to stop allocation attacks")]
         [TestCase(testArraySize * sizeof(int), Description = "max allowed value to allocate array")]
         [TestCase(testArraySize * 2)]
         [TestCase(testArraySize + 1, Description = "min allowed to allocate")]
@@ -1021,7 +1021,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [Description("ReadArray should throw if it is trying to read more than length of segement, this is to stop allocation attacks")]
+        [Description("ReadArray should throw if it is trying to read more than length of segment, this is to stop allocation attacks")]
         [TestCase(testArraySize * sizeof(int) + 1, Description = "min read count is 1 byte, 16 array bytes are writen so 17 should throw error")]
         [TestCase(20_000)]
         [TestCase(int.MaxValue)]

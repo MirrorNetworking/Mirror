@@ -301,14 +301,14 @@ namespace Mirror
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
         public static Transform ReadTransform(this NetworkReader reader)
         {
-            // Dont use null propagation here as it could lead to MissingReferenceException
+            // Don't use null propagation here as it could lead to MissingReferenceException
             NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
             return networkIdentity != null ? networkIdentity.transform : null;
         }
 
         public static GameObject ReadGameObject(this NetworkReader reader)
         {
-            // Dont use null propagation here as it could lead to MissingReferenceException
+            // Don't use null propagation here as it could lead to MissingReferenceException
             NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
             return networkIdentity != null ? networkIdentity.gameObject : null;
         }
@@ -394,9 +394,9 @@ namespace Mirror
 
             // todo throw an exception for other negative values (we never write them, likely to be attacker)
 
-            // this assumes that a reader for T reads atleast 1 bytes
+            // this assumes that a reader for T reads at least 1 bytes
             // we can't know the exact size of T because it could have a user created reader
-            // NOTE: dont add to length as it could overflow if value is int.max
+            // NOTE: don't add to length as it could overflow if value is int.max
             if (length > reader.Length - reader.Position)
             {
                 throw new EndOfStreamException($"Received array that is too large: {length}");

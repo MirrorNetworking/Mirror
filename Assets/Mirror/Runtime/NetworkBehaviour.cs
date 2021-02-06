@@ -494,7 +494,7 @@ namespace Mirror
         public struct NetworkBehaviourSyncVar : IEquatable<NetworkBehaviourSyncVar>
         {
             public uint netId;
-            // limtied to 255 behaviours per identity
+            // limited to 255 behaviours per identity
             public byte componentIndex;
 
             public NetworkBehaviourSyncVar(uint netId, int componentIndex) : this()
@@ -641,7 +641,7 @@ namespace Mirror
         {
             return false;
 
-            // SyncVar are writen here in subclass
+            // SyncVar are written here in subclass
 
             // if initialState
             //   write all SyncVars
@@ -745,7 +745,7 @@ namespace Mirror
 
         /// <summary>
         /// Invoked on the server when the object is unspawned
-        /// <para>Useful for saving object data in persistant storage</para>
+        /// <para>Useful for saving object data in persistent storage</para>
         /// </summary>
         public virtual void OnStopServer() { }
 

@@ -7,7 +7,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
     public class ClientSceneTests_Runtime_RegisterPrefab : ClientSceneTests_RegisterPrefabBase
     {
         /// <summary>
-        /// Create scene objects, must be done at runtime so that sceneId isnt set when assetId.get is called
+        /// Create scene objects, must be done at runtime so that sceneId isn't set when assetId.get is called
         /// </summary>
         /// <param name="runtimeObject"></param>
         /// <param name="networkIdentity"></param>

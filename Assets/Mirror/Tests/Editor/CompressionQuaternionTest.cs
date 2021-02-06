@@ -25,7 +25,7 @@ namespace Mirror.Tests
 
             int largest = Compression.FindLargestIndex(inRot);
             float sign = Mathf.Sign(inRot[largest]);
-            // flip sign of A if largest is is negative
+            // flip sign of A if largest is negative
             // Q == (-Q)
 
             Assert.AreEqual(sign * inRot.x, outRot.x, AllowedPrecision, $"x off by {Mathf.Abs(sign * inRot.x - outRot.x)}");

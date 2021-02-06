@@ -55,7 +55,7 @@ namespace Mirror
 
         #region Client
         /// <summary>
-        /// Notify subscribers when when this client establish a successful connection to the server
+        /// Notify subscribers when this client establish a successful connection to the server
         /// <para>callback()</para>
         /// </summary>
         public Action OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");

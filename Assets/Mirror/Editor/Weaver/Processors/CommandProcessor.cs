@@ -118,7 +118,7 @@ namespace Mirror.Weaver
                 if (NetworkBehaviourProcessor.IsSenderConnection(param, RemoteCallType.Command))
                 {
                     // NetworkConnection is 3nd arg (arg0 is "obj" not "this" because method is static)
-                    // exmaple: static void InvokeCmdCmdSendCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
+                    // example: static void InvokeCmdCmdSendCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
                     worker.Append(worker.Create(OpCodes.Ldarg_2));
                 }
             }

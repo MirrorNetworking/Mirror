@@ -72,11 +72,11 @@ namespace Mirror.Weaver
             string callName = method.Name;
 
             // Cmd/rpc start with Weaver.RpcPrefix
-            // eg CallCmdDoSomething
+            // e.g. CallCmdDoSomething
             if (!callName.StartsWith(RpcPrefix))
                 return;
 
-            // eg CmdDoSomething
+            // e.g. CmdDoSomething
             string baseRemoteCallName = method.Name.Substring(RpcPrefix.Length);
 
             foreach (Instruction instruction in method.Body.Instructions)

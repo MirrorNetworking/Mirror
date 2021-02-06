@@ -4,7 +4,7 @@ using Mono.CecilX;
 namespace Mirror.Weaver
 {
     /// <summary>
-    /// Comparers TypeReference using FullName
+    /// Compares TypeReference using FullName
     /// </summary>
     public class TypeReferenceComparer : IEqualityComparer<TypeReference>
     {

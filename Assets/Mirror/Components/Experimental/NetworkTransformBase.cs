@@ -477,7 +477,7 @@ namespace Mirror.Experimental
             {
                 clientAuthority = true;
 
-                // reset value so doesnt effect future calls, see note in ServerTeleport
+                // reset value so doesn't effect future calls, see note in ServerTeleport
                 clientAuthorityBeforeTeleport = false;
             }
             else

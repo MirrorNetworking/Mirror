@@ -193,7 +193,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 hostBehaviour.SendThrow(someInt);
                 ProcessMessages();
-            }, "Processing new message should not throw, the execption from SendThrow should be caught");
+            }, "Processing new message should not throw, the exception from SendThrow should be caught");
         }
     }
 }

@@ -64,7 +64,7 @@ namespace Mirror.Weaver
         // replaces syncvar write access with the NetworkXYZ.get property calls
         static void ProcessInstructionSetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors
+            // don't replace property call sites in constructors
             if (md.Name == ".ctor")
                 return;
 
@@ -82,7 +82,7 @@ namespace Mirror.Weaver
         // replaces syncvar read access with the NetworkXYZ.get property calls
         static void ProcessInstructionGetterField(MethodDefinition md, Instruction i, FieldDefinition opField)
         {
-            // dont replace property call sites in constructors
+            // don't replace property call sites in constructors
             if (md.Name == ".ctor")
                 return;
 
@@ -123,7 +123,7 @@ namespace Mirror.Weaver
 
         static int ProcessInstructionLoadAddress(MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
         {
-            // dont replace property call sites in constructors
+            // don't replace property call sites in constructors
             if (md.Name == ".ctor")
                 return 1;
 

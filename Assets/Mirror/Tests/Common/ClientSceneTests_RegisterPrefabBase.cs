@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mirror.Tests
 {
     /// <summary>
-    /// Used by both runtime and edittime tests
+    /// Used by both runtime and edit time tests
     /// </summary>
     [TestFixture]
     public abstract class ClientSceneTests_RegisterPrefabBase : ClientSceneTestsBase

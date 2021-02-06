@@ -101,7 +101,7 @@ namespace Mirror.SimpleWeb
             catch (Exception e) { Log.Exception(e); }
             finally
             {
-                // close here incase connect fails
+                // close here in case connect fails
                 conn?.Dispose();
             }
         }

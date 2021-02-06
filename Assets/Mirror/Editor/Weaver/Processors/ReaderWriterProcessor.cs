@@ -39,7 +39,7 @@ namespace Mirror.Weaver
                 // static classes are represented as sealed and abstract
                 if (klass.IsAbstract && klass.IsSealed)
                 {
-                    // if asmebly has any declared writers then it is "modified"
+                    // if assembly has any declared writers then it is "modified"
                     modified |= LoadDeclaredWriters(CurrentAssembly, klass);
                     modified |= LoadDeclaredReaders(CurrentAssembly, klass);
                 }
@@ -47,7 +47,7 @@ namespace Mirror.Weaver
 
             foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
-                // if asmebly has any network message then it is modified
+                // if assembly has any network message then it is modified
                 modified |= LoadMessageReadWriter(CurrentAssembly.MainModule, klass);
             }
             return modified;

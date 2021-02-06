@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Mirror.Logging
 {
     /// <summary>
-    /// Used to replace log hanlder with Console Color LogHandler
+    /// Used to replace log handler with Console Color LogHandler
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkHeadlessLogger")]

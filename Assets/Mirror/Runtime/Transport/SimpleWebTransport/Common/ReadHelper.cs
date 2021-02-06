@@ -28,7 +28,7 @@ namespace Mirror.SimpleWeb
             }
             catch (AggregateException ae)
             {
-                // if interupt is called we dont care about Exceptions
+                // if interrupt is called we don't care about Exceptions
                 Utils.CheckForInterupt();
 
                 // rethrow

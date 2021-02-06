@@ -185,7 +185,7 @@ namespace kcp2k
                                  $"* Try to Enable NoDelay, decrease INTERVAL, disable Congestion Window (= enable NOCWND!), increase SEND/RECV WINDOW or compress data.\n" +
                                  $"* Or perhaps the network is simply too slow on our end, or on the other end.\n");
 
-                // let's clear all pending sends before disconnting with 'Bye'.
+                // let's clear all pending sends before disconnecting with 'Bye'.
                 // otherwise a single Flush in Disconnect() won't be enough to
                 // flush thousands of messages to finally deliver 'Bye'.
                 // this is just faster and more robust.
