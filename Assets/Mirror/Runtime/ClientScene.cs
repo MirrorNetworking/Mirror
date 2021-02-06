@@ -45,7 +45,7 @@ namespace Mirror
 
         /// <summary>
         /// Returns true when a client's connection has been set to ready.
-        /// <para>A client that is ready recieves state updates from the server, while a client that is not ready does not. This useful when the state of the game is not normal, such as a scene change or end-of-game.</para>
+        /// <para>A client that is ready receives state updates from the server, while a client that is not ready does not. This useful when the state of the game is not normal, such as a scene change or end-of-game.</para>
         /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
         /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
         /// </summary>
@@ -157,7 +157,7 @@ namespace Mirror
         /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the SYSTEM_READY event with an appropriate handler which instantiates the players object for example.</para>
         /// </summary>
         /// <param name="conn">The client connection which is ready.</param>
-        /// <returns>True if succcessful</returns>
+        /// <returns>True if successful</returns>
         public static bool Ready(NetworkConnection conn)
         {
             if (ready)
@@ -925,7 +925,7 @@ namespace Mirror
                 }
             }
 
-            // can't modifiy NetworkIdentity.spawned inside foreach so need 2nd loop to remove
+            // can't modify NetworkIdentity.spawned inside foreach so need 2nd loop to remove
             foreach (uint id in toRemoveFromSpawned)
             {
                 NetworkIdentity.spawned.Remove(id);
@@ -960,7 +960,7 @@ namespace Mirror
                 // default handling
                 else if (localObject.sceneId == 0)
                 {
-                    // dont call reset before destroy so that values are still set in OnDestroy
+                    // don't call reset before destroy so that values are still set in OnDestroy
                     Object.Destroy(localObject.gameObject);
                 }
                 // scene object.. disable it in scene instead of destroying

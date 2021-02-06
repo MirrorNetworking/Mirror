@@ -475,7 +475,7 @@ namespace kcp2k
         }
 
         // ikcp_input
-        // used when you receive a low level packet (eg. UDP packet)
+        // used when you receive a low level packet (e.g. UDP packet)
         // => original kcp uses offset=0, we made it a parameter so that high
         //    level can skip the channel byte more easily
         public int Input(byte[] data, int offset, int size)
@@ -671,7 +671,7 @@ namespace kcp2k
             // 'ikcp_update' haven't been called.
             if (!updated) return;
 
-            // kcp only stack allocs a segment here for performance, leaving
+            // kcp only stack allocates a segment here for performance, leaving
             // its data buffer null because this segment's data buffer is never
             // used. that's fine in C, but in C# our segment is class so we need
             // to allocate and most importantly, not forget to deallocate it
@@ -917,7 +917,7 @@ namespace kcp2k
         // call update repeatly.
         //
         // Important to reduce unnecessary update invoking. use it to schedule
-        // update (eg. implementing an epoll-like mechanism, or optimize update
+        // update (e.g. implementing an epoll-like mechanism, or optimize update
         // when handling massive kcp connections).
         public uint Check(uint current_)
         {

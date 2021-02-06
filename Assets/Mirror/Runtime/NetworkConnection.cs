@@ -274,7 +274,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Checks if cliet has sent a message within timeout
+        /// Checks if client has sent a message within timeout
         /// <para>
         /// Some transports are unreliable at sending disconnect message to the server
         /// so this acts as a failsafe to make sure clients are kicked
@@ -283,7 +283,7 @@ namespace Mirror
         /// Client should send ping message to server every 2 seconds to keep this alive
         /// </para>
         /// </summary>
-        /// <returns>True if server has recently recieved a message</returns>
+        /// <returns>True if server has recently received a message</returns>
         internal virtual bool IsAlive(float timeout) => Time.time - lastMessageTime < timeout;
 
         internal void AddOwnedObject(NetworkIdentity obj)

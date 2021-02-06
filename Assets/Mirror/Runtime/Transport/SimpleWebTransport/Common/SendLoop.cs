@@ -49,7 +49,7 @@ namespace Mirror.SimpleWeb
                 TcpClient client = conn.client;
                 Stream stream = conn.stream;
 
-                // null check incase disconnect while send thread is starting
+                // null check in case disconnect while send thread is starting
                 if (client == null)
                     return;
 
@@ -86,7 +86,7 @@ namespace Mirror.SimpleWeb
                         }
 
                         // after no message in queue, send remaining messages
-                        // dont need to check offset > 0 because last message in queue will always be sent here
+                        // don't need to check offset > 0 because last message in queue will always be sent here
 
                         stream.Write(writeBuffer, 0, offset);
                     }

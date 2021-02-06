@@ -323,7 +323,7 @@ namespace Mirror
                 // old not empty
                 if (!string.IsNullOrEmpty(oldAssetIdSrting))
                 {
-                    logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' becasue it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
+                    logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' because it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
                     return;
                 }
 

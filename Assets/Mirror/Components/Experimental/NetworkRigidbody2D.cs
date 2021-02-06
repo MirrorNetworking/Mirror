@@ -37,7 +37,7 @@ namespace Mirror.Experimental
         [SerializeField] float angularVelocitySensitivity = 0.1f;
 
         /// <summary>
-        /// Values sent on client with authoirty after they are sent to the server
+        /// Values sent on client with authority after they are sent to the server
         /// </summary>
         readonly ClientSyncState previousValue = new ClientSyncState();
 

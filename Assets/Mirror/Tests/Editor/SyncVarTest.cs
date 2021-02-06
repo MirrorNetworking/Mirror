@@ -47,7 +47,7 @@ namespace Mirror.Tests.SyncVarTests
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
 
-            // synchronize immediatelly
+            // synchronize immediately
             player.syncInterval = 0f;
 
             Assert.That(player.IsDirty(), Is.False, "First time object should not be dirty");
@@ -242,7 +242,7 @@ namespace Mirror.Tests.SyncVarTests
             NetworkIdentity identity = CreateNetworkIdentity(2046);
             SyncVarNetworkBehaviour behaviour1 = identity.gameObject.AddComponent<SyncVarNetworkBehaviour>();
             SyncVarNetworkBehaviour behaviour2 = identity.gameObject.AddComponent<SyncVarNetworkBehaviour>();
-            // create array/set indexs
+            // create array/set indices
             _ = identity.NetworkBehaviours;
 
             int index1 = behaviour1.ComponentIndex;

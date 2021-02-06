@@ -6,7 +6,7 @@ namespace Mirror.Cloud.Example
     {
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
-            Debug.Assert(startPositions.Count == 2, "Pong Scene should have 2 start Poitions");
+            Debug.Assert(startPositions.Count == 2, "Pong Scene should have 2 start Positions");
             // add player at correct spawn position
             Transform startPos = numPlayers == 0 ? startPositions[0] : startPositions[1];
 

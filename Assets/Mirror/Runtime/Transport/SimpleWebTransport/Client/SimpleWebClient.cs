@@ -50,7 +50,7 @@ namespace Mirror.SimpleWeb
         public void ProcessMessageQueue(MonoBehaviour behaviour)
         {
             int processedCount = 0;
-            // check enabled every time incase behaviour was disabled after data
+            // check enabled every time in case behaviour was disabled after data
             while (
                 behaviour.enabled &&
                 processedCount < maxMessagesPerTick &&

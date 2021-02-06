@@ -36,7 +36,7 @@ namespace Telepathy
             }
         }
 
-        // can't check .Count before doing Dequeue because it might change inbetween,
+        // can't check .Count before doing Dequeue because it might change in between,
         // so we need a TryDequeue
         public bool TryDequeue(out T result)
         {

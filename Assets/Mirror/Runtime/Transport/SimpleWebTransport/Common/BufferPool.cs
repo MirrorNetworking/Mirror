@@ -161,7 +161,7 @@ namespace Mirror.SimpleWeb
     /// <remarks>
     /// <para>
     /// Problem: <br/>
-    ///     * Need to cached byte[] so that new ones arn't created each time <br/>
+    ///     * Need to cached byte[] so that new ones aren't created each time <br/>
     ///     * Arrays sent are multiple different sizes <br/>
     ///     * Some message might be big so need buffers to cover that size <br/>
     ///     * Most messages will be small compared to max message size <br/>
@@ -182,8 +182,8 @@ namespace Mirror.SimpleWeb
 
         public BufferPool(int bucketCount, int smallest, int largest)
         {
-            if (bucketCount < 2) throw new ArgumentException("Count must be atleast 2");
-            if (smallest < 1) throw new ArgumentException("Smallest must be atleast 1");
+            if (bucketCount < 2) throw new ArgumentException("Count must be at least 2");
+            if (smallest < 1) throw new ArgumentException("Smallest must be at least 1");
             if (largest < smallest) throw new ArgumentException("Largest must be greater than smallest");
 
 

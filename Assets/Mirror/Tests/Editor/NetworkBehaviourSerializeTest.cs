@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
-// Note: Weaver doesn't run on nested class so so use namespace to group classes instead
+// Note: Weaver doesn't run on nested class so use namespace to group classes instead
 namespace Mirror.Tests.NetworkBehaviourSerialize
 {
     #region No OnSerialize/OnDeserialize override
@@ -43,7 +43,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     class SubClass : MiddleClass
     {
         // class with sync var
-        // this is to make sure that override works correctly if base class doesnt have sync vars
+        // this is to make sure that override works correctly if base class doesn't have sync vars
         [SyncVar]
         public Vector3 anotherSyncField;
     }
@@ -58,7 +58,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     class SubClassFromSyncVar : MiddleClassWithSyncVar
     {
         // class with sync var
-        // this is to make sure that override works correctly if base class doesnt have sync vars
+        // this is to make sure that override works correctly if base class doesn't have sync vars
         [SyncVar]
         public Vector3 syncFieldInSub;
     }

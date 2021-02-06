@@ -448,7 +448,7 @@ namespace Mirror.Tests
 
             // assign a guid
             Guid guid2 = Guid.NewGuid();
-            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' becasue it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
             identity.assetId = guid2;
 
             // guid was changed
@@ -982,7 +982,7 @@ namespace Mirror.Tests
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }
-            // ingore error from creating cache (has its own test)
+            // ignore error from creating cache (has its own test)
             LogAssert.ignoreFailingMessages = true;
             _ = identity.NetworkBehaviours;
             LogAssert.ignoreFailingMessages = false;

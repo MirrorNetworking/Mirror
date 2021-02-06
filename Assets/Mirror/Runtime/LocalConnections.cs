@@ -44,7 +44,7 @@ namespace Mirror
     {
         readonly NetworkWriter writer = new NetworkWriter();
         readonly NetworkReader reader = new NetworkReader(default(ArraySegment<byte>));
-        // The buffer is atleast 1500 bytes long. So need to keep track of
+        // The buffer is at least 1500 bytes long. So need to keep track of
         // packet count to know how many ArraySegments are in the buffer
         int packetCount;
 
@@ -53,7 +53,7 @@ namespace Mirror
             writer.WriteBytesAndSizeSegment(segment);
             packetCount++;
 
-            // update buffer incase writer's length has changed
+            // update buffer in case writer's length has changed
             reader.buffer = writer.ToArraySegment();
         }
 

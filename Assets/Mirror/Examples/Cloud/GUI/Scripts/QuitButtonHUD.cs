@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Mirror.Examples.Pong
 {
     /// <summary>
-    /// Simular to NetworkManagerHUD but just quit buttons
+    /// Similar to NetworkManagerHUD but just quit buttons
     /// </summary>
     public class QuitButtonHUD : MonoBehaviour
     {

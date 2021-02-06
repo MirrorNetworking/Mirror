@@ -55,7 +55,7 @@ namespace Mirror
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => objects.Values;
 
         // throw away all the changes
-        // this should be called after a successfull sync
+        // this should be called after a successful sync
         public void Flush() => changes.Clear();
 
         public SyncIDictionary(IDictionary<TKey, TValue> objects)

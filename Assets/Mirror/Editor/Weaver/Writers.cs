@@ -22,7 +22,7 @@ namespace Mirror.Weaver
                 Weaver.Warning($"Registering a Write method for {dataType.FullName} when one already exists", methodReference);
             }
 
-            // we need to import type when we Initialize Writers so import here incase it is used anywhere else
+            // we need to import type when we Initialize Writers so import here in case it is used anywhere else
             TypeReference imported = Weaver.CurrentAssembly.MainModule.ImportReference(dataType);
             writeFuncs[imported] = methodReference;
         }
@@ -71,7 +71,7 @@ namespace Mirror.Weaver
             }
 
             // Arrays are special, if we resolve them, we get the element type,
-            // eg int[] resolves to int
+            // e.g. int[] resolves to int
             // therefore process this before checks below
             if (variableReference.IsArray)
             {

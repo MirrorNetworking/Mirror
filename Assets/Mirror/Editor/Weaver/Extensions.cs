@@ -70,7 +70,7 @@ namespace Mirror.Weaver
                 }
                 catch (AssemblyResolutionException)
                 {
-                    // this can happen for pluins.
+                    // this can happen for plugins.
                     //Console.WriteLine("AssemblyResolutionException: "+ ex.ToString());
                     break;
                 }
@@ -170,7 +170,7 @@ namespace Mirror.Weaver
         /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
         /// </summary>
         /// <param name="self"></param>
-        /// <param name="instanceType">Generic Instance eg Writer<int></param>
+        /// <param name="instanceType">Generic Instance e.g. Writer<int></param>
         /// <returns></returns>
         public static FieldReference SpecializeField(this FieldReference self, GenericInstanceType instanceType)
         {

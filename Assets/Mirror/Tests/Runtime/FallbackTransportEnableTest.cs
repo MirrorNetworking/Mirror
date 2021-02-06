@@ -14,7 +14,7 @@ namespace Mirror.Tests.Runtime.TransportEnableTest
         public void Setup()
         {
             GameObject gameObject = new GameObject();
-            // set inactive so that awake isnt called
+            // set inactive so that awake isn't called
             gameObject.SetActive(false);
 
             transport1 = Substitute.For<Transport>();
@@ -63,7 +63,7 @@ namespace Mirror.Tests.Runtime.TransportEnableTest
         public void Setup()
         {
             GameObject gameObject = new GameObject();
-            // set inactive so that awake isnt called
+            // set inactive so that awake isn't called
             gameObject.SetActive(false);
 
             transport1 = gameObject.AddComponent<MemoryTransport>();

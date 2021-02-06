@@ -224,7 +224,7 @@ namespace {NameSpace}
         {
             string messageField = MessageField(elementType, collectionType);
 
-            return $@"Message message = new Message
+            return $@"Message = new Message
             {{
                 collection = new {messageField} {{ }}
             }};";
@@ -263,7 +263,7 @@ namespace {NameSpace}
             string mergedValues = Merge(dataValues, ", ");
             string messageField = MessageField(elementType, collectionType);
 
-            return $@"Message message = new Message
+            return $@"Message = new Message
             {{
                 collection = new {messageField}
                 {{

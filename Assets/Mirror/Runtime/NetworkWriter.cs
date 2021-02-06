@@ -112,7 +112,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Copys buffer to new array with the size of <see cref="Length"/>
+        /// Copies buffer to new array with the size of <see cref="Length"/>
         /// <para></para>
         /// </summary>
         /// <returns>all the data we have written, regardless of the current position</returns>
@@ -126,7 +126,7 @@ namespace Mirror
         /// <summary>
         /// Create an ArraySegment using the buffer and <see cref="Length"/>
         /// <para>
-        ///     Dont modify the NetworkWriter while using the ArraySegment as this can overwrite the bytes
+        ///     Don't modify the NetworkWriter while using the ArraySegment as this can overwrite the bytes
         /// </para>
         /// <para>
         ///     Use ToArraySegment instead of ToArray to avoid allocations
@@ -288,7 +288,7 @@ namespace Mirror
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer, int offset, int count)
         {
             // null is supported because [SyncVar]s might be structs with null byte[] arrays
-            // write 0 for null array, increment normal size by 1 to save bandwith
+            // write 0 for null array, increment normal size by 1 to save bandwidth
             // (using size=-1 for null would limit max size to 32kb instead of 64kb)
             if (buffer == null)
             {

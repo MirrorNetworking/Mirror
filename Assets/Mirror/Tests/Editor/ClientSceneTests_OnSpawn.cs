@@ -370,7 +370,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             Assert.That(identity.transform.position, Is.EqualTo(position));
             // use angle because of floating point numbers
-            // only need to check if rotations are approximatly equal
+            // only need to check if rotations are approximately equal
             Assert.That(Quaternion.Angle(identity.transform.rotation, rotation), Is.LessThan(0.0001f));
             Assert.That(identity.transform.localScale, Is.EqualTo(scale));
         }
@@ -411,7 +411,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             Assert.That(identity.transform.localPosition, Is.EqualTo(position));
             // use angle because of floating point numbers
-            // only need to check if rotations are approximatly equal
+            // only need to check if rotations are approximately equal
             Assert.That(Quaternion.Angle(identity.transform.localRotation, rotation), Is.LessThan(0.0001f));
             Assert.That(identity.transform.localScale, Is.EqualTo(scale));
         }
@@ -443,7 +443,7 @@ namespace Mirror.Tests.ClientSceneTests
                 payload = default,
             };
 
-            // set to oposite to make sure it is changed
+            // set to opposite to make sure it is changed
             identity.hasAuthority = !isOwner;
 
             ClientScene.ApplySpawnPayload(identity, msg);
@@ -766,7 +766,7 @@ namespace Mirror.Tests.ClientSceneTests
             Assert.That(identity.name, Is.EqualTo(validPrefab.name + "(Clone)"));
             Assert.That(identity.transform.position, Is.EqualTo(position));
             // use angle because of floating point numbers
-            // only need to check if rotations are approximatly equal
+            // only need to check if rotations are approximately equal
             Assert.That(Quaternion.Angle(identity.transform.rotation, rotation), Is.LessThan(0.0001f));
         }
 

@@ -22,7 +22,7 @@ namespace Mirror.Weaver
                 Weaver.Warning($"Registering a Read method for {dataType.FullName} when one already exists", methodReference);
             }
 
-            // we need to import type when we Initialize Readers so import here incase it is used anywhere else
+            // we need to import type when we Initialize Readers so import here in case it is used anywhere else
             TypeReference imported = Weaver.CurrentAssembly.MainModule.ImportReference(dataType);
             readFuncs[imported] = methodReference;
         }
@@ -55,7 +55,7 @@ namespace Mirror.Weaver
 
         private static MethodReference GenerateReader(TypeReference variableReference)
         {
-            // Arrays are special,  if we resolve them, we get teh element type,
+            // Arrays are special,  if we resolve them, we get the element type,
             // so the following ifs might choke on it for scriptable objects
             // or other objects that require a custom serializer
             // thus check if it is an array and skip all the checks.
