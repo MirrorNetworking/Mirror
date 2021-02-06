@@ -51,7 +51,7 @@ namespace Mirror
 
     #endregion
 
-    #region System Messages requried for code gen path
+    #region System Messages required for code gen path
     public struct CommandMessage : NetworkMessage
     {
         public uint netId;
