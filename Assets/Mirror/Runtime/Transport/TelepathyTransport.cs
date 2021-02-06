@@ -28,8 +28,8 @@ namespace Mirror
         [Tooltip("Server processes a limit amount of messages per tick to avoid a deadlock where it might end up processing forever if messages come in faster than we can process them.")]
         public int serverMaxReceivesPerTick = 10000;
 
-        [Tooltip("Send/Receive queue limit for pending messages. Telepathy will disconnect a connection's queues reach that limit for load balancing. Better to kick one slow client than slowing down the whole server.")]
-        public int serverQueueLimit = 10000;
+        //[Tooltip("Send/Receive queue limit for pending messages. Telepathy will disconnect a connection's queues reach that limit for load balancing. Better to kick one slow client than slowing down the whole server.")]
+        //public int serverQueueLimit = 10000;
 
         [Header("Client")]
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker host might send multiple fake packets with 2GB headers, causing the connected clients to run out of memory after allocating multiple large packets.")]
@@ -38,8 +38,8 @@ namespace Mirror
         [Tooltip("Client processes a limit amount of messages per tick to avoid a deadlock where it might end up processing forever if messages come in faster than we can process them.")]
         public int clientMaxReceivesPerTick = 1000;
 
-        [Tooltip("Send/Receive queue limit for pending messages. Telepathy will disconnect if the connection's queues reach that limit in order to avoid ever growing latencies.")]
-        public int clientQueueLimit = 10000;
+        //[Tooltip("Send/Receive queue limit for pending messages. Telepathy will disconnect if the connection's queues reach that limit in order to avoid ever growing latencies.")]
+        //public int clientQueueLimit = 10000;
 
         Telepathy.Client client;
         Telepathy.Server server;
@@ -73,7 +73,7 @@ namespace Mirror
 
             // client configuration
             client.NoDelay = NoDelay;
-            client.QueueLimit = clientQueueLimit;
+            //client.QueueLimit = clientQueueLimit;
 
             // server hooks
             // other systems hook into transport events in OnCreate or
@@ -88,7 +88,7 @@ namespace Mirror
 
             // server configuration
             server.NoDelay = NoDelay;
-            server.QueueLimit = serverQueueLimit;
+            //server.QueueLimit = serverQueueLimit;
 
             // allocate enabled check only once
             enabledCheck = () => enabled;
@@ -132,12 +132,40 @@ namespace Mirror
             // process a maximum amount of client messages per tick
             // IMPORTANT: check .enabled to stop processing immediately after a
             //            scene change message arrives!
-            client.Tick(clientMaxReceivesPerTick, enabledCheck);
+            for (int i = 0; i < clientMaxReceivesPerTick; ++i)
+            {
+                // stop when there are no more message
+                if (!client.Tick())
+                {
+                    break;
+                }
+
+                // Some messages can disable transport
+                // If this is disabled stop processing message in queue
+                if (!enabled)
+                {
+                    break;
+                }
+            }
 
             // process a maximum amount of server messages per tick
             // IMPORTANT: check .enabled to stop processing immediately after a
             //            scene change message arrives!
-            server.Tick(serverMaxReceivesPerTick, enabledCheck);
+            for (int i = 0; i < serverMaxReceivesPerTick; ++i)
+            {
+                // stop when there are no more message
+                if (!server.Tick())
+                {
+                    break;
+                }
+
+                // Some messages can disable transport
+                // If this is disabled stop processing message in queue
+                if (!enabled)
+                {
+                    break;
+                }
+            }
         }
 
         // server
