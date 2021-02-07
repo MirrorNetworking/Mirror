@@ -100,9 +100,11 @@ namespace Mirror
         {
             foreach (NetworkIdentity obj in Server.Spawned.Values.Reverse())
             {
-                if(obj.AssetId != Guid.Empty)
+                if (obj.AssetId != Guid.Empty)
                     DestroyObject(obj, true);
             }
+
+            Server.Spawned.Clear();
         }
 
         void OnServerChangeScene(string scenePath, SceneOperation sceneOperation)
