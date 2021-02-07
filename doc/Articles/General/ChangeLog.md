@@ -4,6 +4,19 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version 30.5.0 -- 2021-Feb-05
+- Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.7.
+- Added: Batching support for server messages - See Network Manager to enable.
+- Added: [Network Owner Checker](../Components/NetworkOwnerChecker.md).
+- Added: [Script Templates](ScriptTemplates.md) are back in the package -- See the new Mirror section in the Assets > Create menu.
+- Added: Unreliable channel added to KCP Transport.
+- Fixed: Performance improvements to KCP Transport.
+- Fixed: Examples with UI now work with Unity 2018.4 again
+- Fixed: NetworkServer.OnConnected allows for connectionIds < 0 now.
+- Fixed: Corrected `NetworkRoomPlayer` `ReadyStateChanged` `oldReadyState` parameter name.
+- Changed: Ping/Pong messages now use unreliable channel if available from transports.
+- Changed: **Breaking** Read / Write Blittable has been removed.
+
 ## Version 30.2.2 -- 2020-Dec-17
 - Added: Network Reader/Writer now does Read/WriteBlittable<T> for better performance.
 - Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.4.
@@ -42,12 +55,12 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Weaver failure on Authenticators and assemblies with only messages and no behaviors.
 - Fixed: Examples no longer rely on sequential connectionId.
 - Fixed: Eliminated errors when first importing due to preprocessor defines in transports.
-- Fixed: Scene ID logging is now consistantly in hex format.
+- Fixed: Scene ID logging is now consistently in hex format.
 - Fixed: sceneId when using BuildPipeline.BuildPlayer with incorrect case in path.
 - Fixed: Trigger not applied correctly for host in NetworkAnimator.
 - Fixed: Ensure ReadHelper.Read reads exactly number of bytes in SimpleWebTransport.
 - Changed: Minimum Unity version is now 2018.4.28 LTS.
-- Changed: Script Templates are now avalable as a separate package [here](ScriptTemplates.md).
+- Changed: Script Templates are now available as a separate package [here](ScriptTemplates.md).
 - Changed: Telepathy Transport is now obsolete - Use [KCP Transport](../Transports/KCPTransport.md) instead.
 - Changed: **Breaking** NetworkIdentity.clientAuthorityCallback is an event now.
 - Changed: **Breaking** Removed older obsolete methods and tests.
@@ -66,7 +79,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Fixing NullReferenceException when loading scene.
 - Fixed: Fixing NetworkConnectionToClient for IL2CPP.
 - Fixed: NullReferenceException in tanks example when running in headless server only.
-- Changed: **Breaking** Use SyncLists/SyncSet/SyncDictionary directly, eg `SyncList<int>`, see [Pull Request 2307](https://github.com/vis2k/Mirror/pull/2307).
+- Changed: **Breaking** Use SyncLists/SyncSet/SyncDictionary directly, e.g. `SyncList<int>`, see [Pull Request 2307](https://github.com/vis2k/Mirror/pull/2307).
 - Changed: **Breaking** Renamed `IMessageBase` to `NetworkMessage`, see [Pull Request 2317](https://github.com/vis2k/Mirror/pull/2317).
 - Changed: OnSerialize now includes the component index as byte before serializing each component. Better CPU performance at the cost of bandwidth.
 - Changed: Can now have 256 NetworkBehaviours per NetworkIdentity.
@@ -158,7 +171,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Changed: **Breaking** Network Behaviour: `OnRebuildObservers`, `OnCheckObserver`, and `OnSetHostVisibility` were moved to a separate class called `NetworkVisibility`.
 
 ## Version 11.4.2 - 2020-Apr-03
-- Added: SyncVar hooks can be virtual now, and overriden in a derived class.
+- Added: SyncVar hooks can be virtual now, and overridden in a derived class.
 - Added: Virtual `OnRoomStopServer` added to Network Room Manager and Script Template.
 - Added: 10K Networked Objects Benchmark Example.
 - Fixed: Setting breakpoints in an IDE for Command's and Rpc's work correctly now.
@@ -196,7 +209,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Network Server.SpawnObjects returns false if server isn't running.
 - Fixed: Network Transform rotation detection improved.
 - Fixed: Weaver generated code now builds properly for IL2CPP (again).
-- Changed: StartHost in Network Manager is no longer a virtual method (and shoudn't have been). Override OnStartHost instead.
+- Changed: StartHost in Network Manager is no longer a virtual method (and shouldn't have been). Override OnStartHost instead.
 - Changed: Network Room Manager's OnRoomServerSceneLoadedForPlayer now includes NetworkConnection parameter.
 - Changed: Network Scene Checker now works from OnEnable instead of Awake, and uses Scene instead of scene name.
 - Changed: Renamed NeworkWriter.Write to WriteMessage for consistency.
@@ -217,7 +230,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Network Animator now correctly syncs when clientAuthority is false.
 - Fixed: Client owned objects are now destroyed when client disconnects (regression).
 - Fixed: Client authority is now preserved for networked objects carried through scene change in DontDestroyOnLoad (DDOL).
-- Fixed: Starting server immediately after cancelling client connection attempt no longer throws a NRE.
+- Fixed: Starting server immediately after canceling client connection attempt no longer throws a NRE.
 - Fixed: IL2CPP builds no longer trigger an assert when stopping server.
 - Fixed: SyncVars are now set for Host player before hook is invoked.
 - Fixed: SyncDictionary now correctly updates the value before invoking callbacks.
@@ -237,7 +250,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: [Script Templates](ScriptTemplates.md) -- See the new Mirror section in the Assets > Create menu.
 - Added: Full Text Search added to docs.
 - Added: Basic Chat example.
-- Added: Some youtube videos have been created and linked from various doc pages where appropriate.
+- Added: Some YouTube videos have been created and linked from various doc pages where appropriate.
 - Added: Transports can now support using a URI for connection including port.
 - Added: version.txt file is now included with the release version in it.
 - Added: Structs that inherit from IMessageBase now generate serializers.
@@ -254,7 +267,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: SyncMode selector now works for components on any scene objects owned by a client in addition to the player object, e.g. pets.
 - Added: MessageBase now fully supports inheritance.
 - Added: Room example now has UI button for host to return all clients to the Room scene and other improvements.
-- Fixed: ReplacePlayerForConnection now works for existing scene objects as long as another player doesn't own the targetted object.
+- Fixed: ReplacePlayerForConnection now works for existing scene objects as long as another player doesn't own the targeted object.
 - Fixed: isClient and isServer are now true for networked objects in Start and OnStartClient / OnStartServer, respectively.
 - Fixed: hasAuthority is now set before OnStartClient and OnStartLocalPlayer are invoked.
 - Changed: connectionToClient is now used to assign client authority.
@@ -323,7 +336,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Websockets support for SSL restored.
 - Fixed: Network Manager no longer complains about missing player prefab if auto-create is disabled.
 - Fixed: Removed a garbage allocation in Network Transform.
-- Fixed: NetworkClient.Ready was being called unncessarily in certain cases, e.g. SceneMessages.
+- Fixed: NetworkClient.Ready was being called unnecessarily in certain cases, e.g. SceneMessages.
 - Changed: Documentation moved to website and API generated docs implemented.
 - Changed: AddPlayerForConnection handler is now internal to keep safety checks intact.
 - Changed: A bunch of messages converted to value types for performance.
@@ -369,7 +382,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: IsLocalPlayer is now reliably accurate in `Start()` by combining OwnerMessage and SpawnPrefabMessage.
 - Fixed: Stack overflow issues with Weaver and Cecil.
 - Fixed: Corrected assembly paths passed to weaver.
-- Fixed: Enum bandwdith reduced in SyncVars, Commands, and Rpcs.
+- Fixed: Enum bandwidth reduced in SyncVars, Commands, and Rpcs.
 - Fixed: Placeholder files added for removed code files so updating works better.
 - Changed: Network Manager `isHeadless` is a static property now, changed from `IsHeadless()`.
 
@@ -395,7 +408,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: Additive Scenes example.
 - Fixed: SyncLists now work correctly for primitives and structs.
 - Fixed: SyncVar Hooks now will update the local property value after the hook is called.  
-    -   You no longer need to have a line of code in your hook method to manualy update the local property.
+    -   You no longer need to have a line of code in your hook method to manually update the local property.
 - Fixed: Host should not call Disconnect on transports.
 - Fixed: NetworkAnimimator now supports up to 64 animator parameters.
 - Fixed: Network Manager `StartServer` no longer assumes scene zero is the default scene...uses `GetActiveScene` now.
@@ -408,7 +421,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Fixed: Offline scene switching now works via `StopClient()`.
 - Fixed: Pong example updated.
 - Fixed: Source Weaver was deleting PDB files, preventing breakpoints and debugging from working.
-- Changed: TargetRpc NetworkConnection paramater is now optional...the calling client's NetworkConnection is default.
+- Changed: TargetRpc NetworkConnection parameter is now optional...the calling client's NetworkConnection is default.
 - Changed: Movement example replaced with Tank example.
 - Changed: NetworkClient functions are all static now, so the singleton is gone. Use NetworkClient directly.
 - Changed: SyncList now supports structs directly, making SyncListSTRUCT obsolete.
@@ -435,14 +448,14 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: Full support for WebSockets and WebSocketsSecure to replace UNet LLAPI.
 - Added: Transport Multiplexer - allows the use of multiple concurrent transports.
 - Added: NetworkLobbyManager and NetworkLobbyPlayer with example game.
-- Added: Configurable Server Tickrate in Network Manager.
+- Added: Configurable Server Tick rate in Network Manager.
 - Added: New virtual OnClientChangeScene fires right before SceneManager.LoadSceneAsync is executed.
 - Added: Unit tests for Weaver.
 - Fixed: Garbage allocations removed from a lot of things (more work to do, we know).
 - Fixed: NetworkProximityChecker now uses `OverlapSphereNonAlloc` and `OverlapCircleNonAlloc`.
 - Fixed: SyncVar hook not firing when clients joined.
 - Fixed: Network Manager no longer assumes it's on Scene(0) in Build Settings.
-- Fixed: Network Animator no longer lmited to 6 variables.
+- Fixed: Network Animator no longer limited to 6 variables.
 - Fixed: TelepathyTransport delivering messages when disabled.
 - Changed: Minimum Unity version: **2018.3.6**
 - Removed: SceneAttribute.cs (merged to CustomAttributes.cs).
@@ -452,10 +465,10 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Removed: `Transport.GetConnectionInfo` (Use `ServerGetClientAddress` instead).
 
 ## Version 1.4 -- 2019-Feb-01
-- Added: HelpURL attirbutes to components.
+- Added: HelpURL attributes to components.
 - Added: Automatic targetFramerate for headless builds.
 - Added: ByteMessage to Messages class.
-- Fixed: Connectiing state can be cancelled properly.
+- Fixed: Connecting state can be canceled properly.
 - Fixed: Network Transform interpolation applied to client's own object.
 - Fixed: Objects are spawned with correct rotation.
 - Fixed: SceneId assignment.
