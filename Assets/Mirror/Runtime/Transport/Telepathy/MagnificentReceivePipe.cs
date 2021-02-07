@@ -18,10 +18,12 @@ namespace Telepathy
         // -> ArraySegment indicates the actual message content
         struct Entry
         {
+            public int connectionId;
             public EventType eventType;
             public ArraySegment<byte> data;
-            public Entry(EventType eventType, ArraySegment<byte> data)
+            public Entry(int connectionId, EventType eventType, ArraySegment<byte> data)
             {
+                this.connectionId = connectionId;
                 this.eventType = eventType;
                 this.data = data;
             }
@@ -66,7 +68,7 @@ namespace Telepathy
         // -> parameters passed directly so it's more obvious that we don't just
         //    queue a passed 'Message', instead we copy the ArraySegment into
         //    a byte[] and store it internally, etc.)
-        public void Enqueue(EventType eventType, ArraySegment<byte> message)
+        public void Enqueue(int connectionId, EventType eventType, ArraySegment<byte> message)
         {
             // pool & queue usage always needs to be locked
             lock (this)
@@ -93,7 +95,7 @@ namespace Telepathy
                 // enqueue it
                 // IMPORTANT: pass the segment around pool byte[],
                 //            NOT the 'message' that is only valid until returning!
-                Entry entry = new Entry(eventType, segment);
+                Entry entry = new Entry(connectionId, eventType, segment);
                 queue.Enqueue(entry);
             }
         }
@@ -104,8 +106,11 @@ namespace Telepathy
         // -> TryDequeue should be called after processing, so that the message
         //    is actually dequeued and the byte[] is returned to pool!
         // => see TryDequeue comments!
-        public bool TryPeek(out EventType eventType, out ArraySegment<byte> data)
+        //
+        // IMPORTANT: TryPeek & Dequeue need to be called from the SAME THREAD!
+        public bool TryPeek(out int connectionId, out EventType eventType, out ArraySegment<byte> data)
         {
+            connectionId = 0;
             eventType = EventType.Disconnected;
             data = default;
 
@@ -115,6 +120,7 @@ namespace Telepathy
                 if (queue.Count > 0)
                 {
                     Entry entry = queue.Peek();
+                    connectionId = entry.connectionId;
                     eventType = entry.eventType;
                     data = entry.data;
                     return true;
@@ -132,6 +138,8 @@ namespace Telepathy
         //    byte[] that is already returned to pool.
         // => Peek & Dequeue is the most simple, clean solution for receive
         //    pipe pooling to avoid allocations!
+        //
+        // IMPORTANT: TryPeek & Dequeue need to be called from the SAME THREAD!
         public bool TryDequeue()
         {
             // pool & queue usage always needs to be locked
