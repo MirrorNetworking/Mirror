@@ -73,10 +73,13 @@ namespace Telepathy
         }
 
         // thread receive function is the same for client and server's clients
-        public static void ReceiveLoop(int connectionId, TcpClient client, int MaxMessageSize, MagnificentReceivePipe receivePipe, int queueLimit)
+        public static void ReceiveLoop(int connectionId, TcpClient client, int MaxMessageSize, MagnificentReceivePipe receivePipe, int messageQueueSizeWarning)
         {
             // get NetworkStream from client
             NetworkStream stream = client.GetStream();
+
+            // keep track of last message queue warning
+            DateTime messageQueueLastWarning = DateTime.Now;
 
             // every receive loop needs it's own receive buffer of
             // HeaderSize + MaxMessageSize
@@ -97,7 +100,7 @@ namespace Telepathy
             try
             {
                 // add connected event to pipe
-                receivePipe.Enqueue(EventType.Connected, default);
+                receivePipe.Enqueue(connectionId, EventType.Connected, default);
 
                 // let's talk about reading data.
                 // -> normally we would read as much as possible and then
@@ -128,27 +131,22 @@ namespace Telepathy
                     // send to main thread via pipe
                     // -> it'll copy the message internally so we can reuse the
                     //    receive buffer for next read!
-                    receivePipe.Enqueue(EventType.Data, message);
+                    receivePipe.Enqueue(connectionId, EventType.Data, message);
 
-                    // disconnect if receive pipe gets too big.
-                    // -> avoids ever growing queue memory if network is slower
-                    //    than input
-                    // -> disconnecting is great for load balancing. better to
-                    //    disconnect one connection than risking every
-                    //    connection / the whole server
-                    if (receivePipe.Count >= queueLimit)
+                    // and show a warning if the pipe gets too big
+                    // -> we don't want to show a warning every single time,
+                    //    because then a lot of processing power gets wasted on
+                    //    logging, which will make the queue pile up even more.
+                    // -> instead we show it every 10s, so that the system can
+                    //    use most it's processing power to hopefully process it.
+                    if (receivePipe.Count > messageQueueSizeWarning)
                     {
-                        // log the reason
-                        Log.Warning($"receivePipe reached limit of {queueLimit}. This can happen if network messages come in way faster than we manage to process them. Disconnecting this connection for load balancing.");
-
-                        // clear queue so the final disconnect message will be
-                        // processed immediately. no need to process thousands
-                        // of pending messages before disconnecting.
-                        // it would just delay it for quite some time.
-                        receivePipe.Clear();
-
-                        // just break. the finally{} will close everything.
-                        break;
+                        TimeSpan elapsed = DateTime.Now - messageQueueLastWarning;
+                        if (elapsed.TotalSeconds > 10)
+                        {
+                            Log.Warning("ReceiveLoop: receivePipe is getting big(" + receivePipe.Count + "), try calling GetNextMessage more often. You can call it more than once per frame!");
+                            messageQueueLastWarning = DateTime.Now;
+                        }
                     }
                 }
             }
@@ -170,7 +168,7 @@ namespace Telepathy
                 //    where Disconnected -> Reconnect wouldn't work because
                 //    Connected is still true for a short moment before the stream
                 //    would be closed.
-                receivePipe.Enqueue(EventType.Disconnected, default);
+                receivePipe.Enqueue(connectionId, EventType.Disconnected, default);
             }
         }
         // thread send function

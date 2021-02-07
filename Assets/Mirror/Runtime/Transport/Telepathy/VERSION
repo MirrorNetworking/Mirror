@@ -1,17 +1,16 @@
+V1.5 [2021-02-05]
+- fix: client data races & flaky tests fixed by creating a new client state
+  object every time we connect. fixes data race where an old dieing thread
+  might still try to modify the current state
+- fix: Client.ReceiveThreadFunction catches and ignores ObjectDisposedException
+  which can happen if Disconnect() closes and disposes the client, while the
+  ReceiveThread just starts up and still uses the client.
+- Server/Client Tick() optional enabled check for Mirror scene changing
+
 V1.4 [2021-02-03]
-- perf: each server connection now has a separate receive Pipe. avoids all
-  receive threads using the same lock{}. improves server stability because
-  server.Tick now processes the next message for each connection. previously
-  a spamming connection could potentially delay processing of all other
-  client's messages because the pipe full of that single connection's messages.
-- perf: Server/Client.Tick: limit parameter added to process up to 'limit'
-  messages. makes Mirror & DOTSNET transports easier to implement and allows
-  processing up to 'limit' messages without iterating all connections 'limit'
-  times, which would be extremely slow.
-- stability: Server/Client receive queue limit disconnects intead of showing a
-  warning. allows for load balancing. better to kick one connection and keep
-  the server running than slowing everything down for everyone.
-- stability: Server/Client send queue limit disconnects intead of showing a
+- Server/Client.Tick: limit parameter added to process up to 'limit' messages.
+  makes Mirror & DOTSNET transports easier to implement
+- stability: Server/Client send queue limit disconnects instead of showing a
   warning. allows for load balancing. better to kick one connection and keep
   the server running than slowing everything down for everyone.
 
