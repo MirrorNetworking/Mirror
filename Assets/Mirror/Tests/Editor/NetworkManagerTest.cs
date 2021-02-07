@@ -34,7 +34,7 @@ namespace Mirror.Tests
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.offlineScene, Is.Empty);
             Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
-            Assert.That(manager.maxConnections, Is.EqualTo(4));
+            Assert.That(manager.maxConnections, Is.EqualTo(100));
             Assert.That(manager.autoCreatePlayer, Is.True);
             Assert.That(manager.spawnPrefabs, Is.Empty);
             Assert.That(manager.numPlayers, Is.Zero);
