@@ -22,7 +22,7 @@ These core components are included in Mirror:
     The Network Manager HUD is a quick-start tool to help you start building your multiplayer game straight away, without first having to build a user interface for game creation/connection/joining. It allows you to jump straight into your gameplay programming, and means you can build your own version of these controls later in your development schedule.
 -   [Network Match Checker](NetworkMatchChecker.md)  
     The Network Match Checker component controls visibility of networked objects based on match id.
--   [Network Owner Checker](NetworkMatchChecker.md)  
+-   [Network Owner Checker](NetworkOwnerChecker.md)  
     The Network Owner Checker component controls visibility of networked objects based on owner client.
 -   [Network Ping Display](NetworkPingDisplay.md)
     Network Ping Display shows the Ping time for clients using OnGUI
