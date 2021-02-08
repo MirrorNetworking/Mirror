@@ -243,6 +243,8 @@ MonoBehaviour:
   autoStartServerBuild: 1
   showDebugMessages: 0
   serverTickRate: 30
+  serverBatching: 0
+  serverBatchInterval: 0
   offlineScene: Assets/Mirror/Examples/Room/Scenes/OfflineScene.unity
   onlineScene: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
   transport: {fileID: 2008127830}
