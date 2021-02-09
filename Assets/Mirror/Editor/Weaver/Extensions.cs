@@ -71,11 +71,8 @@ namespace Mirror.Weaver
             TypeDefinition typedef = td;
             while (typedef != null)
             {
-                foreach (InterfaceImplementation iface in typedef.Interfaces)
-                {
-                    if (iface.InterfaceType.FullName == baseInterface.FullName)
-                        return true;
-                }
+                if (typedef.Interfaces.Any(iface => iface.InterfaceType.FullName == baseInterface.FullName))
+                    return true;
 
                 try
                 {
