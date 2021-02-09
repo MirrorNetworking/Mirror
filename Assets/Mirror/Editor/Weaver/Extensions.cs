@@ -182,7 +182,6 @@ namespace Mirror.Weaver
 
         public static bool HasCustomAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider)
         {
-            // Linq allocations don't matter in weaver
             return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.Is<TAttribute>());
         }
 
