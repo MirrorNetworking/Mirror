@@ -57,11 +57,8 @@ namespace Mirror.Weaver
 
             while (typedef != null)
             {
-                foreach (InterfaceImplementation iface in typedef.Interfaces)
-                {
-                    if (iface.InterfaceType.Is<TInterface>())
-                        return true;
-                }
+                if (typedef.Interfaces.Any(iface => iface.InterfaceType.Is<TInterface>()))
+                    return true;
 
                 try
                 {
