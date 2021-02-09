@@ -26,14 +26,14 @@ namespace Mirror.Weaver
         static void HandleWarning(string msg)
         {
             if (UnityLogEnabled) Debug.LogWarning(msg);
-            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
+            OnWeaverWarning?.Invoke(msg);
         }
 
         // error message handler that also calls OnErrorMethod delegate
         static void HandleError(string msg)
         {
             if (UnityLogEnabled) Debug.LogError(msg);
-            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
+            OnWeaverError?.Invoke(msg);
         }
 
         [InitializeOnLoadMethod]
