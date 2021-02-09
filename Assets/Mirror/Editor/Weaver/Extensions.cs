@@ -195,13 +195,11 @@ namespace Mirror.Weaver
 
         public static MethodDefinition GetMethod(this TypeDefinition td, string methodName)
         {
-            // Linq allocations don't matter in weaver
             return td.Methods.FirstOrDefault(method => method.Name == methodName);
         }
 
         public static List<MethodDefinition> GetMethods(this TypeDefinition td, string methodName)
         {
-            // Linq allocations don't matter in weaver
             return td.Methods.Where(method => method.Name == methodName).ToList();
         }
 
