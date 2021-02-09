@@ -52,21 +52,20 @@ namespace Mirror.Weaver
 
             // invoke internal send and return
             // load 'base.' to call the SendCommand function with
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldtoken, td));
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldtoken, td);
             // invokerClass
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.getTypeFromHandleReference));
-            worker.Append(worker.Create(OpCodes.Ldstr, cmdName));
+            worker.Emit(OpCodes.Call, WeaverTypes.getTypeFromHandleReference);
+            worker.Emit(OpCodes.Ldstr, cmdName);
             // writer
-            worker.Append(worker.Create(OpCodes.Ldloc_0));
-            worker.Append(worker.Create(OpCodes.Ldc_I4, channel));
-            worker.Append(worker.Create(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0));
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.sendCommandInternal));
+            worker.Emit(OpCodes.Ldloc_0);
+            worker.Emit(OpCodes.Ldc_I4, channel);
+            worker.Emit(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            worker.Emit(OpCodes.Call, WeaverTypes.sendCommandInternal);
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
-            worker.Append(worker.Create(OpCodes.Ret));
-
+            worker.Emit(OpCodes.Ret);
             return cmd;
         }
 
@@ -93,8 +92,8 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteServerActiveCheck(worker, method.Name, label, "Command");
 
             // setup for reader
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Castclass, td));
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Castclass, td);
 
             if (!NetworkBehaviourProcessor.ReadArguments(method, worker, RemoteCallType.Command))
                 return null;
@@ -102,8 +101,8 @@ namespace Mirror.Weaver
             AddSenderConnection(method, worker);
 
             // invoke actual command function
-            worker.Append(worker.Create(OpCodes.Callvirt, cmdCallFunc));
-            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Emit(OpCodes.Callvirt, cmdCallFunc);
+            worker.Emit(OpCodes.Ret);
 
             NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
 
@@ -119,7 +118,7 @@ namespace Mirror.Weaver
                 {
                     // NetworkConnection is 3nd arg (arg0 is "obj" not "this" because method is static)
                     // example: static void InvokeCmdCmdSendCommand(NetworkBehaviour obj, NetworkReader reader, NetworkConnection connection)
-                    worker.Append(worker.Create(OpCodes.Ldarg_2));
+                    worker.Emit(OpCodes.Ldarg_2);
                 }
             }
         }

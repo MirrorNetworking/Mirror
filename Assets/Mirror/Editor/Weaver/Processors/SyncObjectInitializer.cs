@@ -37,11 +37,11 @@ namespace Mirror.Weaver
         */
         static void GenerateSyncObjectRegistration(ILProcessor worker, FieldDefinition fd)
         {
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldarg_0));
-            worker.Append(worker.Create(OpCodes.Ldfld, fd));
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldfld, fd);
 
-            worker.Append(worker.Create(OpCodes.Call, WeaverTypes.InitSyncObjectReference));
+            worker.Emit(OpCodes.Call, WeaverTypes.InitSyncObjectReference);
         }
     }
 }

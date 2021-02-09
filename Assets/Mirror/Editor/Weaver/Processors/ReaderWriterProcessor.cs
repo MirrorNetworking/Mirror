@@ -165,7 +165,7 @@ namespace Mirror.Weaver
             Writers.InitializeWriters(worker);
             Readers.InitializeReaders(worker);
 
-            worker.Append(worker.Create(OpCodes.Ret));
+            worker.Emit(OpCodes.Ret);
 
             TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
 
