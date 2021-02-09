@@ -172,18 +172,12 @@ namespace Mirror.Weaver
         public static FieldReference SpecializeField(this FieldReference self, GenericInstanceType instanceType)
         {
             FieldReference reference = new FieldReference(self.Name, self.FieldType, instanceType);
-
             return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
         }
 
         public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
         {
-            foreach (CustomAttribute ca in method.CustomAttributes)
-            {
-                if (ca.AttributeType.Is<TAttribute>())
-                    return ca;
-            }
-            return null;
+            return method.CustomAttributes.FirstOrDefault(ca => ca.AttributeType.Is<TAttribute>());
         }
 
         public static bool HasCustomAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider)
