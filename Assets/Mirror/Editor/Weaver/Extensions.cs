@@ -180,13 +180,8 @@ namespace Mirror.Weaver
         public static T GetField<T>(this CustomAttribute ca, string field, T defaultValue)
         {
             foreach (CustomAttributeNamedArgument customField in ca.Fields)
-            {
                 if (customField.Name == field)
-                {
                     return (T)customField.Argument.Value;
-                }
-            }
-
             return defaultValue;
         }
 
