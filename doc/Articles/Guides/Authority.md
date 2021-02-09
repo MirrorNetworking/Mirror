@@ -33,7 +33,7 @@ NetworkServer.Spawn(go, connectionToClient);
 
 ### Using identity.AssignClientAuthority
 
-You can give authority to a client any time using `AssignClientAuthority`. This can be done by calling `AssignClientAuthority` on the object you want to give authority too
+You can give authority to a client any time using `AssignClientAuthority`. This can be done by calling `AssignClientAuthority` on the object you want to give authority to.
 ```cs
 identity.AssignClientAuthority(conn);
 ```
