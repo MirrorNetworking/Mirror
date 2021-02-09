@@ -169,12 +169,7 @@ namespace Mirror.Weaver
 
         public static CustomAttribute GetCustomAttribute(this ICustomAttributeProvider method, string attributeName)
         {
-            foreach (CustomAttribute ca in method.CustomAttributes)
-            {
-                if (ca.AttributeType.FullName == attributeName)
-                    return ca;
-            }
-            return null;
+            return method.CustomAttributes.FirstOrDefault(ca => ca.AttributeType.FullName == attributeName);
         }
 
         public static bool HasCustomAttribute(this ICustomAttributeProvider attributeProvider, TypeReference attribute)
