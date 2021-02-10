@@ -3,7 +3,6 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 // Replaced by Kcp November 2020
 namespace Mirror
@@ -18,28 +17,41 @@ namespace Mirror
 
         public ushort port = 7777;
 
+        [Header("Common")]
         [Tooltip("Nagle Algorithm can be disabled by enabling NoDelay")]
         public bool NoDelay = true;
 
+        [Tooltip("Send timeout in milliseconds.")]
+        public int SendTimeout = 5000;
+
+        [Tooltip("Receive timeout in milliseconds.")]
+        public int ReceiveTimeout = 5000;
+
         [Header("Server")]
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
-        [FormerlySerializedAs("MaxMessageSize")] public int serverMaxMessageSize = 16 * 1024;
+        public int serverMaxMessageSize = 16 * 1024;
 
         [Tooltip("Server processes a limit amount of messages per tick to avoid a deadlock where it might end up processing forever if messages come in faster than we can process them.")]
         public int serverMaxReceivesPerTick = 10000;
 
-        [Tooltip("Server send queue limit for pending messages. Telepathy will disconnect a connection's queues reach that limit for load balancing. Better to kick one slow client than slowing down the whole server.")]
-        public int serverSendQueueLimit = 10000;
+        [Tooltip("Server send queue limit per connection for pending messages. Telepathy will disconnect a connection's queues reach that limit for load balancing. Better to kick one slow client than slowing down the whole server.")]
+        public int serverSendQueueLimitPerConnection = 10000;
+
+        [Tooltip("Server receive queue limit per connection for pending messages. Telepathy will disconnect a connection's queues reach that limit for load balancing. Better to kick one slow client than slowing down the whole server.")]
+        public int serverReceiveQueueLimitPerConnection = 10000;
 
         [Header("Client")]
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker host might send multiple fake packets with 2GB headers, causing the connected clients to run out of memory after allocating multiple large packets.")]
-        [FormerlySerializedAs("MaxMessageSize")] public int clientMaxMessageSize = 16 * 1024;
+        public int clientMaxMessageSize = 16 * 1024;
 
         [Tooltip("Client processes a limit amount of messages per tick to avoid a deadlock where it might end up processing forever if messages come in faster than we can process them.")]
         public int clientMaxReceivesPerTick = 1000;
 
         [Tooltip("Client send queue limit for pending messages. Telepathy will disconnect if the connection's queues reach that limit in order to avoid ever growing latencies.")]
         public int clientSendQueueLimit = 10000;
+
+        [Tooltip("Client receive queue limit for pending messages. Telepathy will disconnect if the connection's queues reach that limit in order to avoid ever growing latencies.")]
+        public int clientReceiveQueueLimit = 10000;
 
         Telepathy.Client client;
         Telepathy.Server server;
@@ -73,7 +85,10 @@ namespace Mirror
 
             // client configuration
             client.NoDelay = NoDelay;
+            client.SendTimeout = SendTimeout;
+            client.ReceiveTimeout = ReceiveTimeout;
             client.SendQueueLimit = clientSendQueueLimit;
+            client.ReceiveQueueLimit = clientReceiveQueueLimit;
 
             // server hooks
             // other systems hook into transport events in OnCreate or
@@ -88,7 +103,10 @@ namespace Mirror
 
             // server configuration
             server.NoDelay = NoDelay;
-            server.SendQueueLimit = serverSendQueueLimit;
+            server.SendTimeout = SendTimeout;
+            server.ReceiveTimeout = ReceiveTimeout;
+            server.SendQueueLimit = serverSendQueueLimitPerConnection;
+            server.ReceiveQueueLimit = serverReceiveQueueLimitPerConnection;
 
             // allocate enabled check only once
             enabledCheck = () => enabled;

@@ -29,12 +29,16 @@ namespace Telepathy
         //   limit =  1,000 means  16 MB of memory/connection
         //   limit = 10,000 means 160 MB of memory/connection
         public int SendQueueLimit = 10000;
+        public int ReceiveQueueLimit = 10000;
 
         // thread safe pipe for received messages
+        // IMPORTANT: unfortunately using one pipe per connection is way slower
+        //            when testing 150 CCU. we need to use one pipe for all
+        //            connections. this scales beautifully.
         protected MagnificentReceivePipe receivePipe;
 
         // pipe count, useful for debugging / benchmarks
-        public int ReceivePipeCount => receivePipe.Count;
+        public int ReceivePipeTotalCount => receivePipe.TotalCount;
 
         // clients with <connectionId, ConnectionState>
         readonly ConcurrentDictionary<int, ConnectionState> clients = new ConcurrentDictionary<int, ConnectionState>();
@@ -82,6 +86,7 @@ namespace Telepathy
                 listener = TcpListener.Create(port);
                 listener.Server.NoDelay = NoDelay;
                 listener.Server.SendTimeout = SendTimeout;
+                listener.Server.ReceiveTimeout = ReceiveTimeout;
                 listener.Start();
                 Log.Info("Server: listening port=" + port);
 
@@ -97,6 +102,7 @@ namespace Telepathy
                     // set socket options
                     client.NoDelay = NoDelay;
                     client.SendTimeout = SendTimeout;
+                    client.ReceiveTimeout = ReceiveTimeout;
 
                     // generate the next connection id (thread safely)
                     int connectionId = NextConnectionId();
@@ -140,7 +146,7 @@ namespace Telepathy
                         {
                             // run the receive loop
                             // (receive pipe is shared across all loops)
-                            ThreadFunctions.ReceiveLoop(connectionId, client, MaxMessageSize, receivePipe, messageQueueSizeWarning);
+                            ThreadFunctions.ReceiveLoop(connectionId, client, MaxMessageSize, receivePipe, ReceiveQueueLimit);
 
                             // IMPORTANT: do NOT remove from clients after the
                             // thread ends. need to do it in Tick() so that the
@@ -382,7 +388,7 @@ namespace Telepathy
             }
 
             // return what's left to process for next time
-            return receivePipe.Count;
+            return receivePipe.TotalCount;
         }
     }
 }

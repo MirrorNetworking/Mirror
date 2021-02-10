@@ -1,3 +1,9 @@
+V1.6 [2021-02-10]
+- configurable ReceiveTimeout to avoid TCPs high default timeout
+- Server/Client receive queue limit now disconnects instead of showing a
+  warning. this is necessary for load balancing to avoid situations where one
+  spamming connection might fill the queue and slow down everyone else.
+
 V1.5 [2021-02-05]
 - fix: client data races & flaky tests fixed by creating a new client state
   object every time we connect. fixes data race where an old dieing thread

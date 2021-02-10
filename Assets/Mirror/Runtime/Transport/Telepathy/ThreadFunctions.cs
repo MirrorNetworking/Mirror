@@ -73,13 +73,10 @@ namespace Telepathy
         }
 
         // thread receive function is the same for client and server's clients
-        public static void ReceiveLoop(int connectionId, TcpClient client, int MaxMessageSize, MagnificentReceivePipe receivePipe, int messageQueueSizeWarning)
+        public static void ReceiveLoop(int connectionId, TcpClient client, int MaxMessageSize, MagnificentReceivePipe receivePipe, int QueueLimit)
         {
             // get NetworkStream from client
             NetworkStream stream = client.GetStream();
-
-            // keep track of last message queue warning
-            DateTime messageQueueLastWarning = DateTime.Now;
 
             // every receive loop needs it's own receive buffer of
             // HeaderSize + MaxMessageSize
@@ -133,20 +130,23 @@ namespace Telepathy
                     //    receive buffer for next read!
                     receivePipe.Enqueue(connectionId, EventType.Data, message);
 
-                    // and show a warning if the pipe gets too big
-                    // -> we don't want to show a warning every single time,
-                    //    because then a lot of processing power gets wasted on
-                    //    logging, which will make the queue pile up even more.
-                    // -> instead we show it every 10s, so that the system can
-                    //    use most it's processing power to hopefully process it.
-                    if (receivePipe.Count > messageQueueSizeWarning)
+                    // disconnect if receive pipe gets too big for this connectionId.
+                    // -> avoids ever growing queue memory if network is slower
+                    //    than input
+                    // -> disconnecting is great for load balancing. better to
+                    //    disconnect one connection than risking every
+                    //    connection / the whole server
+                    if (receivePipe.Count(connectionId) >= QueueLimit)
                     {
-                        TimeSpan elapsed = DateTime.Now - messageQueueLastWarning;
-                        if (elapsed.TotalSeconds > 10)
-                        {
-                            Log.Warning("ReceiveLoop: receivePipe is getting big(" + receivePipe.Count + "), try calling GetNextMessage more often. You can call it more than once per frame!");
-                            messageQueueLastWarning = DateTime.Now;
-                        }
+                        // log the reason
+                        Log.Warning($"receivePipe reached limit of {QueueLimit} for connectionId {connectionId}. This can happen if network messages come in way faster than we manage to process them. Disconnecting this connection for load balancing.");
+
+                        // IMPORTANT: do NOT clear the whole queue. we use one
+                        // queue for all connections.
+                        //receivePipe.Clear();
+
+                        // just break. the finally{} will close everything.
+                        break;
                     }
                 }
             }

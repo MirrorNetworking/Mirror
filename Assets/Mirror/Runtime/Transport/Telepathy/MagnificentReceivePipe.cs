@@ -43,6 +43,14 @@ namespace Telepathy
         // IMPORTANT: lock{} all usages!
         Pool<byte[]> pool;
 
+        // unfortunately having one receive pipe per connetionId is way slower
+        // in CCU tests. right now we have one pipe for all connections.
+        // => we still need to limit queued messages per connection to avoid one
+        //    spamming connection being able to slow down everyone else since
+        //    the queue would be full of just this connection's messages forever
+        // => let's use a simpler per-connectionId counter for now
+        Dictionary<int, int> queueCounter = new Dictionary<int, int>();
+
         // constructor
         public MagnificentReceivePipe(int MaxMessageSize)
         {
@@ -50,9 +58,21 @@ namespace Telepathy
             pool = new Pool<byte[]>(() => new byte[MaxMessageSize]);
         }
 
+        // return amount of queued messages for this connectionId.
         // for statistics. don't call Count and assume that it's the same after
         // the call.
-        public int Count
+        public int Count(int connectionId)
+        {
+            lock (this)
+            {
+                return queueCounter.TryGetValue(connectionId, out int count)
+                       ? count
+                       : 0;
+            }
+        }
+
+        // total count
+        public int TotalCount
         {
             get { lock (this) { return queue.Count; } }
         }
@@ -97,6 +117,10 @@ namespace Telepathy
                 //            NOT the 'message' that is only valid until returning!
                 Entry entry = new Entry(connectionId, eventType, segment);
                 queue.Enqueue(entry);
+
+                // increase counter for this connectionId
+                int oldCount = Count(connectionId);
+                queueCounter[connectionId] = oldCount + 1;
             }
         }
 
@@ -156,6 +180,15 @@ namespace Telepathy
                     {
                         pool.Return(entry.data.Array);
                     }
+
+                    // decrease counter for this connectionId
+                    queueCounter[entry.connectionId]--;
+
+                    // remove if zero. don't want to keep old connectionIds in
+                    // there forever, it would cause slowly growing memory.
+                    if (queueCounter[entry.connectionId] == 0)
+                        queueCounter.Remove(entry.connectionId);
+
                     return true;
                 }
                 return false;
@@ -180,6 +213,9 @@ namespace Telepathy
                         pool.Return(entry.data.Array);
                     }
                 }
+
+                // clear counter too
+                queueCounter.Clear();
             }
         }
     }

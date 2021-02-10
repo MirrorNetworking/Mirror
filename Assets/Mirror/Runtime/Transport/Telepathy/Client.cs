@@ -98,6 +98,7 @@ namespace Telepathy
         //   limit =  1,000 means  16 MB of memory/connection
         //   limit = 10,000 means 160 MB of memory/connection
         public int SendQueueLimit = 10000;
+        public int ReceiveQueueLimit = 10000;
 
         // all client state wrapped into an object that is passed to ReceiveThread
         // => we create a new one each time we connect to avoid data races with
@@ -109,7 +110,7 @@ namespace Telepathy
         public bool Connecting => state != null && state.Connecting;
 
         // pipe count, useful for debugging / benchmarks
-        public int ReceivePipeCount => state != null ? state.receivePipe.Count : 0;
+        public int ReceivePipeCount => state != null ? state.receivePipe.TotalCount : 0;
 
         // constructor
         public Client(int MaxMessageSize) : base(MaxMessageSize) {}
@@ -119,7 +120,7 @@ namespace Telepathy
         // => pass ClientState object. a new one is created for each new thread!
         // => avoids data races where an old dieing thread might still modify
         //    the current thread's state :/
-        static void ReceiveThreadFunction(ClientConnectionState state, string ip, int port, int MaxMessageSize, bool NoDelay, int SendTimeout)
+        static void ReceiveThreadFunction(ClientConnectionState state, string ip, int port, int MaxMessageSize, bool NoDelay, int SendTimeout, int ReceiveTimeout, int ReceiveQueueLimit)
 
         {
             Thread sendThread = null;
@@ -136,6 +137,7 @@ namespace Telepathy
                 // (not after the constructor because we clear the socket there)
                 state.client.NoDelay = NoDelay;
                 state.client.SendTimeout = SendTimeout;
+                state.client.ReceiveTimeout = ReceiveTimeout;
 
                 // start send thread only after connected
                 // IMPORTANT: DO NOT SHARE STATE ACROSS MULTIPLE THREADS!
@@ -145,7 +147,7 @@ namespace Telepathy
 
                 // run the receive loop
                 // (receive pipe is shared across all loops)
-                ThreadFunctions.ReceiveLoop(0, state.client, MaxMessageSize, state.receivePipe, messageQueueSizeWarning);
+                ThreadFunctions.ReceiveLoop(0, state.client, MaxMessageSize, state.receivePipe, ReceiveQueueLimit);
             }
             catch (SocketException exception)
             {
@@ -235,7 +237,7 @@ namespace Telepathy
             // -> this way we don't async client.BeginConnect, which seems to
             //    fail sometimes if we connect too many clients too fast
             state.receiveThread = new Thread(() => {
-                ReceiveThreadFunction(state, ip, port, MaxMessageSize, NoDelay, SendTimeout);
+                ReceiveThreadFunction(state, ip, port, MaxMessageSize, NoDelay, SendTimeout, ReceiveTimeout, ReceiveQueueLimit);
             });
             state.receiveThread.IsBackground = true;
             state.receiveThread.Start();
@@ -354,7 +356,7 @@ namespace Telepathy
             }
 
             // return what's left to process for next time
-            return state.receivePipe.Count;
+            return state.receivePipe.TotalCount;
         }
     }
 }
