@@ -81,7 +81,7 @@ namespace Mirror
         /// fewer transport calls give us significantly better performance/scale.
         /// if batch interval is 0, then we only batch until the Update() call
         /// </summary>
-        [Tooltip("Server can batch messages up to Transport.GetMaxPacketSize to significantly reduce transport calls and improve performance/scale./nIf batch interval is 0, then we only batch until the Update() call. Otherwise we batch until interval elapsed (note that this increases latency).")]
+        [Tooltip("Server can batch messages up to Transport.GetMaxPacketSize to significantly reduce transport calls and improve performance/scale.\nIf batch interval is 0, then we only batch until the Update() call. Otherwise we batch until interval elapsed (note that this increases latency).")]
         public float serverBatchInterval = 0;
 
         /// <summary>
