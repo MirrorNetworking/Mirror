@@ -4,7 +4,7 @@ namespace WeaverCommandTests.CommandWithSenderConnectionAndOtherArgs
 {
     class CommandWithSenderConnectionAndOtherArgs : NetworkBehaviour
     {
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         void CmdFunction(int someNumber, NetworkIdentity someTarget, NetworkConnectionToClient connection = null)
         {
             // do something

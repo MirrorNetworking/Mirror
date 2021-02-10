@@ -92,7 +92,7 @@ namespace Mirror.Examples.MultipleMatch
             }
         }
 
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         public void CmdMakePlay(CellValue cellValue, NetworkConnectionToClient sender = null)
         {
             // If wrong player or cell already taken, ignore
@@ -190,7 +190,7 @@ namespace Mirror.Examples.MultipleMatch
             CmdPlayAgain();
         }
 
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         public void CmdPlayAgain(NetworkConnectionToClient sender = null)
         {
             if (!playAgain)
@@ -247,7 +247,7 @@ namespace Mirror.Examples.MultipleMatch
             CmdRequestExitGame();
         }
 
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         public void CmdRequestExitGame(NetworkConnectionToClient sender = null)
         {
             StartCoroutine(ServerEndMatch(sender, false));

@@ -48,7 +48,7 @@ namespace Mirror.Weaver
 
             string cmdName = md.Name;
             int channel = commandAttr.GetField("channel", 0);
-            bool ignoreAuthority = commandAttr.GetField("ignoreAuthority", false);
+            bool requiresAuthority = commandAttr.GetField("requiresAuthority", true);
 
             // invoke internal send and return
             // load 'base.' to call the SendCommand function with
@@ -60,7 +60,8 @@ namespace Mirror.Weaver
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, channel);
-            worker.Emit(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            // requiresAuthority ? 1 : 0
+            worker.Emit(requiresAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             worker.Emit(OpCodes.Call, WeaverTypes.sendCommandInternal);
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);

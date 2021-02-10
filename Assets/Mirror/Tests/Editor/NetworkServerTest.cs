@@ -569,7 +569,7 @@ namespace Mirror.Tests
                 nameof(CommandTestNetworkBehaviour.CommandGenerated),
                 MirrorInvokeType.Command,
                 CommandTestNetworkBehaviour.CommandGenerated,
-                false);
+                true);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it

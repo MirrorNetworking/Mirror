@@ -33,7 +33,7 @@ namespace Mirror.Weaver
         public struct CmdResult
         {
             public MethodDefinition method;
-            public bool ignoreAuthority;
+            public bool requiresAuthority;
         }
 
         public struct ClientRpcResult
@@ -337,7 +337,7 @@ namespace Mirror.Weaver
         void GenerateRegisterCommandDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
             string cmdName = cmdResult.method.Name;
-            bool ignoreAuthority = cmdResult.ignoreAuthority;
+            bool requiresAuthority = cmdResult.requiresAuthority;
 
             worker.Emit(OpCodes.Ldtoken, netBehaviourSubclass);
             worker.Emit(OpCodes.Call, WeaverTypes.getTypeFromHandleReference);
@@ -347,7 +347,8 @@ namespace Mirror.Weaver
 
             worker.Emit(OpCodes.Newobj, WeaverTypes.CmdDelegateConstructor);
 
-            worker.Emit(ignoreAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            // requiresAuthority ? 1 : 0
+            worker.Emit(requiresAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
 
             worker.Emit(OpCodes.Call, registerMethod);
         }
@@ -1180,13 +1181,13 @@ namespace Mirror.Weaver
                 return;
             }
 
-            bool ignoreAuthority = commandAttr.GetField("ignoreAuthority", false);
+            bool requiresAuthority = commandAttr.GetField("requiresAuthority", true);
 
             names.Add(md.Name);
             commands.Add(new CmdResult
             {
                 method = md,
-                ignoreAuthority = ignoreAuthority
+                requiresAuthority = requiresAuthority
             });
 
             MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(netBehaviourSubclass, md, commandAttr);

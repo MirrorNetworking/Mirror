@@ -1026,8 +1026,8 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            bool needAuthority = !commandInfo.ignoreAuthority;
-            if (needAuthority && identity.connectionToClient != conn)
+            bool requiresAuthority = commandInfo.requiresAuthority;
+            if (requiresAuthority && identity.connectionToClient != conn)
             {
                 Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
                 return;

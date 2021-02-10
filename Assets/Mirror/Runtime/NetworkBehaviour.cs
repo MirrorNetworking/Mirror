@@ -169,7 +169,7 @@ namespace Mirror
         }
 
         #region Commands
-        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool ignoreAuthority = false)
+        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requiresAuthority = true)
         {
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
@@ -180,7 +180,7 @@ namespace Mirror
                 return;
             }
             // local players can always send commands, regardless of authority, other objects must have authority.
-            if (!(ignoreAuthority || isLocalPlayer || hasAuthority))
+            if (!(!requiresAuthority || isLocalPlayer || hasAuthority))
             {
                 Debug.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
                 return;

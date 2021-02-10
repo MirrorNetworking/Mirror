@@ -4,7 +4,7 @@ namespace WeaverCommandTests.ErrorForOptionalNetworkConnectionThatIsNotSenderCon
 {
     class ErrorForOptionalNetworkConnectionThatIsNotSenderConnection : NetworkBehaviour
     {
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         void CmdFunction(NetworkConnection connection = null)
         {
             // do something

@@ -4,7 +4,7 @@ namespace WeaverCommandTests.CommandThatIgnoresAuthority
 {
     class CommandThatIgnoresAuthority : NetworkBehaviour
     {
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         void CmdFunction()
         {
             // do something

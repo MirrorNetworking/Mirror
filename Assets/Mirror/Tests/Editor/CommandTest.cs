@@ -21,7 +21,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
     {
         public event Action<int> onSendInt;
 
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         public void CmdSendInt(int someInt)
         {
             onSendInt?.Invoke(someInt);
@@ -43,7 +43,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
     {
         public event Action<int, NetworkConnection> onSendInt;
 
-        [Command(ignoreAuthority = true)]
+        [Command(requiresAuthority = false)]
         public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null)
         {
             onSendInt?.Invoke(someInt, conn);

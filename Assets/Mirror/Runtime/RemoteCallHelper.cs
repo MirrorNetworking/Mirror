@@ -16,7 +16,7 @@ namespace Mirror.RemoteCalls
         public Type invokeClass;
         public MirrorInvokeType invokeType;
         public CmdDelegate invokeFunction;
-        public bool cmdIgnoreAuthority;
+        public bool cmdRequiresAuthority;
 
         public bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, CmdDelegate invokeFunction)
         {
@@ -28,7 +28,7 @@ namespace Mirror.RemoteCalls
 
     public struct CommandInfo
     {
-        public bool ignoreAuthority;
+        public bool requiresAuthority;
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace Mirror.RemoteCalls
         /// <param name="func"></param>
         /// <param name="cmdIgnoreAuthority"></param>
         /// <returns>remote function hash</returns>
-        internal static int RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdIgnoreAuthority = false)
+        internal static int RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdRequiresAuthority = true)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
@@ -78,12 +78,12 @@ namespace Mirror.RemoteCalls
                 invokeType = invokerType,
                 invokeClass = invokeClass,
                 invokeFunction = func,
-                cmdIgnoreAuthority = cmdIgnoreAuthority,
+                cmdRequiresAuthority = cmdRequiresAuthority,
             };
 
             cmdHandlerDelegates[cmdHash] = invoker;
 
-            //string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" IgnoreAuthority:{cmdIgnoreAuthority}" : "";
+            //string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" requiresAuthority:{cmdRequiresAuthority}" : "";
             //Debug.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
 
             return cmdHash;
@@ -107,9 +107,9 @@ namespace Mirror.RemoteCalls
             return false;
         }
 
-        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func, bool ignoreAuthority)
+        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func, bool requiresAuthority)
         {
-            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func, ignoreAuthority);
+            RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func, requiresAuthority);
         }
 
         public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
@@ -158,7 +158,7 @@ namespace Mirror.RemoteCalls
             {
                 return new CommandInfo
                 {
-                    ignoreAuthority = invoker.cmdIgnoreAuthority
+                    requiresAuthority = invoker.cmdRequiresAuthority
                 };
             }
             return default;

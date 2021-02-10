@@ -21,7 +21,7 @@ namespace Mirror
     public class CommandAttribute : Attribute
     {
         public int channel = Channels.DefaultReliable;
-        public bool ignoreAuthority = false;
+        public bool requiresAuthority = true;
     }
 
     /// <summary>
