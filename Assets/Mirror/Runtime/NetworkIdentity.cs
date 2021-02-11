@@ -1143,7 +1143,7 @@ namespace Mirror
             {
                 foreach (NetworkConnection conn in observers.Values)
                 {
-                    conn.RemoveFromVisList(this, true);
+                    conn.RemoveFromObserving(this, true);
                 }
                 observers.Clear();
             }
@@ -1167,7 +1167,7 @@ namespace Mirror
             // Debug.Log("Added observer " + conn.address + " added for " + gameObject);
 
             observers[conn.connectionId] = conn;
-            conn.AddToVisList(this);
+            conn.AddToObserving(this);
         }
 
         /// <summary>
@@ -1264,7 +1264,7 @@ namespace Mirror
                     if (initialize || !observers.ContainsKey(conn.connectionId))
                     {
                         // new observer
-                        conn.AddToVisList(this);
+                        conn.AddToObserving(this);
                         // Debug.Log("New Observer for " + gameObject + " " + conn);
                         changed = true;
                     }
@@ -1277,7 +1277,7 @@ namespace Mirror
                 if (!newObservers.Contains(conn))
                 {
                     // removed observer
-                    conn.RemoveFromVisList(this, false);
+                    conn.RemoveFromObserving(this, false);
                     // Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }

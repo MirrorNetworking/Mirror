@@ -1628,9 +1628,9 @@ namespace Mirror.Tests
         }
 
         // RebuildObservers is complex. let's do one full test where we check
-        // add, remove and vislist.
+        // add, remove and observing.
         [Test]
-        public void RebuildObserversAddRemoveAndVisListTest()
+        public void RebuildObserversAddRemoveAndObservingTest()
         {
             // add observer component with ready observer
             RebuildObserversNetworkBehaviour comp = gameObject.AddComponent<RebuildObserversNetworkBehaviour>();
@@ -1645,9 +1645,9 @@ namespace Mirror.Tests
             Assert.That(identity.observers.Count, Is.EqualTo(1));
             Assert.That(identity.observers.ContainsKey(observerA.connectionId));
 
-            // identity should have added itself to the observer's visList
-            Assert.That(observerA.visList.Count, Is.EqualTo(1));
-            Assert.That(observerA.visList.Contains(identity), Is.True);
+            // identity should have added itself to the observer's observing
+            Assert.That(observerA.observing.Count, Is.EqualTo(1));
+            Assert.That(observerA.observing.Contains(identity), Is.True);
 
             // let the component find another observer
             NetworkConnectionToClient observerB = new NetworkConnectionToClient(43, false, 0) { isReady = true };
@@ -1658,11 +1658,11 @@ namespace Mirror.Tests
             Assert.That(identity.observers.Count, Is.EqualTo(1));
             Assert.That(identity.observers.ContainsKey(observerB.connectionId));
 
-            // identity should have removed itself from the old observer's visList
-            // and added itself to new observer's vislist
-            Assert.That(observerA.visList.Count, Is.EqualTo(0));
-            Assert.That(observerB.visList.Count, Is.EqualTo(1));
-            Assert.That(observerB.visList.Contains(identity), Is.True);
+            // identity should have removed itself from the old observer's observing
+            // and added itself to new observer's observing
+            Assert.That(observerA.observing.Count, Is.EqualTo(0));
+            Assert.That(observerB.observing.Count, Is.EqualTo(1));
+            Assert.That(observerB.observing.Contains(identity), Is.True);
 
             // clean up
             NetworkServer.Shutdown();

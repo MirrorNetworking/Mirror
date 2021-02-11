@@ -18,8 +18,8 @@ namespace Mirror
     {
         public const int LocalConnectionId = 0;
 
-        // internal so it can be tested
-        internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
+        // NetworkIdentities that this connection can see
+        internal readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
@@ -156,17 +156,17 @@ namespace Mirror
             return $"connection({connectionId})";
         }
 
-        internal void AddToVisList(NetworkIdentity identity)
+        internal void AddToObserving(NetworkIdentity identity)
         {
-            visList.Add(identity);
+            observing.Add(identity);
 
             // spawn identity for this conn
             NetworkServer.ShowForConnection(identity, this);
         }
 
-        internal void RemoveFromVisList(NetworkIdentity identity, bool isDestroyed)
+        internal void RemoveFromObserving(NetworkIdentity identity, bool isDestroyed)
         {
-            visList.Remove(identity);
+            observing.Remove(identity);
 
             if (!isDestroyed)
             {
@@ -177,11 +177,11 @@ namespace Mirror
 
         internal void RemoveObservers()
         {
-            foreach (NetworkIdentity identity in visList)
+            foreach (NetworkIdentity identity in observing)
             {
                 identity.RemoveObserverInternal(this);
             }
-            visList.Clear();
+            observing.Clear();
         }
 
         // helper function
