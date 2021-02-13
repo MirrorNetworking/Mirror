@@ -54,13 +54,13 @@ namespace Mirror.Tests
         [Test]
         public void UnpackWrongMessage()
         {
-            ConnectMessage message = new ConnectMessage();
+            SpawnMessage message = new SpawnMessage();
 
             byte[] data = PackToByteArray(message);
 
             Assert.Throws<FormatException>(() =>
             {
-                DisconnectMessage unpacked = UnpackFromByteArray<DisconnectMessage>(data);
+                UpdateVarsMessage unpacked = UnpackFromByteArray<UpdateVarsMessage>(data);
             });
         }
 

@@ -87,6 +87,12 @@ namespace Mirror
 
         public override string address => "localhost";
 
+        // see caller for comments on why we need this
+        bool connectedEventPending;
+        bool disconnectedEventPending;
+        internal void QueueConnectedEvent() => connectedEventPending = true;
+        internal void QueueDisconnectedEvent() => disconnectedEventPending = true;
+
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (segment.Count == 0)
@@ -101,6 +107,13 @@ namespace Mirror
 
         internal void Update()
         {
+            // should we still process a connected event?
+            if (connectedEventPending)
+            {
+                connectedEventPending = false;
+                NetworkClient.OnConnectedEvent?.Invoke(this);
+            }
+
             // process internal messages so they are applied at the correct time
             while (buffer.HasPackets())
             {
@@ -112,6 +125,13 @@ namespace Mirror
             }
 
             buffer.ResetBuffer();
+
+            // should we still process a disconnected event?
+            if (disconnectedEventPending)
+            {
+                disconnectedEventPending = false;
+                NetworkClient.OnDisconnectedEvent?.Invoke(this);
+            }
         }
 
         /// <summary>

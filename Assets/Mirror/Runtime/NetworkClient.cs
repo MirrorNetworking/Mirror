@@ -56,6 +56,13 @@ namespace Mirror
         /// </summary>
         public static bool isLocalClient => connection is ULocalConnectionToServer;
 
+        // OnConnected / OnDisconnected used to be NetworkMessages that were
+        // invoked. this introduced a bug where external clients could send
+        // Connected/Disconnected messages over the network causing undefined
+        // behaviour.
+        internal static Action<NetworkConnection> OnConnectedEvent;
+        internal static Action<NetworkConnection> OnDisconnectedEvent;
+
         /// <summary>
         /// Connect client to a NetworkServer instance.
         /// </summary>
@@ -124,8 +131,18 @@ namespace Mirror
         /// </summary>
         public static void ConnectLocalServer()
         {
+            // call server OnConnected with server's connection to client
             NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
+
+            // call client OnConnected with client's connection to server
+            // => previously we used to send a ConnectMessage to
+            //    NetworkServer.localConnection. this would queue the message
+            //    until NetworkClient.Update processes it.
+            // => invoking the client's OnConnected event directly here makes
+            //    tests fail. so let's do it exactly the same order as before by
+            //    queueing the event for next Update!
+            //OnConnectedEvent?.Invoke(connection);
+            ((ULocalConnectionToServer)connection).QueueConnectedEvent();
         }
 
         /// <summary>
@@ -164,7 +181,7 @@ namespace Mirror
 
             ClientScene.HandleClientDisconnect(connection);
 
-            connection?.InvokeHandler(new DisconnectMessage(), -1);
+            if (connection != null) OnDisconnectedEvent?.Invoke(connection);
         }
 
         internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
@@ -187,7 +204,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient();
-                connection.InvokeHandler(new ConnectMessage(), -1);
+                OnConnectedEvent?.Invoke(connection);
             }
             else logger.LogError("Skipped Connect message handling because connection is null.");
         }
@@ -206,7 +223,15 @@ namespace Mirror
             {
                 if (isConnected)
                 {
-                    NetworkServer.localConnection.Send(new DisconnectMessage());
+                    // call client OnDisconnected with connection to server
+                    // => previously we used to send a DisconnectMessage to
+                    //    NetworkServer.localConnection. this would queue the
+                    //    message until NetworkClient.Update processes it.
+                    // => invoking the client's OnDisconnected event directly
+                    //    here makes tests fail. so let's do it exactly the same
+                    //    order as before by queueing the event for next Update!
+                    //OnDisconnectedEvent?.Invoke(connection);
+                    ((ULocalConnectionToServer)connection).QueueDisconnectedEvent();
                 }
                 NetworkServer.RemoveLocalConnection();
             }
