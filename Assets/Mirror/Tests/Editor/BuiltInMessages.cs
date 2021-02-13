@@ -31,30 +31,6 @@ namespace Mirror.Tests.MessageTests
         }
 
         [Test]
-        public void ConnectMessage()
-        {
-            // try setting value with constructor
-            ConnectMessage message = new ConnectMessage();
-            byte[] arr = MessagePackerTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                MessagePackerTest.UnpackFromByteArray<ConnectMessage>(arr);
-            });
-        }
-
-        [Test]
-        public void DisconnectMessage()
-        {
-            // try setting value with constructor
-            DisconnectMessage message = new DisconnectMessage();
-            byte[] arr = MessagePackerTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                MessagePackerTest.UnpackFromByteArray<DisconnectMessage>(arr);
-            });
-        }
-
-        [Test]
         public void ErrorMessage()
         {
             // try setting value with constructor

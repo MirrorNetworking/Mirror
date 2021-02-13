@@ -776,8 +776,8 @@ namespace Mirror
 
         void RegisterServerMessages()
         {
-            NetworkServer.RegisterHandler<ConnectMessage>(OnServerConnectInternal, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>(OnServerDisconnectInternal, false);
+            NetworkServer.OnConnectedEvent = OnServerConnectInternal;
+            NetworkServer.OnDisconnectedEvent = OnServerDisconnectInternal;
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
             NetworkServer.RegisterHandler<ErrorMessage>(OnServerErrorInternal, false);
 
@@ -787,8 +787,8 @@ namespace Mirror
 
         void RegisterClientMessages()
         {
-            NetworkClient.RegisterHandler<ConnectMessage>(OnClientConnectInternal, false);
-            NetworkClient.RegisterHandler<DisconnectMessage>(OnClientDisconnectInternal, false);
+            NetworkClient.OnConnectedEvent = OnClientConnectInternal;
+            NetworkClient.OnDisconnectedEvent = OnClientDisconnectInternal;
             NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             NetworkClient.RegisterHandler<ErrorMessage>(OnClientErrorInternal, false);
             NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
@@ -1168,7 +1168,7 @@ namespace Mirror
 
         #region Server Internal Message Handlers
 
-        void OnServerConnectInternal(NetworkConnection conn, ConnectMessage connectMsg)
+        void OnServerConnectInternal(NetworkConnection conn)
         {
             logger.Log("NetworkManager.OnServerConnectInternal");
 
@@ -1202,7 +1202,7 @@ namespace Mirror
             OnServerConnect(conn);
         }
 
-        void OnServerDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
+        void OnServerDisconnectInternal(NetworkConnection conn)
         {
             logger.Log("NetworkManager.OnServerDisconnectInternal");
             OnServerDisconnect(conn);
@@ -1249,7 +1249,7 @@ namespace Mirror
 
         #region Client Internal Message Handlers
 
-        void OnClientConnectInternal(NetworkConnection conn, ConnectMessage message)
+        void OnClientConnectInternal(NetworkConnection conn)
         {
             logger.Log("NetworkManager.OnClientConnectInternal");
 
@@ -1287,7 +1287,7 @@ namespace Mirror
             }
         }
 
-        void OnClientDisconnectInternal(NetworkConnection conn, DisconnectMessage msg)
+        void OnClientDisconnectInternal(NetworkConnection conn)
         {
             logger.Log("NetworkManager.OnClientDisconnectInternal");
             OnClientDisconnect(conn);
