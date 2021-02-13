@@ -41,7 +41,7 @@ namespace Mirror
         #region Unity Callbacks
 
         /// <summary>
-        /// Do not use Start - Override OnStartrHost / OnStartClient instead!
+        /// Do not use Start - Override OnStartHost / OnStartClient instead!
         /// </summary>
         public void Start()
         {
