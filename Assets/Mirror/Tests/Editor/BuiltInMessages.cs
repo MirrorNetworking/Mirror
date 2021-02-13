@@ -31,16 +31,6 @@ namespace Mirror.Tests.MessageTests
         }
 
         [Test]
-        public void ErrorMessage()
-        {
-            // try setting value with constructor
-            ErrorMessage message = new ErrorMessage(42);
-            byte[] arr = MessagePackerTest.PackToByteArray(message);
-            ErrorMessage fresh = MessagePackerTest.UnpackFromByteArray<ErrorMessage>(arr);
-            Assert.That(fresh.value, Is.EqualTo(message.value));
-        }
-
-        [Test]
         public void NetworkPingMessage()
         {
             // try setting value with constructor
