@@ -14,16 +14,6 @@ namespace Mirror
     public interface NetworkMessage { }
 
     #region Public System Messages
-    public struct ErrorMessage : NetworkMessage
-    {
-        public byte value;
-
-        public ErrorMessage(byte v)
-        {
-            value = v;
-        }
-    }
-
     public struct ReadyMessage : NetworkMessage { }
 
     public struct NotReadyMessage : NetworkMessage { }
