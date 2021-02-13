@@ -30,10 +30,6 @@ namespace Mirror
 
     public struct AddPlayerMessage : NetworkMessage { }
 
-    public struct DisconnectMessage : NetworkMessage { }
-
-    public struct ConnectMessage : NetworkMessage { }
-
     public struct SceneMessage : NetworkMessage
     {
         public string sceneName;

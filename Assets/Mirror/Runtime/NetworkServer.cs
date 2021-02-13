@@ -91,6 +91,13 @@ namespace Mirror
         /// </summary>
         public static float disconnectInactiveTimeout = 60f;
 
+        // OnConnected / OnDisconnected used to be NetworkMessages that were
+        // invoked. this introduced a bug where external clients could send
+        // Connected/Disconnected messages over the network causing undefined
+        // behaviour.
+        internal static Action<NetworkConnection> OnConnectedEvent;
+        internal static Action<NetworkConnection> OnDisconnectedEvent;
+
         /// <summary>
         /// This shuts down the server and disconnects all clients.
         /// </summary>
@@ -567,7 +574,7 @@ namespace Mirror
 
             // add connection and invoke connected event
             AddConnection(conn);
-            conn.InvokeHandler(new ConnectMessage(), -1);
+            OnConnectedEvent?.Invoke(conn);
         }
 
         internal static void OnDisconnected(int connectionId)
@@ -586,7 +593,7 @@ namespace Mirror
 
         static void OnDisconnected(NetworkConnection conn)
         {
-            conn.InvokeHandler(new DisconnectMessage(), -1);
+            OnDisconnectedEvent?.Invoke(conn);
             if (logger.LogEnabled()) logger.Log("Server lost client:" + conn);
         }
 
