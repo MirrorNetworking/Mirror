@@ -53,6 +53,15 @@ namespace kcp2k
         //    may not be a bug in original kcp. but since it uses the define, we
         //    can use that here too.
         // -> we add 1 byte KcpHeader enum to each message, so -1
+        //
+        // IMPORTANT: max message is MTU * WND_RCV, in other words it completely
+        //            fills the receive window! due to head of line blocking,
+        //            all other messages have to wait while a maxed size message
+        //            is being delivered.
+        //            => in other words, DO NOT use max size all the time like
+        //               for batching.
+        //            => sending UNRELIABLE max message size most of the time is
+        //               best for performance (use that one for batching!)
         public const int ReliableMaxMessageSize = (Kcp.MTU_DEF - Kcp.OVERHEAD - CHANNEL_HEADER_SIZE) * (Kcp.WND_RCV - 1) - 1;
 
         // unreliable max message size is simply MTU - channel header size
@@ -185,7 +194,7 @@ namespace kcp2k
                                  $"* Try to Enable NoDelay, decrease INTERVAL, disable Congestion Window (= enable NOCWND!), increase SEND/RECV WINDOW or compress data.\n" +
                                  $"* Or perhaps the network is simply too slow on our end, or on the other end.\n");
 
-                // let's clear all pending sends before disconnecting with 'Bye'.
+                // let's clear all pending sends before disconnting with 'Bye'.
                 // otherwise a single Flush in Disconnect() won't be enough to
                 // flush thousands of messages to finally deliver 'Bye'.
                 // this is just faster and more robust.
@@ -315,8 +324,18 @@ namespace kcp2k
                     }
                     case KcpHeader.Data:
                     {
-                        //Log.Warning($"Kcp recv msg: {BitConverter.ToString(message.Array, message.Offset, message.Count)}");
-                        OnData?.Invoke(message);
+                        // call OnData IF the message contained actual data
+                        if (message.Count > 0)
+                        {
+                            //Log.Warning($"Kcp recv msg: {BitConverter.ToString(message.Array, message.Offset, message.Count)}");
+                            OnData?.Invoke(message);
+                        }
+                        // empty data = attacker, or something went wrong
+                        else
+                        {
+                            Log.Warning("KCP: received empty Data message while Authenticated. Disconnecting the connection.");
+                            Disconnect();
+                        }
                         break;
                     }
                     case KcpHeader.Ping:
@@ -521,6 +540,17 @@ namespace kcp2k
 
         public void SendData(ArraySegment<byte> data, KcpChannel channel)
         {
+            // sending empty segments is not allowed.
+            // nobody should ever try to send empty data.
+            // it means that something went wrong, e.g. in Mirror/DOTSNET.
+            // let's make it obvious so it's easy to debug.
+            if (data.Count == 0)
+            {
+                Log.Warning("KcpConnection: tried sending empty message. This should never happen. Disconnecting.");
+                Disconnect();
+                return;
+            }
+
             switch (channel)
             {
                 case KcpChannel.Reliable:
@@ -539,9 +569,7 @@ namespace kcp2k
         // disconnect info needs to be delivered, so it goes over reliable
         void SendDisconnect() => SendReliable(KcpHeader.Disconnect, default);
 
-        protected virtual void Dispose()
-        {
-        }
+        protected virtual void Dispose() {}
 
         // disconnect this connection
         public void Disconnect()

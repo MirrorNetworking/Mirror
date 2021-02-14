@@ -39,7 +39,12 @@ namespace kcp2k
 
         // state
         Socket socket;
+#if UNITY_SWITCH
+        // switch does not support ipv6
+        EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
+#else
         EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
+#endif
         // IMPORTANT: raw receive buffer always needs to be of 'MTU' size, even
         //            if MaxMessageSize is larger. kcp always sends in MTU
         //            segments and having a buffer smaller than MTU would
@@ -82,9 +87,15 @@ namespace kcp2k
             }
 
             // listen
+#if UNITY_SWITCH
+            // Switch does not support ipv6
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.Bind(new IPEndPoint(IPAddress.Any, port));
+#else
             socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
             socket.DualMode = true;
             socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
+#endif
         }
 
         public void Send(int connectionId, ArraySegment<byte> segment, KcpChannel channel)
