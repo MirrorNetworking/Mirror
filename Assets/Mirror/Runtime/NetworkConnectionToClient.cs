@@ -21,11 +21,8 @@ namespace Mirror
         // Dictionary<channelId, batch> because we have multiple channels.
         internal class Batch
         {
-            // each batch needs a writer for batching
-            // => we allocate one writer per channel
-            // => it grows to Transport MaxMessageSize automatically
-            // TODO maybe use a pooled writer and return when disconnecting?
-            internal NetworkWriter writer = new NetworkWriter();
+            // batched messages
+            internal Queue<PooledNetworkWriter> messages = new Queue<PooledNetworkWriter>();
 
             // each channel's batch has its own lastSendTime.
             // (use NetworkTime for maximum precision over days)
@@ -77,13 +74,60 @@ namespace Mirror
             return batch;
         }
 
-        void SendBatch(int channelId, Batch batch)
+        // send a batch. internal so we can test it.
+        internal void SendBatch(int channelId, Batch batch)
         {
-            // send batch
-            Transport.activeTransport.ServerSend(connectionId, channelId, batch.writer.ToArraySegment());
+            // get max batch size for this channel
+            int max = Transport.activeTransport.GetMaxBatchSize(channelId);
 
-            // clear batch
-            batch.writer.Reset();
+            // we need a writer to merge queued messages into a batch
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // for each queued message
+                while (batch.messages.Count > 0)
+                {
+                    // get it
+                    PooledNetworkWriter message = batch.messages.Dequeue();
+                    ArraySegment<byte> segment = message.ToArraySegment();
+
+                    // IF adding to writer would end up >= MTU then we should
+                    // flush first. the goal is to always flush < MTU packets.
+                    //
+                    // IMPORTANT: if writer is empty and segment is > MTU
+                    //            (which can happen for large max sized message)
+                    //            then we would send an empty previous writer.
+                    //            => don't do that.
+                    //            => only send if not empty.
+                    if (writer.Position > 0 &&
+                        writer.Position + segment.Count >= max)
+                    {
+                        // flush & reset writer
+                        Transport.activeTransport.ServerSend(connectionId, channelId, writer.ToArraySegment());
+                        writer.SetLength(0);
+                    }
+
+                    // now add to writer in any case
+                    // -> WriteBytes instead of WriteSegment because the latter
+                    //    would add a size header. we want to write directly.
+                    //
+                    // NOTE: it's very possible that we add > MTU to writer if
+                    //       message size is > MTU.
+                    //       which is fine. next iteration will just flush it.
+                    writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+
+                    // return queued message to pool
+                    NetworkWriterPool.Recycle(message);
+                }
+
+                // done iterating queued messages.
+                // batch might still contain the last message.
+                // send it.
+                if (writer.Position > 0)
+                {
+                    Transport.activeTransport.ServerSend(connectionId, channelId, writer.ToArraySegment());
+                    writer.SetLength(0);
+                }
+            }
 
             // reset send time for this channel's batch
             batch.lastSendTime = NetworkTime.time;
@@ -98,31 +142,19 @@ namespace Mirror
             // validate packet size first.
             if (ValidatePacketSize(segment, channelId))
             {
-                // batching?
+                // batching? then add to queued messages
                 if (batching)
                 {
-                    // always batch!
-                    // (even if interval == 0, in which case we flush in Update())
-                    //
-                    // if batch would become bigger than MaxBatchPacketSize for this
-                    // channel then send out the previous batch first.
-                    //
-                    // IMPORTANT: we use maxBATCHsize not maxPACKETsize.
-                    //            some transports like kcp have large maxPACKETsize
-                    //            like 144kb, but those would extremely slow to use
-                    //            all the time for batching.
-                    //            (maxPACKETsize messages still work fine, we just
-                    //             aim for maxBATCHsize where possible)
-                    Batch batch = GetBatchForChannelId(channelId);
-                    int max = Transport.activeTransport.GetMaxBatchSize(channelId);
-                    if (batch.writer.Position + segment.Count > max)
-                    {
-                        //UnityEngine.Debug.LogWarning($"sending batch {batch.writer.Position} / {max} after full for segment={segment.Count} for connectionId={connectionId}");
-                        SendBatch(channelId, batch);
-                    }
+                    // put into a (pooled) writer
+                    // -> WriteBytes instead of WriteSegment because the latter
+                    //    would add a size header. we want to write directly.
+                    // -> will be returned to pool when sending!
+                    PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
+                    writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
 
-                    // now add segment to batch
-                    batch.writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                    // add to batch queue
+                    Batch batch = GetBatchForChannelId(channelId);
+                    batch.messages.Enqueue(writer);
                 }
                 // otherwise send directly to minimize latency
                 else
@@ -146,8 +178,7 @@ namespace Mirror
                     // enough time elapsed to flush this channel's batch?
                     // and not empty?
                     double elapsed = NetworkTime.time - kvp.Value.lastSendTime;
-                    if (elapsed >= batchInterval &&
-                        kvp.Value.writer.Position > 0)
+                    if (elapsed >= batchInterval && kvp.Value.messages.Count > 0)
                     {
                         // send the batch. time will be reset internally.
                         //Debug.Log($"sending batch of {kvp.Value.writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
