@@ -11,5 +11,5 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkLobbyPlayer")]
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkRoomPlayer.html")]
     [Obsolete("Use / inherit from NetworkRoomPlayer instead")]
-    public class NetworkLobbyPlayer : NetworkRoomPlayer { }
+    public class NetworkLobbyPlayer : NetworkRoomPlayer {}
 }

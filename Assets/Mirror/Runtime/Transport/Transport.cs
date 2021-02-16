@@ -238,7 +238,7 @@ namespace Mirror
         //            ShoulderRotation.LateUpdate, resulting in projectile
         //            spawns at the point before shoulder rotation.
 #pragma warning disable UNT0001 // Empty Unity message
-        public void Update() { }
+        public void Update() {}
 #pragma warning restore UNT0001 // Empty Unity message
 
         /// <summary>

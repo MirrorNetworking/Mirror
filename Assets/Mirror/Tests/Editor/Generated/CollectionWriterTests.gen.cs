@@ -36,7 +36,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new int[] { }
+                collection = new int[] {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -100,7 +100,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new string[] { }
+                collection = new string[] {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -164,7 +164,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new Vector3[] { }
+                collection = new Vector3[] {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -228,7 +228,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new FloatStringStruct[] { }
+                collection = new FloatStringStruct[] {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -292,7 +292,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new ClassWithNoConstructor[] { }
+                collection = new ClassWithNoConstructor[] {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -746,7 +746,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new List<int> { }
+                collection = new List<int> {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -810,7 +810,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new List<string> { }
+                collection = new List<string> {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -874,7 +874,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new List<Vector3> { }
+                collection = new List<Vector3> {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -938,7 +938,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new List<FloatStringStruct> { }
+                collection = new List<FloatStringStruct> {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);
@@ -1002,7 +1002,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
         {
             Message message = new Message
             {
-                collection = new List<ClassWithNoConstructor> { }
+                collection = new List<ClassWithNoConstructor> {}
             };
 
             byte[] data = MessagePackerTest.PackToByteArray(message);

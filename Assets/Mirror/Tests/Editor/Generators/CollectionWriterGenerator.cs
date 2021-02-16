@@ -226,7 +226,7 @@ namespace {NameSpace}
 
             return $@"Message = new Message
             {{
-                collection = new {messageField} {{ }}
+                collection = new {messageField} {{}}
             }};";
         }
 

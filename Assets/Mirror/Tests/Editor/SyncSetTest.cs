@@ -7,7 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncSetTest
     {
-        public class SyncSetString : SyncHashSet<string> { }
+        public class SyncSetString : SyncHashSet<string> {}
 
         SyncSetString serverSyncSet;
         SyncSetString clientSyncSet;
@@ -65,7 +65,7 @@ namespace Mirror.Tests
             serverSyncSet.Clear();
             Assert.That(serverSyncSet.IsDirty, Is.True);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] { }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new string[] {}));
             Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
@@ -145,7 +145,7 @@ namespace Mirror.Tests
         {
             serverSyncSet.ExceptWith(serverSyncSet);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new String[] { }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new String[] {}));
         }
 
         [Test]
@@ -225,7 +225,7 @@ namespace Mirror.Tests
         {
             serverSyncSet.SymmetricExceptWith(serverSyncSet);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
-            Assert.That(clientSyncSet, Is.EquivalentTo(new String[] { }));
+            Assert.That(clientSyncSet, Is.EquivalentTo(new String[] {}));
         }
 
         [Test]

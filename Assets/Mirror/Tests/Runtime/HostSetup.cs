@@ -15,8 +15,8 @@ namespace Mirror.Tests.Runtime
 
         protected virtual bool AutoAddPlayer => true;
 
-        protected virtual void afterStartHost() { }
-        protected virtual void beforeStopHost() { }
+        protected virtual void afterStartHost() {}
+        protected virtual void beforeStopHost() {}
 
         protected static void FakeSpawnServerClientIdentity(NetworkIdentity serverNI, NetworkIdentity clientNI)
         {

@@ -292,14 +292,14 @@ namespace Mirror
             {
                 RegisterHandler<ObjectDestroyMessage>(ClientScene.OnHostClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(ClientScene.OnHostClientObjectHide);
-                RegisterHandler<NetworkPongMessage>((conn, msg) => { }, false);
+                RegisterHandler<NetworkPongMessage>((conn, msg) => {}, false);
                 RegisterHandler<SpawnMessage>(ClientScene.OnHostClientSpawn);
                 // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => { });
+                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {});
                 // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => { });
+                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {});
                 // host mode doesn't need state updates
-                RegisterHandler<UpdateVarsMessage>((conn, msg) => { });
+                RegisterHandler<UpdateVarsMessage>((conn, msg) => {});
             }
             else
             {

@@ -6,7 +6,7 @@ using UnityEngine.Events;
 namespace Mirror.Discovery
 {
     [Serializable]
-    public class ServerFoundUnityEvent : UnityEvent<ServerResponse> { };
+    public class ServerFoundUnityEvent : UnityEvent<ServerResponse> {};
 
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkDiscovery")]

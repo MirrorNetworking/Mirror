@@ -5,7 +5,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class MessagePackerTest
     {
-        public struct EmptyMessage : NetworkMessage { }
+        public struct EmptyMessage : NetworkMessage {}
 
         // helper function to pack message into a simple byte[]
         public static byte[] PackToByteArray<T>(T message)

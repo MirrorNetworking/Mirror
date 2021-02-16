@@ -97,14 +97,14 @@ namespace Mirror
         /// </summary>
         /// <param name="oldIndex">The old index value</param>
         /// <param name="newIndex">The new index value</param>
-        public virtual void IndexChanged(int oldIndex, int newIndex) { }
+        public virtual void IndexChanged(int oldIndex, int newIndex) {}
 
         /// <summary>
         /// This is a hook that is invoked on clients when a RoomPlayer switches between ready or not ready.
         /// <para>This function is called when the a client player calls CmdChangeReadyState.</para>
         /// </summary>
         /// <param name="newReadyState">New Ready State</param>
-        public virtual void ReadyStateChanged(bool oldReadyState, bool newReadyState) { }
+        public virtual void ReadyStateChanged(bool oldReadyState, bool newReadyState) {}
 
         #endregion
 
@@ -114,12 +114,12 @@ namespace Mirror
         /// This is a hook that is invoked on clients for all room player objects when entering the room.
         /// <para>Note: isLocalPlayer is not guaranteed to be set until OnStartLocalPlayer is called.</para>
         /// </summary>
-        public virtual void OnClientEnterRoom() { }
+        public virtual void OnClientEnterRoom() {}
 
         /// <summary>
         /// This is a hook that is invoked on clients for all room player objects when exiting the room.
         /// </summary>
-        public virtual void OnClientExitRoom() { }
+        public virtual void OnClientExitRoom() {}
 
         #endregion
 

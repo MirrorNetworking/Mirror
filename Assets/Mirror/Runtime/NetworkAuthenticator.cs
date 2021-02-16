@@ -7,7 +7,7 @@ namespace Mirror
     /// <summary>
     /// Unity Event for the NetworkConnection
     /// </summary>
-    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnection> { }
+    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnection> {}
 
     /// <summary>
     /// Base class for implementing component-based authentication during the Connect phase
@@ -35,13 +35,13 @@ namespace Mirror
         /// Called on server from StartServer to initialize the Authenticator
         /// <para>Server message handlers should be registered in this method.</para>
         /// </summary>
-        public virtual void OnStartServer() { }
+        public virtual void OnStartServer() {}
 
         /// <summary>
         /// Called on server from StopServer to reset the Authenticator
         /// <para>Server message handlers should be unregistered in this method.</para>
         /// </summary>
-        public virtual void OnStopServer() { }
+        public virtual void OnStopServer() {}
 
         /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
@@ -67,13 +67,13 @@ namespace Mirror
         /// Called on client from StartClient to initialize the Authenticator
         /// <para>Client message handlers should be registered in this method.</para>
         /// </summary>
-        public virtual void OnStartClient() { }
+        public virtual void OnStartClient() {}
 
         /// <summary>
         /// Called on client from StopClient to reset the Authenticator
         /// <para>Client message handlers should be unregistered in this method.</para>
         /// </summary>
-        public virtual void OnStopClient() { }
+        public virtual void OnStopClient() {}
 
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate

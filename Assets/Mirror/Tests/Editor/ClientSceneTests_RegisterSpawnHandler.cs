@@ -18,7 +18,7 @@ namespace Mirror.Tests.ClientSceneTests
                 handlerCalled++;
                 return null;
             });
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
@@ -44,7 +44,7 @@ namespace Mirror.Tests.ClientSceneTests
                 Assert.That(assetId, Is.EqualTo(guid));
                 return null;
             });
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
@@ -61,7 +61,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
@@ -74,7 +74,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = null;
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
@@ -96,7 +96,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = new Guid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, "Can not Register SpawnHandler for empty Guid");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
@@ -107,7 +107,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
@@ -125,7 +125,7 @@ namespace Mirror.Tests.ClientSceneTests
             prefabs.Add(guid, validPrefab);
 
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, $"assetId '{guid}' is already used by prefab '{validPrefab.name}'");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
@@ -137,7 +137,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
@@ -150,7 +150,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
@@ -163,7 +163,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = null;
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
@@ -185,7 +185,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = new Guid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, "Can not Register SpawnHandler for empty Guid");
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
@@ -196,7 +196,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 

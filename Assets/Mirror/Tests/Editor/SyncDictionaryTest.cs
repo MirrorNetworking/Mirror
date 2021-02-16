@@ -7,7 +7,7 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncDictionaryTest
     {
-        public class SyncDictionaryIntString : SyncDictionary<int, string> { }
+        public class SyncDictionaryIntString : SyncDictionary<int, string> {}
 
         SyncDictionaryIntString serverSyncDictionary;
         SyncDictionaryIntString clientSyncDictionary;

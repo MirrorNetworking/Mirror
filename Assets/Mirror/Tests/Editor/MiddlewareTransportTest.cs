@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class MyMiddleware : MiddlewareTransport { }
+    public class MyMiddleware : MiddlewareTransport {}
 
     [Description("Test to make sure inner methods are called when using Middleware Transport")]
     public class MiddlewareTransportTest
@@ -157,7 +157,7 @@ namespace Mirror.Tests
             middleware.ServerSend(id, channel, segment);
 
             inner.Received(1).ServerSend(id, channel, Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count));
-            // only need to check first arg, 
+            // only need to check first arg,
             inner.Received(0).ServerSend(Arg.Is<int>(x => x != id), Arg.Any<int>(), Arg.Any<ArraySegment<byte>>());
         }
 

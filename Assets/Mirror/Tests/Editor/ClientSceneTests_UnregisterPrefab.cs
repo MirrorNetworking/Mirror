@@ -29,7 +29,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void RemovesUnSpawnHandlerFromDictionary()
         {
-            unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => { }));
+            unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => {}));
 
             ClientScene.UnregisterPrefab(validPrefab);
 

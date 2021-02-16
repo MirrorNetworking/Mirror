@@ -14,5 +14,5 @@ namespace Mirror
     [AddComponentMenu("Network/NetworkLobbyManager")]
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkRoomManager.html")]
     [Obsolete("Use / inherit from NetworkRoomManager instead")]
-    public class NetworkLobbyManager : NetworkRoomManager { }
+    public class NetworkLobbyManager : NetworkRoomManager {}
 }

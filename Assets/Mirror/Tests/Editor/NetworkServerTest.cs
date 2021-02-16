@@ -1053,10 +1053,10 @@ namespace Mirror.Tests
             switch (functionName)
             {
                 case nameof(NetworkServer.SendToAll):
-                    NetworkServer.SendToAll(new NetworkPingMessage { });
+                    NetworkServer.SendToAll(new NetworkPingMessage {});
                     break;
                 case nameof(NetworkServer.SendToReady):
-                    NetworkServer.SendToReady(new NetworkPingMessage { });
+                    NetworkServer.SendToReady(new NetworkPingMessage {});
                     break;
                 default:
                     Debug.LogError("Could not find function name");

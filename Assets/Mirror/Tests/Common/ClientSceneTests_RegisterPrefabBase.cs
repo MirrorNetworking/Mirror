@@ -68,7 +68,7 @@ namespace Mirror.Tests
         {
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
             SpawnHandlerDelegate spawnHandlerDelegate = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             switch (overload)
             {
@@ -101,7 +101,7 @@ namespace Mirror.Tests
         {
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
             SpawnHandlerDelegate spawnHandlerDelegate = new SpawnHandlerDelegate(x => null);
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             switch (overload)
             {
@@ -128,7 +128,7 @@ namespace Mirror.Tests
 
         protected void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, SpawnDelegate spawnHandler)
         {
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             switch (overload)
             {
@@ -153,7 +153,7 @@ namespace Mirror.Tests
 
         protected void CallRegisterPrefab(GameObject prefab, RegisterPrefabOverload overload, SpawnHandlerDelegate spawnHandlerDelegate)
         {
-            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => { });
+            UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             switch (overload)
             {

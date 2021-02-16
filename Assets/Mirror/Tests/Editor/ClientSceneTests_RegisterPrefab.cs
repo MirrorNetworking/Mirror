@@ -194,7 +194,7 @@ namespace Mirror.Tests.ClientSceneTests
             Guid guid = GuidForOverload(overload);
 
             spawnHandlers.Add(guid, x => null);
-            unspawnHandlers.Add(guid, x => { });
+            unspawnHandlers.Add(guid, x => {});
 
             string msg = OverloadWithHandler(overload)
                 ? $"Replacing existing spawnHandlers for prefab '{validPrefab.name}' with assetId '{guid}'"

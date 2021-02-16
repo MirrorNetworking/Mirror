@@ -697,7 +697,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             if (isSpawnFinished)
             {
-                ClientScene.OnObjectSpawnFinished(new ObjectSpawnFinishedMessage { });
+                ClientScene.OnObjectSpawnFinished(new ObjectSpawnFinishedMessage {});
             }
 
             const uint netId = 1000;
