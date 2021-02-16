@@ -1,3 +1,5 @@
+using System;
+
 namespace Mirror
 {
     public static class Extensions
@@ -13,6 +15,17 @@ namespace Mirror
                     hash = hash * 31 + c;
                 return hash;
             }
+        }
+
+        // previously in DotnetCompatibility.cs
+        // leftover from the UNET days. supposedly for windows store?
+        internal static string GetMethodName(this Delegate func)
+        {
+#if NETFX_CORE
+            return func.GetMethodInfo().Name;
+#else
+            return func.Method.Name;
+#endif
         }
     }
 }
