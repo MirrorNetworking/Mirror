@@ -303,7 +303,6 @@ namespace Mirror.Weaver
 
         static void ReadAllFields(TypeReference variable, ILProcessor worker)
         {
-            uint fields = 0;
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
@@ -322,7 +321,6 @@ namespace Mirror.Weaver
                 FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
 
                 worker.Append(worker.Create(OpCodes.Stfld, fieldRef));
-                fields++;
             }
         }
 
