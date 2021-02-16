@@ -4,7 +4,7 @@ namespace Mirror.Tests
 {
     public class MockQuest
     {
-        public int Id { get; set; }
+        public int Id;
 
         public MockQuest(int id)
         {

@@ -22,7 +22,7 @@ namespace Mirror.Weaver
         public static Action<string> OnWeaverError;
 
         // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
-        public static bool WeaverEnabled { get; set; }
+        public static bool WeaverEnabled;
         // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool UnityLogEnabled = true;
 
