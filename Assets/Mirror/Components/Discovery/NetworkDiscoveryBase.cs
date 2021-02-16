@@ -32,8 +32,8 @@ namespace Mirror.Discovery
         protected int serverBroadcastListenPort = 47777;
 
         [SerializeField]
-        [Tooltip("Time in seconds between multi-cast messages")]
-        [Range(1, 60)]
+        [Tooltip("Time in seconds between multi-cast messages. Use a negative value to disable automatic broadcasting.")]
+        [Range(-1, 60)]
         float ActiveDiscoveryInterval = 3;
 
         protected UdpClient serverUdpClient;
@@ -251,7 +251,7 @@ namespace Mirror.Discovery
 
             _ = ClientListenAsync();
 
-            InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
+            if (ActiveDiscoveryInterval >= 0) InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
 
         /// <summary>
