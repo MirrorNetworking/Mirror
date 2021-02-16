@@ -17,7 +17,6 @@ namespace Mirror
     public abstract class NetworkConnection
     {
         public const int LocalConnectionId = 0;
-        static readonly ILogger logger = LogFactory.GetLogger<NetworkConnection>();
 
         // internal so it can be tested
         internal readonly HashSet<NetworkIdentity> visList = new HashSet<NetworkIdentity>();
@@ -133,14 +132,14 @@ namespace Mirror
         {
             if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
                 return false;
             }
 
             if (segment.Count == 0)
             {
                 // zero length packets getting into the packet queues are bad.
-                logger.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
+                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send zero bytes");
                 return false;
             }
 
@@ -199,13 +198,13 @@ namespace Mirror
                 }
                 else
                 {
-                    if (logger.LogEnabled()) logger.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
                     return false;
                 }
             }
             else
             {
-                logger.LogError("Closed connection: " + this + ". Invalid message header.");
+                Debug.LogError("Closed connection: " + this + ". Invalid message header.");
                 Disconnect();
                 return false;
             }
@@ -219,7 +218,7 @@ namespace Mirror
         {
             if (buffer.Count < MessagePacker.HeaderSize)
             {
-                logger.LogError($"ConnectionRecv {this} Message was too short (messages should start with message id)");
+                Debug.LogError($"ConnectionRecv {this} Message was too short (messages should start with message id)");
                 Disconnect();
                 return;
             }

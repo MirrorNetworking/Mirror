@@ -11,8 +11,6 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkRoomPlayer.html")]
     public class NetworkRoomPlayer : NetworkBehaviour
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRoomPlayer));
-
         /// <summary>
         /// This flag controls whether the default UI is shown for the room player.
         /// <para>As this UI is rendered using the old GUI system, it is only recommended for testing purposes.</para>
@@ -61,8 +59,7 @@ namespace Mirror
                 if (NetworkClient.active)
                     room.CallOnClientEnterRoom();
             }
-            else
-                logger.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
+            else Debug.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
         }
 
         public virtual void OnDisable()

@@ -14,8 +14,6 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Components/NetworkOwnerChecker.html")]
     public class NetworkOwnerChecker : NetworkVisibility
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkSceneChecker));
-
         /// <summary>
         /// Callback used by the visibility system to determine if an observer (player) can see this object.
         /// <para>If this function returns true, the network connection will be added as an observer.</para>
@@ -24,7 +22,7 @@ namespace Mirror
         /// <returns>True if the client is the owner of this object.</returns>
         public override bool OnCheckObserver(NetworkConnection conn)
         {
-            if (logger.LogEnabled()) logger.Log($"OnCheckObserver {netIdentity.connectionToClient} {conn}");
+            // Debug.Log($"OnCheckObserver {netIdentity.connectionToClient} {conn}");
 
             return (netIdentity.connectionToClient == conn);
         }

@@ -37,12 +37,12 @@ namespace Mirror
     ///     The NetworkIdentity manages the dirty state of the NetworkBehaviours of the object.
     ///     When it discovers that NetworkBehaviours are dirty, it causes an update packet to be created and sent to clients.
     /// </para>
-    /// 
+    ///
     /// <list type="bullet">
     ///     <listheader><description>
     ///         The flow for serialization updates managed by the NetworkIdentity is:
     ///     </description></listheader>
-    ///     
+    ///
     ///     <item><description>
     ///         Each NetworkBehaviour has a dirty mask. This mask is available inside OnSerialize as syncVarDirtyBits
     ///     </description></item>
@@ -78,7 +78,7 @@ namespace Mirror
     ///         The UpdateVars packet is sent to ready clients that are observing the object
     ///     </description></item>
     /// </list>
-    /// 
+    ///
     /// <list type="bullet">
     ///     <listheader><description>
     ///         On the client:
@@ -108,8 +108,6 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkIdentity.html")]
     public sealed class NetworkIdentity : MonoBehaviour
     {
-        static readonly ILogger logger = LogFactory.GetLogger<NetworkIdentity>();
-
         NetworkBehaviour[] networkBehavioursCache;
 
         /// <summary>
@@ -242,7 +240,7 @@ namespace Mirror
             networkBehavioursCache = GetComponents<NetworkBehaviour>();
             if (networkBehavioursCache.Length > byte.MaxValue)
             {
-                logger.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
+                Debug.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
                 // Log error once then resize array so that NetworkIdentity does not throw exceptions later
                 Array.Resize(ref networkBehavioursCache, byte.MaxValue);
             }
@@ -316,21 +314,21 @@ namespace Mirror
                 // new is empty
                 if (string.IsNullOrEmpty(newAssetIdString))
                 {
-                    logger.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
+                    Debug.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdSrting}'");
                     return;
                 }
 
                 // old not empty
                 if (!string.IsNullOrEmpty(oldAssetIdSrting))
                 {
-                    logger.LogError($"Can not Set AssetId on NetworkIdentity '{name}' because it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
+                    Debug.LogError($"Can not Set AssetId on NetworkIdentity '{name}' because it already had an assetId, current assetId '{oldAssetIdSrting}', attempted new assetId '{newAssetIdString}'");
                     return;
                 }
 
                 // old is empty
                 m_AssetId = newAssetIdString;
 
-                if (logger.LogEnabled()) logger.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
+                // Debug.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
             }
         }
 
@@ -355,7 +353,7 @@ namespace Mirror
             // do nothing if it already has an owner
             if (connectionToClient != null && conn != connectionToClient)
             {
-                logger.LogError($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first", this);
+                Debug.LogError($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first", this);
                 return;
             }
 
@@ -405,7 +403,7 @@ namespace Mirror
         {
             if (hasSpawned)
             {
-                logger.LogError($"{name} has already spawned. Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects).  Otherwise the client won't know which object to use for a SpawnSceneObject message.");
+                Debug.LogError($"{name} has already spawned. Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects).  Otherwise the client won't know which object to use for a SpawnSceneObject message.");
 
                 SpawnedFromInstantiate = true;
                 Destroy(gameObject);
@@ -443,7 +441,7 @@ namespace Mirror
 
             if (prefab == null)
             {
-                logger.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
+                Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
                 return false;
             }
             return true;
@@ -546,7 +544,7 @@ namespace Mirror
                 if (!duplicate)
                 {
                     sceneId = randomId;
-                    //logger.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
+                    //Debug.Log(name + " in scene=" + gameObject.scene.name + " sceneId assigned to: " + m_SceneId.ToString("X"));
                 }
             }
 
@@ -587,7 +585,7 @@ namespace Mirror
             sceneId = (sceneId & 0xFFFFFFFF) | shiftedHash;
 
             // log it. this is incredibly useful to debug sceneId issues.
-            if (logger.LogEnabled()) logger.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + sceneId.ToString("X"));
+            // Debug.Log(name + " in scene=" + gameObject.scene.name + " scene index hash(" + pathHash.ToString("X") + ") copied into sceneId: " + sceneId.ToString("X"));
         }
 
         void SetupIDs()
@@ -631,7 +629,7 @@ namespace Mirror
                 {
                     // force 0 for prefabs
                     sceneId = 0;
-                    //logger.Log(name + " @ scene: " + gameObject.scene.name + " sceneid reset to 0 because CurrentPrefabStage=" + PrefabStageUtility.GetCurrentPrefabStage() + " PrefabStage=" + PrefabStageUtility.GetPrefabStage(gameObject));
+                    //Debug.Log(name + " @ scene: " + gameObject.scene.name + " sceneid reset to 0 because CurrentPrefabStage=" + PrefabStageUtility.GetCurrentPrefabStage() + " PrefabStage=" + PrefabStageUtility.GetPrefabStage(gameObject));
                     // NOTE: might make sense to use GetPrefabStage for asset
                     //       path, but let's not touch it while it works.
 #if UNITY_2020_1_OR_NEWER
@@ -707,7 +705,7 @@ namespace Mirror
             netId = GetNextNetworkId();
             observers = new Dictionary<int, NetworkConnection>();
 
-            if (logger.LogEnabled()) logger.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId.ToString("X"));
+            // Debug.Log("OnStartServer " + this + " NetId:" + netId + " SceneId:" + sceneId.ToString("X"));
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
@@ -733,7 +731,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -753,7 +751,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnStopServer:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStopServer:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -767,7 +765,7 @@ namespace Mirror
 
             isClient = true;
 
-            if (logger.LogEnabled()) logger.Log("OnStartClient " + gameObject + " netId:" + netId);
+            // Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // an exception in OnStartClient should be caught, so that one
@@ -782,7 +780,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -807,7 +805,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnStartLocalPlayer:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStartLocalPlayer:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -837,7 +835,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnStartAuthority:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStartAuthority:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -857,7 +855,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnStopAuthority:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStopAuthority:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -872,7 +870,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnSetLocalVisibility:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnSetLocalVisibility:" + e.Message + " " + e.StackTrace);
                 }
             }
         }
@@ -892,7 +890,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnCheckObserver:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnCheckObserver:" + e.Message + " " + e.StackTrace);
                 }
             }
             return true;
@@ -913,7 +911,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    logger.LogError("Exception in OnStopClient:" + e.Message + " " + e.StackTrace);
+                    Debug.LogError("Exception in OnStopClient:" + e.Message + " " + e.StackTrace);
                 }
                 isServer = false;
             }
@@ -942,7 +940,7 @@ namespace Mirror
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
-                logger.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "\n\n" + e);
+                Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "\n\n" + e);
             }
             int endPosition = writer.Position;
 
@@ -951,7 +949,7 @@ namespace Mirror
             writer.WriteInt32(endPosition - contentPosition);
             writer.Position = endPosition;
 
-            if (logger.LogEnabled()) logger.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));
+            // Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));
 
             return result;
         }
@@ -986,7 +984,7 @@ namespace Mirror
                 NetworkBehaviour comp = components[i];
                 if (initialState || comp.IsDirty())
                 {
-                    if (logger.LogEnabled()) logger.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
+                    // Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 
                     // remember start position in case we need to copy it into
                     // observers writer too
@@ -1032,18 +1030,18 @@ namespace Mirror
             // way to mess up another component's deserialization
             try
             {
-                if (logger.LogEnabled()) logger.Log("OnDeserializeSafely: " + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + " length=" + contentSize);
+                // Debug.Log("OnDeserializeSafely: " + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + " length=" + contentSize);
                 comp.OnDeserialize(reader, initialState);
             }
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
-                logger.LogError($"OnDeserialize failed Exception={e.GetType()} (see below) object={name} component={comp.GetType()} sceneId={sceneId:X} length={contentSize}. Possible Reasons:\n" +
-                    $"  * Do {comp.GetType()}'s OnSerialize and OnDeserialize calls write the same amount of data({contentSize} bytes)? \n" +
-                    $"  * Was there an exception in {comp.GetType()}'s OnSerialize/OnDeserialize code?\n" +
-                    $"  * Are the server and client the exact same project?\n" +
-                    $"  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" +
-                    $"Exception {e}");
+                Debug.LogError($"OnDeserialize failed Exception={e.GetType()} (see below) object={name} component={comp.GetType()} sceneId={sceneId:X} length={contentSize}. Possible Reasons:\n" +
+                               $"  * Do {comp.GetType()}'s OnSerialize and OnDeserialize calls write the same amount of data({contentSize} bytes)? \n" +
+                               $"  * Was there an exception in {comp.GetType()}'s OnSerialize/OnDeserialize code?\n" +
+                               $"  * Are the server and client the exact same project?\n" +
+                               $"  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" +
+                               $"Exception {e}");
             }
 
             // now the reader should be EXACTLY at 'before + size'.
@@ -1052,7 +1050,7 @@ namespace Mirror
             {
                 // warn the user
                 int bytesRead = reader.Position - chunkStart;
-                logger.LogWarning("OnDeserialize was expected to read " + contentSize + " instead of " + bytesRead + " bytes for object:" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + ". Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
+                Debug.LogWarning("OnDeserialize was expected to read " + contentSize + " instead of " + bytesRead + " bytes for object:" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + ". Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
 
                 // fix the position, so the following components don't all fail
                 reader.Position = chunkEnd;
@@ -1088,14 +1086,14 @@ namespace Mirror
             // check if unity object has been destroyed
             if (this == null)
             {
-                logger.LogWarning($"{invokeType} [{functionHash}] received for deleted object [netId={netId}]");
+                Debug.LogWarning($"{invokeType} [{functionHash}] received for deleted object [netId={netId}]");
                 return;
             }
 
             // find the right component to invoke the function on
             if (componentIndex < 0 || componentIndex >= NetworkBehaviours.Length)
             {
-                logger.LogWarning($"Component [{componentIndex}] not found for [netId={netId}]");
+                Debug.LogWarning($"Component [{componentIndex}] not found for [netId={netId}]");
                 return;
             }
 
@@ -1104,7 +1102,7 @@ namespace Mirror
 
             if (!RemoteCallHelper.InvokeHandlerDelegate(functionHash, invokeType, reader, invokeComponent, senderConnection))
             {
-                logger.LogError($"Found no receiver for incoming {invokeType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
+                Debug.LogError($"Found no receiver for incoming {invokeType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
             }
         }
 
@@ -1155,7 +1153,7 @@ namespace Mirror
         {
             if (observers == null)
             {
-                logger.LogError("AddObserver for " + gameObject + " observer list is null");
+                Debug.LogError("AddObserver for " + gameObject + " observer list is null");
                 return;
             }
 
@@ -1166,7 +1164,7 @@ namespace Mirror
                 return;
             }
 
-            if (logger.LogEnabled()) logger.Log("Added observer " + conn.address + " added for " + gameObject);
+            // Debug.Log("Added observer " + conn.address + " added for " + gameObject);
 
             observers[conn.connectionId] = conn;
             conn.AddToVisList(this);
@@ -1267,7 +1265,7 @@ namespace Mirror
                     {
                         // new observer
                         conn.AddToVisList(this);
-                        if (logger.LogEnabled()) logger.Log("New Observer for " + gameObject + " " + conn);
+                        // Debug.Log("New Observer for " + gameObject + " " + conn);
                         changed = true;
                     }
                 }
@@ -1280,7 +1278,7 @@ namespace Mirror
                 {
                     // removed observer
                     conn.RemoveFromVisList(this, false);
-                    if (logger.LogEnabled()) logger.Log("Removed Observer for " + gameObject + " " + conn);
+                    // Debug.Log("Removed Observer for " + gameObject + " " + conn);
                     changed = true;
                 }
             }
@@ -1336,19 +1334,19 @@ namespace Mirror
         {
             if (!isServer)
             {
-                logger.LogError("AssignClientAuthority can only be called on the server for spawned objects.");
+                Debug.LogError("AssignClientAuthority can only be called on the server for spawned objects.");
                 return false;
             }
 
             if (conn == null)
             {
-                logger.LogError("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead.");
+                Debug.LogError("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead.");
                 return false;
             }
 
             if (connectionToClient != null && conn != connectionToClient)
             {
-                logger.LogError("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
+                Debug.LogError("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
                 return false;
             }
 
@@ -1372,13 +1370,13 @@ namespace Mirror
         {
             if (!isServer)
             {
-                logger.LogError("RemoveClientAuthority can only be called on the server for spawned objects.");
+                Debug.LogError("RemoveClientAuthority can only be called on the server for spawned objects.");
                 return;
             }
 
             if (connectionToClient?.identity == this)
             {
-                logger.LogError("RemoveClientAuthority cannot remove authority for a player object");
+                Debug.LogError("RemoveClientAuthority cannot remove authority for a player object");
                 return;
             }
 

@@ -23,8 +23,6 @@ namespace Mirror
     /// </summary>
     public class NetworkWriter
     {
-        static readonly ILogger logger = LogFactory.GetLogger<NetworkWriter>();
-
         public const int MaxStringLength = 1024 * 32;
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
@@ -163,7 +161,7 @@ namespace Mirror
             Action<NetworkWriter, T> writeDelegate = Writer<T>.write;
             if (writeDelegate == null)
             {
-                logger.LogError($"No writer found for {typeof(T)}. Use a type supported by Mirror or define a custom writer");
+                Debug.LogError($"No writer found for {typeof(T)}. Use a type supported by Mirror or define a custom writer");
             }
             else
             {
@@ -177,8 +175,6 @@ namespace Mirror
     // but they do all need to be extensions.
     public static class NetworkWriterExtensions
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkWriterExtensions));
-
         // cache encoding instead of creating it with BinaryWriter each time
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
@@ -451,7 +447,7 @@ namespace Mirror
             }
             else
             {
-                logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
                 writer.WriteUInt32(0);
             }
         }
@@ -470,7 +466,7 @@ namespace Mirror
             }
             else
             {
-                logger.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
                 writer.WriteUInt32(0);
             }
         }

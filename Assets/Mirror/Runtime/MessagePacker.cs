@@ -16,8 +16,6 @@ namespace Mirror
     //    (probably even shorter)
     public static class MessagePacker
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(MessagePacker));
-
         /// <summary>
         /// this is the minimum size of a message that mirror will accept
         /// </summary>
@@ -90,12 +88,12 @@ namespace Mirror
                 if (requireAuthentication && !conn.isAuthenticated)
                 {
                     // message requires authentication, but the connection was not authenticated
-                    logger.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
+                    Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
                     conn.Disconnect();
                     return;
                 }
 
-                if (logger.LogEnabled()) logger.Log($"ConnectionRecv {conn} msgType:{typeof(T)} content:{BitConverter.ToString(reader.buffer.Array, reader.buffer.Offset, reader.buffer.Count)}");
+                //Debug.Log($"ConnectionRecv {conn} msgType:{typeof(T)} content:{BitConverter.ToString(reader.buffer.Array, reader.buffer.Offset, reader.buffer.Count)}");
 
                 // if it is a value type, just use default(T)
                 // otherwise allocate a new instance
@@ -103,7 +101,7 @@ namespace Mirror
             }
             catch (Exception exception)
             {
-                logger.LogError($"Closed connection: {conn}. This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: {exception}");
+                Debug.LogError($"Closed connection: {conn}. This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: {exception}");
                 conn.Disconnect();
                 return;
             }
@@ -121,7 +119,7 @@ namespace Mirror
             }
             catch (Exception e)
             {
-                logger.LogError($"Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
                 conn.Disconnect();
             }
         };

@@ -6,8 +6,6 @@ namespace Mirror.Experimental
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkRigidbody.html")]
     public class NetworkRigidbody : NetworkBehaviour
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRigidbody));
-
         [Header("Settings")]
         [SerializeField] internal Rigidbody target = null;
 
@@ -195,7 +193,7 @@ namespace Mirror.Experimental
         {
             if (!hasAuthority)
             {
-                logger.LogWarning("SendToServer called without authority");
+                Debug.LogWarning("SendToServer called without authority");
                 return;
             }
 

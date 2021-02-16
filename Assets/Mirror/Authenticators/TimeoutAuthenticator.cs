@@ -10,8 +10,6 @@ namespace Mirror.Authenticators
     [AddComponentMenu("Network/Authenticators/TimeoutAuthenticator")]
     public class TimeoutAuthenticator : NetworkAuthenticator
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(TimeoutAuthenticator));
-
         public NetworkAuthenticator authenticator;
 
         [Range(0, 600), Tooltip("Timeout to auto-disconnect in seconds. Set to 0 for no timeout.")]
@@ -59,13 +57,13 @@ namespace Mirror.Authenticators
 
         IEnumerator BeginAuthentication(NetworkConnection conn)
         {
-            if (logger.LogEnabled()) logger.Log($"Authentication countdown started {conn} {timeout}");
+            // Debug.Log($"Authentication countdown started {conn} {timeout}");
 
             yield return new WaitForSecondsRealtime(timeout);
 
             if (!conn.isAuthenticated)
             {
-                if (logger.LogEnabled()) logger.Log($"Authentication Timeout {conn}");
+                // Debug.Log($"Authentication Timeout {conn}");
 
                 conn.Disconnect();
             }

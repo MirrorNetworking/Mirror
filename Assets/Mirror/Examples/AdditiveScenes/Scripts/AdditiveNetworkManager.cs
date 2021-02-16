@@ -7,8 +7,6 @@ namespace Mirror.Examples.Additive
     [AddComponentMenu("")]
     public class AdditiveNetworkManager : NetworkManager
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(AdditiveNetworkManager));
-
         [Tooltip("Trigger Zone Prefab")]
         public GameObject Zone;
 
@@ -29,12 +27,12 @@ namespace Mirror.Examples.Additive
 
         IEnumerator LoadSubScenes()
         {
-            logger.Log("Loading Scenes");
+            Debug.Log("Loading Scenes");
 
             foreach (string sceneName in subScenes)
             {
                 yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-                if (logger.LogEnabled()) logger.Log($"Loaded {sceneName}");
+                // Debug.Log($"Loaded {sceneName}");
             }
         }
 
@@ -50,13 +48,13 @@ namespace Mirror.Examples.Additive
 
         IEnumerator UnloadScenes()
         {
-            logger.Log("Unloading Subscenes");
+            Debug.Log("Unloading Subscenes");
 
             foreach (string sceneName in subScenes)
                 if (SceneManager.GetSceneByName(sceneName).IsValid() || SceneManager.GetSceneByPath(sceneName).IsValid())
                 {
                     yield return SceneManager.UnloadSceneAsync(sceneName);
-                    if (logger.LogEnabled()) logger.Log($"Unloaded {sceneName}");
+                    // Debug.Log($"Unloaded {sceneName}");
                 }
 
             yield return Resources.UnloadUnusedAssets();

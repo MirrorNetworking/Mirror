@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 namespace Mirror
@@ -18,8 +17,6 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkRoomManager.html")]
     public class NetworkRoomManager : NetworkManager
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkRoomManager));
-
         public struct PendingPlayer
         {
             public NetworkConnection conn;
@@ -118,7 +115,7 @@ namespace Mirror
                 if (identity == null)
                 {
                     roomPlayerPrefab = null;
-                    logger.LogError("RoomPlayer prefab must have a NetworkIdentity component.");
+                    Debug.LogError("RoomPlayer prefab must have a NetworkIdentity component.");
                 }
             }
 
@@ -153,7 +150,7 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerReady(NetworkConnection conn)
         {
-            logger.Log("NetworkRoomManager OnServerReady");
+            Debug.Log("NetworkRoomManager OnServerReady");
             base.OnServerReady(conn);
 
             if (conn != null && conn.identity != null)
@@ -168,7 +165,7 @@ namespace Mirror
 
         void SceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer)
         {
-            if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().path, conn);
+            // Debug.LogFormat(LogType.Log, "NetworkRoom SceneLoadedForPlayer scene: {0} {1}", SceneManager.GetActiveScene().path, conn);
 
             if (IsSceneActive(RoomScene))
             {
@@ -322,7 +319,7 @@ namespace Mirror
 
                 allPlayersReady = false;
 
-                if (logger.LogEnabled()) logger.LogFormat(LogType.Log, "NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
+                // Debug.LogFormat(LogType.Log, "NetworkRoomManager.OnServerAddPlayer playerPrefab:{0}", roomPlayerPrefab.name);
 
                 GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
                 if (newRoomGameObject == null)
@@ -403,13 +400,13 @@ namespace Mirror
         {
             if (string.IsNullOrEmpty(RoomScene))
             {
-                logger.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomManager");
+                Debug.LogError("NetworkRoomManager RoomScene is empty. Set the RoomScene in the inspector for the NetworkRoomManager");
                 return;
             }
 
             if (string.IsNullOrEmpty(GameplayScene))
             {
-                logger.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomManager");
+                Debug.LogError("NetworkRoomManager PlayScene is empty. Set the PlayScene in the inspector for the NetworkRoomManager");
                 return;
             }
 
@@ -452,12 +449,12 @@ namespace Mirror
         public override void OnStartClient()
         {
             if (roomPlayerPrefab == null || roomPlayerPrefab.gameObject == null)
-                logger.LogError("NetworkRoomManager no RoomPlayer prefab is registered. Please add a RoomPlayer prefab.");
+                Debug.LogError("NetworkRoomManager no RoomPlayer prefab is registered. Please add a RoomPlayer prefab.");
             else
                 ClientScene.RegisterPrefab(roomPlayerPrefab.gameObject);
 
             if (playerPrefab == null)
-                logger.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
+                Debug.LogError("NetworkRoomManager no GamePlayer prefab is registered. Please add a GamePlayer prefab.");
 
             OnRoomStartClient();
         }

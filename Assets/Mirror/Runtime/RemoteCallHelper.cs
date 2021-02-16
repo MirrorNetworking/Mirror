@@ -36,8 +36,6 @@ namespace Mirror.RemoteCalls
     /// </summary>
     public static class RemoteCallHelper
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(RemoteCallHelper));
-
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         /// <summary>
@@ -85,11 +83,8 @@ namespace Mirror.RemoteCalls
 
             cmdHandlerDelegates[cmdHash] = invoker;
 
-            if (logger.LogEnabled())
-            {
-                string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" IgnoreAuthority:{cmdIgnoreAuthority}" : "";
-                logger.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
-            }
+            //string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" IgnoreAuthority:{cmdIgnoreAuthority}" : "";
+            //Debug.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
 
             return cmdHash;
         }
@@ -106,7 +101,7 @@ namespace Mirror.RemoteCalls
                     return true;
                 }
 
-                logger.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
             }
 
             return false;
@@ -140,7 +135,7 @@ namespace Mirror.RemoteCalls
             // debug message if not found, or null, or mismatched type
             // (no need to throw an error, an attacker might just be trying to
             //  call an cmd with an rpc's hash)
-            if (logger.LogEnabled()) logger.Log("GetInvokerForHash hash:" + cmdHash + " not found");
+            // Debug.Log("GetInvokerForHash hash:" + cmdHash + " not found");
 
             return false;
         }

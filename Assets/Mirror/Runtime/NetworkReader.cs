@@ -37,8 +37,6 @@ namespace Mirror
     /// </summary>
     public class NetworkReader
     {
-        static readonly ILogger logger = LogFactory.GetLogger<NetworkReader>();
-
         // Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
         // avoid allocations.
         //
@@ -137,7 +135,7 @@ namespace Mirror
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;
             if (readerDelegate == null)
             {
-                logger.LogError($"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader");
+                Debug.LogError($"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader");
                 return default;
             }
             return readerDelegate(this);
@@ -149,8 +147,6 @@ namespace Mirror
     // but they do all need to be extensions.
     public static class NetworkReaderExtensions
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(NetworkReaderExtensions));
-
         // cache encoding instead of creating it each time
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
