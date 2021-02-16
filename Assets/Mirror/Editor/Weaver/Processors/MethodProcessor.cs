@@ -5,13 +5,13 @@ namespace Mirror.Weaver
 {
     public static class MethodProcessor
     {
-        private const string RpcPrefix = "UserCode_";
+        const string RpcPrefix = "UserCode_";
 
         // creates a method substitute
         // For example, if we have this:
         //  public void CmdThrust(float thrusting, int spin)
         //  {
-        //      xxxxx   
+        //      xxxxx
         //  }
         //
         //  it will substitute the method and move the code to a new method with a provided name

@@ -7,7 +7,7 @@ namespace Mirror.Examples.RigidbodyPhysics
         public Rigidbody rigidbody3d;
         public float force = 500f;
 
-        private void Start()
+        void Start()
         {
             rigidbody3d.isKinematic = !isServer;
         }

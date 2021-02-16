@@ -59,7 +59,7 @@ namespace Mirror.Weaver
 
         public static MethodReference readNetworkBehaviourGeneric;
 
-        private static AssemblyDefinition currentAssembly;
+        static AssemblyDefinition currentAssembly;
 
         public static TypeReference Import<T>() => Import(typeof(T));
 
@@ -125,7 +125,7 @@ namespace Mirror.Weaver
 
             registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
-            
+
             TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
             // these have multiple methods with same name, so need to check parameters too
             logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, (md) =>

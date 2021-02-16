@@ -13,7 +13,7 @@ namespace Mirror
         public bool showPing = true;
         [Tooltip("True shows the round trip time, from origin to destination, then back again. Set to false for time to server only.")]
         public bool showRoundTripTime = true;
-        private int rttMultiplier = 1;
+        int rttMultiplier = 1;
         public Vector2 position = new Vector2(200, 0);
         public int fontSize = 24;
         public Color textColor = new Color32(255, 255, 255, 80);

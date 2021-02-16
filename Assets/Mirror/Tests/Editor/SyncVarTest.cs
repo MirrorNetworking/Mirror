@@ -320,7 +320,7 @@ namespace Mirror.Tests.SyncVarTests
             );
         }
 
-        private void SyncVarCacheNetidForGeneric<TBehaviour, TValue>(
+        void SyncVarCacheNetidForGeneric<TBehaviour, TValue>(
             Func<TBehaviour, TValue> getField,
             Action<TBehaviour, TValue> setField,
             Func<NetworkIdentity, TValue> getCreatedValue,

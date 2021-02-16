@@ -53,7 +53,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static MethodReference GenerateReader(TypeReference variableReference)
+        static MethodReference GenerateReader(TypeReference variableReference)
         {
             // Arrays are special,  if we resolve them, we get the element type,
             // so the following ifs might choke on it for scriptable objects
@@ -137,7 +137,7 @@ namespace Mirror.Weaver
             return GenerateClassOrStructReadFunction(variableReference);
         }
 
-        private static MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
+        static MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
         {
             // uses generic ReadNetworkBehaviour rather than having weaver create one for each NB
             MethodReference generic = WeaverTypes.readNetworkBehaviourGeneric;
@@ -187,7 +187,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        private static MethodDefinition GenerateReaderFunction(TypeReference variable)
+        static MethodDefinition GenerateReaderFunction(TypeReference variable)
         {
             string functionName = "_Read_" + variable.FullName;
 
@@ -252,7 +252,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        private static void GenerateNullCheck(ILProcessor worker)
+        static void GenerateNullCheck(ILProcessor worker)
         {
             // if (!reader.ReadBoolean()) {
             //   return null;

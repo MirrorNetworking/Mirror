@@ -175,7 +175,7 @@ namespace {NameSpace}
     }}";
         }
 
-        private static string ElementEqualCheck(string elementType, string collectionValue, string expected)
+        static string ElementEqualCheck(string elementType, string collectionValue, string expected)
         {
             switch (elementType)
             {
@@ -186,7 +186,7 @@ namespace {NameSpace}
             }
         }
 
-        private static string CheckCollection(string collectionType)
+        static string CheckCollection(string collectionType)
         {
             switch (collectionType)
             {
@@ -209,7 +209,7 @@ namespace {NameSpace}
         }
 
 
-        private static string NewEmptyCollection(string elementType, string collectionType)
+        static string NewEmptyCollection(string elementType, string collectionType)
         {
             switch (collectionType)
             {
@@ -247,7 +247,7 @@ namespace {NameSpace}
             }};";
         }
 
-        private static string NewCollection(string elementType, string collectionType, IEnumerable<string> dataValues)
+        static string NewCollection(string elementType, string collectionType, IEnumerable<string> dataValues)
         {
             switch (collectionType)
             {

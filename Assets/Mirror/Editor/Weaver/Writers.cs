@@ -145,7 +145,7 @@ namespace Mirror.Weaver
             return GenerateClassOrStructWriterFunction(variableReference);
         }
 
-        private static MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
+        static MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
         {
             // all NetworkBehaviours can use the same write function
             if (writeFuncs.TryGetValue(WeaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
@@ -163,7 +163,7 @@ namespace Mirror.Weaver
             }
         }
 
-        private static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
+        static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
         {
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
@@ -179,7 +179,7 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        private static MethodDefinition GenerateWriterFunc(TypeReference variable)
+        static MethodDefinition GenerateWriterFunc(TypeReference variable)
         {
             string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
@@ -213,7 +213,7 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        private static void WriteNullCheck(ILProcessor worker)
+        static void WriteNullCheck(ILProcessor worker)
         {
             // if (value == null)
             // {

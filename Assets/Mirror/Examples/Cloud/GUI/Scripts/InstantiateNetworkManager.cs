@@ -9,7 +9,7 @@ namespace Mirror.Cloud.Examples
     {
         public GameObject prefab;
 
-        private void Awake()
+        void Awake()
         {
             if (NetworkManager.singleton == null)
             {

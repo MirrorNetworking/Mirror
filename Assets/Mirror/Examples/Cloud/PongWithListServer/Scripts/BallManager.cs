@@ -19,7 +19,7 @@ namespace Mirror.Cloud.Examples.Pong
             manager.onPlayerListChanged -= onPlayerListChanged;
         }
 
-        private void onPlayerListChanged(int playerCount)
+        void onPlayerListChanged(int playerCount)
         {
             if (playerCount >= 2)
             {
