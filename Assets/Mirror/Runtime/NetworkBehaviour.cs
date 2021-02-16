@@ -209,7 +209,7 @@ namespace Mirror
         #endregion
 
         #region Client RPCs
-        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool excludeOwner)
+        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool includeOwner)
         {
             // this was in Weaver before
             if (!NetworkServer.active)
@@ -235,9 +235,6 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            // The public facing parameter is excludeOwner in [ClientRpc]
-            // so we negate it here to logically align with SendToReady.
-            bool includeOwner = !excludeOwner;
             NetworkServer.SendToReady(netIdentity, message, includeOwner, channelId);
         }
 

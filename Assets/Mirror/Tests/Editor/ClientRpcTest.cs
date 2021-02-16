@@ -18,7 +18,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
     {
         public event Action<int> onSendInt;
 
-        [ClientRpc(excludeOwner = true)]
+        [ClientRpc(includeOwner = false)]
         public void RpcSendInt(int someInt)
         {
             onSendInt?.Invoke(someInt);

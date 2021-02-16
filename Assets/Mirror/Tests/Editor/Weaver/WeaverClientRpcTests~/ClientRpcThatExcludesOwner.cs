@@ -4,7 +4,7 @@ namespace WeaverClientRpcTests.ClientRpcThatExcludesOwner
 {
     class ClientRpcThatExcludesOwner : NetworkBehaviour
     {
-        [ClientRpc(excludeOwner = true)]
+        [ClientRpc(includeOwner = false)]
         void RpcDoSomething()
         {
             // do something

@@ -39,7 +39,7 @@ namespace Mirror.Weaver
         public struct ClientRpcResult
         {
             public MethodDefinition method;
-            public bool excludeOwner;
+            public bool includeOwner;
         }
 
         public NetworkBehaviourProcessor(TypeDefinition td)
@@ -1115,13 +1115,13 @@ namespace Mirror.Weaver
                 return;
             }
 
-            bool excludeOwner = clientRpcAttr.GetField("excludeOwner", false);
+            bool includeOwner = clientRpcAttr.GetField("includeOwner", true);
 
             names.Add(md.Name);
             clientRpcs.Add(new ClientRpcResult
             {
                 method = md,
-                excludeOwner = excludeOwner
+                includeOwner = includeOwner
             });
 
             MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(netBehaviourSubclass, md, clientRpcAttr);
