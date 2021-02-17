@@ -17,7 +17,12 @@ namespace Mirror.Weaver
                 Weaver.Error($"Cannot resolve method {name} without a class");
                 return null;
             }
-            return ResolveMethod(tr, scriptDef, method => method.Name == name);
+            MethodReference method = ResolveMethod(tr, scriptDef, m => m.Name == name);
+            if (method == null)
+            {
+                Weaver.Error($"Method not found with name {name} in type {tr.Name}", tr);
+            }
+            return method;
         }
 
         public static MethodReference ResolveMethod(TypeReference t, AssemblyDefinition scriptDef, System.Func<MethodDefinition, bool> predicate)
@@ -34,11 +39,10 @@ namespace Mirror.Weaver
             return null;
         }
 
-        public static MethodReference ResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
+        public static MethodReference TryResolveMethodInParents(TypeReference tr, AssemblyDefinition scriptDef, string name)
         {
             if (tr == null)
             {
-                Weaver.Error($"Cannot resolve method {name} without a type");
                 return null;
             }
             foreach (MethodDefinition methodRef in tr.Resolve().Methods)
@@ -48,25 +52,9 @@ namespace Mirror.Weaver
                     return scriptDef.MainModule.ImportReference(methodRef);
                 }
             }
+
             // Could not find the method in this class,  try the parent
-            return ResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
-        }
-
-        // System.Byte[] arguments need a version with a string
-        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, string argTypeFullName)
-        {
-            bool match(MethodDefinition method) =>
-                    method.Name == name
-                    && (method.Parameters.Count == 1)
-                    && method.Parameters[0].ParameterType.FullName == argTypeFullName;
-
-            return ResolveMethod(tr, scriptDef, match);
-        }
-
-        // reuse ResolveMethodWithArg string version
-        public static MethodReference ResolveMethodWithArg(TypeReference tr, AssemblyDefinition scriptDef, string name, TypeReference argType)
-        {
-            return ResolveMethodWithArg(tr, scriptDef, name, argType.FullName);
+            return TryResolveMethodInParents(tr.Resolve().BaseType, scriptDef, name);
         }
 
         public static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
@@ -80,26 +68,6 @@ namespace Mirror.Weaver
                     return methodRef;
                 }
             }
-            return null;
-        }
-
-        public static GenericInstanceMethod ResolveMethodGeneric(TypeReference t, AssemblyDefinition scriptDef, string name, TypeReference genericType)
-        {
-            foreach (MethodDefinition methodRef in t.Resolve().Methods)
-            {
-                if (methodRef.Name == name && methodRef.Parameters.Count == 0 && methodRef.GenericParameters.Count == 1)
-                {
-                    MethodReference tmp = scriptDef.MainModule.ImportReference(methodRef);
-                    GenericInstanceMethod gm = new GenericInstanceMethod(tmp);
-                    gm.GenericArguments.Add(genericType);
-                    if (gm.GenericArguments[0].FullName == genericType.FullName)
-                    {
-                        return gm;
-                    }
-                }
-            }
-
-            Weaver.Error($"Method {name} not found in {t.Name}", t);
             return null;
         }
 

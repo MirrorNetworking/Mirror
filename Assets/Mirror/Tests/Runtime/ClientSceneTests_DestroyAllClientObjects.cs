@@ -24,7 +24,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         {
             onDisableCalled?.Invoke();
         }
-        private void OnDestroy()
+        void OnDestroy()
         {
             onDestroyCalled?.Invoke();
         }

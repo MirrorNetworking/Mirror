@@ -20,7 +20,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
         void OnGUI()
         {
-            if (!isLocalPlayer && clientMatchIndex < 0)
+            if (!isServerOnly && !isLocalPlayer && clientMatchIndex < 0)
                 clientMatchIndex = NetworkClient.connection.identity.GetComponent<PlayerScore>().matchIndex;
 
             if (isLocalPlayer || matchIndex == clientMatchIndex)

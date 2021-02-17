@@ -3,7 +3,6 @@ using System.Net.Sockets;
 
 namespace Telepathy
 {
-
     public static class NetworkStreamExtensions
     {
         // .Read returns '0' if remote closed the connection but throws an
@@ -24,8 +23,8 @@ namespace Telepathy
         }
 
         // helper function to read EXACTLY 'n' bytes
-        // -> default .Read reads up to 'n' bytes. this function reads exactly 'n'
-        //    bytes
+        // -> default .Read reads up to 'n' bytes. this function reads exactly
+        //    'n' bytes
         // -> this is blocking until 'n' bytes were received
         // -> immediately returns false in case of disconnects
         public static bool ReadExactly(this NetworkStream stream, byte[] buffer, int amount)

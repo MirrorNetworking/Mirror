@@ -3,35 +3,27 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.MultipleAdditiveScenes
 {
+    [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
-    [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
         public CharacterController characterController;
-        public CapsuleCollider capsuleCollider;
-        public Rigidbody rigidbody3D;
 
         void OnValidate()
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
-            if (capsuleCollider == null)
-                capsuleCollider = GetComponent<CapsuleCollider>();
-            if (rigidbody3D == null)
-                rigidbody3D = GetComponent<Rigidbody>();
         }
 
         void Start()
         {
-            capsuleCollider.enabled = isServer;
+            characterController.enabled = isLocalPlayer;
         }
 
         public override void OnStartLocalPlayer()
         {
-            base.OnStartLocalPlayer();
-
             Camera.main.orthographic = false;
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
@@ -60,14 +52,13 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         public float vertical;
         public float turn;
         public float jumpSpeed;
-        public float jumpTime;
         public bool isGrounded = true;
         public bool isFalling;
         public Vector3 velocity;
 
         void Update()
         {
-            if (!isLocalPlayer)
+            if (!isLocalPlayer || !characterController.enabled)
                 return;
 
             horizontal = Input.GetAxis("Horizontal");

@@ -20,8 +20,7 @@ namespace Mirror.Examples.Tanks
         void Update()
         {
             // movement for local player
-            if (!isLocalPlayer)
-                return;
+            if (!isLocalPlayer) return;
 
             // rotate
             float horizontal = Input.GetAxis("Horizontal");

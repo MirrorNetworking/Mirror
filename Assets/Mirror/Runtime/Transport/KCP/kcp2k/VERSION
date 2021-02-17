@@ -1,0 +1,61 @@
+V1.7 [2021-01-13]
+- fix: unreliable messages reset timeout now too
+- perf: KcpConnection OnCheckEnabled callback changed to a simple 'paused' boolean.
+  This is faster than invoking a Func<bool> every time and allows us to fix #8 more
+  easily later by calling .Pause/.Unpause from OnEnable/OnDisable in MirrorTransport.
+- fix #8: Unpause now resets timeout to fix a bug where Mirror would pause kcp,
+  change the scene which took >10s, then unpause and kcp would detect the lack of
+  any messages for >10s as timeout. Added test to make sure it never happens again.
+- MirrorTransport: statistics logging for headless servers
+- Mirror Transport: Send/Receive window size increased once more from 2048 to 4096.
+
+V1.6 [2021-01-10]
+- Unreliable channel added!
+- perf: KcpHeader byte added to every kcp message to indicate
+  Handshake/Data/Ping/Disconnect instead of scanning each message for Hello/Byte/Ping
+  content via SegmentEquals. It's a lot cleaner, should be faster and should avoid
+  edge cases where a message content would equal Hello/Ping/Bye sequence accidentally.
+- Kcp.Input: offset moved to parameters for cases where it's needed
+- Kcp.SetMtu from original Kcp.c
+
+V1.5 [2021-01-07]
+- KcpConnection.MaxSend/ReceiveRate calculation based on the article
+- MirrorTransport: large send/recv window size defaults to avoid high latencies caused
+  by packets not being processed fast enough
+- MirrorTransport: show MaxSend/ReceiveRate in debug gui
+- MirrorTransport: don't Log.Info to console in headless mode if debug log is disabled
+
+V1.4 [2020-11-27]
+- fix: OnCheckEnabled added. KcpConnection message processing while loop can now
+  be interrupted immediately. fixes Mirror Transport scene changes which need to stop
+  processing any messages immediately after a scene message)
+- perf: Mirror KcpTransport: FastResend enabled by default. turbo mode according to:
+  https://github.com/skywind3000/kcp/blob/master/README.en.md#protocol-configuration
+- perf: Mirror KcpTransport: CongestionControl disabled by default (turbo mode)
+
+V1.3 [2020-11-17]
+- Log.Info/Warning/Error so logging doesn't depend on UnityEngine anymore
+- fix: Server.Tick catches SocketException which happens if Android client is killed
+- MirrorTransport: debugLog option added that can be checked in Unity Inspector
+- Utils.Clamp so Kcp.cs doesn't depend on UnityEngine
+- Utils.SegmentsEqual: use Linq SequenceEqual so it doesn't depend on UnityEngine
+=> kcp2k can now be used in any C# project even without Unity
+
+V1.2 [2020-11-10]
+- more tests added
+- fix: raw receive buffers are now all of MTU size
+- fix: raw receive detects error where buffer was too small for msgLength and
+  result in excess data being dropped silently
+- KcpConnection.MaxMessageSize added for use in high level
+- KcpConnection.MaxMessageSize increased from 1200 bytes to to maximum allowed
+  message size of 145KB for kcp (based on mtu, overhead, wnd_rcv)
+
+V1.1 [2020-10-30]
+- high level cleanup, fixes, improvements
+
+V1.0 [2020-10-22]
+- Kcp.cs now mirrors original Kcp.c behaviour
+  (this fixes dozens of bugs)
+
+V0.1
+- initial kcp-csharp based version

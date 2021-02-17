@@ -4,25 +4,25 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryGenericStructKeyWithCustomMeth
 {
     class SyncDictionaryGenericStructKeyWithCustomMethods : NetworkBehaviour
     {
-        MyGenericStructDictionary harpseals;
+        SyncDictionary<MyGenericStruct<float>, int> harpseals;
 
+    }
 
-        struct MyGenericStruct<T>
+    public struct MyGenericStruct<T>
+    {
+        public T genericpotato;
+    }
+
+    public static class MyGenericStructDictionary
+    {
+        public static void WriteKey(this NetworkWriter writer, MyGenericStruct<float> item)
         {
-            public T genericpotato;
+            writer.WriteSingle(item.genericpotato);
         }
 
-        class MyGenericStructDictionary : SyncDictionary<MyGenericStruct<float>, int>
+        public static MyGenericStruct<float> ReadKey(this NetworkReader reader)
         {
-            protected override void SerializeKey(NetworkWriter writer, MyGenericStruct<float> item)
-            {
-                writer.WriteSingle(item.genericpotato);
-            }
-
-            protected override MyGenericStruct<float> DeserializeKey(NetworkReader reader)
-            {
-                return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
-            }
+            return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
         }
     }
 }

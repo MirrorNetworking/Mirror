@@ -5,13 +5,13 @@ namespace Mirror.Tests
     [TestFixture]
     public class BasicAuthenticatorTest
     {
-        public class AuthRequestMessage : MessageBase
+        public struct AuthRequestMessage : NetworkMessage
         {
             public string authUsername;
             public string authPassword;
         }
 
-        public class AuthResponseMessage : MessageBase
+        public struct AuthResponseMessage : NetworkMessage
         {
             public byte code;
             public string message;
@@ -31,12 +31,12 @@ namespace Mirror.Tests
 
             // serialize
             NetworkWriter writer = new NetworkWriter();
-            message.Serialize(writer);
+            writer.Write(message);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
-            AuthRequestMessage fresh = new AuthRequestMessage();
-            fresh.Deserialize(new NetworkReader(writerData));
+            NetworkReader reader = new NetworkReader(writerData);
+            AuthRequestMessage fresh = reader.Read<AuthRequestMessage>();
             Assert.That(fresh.authUsername, Is.EqualTo("abc"));
             Assert.That(fresh.authPassword, Is.EqualTo("123"));
         }
@@ -55,12 +55,12 @@ namespace Mirror.Tests
 
             // serialize
             NetworkWriter writer = new NetworkWriter();
-            message.Serialize(writer);
+            writer.Write(message);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
-            AuthResponseMessage fresh = new AuthResponseMessage();
-            fresh.Deserialize(new NetworkReader(writerData));
+            NetworkReader reader = new NetworkReader(writerData);
+            AuthResponseMessage fresh = reader.Read<AuthResponseMessage>();
             Assert.That(fresh.code, Is.EqualTo(123));
             Assert.That(fresh.message, Is.EqualTo("abc"));
         }

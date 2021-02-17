@@ -14,34 +14,26 @@ namespace Mirror.Weaver
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
-        // delegate for subscription to Weaver debug messages
-        public static Action<string> OnWeaverMessage;
         // delegate for subscription to Weaver warning messages
         public static Action<string> OnWeaverWarning;
         // delete for subscription to Weaver error messages
         public static Action<string> OnWeaverError;
 
-        // controls whether we weave any assemblies when CompilationPipeline delegates are invoked
-        public static bool WeaverEnabled { get; set; }
         // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool UnityLogEnabled = true;
-
-        // holds the result status of our latest Weave operation
-        // NOTE: WeaveFailed is critical to unit tests, but isn't used for anything else. 
-        public static bool WeaveFailed { get; private set; }
 
         // warning message handler that also calls OnWarningMethod delegate
         static void HandleWarning(string msg)
         {
             if (UnityLogEnabled) Debug.LogWarning(msg);
-            if (OnWeaverWarning != null) OnWeaverWarning.Invoke(msg);
+            OnWeaverWarning?.Invoke(msg);
         }
 
         // error message handler that also calls OnErrorMethod delegate
         static void HandleError(string msg)
         {
             if (UnityLogEnabled) Debug.LogError(msg);
-            if (OnWeaverError != null) OnWeaverError.Invoke(msg);
+            OnWeaverError?.Invoke(msg);
         }
 
         [InitializeOnLoadMethod]
@@ -142,19 +134,15 @@ namespace Mirror.Weaver
             }
 
             HashSet<string> dependencyPaths = GetDependecyPaths(assemblyPath);
+            dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
+            dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
+            Log.Warning = HandleWarning;
+            Log.Error = HandleError;
 
-            // passing null in the outputDirectory param will do an in-place update of the assembly
-            if (Program.Process(unityEngineCoreModuleDLL, mirrorRuntimeDll, null, new[] { assemblyPath }, dependencyPaths.ToArray(), HandleWarning, HandleError))
-            {
-                // NOTE: WeaveFailed is critical for unit tests but isn't used elsewhere
-                WeaveFailed = false;
-            }
-            else
+            if (!Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray()))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-
-                WeaveFailed = true;
                 if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
             }
         }
@@ -162,16 +150,18 @@ namespace Mirror.Weaver
         static HashSet<string> GetDependecyPaths(string assemblyPath)
         {
             // build directory list for later asm/symbol resolving using CompilationPipeline refs
-            HashSet<string> dependencyPaths = new HashSet<string>();
-            dependencyPaths.Add(Path.GetDirectoryName(assemblyPath));
+            HashSet<string> dependencyPaths = new HashSet<string>
+            {
+                Path.GetDirectoryName(assemblyPath)
+            };
             foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
             {
-                if (unityAsm.outputPath != assemblyPath)
-                    continue;
-
-                foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
+                if (unityAsm.outputPath == assemblyPath)
                 {
-                    dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
+                    foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
+                    {
+                        dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
+                    }
                 }
             }
 

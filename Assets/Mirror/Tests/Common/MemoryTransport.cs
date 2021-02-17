@@ -1,4 +1,4 @@
-﻿// memory transport for easier testing
+// memory transport for easier testing
 // note: file needs to be outside of Editor folder, otherwise AddComponent
 //       can't be called with MemoryTransport
 using System;
@@ -24,13 +24,19 @@ namespace Mirror.Tests
         }
 
         bool clientConnected;
-        Queue<Message> clientIncoming = new Queue<Message>();
+        public Queue<Message> clientIncoming = new Queue<Message>();
         bool serverActive;
-        Queue<Message> serverIncoming = new Queue<Message>();
+        public Queue<Message> serverIncoming = new Queue<Message>();
 
         public override bool Available() => true;
-        public override int GetMaxPacketSize(int channelId) => int.MaxValue;
-        public override void Shutdown() { }
+        // limit max size to something reasonable so pool doesn't allocate
+        // int.MaxValue = 2GB each time.
+        public override int GetMaxPacketSize(int channelId) => ushort.MaxValue;
+        // 1400 max batch size
+        // -> need something != GetMaxPacketSize for testing
+        // -> MTU aka 1400 is used a lot anyway
+        public override int GetMaxBatchSize(int channelId) => 1400;
+        public override void Shutdown() {}
         public override bool ClientConnected() => clientConnected;
         public override void ClientConnect(string address)
         {
@@ -46,7 +52,7 @@ namespace Mirror.Tests
                 clientConnected = true;
             }
         }
-        public override bool ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
             // only  if client connected
             if (clientConnected)
@@ -57,9 +63,7 @@ namespace Mirror.Tests
 
                 // add server data message with connId=1 because 0 is reserved
                 serverIncoming.Enqueue(new Message(1, EventType.Data, data));
-                return true;
             }
-            return false;
         }
         public override void ClientDisconnect()
         {
@@ -110,7 +114,7 @@ namespace Mirror.Tests
         public override bool ServerActive() => serverActive;
         public override Uri ServerUri() => throw new NotImplementedException();
         public override void ServerStart() { serverActive = true; }
-        public override bool ServerSend(List<int> connectionIds, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
             // only if server is running and client is connected
             if (serverActive && clientConnected)
@@ -121,9 +125,7 @@ namespace Mirror.Tests
 
                 // add client data message
                 clientIncoming.Enqueue(new Message(0, EventType.Data, data));
-                return true;
             }
-            return false;
         }
 
         public override bool ServerDisconnect(int connectionId)

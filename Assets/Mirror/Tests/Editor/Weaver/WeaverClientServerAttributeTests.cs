@@ -11,21 +11,123 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourServer()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
-            Assert.That(weaverErrors, Is.Empty);
-            string networkServerGetActive = Weaver.NetworkServerGetActive.ToString();
-            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
+            IsSuccess();
 
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
+        }
+
+        [Test]
+        public void ServerAttributeOnVirutalMethod()
+        {
+            IsSuccess();
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnVirutalMethod.ServerAttributeOnVirutalMethod", "ServerOnlyMethod");
+        }
+
+        [Test]
+        public void ServerAttributeOnAbstractMethod()
+        {
+            HasError("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.",
+                "System.Void WeaverClientServerAttributeTests.ServerAttributeOnAbstractMethod.ServerAttributeOnAbstractMethod::ServerOnlyMethod()");
+        }
+
+        [Test]
+        public void ServerAttributeOnOverrideMethod()
+        {
+            IsSuccess();
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnOverrideMethod.ServerAttributeOnOverrideMethod", "ServerOnlyMethod");
         }
 
         [Test]
         public void NetworkBehaviourClient()
         {
-            Assert.That(CompilationFinishedHook.WeaveFailed, Is.False);
-            Assert.That(weaverErrors, Is.Empty);
-            string networkClientGetActive = Weaver.NetworkClientGetActive.ToString();
+            IsSuccess();
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
+
+        [Test]
+        public void ClientAttributeOnVirutalMethod()
+        {
+            IsSuccess();
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnVirutalMethod.ClientAttributeOnVirutalMethod", "ClientOnlyMethod");
+        }
+
+        [Test]
+        public void ClientAttributeOnAbstractMethod()
+        {
+            HasError("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.",
+                "System.Void WeaverClientServerAttributeTests.ClientAttributeOnAbstractMethod.ClientAttributeOnAbstractMethod::ClientOnlyMethod()");
+        }
+
+        [Test]
+        public void ClientAttributeOnOverrideMethod()
+        {
+            IsSuccess();
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnOverrideMethod.ClientAttributeOnOverrideMethod", "ClientOnlyMethod");
+        }
+
+        [Test]
+        public void StaticClassClient()
+        {
+            IsSuccess();
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.StaticClassClient.StaticClassClient", "ClientOnlyMethod");
+        }
+        [Test]
+        public void RegularClassClient()
+        {
+            IsSuccess();
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.RegularClassClient.RegularClassClient", "ClientOnlyMethod");
+        }
+        [Test]
+        public void MonoBehaviourClient()
+        {
+            IsSuccess();
+
+            string networkClientGetActive = WeaverTypes.NetworkClientGetActive.ToString();
+            CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.MonoBehaviourClient.MonoBehaviourClient", "ClientOnlyMethod");
+        }
+
+        [Test]
+        public void StaticClassServer()
+        {
+            IsSuccess();
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.StaticClassServer.StaticClassServer", "ServerOnlyMethod");
+        }
+        [Test]
+        public void RegularClassServer()
+        {
+            IsSuccess();
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.RegularClassServer.RegularClassServer", "ServerOnlyMethod");
+        }
+        [Test]
+        public void MonoBehaviourServer()
+        {
+            IsSuccess();
+
+            string networkServerGetActive = WeaverTypes.NetworkServerGetActive.ToString();
+            CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.MonoBehaviourServer.MonoBehaviourServer", "ServerOnlyMethod");
+        }
+
+
+
 
         /// <summary>
         /// Checks that first Instructions in MethodBody is addedString
@@ -34,7 +136,7 @@ namespace Mirror.Weaver.Tests
         /// <param name="methodName"></param>
         static void CheckAddedCode(string addedString, string className, string methodName)
         {
-            string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory,  WeaverAssembler.OutputFile);
+            string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory, WeaverAssembler.OutputFile);
             using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyName))
             {
                 TypeDefinition type = assembly.MainModule.GetType(className);

@@ -1,5 +1,7 @@
+using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
@@ -22,8 +24,8 @@ namespace Mirror.Tests.Runtime
         }
 
         // prevents https://github.com/vis2k/Mirror/issues/1484
-        [Test]
-        public void OnDestroyIsServerTrue()
+        [UnityTest]
+        public IEnumerator OnDestroyIsServerTrue()
         {
             // call OnStartServer so that isServer is true
             identity.OnStartServer();
@@ -35,7 +37,29 @@ namespace Mirror.Tests.Runtime
             GameObject.Destroy(gameObject);
 
             // make sure that isServer is still true so we can save players etc.
-            Assert.That(identity.isServer, Is.EqualTo(true));
+            Assert.That(identity.isServer, Is.True);
+
+            yield return null;
+            // Confirm it has been destroyed
+            Assert.That(identity == null, Is.True);
+        }
+
+        [UnityTest]
+        public IEnumerator OnDestroyIsServerTrueWhenNetworkServerDestroyIsCalled()
+        {
+            // call OnStartServer so that isServer is true
+            identity.OnStartServer();
+            Assert.That(identity.isServer, Is.True);
+
+            // destroy it
+            NetworkServer.Destroy(gameObject);
+
+            // make sure that isServer is still true so we can save players etc.
+            Assert.That(identity.isServer, Is.True);
+
+            yield return null;
+            // Confirm it has been destroyed
+            Assert.That(identity == null, Is.True);
         }
     }
 }

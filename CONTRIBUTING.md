@@ -8,18 +8,19 @@ Following these guidelines helps to communicate that you respect the time of the
 
 This is an open source project and we love to receive contributions from our community — you! There are many ways to contribute, from writing tutorials or blog posts, improving the documentation, submitting bug reports and feature requests or writing code which can be incorporated into the main project itself.
 
-If you haven't already, come find us in [Discord](https://discord.gg/yTYe3h). We want you working on things you're excited about, and we can give you instant feedback.
+If you haven't already, come find us in [Discord](https://discord.gg/N9QVxbM). We want you working on things you're excited about, and we can give you instant feedback.
 
 ### I don't want to read this whole thing I just have a question!!
 
-We currently allow our users to use the issue tracker for support questions. But please be wary that maintaining an open source project can take a lot of time from the maintainers. If asking for a support question, state it clearly and take the time to explain your problem properly. Also, if your problem is not strictly related to this project we recommend you to use [Stack Overlow](https://stackoverflow.com) instead.
+We currently allow our users to use the issue tracker for support questions. But please be wary that maintaining an open source project can take a lot of time from the maintainers. If asking for a support question, state it clearly and take the time to explain your problem properly. Also, if your problem is not strictly related to this project we recommend you to use [Stack Overflow](https://stackoverflow.com) instead.
 
 ## How Can I Contribute?
 
+There are multiple ways to help: testing, finding bugs or issues, or even fixing a bug yourself and submitting a Pull Requests.
+
 ### Testing
 
-We have a handful of unit tests, but most of our testbed consists of running it with existing projects. 
-Try our builds and pull requests in your own projects and let us know how it goes.
+We have [unit tests](https://en.wikipedia.org/wiki/Unit_testing) that cover some parts of Mirror, but the best way to find a problem is running it with existing projects. Try our releases and pull requests in your own projects and let us know if there are any issues.
 
 ### Reporting Bugs
 
@@ -84,8 +85,9 @@ We can always use more test coverage.
 * **Provide a link to the related issue** if the pull request is a follow up of an existing bug report or enhancement suggestion.
 * **Comment why this pull request represents an enhancement** and give a rationale explaining why you did it that way and not another way.
 * **Use the same coding style as the one used in this project**.
-* **Documentation:** If your PR adds or changes any public properties or methods, you must retain the old versions preceded with `[Obsolete("Describe what to do / use instead")` attribute wherever possbile, and you must update any relevant pages in the /docs folder.  It's not done until it's documented!
+* **Documentation:** If your PR adds or changes any public properties or methods, you must retain the old versions preceded with `[Obsolete("Describe what to do / use instead")` attribute wherever possible, and you must update any relevant pages in the /docs folder.  It's not done until it's documented!
 * **Welcome suggestions from the maintainers to improve your pull request**.
+* **Include unit tests for new code** Unit test for new code helps us check if it works. See the [Unity Test Runner](https://docs.unity3d.com/2018.4/Documentation/Manual/testing-editortestsrunner.html) for more information about running tests in unity.
 
 Please follow our coding conventions (below) and make sure all of your commits are atomic (one feature per commit). Rebase your pull requests if necessary.
 
@@ -110,17 +112,19 @@ Micro-optimizations try to improve the performance of an application by replacin
 * eliminate an allocation.
 * replace `Vector3.Distance(a,b) < K` with `Vector3.SqrMagnitude(b - a) < K * K`
 * convert a class to struct
+* manually inlining small functions
+* rewriting a function in native code
 
 Macro-optimizations try to improve the performance of an application by changing the algorithm.  Some examples include:
 * Serialize a message once O(1),  instead of for every single client O(n)
-* Change interest management algorithm,  as of this writing every object checks every other object O(n^2),  it could be replaced by a sweep and prune algorithm O(n log n)
+* Change interest management algorithm,  as of this writing every object checks every other object O(n^2),  it could be replaced by spatial hashing, which is O(n)
 * When synchronizing movement,  instead of synchronizing every position change,  you could synchronize the velocity and let the other side predict the position.
 
 Macro-optimizations tend to change the **scalability** of mirror,  by changing an algorithm, you may now support 10x more customers on the same hardware, it is even possible for a macro optimization to make performance worse for small numbers. Macro optimization usually make a really big difference, but are much harder to make. 
 
 Micro-optimizations tend to change the performance of mirror in a linear way. There are some micro optimizations that make a huge impact on performance such as eliminating allocations in the hot path.
 
-We prefer readable code over optimal code. We do not like any kind of optimization if it makes the code less readable (they generally do).  For that reason,  we require that both micro and macro optimization pull requests come with screenshots profiling a real game or at least a synthetic **representative** test. It is not enough to show that one operation is faster than the other,  you must prove that this makes a significant difference in Mirror or in a real game using Mirror.
+We prefer readable code over optimal code. We do not like any kind of optimization if it makes the code less readable (they generally do).  For that reason,  we require that both micro and macro optimization pull requests come with screenshots profiling a real game or at least a benchmark with a realistic Mirror workload. It is not enough to show that one operation is faster than the other, you must prove that this will make a difference for actual games using Mirror.
 
 If your optimization pull request does not come with profiling data showing real gains in a meaningful test is has no hope of getting merged.
 
@@ -130,6 +134,7 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 
 * We indent using 4 spaces (soft tabs)
 * We value simplicity. The code should be easy to read and avoid magic
+* No abbrevations. Use 'parentBody' instead of 'pB' or similar
 * **KISS / Occam's Razor** - always use the most simple solution.
 * **No Premature Optimizations**
 	MMOs need to run for weeks without issues or exploits.
@@ -148,6 +153,5 @@ Unlike Python, C# has different ways to do the same thing, which causes endless 
   * **type** vs. **var**: always use 'int x' instead of 'var x'. Less guess work. Less magic. If we **always** use the proper type then we have to waste no brain cycles on unnecessary decision making.
   * **if** vs. **switch**: any if statement could be converted to switch and back. Again, let's not have endless discussions and use if unless _switch_ makes overwhelmingly much sense. Python doesn't have switch either, they don't have those discussions and pull requests over there.
   * **int** vs. **Int32**: use int instead of Int32, double instead of Double, string instead of String and so on. We won't convert all ints to Int32, so it makes most sense to never use Int32 anywhere and avoid time wasting discussions.
-  * **Empty Class Bodies ({} vs. { })**: please use 'class MyMessage : EmptyMessage {}' instead of 'class MyMessage : EmptyMessage { }'. For the same reason that we use no white space inbetween parameterless function defintions like void Start() vs. void Start( ).
 
 Thanks.

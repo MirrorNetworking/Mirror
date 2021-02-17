@@ -9,19 +9,18 @@ namespace Mirror
     {
         internal ULocalConnectionToServer connectionToServer;
 
-        public ULocalConnectionToClient() : base(LocalConnectionId) { }
+        public ULocalConnectionToClient() : base(LocalConnectionId, false, 0) {}
 
         public override string address => "localhost";
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             connectionToServer.buffer.Write(segment);
-
-            return true;
         }
 
-        // override for host client: always return true.
-        internal override bool IsClientAlive() => true;
+        // true because local connections never timeout
+        /// <inheritdoc/>
+        internal override bool IsAlive(float timeout) => true;
 
         internal void DisconnectInternal()
         {
@@ -45,7 +44,7 @@ namespace Mirror
     {
         readonly NetworkWriter writer = new NetworkWriter();
         readonly NetworkReader reader = new NetworkReader(default(ArraySegment<byte>));
-        // The buffer is atleast 1500 bytes long. So need to keep track of
+        // The buffer is at least 1500 bytes long. So need to keep track of
         // packet count to know how many ArraySegments are in the buffer
         int packetCount;
 
@@ -54,7 +53,7 @@ namespace Mirror
             writer.WriteBytesAndSizeSegment(segment);
             packetCount++;
 
-            // update buffer incase writer's length has changed
+            // update buffer in case writer's length has changed
             reader.buffer = writer.ToArraySegment();
         }
 
@@ -81,28 +80,38 @@ namespace Mirror
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class ULocalConnectionToServer : NetworkConnectionToServer
     {
-        static readonly ILogger logger = LogFactory.GetLogger(typeof(ULocalConnectionToClient));
-
         internal ULocalConnectionToClient connectionToClient;
         internal readonly LocalConnectionBuffer buffer = new LocalConnectionBuffer();
 
         public override string address => "localhost";
 
-        internal override bool Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        // see caller for comments on why we need this
+        bool connectedEventPending;
+        bool disconnectedEventPending;
+        internal void QueueConnectedEvent() => connectedEventPending = true;
+        internal void QueueDisconnectedEvent() => disconnectedEventPending = true;
+
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
             if (segment.Count == 0)
             {
-                logger.LogError("LocalConnection.SendBytes cannot send zero bytes");
-                return false;
+                Debug.LogError("LocalConnection.SendBytes cannot send zero bytes");
+                return;
             }
 
             // handle the server's message directly
             connectionToClient.TransportReceive(segment, channelId);
-            return true;
         }
 
         internal void Update()
         {
+            // should we still process a connected event?
+            if (connectedEventPending)
+            {
+                connectedEventPending = false;
+                NetworkClient.OnConnectedEvent?.Invoke(this);
+            }
+
             // process internal messages so they are applied at the correct time
             while (buffer.HasPackets())
             {
@@ -114,6 +123,13 @@ namespace Mirror
             }
 
             buffer.ResetBuffer();
+
+            // should we still process a disconnected event?
+            if (disconnectedEventPending)
+            {
+                disconnectedEventPending = false;
+                NetworkClient.OnDisconnectedEvent?.Invoke(this);
+            }
         }
 
         /// <summary>
@@ -135,5 +151,9 @@ namespace Mirror
             connectionToClient.DisconnectInternal();
             DisconnectInternal();
         }
+
+        // true because local connections never timeout
+        /// <inheritdoc/>
+        internal override bool IsAlive(float timeout) => true;
     }
 }

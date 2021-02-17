@@ -54,7 +54,23 @@ namespace Mirror
                     }
                     // throwing an exception would only show it for one object
                     // because this function would return afterwards.
-                    else Debug.LogError("Scene " + identity.gameObject.scene.path + " needs to be opened and resaved, because the scene object " + identity.name + " has no valid sceneId yet.");
+                    else
+                    {
+                        // there are two cases where sceneId == 0:
+                        // * if we have a prefab open in the prefab scene
+                        // * if an unopened scene needs resaving
+                        // show a proper error message in both cases so the user
+                        // knows what to do.
+                        string path = identity.gameObject.scene.path;
+                        if (string.IsNullOrWhiteSpace(path))
+                            Debug.LogError($"{identity.name} is currently open in Prefab Edit Mode. Please open the actual scene before launching Mirror.");
+                        else
+                            Debug.LogError($"Scene {path} needs to be opened and resaved, because the scene object {identity.name} has no valid sceneId yet.");
+
+                        // either way we shouldn't continue. nothing good will
+                        // happen when trying to launch with invalid sceneIds.
+                        EditorApplication.isPlaying = false;
+                    }
                 }
             }
         }

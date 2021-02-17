@@ -14,11 +14,13 @@ namespace Mirror.Tests
     {
         GameObject gameObject;
         NetworkManagerOnServerDisconnect manager;
+        MemoryTransport transport;
 
         [SetUp]
         public void SetUp()
         {
             gameObject = new GameObject();
+            transport = gameObject.AddComponent<MemoryTransport>();
             manager = gameObject.AddComponent<NetworkManagerOnServerDisconnect>();
         }
 

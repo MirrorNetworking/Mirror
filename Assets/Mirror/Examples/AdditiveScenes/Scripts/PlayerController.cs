@@ -2,8 +2,10 @@ using UnityEngine;
 
 namespace Mirror.Examples.Additive
 {
+    [RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(NetworkTransform))]
+    [RequireComponent(typeof(Rigidbody))]
     public class PlayerController : NetworkBehaviour
     {
         public CharacterController characterController;
@@ -14,10 +16,13 @@ namespace Mirror.Examples.Additive
                 characterController = GetComponent<CharacterController>();
         }
 
+        void Start()
+        {
+            characterController.enabled = isLocalPlayer;
+        }
+
         public override void OnStartLocalPlayer()
         {
-            base.OnStartLocalPlayer();
-
             Camera.main.orthographic = false;
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
@@ -26,7 +31,7 @@ namespace Mirror.Examples.Additive
 
         void OnDisable()
         {
-            if (isLocalPlayer)
+            if (isLocalPlayer && Camera.main != null)
             {
                 Camera.main.orthographic = true;
                 Camera.main.transform.SetParent(null);
@@ -51,7 +56,7 @@ namespace Mirror.Examples.Additive
 
         void Update()
         {
-            if (!isLocalPlayer)
+            if (!isLocalPlayer || !characterController.enabled)
                 return;
 
             horizontal = Input.GetAxis("Horizontal");

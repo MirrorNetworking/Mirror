@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncListTests.SyncListStruct
@@ -6,12 +5,12 @@ namespace WeaverSyncListTests.SyncListStruct
     class SyncListStruct : NetworkBehaviour
     {
         MyStructList Foo;
-        
+
         struct MyStruct
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
+            public int potato;
+            public float floatingpotato;
+            public double givemetwopotatoes;
         }
         class MyStructList : SyncList<MyStruct> { }
     }

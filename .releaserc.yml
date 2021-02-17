@@ -22,6 +22,12 @@
                 {"type": "feature", "release": "minor"},
             ]
         }],
-        '@semantic-release/release-notes-generator', 
+        ['@semantic-release/release-notes-generator', {
+          "preset": "angular",
+            "releaseRules": [
+                {"type": "breaking", "release": "major"},
+                {"type": "feature", "release": "minor"},
+            ]
+        }],
     ]
 }

@@ -1,9 +1,8 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverNetworkBehaviourTests.NetworkBehaviourAbstractBaseValid
 {
-    public abstract class EntityBase : NetworkBehaviour {}
+    public abstract class EntityBase : NetworkBehaviour { }
 
     public class EntityConcrete : EntityBase
     {

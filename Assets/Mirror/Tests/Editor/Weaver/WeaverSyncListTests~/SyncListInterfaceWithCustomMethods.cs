@@ -1,30 +1,29 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncListTests.SyncListInterfaceWithCustomMethods
 {
     class SyncListInterfaceWithCustomMethods : NetworkBehaviour
     {
-        MyInterfaceList Foo;
+        SyncList<IMyInterface> Foo;
     }
-   
+
     interface IMyInterface
     {
         int someNumber { get; set; }
     }
-    
+
     class MyUser : IMyInterface
     {
         public int someNumber { get; set; }
     }
-    
-    class MyInterfaceList : SyncList<IMyInterface>
+
+    static class MyInterfaceList
     {
-        protected override void SerializeItem(NetworkWriter writer, IMyInterface item)
+        static void SerializeItem(this NetworkWriter writer, IMyInterface item)
         {
             writer.WriteInt32(item.someNumber);
         }
-        protected override IMyInterface DeserializeItem(NetworkReader reader)
+        static IMyInterface DeserializeItem(this NetworkReader reader)
         {
             return new MyUser { someNumber = reader.ReadInt32() };
         }

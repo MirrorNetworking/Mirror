@@ -7,12 +7,12 @@ namespace Mirror
     /// <summary>
     /// Unity Event for the NetworkConnection
     /// </summary>
-    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnection> { }
+    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnection> {}
 
     /// <summary>
     /// Base class for implementing component-based authentication during the Connect phase
     /// </summary>
-    [HelpURL("https://mirror-networking.com/docs/Guides/Authentication.html")]
+    [HelpURL("https://mirror-networking.com/docs/Articles/Guides/Authentication.html")]
     public abstract class NetworkAuthenticator : MonoBehaviour
     {
         [Header("Event Listeners (optional)")]
@@ -35,19 +35,29 @@ namespace Mirror
         /// Called on server from StartServer to initialize the Authenticator
         /// <para>Server message handlers should be registered in this method.</para>
         /// </summary>
-        public virtual void OnStartServer() { }
+        public virtual void OnStartServer() {}
 
-        // This will get more code in the near future
-        internal void OnServerAuthenticateInternal(NetworkConnection conn)
-        {
-            OnServerAuthenticate(conn);
-        }
+        /// <summary>
+        /// Called on server from StopServer to reset the Authenticator
+        /// <para>Server message handlers should be unregistered in this method.</para>
+        /// </summary>
+        public virtual void OnStopServer() {}
 
         /// <summary>
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
         public abstract void OnServerAuthenticate(NetworkConnection conn);
+
+        protected void ServerAccept(NetworkConnection conn)
+        {
+            OnServerAuthenticated.Invoke(conn);
+        }
+
+        protected void ServerReject(NetworkConnection conn)
+        {
+            conn.Disconnect();
+        }
 
         #endregion
 
@@ -57,19 +67,33 @@ namespace Mirror
         /// Called on client from StartClient to initialize the Authenticator
         /// <para>Client message handlers should be registered in this method.</para>
         /// </summary>
-        public virtual void OnStartClient() { }
+        public virtual void OnStartClient() {}
 
-        // This will get more code in the near future
-        internal void OnClientAuthenticateInternal(NetworkConnection conn)
-        {
-            OnClientAuthenticate(conn);
-        }
+        /// <summary>
+        /// Called on client from StopClient to reset the Authenticator
+        /// <para>Client message handlers should be unregistered in this method.</para>
+        /// </summary>
+        public virtual void OnStopClient() {}
 
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection of the client.</param>
         public abstract void OnClientAuthenticate(NetworkConnection conn);
+
+        protected void ClientAccept(NetworkConnection conn)
+        {
+            OnClientAuthenticated.Invoke(conn);
+        }
+
+        protected void ClientReject(NetworkConnection conn)
+        {
+            // Set this on the client for local reference
+            conn.isAuthenticated = false;
+
+            // disconnect the client
+            conn.Disconnect();
+        }
 
         #endregion
 

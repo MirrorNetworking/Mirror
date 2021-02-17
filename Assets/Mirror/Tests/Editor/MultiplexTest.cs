@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Mirror.Tests
 {
@@ -139,8 +136,15 @@ namespace Mirror.Tests
         [Test]
         public void TestClient1Connected()
         {
-            UnityAction callback = Substitute.For<UnityAction>();
-            transport.OnClientConnected.AddListener(callback);
+            transport1.Available().Returns(true);
+            transport2.Available().Returns(true);
+
+            Action callback = Substitute.For<Action>();
+            // find available
+            transport.Awake();
+            // set event and connect to give event to inner
+            transport.OnClientConnected = callback;
+            transport.ClientConnect("localhost");
             transport1.OnClientConnected.Invoke();
             callback.Received().Invoke();
         }
@@ -148,8 +152,15 @@ namespace Mirror.Tests
         [Test]
         public void TestClient2Connected()
         {
-            UnityAction callback = Substitute.For<UnityAction>();
-            transport.OnClientConnected.AddListener(callback);
+            transport1.Available().Returns(false);
+            transport2.Available().Returns(true);
+
+            Action callback = Substitute.For<Action>();
+            // find available
+            transport.Awake();
+            // set event and connect to give event to inner
+            transport.OnClientConnected = callback;
+            transport.ClientConnect("localhost");
             transport2.OnClientConnected.Invoke();
             callback.Received().Invoke();
         }
@@ -168,20 +179,16 @@ namespace Mirror.Tests
             // on connect, send a message back
             void SendMessage(int connectionId)
             {
-                List<int> connectionIds = new List<int>(new[] { connectionId });
-                transport.ServerSend(connectionIds, 5, segment);
+                transport.ServerSend(connectionId, 5, segment);
             }
 
-            transport.OnServerConnected.AddListener(SendMessage);
+            // set event and Start to give event to inner
+            transport.OnServerConnected = SendMessage;
+            transport.ServerStart();
 
             transport1.OnServerConnected.Invoke(1);
 
-            List<int> expectedIds = new List<int>(new[] { 1 });
-
-            transport1.Received().ServerSend(
-                Arg.Is<List<int>>(x => x.SequenceEqual(expectedIds)),
-                5,
-                segment);
+            transport1.Received().ServerSend(1, 5, segment);
         }
 
 

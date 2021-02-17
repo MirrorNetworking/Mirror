@@ -23,13 +23,10 @@
                 ]
             },
             {
-				"files": [
-					"**/**.md",
-					"**.md",
-					"**/toc.yml",
-					"toc.yml",
-					"*.md"
-				]
+                "files": [
+                    "**/*.md",
+                    "**/toc.yml"
+                ]
             }
         ],
         "resource": [
@@ -38,7 +35,8 @@
                     "images/**",
                     "**.png",
                     "**.jpg",
-                    "**.svg"
+                    "**.svg",
+                    "**.unitypackage"
                 ]
             }
         ],
@@ -57,17 +55,17 @@
         "globalMetadataFiles": [],
         "globalMetadata": {
             "_homepage": "http://mirror-networking.com",
-            "_appLogoPath": "logo.svg",
+            "_appLogoPath": "logo.png",
             "_enableSearch": true
         },
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/material"
+            "templates"
         ],
         "xrefService": [
             "https://xref.docs.microsoft.com/query?uid={uid}"
-          ],
+        ],
         "postProcessors": [],
         "markdownEngineName": "markdig",
         "noLangKeyword": false,

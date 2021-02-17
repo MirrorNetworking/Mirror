@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
@@ -7,19 +7,52 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void ClientRpcValid()
         {
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void ClientRpcStartsWithRpc()
-        {
-            Assert.That(weaverErrors, Contains.Item("DoesntStartWithRpc must start with Rpc.  Consider renaming it to RpcDoesntStartWithRpc (at System.Void WeaverClientRpcTests.ClientRpcStartsWithRpc.ClientRpcStartsWithRpc::DoesntStartWithRpc())"));
+            IsSuccess();
         }
 
         [Test]
         public void ClientRpcCantBeStatic()
         {
-            Assert.That(weaverErrors, Contains.Item("RpcCantBeStatic must not be static (at System.Void WeaverClientRpcTests.ClientRpcCantBeStatic.ClientRpcCantBeStatic::RpcCantBeStatic())"));
+            HasError("RpcCantBeStatic must not be static",
+                "System.Void WeaverClientRpcTests.ClientRpcCantBeStatic.ClientRpcCantBeStatic::RpcCantBeStatic()");
+        }
+
+        [Test]
+        public void VirtualClientRpc()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void OverrideVirtualClientRpc()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void AbstractClientRpc()
+        {
+            HasError("Abstract ClientRpc are currently not supported, use virtual method instead",
+                "System.Void WeaverClientRpcTests.AbstractClientRpc.AbstractClientRpc::RpcDoSomething()");
+        }
+
+        [Test]
+        public void OverrideAbstractClientRpc()
+        {
+            HasError("Abstract ClientRpc are currently not supported, use virtual method instead",
+                "System.Void WeaverClientRpcTests.OverrideAbstractClientRpc.BaseBehaviour::RpcDoSomething()");
+        }
+
+        [Test]
+        public void ClientRpcThatExcludesOwner()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void BehaviourCanBeSentInRpc()
+        {
+            IsSuccess();
         }
     }
 }

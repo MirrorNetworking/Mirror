@@ -1,12 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using JetBrains.Annotations;
 
 namespace Mirror
 {
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject
+    public class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject, IReadOnlyDictionary<TKey, TValue>
     {
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 
@@ -46,22 +44,21 @@ namespace Mirror
             objects.Clear();
         }
 
-        protected virtual void SerializeKey(NetworkWriter writer, TKey item) { }
-        protected virtual void SerializeItem(NetworkWriter writer, TValue item) { }
-        protected virtual TKey DeserializeKey(NetworkReader reader) => default;
-        protected virtual TValue DeserializeItem(NetworkReader reader) => default;
-
         public bool IsDirty => changes.Count > 0;
 
         public ICollection<TKey> Keys => objects.Keys;
 
         public ICollection<TValue> Values => objects.Values;
 
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => objects.Keys;
+
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => objects.Values;
+
         // throw away all the changes
-        // this should be called after a successfull sync
+        // this should be called after a successful sync
         public void Flush() => changes.Clear();
 
-        protected SyncIDictionary(IDictionary<TKey, TValue> objects)
+        public SyncIDictionary(IDictionary<TKey, TValue> objects)
         {
             this.objects = objects;
         }
@@ -88,25 +85,25 @@ namespace Mirror
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
-            writer.WritePackedUInt32((uint)objects.Count);
+            writer.WriteUInt32((uint)objects.Count);
 
             foreach (KeyValuePair<TKey, TValue> syncItem in objects)
             {
-                SerializeKey(writer, syncItem.Key);
-                SerializeItem(writer, syncItem.Value);
+                writer.Write(syncItem.Key);
+                writer.Write(syncItem.Value);
             }
 
             // all changes have been applied already
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WritePackedUInt32((uint)changes.Count);
+            writer.WriteUInt32((uint)changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WritePackedUInt32((uint)changes.Count);
+            writer.WriteUInt32((uint)changes.Count);
 
             for (int i = 0; i < changes.Count; i++)
             {
@@ -118,8 +115,8 @@ namespace Mirror
                     case Operation.OP_ADD:
                     case Operation.OP_REMOVE:
                     case Operation.OP_SET:
-                        SerializeKey(writer, change.key);
-                        SerializeItem(writer, change.item);
+                        writer.Write(change.key);
+                        writer.Write(change.item);
                         break;
                     case Operation.OP_CLEAR:
                         break;
@@ -133,22 +130,22 @@ namespace Mirror
             IsReadOnly = true;
 
             // if init,  write the full list content
-            int count = (int)reader.ReadPackedUInt32();
+            int count = (int)reader.ReadUInt32();
 
             objects.Clear();
             changes.Clear();
 
             for (int i = 0; i < count; i++)
             {
-                TKey key = DeserializeKey(reader);
-                TValue obj = DeserializeItem(reader);
+                TKey key = reader.Read<TKey>();
+                TValue obj = reader.Read<TValue>();
                 objects.Add(key, obj);
             }
 
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
-            changesAhead = (int)reader.ReadPackedUInt32();
+            changesAhead = (int)reader.ReadUInt32();
         }
 
         public void OnDeserializeDelta(NetworkReader reader)
@@ -156,7 +153,7 @@ namespace Mirror
             // This list can now only be modified by synchronization
             IsReadOnly = true;
 
-            int changesCount = (int)reader.ReadPackedUInt32();
+            int changesCount = (int)reader.ReadUInt32();
 
             for (int i = 0; i < changesCount; i++)
             {
@@ -172,8 +169,8 @@ namespace Mirror
                 {
                     case Operation.OP_ADD:
                     case Operation.OP_SET:
-                        key = DeserializeKey(reader);
-                        item = DeserializeItem(reader);
+                        key = reader.Read<TKey>();
+                        item = reader.Read<TValue>();
                         if (apply)
                         {
                             objects[key] = item;
@@ -188,8 +185,8 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVE:
-                        key = DeserializeKey(reader);
-                        item = DeserializeItem(reader);
+                        key = reader.Read<TKey>();
+                        item = reader.Read<TValue>();
                         if (apply)
                         {
                             objects.Remove(key);
@@ -294,13 +291,13 @@ namespace Mirror
         IEnumerator IEnumerable.GetEnumerator() => objects.GetEnumerator();
     }
 
-    public abstract class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
+    public class SyncDictionary<TKey, TValue> : SyncIDictionary<TKey, TValue>
     {
-        protected SyncDictionary() : base(new Dictionary<TKey, TValue>())
+        public SyncDictionary() : base(new Dictionary<TKey, TValue>())
         {
         }
 
-        protected SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
+        public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq))
         {
         }
 

@@ -1,12 +1,11 @@
+using Mirror.RemoteCalls;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    class EmptyBehaviour : NetworkBehaviour
-    {
-    }
+    class EmptyBehaviour : NetworkBehaviour {}
 
     class SyncVarGameObjectEqualExposedBehaviour : NetworkBehaviour
     {
@@ -32,7 +31,7 @@ namespace Mirror.Tests
 
         // weaver generates this from [Command]
         // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
         {
             ++((NetworkBehaviourSendCommandInternalComponent)comp).called;
         }
@@ -50,9 +49,9 @@ namespace Mirror.Tests
         // counter to make sure that it's called exactly once
         public int called;
 
-        // weaver generates this from [Command]
+        // weaver generates this from [ClientRpc]
         // but for tests we need to add it manually
-        public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
         {
             ++((NetworkBehaviourSendRPCInternalComponent)comp).called;
         }
@@ -60,7 +59,7 @@ namespace Mirror.Tests
         // SendCommandInternal is protected. let's expose it so we can test it.
         public void CallSendRPCInternal()
         {
-            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0);
+            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0, false);
         }
     }
 
@@ -70,9 +69,9 @@ namespace Mirror.Tests
         // counter to make sure that it's called exactly once
         public int called;
 
-        // weaver generates this from [Command]
+        // weaver generates this from [TargetRpc]
         // but for tests we need to add it manually
-        public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader)
+        public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
         {
             ++((NetworkBehaviourSendTargetRPCInternalComponent)comp).called;
         }
@@ -85,30 +84,10 @@ namespace Mirror.Tests
     }
 
     // we need to inherit from networkbehaviour to test protected functions
-    public class NetworkBehaviourSendEventInternalComponent : NetworkBehaviour
-    {
-        // counter to make sure that it's called exactly once
-        public int called;
-
-        // weaver generates this from [Command]
-        // but for tests we need to add it manually
-        public static void EventGenerated(NetworkBehaviour comp, NetworkReader reader)
-        {
-            ++((NetworkBehaviourSendEventInternalComponent)comp).called;
-        }
-
-        // SendCommandInternal is protected. let's expose it so we can test it.
-        public void CallSendEventInternal()
-        {
-            SendEventInternal(GetType(), nameof(EventGenerated), new NetworkWriter(), 0);
-        }
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourDelegateComponent : NetworkBehaviour
     {
-        public static void Delegate(NetworkBehaviour comp, NetworkReader reader) { }
-        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader) { }
+        public static void Delegate(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection) {}
+        public static void Delegate2(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection) {}
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -181,7 +160,7 @@ namespace Mirror.Tests
     }
 
     // we need to inherit from networkbehaviour to test protected functions
-    public class OnNetworkDestroyComponent : NetworkBehaviour
+    public class OnStopClientComponent : NetworkBehaviour
     {
         public int called;
         public override void OnStopClient()
@@ -321,10 +300,7 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -379,9 +355,11 @@ namespace Mirror.Tests
             NetworkServer.AddConnection(connection);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
-                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated);
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+                    nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
+                    MirrorInvokeType.Command,
+                    NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
+                    false);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
@@ -402,36 +380,13 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkClient.Shutdown();
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(transportGO);
-        }
-
-        [Test]
-        public void InvokeCommand()
-        {
-            // add command component
-            NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterCommandDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
-                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                NetworkBehaviourSendCommandInternalComponent.CommandGenerated);
-
-            // invoke command
-            int cmdHash = NetworkBehaviour.GetMethodHash(
-                typeof(NetworkBehaviourSendCommandInternalComponent),
-                nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated));
-            comp.InvokeCommand(cmdHash, new NetworkReader(new byte[0]));
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            NetworkBehaviour.ClearDelegates();
         }
 
         [Test]
@@ -455,10 +410,7 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -491,8 +443,9 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
                 nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
+                MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
 
             // identity needs to be in spawned dict, otherwise rpc handler
@@ -509,7 +462,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -533,17 +486,14 @@ namespace Mirror.Tests
             Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
 
             // calling rpc before server is active shouldn't work
-            LogAssert.Expect(LogType.Error, "TargetRPC Function " + nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated) + " called on client.");
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called when server not active");
             comp.CallSendTargetRPCInternal(null);
             Assert.That(comp.called, Is.EqualTo(0));
 
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -563,7 +513,7 @@ namespace Mirror.Tests
             connectionToServer.connectionToClient.identity = identity;
 
             // calling rpc before isServer is true shouldn't work
-            LogAssert.Expect(LogType.Warning, "TargetRpc " + nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated) + " called on un-spawned object: " + gameObject.name);
+            LogAssert.Expect(LogType.Warning, $"TargetRpc {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called on {gameObject.name} but that object has not been spawned or has been unspawned");
             comp.CallSendTargetRPCInternal(null);
             Assert.That(comp.called, Is.EqualTo(0));
 
@@ -571,7 +521,7 @@ namespace Mirror.Tests
             identity.OnStartServer();
 
             // calling rpc on connectionToServer shouldn't work
-            LogAssert.Expect(LogType.Error, "TargetRPC Function " + nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated) + " called on connection to server");
+            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} requires a NetworkConnectionToClient but was given {typeof(NetworkConnectionToServer).Name}");
             comp.CallSendTargetRPCInternal(new NetworkConnectionToServer());
             Assert.That(comp.called, Is.EqualTo(0));
 
@@ -582,8 +532,9 @@ namespace Mirror.Tests
             Assert.That(comp.isServer, Is.True);
 
             // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
                 nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated),
+                MirrorInvokeType.ClientRpc,
                 NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated);
 
             // identity needs to be in spawned dict, otherwise rpc handler
@@ -600,7 +551,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
@@ -608,138 +559,6 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
             GameObject.DestroyImmediate(transportGO);
-        }
-
-        [Test]
-        public void InvokeRPC()
-        {
-            // add command component
-            NetworkBehaviourSendRPCInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendRPCInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterRpcDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
-                nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
-                NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
-
-            // invoke command
-            int rpcHash = NetworkBehaviour.GetMethodHash(
-                typeof(NetworkBehaviourSendRPCInternalComponent),
-                nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated));
-            comp.InvokeRPC(rpcHash, new NetworkReader(new byte[0]));
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            NetworkBehaviour.ClearDelegates();
-        }
-
-        [Test]
-        public void SendEventInternal()
-        {
-            // add rpc component
-            NetworkBehaviourSendEventInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendEventInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // transport is needed by server and client.
-            // it needs to be on a gameobject because client.connect enables it,
-            // which throws a NRE if not on a gameobject
-            GameObject transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
-
-            // calling event before server is active shouldn't work
-            LogAssert.Expect(LogType.Warning, "SendEvent no server?");
-            comp.CallSendEventInternal();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // we need to start a server and connect a client in order to be
-            // able to send events
-            // message handlers
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => { }, false);
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
-
-            // connect host client
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.active, Is.True);
-
-            // get the host connection which already has client->server and
-            // server->client set up
-            ULocalConnectionToServer connectionToServer = (ULocalConnectionToServer)NetworkClient.connection;
-
-            // set host connection as ready and authenticated
-            connectionToServer.isReady = true;
-            connectionToServer.isAuthenticated = true;
-            connectionToServer.connectionToClient.isReady = true;
-            connectionToServer.connectionToClient.isAuthenticated = true;
-            connectionToServer.connectionToClient.identity = identity;
-
-            // we need an observer because sendevent sends to ready observers
-            // creates observers
-            identity.OnStartServer();
-            identity.observers[connectionToServer.connectionToClient.connectionId] = connectionToServer.connectionToClient;
-
-            identity.netId = 42;
-
-            // set proper connection to client
-            identity.connectionToClient = connectionToServer.connectionToClient;
-
-            // isServer needs to be true, otherwise we can't call rpcs
-            Assert.That(comp.isServer, Is.True);
-
-            // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterEventDelegate(
-                typeof(NetworkBehaviourSendEventInternalComponent),
-                nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
-                NetworkBehaviourSendEventInternalComponent.EventGenerated);
-
-            // identity needs to be in spawned dict, otherwise event handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call event
-            comp.CallSendEventInternal();
-
-            // update client's connection so that pending messages are processed
-            connectionToServer.Update();
-
-            // rpc should have been called now
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            NetworkBehaviour.ClearDelegates();
-            // clear clientscene.readyconnection
-            ClientScene.Shutdown();
-            NetworkServer.RemoveLocalConnection();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(transportGO);
-        }
-
-        [Test]
-        public void InvokeSyncEvent()
-        {
-            // add command component
-            NetworkBehaviourSendEventInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendEventInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // register the command delegate, otherwise it's not found
-            NetworkBehaviour.RegisterEventDelegate(typeof(NetworkBehaviourSendEventInternalComponent),
-                nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated),
-                NetworkBehaviourSendEventInternalComponent.EventGenerated);
-
-            // invoke command
-            int eventHash = NetworkBehaviour.GetMethodHash(
-                typeof(NetworkBehaviourSendEventInternalComponent),
-                nameof(NetworkBehaviourSendEventInternalComponent.EventGenerated));
-            comp.InvokeSyncEvent(eventHash, new NetworkReader(new byte[0]));
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            NetworkBehaviour.ClearDelegates();
         }
 
         [Test]
@@ -747,28 +566,35 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash1 = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
+                MirrorInvokeType.Command,
+                NetworkBehaviourDelegateComponent.Delegate,
+                false);
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash2 = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
-
+                MirrorInvokeType.Command,
+                NetworkBehaviourDelegateComponent.Delegate,
+                false);
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash3 = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate2);
+                MirrorInvokeType.Command,
+                NetworkBehaviourDelegateComponent.Delegate2,
+                false);
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            RemoteCallHelper.RemoveDelegate(registeredHash1);
+            RemoteCallHelper.RemoveDelegate(registeredHash2);
+            RemoteCallHelper.RemoveDelegate(registeredHash3);
         }
 
         [Test]
@@ -776,23 +602,25 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            NetworkBehaviour.RegisterCommandDelegate(
+            int registeredHash = RemoteCallHelper.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                NetworkBehaviourDelegateComponent.Delegate);
+                MirrorInvokeType.Command,
+                NetworkBehaviourDelegateComponent.Delegate,
+                false);
 
             // get handler
-            int cmdHash = NetworkBehaviour.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
-            NetworkBehaviour.CmdDelegate func = NetworkBehaviour.GetDelegate(cmdHash);
-            NetworkBehaviour.CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
+            int cmdHash = RemoteCallHelper.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
+            CmdDelegate func = RemoteCallHelper.GetDelegate(cmdHash);
+            CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
 
             // invalid hash should return null handler
-            NetworkBehaviour.CmdDelegate funcNull = NetworkBehaviour.GetDelegate(1234);
+            CmdDelegate funcNull = RemoteCallHelper.GetDelegate(1234);
             Assert.That(funcNull, Is.Null);
 
             // clean up
-            NetworkBehaviour.ClearDelegates();
+            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
@@ -1488,7 +1316,7 @@ namespace Mirror.Tests
             Assert.That(comp.IsDirty(), Is.False);
 
             // create a synclist and dirty it
-            SyncListInt obj = new SyncListInt();
+            SyncList<int> obj = new SyncList<int>();
             obj.Add(42);
             Assert.That(obj.IsDirty, Is.True);
 
@@ -1513,13 +1341,13 @@ namespace Mirror.Tests
             Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b0));
 
             // add a dirty synclist
-            SyncListInt dirtyList = new SyncListInt();
+            SyncList<int> dirtyList = new SyncList<int>();
             dirtyList.Add(42);
             Assert.That(dirtyList.IsDirty, Is.True);
             comp.InitSyncObjectExposed(dirtyList);
 
             // add a clean synclist
-            SyncListInt cleanList = new SyncListInt();
+            SyncList<int> cleanList = new SyncList<int>();
             Assert.That(cleanList.IsDirty, Is.False);
             comp.InitSyncObjectExposed(cleanList);
 
@@ -1538,7 +1366,7 @@ namespace Mirror.Tests
             NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
 
             // add a synclist
-            SyncListInt list = new SyncListInt();
+            SyncList<int> list = new SyncList<int>();
             list.Add(42);
             list.Add(43);
             Assert.That(list.IsDirty, Is.True);
@@ -1567,7 +1395,7 @@ namespace Mirror.Tests
             NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
 
             // add a synclist
-            SyncListInt list = new SyncListInt();
+            SyncList<int> list = new SyncList<int>();
             list.Add(42);
             list.Add(43);
             Assert.That(list.IsDirty, Is.True);
@@ -1590,13 +1418,13 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnNetworkDestroy()
+        public void OnStopClient()
         {
             // add test component
-            OnNetworkDestroyComponent comp = gameObject.AddComponent<OnNetworkDestroyComponent>();
+            OnStopClientComponent comp = gameObject.AddComponent<OnStopClientComponent>();
             Assert.That(comp.called, Is.EqualTo(0));
 
-            // call identity OnNetworkDestroy
+            // call identity OnStopClient
             identity.OnStopClient();
 
             // should have been forwarded to behaviours
@@ -1610,7 +1438,7 @@ namespace Mirror.Tests
             OnStartClientComponent comp = gameObject.AddComponent<OnStartClientComponent>();
             Assert.That(comp.called, Is.EqualTo(0));
 
-            // call identity OnNetworkDestroy
+            // call identity OnStopClient
             identity.OnStartClient();
 
             // should have been forwarded to behaviours
@@ -1624,7 +1452,7 @@ namespace Mirror.Tests
             OnStartLocalPlayerComponent comp = gameObject.AddComponent<OnStartLocalPlayerComponent>();
             Assert.That(comp.called, Is.EqualTo(0));
 
-            // call identity OnNetworkDestroy
+            // call identity OnStopClient
             identity.OnStartLocalPlayer();
 
             // should have been forwarded to behaviours
@@ -1663,7 +1491,7 @@ namespace Mirror.Tests
         [Test]
         public void InitSyncObject()
         {
-            SyncObject syncObject = new SyncListBool();
+            SyncObject syncObject = new SyncList<bool>();
             InitSyncObject(syncObject);
             Assert.That(syncObjects.Count, Is.EqualTo(1));
             Assert.That(syncObjects[0], Is.EqualTo(syncObject));

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -16,27 +15,18 @@ namespace Mirror.Weaver.Tests
             {
                 if (string.IsNullOrEmpty(_outputDirectory))
                 {
-                    string[] guidsFound = AssetDatabase.FindAssets($"t:Script " + nameof(WeaverAssembler));
-                    if (guidsFound.Length == 1 && !string.IsNullOrEmpty(guidsFound[0]))
-                    {
-                        string path = AssetDatabase.GUIDToAssetPath(guidsFound[0]);
-                        _outputDirectory = Path.GetDirectoryName(path);
-                    }
-                    else
-                    {
-                        Debug.LogError("Could not find WeaverAssembler for Weaver Tests");
-                    }
+                    _outputDirectory = EditorHelper.FindPath<WeaverAssembler>();
                 }
                 return _outputDirectory;
             }
         }
-        public static string OutputFile { get; set; }
+        public static string OutputFile;
         public static HashSet<string> SourceFiles { get; private set; }
         public static HashSet<string> ReferenceAssemblies { get; private set; }
-        public static bool AllowUnsafe { get; set; }
+        public static bool AllowUnsafe;
         public static List<CompilerMessage> CompilerMessages { get; private set; }
         public static bool CompilerErrors { get; private set; }
-        public static bool DeleteOutputOnClear { get; set; }
+        public static bool DeleteOutputOnClear;
 
         // static constructor to initialize static properties
         static WeaverAssembler()
@@ -120,21 +110,21 @@ namespace Mirror.Weaver.Tests
                 File.Delete(projPathFile);
 
             }
-            catch { }
+            catch {}
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".pdb"));
 
             }
-            catch { }
+            catch {}
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".dll.mdb"));
 
             }
-            catch { }
+            catch {}
         }
 
         // clear all settings except for referenced assemblies (which are cleared with ClearReferences)
@@ -155,28 +145,21 @@ namespace Mirror.Weaver.Tests
 
         public static void Build()
         {
-            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray());
-            assemblyBuilder.additionalReferences = ReferenceAssemblies.ToArray();
+            AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray())
+            {
+                additionalReferences = ReferenceAssemblies.ToArray()
+            };
             if (AllowUnsafe)
             {
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;
             }
-
-            assemblyBuilder.buildStarted += delegate (string assemblyPath)
-            {
-                //Debug.LogFormat("Assembly build started for {0}", assemblyPath);
-            };
 
             assemblyBuilder.buildFinished += delegate (string assemblyPath, CompilerMessage[] compilerMessages)
             {
                 CompilerMessages.AddRange(compilerMessages);
                 foreach (CompilerMessage cm in compilerMessages)
                 {
-                    if (cm.type == CompilerMessageType.Warning)
-                    {
-                        //Debug.LogWarningFormat("{0}:{1} -- {2}", cm.file, cm.line, cm.message);
-                    }
-                    else if (cm.type == CompilerMessageType.Error)
+                    if (cm.type == CompilerMessageType.Error)
                     {
                         Debug.LogErrorFormat("{0}:{1} -- {2}", cm.file, cm.line, cm.message);
                         CompilerErrors = true;

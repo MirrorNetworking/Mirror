@@ -17,13 +17,7 @@ namespace Mirror.Tests
             Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
 
             // we need a server to connect to
-            NetworkServer.RegisterHandler<ConnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<DisconnectMessage>((conn, msg) => { }, false);
-            NetworkServer.RegisterHandler<ErrorMessage>((conn, msg) => { }, false);
             NetworkServer.Listen(10);
-
-            // setup client handlers too
-            NetworkClient.RegisterHandler<ConnectMessage>(msg => { }, false);
         }
 
         [TearDown]

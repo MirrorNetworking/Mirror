@@ -24,7 +24,7 @@ namespace Mirror.Tests
         public void Setup()
         {
             transportGO = new GameObject("transportGO");
-            Transport.activeTransport = transportGO.AddComponent<TelepathyTransport>();
+            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
 
             player1 = new GameObject("TestPlayer1", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
             player2 = new GameObject("TestPlayer2", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
@@ -50,7 +50,7 @@ namespace Mirror.Tests
 
         static NetworkConnection CreateNetworkConnection(GameObject player)
         {
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(++nextConnectionId);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(++nextConnectionId, false, 0);
             connection.identity = player.GetComponent<NetworkIdentity>();
             connection.identity.connectionToClient = connection;
             connection.identity.observers = new Dictionary<int, NetworkConnection>();

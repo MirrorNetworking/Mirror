@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -28,12 +29,12 @@ namespace Mirror.Tests
         {
             Assert.That(manager.dontDestroyOnLoad, Is.True);
             Assert.That(manager.runInBackground, Is.True);
-            Assert.That(manager.startOnHeadless, Is.True);
+            Assert.That(manager.autoStartServerBuild, Is.True);
             Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.offlineScene, Is.Empty);
             Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
-            Assert.That(manager.maxConnections, Is.EqualTo(4));
+            Assert.That(manager.maxConnections, Is.EqualTo(100));
             Assert.That(manager.autoCreatePlayer, Is.True);
             Assert.That(manager.spawnPrefabs, Is.Empty);
             Assert.That(manager.numPlayers, Is.Zero);
@@ -136,6 +137,21 @@ namespace Mirror.Tests
             Assert.That(manager.GetStartPosition(), Is.SameAs(gameObject.transform));
 
             NetworkManager.UnRegisterStartPosition(gameObject.transform);
+        }
+
+        [Test]
+        public void StartClientUriTest()
+        {
+            UriBuilder uriBuilder = new UriBuilder()
+            {
+                Host = "localhost",
+                Scheme = "local"
+            };
+            manager.StartClient(uriBuilder.Uri);
+
+            Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
+            Assert.That(manager.isNetworkActive, Is.EqualTo(true));
+            Assert.That(manager.networkAddress, Is.EqualTo(uriBuilder.Uri.Host));
         }
     }
 }

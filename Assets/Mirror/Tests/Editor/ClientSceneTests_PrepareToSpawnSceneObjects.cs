@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -6,8 +5,6 @@ namespace Mirror.Tests.ClientSceneTests
 {
     public class ClientSceneTests_PrepareToSpawnSceneObjects : ClientSceneTestsBase
     {
-        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => ClientScene.spawnableObjects;
-
         NetworkIdentity CreateSceneObject(ulong sceneId)
         {
             GameObject runtimeObject = new GameObject("Runtime GameObject");

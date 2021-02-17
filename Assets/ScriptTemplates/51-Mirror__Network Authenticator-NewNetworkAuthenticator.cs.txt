@@ -3,18 +3,18 @@ using UnityEngine.SceneManagement;
 using Mirror;
 
 /*
-	Authenticators: https://mirror-networking.com/docs/Components/Authenticators/
-	Documentation: https://mirror-networking.com/docs/Guides/Authentication.html
-	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkAuthenticator.html
+    Authenticators: https://mirror-networking.com/docs/Components/Authenticators/
+    Documentation: https://mirror-networking.com/docs/Guides/Authentication.html
+    API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkAuthenticator.html
 */
 
 public class #SCRIPTNAME# : NetworkAuthenticator
 {
     #region Messages
 
-    public class AuthRequestMessage : MessageBase { }
+    public struct AuthRequestMessage : NetworkMessage { }
 
-    public class AuthResponseMessage : MessageBase { }
+    public struct AuthResponseMessage : NetworkMessage { }
 
     #endregion
 
@@ -36,14 +36,19 @@ public class #SCRIPTNAME# : NetworkAuthenticator
     /// <param name="conn">Connection to client.</param>
     public override void OnServerAuthenticate(NetworkConnection conn) { }
 
+    /// <summary>
+    /// Called on server when the client's AuthRequestMessage arrives
+    /// </summary>
+    /// <param name="conn">Connection to client.</param>
+    /// <param name="msg">The message payload</param>
     public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
     {
         AuthResponseMessage authResponseMessage = new AuthResponseMessage();
 
         conn.Send(authResponseMessage);
 
-        // Invoke the event to complete a successful authentication
-        base.OnServerAuthenticated.Invoke(conn);
+        // Accept the successful authentication
+        ServerAccept(conn);
     }
 
     #endregion
@@ -71,10 +76,15 @@ public class #SCRIPTNAME# : NetworkAuthenticator
         NetworkClient.Send(authRequestMessage);
     }
 
+    /// <summary>
+    /// Called on client when the server's AuthResponseMessage arrives
+    /// </summary>
+    /// <param name="conn">Connection to client.</param>
+    /// <param name="msg">The message payload</param>
     public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg)
     {
-        // Invoke the event to complete a successful authentication
-        base.OnClientAuthenticated.Invoke(conn);
+        // Authentication has been accepted
+        ClientAccept(conn);
     }
 
     #endregion

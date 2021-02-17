@@ -4,7 +4,7 @@ namespace Mirror.Tests
 {
     public class MockQuest
     {
-        public int Id { get; set; }
+        public int Id;
 
         public MockQuest(int id)
         {
@@ -21,11 +21,11 @@ namespace Mirror.Tests
     {
         public static void WriteQuest(this NetworkWriter writer, MockQuest quest)
         {
-            writer.WritePackedInt32(quest.Id);
+            writer.WriteInt32(quest.Id);
         }
         public static MockQuest WriteQuest(this NetworkReader reader)
         {
-            return new MockQuest(reader.ReadPackedInt32());
+            return new MockQuest(reader.ReadInt32());
         }
     }
 
@@ -33,7 +33,7 @@ namespace Mirror.Tests
     public class CustomRWTest
     {
 
-        class QuestMessage : MessageBase
+        public struct QuestMessage : NetworkMessage
         {
             public MockQuest quest;
         }
@@ -46,9 +46,9 @@ namespace Mirror.Tests
                 quest = new MockQuest(100)
             };
 
-            byte[] data = MessagePacker.Pack(message);
+            byte[] data = MessagePackerTest.PackToByteArray(message);
 
-            QuestMessage unpacked = MessagePacker.Unpack<QuestMessage>(data);
+            QuestMessage unpacked = MessagePackerTest.UnpackFromByteArray<QuestMessage>(data);
 
             Assert.That(unpacked.quest.Id, Is.EqualTo(100));
         }

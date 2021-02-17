@@ -1,11 +1,10 @@
 using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace WeaverMessageTests.MessageSelfReferencing
 {
-    class MessageSelfReferencing : MessageBase
+    class MessageSelfReferencing : NetworkMessage
     {
         public uint netId;
         public Guid assetId;

@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncSetTests.SyncSetStruct
@@ -6,12 +5,12 @@ namespace WeaverSyncSetTests.SyncSetStruct
     class SyncSetStruct : NetworkBehaviour
     {
         MyStructSet Foo;
-    
+
         struct MyStruct
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
+            public int potato;
+            public float floatingpotato;
+            public double givemetwopotatoes;
         }
         class MyStructSet : SyncHashSet<MyStruct> { }
     }

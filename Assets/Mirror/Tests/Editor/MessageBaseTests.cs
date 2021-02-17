@@ -1,8 +1,8 @@
 using NUnit.Framework;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.MessageTests
 {
-    struct TestMessage : IMessageBase
+    struct TestMessage : NetworkMessage
     {
         public int IntValue;
         public string StringValue;
@@ -30,33 +30,30 @@ namespace Mirror.Tests
         }
     }
 
-    struct WovenTestMessage : IMessageBase
+    struct StructWithEmptyMethodMessage : NetworkMessage
     {
         public int IntValue;
         public string StringValue;
         public double DoubleValue;
-
-        public void Deserialize(NetworkReader reader) { }
-        public void Serialize(NetworkWriter writer) { }
     }
 
     [TestFixture]
     public class MessageBaseTests
     {
         [Test]
-        public void Roundtrip()
+        public void StructWithMethods()
         {
-            byte[] arr = MessagePacker.Pack(new TestMessage(1, "2", 3.3));
-            TestMessage t = MessagePacker.Unpack<TestMessage>(arr);
+            byte[] arr = MessagePackerTest.PackToByteArray(new TestMessage(1, "2", 3.3));
+            TestMessage t = MessagePackerTest.UnpackFromByteArray<TestMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
         }
 
         [Test]
-        public void WovenSerializationBodyRoundtrip()
+        public void StructWithEmptyMethods()
         {
-            byte[] arr = MessagePacker.Pack(new WovenTestMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
-            WovenTestMessage t = MessagePacker.Unpack<WovenTestMessage>(arr);
+            byte[] arr = MessagePackerTest.PackToByteArray(new StructWithEmptyMethodMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
+            StructWithEmptyMethodMessage t = MessagePackerTest.UnpackFromByteArray<StructWithEmptyMethodMessage>(arr);
 
             Assert.AreEqual(1, t.IntValue);
             Assert.AreEqual("2", t.StringValue);

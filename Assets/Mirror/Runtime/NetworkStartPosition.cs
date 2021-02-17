@@ -8,7 +8,7 @@ namespace Mirror
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkStartPosition")]
-    [HelpURL("https://mirror-networking.com/docs/Components/NetworkStartPosition.html")]
+    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkStartPosition.html")]
     public class NetworkStartPosition : MonoBehaviour
     {
         public void Awake()

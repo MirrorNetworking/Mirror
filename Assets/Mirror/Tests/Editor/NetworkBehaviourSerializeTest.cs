@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
-// Note: Weaver doesn't run on nested class so so use namespace to group classes instead
+// Note: Weaver doesn't run on nested class so use namespace to group classes instead
 namespace Mirror.Tests.NetworkBehaviourSerialize
 {
     #region No OnSerialize/OnDeserialize override
     abstract class AbstractBehaviour : NetworkBehaviour
     {
-        public readonly SyncListBool syncListInAbstract = new SyncListBool();
+        public readonly SyncList<bool> syncListInAbstract = new SyncList<bool>();
 
         [SyncVar]
         public int SyncFieldInAbstract;
@@ -16,7 +16,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class BehaviourWithSyncVar : NetworkBehaviour
     {
-        public readonly SyncListBool syncList = new SyncListBool();
+        public readonly SyncList<bool> syncList = new SyncList<bool>();
 
         [SyncVar]
         public int SyncField;
@@ -29,7 +29,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class OverrideBehaviourWithSyncVarFromSyncVar : AbstractBehaviour
     {
-        public readonly SyncListBool syncListInOverride = new SyncListBool();
+        public readonly SyncList<bool> syncListInOverride = new SyncList<bool>();
 
         [SyncVar]
         public int SyncFieldInOverride;
@@ -43,7 +43,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     class SubClass : MiddleClass
     {
         // class with sync var
-        // this is to make sure that override works correctly if base class doesnt have sync vars
+        // this is to make sure that override works correctly if base class doesn't have sync vars
         [SyncVar]
         public Vector3 anotherSyncField;
     }
@@ -58,7 +58,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     class SubClassFromSyncVar : MiddleClassWithSyncVar
     {
         // class with sync var
-        // this is to make sure that override works correctly if base class doesnt have sync vars
+        // this is to make sure that override works correctly if base class doesn't have sync vars
         [SyncVar]
         public Vector3 syncFieldInSub;
     }
@@ -69,7 +69,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class BehaviourWithSyncVarWithOnSerialize : NetworkBehaviour
     {
-        public readonly SyncListBool syncList = new SyncListBool();
+        public readonly SyncList<bool> syncList = new SyncList<bool>();
 
         [SyncVar]
         public int SyncField;
@@ -106,7 +106,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
     class OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize : AbstractBehaviour
     {
-        public readonly SyncListBool syncListInOverride = new SyncListBool();
+        public readonly SyncList<bool> syncListInOverride = new SyncList<bool>();
 
         [SyncVar]
         public int SyncFieldInOverride;

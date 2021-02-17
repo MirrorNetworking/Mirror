@@ -16,7 +16,7 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
-using System.ComponentModel;
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -26,6 +26,11 @@ namespace Mirror
         [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
+
+        /// <summary>
+        /// We need to store this locally on the server so clients can't request Authority when ever they like
+        /// </summary>
+        bool clientAuthorityBeforeTeleport;
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
@@ -68,15 +73,13 @@ namespace Mirror
 
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // serialize position, rotation, scale
-            // note: we do NOT compress rotation.
-            //       we are CPU constrained, not bandwidth constrained.
-            //       the code needs to WORK for the next 5-10 years of development.
+            // => compress rotation from 4*4=16 to 4 bytes
+            // => less bandwidth = better CCU tests / scale
             writer.WriteVector3(position);
-            writer.WriteQuaternion(rotation);
+            writer.WriteUInt32(Compression.CompressQuaternion(rotation));
             writer.WriteVector3(scale);
         }
 
@@ -106,15 +109,13 @@ namespace Mirror
             // put it into a data point immediately
             DataPoint temp = new DataPoint
             {
-                // deserialize position
-                localPosition = reader.ReadVector3()
+                // deserialize position, rotation, scale
+                // (rotation is compressed)
+                localPosition = reader.ReadVector3(),
+                localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
+                localScale = reader.ReadVector3(),
+                timeStamp = Time.time
             };
-
-            // deserialize rotation & scale
-            temp.localRotation = reader.ReadQuaternion();
-            temp.localScale = reader.ReadVector3();
-
-            temp.timeStamp = Time.time;
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
@@ -195,7 +196,7 @@ namespace Mirror
 
         // local authority client sends sync message to server for broadcasting
         [Command]
-        void CmdClientToServerSync(byte[] payload)
+        void CmdClientToServerSync(ArraySegment<byte> payload)
         {
             // Ignore messages from client if not in client authority mode
             if (!clientAuthority)
@@ -346,7 +347,7 @@ namespace Mirror
                                 SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
 
                                 // send to server
-                                CmdClientToServerSync(writer.ToArray());
+                                CmdClientToServerSync(writer.ToArraySegment());
                             }
                         }
                         lastClientSendTime = Time.time;
@@ -382,6 +383,88 @@ namespace Mirror
                 }
             }
         }
+
+        #region Server Teleport (force move player)
+        /// <summary>
+        /// Server side teleportation.
+        /// This method will override this GameObject's current Transform.Position to the Vector3 you have provided
+        /// and send it to all other Clients to override it at their side too.
+        /// </summary>
+        /// <param name="position">Where to teleport this GameObject</param>
+        [Server]
+        public void ServerTeleport(Vector3 position)
+        {
+            Quaternion rotation = transform.rotation;
+            ServerTeleport(position, rotation);
+        }
+
+        /// <summary>
+        /// Server side teleportation.
+        /// This method will override this GameObject's current Transform.Position and Transform.Rotation
+        /// to the Vector3 you have provided
+        /// and send it to all other Clients to override it at their side too.
+        /// </summary>
+        /// <param name="position">Where to teleport this GameObject</param>
+        /// <param name="rotation">Which rotation to set this GameObject</param>
+        [Server]
+        public void ServerTeleport(Vector3 position, Quaternion rotation)
+        {
+            // To prevent applying the position updates received from client (if they have ClientAuth) while being teleported.
+
+            // clientAuthorityBeforeTeleport defaults to false when not teleporting, if it is true then it means that teleport was previously called but not finished
+            // therefore we should keep it as true so that 2nd teleport call doesn't clear authority
+            clientAuthorityBeforeTeleport = clientAuthority || clientAuthorityBeforeTeleport;
+            clientAuthority = false;
+
+            DoTeleport(position, rotation);
+
+            // tell all clients about new values
+            RpcTeleport(position, rotation, clientAuthorityBeforeTeleport);
+        }
+
+        void DoTeleport(Vector3 newPosition, Quaternion newRotation)
+        {
+            transform.position = newPosition;
+            transform.rotation = newRotation;
+
+            // Since we are overriding the position we don't need a goal and start.
+            // Reset them to null for fresh start
+            goal = null;
+            start = null;
+            lastPosition = newPosition;
+            lastRotation = newRotation;
+        }
+
+        [ClientRpc]
+        void RpcTeleport(Vector3 newPosition, Quaternion newRotation, bool isClientAuthority)
+        {
+            DoTeleport(newPosition, newRotation);
+
+            // only send finished if is owner and is ClientAuthority on server
+            if (hasAuthority && isClientAuthority)
+                CmdTeleportFinished();
+        }
+
+        /// <summary>
+        /// This RPC will be invoked on server after client finishes overriding the position.
+        /// </summary>
+        /// <param name="initialAuthority"></param>
+        [Command]
+        void CmdTeleportFinished()
+        {
+            if (clientAuthorityBeforeTeleport)
+            {
+                clientAuthority = true;
+
+                // reset value so doesn't effect future calls, see note in ServerTeleport
+                clientAuthorityBeforeTeleport = false;
+            }
+            else
+            {
+                Debug.LogWarning("Client called TeleportFinished when clientAuthority was false on server", this);
+            }
+        }
+        #endregion
 
         static void DrawDataPointGizmo(DataPoint data, Color color)
         {

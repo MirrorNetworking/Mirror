@@ -1,0 +1,16 @@
+{
+    "name": "Mirror.Examples.Cloud.Pong",
+    "references": [
+        "Mirror",
+        "Mirror.Cloud",
+        "Mirror.Examples.Cloud.GUI"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

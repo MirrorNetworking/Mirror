@@ -1,14 +1,8 @@
-- name: General
-  href: General/index.md
-- name: Guides
-  href: Guides/index.md
-- name: Components
-  href: Components/index.md
+- name: Home
+  href: index.md
+- name: Articles
+  href: Articles/
 - name: API Reference
   href: xref:Mirror
-- name: Transports
-  href: Transports/index.md
-- name: Examples
-  href: Examples/index.md
 - name: Sponsor Us!
   href: https://github.com/sponsors/vis2k

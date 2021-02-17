@@ -1,4 +1,3 @@
-using UnityEngine;
 using Mirror;
 
 namespace WeaverSyncDictionaryTests.SyncDictionaryStructItem
@@ -9,9 +8,9 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryStructItem
 
         struct MyStruct
         {
-            int potato;
-            float floatingpotato;
-            double givemetwopotatoes;
+            public int potato;
+            public float floatingpotato;
+            public double givemetwopotatoes;
         }
         class MyStructDictionary : SyncDictionary<int, MyStruct> { }
     }

@@ -1,13 +1,12 @@
 using System;
-using System.Collections;
-using UnityEngine;
 using Mirror;
+using UnityEngine;
 
 namespace WeaverMessageTests.MessageMemberGeneric
 {
-    class HasGeneric<T> {}
+    class HasGeneric<T> { }
 
-    class MessageMemberGeneric : MessageBase
+    class MessageMemberGeneric : NetworkMessage
     {
         public uint netId;
         public Guid assetId;

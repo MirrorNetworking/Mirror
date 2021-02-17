@@ -8,30 +8,28 @@ namespace Mirror.Weaver
     /// </summary>
     public static class RpcProcessor
     {
-        public const string RpcPrefix = "InvokeRpc";
-
         public static MethodDefinition ProcessRpcInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             MethodDefinition rpc = new MethodDefinition(
-                RpcPrefix + md.Name,
+                Weaver.InvokeRpcPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                Weaver.voidType);
+                WeaverTypes.Import(typeof(void)));
 
-            ILProcessor rpcWorker = rpc.Body.GetILProcessor();
-            Instruction label = rpcWorker.Create(OpCodes.Nop);
+            ILProcessor worker = rpc.Body.GetILProcessor();
+            Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteClientActiveCheck(rpcWorker, md.Name, label, "RPC");
+            NetworkBehaviourProcessor.WriteClientActiveCheck(worker, md.Name, label, "RPC");
 
             // setup for reader
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Castclass, td));
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Castclass, td);
 
-            if (!NetworkBehaviourProcessor.ProcessNetworkReaderParameters(md, rpcWorker, false))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.ClientRpc))
                 return null;
 
             // invoke actual command function
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, rpcCallFunc));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
+            worker.Emit(OpCodes.Callvirt, rpcCallFunc);
+            worker.Emit(OpCodes.Ret);
 
             NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
             td.Methods.Add(rpc);
@@ -55,68 +53,54 @@ namespace Mirror.Weaver
             Originally HLAPI put the send message code inside the Call function
             and then proceeded to replace every call to RpcTest with CallRpcTest
 
-            This method moves all the user's code into the "Call" method
+            This method moves all the user's code into the "CallRpc" method
             and replaces the body of the original method with the send message code.
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
-        public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute ca)
+        public static MethodDefinition ProcessRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md, "Call" + md.Name);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md);
 
-            ILProcessor rpcWorker = md.Body.GetILProcessor();
+            ILProcessor worker = md.Body.GetILProcessor();
 
-            NetworkBehaviourProcessor.WriteSetupLocals(rpcWorker);
+            NetworkBehaviourProcessor.WriteSetupLocals(worker);
 
-            NetworkBehaviourProcessor.WriteCreateWriter(rpcWorker);
+            if (Weaver.GenerateLogErrors)
+            {
+                worker.Emit(OpCodes.Ldstr, "Call ClientRpc function " + md.Name);
+                worker.Emit(OpCodes.Call, WeaverTypes.logErrorReference);
+            }
+
+            NetworkBehaviourProcessor.WriteCreateWriter(worker);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(rpcWorker, md, false))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ClientRpc))
                 return null;
 
             string rpcName = md.Name;
-            int index = rpcName.IndexOf(RpcPrefix);
-            if (index > -1)
-            {
-                rpcName = rpcName.Substring(RpcPrefix.Length);
-            }
+            int channel = clientRpcAttr.GetField("channel", 0);
+            bool includeOwner = clientRpcAttr.GetField("includeOwner", true);
 
             // invoke SendInternal and return
             // this
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldarg_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldtoken, td));
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldtoken, td);
             // invokerClass
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Call, Weaver.getTypeFromHandleReference));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldstr, rpcName));
+            worker.Emit(OpCodes.Call, WeaverTypes.getTypeFromHandleReference);
+            worker.Emit(OpCodes.Ldstr, rpcName);
             // writer
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldloc_0));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ldc_I4, ca.GetField("channel", 0)));
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Callvirt, Weaver.sendRpcInternal));
+            worker.Emit(OpCodes.Ldloc_0);
+            worker.Emit(OpCodes.Ldc_I4, channel);
+            // includeOwner ? 1 : 0
+            worker.Emit(includeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            worker.Emit(OpCodes.Callvirt, WeaverTypes.sendRpcInternal);
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(rpcWorker);
+            NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
-            rpcWorker.Append(rpcWorker.Create(OpCodes.Ret));
+            worker.Emit(OpCodes.Ret);
 
             return rpc;
-        }
-
-        public static bool ProcessMethodsValidateRpc(MethodDefinition md, CustomAttribute ca)
-        {
-            if (!md.Name.StartsWith("Rpc"))
-            {
-                Weaver.Error($"{md.Name} must start with Rpc.  Consider renaming it to Rpc{md.Name}", md);
-                return false;
-            }
-
-            if (md.IsStatic)
-            {
-                Weaver.Error($"{md.Name} must not be static", md);
-                return false;
-            }
-
-            // validate
-            return NetworkBehaviourProcessor.ProcessMethodsValidateFunction(md) &&
-                   NetworkBehaviourProcessor.ProcessMethodsValidateParameters(md, ca);
         }
     }
 }

@@ -2,80 +2,50 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverGeneratedReaderWriterTests : WeaverTests
+    public class WeaverGeneratedReaderWriterTests : WeaverTestsBuildFromTestName
     {
-        protected void BuildAndWeaveTestAssembly(string testScript)
-        {
-            const string folderName = "GeneratedReaderWriter";
-            BuildAndWeaveTestAssembly(folderName, testScript);
-        }
-
-        [SetUp]
-        public void TestSetup()
-        {
-            WeaverAssembler.AddReferencesByAssemblyName(new string[] { "WeaverTestExtraAssembly.dll" });
-
-            BuildAndWeaveTestAssembly(TestContext.CurrentContext.Test.Name);
-        }
-
         [Test]
         public void CreatesForStructs()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForClass()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
+        }
+
+        [Test]
+        public void CreatesForClassInherited()
+        {
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForClassWithValidConstructor()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void GivesErrorForClassWithNoValidConstructor()
         {
-            Assert.That(weaverErrors, Contains.Item("SomeOtherData can't be deserialized because it has no default constructor (at GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor.SomeOtherData)"));
+            HasError("SomeOtherData can't be deserialized because it has no default constructor",
+                "GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor.SomeOtherData");
         }
 
         [Test]
         public void CreatesForInheritedFromScriptableObject()
         {
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void CreatesForStructFromDifferentAssemblies()
-        {
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void CreatesForClassFromDifferentAssemblies()
-        {
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void CreatesForClassFromDifferentAssembliesWithValidConstructor()
-        {
-            Assert.That(weaverErrors, Is.Empty);
-        }
-
-        [Test]
-        public void CanUseCustomReadWriteForTypesFromDifferentAssemblies()
-        {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void GivesErrorWhenUsingUnityAsset()
         {
-            Assert.That(weaverErrors, Contains.Item("Material can't be deserialized because it has no default constructor (at UnityEngine.Material)"));
+            HasError("Material can't be deserialized because it has no default constructor",
+                "UnityEngine.Material");
         }
 
         [Test]
@@ -83,8 +53,11 @@ namespace Mirror.Weaver.Tests
         {
             // TODO: decide if we want to block sending of Object
             // would only want to be send as an arg as a base type for an Inherited object
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for Object. Use a supported type or provide a custom writer (at UnityEngine.Object)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for Object. Use a supported type or provide a custom reader (at UnityEngine.Object)"));
+            HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
+                "UnityEngine.Object");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for Object. Use a supported type or provide a custom reader",
+            //    "UnityEngine.Object");
         }
 
         [Test]
@@ -92,48 +65,154 @@ namespace Mirror.Weaver.Tests
         {
             // TODO: decide if we want to block sending of ScripableObject
             // would only want to be send as an arg as a base type for an Inherited object
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for ScriptableObject. Use a supported type or provide a custom writer (at UnityEngine.ScriptableObject)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for ScriptableObject. Use a supported type or provide a custom reader (at UnityEngine.ScriptableObject)"));
+            HasError("Cannot generate writer for ScriptableObject. Use a supported type or provide a custom writer",
+                "UnityEngine.ScriptableObject");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for ScriptableObject. Use a supported type or provide a custom reader",
+            //    "UnityEngine.ScriptableObject");
         }
 
         [Test]
         public void GivesErrorWhenUsingMonoBehaviour()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MonoBehaviour. Use a supported type or provide a custom writer (at UnityEngine.MonoBehaviour)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MonoBehaviour. Use a supported type or provide a custom reader (at UnityEngine.MonoBehaviour)"));
+            HasError("Cannot generate writer for component type MonoBehaviour. Use a supported type or provide a custom writer",
+                "UnityEngine.MonoBehaviour");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for component type MonoBehaviour. Use a supported type or provide a custom reader",
+            //    "UnityEngine.MonoBehaviour");
         }
 
         [Test]
         public void GivesErrorWhenUsingTypeInheritedFromMonoBehaviour()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer (at GeneratedReaderWriter.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour.MyBehaviour)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for component type MyBehaviour. Use a supported type or provide a custom reader (at GeneratedReaderWriter.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour.MyBehaviour)"));
+            HasError("Cannot generate writer for component type MyBehaviour. Use a supported type or provide a custom writer",
+                "GeneratedReaderWriter.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour.MyBehaviour");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for component type MyBehaviour. Use a supported type or provide a custom reader",
+            //    "GeneratedReaderWriter.GivesErrorWhenUsingTypeInheritedFromMonoBehaviour.MyBehaviour");
         }
 
         [Test]
         public void ExcludesNonSerializedFields()
         {
             // we test this by having a not allowed type in the class, but mark it with NonSerialized
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
         }
 
         [Test]
         public void GivesErrorWhenUsingInterface()
         {
-            Assert.That(weaverErrors, Contains.Item("Cannot generate writer for interface IData. Use a supported type or provide a custom writer (at GeneratedReaderWriter.GivesErrorWhenUsingInterface.IData)"));
-            Assert.That(weaverErrors, Contains.Item("Cannot generate reader for interface IData. Use a supported type or provide a custom reader (at GeneratedReaderWriter.GivesErrorWhenUsingInterface.IData)"));
+            HasError("Cannot generate writer for interface IData. Use a supported type or provide a custom writer",
+                "GeneratedReaderWriter.GivesErrorWhenUsingInterface.IData");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for interface IData. Use a supported type or provide a custom reader",
+            //    "GeneratedReaderWriter.GivesErrorWhenUsingInterface.IData");
         }
 
         [Test]
         public void CanUseCustomReadWriteForInterfaces()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
+        }
+
+        [Test]
+        public void GivesErrorWhenUsingAbstractClass()
+        {
+            HasError("Cannot generate writer for abstract class DataBase. Use a supported type or provide a custom writer",
+                "GeneratedReaderWriter.GivesErrorWhenUsingAbstractClass.DataBase");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for abstract class DataBase. Use a supported type or provide a custom reader",
+            //    "GeneratedReaderWriter.GivesErrorWhenUsingAbstractClass.DataBase");
+        }
+
+        [Test]
+        public void CanUseCustomReadWriteForAbstractClass()
+        {
+            IsSuccess();
         }
 
         [Test]
         public void CreatesForEnums()
         {
-            Assert.That(weaverErrors, Is.Empty);
+            IsSuccess();
+        }
+
+        [Test]
+        public void CreatesForArraySegment()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void CreatesForStructArraySegment()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void GivesErrorForJaggedArray()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void GivesErrorForMultidimensionalArray()
+        {
+            HasError("Int32[0...,0...] is an unsupported type. Multidimensional arrays are not supported",
+                "System.Int32[0...,0...]");
+        }
+
+        [Test]
+        public void GivesErrorForInvalidArrayType()
+        {
+            HasError("Cannot generate writer for UnityEngine.MonoBehaviour[]. Use a supported type or provide a custom writer",
+                "UnityEngine.MonoBehaviour[]");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for Array because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
+            //    "UnityEngine.MonoBehaviour[]");
+        }
+
+        [Test]
+        public void GivesErrorForInvalidArraySegmentType()
+        {
+            HasError("Cannot generate writer for System.ArraySegment`1<UnityEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
+                "System.ArraySegment`1<UnityEngine.MonoBehaviour>");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for ArraySegment because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
+            //    "System.ArraySegment`1<UnityEngine.MonoBehaviour>");
+        }
+
+        [Test]
+        public void CreatesForList()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void CreatesForStructList()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void GivesErrorForInvalidListType()
+        {
+            HasError("Cannot generate writer for System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
+                "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
+            // TODO change weaver to run checks for write/read at the same time
+            //HasError("Cannot generate reader for List because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
+            //    "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
+        }
+
+        [Test]
+        public void GivesWarningWhenRegisteringExistingExtensionMethod()
+        {
+            const string typeName = "GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType";
+            HasNoErrors();
+            HasWarning($"Registering a Write method for {typeName} when one already exists",
+                "System.Void GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.ReadWriteExtension::WriteMyType2(Mirror.NetworkWriter,GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType)");
+            HasWarning($"Registering a Read method for {typeName} when one already exists",
+                "GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.ReadWriteExtension::ReadMyType2(Mirror.NetworkReader)");
         }
     }
 }
