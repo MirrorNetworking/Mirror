@@ -50,6 +50,28 @@ namespace Mirror.Tests
         }
 
         // brute force interest management
+        // => forceHidden should still work
+        [Test]
+        public override void ForceShown_Initial()
+        {
+            // A and B are too far from each other
+            identityB.transform.position = Vector3.right * (aoi.visRange + 1);
+
+            // force show A
+            identityA.visible = Visibility.ForceShown;
+
+            // rebuild for both
+            // initial rebuild while both are within range
+            NetworkServer.RebuildObservers(identityA, true);
+            NetworkServer.RebuildObservers(identityB, true);
+
+            // A should see B because A is force shown
+            Assert.That(identityA.observers.ContainsKey(connectionB.connectionId), Is.True);
+            // B should not be seen by A because they are too far from each other
+            Assert.That(identityB.observers.ContainsKey(connectionA.connectionId), Is.False);
+        }
+
+        // brute force interest management
         // => everyone should see everyone if in range
         [Test]
         public void InRange_Initial()

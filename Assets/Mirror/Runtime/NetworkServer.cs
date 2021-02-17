@@ -1547,9 +1547,11 @@ namespace Mirror
             }
 #pragma warning restore 618
 
-            // if there is no interest management system, then add all connections
+            // if there is no interest management system,
+            // or if 'force shown' then add all connections
 #pragma warning disable 618
-            if (aoi == null && identity.visibility == null)
+            if ((aoi == null && identity.visibility == null) ||
+                identity.visible == Visibility.ForceShown)
 #pragma warning restore 618
             {
                 RebuildObserversDefault(identity, initialize);

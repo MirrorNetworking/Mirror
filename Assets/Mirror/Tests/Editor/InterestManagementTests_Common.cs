@@ -94,5 +94,9 @@ namespace Mirror.Tests
         // forceHidden should still work
         [Test]
         public abstract void ForceHidden_Initial();
+
+        // forceShown should still work
+        [Test]
+        public abstract void ForceShown_Initial();
     }
 }

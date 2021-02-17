@@ -19,7 +19,7 @@ namespace Mirror
     // ForceHidden = useful to hide monsters while they respawn etc.
     // ForceShown = useful to have score NetworkIdentities that always broadcast
     //              to everyone etc.
-    public enum Visibility { Default, ForceHidden }//, ForceShown }
+    public enum Visibility { Default, ForceHidden, ForceShown }
 
     /// <summary>
     /// The NetworkIdentity identifies objects across the network, between server and clients.
