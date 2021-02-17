@@ -11,7 +11,7 @@ namespace Mirror.Tests
         public override void ForceHidden_Initial()
         {
             // force hide A
-            identityA.forceHidden = true;
+            identityA.visible = Visibility.ForceHidden;
 
             // rebuild for both
             // initial rebuild adds all connections if no interest management available

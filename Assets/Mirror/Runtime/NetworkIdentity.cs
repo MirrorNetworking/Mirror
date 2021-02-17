@@ -15,6 +15,12 @@ using UnityEditor.Experimental.SceneManagement;
 
 namespace Mirror
 {
+    // Default = use interest management
+    // ForceHidden = useful to hide monsters while they respawn etc.
+    // ForceShown = useful to have score NetworkIdentities that always broadcast
+    //              to everyone etc.
+    public enum Visibility { Default, ForceHidden }//, ForceShown }
+
     /// <summary>
     /// The NetworkIdentity identifies objects across the network, between server and clients.
     /// Its primary data is a NetworkInstanceId which is allocated by the server and then set on clients.
@@ -263,12 +269,16 @@ namespace Mirror
             }
         }
 
-        // interest management: option to force hide from all players
-        // If this object is a player object, it will not be hidden for that player.
-        // => all interest management solutions need this option. might as well
-        //    keep it in NetworkIdentity by default.
-        [Tooltip("Enable to force this object to be hidden from players.")]
-        public bool forceHidden;
+        // current visibility
+        //
+        // Default = use interest management
+        // ForceHidden = useful to hide monsters while they respawn etc.
+        // ForceShown = useful to have score NetworkIdentities that always broadcast
+        //              to everyone etc.
+        //
+        // TODO rename to 'visibility' after removing .visibility some day!
+        [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
+        public Visibility visible = Visibility.Default;
 
         [SerializeField, HideInInspector] string m_AssetId;
 

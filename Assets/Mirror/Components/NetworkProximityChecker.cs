@@ -30,11 +30,11 @@ namespace Mirror
         /// Flag to force this object to be hidden for players.
         /// <para>If this object is a player object, it will not be hidden for that player.</para>
         /// </summary>
-        [Obsolete("forceHidden was moved to NetworkIdentity.forceHidden!")]
+        [Obsolete("Use NetworkIdentity.visible mode instead of forceHidden!")]
         public bool forceHidden
         {
-            get => netIdentity.forceHidden;
-            set => netIdentity.forceHidden = value;
+            get => netIdentity.visible == Visibility.ForceHidden;
+            set => netIdentity.visible = value ? Visibility.ForceHidden : Visibility.Default;
         }
 
         public override void OnStartServer()

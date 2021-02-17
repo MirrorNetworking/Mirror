@@ -785,7 +785,7 @@ namespace Mirror
                     // Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId.ToString("X"));
 
                     // not force hidden?
-                    if (!identity.forceHidden)
+                    if (identity.visible != Visibility.ForceHidden)
                     {
                         // legacy system support (for now)
 #pragma warning disable 618
@@ -1403,7 +1403,7 @@ namespace Mirror
             if (initialize)
             {
                 // not force hidden?
-                if (!identity.forceHidden)
+                if (identity.visible != Visibility.ForceHidden)
                 {
                     AddAllAuthenticatedConnectionsToObservers(identity);
                 }
@@ -1417,7 +1417,7 @@ namespace Mirror
             newObservers.Clear();
 
             // not force hidden?
-            if (!identity.forceHidden)
+            if (identity.visible != Visibility.ForceHidden)
             {
                 // obsolete legacy system support (for now)
 #pragma warning disable 618

@@ -36,7 +36,7 @@ namespace Mirror.Tests
             // A and B are at (0,0,0) so within range!
 
             // force hide A
-            identityA.forceHidden = true;
+            identityA.visible = Visibility.ForceHidden;
 
             // rebuild for both
             // initial rebuild while both are within range
