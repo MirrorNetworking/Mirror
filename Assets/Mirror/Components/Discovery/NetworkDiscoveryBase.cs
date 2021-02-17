@@ -30,10 +30,14 @@ namespace Mirror.Discovery
         [SerializeField]
         [Tooltip("The UDP port the server will listen for multi-cast messages")]
         protected int serverBroadcastListenPort = 47777;
-
+        
         [SerializeField]
-        [Tooltip("Time in seconds between multi-cast messages. Use a negative value to disable automatic broadcasting.")]
-        [Range(-1, 60)]
+        [Tooltip("")]
+        bool enableActiveDiscovery = true;
+        
+        [SerializeField]
+        [Tooltip("Time in seconds between multi-cast messages")]
+        [Range(1, 60)]
         float ActiveDiscoveryInterval = 3;
 
         protected UdpClient serverUdpClient;
@@ -251,7 +255,7 @@ namespace Mirror.Discovery
 
             _ = ClientListenAsync();
 
-            if (ActiveDiscoveryInterval >= 0) InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
+            if (enableActiveDiscovery) InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
 
         /// <summary>
