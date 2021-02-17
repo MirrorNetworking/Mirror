@@ -74,6 +74,10 @@ namespace Mirror
         /// </summary>
         public static float batchInterval = 0;
 
+        // interest management component (optional)
+        // by default, everyone observes everyone
+        public static InterestManagement aoi;
+
         /// <summary>
         /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
         /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
@@ -780,10 +784,31 @@ namespace Mirror
                 {
                     // Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId.ToString("X"));
 
-                    bool visible = identity.OnCheckObserver(conn);
-                    if (visible)
+                    // not force hidden?
+                    if (!identity.forceHidden)
                     {
-                        identity.AddObserver(conn);
+                        // legacy system support (for now)
+#pragma warning disable 618
+                        if (identity.visibility != null)
+                        {
+                            if (identity.visibility.OnCheckObserver(conn))
+                            {
+                                identity.AddObserver(conn);
+                            }
+                        }
+#pragma warning restore 618
+                        // new system
+                        else
+                        {
+                            // add observer:
+                            // -> if there is no interest management system then simply
+                            //    always add (everyone sees everyone by default)
+                            // -> if there is a system then ask the system to check
+                            if (aoi == null || aoi.OnCheckObserver(identity, conn))
+                            {
+                                identity.AddObserver(conn);
+                            }
+                        }
                     }
                 }
             }
@@ -1072,7 +1097,7 @@ namespace Mirror
 
             // Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
-            identity.RebuildObservers(true);
+            RebuildObservers(identity, true);
         }
 
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
@@ -1344,6 +1369,196 @@ namespace Mirror
                     Spawn(identity.gameObject);
             }
             return true;
+        }
+
+        // interest management /////////////////////////////////////////////////
+        // Helper function to add all server connections as observers.
+        // This is used if none of the components provides their own
+        // OnRebuildObservers function.
+        internal static void AddAllAuthenticatedConnectionsToObservers(NetworkIdentity identity)
+        {
+            // add all server connections
+            foreach (NetworkConnectionToClient conn in connections.Values)
+            {
+                // only if authenticated (don't send to people during logins)
+                if (conn.isAuthenticated)
+                    identity.AddObserver(conn);
+            }
+
+            // add local host connection (if any)
+            if (localConnection != null)
+            {
+                identity.AddObserver(localConnection);
+            }
+        }
+
+        // allocate newObservers helper HashSet only once
+        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+
+        // rebuild observers default method (no AOI) - adds all connections
+        static void RebuildObserversDefault(NetworkIdentity identity, bool initialize)
+        {
+            // only add all connections when rebuilding the first time.
+            // second time we just keep them without rebuilding anything.
+            if (initialize)
+            {
+                // not force hidden?
+                if (!identity.forceHidden)
+                {
+                    AddAllAuthenticatedConnectionsToObservers(identity);
+                }
+            }
+        }
+
+        // rebuild observers via interest management system
+        static void RebuildObserversCustom(NetworkIdentity identity, bool initialize)
+        {
+            // clear newObservers hashset before using it
+            newObservers.Clear();
+
+            // not force hidden?
+            if (!identity.forceHidden)
+            {
+                // obsolete legacy system support (for now)
+#pragma warning disable 618
+                if (identity.visibility != null)
+                    identity.visibility.OnRebuildObservers(newObservers, initialize);
+#pragma warning restore 618
+                else
+                    aoi.OnRebuildObservers(identity, newObservers, initialize);
+            }
+
+            // IMPORTANT: AFTER rebuilding add own player connection in any case
+            // to ensure player always sees himself no matter what.
+            // -> OnRebuildObservers might clear observers, so we need to add
+            //    the player's own connection AFTER. 100% fail safe.
+            // -> fixes https://github.com/vis2k/Mirror/issues/692 where a
+            //    player might teleport out of the ProximityChecker's cast,
+            //    losing the own connection as observer.
+            if (identity.connectionToClient != null)
+            {
+                newObservers.Add(identity.connectionToClient);
+            }
+
+            bool changed = false;
+
+            // add all newObservers that aren't in .observers yet
+            foreach (NetworkConnection conn in newObservers)
+            {
+                if (conn != null)
+                {
+                    if (initialize || !identity.observers.ContainsKey(conn.connectionId))
+                    {
+                        // new observer
+                        conn.AddToObserving(identity);
+                        // Debug.Log("New Observer for " + gameObject + " " + conn);
+                        changed = true;
+                    }
+                }
+            }
+
+            // remove all old .observers that aren't in newObservers anymore
+            foreach (NetworkConnection conn in identity.observers.Values)
+            {
+                if (!newObservers.Contains(conn))
+                {
+                    // removed observer
+                    conn.RemoveFromObserving(identity, false);
+                    // Debug.Log("Removed Observer for " + gameObject + " " + conn);
+                    changed = true;
+                }
+            }
+
+            // copy new observers to observers
+            if (changed)
+            {
+                identity.observers.Clear();
+                foreach (NetworkConnection conn in newObservers)
+                {
+                    if (conn != null)
+                        identity.observers.Add(conn.connectionId, conn);
+                }
+            }
+
+            // special case for host mode: we use SetHostVisibility to hide
+            // NetworkIdentities that aren't in observer range from host.
+            // this is what games like Dota/Counter-Strike do too, where a host
+            // does NOT see all players by default. they are in memory, but
+            // hidden to the host player.
+            //
+            // this code is from UNET, it's a bit strange but it works:
+            // * it hides newly connected identities in host mode
+            //   => that part was the intended behaviour
+            // * it hides ALL NetworkIdentities in host mode when the host
+            //   connects but hasn't selected a character yet
+            //   => this only works because we have no .localConnection != null
+            //      check. at this stage, localConnection is null because
+            //      StartHost starts the server first, then calls this code,
+            //      then starts the client and sets .localConnection. so we can
+            //      NOT add a null check without breaking host visibility here.
+            // * it hides ALL NetworkIdentities in server-only mode because
+            //   observers never contain the 'null' .localConnection
+            //   => that was not intended, but let's keep it as it is so we
+            //      don't break anything in host mode. it's way easier than
+            //      iterating all identities in a special function in StartHost.
+            if (initialize)
+            {
+                if (!newObservers.Contains(localConnection))
+                {
+                    // obsolete legacy system support (for now)
+#pragma warning disable 618
+                    if (identity.visibility != null)
+                        identity.visibility.OnSetHostVisibility(false);
+#pragma warning restore 618
+                    else
+                        identity.OnSetHostVisibility(false);
+                }
+            }
+        }
+
+        // RebuildObservers does a local rebuild for the NetworkIdentity.
+        // This causes the set of players that can see this object to be rebuild.
+        //
+        // IMPORTANT:
+        // => global rebuild would be more simple, BUT
+        // => local rebuild is way faster for spawn/despawn because we can
+        //    simply rebuild a select NetworkIdentity only
+        // => having both .observers and .observing is necessary for local
+        //    rebuilds
+        //
+        // in other words, this is the perfect solution even though it's not
+        // completely simple (due to .observers & .observing)
+        //
+        // Mirror maintains .observing automatically in the background. best of
+        // both worlds without any worrying now!
+        public static void RebuildObservers(NetworkIdentity identity, bool initialize)
+        {
+            // observers are null until OnStartServer creates them
+            if (identity.observers == null)
+                return;
+
+            // legacy proximitychecker support:
+            // make sure user doesn't use both new and old system.
+#pragma warning disable 618
+            if (aoi != null & identity.visibility != null)
+            {
+                Debug.LogError($"RebuildObservers: {identity.name} has {identity.visibility.GetType()} component but there is also a global {aoi.GetType()} component. Can't use both systems at the same time!");
+                return;
+            }
+#pragma warning restore 618
+
+            // if there is no interest management system, then add all connections
+#pragma warning disable 618
+            if (aoi == null && identity.visibility == null)
+#pragma warning restore 618
+            {
+                RebuildObserversDefault(identity, initialize);
+            }
+            // otherwise let interest management system rebuild
+            else
+            {
+                RebuildObserversCustom(identity, initialize);
+            }
         }
     }
 }
