@@ -81,8 +81,8 @@ namespace Mirror
         //            => named ClearNonAlloc to make it more obvious!
         public void ClearNonAlloc()
         {
-            foreach (KeyValuePair<Vector2Int, HashSet<T>> kvp in grid)
-                kvp.Value.Clear();
+            foreach (HashSet<T> hashSet in grid.Values)
+                hashSet.Clear();
         }
     }
 }
