@@ -25,4 +25,4 @@ namespace Mirror
             return EditorGUI.GetPropertyHeight(property);
         }
     }
-} //namespace
+}
