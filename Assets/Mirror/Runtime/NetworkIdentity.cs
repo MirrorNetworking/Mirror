@@ -243,26 +243,22 @@ namespace Mirror
         // get all NetworkBehaviour components
         // => currently lazily initialized so tests can add components after
         //    creating a NetworkIdentity.
+        NetworkBehaviour[] _NetworkBehaviours;
         public NetworkBehaviour[] NetworkBehaviours
         {
             get
             {
-                if (networkBehavioursCache == null)
+                if (_NetworkBehaviours == null)
                 {
-                    CreateNetworkBehavioursCache();
+                    _NetworkBehaviours = GetComponents<NetworkBehaviour>();
+                    if (_NetworkBehaviours.Length > byte.MaxValue)
+                    {
+                        Debug.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
+                        // Log error once then resize array so that NetworkIdentity does not throw exceptions later
+                        Array.Resize(ref _NetworkBehaviours, byte.MaxValue);
+                    }
                 }
-                return networkBehavioursCache;
-            }
-        }
-
-        void CreateNetworkBehavioursCache()
-        {
-            networkBehavioursCache = GetComponents<NetworkBehaviour>();
-            if (networkBehavioursCache.Length > byte.MaxValue)
-            {
-                Debug.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
-                // Log error once then resize array so that NetworkIdentity does not throw exceptions later
-                Array.Resize(ref networkBehavioursCache, byte.MaxValue);
+                return _NetworkBehaviours;
             }
         }
 
@@ -1286,7 +1282,7 @@ namespace Mirror
             netId = 0;
             connectionToServer = null;
             connectionToClient = null;
-            networkBehavioursCache = null;
+            _NetworkBehaviours = null;
 
             ClearObservers();
 
