@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -16,15 +15,7 @@ namespace Mirror
 
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            // get a writer to copy the message into since the segment is only
-            // valid until returning.
-            // => pooled writer will be returned to pool when dequeuing.
-            // => WriteBytes instead of WriteArraySegment because the latter
-            //    includes a 4 bytes header. we just want to write raw.
-            //Debug.Log("Enqueue " + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-            PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
-            writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
-            connectionToServer.queue.Enqueue(writer);
+            connectionToServer.buffer.Write(segment);
         }
 
         // true because local connections never timeout
@@ -49,14 +40,48 @@ namespace Mirror
         }
     }
 
+    internal class LocalConnectionBuffer
+    {
+        readonly NetworkWriter writer = new NetworkWriter();
+        readonly NetworkReader reader = new NetworkReader(default(ArraySegment<byte>));
+        // The buffer is at least 1500 bytes long. So need to keep track of
+        // packet count to know how many ArraySegments are in the buffer
+        int packetCount;
+
+        public void Write(ArraySegment<byte> segment)
+        {
+            writer.WriteBytesAndSizeSegment(segment);
+            packetCount++;
+
+            // update buffer in case writer's length has changed
+            reader.buffer = writer.ToArraySegment();
+        }
+
+        public bool HasPackets()
+        {
+            return packetCount > 0;
+        }
+        public ArraySegment<byte> GetNextPacket()
+        {
+            ArraySegment<byte> packet = reader.ReadBytesAndSizeSegment();
+            packetCount--;
+
+            return packet;
+        }
+
+        public void ResetBuffer()
+        {
+            writer.Reset();
+            reader.Position = 0;
+        }
+    }
+
     // a localClient's connection TO a server.
     // send messages on this connection causes the server's handler function to be invoked directly.
     internal class LocalConnectionToServer : NetworkConnectionToServer
     {
         internal LocalConnectionToClient connectionToClient;
-
-        // packet queue
-        internal readonly Queue<PooledNetworkWriter> queue = new Queue<PooledNetworkWriter>();
+        internal readonly LocalConnectionBuffer buffer = new LocalConnectionBuffer();
 
         public override string address => "localhost";
 
@@ -88,15 +113,16 @@ namespace Mirror
             }
 
             // process internal messages so they are applied at the correct time
-            while (queue.Count > 0)
+            while (buffer.HasPackets())
             {
-                // call receive on queued writer's content, return to pool
-                PooledNetworkWriter writer = queue.Dequeue();
-                ArraySegment<byte> segment = writer.ToArraySegment();
-                //Debug.Log("Dequeue " + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-                TransportReceive(segment, Channels.DefaultReliable);
-                NetworkWriterPool.Recycle(writer);
+                ArraySegment<byte> packet = buffer.GetNextPacket();
+
+                // Treat host player messages exactly like connected client
+                // to avoid deceptive / misleading behavior differences
+                TransportReceive(packet, Channels.DefaultReliable);
             }
+
+            buffer.ResetBuffer();
 
             // should we still process a disconnected event?
             if (disconnectedEventPending)
