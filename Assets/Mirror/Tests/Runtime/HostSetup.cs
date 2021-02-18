@@ -21,7 +21,7 @@ namespace Mirror.Tests.Runtime
         protected static void FakeSpawnServerClientIdentity(NetworkIdentity serverNI, NetworkIdentity clientNI)
         {
             serverNI.OnStartServer();
-            serverNI.RebuildObservers(true);
+            NetworkServer.RebuildObservers(serverNI, true);
 
             clientNI.netId = serverNI.netId;
             NetworkIdentity.spawned[serverNI.netId] = clientNI;

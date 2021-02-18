@@ -283,12 +283,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnCheckObserverTrueByDefault()
-        {
-            Assert.That(identity.OnCheckObserver(null), Is.True);
-        }
-
-        [Test]
         public void SendCommandInternal()
         {
             // transport is needed by server and client.

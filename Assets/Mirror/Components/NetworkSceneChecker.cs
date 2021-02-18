@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,6 +10,7 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to other objects in the same scene</para>
     /// <para>This would be used when the server has multiple additive subscenes loaded to isolate players to their respective subscenes</para>
     /// </summary>
+    [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkSceneChecker")]
     [RequireComponent(typeof(NetworkIdentity))]

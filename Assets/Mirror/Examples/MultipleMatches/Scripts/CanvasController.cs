@@ -485,7 +485,9 @@ namespace Mirror.Examples.MultipleMatch
             if (playerMatches.TryGetValue(conn, out matchId))
             {
                 GameObject matchControllerObject = Instantiate(matchControllerPrefab);
+#pragma warning disable 618
                 matchControllerObject.GetComponent<NetworkMatchChecker>().matchId = matchId;
+#pragma warning restore 618
                 NetworkServer.Spawn(matchControllerObject);
 
                 MatchController matchController = matchControllerObject.GetComponent<MatchController>();
@@ -495,7 +497,9 @@ namespace Mirror.Examples.MultipleMatch
                     playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.Started });
 
                     GameObject player = Instantiate(NetworkManager.singleton.playerPrefab);
+#pragma warning disable 618
                     player.GetComponent<NetworkMatchChecker>().matchId = matchId;
+#pragma warning restore 618
                     NetworkServer.AddPlayerForConnection(playerConn, player);
 
                     if (matchController.player1 == null)
