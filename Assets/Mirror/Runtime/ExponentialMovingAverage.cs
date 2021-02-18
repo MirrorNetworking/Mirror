@@ -8,6 +8,9 @@ namespace Mirror
         readonly float alpha;
         bool initialized;
 
+        public double Value { get; private set; }
+        public double Var { get; private set; }
+
         public ExponentialMovingAverage(int n)
         {
             // standard N-day EMA alpha calculation
@@ -30,9 +33,5 @@ namespace Mirror
                 initialized = true;
             }
         }
-
-        public double Value { get; private set; }
-
-        public double Var { get; private set; }
     }
 }
