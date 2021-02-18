@@ -258,7 +258,6 @@ namespace Mirror
             }
         }
 
-
         /// <summary>
         /// this is like SendToReady - but it doesn't check the ready flag on the connection.
         /// this is used for ObjectDestroy messages.
@@ -283,12 +282,7 @@ namespace Mirror
 
                 foreach (NetworkConnection conn in identity.observers.Values)
                 {
-                    // use local connection directly because it doesn't send via transport
-                    if (conn is LocalConnectionToClient)
-                        conn.Send(segment);
-                    // send to regular connection
-                    else
-                        conn.Send(segment, channelId);
+                    conn.Send(segment, channelId);
                 }
 
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
@@ -330,13 +324,7 @@ namespace Mirror
                         continue;
 
                     count++;
-
-                    // use local connection directly because it doesn't send via transport
-                    if (conn is LocalConnectionToClient)
-                        conn.Send(segment);
-                    // send to regular connection
-                    else
-                        conn.Send(segment, channelId);
+                    conn.Send(segment, channelId);
                 }
 
                 NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
@@ -392,13 +380,7 @@ namespace Mirror
                     if ((!isOwner || includeOwner) && conn.isReady)
                     {
                         count++;
-
-                        // use local connection directly because it doesn't send via transport
-                        if (conn is LocalConnectionToClient)
-                            conn.Send(segment);
-                        // send to connection
-                        else
-                            conn.Send(segment, channelId);
+                        conn.Send(segment, channelId);
                     }
                 }
 
