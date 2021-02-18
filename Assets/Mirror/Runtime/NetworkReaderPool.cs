@@ -21,7 +21,7 @@ namespace Mirror
         // reuse Pool<T>
         // we still wrap it in NetworkReaderPool.Get/Recyle so we can reset the
         // position and array before reusing.
-        static readonly Pool<PooledNetworkReader> pool = new Pool<PooledNetworkReader>(
+        static readonly Pool<PooledNetworkReader> Pool = new Pool<PooledNetworkReader>(
             // byte[] will be assigned in GetReader
             () => new PooledNetworkReader(new byte[]{})
         );
@@ -33,7 +33,7 @@ namespace Mirror
         public static PooledNetworkReader GetReader(byte[] bytes)
         {
             // grab from pool & set buffer
-            PooledNetworkReader reader = pool.Take();
+            PooledNetworkReader reader = Pool.Take();
             reader.buffer = new ArraySegment<byte>(bytes);
             reader.Position = 0;
             return reader;
@@ -46,7 +46,7 @@ namespace Mirror
         public static PooledNetworkReader GetReader(ArraySegment<byte> segment)
         {
             // grab from pool & set buffer
-            PooledNetworkReader reader = pool.Take();
+            PooledNetworkReader reader = Pool.Take();
             reader.buffer = segment;
             reader.Position = 0;
             return reader;
@@ -58,7 +58,7 @@ namespace Mirror
         /// </summary>
         public static void Recycle(PooledNetworkReader reader)
         {
-            pool.Return(reader);
+            Pool.Return(reader);
         }
     }
 }
