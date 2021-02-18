@@ -239,6 +239,9 @@ namespace Mirror
         /// </summary>
         public static readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
 
+        // get all NetworkBehaviour components
+        // => currently lazily initialized so tests can add components after
+        //    creating a NetworkIdentity.
         public NetworkBehaviour[] NetworkBehaviours
         {
             get
