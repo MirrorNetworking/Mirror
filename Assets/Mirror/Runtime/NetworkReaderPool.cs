@@ -9,11 +9,7 @@ namespace Mirror
     {
         internal PooledNetworkReader(byte[] bytes) : base(bytes) {}
         internal PooledNetworkReader(ArraySegment<byte> segment) : base(segment) {}
-
-        public void Dispose()
-        {
-            NetworkReaderPool.Recycle(this);
-        }
+        public void Dispose() => NetworkReaderPool.Recycle(this);
     }
 
     /// <summary>

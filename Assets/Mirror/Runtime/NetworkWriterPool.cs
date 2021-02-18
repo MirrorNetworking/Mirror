@@ -7,10 +7,7 @@ namespace Mirror
     /// </summary>
     public sealed class PooledNetworkWriter : NetworkWriter, IDisposable
     {
-        public void Dispose()
-        {
-            NetworkWriterPool.Recycle(this);
-        }
+        public void Dispose() => NetworkWriterPool.Recycle(this);
     }
 
     /// <summary>
