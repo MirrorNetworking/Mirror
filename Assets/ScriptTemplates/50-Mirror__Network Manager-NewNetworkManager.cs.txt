@@ -158,13 +158,6 @@ public class #SCRIPTNAME# : NetworkManager
         base.OnServerDisconnect(conn);
     }
 
-    /// <summary>
-    /// Called on the server when a network error occurs for a client connection.
-    /// </summary>
-    /// <param name="conn">Connection from client.</param>
-    /// <param name="errorCode">Error code.</param>
-    public override void OnServerError(NetworkConnection conn, int errorCode) { }
-
     #endregion
 
     #region Client System Callbacks
@@ -188,13 +181,6 @@ public class #SCRIPTNAME# : NetworkManager
     {
         base.OnClientDisconnect(conn);
     }
-
-    /// <summary>
-    /// Called on clients when a network error occurs.
-    /// </summary>
-    /// <param name="conn">Connection to a server.</param>
-    /// <param name="errorCode">Error code.</param>
-    public override void OnClientError(NetworkConnection conn, int errorCode) { }
 
     /// <summary>
     /// Called on clients when a servers tells the client it is no longer ready.
