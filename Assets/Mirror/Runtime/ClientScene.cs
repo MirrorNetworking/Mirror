@@ -141,7 +141,6 @@ namespace Mirror
             }
 
             // Debug.Log("ClientScene.AddPlayer() called with connection [" + readyConnection + "]");
-
             readyConnection.Send(new AddPlayerMessage());
             return true;
         }
