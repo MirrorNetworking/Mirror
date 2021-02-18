@@ -253,7 +253,6 @@ namespace Mirror
                 if (!identity.isClient)
                 {
                     // Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
-
                     identity.OnStartClient();
                 }
             }
