@@ -44,31 +44,31 @@ namespace Mirror.Tests.Runtime
             yield return SceneManager.UnloadSceneAsync(scene);
         }
 
-        [UnityTest]
-        public IEnumerator CallingInstantiateOnASceneObjectGivesAHelpfulError()
-        {
-            // make sure sceneobject has a sceneId
-            Assert.That(sceneObject.sceneId, Is.Not.Zero);
-            yield return null;
+        //[UnityTest]
+        //public IEnumerator CallingInstantiateOnASceneObjectGivesAHelpfulError()
+        //{
+        //    // make sure sceneobject has a sceneId
+        //    Assert.That(sceneObject.sceneId, Is.Not.Zero);
+        //    yield return null;
 
-            LogAssert.Expect(LogType.Error, errorMessage);
-            GameObject clone = GameObject.Instantiate(sceneObject.gameObject);
-            NetworkServer.Spawn(clone);
-        }
+        //    LogAssert.Expect(LogType.Error, errorMessage);
+        //    GameObject clone = GameObject.Instantiate(sceneObject.gameObject);
+        //    NetworkServer.Spawn(clone);
+        //}
 
-        [UnityTest]
-        public IEnumerator CallingInstantiateOnASceneObjectMutlipleTimesGivesAHelpfulErrorEachTime()
-        {
-            // make sure sceneobject has a sceneId
-            Assert.That(sceneObject.sceneId, Is.Not.Zero);
-            yield return null;
+        //[UnityTest]
+        //public IEnumerator CallingInstantiateOnASceneObjectMutlipleTimesGivesAHelpfulErrorEachTime()
+        //{
+        //    // make sure sceneobject has a sceneId
+        //    Assert.That(sceneObject.sceneId, Is.Not.Zero);
+        //    yield return null;
 
-            for (int i = 0; i < 5; i++)
-            {
-                LogAssert.Expect(LogType.Error, errorMessage);
-                GameObject clone = GameObject.Instantiate(sceneObject.gameObject);
-                NetworkServer.Spawn(clone);
-            }
-        }
+        //    for (int i = 0; i < 5; i++)
+        //    {
+        //        LogAssert.Expect(LogType.Error, errorMessage);
+        //        GameObject clone = GameObject.Instantiate(sceneObject.gameObject);
+        //        NetworkServer.Spawn(clone);
+        //    }
+        //}
     }
 }
