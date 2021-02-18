@@ -292,7 +292,6 @@ namespace Mirror
 
         [SerializeField, HideInInspector] string m_AssetId;
 
-
         /// <summary>
         /// Unique identifier used to find the source assets when server spawns the on clients.
         /// </summary>
