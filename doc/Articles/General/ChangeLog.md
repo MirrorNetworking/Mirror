@@ -129,7 +129,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: [Command] now has an `ignoreAuthority` option for invoking Commands on objects the client doesn't have authority over, and Command methods can have an optional `NetworkConnectionToClient sender` parameter.
 - Added: [ClientRpc] now has an `excludeOwner` option to prevent messages from going to the client that owns the object.
 - Added: Commands and Rpc's can now be declared as virtual and overridden in derived classes.
-- Added: [NetworkLogSettings](../Components/NetworkLogSettings.md) component and Log Settings Window.
+- Added: NetworkLogSettings component and Log Settings Window.
 - Added: SyncLists now support `AddRange`, `InsertRange`, and `RemoveAll`.
 - Added: Network Room Manager now has a virtual `OnRoomServerPlayersNotReady` that fires on server from `CheckReadyToBegin`.
 - Added: Network Room Player template now includes base Network Behaviour overrides.

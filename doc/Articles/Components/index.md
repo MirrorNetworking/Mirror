@@ -14,8 +14,6 @@ These core components are included in Mirror:
     Network Headless Logger adds color to log when running in headless mode
 -   [Network Lerp Rigidbody](NetworkLerpRigidbody.md)
     The Network Lerp Rigidbody synchronizes position and velocity of a rigidbody across the network.
--   [Network Log Settings](NetworkLogSettings.md)  
-    The Network Log Settings component allows you to configure logging levels and load the settings in a build.
 -   [Network Manager](NetworkManager.md)  
     The Network Manager is a component for managing the networking aspects of a multiplayer game.
 -   [Network Manager HUD](NetworkManagerHUD.md)  

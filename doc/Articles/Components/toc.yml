@@ -13,8 +13,6 @@
   href: NetworkHeadlessLogger.md
 - name: Network Lerp Rigidbody
   href: NetworkLerpRigidbody.md
-- name: Network Log Settings
-  href: NetworkLogSettings.md
 - name: Network Manager
   href: NetworkManager.md
 - name: Network Manager HUD
