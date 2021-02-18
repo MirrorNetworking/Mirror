@@ -425,12 +425,12 @@ namespace Mirror.Tests
         public void SetClientOwner()
         {
             // SetClientOwner
-            ULocalConnectionToClient original = new ULocalConnectionToClient();
+            LocalConnectionToClient original = new LocalConnectionToClient();
             identity.SetClientOwner(original);
             Assert.That(identity.connectionToClient, Is.EqualTo(original));
 
             // setting it when it's already set shouldn't overwrite the original
-            ULocalConnectionToClient overwrite = new ULocalConnectionToClient();
+            LocalConnectionToClient overwrite = new LocalConnectionToClient();
             // will log a warning
             LogAssert.ignoreFailingMessages = true;
             identity.SetClientOwner(overwrite);
@@ -602,10 +602,10 @@ namespace Mirror.Tests
             };
 
             // create a connection
-            ULocalConnectionToClient owner = new ULocalConnectionToClient();
+            LocalConnectionToClient owner = new LocalConnectionToClient();
             owner.isReady = true;
             // add client handlers
-            owner.connectionToServer = new ULocalConnectionToServer();
+            owner.connectionToServer = new LocalConnectionToServer();
             int spawnCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
                 { MessagePacking.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++spawnCalled) }
@@ -1259,11 +1259,11 @@ namespace Mirror.Tests
             Assert.That(compB.IsDirty(), Is.False);
 
             // add an owner connection that will receive the updates
-            ULocalConnectionToClient owner = new ULocalConnectionToClient();
+            LocalConnectionToClient owner = new LocalConnectionToClient();
             // for syncing
             owner.isReady = true;
             // add a client to server connection + handler to receive syncs
-            owner.connectionToServer = new ULocalConnectionToServer();
+            owner.connectionToServer = new LocalConnectionToServer();
             int ownerCalled = 0;
             owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {
@@ -1272,11 +1272,11 @@ namespace Mirror.Tests
             identity.connectionToClient = owner;
 
             // add an observer connection that will receive the updates
-            ULocalConnectionToClient observer = new ULocalConnectionToClient();
+            LocalConnectionToClient observer = new LocalConnectionToClient();
             // we only sync to ready observers
             observer.isReady = true;
             // add a client to server connection + handler to receive syncs
-            observer.connectionToServer = new ULocalConnectionToServer();
+            observer.connectionToServer = new LocalConnectionToServer();
             int observerCalled = 0;
             observer.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>
             {

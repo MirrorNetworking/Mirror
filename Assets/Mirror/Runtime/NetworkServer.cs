@@ -225,7 +225,7 @@ namespace Mirror
         /// called by LocalClient to add itself. don't call directly.
         /// </summary>
         /// <param name="conn"></param>
-        internal static void SetLocalConnection(ULocalConnectionToClient conn)
+        internal static void SetLocalConnection(LocalConnectionToClient conn)
         {
             if (localConnection != null)
             {
@@ -285,7 +285,7 @@ namespace Mirror
                 foreach (NetworkConnection conn in identity.observers.Values)
                 {
                     // use local connection directly because it doesn't send via transport
-                    if (conn is ULocalConnectionToClient)
+                    if (conn is LocalConnectionToClient)
                         conn.Send(segment);
                     // send to regular connection
                     else
@@ -333,7 +333,7 @@ namespace Mirror
                     count++;
 
                     // use local connection directly because it doesn't send via transport
-                    if (conn is ULocalConnectionToClient)
+                    if (conn is LocalConnectionToClient)
                         conn.Send(segment);
                     // send to regular connection
                     else
@@ -395,7 +395,7 @@ namespace Mirror
                         count++;
 
                         // use local connection directly because it doesn't send via transport
-                        if (conn is ULocalConnectionToClient)
+                        if (conn is LocalConnectionToClient)
                             conn.Send(segment);
                         // send to connection
                         else
@@ -850,7 +850,7 @@ namespace Mirror
             identity.SetClientOwner(conn);
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
+            if (conn is LocalConnectionToClient)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -905,7 +905,7 @@ namespace Mirror
             identity.SetClientOwner(conn);
 
             // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
+            if (conn is LocalConnectionToClient)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -1090,7 +1090,7 @@ namespace Mirror
 
             // special case to make sure hasAuthority is set
             // on start server in host mode
-            if (ownerConnection is ULocalConnectionToClient)
+            if (ownerConnection is LocalConnectionToClient)
                 identity.hasAuthority = true;
 
             identity.OnStartServer();

@@ -53,7 +53,7 @@ namespace Mirror
         /// <summary>
         /// NetworkClient can connect to local server in host mode too
         /// </summary>
-        public static bool isLocalClient => connection is ULocalConnectionToServer;
+        public static bool isLocalClient => connection is LocalConnectionToServer;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
@@ -113,8 +113,8 @@ namespace Mirror
             connectState = ConnectState.Connected;
 
             // create local connection objects and connect them
-            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
-            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
+            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
+            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
             connectionToServer.connectionToClient = connectionToClient;
             connectionToClient.connectionToServer = connectionToServer;
 
@@ -141,7 +141,7 @@ namespace Mirror
             //    tests fail. so let's do it exactly the same order as before by
             //    queueing the event for next Update!
             //OnConnectedEvent?.Invoke(connection);
-            ((ULocalConnectionToServer)connection).QueueConnectedEvent();
+            ((LocalConnectionToServer)connection).QueueConnectedEvent();
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace Mirror
                     //    here makes tests fail. so let's do it exactly the same
                     //    order as before by queueing the event for next Update!
                     //OnDisconnectedEvent?.Invoke(connection);
-                    ((ULocalConnectionToServer)connection).QueueDisconnectedEvent();
+                    ((LocalConnectionToServer)connection).QueueDisconnectedEvent();
                 }
                 NetworkServer.RemoveLocalConnection();
             }
@@ -269,7 +269,7 @@ namespace Mirror
         public static void Update()
         {
             // local connection?
-            if (connection is ULocalConnectionToServer localConnection)
+            if (connection is LocalConnectionToServer localConnection)
             {
                 localConnection.Update();
             }

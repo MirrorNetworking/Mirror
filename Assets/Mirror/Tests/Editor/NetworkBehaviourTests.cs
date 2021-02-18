@@ -258,14 +258,14 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToServer()
         {
-            identity.connectionToServer = new ULocalConnectionToServer();
+            identity.connectionToServer = new LocalConnectionToServer();
             Assert.That(emptyBehaviour.connectionToServer, Is.EqualTo(identity.connectionToServer));
         }
 
         [Test]
         public void HasIdentitysConnectionToClient()
         {
-            identity.connectionToClient = new ULocalConnectionToClient();
+            identity.connectionToClient = new LocalConnectionToClient();
             Assert.That(emptyBehaviour.connectionToClient, Is.EqualTo(identity.connectionToClient));
         }
 
@@ -303,13 +303,13 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // create a connection from client to server and from server to client
-            ULocalConnectionToClient connection = new ULocalConnectionToClient
+            LocalConnectionToClient connection = new LocalConnectionToClient
             {
                 isReady = true,
                 // commands require authentication
                 isAuthenticated = true
             };
-            connection.connectionToServer = new ULocalConnectionToServer
+            connection.connectionToServer = new LocalConnectionToServer
             {
                 isReady = true,
                 // commands require authentication
@@ -414,7 +414,7 @@ namespace Mirror.Tests
 
             // get the host connection which already has client->server and
             // server->client set up
-            ULocalConnectionToServer connectionToServer = (ULocalConnectionToServer)NetworkClient.connection;
+            LocalConnectionToServer connectionToServer = (LocalConnectionToServer)NetworkClient.connection;
 
             // set host connection as ready and authenticated
             connectionToServer.isReady = true;
@@ -497,7 +497,7 @@ namespace Mirror.Tests
 
             // get the host connection which already has client->server and
             // server->client set up
-            ULocalConnectionToServer connectionToServer = (ULocalConnectionToServer)NetworkClient.connection;
+            LocalConnectionToServer connectionToServer = (LocalConnectionToServer)NetworkClient.connection;
 
             // set host connection as ready and authenticated
             connectionToServer.isReady = true;

@@ -246,14 +246,14 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // set local connection
-            ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
+            LocalConnectionToClient localConnection = new LocalConnectionToClient();
             NetworkServer.SetLocalConnection(localConnection);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
 
             // try to overwrite it, which should not work
             // (it will show an error message, which is expected)
             LogAssert.ignoreFailingMessages = true;
-            ULocalConnectionToClient overwrite = new ULocalConnectionToClient();
+            LocalConnectionToClient overwrite = new LocalConnectionToClient();
             NetworkServer.SetLocalConnection(overwrite);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
             LogAssert.ignoreFailingMessages = false;
@@ -266,13 +266,13 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // set local connection
-            ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
+            LocalConnectionToClient localConnection = new LocalConnectionToClient();
             NetworkServer.SetLocalConnection(localConnection);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
 
             // local connection needs a server connection because
             // RemoveLocalConnection calls localConnection.Disconnect
-            localConnection.connectionToServer = new ULocalConnectionToServer();
+            localConnection.connectionToServer = new LocalConnectionToServer();
 
             // remove local connection
             NetworkServer.RemoveLocalConnection();
@@ -287,7 +287,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localClientActive, Is.False);
 
             // set local connection
-            NetworkServer.SetLocalConnection(new ULocalConnectionToClient());
+            NetworkServer.SetLocalConnection(new LocalConnectionToClient());
             Assert.That(NetworkServer.localClientActive, Is.True);
         }
 
@@ -377,7 +377,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // set local connection
-            ULocalConnectionToClient localConnection = new ULocalConnectionToClient();
+            LocalConnectionToClient localConnection = new LocalConnectionToClient();
             NetworkServer.SetLocalConnection(localConnection);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
 
@@ -473,8 +473,8 @@ namespace Mirror.Tests
         [Test]
         public void SetClientReadyAndNotReadyTest()
         {
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
+            LocalConnectionToClient connection = new LocalConnectionToClient();
+            connection.connectionToServer = new LocalConnectionToServer();
             Assert.That(connection.isReady, Is.False);
 
             NetworkServer.SetClientReady(connection);
@@ -488,14 +488,14 @@ namespace Mirror.Tests
         public void SetAllClientsNotReadyTest()
         {
             // add first ready client
-            ULocalConnectionToClient first = new ULocalConnectionToClient();
-            first.connectionToServer = new ULocalConnectionToServer();
+            LocalConnectionToClient first = new LocalConnectionToClient();
+            first.connectionToServer = new LocalConnectionToServer();
             first.isReady = true;
             NetworkServer.connections[42] = first;
 
             // add second ready client
-            ULocalConnectionToClient second = new ULocalConnectionToClient();
-            second.connectionToServer = new ULocalConnectionToServer();
+            LocalConnectionToClient second = new LocalConnectionToClient();
+            second.connectionToServer = new LocalConnectionToServer();
             second.isReady = true;
             NetworkServer.connections[43] = second;
 
@@ -513,8 +513,8 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
+            LocalConnectionToClient connection = new LocalConnectionToClient();
+            connection.connectionToServer = new LocalConnectionToServer();
             NetworkServer.AddConnection(connection);
 
             // set as authenticated, otherwise readymessage is rejected
@@ -545,8 +545,8 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
+            LocalConnectionToClient connection = new LocalConnectionToClient();
+            connection.connectionToServer = new LocalConnectionToServer();
             NetworkServer.AddConnection(connection);
 
             // set as authenticated, otherwise removeplayer is rejected
@@ -611,7 +611,7 @@ namespace Mirror.Tests
             // sending a command without authority should fail
             // (= if connectionToClient is not what we received the data on)
             // set wrong authority
-            identity.connectionToClient = new ULocalConnectionToClient();
+            identity.connectionToClient = new LocalConnectionToClient();
             comp0.called = 0;
             comp1.called = 0;
             Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
@@ -683,8 +683,8 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
+            LocalConnectionToClient connection = new LocalConnectionToClient();
+            connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
@@ -771,8 +771,8 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
-            connection.connectionToServer = new ULocalConnectionToServer();
+            LocalConnectionToClient connection = new LocalConnectionToClient();
+            connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
@@ -845,10 +845,10 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            LocalConnectionToClient connection = new LocalConnectionToClient();
             // required for ShowForConnection
             connection.isReady = true;
-            connection.connectionToServer = new ULocalConnectionToServer();
+            connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
@@ -892,10 +892,10 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            ULocalConnectionToClient connection = new ULocalConnectionToClient();
+            LocalConnectionToClient connection = new LocalConnectionToClient();
             // required for ShowForConnection
             connection.isReady = true;
-            connection.connectionToServer = new ULocalConnectionToServer();
+            connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
@@ -1026,7 +1026,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.True);
 
             // set local connection
-            NetworkServer.SetLocalConnection(new ULocalConnectionToClient());
+            NetworkServer.SetLocalConnection(new LocalConnectionToClient());
             Assert.That(NetworkServer.localClientActive, Is.True);
 
             // connect
@@ -1086,8 +1086,8 @@ namespace Mirror.Tests
         [Test]
         public void NoConnectionsTest_WithHostOnly()
         {
-            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
-            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
+            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
+            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
             connectionToServer.connectionToClient = connectionToClient;
             connectionToClient.connectionToServer = connectionToServer;
 
@@ -1104,8 +1104,8 @@ namespace Mirror.Tests
         [Test]
         public void NoConnectionsTest_WithHostAndConnection()
         {
-            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
-            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
+            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
+            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
             connectionToServer.connectionToClient = connectionToClient;
             connectionToClient.connectionToServer = connectionToServer;
 

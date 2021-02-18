@@ -11,14 +11,14 @@ namespace Mirror.Tests
             public string name;
         }*/
 
-        ULocalConnectionToClient connectionToClient;
-        ULocalConnectionToServer connectionToServer;
+        LocalConnectionToClient connectionToClient;
+        LocalConnectionToServer connectionToServer;
 
         [SetUp]
         public void SetUpConnections()
         {
-            connectionToServer = new ULocalConnectionToServer();
-            connectionToClient = new ULocalConnectionToClient();
+            connectionToServer = new LocalConnectionToServer();
+            connectionToClient = new LocalConnectionToClient();
 
             connectionToClient.connectionToServer = connectionToServer;
             connectionToServer.connectionToClient = connectionToClient;
