@@ -101,10 +101,7 @@ namespace Mirror
             {
                 readyConnection.identity = identity;
             }
-            else
-            {
-                Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
-            }
+            else Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
         }
 
         /// <summary>
