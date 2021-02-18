@@ -35,13 +35,15 @@ namespace Mirror
         /// <summary>
         /// A list of local connections on the server.
         /// </summary>
-        public static Dictionary<int, NetworkConnectionToClient> connections = new Dictionary<int, NetworkConnectionToClient>();
+        public static Dictionary<int, NetworkConnectionToClient> connections =
+            new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>
         /// <para>Dictionary of the message handlers registered with the server.</para>
         /// <para>The key to the dictionary is the message Id.</para>
         /// </summary>
-        static Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
+        static Dictionary<int, NetworkMessageDelegate> handlers =
+            new Dictionary<int, NetworkMessageDelegate>();
 
         /// <summary>
         /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
