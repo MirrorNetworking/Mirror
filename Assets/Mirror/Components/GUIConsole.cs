@@ -43,12 +43,10 @@ public class GUIConsole : MonoBehaviour
     bool visible;
     Vector2 scroll = Vector2.zero;
 
-#if !UNITY_EDITOR
     void Awake()
     {
         Application.logMessageReceived += OnLog;
     }
-#endif
 
     // OnLog logs everything, even Debug.Log messages in release builds
     // => this makes a lot of things easier. e.g. addon initialization logs.
