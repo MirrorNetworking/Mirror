@@ -151,10 +151,7 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         internal abstract void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
 
-        public override string ToString()
-        {
-            return $"connection({connectionId})";
-        }
+        public override string ToString() => $"connection({connectionId})";
 
         internal void AddToObserving(NetworkIdentity identity)
         {
