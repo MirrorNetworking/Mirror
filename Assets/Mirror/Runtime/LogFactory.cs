@@ -1,1 +1,1 @@
-// File moved to Mirror/Runtime/Logging/LogFactory.cs
+// removed 2021-02-16
