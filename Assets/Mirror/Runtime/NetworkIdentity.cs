@@ -658,7 +658,21 @@ namespace Mirror
             else
             {
                 AssignSceneID();
-                m_AssetId = "";
+
+                // IMPORTANT: DO NOT clear assetId at runtime!
+                // => fixes a bug where clicking any of the NetworkIdentity
+                //    properties (like ServerOnly/ForceHidden) at runtime would
+                //    call OnValidate
+                // => OnValidate gets into this else case here because prefab
+                //    connection isn't known at runtime
+                // => then we would clear the previously assigned assetId
+                // => and NetworkIdentity couldn't be spawned on other clients
+                //    anymore because assetId was cleared
+                if (!EditorApplication.isPlaying)
+                {
+                    m_AssetId = "";
+                }
+                else Debug.Log($"Avoided clearing assetId at runtime for {name} after (probably) clicking any of the NetworkIdentity properties.");
             }
         }
 #endif
