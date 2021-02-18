@@ -724,10 +724,10 @@ namespace Mirror
             }
         }
 
-        internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage msg)
+        internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)
         {
-            if (msg.assetId != Guid.Empty)
-                identity.assetId = msg.assetId;
+            if (message.assetId != Guid.Empty)
+                identity.assetId = message.assetId;
 
             if (!identity.gameObject.activeSelf)
             {
@@ -735,26 +735,26 @@ namespace Mirror
             }
 
             // apply local values for VR support
-            identity.transform.localPosition = msg.position;
-            identity.transform.localRotation = msg.rotation;
-            identity.transform.localScale = msg.scale;
-            identity.hasAuthority = msg.isOwner;
-            identity.netId = msg.netId;
+            identity.transform.localPosition = message.position;
+            identity.transform.localRotation = message.rotation;
+            identity.transform.localScale = message.scale;
+            identity.hasAuthority = message.isOwner;
+            identity.netId = message.netId;
 
-            if (msg.isLocalPlayer)
+            if (message.isLocalPlayer)
                 InternalAddPlayer(identity);
 
             // deserialize components if any payload
             // (Count is 0 if there were no components)
-            if (msg.payload.Count > 0)
+            if (message.payload.Count > 0)
             {
-                using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(msg.payload))
+                using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(message.payload))
                 {
                     identity.OnDeserializeAllSafely(payloadReader, true);
                 }
             }
 
-            NetworkIdentity.spawned[msg.netId] = identity;
+            NetworkIdentity.spawned[message.netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
