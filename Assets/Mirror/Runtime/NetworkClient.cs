@@ -324,12 +324,12 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacker.GetId<T>();
+            int msgType = MessagePacking.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
-            handlers[msgType] = MessagePacker.WrapHandler(handler, requireAuthentication);
+            handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
         /// <summary>
@@ -355,8 +355,8 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacker.GetId<T>();
-            handlers[msgType] = MessagePacker.WrapHandler(handler, requireAuthentication);
+            int msgType = MessagePacking.GetId<T>();
+            handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
         /// <summary>
@@ -380,7 +380,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // use int to minimize collisions
-            int msgType = MessagePacker.GetId<T>();
+            int msgType = MessagePacking.GetId<T>();
             return handlers.Remove(msgType);
         }
 

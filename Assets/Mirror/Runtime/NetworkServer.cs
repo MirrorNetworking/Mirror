@@ -279,7 +279,7 @@ namespace Mirror
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message into byte[] once
-                MessagePacker.Pack(msg, writer);
+                MessagePacking.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 foreach (NetworkConnection conn in identity.observers.Values)
@@ -318,7 +318,7 @@ namespace Mirror
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
-                MessagePacker.Pack(msg, writer);
+                MessagePacking.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
@@ -383,7 +383,7 @@ namespace Mirror
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
-                MessagePacker.Pack(msg, writer);
+                MessagePacking.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 int count = 0;
@@ -627,12 +627,12 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacker.GetId<T>();
+            int msgType = MessagePacking.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
-            handlers[msgType] = MessagePacker.WrapHandler(handler, requireAuthentication);
+            handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
         /// <summary>
@@ -658,8 +658,8 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacker.GetId<T>();
-            handlers[msgType] = MessagePacker.WrapHandler(handler, requireAuthentication);
+            int msgType = MessagePacking.GetId<T>();
+            handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
         /// <summary>
@@ -682,7 +682,7 @@ namespace Mirror
         public static void UnregisterHandler<T>()
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacker.GetId<T>();
+            int msgType = MessagePacking.GetId<T>();
             handlers.Remove(msgType);
         }
 

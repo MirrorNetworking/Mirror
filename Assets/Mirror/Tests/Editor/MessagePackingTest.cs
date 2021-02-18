@@ -3,7 +3,7 @@ using NUnit.Framework;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class MessagePackerTest
+    public class MessagePackingTest
     {
         public struct EmptyMessage : NetworkMessage {}
 
@@ -13,7 +13,7 @@ namespace Mirror.Tests
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                MessagePacker.Pack(message, writer);
+                MessagePacking.Pack(message, writer);
                 return writer.ToArray();
             }
         }
@@ -24,7 +24,7 @@ namespace Mirror.Tests
         {
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
             {
-                int msgType = MessagePacker.GetId<T>();
+                int msgType = MessagePacking.GetId<T>();
 
                 int id = networkReader.ReadUInt16();
                 if (id != msgType)
@@ -101,7 +101,7 @@ namespace Mirror.Tests
             byte[] data = PackToByteArray(message);
             NetworkReader reader = new NetworkReader(data);
 
-            bool result = MessagePacker.Unpack(reader, out int msgType);
+            bool result = MessagePacking.Unpack(reader, out int msgType);
             Assert.That(result, Is.EqualTo(true));
             Assert.That(msgType, Is.EqualTo(BitConverter.ToUInt16(data, 0)));
         }
@@ -111,7 +111,7 @@ namespace Mirror.Tests
         {
             // try an invalid message
             NetworkReader reader2 = new NetworkReader(new byte[0]);
-            bool result2 = MessagePacker.Unpack(reader2, out int msgType2);
+            bool result2 = MessagePacking.Unpack(reader2, out int msgType2);
             Assert.That(result2, Is.EqualTo(false));
             Assert.That(msgType2, Is.EqualTo(0));
         }
@@ -120,11 +120,11 @@ namespace Mirror.Tests
         public void MessageIdIsCorrectLength()
         {
             NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(new EmptyMessage(), writer);
+            MessagePacking.Pack(new EmptyMessage(), writer);
 
             ArraySegment<byte> segment = writer.ToArraySegment();
 
-            Assert.That(segment.Count, Is.EqualTo(MessagePacker.HeaderSize), "Empty message should have same size as HeaderSize");
+            Assert.That(segment.Count, Is.EqualTo(MessagePacking.HeaderSize), "Empty message should have same size as HeaderSize");
         }
     }
 }

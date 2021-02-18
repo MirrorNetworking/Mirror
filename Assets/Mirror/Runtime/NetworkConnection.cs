@@ -117,7 +117,7 @@ namespace Mirror
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message and send allocation free
-                MessagePacker.Pack(msg, writer);
+                MessagePacking.Pack(msg, writer);
                 NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
                 Send(writer.ToArraySegment(), channelId);
             }
@@ -187,7 +187,7 @@ namespace Mirror
         // helper function
         protected bool UnpackAndInvoke(NetworkReader reader, int channelId)
         {
-            if (MessagePacker.Unpack(reader, out int msgType))
+            if (MessagePacking.Unpack(reader, out int msgType))
             {
                 // try to invoke the handler for that message
                 if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
@@ -216,7 +216,7 @@ namespace Mirror
         /// <param name="buffer">The data received.</param>
         internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
         {
-            if (buffer.Count < MessagePacker.HeaderSize)
+            if (buffer.Count < MessagePacking.HeaderSize)
             {
                 Debug.LogError($"ConnectionRecv {this} Message was too short (messages should start with message id)");
                 Disconnect();

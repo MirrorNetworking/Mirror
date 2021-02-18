@@ -14,7 +14,7 @@ namespace Mirror
     //    using 2 bytes for shorts.
     // -> this reduces bandwidth by 10% if average message size is 20 bytes
     //    (probably even shorter)
-    public static class MessagePacker
+    public static class MessagePacking
     {
         /// <summary>
         /// this is the minimum size of a message that mirror will accept

@@ -419,7 +419,7 @@ namespace Mirror.Tests
             // serialize a test message into an arraysegment
             TestMessage1 testMessage = new TestMessage1 { IntValue = 13, DoubleValue = 14, StringValue = "15" };
             NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(testMessage, writer);
+            MessagePacking.Pack(testMessage, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
             // call transport.OnDataReceived
@@ -456,7 +456,7 @@ namespace Mirror.Tests
             // serialize a test message into an arraysegment
             TestMessage1 testMessage = new TestMessage1 { IntValue = 13, DoubleValue = 14, StringValue = "15" };
             NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(testMessage, writer);
+            MessagePacking.Pack(testMessage, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
             // call transport.OnDataReceived with an invalid connectionId
@@ -523,7 +523,7 @@ namespace Mirror.Tests
             // serialize a ready message into an arraysegment
             ReadyMessage message = new ReadyMessage();
             NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(message, writer);
+            MessagePacking.Pack(message, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
             // call transport.OnDataReceived with the message
@@ -584,7 +584,7 @@ namespace Mirror.Tests
                 payload = new ArraySegment<byte>(new byte[0])
             };
             NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(message, writer);
+            MessagePacking.Pack(message, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
             // call transport.OnDataReceived with the message
@@ -600,7 +600,7 @@ namespace Mirror.Tests
             comp0.called = 0;
             message.componentIndex = 1;
             writer = new NetworkWriter();
-            MessagePacker.Pack(message, writer);
+            MessagePacking.Pack(message, writer);
             segment = writer.ToArraySegment();
             Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
 
@@ -625,7 +625,7 @@ namespace Mirror.Tests
             message.netId += 1;
             writer = new NetworkWriter();
             // need to serialize the message again with wrong netid
-            MessagePacker.Pack(message, writer);
+            MessagePacking.Pack(message, writer);
             ArraySegment<byte> segmentWrongNetId = writer.ToArraySegment();
             comp0.called = 0;
             comp1.called = 0;
@@ -689,7 +689,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
+                { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
@@ -728,20 +728,20 @@ namespace Mirror.Tests
 
             // serialize first message, send it to server, check if it was handled
             NetworkWriter writer = new NetworkWriter();
-            MessagePacker.Pack(new TestMessage1(), writer);
+            MessagePacking.Pack(new TestMessage1(), writer);
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             Assert.That(variant1Called, Is.EqualTo(1));
 
             // serialize second message, send it to server, check if it was handled
             writer = new NetworkWriter();
-            MessagePacker.Pack(new TestMessage2(), writer);
+            MessagePacking.Pack(new TestMessage2(), writer);
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             Assert.That(variant2Called, Is.EqualTo(1));
 
             // unregister first handler, send, should fail
             NetworkServer.UnregisterHandler<TestMessage1>();
             writer = new NetworkWriter();
-            MessagePacker.Pack(new TestMessage1(), writer);
+            MessagePacking.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
@@ -753,7 +753,7 @@ namespace Mirror.Tests
             NetworkServer.ClearHandlers();
             // (only add this one to avoid disconnect error)
             writer = new NetworkWriter();
-            MessagePacker.Pack(new TestMessage1(), writer);
+            MessagePacking.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
@@ -777,7 +777,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
+                { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
@@ -853,7 +853,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++called) }
+                { MessagePacking.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 
@@ -900,7 +900,7 @@ namespace Mirror.Tests
             int called = 0;
             connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
             {
-                { MessagePacker.GetId<ObjectHideMessage>(), ((conn, reader, channelId) => ++called) }
+                { MessagePacking.GetId<ObjectHideMessage>(), ((conn, reader, channelId) => ++called) }
             });
             NetworkServer.AddConnection(connection);
 

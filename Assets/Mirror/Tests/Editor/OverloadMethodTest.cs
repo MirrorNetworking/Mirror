@@ -31,9 +31,9 @@ namespace Mirror.Tests.MessageTests
                 someValue = value
             };
 
-            byte[] data = MessagePackerTest.PackToByteArray(intMessage);
+            byte[] data = MessagePackingTest.PackToByteArray(intMessage);
 
-            NoArgMethodMessage unpacked = MessagePackerTest.UnpackFromByteArray<NoArgMethodMessage>(data);
+            NoArgMethodMessage unpacked = MessagePackingTest.UnpackFromByteArray<NoArgMethodMessage>(data);
 
             Assert.That(unpacked.someValue, Is.EqualTo(value));
         }
@@ -47,9 +47,9 @@ namespace Mirror.Tests.MessageTests
                 someValue = value
             };
 
-            byte[] data = MessagePackerTest.PackToByteArray(intMessage);
+            byte[] data = MessagePackingTest.PackToByteArray(intMessage);
 
-            TwoArgMethodMessage unpacked = MessagePackerTest.UnpackFromByteArray<TwoArgMethodMessage>(data);
+            TwoArgMethodMessage unpacked = MessagePackingTest.UnpackFromByteArray<TwoArgMethodMessage>(data);
 
             Assert.That(unpacked.someValue, Is.EqualTo(value));
         }
