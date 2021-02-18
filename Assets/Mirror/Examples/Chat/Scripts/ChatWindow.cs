@@ -25,6 +25,7 @@ namespace Mirror.Examples.Chat
             Debug.Log(message);
         }
 
+        // Called by UI element SendButton.OnClick
         public void OnSend()
         {
             if (chatMessage.text.Trim() == "")
