@@ -105,7 +105,7 @@ namespace Mirror
 
         public static void ConnectHost()
         {
-            Debug.Log("Client Connect Host to Server");
+            //Debug.Log("Client Connect Host to Server");
 
             RegisterSystemHandlers(true);
 
