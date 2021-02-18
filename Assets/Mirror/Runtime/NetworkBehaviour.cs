@@ -60,12 +60,12 @@ namespace Mirror
         /// <summary>
         /// True if this object only exists on the server
         /// </summary>
-        public bool isServerOnly => isServer && !isClient;
+        public bool isServerOnly => netIdentity.isServerOnly;
 
         /// <summary>
         /// True if this object exists on a client that is not also acting as a server
         /// </summary>
-        public bool isClientOnly => isClient && !isServer;
+        public bool isClientOnly => netIdentity.isClientOnly;
 
         /// <summary>
         /// This returns true if this object is the authoritative version of the object in the distributed network application.
