@@ -10,11 +10,6 @@ namespace Mirror.Examples.Chat
 
         public string PlayerName { get; set; }
 
-        public void SetHostname(string hostname)
-        {
-            networkAddress = hostname;
-        }
-
         public struct CreatePlayerMessage : NetworkMessage
         {
             public string name;
