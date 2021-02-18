@@ -237,7 +237,8 @@ namespace Mirror
         /// <summary>
         /// All spawned NetworkIdentities by netId. Available on server and client.
         /// </summary>
-        public static readonly Dictionary<uint, NetworkIdentity> spawned = new Dictionary<uint, NetworkIdentity>();
+        public static readonly Dictionary<uint, NetworkIdentity> spawned =
+            new Dictionary<uint, NetworkIdentity>();
 
         // get all NetworkBehaviour components
         // => currently lazily initialized so tests can add components after
