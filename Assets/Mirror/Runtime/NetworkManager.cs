@@ -1331,7 +1331,7 @@ namespace Mirror
             if (conn.identity == null)
             {
                 // this is now allowed (was not for a while)
-                Debug.Log("Ready with no player object");
+                //Debug.Log("Ready with no player object");
             }
             NetworkServer.SetClientReady(conn);
         }
