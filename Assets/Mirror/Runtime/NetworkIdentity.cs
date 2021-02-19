@@ -681,7 +681,8 @@ namespace Mirror
                 {
                     m_AssetId = "";
                 }
-                else Debug.Log($"Avoided clearing assetId at runtime for {name} after (probably) clicking any of the NetworkIdentity properties.");
+                // don't log. would show a lot when pressing play in uMMORPG/uSurvival/etc.
+                //else Debug.Log($"Avoided clearing assetId at runtime for {name} after (probably) clicking any of the NetworkIdentity properties.");
             }
         }
 #endif
