@@ -1,3 +1,7 @@
+V1.7 [2021-02-20]
+- ReceiveTimeout: disabled by default for cases where people use Telepathy by
+  itself without pings etc.
+
 V1.6 [2021-02-10]
 - configurable ReceiveTimeout to avoid TCPs high default timeout
 - Server/Client receive queue limit now disconnects instead of showing a

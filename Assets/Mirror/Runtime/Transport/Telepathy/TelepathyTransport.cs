@@ -24,8 +24,8 @@ namespace Mirror
         [Tooltip("Send timeout in milliseconds.")]
         public int SendTimeout = 5000;
 
-        [Tooltip("Receive timeout in milliseconds.")]
-        public int ReceiveTimeout = 5000;
+        [Tooltip("Receive timeout in milliseconds. High by default so users don't time out during scene changes.")]
+        public int ReceiveTimeout = 30000;
 
         [Header("Server")]
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]

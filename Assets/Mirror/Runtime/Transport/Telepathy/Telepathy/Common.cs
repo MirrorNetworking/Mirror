@@ -25,7 +25,10 @@ namespace Telepathy
         // Default TCP receive time out can be huge (minutes).
         // That's way too much for games, let's make it configurable.
         // we need a timeout (in milliseconds)
-        public int ReceiveTimeout = 5000;
+        // => '0' means disabled
+        // => disabled by default because some people might use Telepathy
+        //    without Mirror and without sending pings, so timeouts are likely
+        public int ReceiveTimeout = 0;
 
         // constructor
         protected Common(int MaxMessageSize)
