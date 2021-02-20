@@ -177,6 +177,7 @@ namespace Mirror.Tests
             }
         }
 
+#pragma warning disable 618
         class RebuildObserversNetworkBehaviour : NetworkVisibility
         {
             public NetworkConnection observer;
@@ -200,6 +201,7 @@ namespace Mirror.Tests
                 hostVisibilityValue = visible;
             }
         }
+#pragma warning restore 618
 
         class IsClientServerCheckComponent : NetworkBehaviour
         {

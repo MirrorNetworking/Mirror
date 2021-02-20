@@ -11,8 +11,10 @@ namespace Mirror.Tests
         GameObject player1;
         GameObject player2;
         GameObject player3;
+#pragma warning disable 618
         NetworkMatchChecker player1MatchChecker;
         NetworkMatchChecker player2MatchChecker;
+#pragma warning restore 618
         NetworkConnection player1Connection;
         NetworkConnection player2Connection;
         NetworkConnection player3Connection;
@@ -26,12 +28,16 @@ namespace Mirror.Tests
             transportGO = new GameObject("transportGO");
             Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
 
+#pragma warning disable 618
             player1 = new GameObject("TestPlayer1", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
             player2 = new GameObject("TestPlayer2", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
+#pragma warning restore 618
             player3 = new GameObject("TestPlayer3", typeof(NetworkIdentity));
 
+#pragma warning disable 618
             player1MatchChecker = player1.GetComponent<NetworkMatchChecker>();
             player2MatchChecker = player2.GetComponent<NetworkMatchChecker>();
+#pragma warning restore 618
 
 
             player1Connection = CreateNetworkConnection(player1);
@@ -43,7 +49,9 @@ namespace Mirror.Tests
 
         static Dictionary<Guid, HashSet<NetworkIdentity>> GetMatchPlayersDictionary()
         {
+#pragma warning disable 618
             Type type = typeof(NetworkMatchChecker);
+#pragma warning restore 618
             FieldInfo fieldInfo = type.GetField("matchPlayers", BindingFlags.Static | BindingFlags.NonPublic);
             return (Dictionary<Guid, HashSet<NetworkIdentity>>)fieldInfo.GetValue(null);
         }
@@ -70,12 +78,14 @@ namespace Mirror.Tests
             matchPlayers = null;
         }
 
+#pragma warning disable 618
         static void SetMatchId(NetworkMatchChecker target, Guid guid)
         {
             // set using reflection so bypass property
             FieldInfo field = typeof(NetworkMatchChecker).GetField("currentMatch", BindingFlags.Instance | BindingFlags.NonPublic);
             field.SetValue(target, guid);
         }
+#pragma warning restore 618
 
         [Test]
         public void OnCheckObserverShouldBeTrueForSameMatchId()
