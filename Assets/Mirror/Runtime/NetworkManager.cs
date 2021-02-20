@@ -643,6 +643,13 @@ namespace Mirror
                 authenticator.OnStopServer();
             }
 
+            // Get Network Manager out of DDOL before going to offline scene
+            // to avoid collision and let a fresh Network Manager be created.
+            if (gameObject.scene.name == "DontDestroyOnLoad"
+                && !string.IsNullOrEmpty(offlineScene)
+                && SceneManager.GetActiveScene().path != offlineScene)
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+
             OnStopServer();
 
             //Debug.Log("NetworkManager StopServer");
@@ -673,6 +680,13 @@ namespace Mirror
                 authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
                 authenticator.OnStopClient();
             }
+
+            // Get Network Manager out of DDOL before going to offline scene
+            // to avoid collision and let a fresh Network Manager be created.
+            if (gameObject.scene.name == "DontDestroyOnLoad"
+                && !string.IsNullOrEmpty(offlineScene)
+                && SceneManager.GetActiveScene().path != offlineScene)
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
             OnStopClient();
 
