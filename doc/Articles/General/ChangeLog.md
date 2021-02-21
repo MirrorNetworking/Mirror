@@ -9,7 +9,7 @@ Mirror uses semantic versioning, and the versions shown here are those that were
 - Added: Global Interest Management.  This may eventually lead to replacement of Scene Checker, Match Checker, and Owner Checker components.
 - Added: GUI Console ported from uMMORPG (F12 to show/hide).
 - Added: Network Manager now takes itself out of DDOL in StopServer / StopClient when offline scene is defined to avoid singleton collision.
-- Fixed: Telepathy 1.7 receive timeout disabled by defauly, increased MirrorTransport timeout to 30sec from 5sec to cover scene changes.
+- Fixed: Telepathy 1.7 receive timeout disabled by default, increased MirrorTransport timeout to 30sec from 5sec to cover scene changes.
 - Changed: **Breaking** LogFactory and logging asset feature removed.
 - Changed: **Breaking** Command `ignoreAuthority` parameter renamed to `requiresAthority`, default true.
 - Changed: **Breaking** ClientRpc `excludeOwner` parameter renamed to `includeOwner`, default true.
