@@ -4,6 +4,25 @@
 
 Mirror uses semantic versioning, and the versions shown here are those that were published to the Asset Store, and occasionally major version bumps happen mid-month between store submissions and are therefore not individually shown here.
 
+## Version 31.x.x -- In progress
+- Added: NetworkIdentity now has `isServer` / `isClientOnly`.
+- Added: Global Interest Management.  This may eventually lead to replacement of Scene Checker, Match Checker, and Owner Checker components.
+- Added: GUI Console ported from uMMORPG (F12 to show/hide).
+- Added: Network Manager now takes itself out of DDOL in StopServer / StopClient when offline scene is defined to avoid singleton collision.
+- Fixed: Telepathy 1.7 receive timeout disabled by defauly, increased MirrorTransport timeout to 30sec from 5sec to cover scene changes.
+- Changed: **Breaking** LogFactory and logging asset feature removed.
+- Changed: **Breaking** Command `ignoreAuthority` parameter renamed to `requiresAthority`, default true.
+- Changed: **Breaking** ClientRpc `excludeOwner` parameter renamed to `includeOwner`, default true.
+
+## Version 30.5.3 -- 2021-Feb-15
+- Fixed: Fixed a bug in batching for messages larger than MTU.
+- Fixed: Telepathy 1.6 fixes data races and improves stability.
+- Fixed: Kcp 1.8 fixes emput message sending / receiving undefined behaviour and fixes IPv6 on Nintendo Switch.
+- Changed: Network Manager default max connections is now 100.
+- Changed: **Breaking** NetworkServer and NetworkClient no longer use Connect/Disconnect messages...events are raised instead.
+- Changed: **Breaking** Removed OnServerError / OnClientError messages and handlers.
+- Changed: **Breaking** Removed NetworkConnection.InvokeHandler as no longer needed.
+
 ## Version 30.5.0 -- 2021-Feb-05
 - Added: [KCP Transport](../Transports/KCPTransport.md) updated to version 1.7.
 - Added: Batching support for server messages - See Network Manager to enable.
