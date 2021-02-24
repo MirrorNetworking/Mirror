@@ -1271,12 +1271,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Destroys this object and corresponding objects on all clients.
-        /// <para>In some cases it is useful to remove an object but not delete it on the server. For that, use NetworkServer.UnSpawn() instead of NetworkServer.Destroy().</para>
-        /// </summary>
-        /// <param name="obj">Game object to destroy.</param>
-        public static void Destroy(GameObject obj)
+        static void DestroyObject(GameObject obj, bool destroyServerObject)
         {
             if (obj == null)
             {
@@ -1286,9 +1281,16 @@ namespace Mirror
 
             if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
-                DestroyObject(identity, true);
+                DestroyObject(identity, destroyServerObject);
             }
         }
+
+        /// <summary>
+        /// Destroys this object and corresponding objects on all clients.
+        /// <para>In some cases it is useful to remove an object but not delete it on the server. For that, use NetworkServer.UnSpawn() instead of NetworkServer.Destroy().</para>
+        /// </summary>
+        /// <param name="obj">Game object to destroy.</param>
+        public static void Destroy(GameObject obj) => DestroyObject(obj, true);
 
         /// <summary>
         /// This takes an object that has been spawned and un-spawns it.
@@ -1296,19 +1298,7 @@ namespace Mirror
         /// <para>Unlike when calling NetworkServer.Destroy(), on the server the object will NOT be destroyed. This allows the server to re-use the object, even spawn it again later.</para>
         /// </summary>
         /// <param name="obj">The spawned object to be unspawned.</param>
-        public static void UnSpawn(GameObject obj)
-        {
-            if (obj == null)
-            {
-                Debug.Log("NetworkServer UnspawnObject is null");
-                return;
-            }
-
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-            {
-                DestroyObject(identity, false);
-            }
-        }
+        public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
 
         internal static bool ValidateSceneObject(NetworkIdentity identity)
         {
