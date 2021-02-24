@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using UnityEngine;
 
 namespace Mirror
@@ -65,5 +66,19 @@ namespace Mirror
 
         [FieldOffset(0)]
         public decimal decimalValue;
+    }
+
+    public static class Utils
+    {
+        public static uint GetTrueRandomUInt()
+        {
+            // use Crypto RNG to avoid having time based duplicates
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] bytes = new byte[4];
+                rng.GetBytes(bytes);
+                return BitConverter.ToUInt32(bytes, 0);
+            }
+        }
     }
 }

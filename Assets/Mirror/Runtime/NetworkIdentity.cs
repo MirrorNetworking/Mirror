@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using Mirror.RemoteCalls;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -476,17 +475,6 @@ namespace Mirror
             return true;
         }
 
-        static uint GetRandomUInt()
-        {
-            // use Crypto RNG to avoid having time based duplicates
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-            {
-                byte[] bytes = new byte[4];
-                rng.GetBytes(bytes);
-                return BitConverter.ToUInt32(bytes, 0);
-            }
-        }
-
         // persistent sceneId assignment
         // (because scene objects have no persistent unique ID in Unity)
         //
@@ -565,7 +553,7 @@ namespace Mirror
                 Undo.RecordObject(this, "Generated SceneId");
 
                 // generate random sceneId part (0x00000000FFFFFFFF)
-                uint randomId = GetRandomUInt();
+                uint randomId = Utils.GetTrueRandomUInt();
 
                 // only assign if not a duplicate of an existing scene id
                 // (small chance, but possible)
