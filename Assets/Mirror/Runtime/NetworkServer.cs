@@ -272,7 +272,6 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // Debug.Log("Server.SendToObservers id:" + typeof(T));
-
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
@@ -309,7 +308,6 @@ namespace Mirror
             }
 
             // Debug.Log("Server.SendToAll id:" + typeof(T));
-
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
@@ -365,7 +363,6 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // Debug.Log("Server.SendToReady msgType:" + typeof(T));
-
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
