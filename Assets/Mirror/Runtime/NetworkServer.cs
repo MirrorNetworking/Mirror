@@ -459,8 +459,7 @@ namespace Mirror
         public static void Update()
         {
             // don't need to update server if not active
-            if (!active)
-                return;
+            if (!active) return;
 
             // Check for dead clients but exclude the host client because it
             // doesn't ping itself and therefore may appear inactive.
