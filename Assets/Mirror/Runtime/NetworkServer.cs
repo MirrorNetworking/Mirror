@@ -565,13 +565,11 @@ namespace Mirror
         internal static void OnDisconnected(int connectionId)
         {
             // Debug.Log("Server disconnect client:" + connectionId);
-
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
                 // Debug.Log("Server lost client:" + connectionId);
-
                 OnDisconnected(conn);
             }
         }
