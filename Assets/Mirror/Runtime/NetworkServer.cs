@@ -266,9 +266,9 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="identity"></param>
-        /// <param name="msg"></param>
+        /// <param name="message"></param>
         /// <param name="channelId"></param>
-        static void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)
+        static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
             // Debug.Log("Server.SendToObservers id:" + typeof(T));
@@ -279,7 +279,7 @@ namespace Mirror
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message into byte[] once
-                MessagePacking.Pack(msg, writer);
+                MessagePacking.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 foreach (NetworkConnection conn in identity.observers.Values)
@@ -287,7 +287,7 @@ namespace Mirror
                     conn.Send(segment, channelId);
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, identity.observers.Count);
             }
         }
 
@@ -296,10 +296,10 @@ namespace Mirror
         /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
-        public static void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false)
+        public static void SendToAll<T>(T message, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false)
             where T : struct, NetworkMessage
         {
             if (!active)
@@ -313,7 +313,7 @@ namespace Mirror
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
-                MessagePacking.Pack(msg, writer);
+                MessagePacking.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
@@ -329,7 +329,7 @@ namespace Mirror
                     conn.Send(segment, channelId);
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, count);
             }
         }
 
@@ -338,9 +338,9 @@ namespace Mirror
         /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        public static void SendToReady<T>(T msg, int channelId = Channels.DefaultReliable)
+        public static void SendToReady<T>(T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
             if (!active)
@@ -349,7 +349,7 @@ namespace Mirror
                 return;
             }
 
-            SendToAll(msg, channelId, true);
+            SendToAll(message, channelId, true);
         }
 
         /// <summary>
@@ -358,10 +358,10 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="identity">Identity of the owner</param>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
-        public static void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable)
+        public static void SendToReady<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
             // Debug.Log("Server.SendToReady msgType:" + typeof(T));
@@ -372,7 +372,7 @@ namespace Mirror
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
-                MessagePacking.Pack(msg, writer);
+                MessagePacking.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 int count = 0;
@@ -386,7 +386,7 @@ namespace Mirror
                     }
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, count);
             }
         }
 
@@ -396,12 +396,12 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity">identity of the object</param>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        public static void SendToReady<T>(NetworkIdentity identity, T msg, int channelId)
+        public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
             where T : struct, NetworkMessage
         {
-            SendToReady(identity, msg, true, channelId);
+            SendToReady(identity, message, true, channelId);
         }
 
         /// <summary>
