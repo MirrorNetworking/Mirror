@@ -26,7 +26,7 @@ namespace Mirror
                 .Where(identity => identity.gameObject.hideFlags != HideFlags.NotEditable &&
                                    identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
                                    identity.gameObject.scene.name != "DontDestroyOnLoad" &&
-                                   !PrefabUtility.IsPartOfPrefabAsset(identity.gameObject));
+                                   !Utils.IsPrefab(identity.gameObject));
 
             foreach (NetworkIdentity identity in identities)
             {

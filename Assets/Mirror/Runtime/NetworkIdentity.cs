@@ -454,7 +454,7 @@ namespace Mirror
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
 
-        bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
+        bool ThisIsAPrefab() => Utils.IsPrefab(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
