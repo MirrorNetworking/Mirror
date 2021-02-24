@@ -68,9 +68,7 @@ namespace Mirror
         // so we need to skip them
         int changesAhead;
 
-        public SyncList() : this(EqualityComparer<T>.Default)
-        {
-        }
+        public SyncList() : this(EqualityComparer<T>.Default) {}
 
         public SyncList(IEqualityComparer<T> comparer)
         {
