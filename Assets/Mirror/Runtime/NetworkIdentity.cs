@@ -4,7 +4,6 @@ using Mirror.RemoteCalls;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 #if UNITY_2018_3_OR_NEWER
