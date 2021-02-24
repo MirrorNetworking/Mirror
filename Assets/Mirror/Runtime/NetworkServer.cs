@@ -49,6 +49,7 @@ namespace Mirror
         /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
         /// <para>This can be used if the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
         /// </summary>
+        [Obsolete("dontListen will be removed soon unless anyone can make a good case why we should keep it. It's a remainder from the UNET days.")]
         public static bool dontListen;
 
         /// <summary>
@@ -122,7 +123,9 @@ namespace Mirror
 
                 initialized = false;
             }
+#pragma warning disable 618
             dontListen = false;
+#pragma warning restore 618
             active = false;
             handlers.Clear();
 
@@ -183,7 +186,9 @@ namespace Mirror
             maxConnections = maxConns;
 
             // only start server if we want to listen
+#pragma warning disable 618
             if (!dontListen)
+#pragma warning restore 618
             {
                 Transport.activeTransport.ServerStart();
                 Debug.Log("Server started listening");
