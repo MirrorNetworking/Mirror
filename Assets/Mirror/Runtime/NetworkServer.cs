@@ -1358,13 +1358,13 @@ namespace Mirror
         // Helper function to add all server connections as observers.
         // This is used if none of the components provides their own
         // OnRebuildObservers function.
-        internal static void AddAllAuthenticatedConnectionsToObservers(NetworkIdentity identity)
+        internal static void AddAllReadyServerConnectionsToObservers(NetworkIdentity identity)
         {
             // add all server connections
             foreach (NetworkConnectionToClient conn in connections.Values)
             {
                 // only if authenticated (don't send to people during logins)
-                if (conn.isAuthenticated)
+                if (conn.isReady)
                     identity.AddObserver(conn);
             }
 
@@ -1388,7 +1388,7 @@ namespace Mirror
                 // not force hidden?
                 if (identity.visible != Visibility.ForceHidden)
                 {
-                    AddAllAuthenticatedConnectionsToObservers(identity);
+                    AddAllReadyServerConnectionsToObservers(identity);
                 }
             }
         }
