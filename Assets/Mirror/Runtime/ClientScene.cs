@@ -65,7 +65,7 @@ namespace Mirror
         /// This is dictionary of the disabled NetworkIdentity objects in the scene that could be spawned by messages from the server.
         /// <para>The key to the dictionary is the NetworkIdentity sceneId.</para>
         /// </summary>
-        public static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects = new Dictionary<ulong, NetworkIdentity>();
+        internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects = new Dictionary<ulong, NetworkIdentity>();
 
         // spawn handlers
         internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
