@@ -22,6 +22,7 @@ namespace Mirror.Tests
             identityA = gameObjectA.AddComponent<NetworkIdentity>();
             connectionA = new NetworkConnectionToClient(0x0A, false, 0);
             connectionA.isAuthenticated = true;
+            connectionA.isReady = true;
             connectionA.identity = identityA;
             NetworkIdentity.spawned[0xAA] = identityA;
 
@@ -30,6 +31,7 @@ namespace Mirror.Tests
             identityB = gameObjectB.AddComponent<NetworkIdentity>();
             connectionB = new NetworkConnectionToClient(0x0B, false, 0);
             connectionB.isAuthenticated = true;
+            connectionB.isReady = true;
             connectionB.identity = identityB;
             NetworkIdentity.spawned[0xBB] = identityB;
 

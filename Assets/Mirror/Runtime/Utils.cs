@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using UnityEngine;
 
 namespace Mirror
@@ -65,5 +66,36 @@ namespace Mirror
 
         [FieldOffset(0)]
         public decimal decimalValue;
+    }
+
+    public static class Utils
+    {
+        public static uint GetTrueRandomUInt()
+        {
+            // use Crypto RNG to avoid having time based duplicates
+            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] bytes = new byte[4];
+                rng.GetBytes(bytes);
+                return BitConverter.ToUInt32(bytes, 0);
+            }
+        }
+
+        public static bool IsPrefab(GameObject obj)
+        {
+#if UNITY_EDITOR
+    #if UNITY_2018_3_OR_NEWER
+            return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
+    #elif UNITY_2018_2_OR_NEWER
+            return UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null &&
+                   UnityEditor.PrefabUtility.GetPrefabObject(obj) != null;
+    #else
+            return UnityEditor.PrefabUtility.GetPrefabParent(obj) == null &&
+                   UnityEditor.PrefabUtility.GetPrefabObject(obj) != null;
+    #endif
+#else
+            return false;
+#endif
+        }
     }
 }

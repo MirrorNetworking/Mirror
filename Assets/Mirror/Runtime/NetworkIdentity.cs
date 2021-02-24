@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using Mirror.RemoteCalls;
 using UnityEngine;
 using UnityEngine.Serialization;
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -456,7 +454,7 @@ namespace Mirror
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
 
-        bool ThisIsAPrefab() => PrefabUtility.IsPartOfPrefabAsset(gameObject);
+        bool ThisIsAPrefab() => Utils.IsPrefab(gameObject);
 
         bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
         {
@@ -474,17 +472,6 @@ namespace Mirror
                 return false;
             }
             return true;
-        }
-
-        static uint GetRandomUInt()
-        {
-            // use Crypto RNG to avoid having time based duplicates
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-            {
-                byte[] bytes = new byte[4];
-                rng.GetBytes(bytes);
-                return BitConverter.ToUInt32(bytes, 0);
-            }
         }
 
         // persistent sceneId assignment
@@ -565,7 +552,7 @@ namespace Mirror
                 Undo.RecordObject(this, "Generated SceneId");
 
                 // generate random sceneId part (0x00000000FFFFFFFF)
-                uint randomId = GetRandomUInt();
+                uint randomId = Utils.GetTrueRandomUInt();
 
                 // only assign if not a duplicate of an existing scene id
                 // (small chance, but possible)

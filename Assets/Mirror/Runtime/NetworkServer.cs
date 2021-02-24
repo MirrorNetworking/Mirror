@@ -266,20 +266,19 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="identity"></param>
-        /// <param name="msg"></param>
+        /// <param name="message"></param>
         /// <param name="channelId"></param>
-        static void SendToObservers<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)
+        static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
             // Debug.Log("Server.SendToObservers id:" + typeof(T));
-
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message into byte[] once
-                MessagePacking.Pack(msg, writer);
+                MessagePacking.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 foreach (NetworkConnection conn in identity.observers.Values)
@@ -287,7 +286,7 @@ namespace Mirror
                     conn.Send(segment, channelId);
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, identity.observers.Count);
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, identity.observers.Count);
             }
         }
 
@@ -296,10 +295,10 @@ namespace Mirror
         /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
         /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
-        public static void SendToAll<T>(T msg, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false)
+        public static void SendToAll<T>(T message, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false)
             where T : struct, NetworkMessage
         {
             if (!active)
@@ -309,11 +308,10 @@ namespace Mirror
             }
 
             // Debug.Log("Server.SendToAll id:" + typeof(T));
-
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
-                MessagePacking.Pack(msg, writer);
+                MessagePacking.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 // filter and then send to all internet connections at once
@@ -329,7 +327,7 @@ namespace Mirror
                     conn.Send(segment, channelId);
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, count);
             }
         }
 
@@ -338,9 +336,9 @@ namespace Mirror
         /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        public static void SendToReady<T>(T msg, int channelId = Channels.DefaultReliable)
+        public static void SendToReady<T>(T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
             if (!active)
@@ -349,7 +347,7 @@ namespace Mirror
                 return;
             }
 
-            SendToAll(msg, channelId, true);
+            SendToAll(message, channelId, true);
         }
 
         /// <summary>
@@ -358,21 +356,20 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="identity">Identity of the owner</param>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
-        public static void SendToReady<T>(NetworkIdentity identity, T msg, bool includeOwner = true, int channelId = Channels.DefaultReliable)
+        public static void SendToReady<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
             // Debug.Log("Server.SendToReady msgType:" + typeof(T));
-
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message only once
-                MessagePacking.Pack(msg, writer);
+                MessagePacking.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 int count = 0;
@@ -386,7 +383,7 @@ namespace Mirror
                     }
                 }
 
-                NetworkDiagnostics.OnSend(msg, channelId, segment.Count, count);
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, count);
             }
         }
 
@@ -396,12 +393,12 @@ namespace Mirror
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="identity">identity of the object</param>
-        /// <param name="msg">Message</param>
+        /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
-        public static void SendToReady<T>(NetworkIdentity identity, T msg, int channelId)
+        public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
             where T : struct, NetworkMessage
         {
-            SendToReady(identity, msg, true, channelId);
+            SendToReady(identity, message, true, channelId);
         }
 
         /// <summary>
@@ -412,7 +409,6 @@ namespace Mirror
         {
             DisconnectAllConnections();
             localConnection = null;
-
             active = false;
         }
 
@@ -459,8 +455,7 @@ namespace Mirror
         public static void Update()
         {
             // don't need to update server if not active
-            if (!active)
-                return;
+            if (!active) return;
 
             // Check for dead clients but exclude the host client because it
             // doesn't ping itself and therefore may appear inactive.
@@ -565,13 +560,11 @@ namespace Mirror
         internal static void OnDisconnected(int connectionId)
         {
             // Debug.Log("Server disconnect client:" + connectionId);
-
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
                 conn.Disconnect();
                 RemoveConnection(connectionId);
                 // Debug.Log("Server lost client:" + connectionId);
-
                 OnDisconnected(conn);
             }
         }
@@ -1083,40 +1076,6 @@ namespace Mirror
             RebuildObservers(identity, true);
         }
 
-        internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
-        {
-            if (identity.serverOnly)
-                return;
-
-            // for easier debugging
-            // Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId);
-
-            // one writer for owner, one for observers
-            using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
-            {
-                bool isOwner = identity.connectionToClient == conn;
-
-                ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
-
-                SpawnMessage msg = new SpawnMessage
-                {
-                    netId = identity.netId,
-                    isLocalPlayer = conn.identity == identity,
-                    isOwner = isOwner,
-                    sceneId = identity.sceneId,
-                    assetId = identity.assetId,
-                    // use local values for VR support
-                    position = identity.transform.localPosition,
-                    rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale,
-
-                    payload = payload,
-                };
-
-                conn.Send(msg);
-            }
-        }
-
         static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, PooledNetworkWriter ownerWriter, PooledNetworkWriter observersWriter)
         {
             // Only call OnSerializeAllSafely if there are NetworkBehaviours
@@ -1139,6 +1098,40 @@ namespace Mirror
             ArraySegment<byte> payload = isOwner ? ownerSegment : observersSegment;
 
             return payload;
+        }
+
+        internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
+        {
+            if (identity.serverOnly)
+                return;
+
+            // for easier debugging
+            // Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId);
+
+            // one writer for owner, one for observers
+            using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
+            {
+                bool isOwner = identity.connectionToClient == conn;
+
+                ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
+
+                SpawnMessage message = new SpawnMessage
+                {
+                    netId = identity.netId,
+                    isLocalPlayer = conn.identity == identity,
+                    isOwner = isOwner,
+                    sceneId = identity.sceneId,
+                    assetId = identity.assetId,
+                    // use local values for VR support
+                    position = identity.transform.localPosition,
+                    rotation = identity.transform.localRotation,
+                    scale = identity.transform.localScale,
+
+                    payload = payload,
+                };
+
+                conn.Send(message);
+            }
         }
 
         /// <summary>
@@ -1210,29 +1203,13 @@ namespace Mirror
             }
         }
 
-        static bool CheckForPrefab(GameObject obj)
-        {
-#if UNITY_EDITOR
-    #if UNITY_2018_3_OR_NEWER
-            return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
-    #elif UNITY_2018_2_OR_NEWER
-            return (UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
-    #else
-            return (UnityEditor.PrefabUtility.GetPrefabParent(obj) == null) && (UnityEditor.PrefabUtility.GetPrefabObject(obj) != null);
-    #endif
-#else
-            return false;
-#endif
-        }
-
         static bool VerifyCanSpawn(GameObject obj)
         {
-            if (CheckForPrefab(obj))
+            if (Utils.IsPrefab(obj))
             {
                 Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
                 return false;
             }
-
             return true;
         }
 
@@ -1271,12 +1248,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Destroys this object and corresponding objects on all clients.
-        /// <para>In some cases it is useful to remove an object but not delete it on the server. For that, use NetworkServer.UnSpawn() instead of NetworkServer.Destroy().</para>
-        /// </summary>
-        /// <param name="obj">Game object to destroy.</param>
-        public static void Destroy(GameObject obj)
+        static void DestroyObject(GameObject obj, bool destroyServerObject)
         {
             if (obj == null)
             {
@@ -1286,9 +1258,16 @@ namespace Mirror
 
             if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
-                DestroyObject(identity, true);
+                DestroyObject(identity, destroyServerObject);
             }
         }
+
+        /// <summary>
+        /// Destroys this object and corresponding objects on all clients.
+        /// <para>In some cases it is useful to remove an object but not delete it on the server. For that, use NetworkServer.UnSpawn() instead of NetworkServer.Destroy().</para>
+        /// </summary>
+        /// <param name="obj">Game object to destroy.</param>
+        public static void Destroy(GameObject obj) => DestroyObject(obj, true);
 
         /// <summary>
         /// This takes an object that has been spawned and un-spawns it.
@@ -1296,19 +1275,7 @@ namespace Mirror
         /// <para>Unlike when calling NetworkServer.Destroy(), on the server the object will NOT be destroyed. This allows the server to re-use the object, even spawn it again later.</para>
         /// </summary>
         /// <param name="obj">The spawned object to be unspawned.</param>
-        public static void UnSpawn(GameObject obj)
-        {
-            if (obj == null)
-            {
-                Debug.Log("NetworkServer UnspawnObject is null");
-                return;
-            }
-
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-            {
-                DestroyObject(identity, false);
-            }
-        }
+        public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
 
         internal static bool ValidateSceneObject(NetworkIdentity identity)
         {
@@ -1358,18 +1325,18 @@ namespace Mirror
         // Helper function to add all server connections as observers.
         // This is used if none of the components provides their own
         // OnRebuildObservers function.
-        internal static void AddAllAuthenticatedConnectionsToObservers(NetworkIdentity identity)
+        internal static void AddAllReadyServerConnectionsToObservers(NetworkIdentity identity)
         {
             // add all server connections
             foreach (NetworkConnectionToClient conn in connections.Values)
             {
                 // only if authenticated (don't send to people during logins)
-                if (conn.isAuthenticated)
+                if (conn.isReady)
                     identity.AddObserver(conn);
             }
 
             // add local host connection (if any)
-            if (localConnection != null)
+            if (localConnection != null && localConnection.isReady)
             {
                 identity.AddObserver(localConnection);
             }
@@ -1388,7 +1355,7 @@ namespace Mirror
                 // not force hidden?
                 if (identity.visible != Visibility.ForceHidden)
                 {
-                    AddAllAuthenticatedConnectionsToObservers(identity);
+                    AddAllReadyServerConnectionsToObservers(identity);
                 }
             }
         }
@@ -1428,7 +1395,9 @@ namespace Mirror
             // add all newObservers that aren't in .observers yet
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn != null)
+                // only add ready connections.
+                // otherwise the player might not be in the world yet or anymore
+                if (conn != null && conn.isReady)
                 {
                     if (initialize || !identity.observers.ContainsKey(conn.connectionId))
                     {
@@ -1458,7 +1427,7 @@ namespace Mirror
                 identity.observers.Clear();
                 foreach (NetworkConnection conn in newObservers)
                 {
-                    if (conn != null)
+                    if (conn != null && conn.isReady)
                         identity.observers.Add(conn.connectionId, conn);
                 }
             }
