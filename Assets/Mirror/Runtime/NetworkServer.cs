@@ -1369,7 +1369,7 @@ namespace Mirror
             }
 
             // add local host connection (if any)
-            if (localConnection != null)
+            if (localConnection != null && localConnection.isReady)
             {
                 identity.AddObserver(localConnection);
             }
@@ -1428,7 +1428,9 @@ namespace Mirror
             // add all newObservers that aren't in .observers yet
             foreach (NetworkConnection conn in newObservers)
             {
-                if (conn != null)
+                // only add ready connections.
+                // otherwise the player might not be in the world yet or anymore
+                if (conn != null && conn.isReady)
                 {
                     if (initialize || !identity.observers.ContainsKey(conn.connectionId))
                     {
@@ -1458,7 +1460,7 @@ namespace Mirror
                 identity.observers.Clear();
                 foreach (NetworkConnection conn in newObservers)
                 {
-                    if (conn != null)
+                    if (conn != null && conn.isReady)
                         identity.observers.Add(conn.connectionId, conn);
                 }
             }
