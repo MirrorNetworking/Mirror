@@ -1098,7 +1098,7 @@ namespace Mirror
 
                 ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
 
-                SpawnMessage msg = new SpawnMessage
+                SpawnMessage message = new SpawnMessage
                 {
                     netId = identity.netId,
                     isLocalPlayer = conn.identity == identity,
@@ -1113,7 +1113,7 @@ namespace Mirror
                     payload = payload,
                 };
 
-                conn.Send(msg);
+                conn.Send(message);
             }
         }
 
