@@ -323,7 +323,6 @@ namespace Mirror
     public class SyncHashSet<T> : SyncSet<T>
     {
         public SyncHashSet() : this(EqualityComparer<T>.Default) {}
-
         public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) {}
 
         // allocation free enumerator
@@ -333,7 +332,6 @@ namespace Mirror
     public class SyncSortedSet<T> : SyncSet<T>
     {
         public SyncSortedSet() : this(Comparer<T>.Default) {}
-
         public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) {}
 
         // allocation free enumerator
