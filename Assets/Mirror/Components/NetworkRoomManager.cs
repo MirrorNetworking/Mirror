@@ -327,7 +327,6 @@ namespace Mirror
             {
                 CreateRoomPlayer(conn);
                 SceneLoadedForPlayer(conn, conn.identity.gameObject);
-                OnClientSceneChanged(conn);
             }
         }
 
