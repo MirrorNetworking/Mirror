@@ -175,6 +175,12 @@ namespace Mirror
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
         /// <summary>
+        /// List of transforms populated by NetworkStartPosition components found in the scene.
+        /// </summary>
+        public static List<Transform> startPositions = new List<Transform>();
+        public static int startPositionIndex;
+
+        /// <summary>
         /// NetworkManager singleton
         /// </summary>
         public static NetworkManager singleton { get; private set; }
@@ -1109,13 +1115,6 @@ namespace Mirror
         #endregion
 
         #region Start Positions
-
-        public static int startPositionIndex;
-
-        /// <summary>
-        /// List of transforms populated by NetworkStartPosition components found in the scene.
-        /// </summary>
-        public static List<Transform> startPositions = new List<Transform>();
 
         /// <summary>
         /// Registers the transform of a game object as a player spawn location.
