@@ -1217,7 +1217,6 @@ namespace Mirror
                 Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
                 return false;
             }
-
             return true;
         }
 
