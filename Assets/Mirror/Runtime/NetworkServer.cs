@@ -412,7 +412,6 @@ namespace Mirror
         {
             DisconnectAllConnections();
             localConnection = null;
-
             active = false;
         }
 
