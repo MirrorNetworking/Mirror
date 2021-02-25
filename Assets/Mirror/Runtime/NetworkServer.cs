@@ -49,6 +49,8 @@ namespace Mirror
         /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
         /// <para>This can be used if the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
         /// </summary>
+        // NOTE: people use this for single player mode where it should not do
+        //       any networking! see https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
 
         /// <summary>
