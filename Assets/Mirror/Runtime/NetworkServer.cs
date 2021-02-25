@@ -618,6 +618,7 @@ namespace Mirror
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
         /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        [Obsolete("Use RegisterHandler(Action<NetworkConnection, T), requireAuthentication instead.")]
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {

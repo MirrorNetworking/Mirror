@@ -713,10 +713,6 @@ namespace Mirror.Tests
             int variant1Called = 0;
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => { ++variant1Called; }, false);
 
-            // RegisterHandler(msg) variant
-            int variant2Called = 0;
-            NetworkServer.RegisterHandler<TestMessage2>(msg => { ++variant2Called; }, false);
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -731,12 +727,6 @@ namespace Mirror.Tests
             MessagePacking.Pack(new TestMessage1(), writer);
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             Assert.That(variant1Called, Is.EqualTo(1));
-
-            // serialize second message, send it to server, check if it was handled
-            writer = new NetworkWriter();
-            MessagePacking.Pack(new TestMessage2(), writer);
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
-            Assert.That(variant2Called, Is.EqualTo(1));
 
             // unregister first handler, send, should fail
             NetworkServer.UnregisterHandler<TestMessage1>();
@@ -758,8 +748,6 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             LogAssert.ignoreFailingMessages = false;
-            // still 1, not 2
-            Assert.That(variant2Called, Is.EqualTo(1));
         }
 
         [Test]
