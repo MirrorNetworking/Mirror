@@ -24,7 +24,6 @@
 //    PostLateUpdate. we DO NOT want to add to the end of PostLateUpdate
 //    after Unity's magic systems like MemoryFrameMaintenance ran.
 using System;
-using UnityEngine;
 using UnityEngine.Experimental.LowLevel;
 
 namespace Mirror
@@ -81,9 +80,9 @@ namespace Mirror
             if (playerLoop.type == playerLoopSystemType)
             {
                 // debugging
-                Debug.Log($"Found playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
-                foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
-                    Debug.Log($"  ->{sys.type}");
+                //Debug.Log($"Found playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
+                //foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
+                //    Debug.Log($"  ->{sys.type}");
 
                 // resize & expand subSystemList to fit one more entry
                 int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
@@ -107,9 +106,9 @@ namespace Mirror
                 }
 
                 // debugging
-                Debug.Log($"New playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
-                foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
-                    Debug.Log($"  ->{sys.type}");
+                //Debug.Log($"New playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
+                //foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
+                //    Debug.Log($"  ->{sys.type}");
 
                 return true;
             }
