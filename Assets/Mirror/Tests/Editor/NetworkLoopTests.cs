@@ -75,30 +75,30 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void AddToPlayerLoop_PostLateUpdate_Beginning()
+        public void AddToPlayerLoop_PreLateUpdate_Beginning()
         {
             void Function() {}
 
             // add our function
-            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.Beginning);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PreLateUpdate), NetworkLoop.AddMode.Beginning);
             Assert.That(result, Is.True);
 
             // was it added to the beginning?
-            int index = NetworkLoop.FindPlayerLoopEntryIndex(Function, playerLoop, typeof(PostLateUpdate));
+            int index = NetworkLoop.FindPlayerLoopEntryIndex(Function, playerLoop, typeof(PreLateUpdate));
             Assert.That(index, Is.EqualTo(0));
         }
 
         [Test]
-        public void AddToPlayerLoop_PostLateUpdate_End()
+        public void AddToPlayerLoop_PreLateUpdate_End()
         {
             void Function() {}
 
             // add our function
-            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.End);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PreLateUpdate), NetworkLoop.AddMode.End);
             Assert.That(result, Is.True);
 
             // was it added to the end? we don't know the exact index, but it should be >0
-            int index = NetworkLoop.FindPlayerLoopEntryIndex(Function, playerLoop, typeof(PostLateUpdate));
+            int index = NetworkLoop.FindPlayerLoopEntryIndex(Function, playerLoop, typeof(PreLateUpdate));
             Assert.That(index, Is.GreaterThan(0));
         }
     }
