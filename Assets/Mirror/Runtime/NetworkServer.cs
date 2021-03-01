@@ -481,12 +481,9 @@ namespace Mirror
                 {
                     identity.ServerUpdate();
                 }
-                else
-                {
-                    // spawned list should have no null entries because we
-                    // always call Remove in OnObjectDestroy everywhere.
-                    Debug.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
-                }
+                // spawned list should have no null entries because we
+                // always call Remove in OnObjectDestroy everywhere.
+                else Debug.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
             }
 
             // update all connections to send out batched messages in interval
