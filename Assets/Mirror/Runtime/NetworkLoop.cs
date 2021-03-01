@@ -23,7 +23,6 @@
 // => we want to add to the end of EarlyUpdate and to the beginning of
 //    PostLateUpdate. we DO NOT want to add to the end of PostLateUpdate
 //    after Unity's magic systems like MemoryFrameMaintenance ran.
-
 using System;
 using UnityEngine;
 using UnityEngine.Experimental.LowLevel;
@@ -44,12 +43,19 @@ namespace Mirror
         //      Update
         //      PreLateUpdate
         //      PostLateUpdate
-        internal static bool AppendSystemToPlayerLoopList(Action CustomLoop, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType)
+        //
+        // IMPORTANT: according to a comment in Unity.Entities.ScriptBehaviourUpdateOrder,
+        //            the UpdateFunction can not be virtual because Mono 4.6
+        //            has problems invoking virtual methods as delegates from native!
+        internal static bool AppendSystemToPlayerLoopList(PlayerLoopSystem.UpdateFunction function, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType)
         {
             // did we find the type? e.g. EarlyUpdate/PreLateUpdate/etc.
             if (playerLoop.type == playerLoopSystemType)
             {
+                // debugging
                 Debug.Log($"Found playerLoop of type {playerLoop.type}");
+                foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
+                    Debug.Log($"->{sys.type}");
 
                 // resize & expand subSystemList to fit one more entry
                 // TODO use Array.Resize later if it's safe
@@ -58,11 +64,9 @@ namespace Mirror
                 for (int i = 0; i < oldListLength; ++i)
                     newSubsystemList[i] = playerLoop.subSystemList[i];
 
-                // add our custom loop at the end
-                // TODO optional 'add to beginning' for prelateupdate!
-                //DummyDelegateWrapper del = new DummyDelegateWrapper(system);
-                //newSubsystemList[oldListLength].type = CustomLoop.GetType(); // TODO
-                //newSubsystemList[oldListLength].updateDelegate = del.TriggerUpdate;
+                // append our custom loop at the end
+                newSubsystemList[oldListLength].type = function.GetType();
+                newSubsystemList[oldListLength].updateDelegate = function;
 
                 // assign the new subSystemList
                 playerLoop.subSystemList = newSubsystemList;
@@ -73,7 +77,7 @@ namespace Mirror
             {
                 for(int i=0; i<playerLoop.subSystemList.Length; ++i)
                 {
-                    if (AppendSystemToPlayerLoopList(CustomLoop, ref playerLoop.subSystemList[i], playerLoopSystemType))
+                    if (AppendSystemToPlayerLoopList(function, ref playerLoop.subSystemList[i], playerLoopSystemType))
                         return true;
                 }
             }
