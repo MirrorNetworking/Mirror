@@ -295,8 +295,8 @@ namespace Mirror
             // call it while the NetworkManager exists.
             // -> we don't only call while Client/Server.Connected, because then we would stop if disconnected and the
             //    NetworkClient wouldn't receive the last Disconnect event, result in all kinds of issues
-            NetworkServer.Update();
-            NetworkClient.Update();
+            NetworkServer.LateUpdate();
+            NetworkClient.LateUpdate();
             UpdateScene();
         }
 

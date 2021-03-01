@@ -450,11 +450,9 @@ namespace Mirror
             return connections.Count == 0 || (connections.Count == 1 && localConnection != null);
         }
 
-        /// <summary>
-        /// Called from NetworkManager in LateUpdate
-        /// <para>The user should never need to pump the update loop manually</para>
-        /// </summary>
-        public static void Update()
+        // Called from NetworkManager in LateUpdate
+        // The user should never need to pump the update loop manually.
+        public static void LateUpdate()
         {
             // don't need to update server if not active
             if (!active) return;

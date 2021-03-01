@@ -266,7 +266,9 @@ namespace Mirror
             else Debug.LogError("NetworkClient Send with no connection");
         }
 
-        public static void Update()
+        // Called from NetworkManager in LateUpdate
+        // The user should never need to pump the update loop manually.
+        public static void LateUpdate()
         {
             // local connection?
             if (connection is LocalConnectionToServer localConnection)

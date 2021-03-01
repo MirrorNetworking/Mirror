@@ -1121,7 +1121,7 @@ namespace Mirror.Tests
 
             // update
             LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
-            NetworkServer.Update();
+            NetworkServer.LateUpdate();
 
             // clean up
             NetworkServer.Shutdown();
@@ -1144,7 +1144,7 @@ namespace Mirror.Tests
 
             // update
             LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
-            NetworkServer.Update();
+            NetworkServer.LateUpdate();
 
             // clean up
             NetworkServer.Shutdown();

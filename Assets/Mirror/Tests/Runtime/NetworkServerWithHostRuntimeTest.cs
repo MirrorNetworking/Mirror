@@ -69,7 +69,7 @@ namespace Mirror.Tests.Runtime
             while (Time.time < endTime)
             {
                 yield return null;
-                NetworkServer.Update();
+                NetworkServer.LateUpdate();
             }
 
             // host client connection should still be alive
