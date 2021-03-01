@@ -152,14 +152,14 @@ namespace Mirror
 
         static void NetworkEarlyUpdate()
         {
-            Debug.Log("NetworkEarlyUpdate @ " + Time.time);
+            //Debug.Log("NetworkEarlyUpdate @ " + Time.time);
             NetworkServer.NetworkEarlyUpdate();
             NetworkClient.NetworkEarlyUpdate();
         }
 
         static void NetworkLateUpdate()
         {
-            Debug.Log("NetworkLateUpdate @ " + Time.time);
+            //Debug.Log("NetworkLateUpdate @ " + Time.time);
             NetworkServer.NetworkLateUpdate();
             NetworkClient.NetworkLateUpdate();
         }

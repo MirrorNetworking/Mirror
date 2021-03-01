@@ -268,11 +268,17 @@ namespace Mirror
 
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        internal static void NetworkEarlyUpdate() {}
+        internal static void NetworkEarlyUpdate()
+        {
+            Debug.Log("NetworkClient.NetworkEarlyUpdate @ " + Time.time);
+        }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        internal static void NetworkLateUpdate() {}
+        internal static void NetworkLateUpdate()
+        {
+            Debug.Log("NetworkClient.NetworkLateUpdate @ " + Time.time);
+        }
 
         // Called from NetworkManager in LateUpdate
         // The user should never need to pump the update loop manually.
