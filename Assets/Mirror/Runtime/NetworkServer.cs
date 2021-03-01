@@ -459,7 +459,7 @@ namespace Mirror
         internal static void NetworkLateUpdate() {}
 
         // obsolete to not break people's projects. Update was public.
-        [Obsolete("Use NetworkServer.Update was renamed to LateUpdate because that's when it actually happens.")]
+        [Obsolete("NetworkServer.Update was renamed to LateUpdate because that's when it actually happens.")]
         public static void Update() => LateUpdate();
 
         // Called from NetworkManager in LateUpdate
