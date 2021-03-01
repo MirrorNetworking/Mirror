@@ -77,10 +77,11 @@ namespace Mirror
 
                 return true;
             }
+
             // recursively keep looking
             if (playerLoop.subSystemList != null)
             {
-                for(int i=0; i<playerLoop.subSystemList.Length; ++i)
+                for(int i = 0; i < playerLoop.subSystemList.Length; ++i)
                 {
                     if (AppendSystemToPlayerLoopList(function, ownerType, ref playerLoop.subSystemList[i], playerLoopSystemType))
                         return true;
