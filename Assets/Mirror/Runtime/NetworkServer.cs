@@ -464,6 +464,10 @@ namespace Mirror
             //Debug.Log("NetworkServer.NetworkLateUpdate @ " + Time.time);
         }
 
+        // obsolete to not break people's projects. Update was public.
+        [Obsolete("Use NetworkServer.Update was renamed to LateUpdate because that's when it actually happens.")]
+        public static void Update() => LateUpdate();
+
         // Called from NetworkManager in LateUpdate
         // The user should never need to pump the update loop manually.
         public static void LateUpdate()
