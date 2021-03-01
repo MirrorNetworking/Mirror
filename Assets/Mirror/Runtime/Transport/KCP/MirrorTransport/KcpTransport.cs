@@ -107,12 +107,7 @@ namespace kcp2k
         }
         public override void ClientDisconnect() => client.Disconnect();
 
-        // IMPORTANT: set script execution order to >1000 to call Transport's
-        //            LateUpdate after all others. Fixes race condition where
-        //            e.g. in uSurvival Transport would apply Cmds before
-        //            ShoulderRotation.LateUpdate, resulting in projectile
-        //            spawns at the point before shoulder rotation.
-        public void LateUpdate()
+        public override void ClientEarlyUpdate()
         {
             // scene change messages disable transports to stop them from
             // processing while changing the scene.
@@ -122,8 +117,47 @@ namespace kcp2k
             if (!enabled)
                 return;
 
-            server.Tick();
+            // TODO only process incoming
             client.Tick();
+        }
+        public override void ClientLateUpdate()
+        {
+            // scene change messages disable transports to stop them from
+            // processing while changing the scene.
+            // -> we need to check enabled here
+            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // (see also: https://github.com/vis2k/Mirror/pull/379)
+            if (!enabled)
+                return;
+
+            // TODO only process outgoing
+            client.Tick();
+        }
+        public override void ServerEarlyUpdate()
+        {
+            // scene change messages disable transports to stop them from
+            // processing while changing the scene.
+            // -> we need to check enabled here
+            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // (see also: https://github.com/vis2k/Mirror/pull/379)
+            if (!enabled)
+                return;
+
+            // TODO only process incoming
+            server.Tick();
+        }
+        public override void ServerLateUpdate()
+        {
+            // scene change messages disable transports to stop them from
+            // processing while changing the scene.
+            // -> we need to check enabled here
+            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // (see also: https://github.com/vis2k/Mirror/pull/379)
+            if (!enabled)
+                return;
+
+            // TODO only process outgoing
+            server.Tick();
         }
 
         // scene change message will disable transports.
