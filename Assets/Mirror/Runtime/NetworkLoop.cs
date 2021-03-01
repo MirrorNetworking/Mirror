@@ -33,7 +33,8 @@ namespace Mirror
     {
         // helper enum to add loop to begin/end of subSystemList
 
-        // AddSystemToPlayerLoopList from Unity.Entities.ScriptBehaviourUpdateOrder (ECS)
+        // MODIFIED AddSystemToPlayerLoopList from Unity.Entities.ScriptBehaviourUpdateOrder (ECS)
+        //
         // => adds an update function to the END of the Unity internal update type.
         // => Unity has different update loops:
         //    https://medium.com/@thebeardphantom/unity-2018-and-playerloop-5c46a12a677
@@ -44,16 +45,20 @@ namespace Mirror
         //      PreLateUpdate
         //      PostLateUpdate
         //
-        // IMPORTANT: according to a comment in Unity.Entities.ScriptBehaviourUpdateOrder,
-        //            the UpdateFunction can not be virtual because Mono 4.6
-        //            has problems invoking virtual methods as delegates from native!
-        internal static bool AppendSystemToPlayerLoopList(PlayerLoopSystem.UpdateFunction function, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType)
+        // function: the custom update function to add
+        //           IMPORTANT: according to a comment in Unity.Entities.ScriptBehaviourUpdateOrder,
+        //                      the UpdateFunction can not be virtual because
+        //                      Mono 4.6 has problems invoking virtual methods
+        //                      as delegates from native!
+        // ownerType: the .type to fill in so it's obvious who the new function
+        //            belongs to. seems to be mostly for debugging. pass any.
+        internal static bool AppendSystemToPlayerLoopList(PlayerLoopSystem.UpdateFunction function, Type ownerType, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType)
         {
             // did we find the type? e.g. EarlyUpdate/PreLateUpdate/etc.
             if (playerLoop.type == playerLoopSystemType)
             {
                 // debugging
-                Debug.Log($"Found playerLoop of type {playerLoop.type}");
+                Debug.LogWarning($"Found playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
                 foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
                     Debug.Log($"->{sys.type}");
 
@@ -65,11 +70,17 @@ namespace Mirror
                     newSubsystemList[i] = playerLoop.subSystemList[i];
 
                 // append our custom loop at the end
-                newSubsystemList[oldListLength].type = function.GetType();
+                newSubsystemList[oldListLength].type = ownerType;
                 newSubsystemList[oldListLength].updateDelegate = function;
 
                 // assign the new subSystemList
                 playerLoop.subSystemList = newSubsystemList;
+
+                // debugging
+                Debug.LogWarning($"New playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
+                foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
+                    Debug.Log($"->{sys.type}");
+
                 return true;
             }
             // recursively keep looking
@@ -77,7 +88,7 @@ namespace Mirror
             {
                 for(int i=0; i<playerLoop.subSystemList.Length; ++i)
                 {
-                    if (AppendSystemToPlayerLoopList(function, ref playerLoop.subSystemList[i], playerLoopSystemType))
+                    if (AppendSystemToPlayerLoopList(function, ownerType, ref playerLoop.subSystemList[i], playerLoopSystemType))
                         return true;
                 }
             }

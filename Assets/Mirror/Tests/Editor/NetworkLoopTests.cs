@@ -11,7 +11,7 @@ namespace Mirror.Tests
         public void AppendSystemToPlayerLoopList_EarlyUpdate()
         {
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(EarlyUpdate));
+            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(EarlyUpdate));
             Assert.That(result, Is.True);
         }
 
@@ -20,7 +20,7 @@ namespace Mirror.Tests
         public void AppendSystemToPlayerLoopList_Update()
         {
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(Update));
+            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(Update));
             Assert.That(result, Is.True);
         }
 
@@ -29,7 +29,7 @@ namespace Mirror.Tests
         public void AppendSystemToPlayerLoopList_PostLateUpdate()
         {
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(PostLateUpdate));
+            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate));
             Assert.That(result, Is.True);
         }
     }
