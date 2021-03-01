@@ -452,17 +452,11 @@ namespace Mirror
 
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        internal static void NetworkEarlyUpdate()
-        {
-            //Debug.Log("NetworkServer.NetworkEarlyUpdate @ " + Time.time);
-        }
+        internal static void NetworkEarlyUpdate() {}
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        internal static void NetworkLateUpdate()
-        {
-            //Debug.Log("NetworkServer.NetworkLateUpdate @ " + Time.time);
-        }
+        internal static void NetworkLateUpdate() {}
 
         // obsolete to not break people's projects. Update was public.
         [Obsolete("Use NetworkServer.Update was renamed to LateUpdate because that's when it actually happens.")]
