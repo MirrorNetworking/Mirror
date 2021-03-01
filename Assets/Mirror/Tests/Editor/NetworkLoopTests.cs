@@ -1,6 +1,11 @@
 using NUnit.Framework;
+#if UNITY_2019_1_OR_NEWER
+using UnityEngine.LowLevel;
+using UnityEngine.PlayerLoop;
+#else
 using UnityEngine.Experimental.LowLevel;
 using UnityEngine.Experimental.PlayerLoop;
+#endif
 
 namespace Mirror.Tests
 {
