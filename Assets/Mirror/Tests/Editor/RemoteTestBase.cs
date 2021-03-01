@@ -82,8 +82,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         protected static void ProcessMessages()
         {
             // run update so message are processed
-            NetworkServer.Update();
-            NetworkClient.Update();
+            NetworkServer.LateUpdate();
+            NetworkClient.LateUpdate();
         }
     }
 }
