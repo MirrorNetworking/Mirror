@@ -20,11 +20,14 @@
 //    this way the user can update the world in Update/FixedUpdate/LateUpdate
 //    and networking still runs before/after those functions no matter what!
 // => see also: https://docs.unity3d.com/Manual/ExecutionOrder.html
-// => we want to add to the end of EarlyUpdate and to the beginning of
-//    PostLateUpdate. we DO NOT want to add to the end of PostLateUpdate
-//    after Unity's magic systems like MemoryFrameMaintenance ran.
+// => update order:
+//    * we add to the end of EarlyUpdate so it runs after any Unity initializations
+//    * we add to the end of PreLateUpdate so it runs after LateUpdate(). adding
+//      to the beginning of PostLateUpdate doesn't actually work.
 using System;
+using UnityEngine;
 using UnityEngine.Experimental.LowLevel;
+using UnityEngine.Experimental.PlayerLoop;
 
 namespace Mirror
 {
@@ -123,6 +126,38 @@ namespace Mirror
                 }
             }
             return false;
+        }
+
+        // hook into Unity runtime to actually add our custom functions
+        [RuntimeInitializeOnLoadMethod]
+        static void RuntimeInitializeOnLoad()
+        {
+            Debug.Log("NetworkLoop: adding NetworkEarly/LateUpdate to Unity... ");
+
+            // get current loop
+            PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+
+            // add NetworkEarlyUpdate to the end of EarlyUpdate so it runs after
+            // any Unity initializations but before the first Update/FixedUpdate
+            AddToPlayerLoop(NetworkEarlyUpdate, typeof(NetworkLoop), ref playerLoop, typeof(EarlyUpdate), AddMode.End);
+
+            // add NetworkLateUpdate to the end of PreLateUpdate so it runs after
+            // LateUpdate(). adding to the beginning of PostLateUpdate doesn't
+            // actually work.
+            AddToPlayerLoop(NetworkLateUpdate, typeof(NetworkLoop), ref playerLoop, typeof(PreLateUpdate), AddMode.End);
+
+            // set the new loop
+            PlayerLoop.SetPlayerLoop(playerLoop);
+        }
+
+        static void NetworkEarlyUpdate()
+        {
+            Debug.Log("NetworkEarlyUpdate @ " + Time.time);
+        }
+
+        static void NetworkLateUpdate()
+        {
+            Debug.Log("NetworkLateUpdate @ " + Time.time);
         }
     }
 }
