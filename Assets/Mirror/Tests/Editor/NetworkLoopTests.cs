@@ -6,14 +6,24 @@ namespace Mirror.Tests
 {
     public class NetworkLoopTests
     {
+        // all tests need a PlayerLoopSystem to work with
+        PlayerLoopSystem playerLoop;
+
+        [SetUp]
+        public void SetUp()
+        {
+            // we get the main player loop to work with.
+            // we don't actually set it. no need to.
+            playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+        }
+
         // simple test to see if it finds and adds to EarlyUpdate() loop
         [Test]
         public void AddToPlayerLoop_EarlyUpdate_Beginning()
         {
             void Function() {}
 
-            // get the loop and add our function
-            PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+            // add our function
             bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(EarlyUpdate), NetworkLoop.AddMode.Beginning);
             Assert.That(result, Is.True);
 
@@ -27,8 +37,7 @@ namespace Mirror.Tests
         {
             void Function() {}
 
-            // get the loop and add our function
-            PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+            // add our function
             bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(EarlyUpdate), NetworkLoop.AddMode.End);
             Assert.That(result, Is.True);
 
@@ -42,8 +51,7 @@ namespace Mirror.Tests
         {
             void Function() {}
 
-            // get the loop and add our function
-            PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+            // add our function
             bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(Update), NetworkLoop.AddMode.Beginning);
             Assert.That(result, Is.True);
 
@@ -57,8 +65,7 @@ namespace Mirror.Tests
         {
             void Function() {}
 
-            // get the loop and add our function
-            PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+            // add our function
             bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(Update), NetworkLoop.AddMode.End);
             Assert.That(result, Is.True);
 
@@ -72,8 +79,7 @@ namespace Mirror.Tests
         {
             void Function() {}
 
-            // get the loop and add our function
-            PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+            // add our function
             bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.Beginning);
             Assert.That(result, Is.True);
 
@@ -87,8 +93,7 @@ namespace Mirror.Tests
         {
             void Function() {}
 
-            // get the loop and add our function
-            PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
+            // add our function
             bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.End);
             Assert.That(result, Is.True);
 
