@@ -464,7 +464,7 @@ namespace Mirror
 
         // Called from NetworkManager in LateUpdate
         // The user should never need to pump the update loop manually.
-        public static void LateUpdate()
+        internal static void LateUpdate()
         {
             // don't need to update server if not active
             if (!active) return;

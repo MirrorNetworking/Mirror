@@ -280,7 +280,7 @@ namespace Mirror
 
         // Called from NetworkManager in LateUpdate
         // The user should never need to pump the update loop manually.
-        public static void LateUpdate()
+        internal static void LateUpdate()
         {
             // local connection?
             if (connection is LocalConnectionToServer localConnection)
