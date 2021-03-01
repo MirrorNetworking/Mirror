@@ -34,7 +34,26 @@ namespace Mirror
         // helper enum to add loop to begin/end of subSystemList
         internal enum AddMode { Beginning, End }
 
-        // helper function to find an
+        // helper function to find an update function's index in a player loop
+        // type. this is used for testing to guarantee our functions are added
+        // at the beginning/end properly.
+        internal static int FindPlayerLoopEntryIndex(PlayerLoopSystem.UpdateFunction function, PlayerLoopSystem playerLoop, Type playerLoopSystemType)
+        {
+            // did we find the type? e.g. EarlyUpdate/PreLateUpdate/etc.
+            if (playerLoop.type == playerLoopSystemType)
+                return Array.FindIndex(playerLoop.subSystemList, (elem => elem.updateDelegate == function));
+
+            // recursively keep looking
+            if (playerLoop.subSystemList != null)
+            {
+                for(int i = 0; i < playerLoop.subSystemList.Length; ++i)
+                {
+                    int index = FindPlayerLoopEntryIndex(function, playerLoop.subSystemList[i], playerLoopSystemType);
+                    if (index != -1)  return index;
+                }
+            }
+            return -1;
+        }
 
         // MODIFIED AddSystemToPlayerLoopList from Unity.Entities.ScriptBehaviourUpdateOrder (ECS)
         //
