@@ -132,7 +132,7 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         static void RuntimeInitializeOnLoad()
         {
-            Debug.Log("NetworkLoop: adding NetworkEarly/LateUpdate to Unity... ");
+            Debug.Log("Mirror: adding Network[Early/Late]Update to Unity...");
 
             // get current loop
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
