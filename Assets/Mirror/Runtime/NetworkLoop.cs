@@ -58,9 +58,9 @@ namespace Mirror
             if (playerLoop.type == playerLoopSystemType)
             {
                 // debugging
-                Debug.LogWarning($"Found playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
+                Debug.Log($"Found playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
                 foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
-                    Debug.Log($"->{sys.type}");
+                    Debug.Log($"  ->{sys.type}");
 
                 // resize & expand subSystemList to fit one more entry
                 int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
@@ -71,9 +71,9 @@ namespace Mirror
                 playerLoop.subSystemList[oldListLength].updateDelegate = function;
 
                 // debugging
-                Debug.LogWarning($"New playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
+                Debug.Log($"New playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
                 foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
-                    Debug.Log($"->{sys.type}");
+                    Debug.Log($"  ->{sys.type}");
 
                 return true;
             }
