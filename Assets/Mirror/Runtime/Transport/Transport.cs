@@ -218,28 +218,44 @@ namespace Mirror
         public virtual int GetMaxBatchSize(int channelId) =>
             GetMaxPacketSize(channelId);
 
+        // block Update & LateUpdate to show warnings if Transports still use
+        // them instead of using
+        //   Client/ServerEarlyUpdate: to process incoming messages
+        //   Client/ServerLateUpdate: to process outgoing messages
+        // those are called by NetworkClient/Server at the right time.
+        //
+        // allows transports to implement the proper network update order of:
+        //      process_incoming()
+        //      update_world()
+        //      process_outgoing()
+        //
+        // => see NetworkLoop.cs for detailed explanations!
+#pragma warning disable UNT0001 // Empty Unity message
+        public void Update() {}
+        public void LateUpdate() {}
+#pragma warning restore UNT0001 // Empty Unity message
+
+        /// <summary>
+        /// NetworkLoop NetworkEarly/LateUpdate were added for a proper network
+        /// update order. the goal is to:
+        ///    process_incoming()
+        ///    update_world()
+        ///    process_outgoing()
+        /// in order to avoid unnecessary latency and data races.
+        /// </summary>
+        // => split into client and server parts so that we can cleanly call
+        //    them from NetworkClient/Server
+        // => VIRTUAL for now so we can take our time to convert transports
+        //    without breaking anything.
+        public virtual void ClientEarlyUpdate() {}
+        public virtual void ServerEarlyUpdate() {}
+        public virtual void ClientLateUpdate() {}
+        public virtual void ServerLateUpdate() {}
+
         /// <summary>
         /// Shut down the transport, both as client and server
         /// </summary>
         public abstract void Shutdown();
-
-        // block Update() to force Transports to use LateUpdate to avoid race
-        // conditions. messages should be processed after all the game state
-        // was processed in Update.
-        // -> in other words: use LateUpdate!
-        // -> uMMORPG 480 CCU stress test: when bot machine stops, it causes
-        //    'Observer not ready for ...' log messages when using Update
-        // -> occupying a public Update() function will cause Warnings if a
-        //    transport uses Update.
-        //
-        // IMPORTANT: set script execution order to >1000 to call Transport's
-        //            LateUpdate after all others. Fixes race condition where
-        //            e.g. in uSurvival Transport would apply Cmds before
-        //            ShoulderRotation.LateUpdate, resulting in projectile
-        //            spawns at the point before shoulder rotation.
-#pragma warning disable UNT0001 // Empty Unity message
-        public void Update() {}
-#pragma warning restore UNT0001 // Empty Unity message
 
         /// <summary>
         /// called when quitting the application by closing the window / pressing stop in the editor
