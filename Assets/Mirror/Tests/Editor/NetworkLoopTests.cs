@@ -8,28 +8,28 @@ namespace Mirror.Tests
     {
         // simple test to see if it finds and adds to EarlyUpdate() loop
         [Test]
-        public void AddSystemToPlayerLoopList_EarlyUpdate()
+        public void AppendSystemToPlayerLoopList_EarlyUpdate()
         {
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(EarlyUpdate));
+            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(EarlyUpdate));
             Assert.That(result, Is.True);
         }
 
         // simple test to see if it finds and adds to Update() loop
         [Test]
-        public void AddSystemToPlayerLoopList_Update()
+        public void AppendSystemToPlayerLoopList_Update()
         {
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(Update));
+            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(Update));
             Assert.That(result, Is.True);
         }
 
         // simple test to see if it finds and adds to PostLateUpdate() loop
         [Test]
-        public void AddSystemToPlayerLoopList_PostLateUpdate()
+        public void AppendSystemToPlayerLoopList_PostLateUpdate()
         {
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(PostLateUpdate));
+            bool result = NetworkLoop.AppendSystemToPlayerLoopList(() => {}, ref playerLoop, typeof(PostLateUpdate));
             Assert.That(result, Is.True);
         }
     }
