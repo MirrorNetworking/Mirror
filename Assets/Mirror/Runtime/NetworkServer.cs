@@ -456,15 +456,7 @@ namespace Mirror
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        internal static void NetworkLateUpdate() {}
-
-        // obsolete to not break people's projects. Update was public.
-        [Obsolete("NetworkServer.Update was renamed to LateUpdate because that's when it actually happens.")]
-        public static void Update() => LateUpdate();
-
-        // Called from NetworkManager in LateUpdate
-        // The user should never need to pump the update loop manually.
-        internal static void LateUpdate()
+        internal static void NetworkLateUpdate()
         {
             // don't need to update server if not active
             if (!active) return;
@@ -492,6 +484,10 @@ namespace Mirror
                 conn.Update();
             }
         }
+
+        // obsolete to not break people's projects. Update was public.
+        [Obsolete("NetworkServer.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
+        public static void Update() => NetworkLateUpdate();
 
         static void CheckForInactiveConnections()
         {
