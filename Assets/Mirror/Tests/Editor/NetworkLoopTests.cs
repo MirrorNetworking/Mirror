@@ -10,50 +10,67 @@ namespace Mirror.Tests
         [Test]
         public void AddToPlayerLoop_EarlyUpdate_Beginning()
         {
+            void Function() {}
+
+            // get and add to loop, without calling PlayerLoop.SetLoop.
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddToPlayerLoop(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(EarlyUpdate), NetworkLoop.AddMode.Beginning);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(EarlyUpdate), NetworkLoop.AddMode.Beginning);
             Assert.That(result, Is.True);
+
         }
 
         [Test]
         public void AddToPlayerLoop_EarlyUpdate_End()
         {
+            void Function() {}
+
+            // get and add to loop, without calling PlayerLoop.SetLoop.
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddToPlayerLoop(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(EarlyUpdate), NetworkLoop.AddMode.End);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(EarlyUpdate), NetworkLoop.AddMode.End);
             Assert.That(result, Is.True);
         }
 
-        // simple test to see if it finds and adds to Update() loop
         [Test]
         public void AddToPlayerLoop_Update_Beginning()
         {
+            void Function() {}
+
+            // get and add to loop, without calling PlayerLoop.SetLoop.
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddToPlayerLoop(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(Update), NetworkLoop.AddMode.Beginning);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(Update), NetworkLoop.AddMode.Beginning);
             Assert.That(result, Is.True);
         }
 
         [Test]
         public void AddToPlayerLoop_Update_End()
         {
+            void Function() {}
+
+            // get and add to loop, without calling PlayerLoop.SetLoop.
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddToPlayerLoop(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(Update), NetworkLoop.AddMode.End);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(Update), NetworkLoop.AddMode.End);
             Assert.That(result, Is.True);
         }
 
-        // simple test to see if it finds and adds to PostLateUpdate() loop
         [Test]
         public void AddToPlayerLoop_PostLateUpdate_Beginning()
         {
+            void Function() {}
+
+            // get and add to loop, without calling PlayerLoop.SetLoop.
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddToPlayerLoop(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.Beginning);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.Beginning);
             Assert.That(result, Is.True);
         }
 
         [Test]
         public void AddToPlayerLoop_PostLateUpdate_End()
         {
+            void Function() {}
+
+            // get and add to loop, without calling PlayerLoop.SetLoop.
             PlayerLoopSystem playerLoop = PlayerLoop.GetDefaultPlayerLoop();
-            bool result = NetworkLoop.AddToPlayerLoop(() => {}, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.End);
+            bool result = NetworkLoop.AddToPlayerLoop(Function, typeof(NetworkLoopTests), ref playerLoop, typeof(PostLateUpdate), NetworkLoop.AddMode.End);
             Assert.That(result, Is.True);
         }
     }
