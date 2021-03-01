@@ -48,7 +48,7 @@ namespace Mirror
                 for(int i = 0; i < playerLoop.subSystemList.Length; ++i)
                 {
                     int index = FindPlayerLoopEntryIndex(function, playerLoop.subSystemList[i], playerLoopSystemType);
-                    if (index != -1)  return index;
+                    if (index != -1) return index;
                 }
             }
             return -1;
