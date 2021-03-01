@@ -32,10 +32,13 @@ namespace Mirror
     internal static class NetworkLoop
     {
         // helper enum to add loop to begin/end of subSystemList
+        internal enum AddMode { Beginning, End }
+
+        // helper function to find an
 
         // MODIFIED AddSystemToPlayerLoopList from Unity.Entities.ScriptBehaviourUpdateOrder (ECS)
         //
-        // => adds an update function to the END of the Unity internal update type.
+        // => adds an update function to the Unity internal update type.
         // => Unity has different update loops:
         //    https://medium.com/@thebeardphantom/unity-2018-and-playerloop-5c46a12a677
         //      EarlyUpdate
@@ -52,7 +55,8 @@ namespace Mirror
         //                      as delegates from native!
         // ownerType: the .type to fill in so it's obvious who the new function
         //            belongs to. seems to be mostly for debugging. pass any.
-        internal static bool AppendSystemToPlayerLoopList(PlayerLoopSystem.UpdateFunction function, Type ownerType, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType)
+        // addMode: prepend or append to update list
+        internal static bool AddToPlayerLoop(PlayerLoopSystem.UpdateFunction function, Type ownerType, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType, AddMode addMode)
         {
             // did we find the type? e.g. EarlyUpdate/PreLateUpdate/etc.
             if (playerLoop.type == playerLoopSystemType)
@@ -66,9 +70,22 @@ namespace Mirror
                 int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
                 Array.Resize(ref playerLoop.subSystemList, oldListLength + 1);
 
-                // append our custom loop at the end
-                playerLoop.subSystemList[oldListLength].type = ownerType;
-                playerLoop.subSystemList[oldListLength].updateDelegate = function;
+                // prepend our custom loop to the beginning
+                if (addMode == AddMode.Beginning)
+                {
+                    // shift to the right, write into first array element
+                    Array.Copy(playerLoop.subSystemList, 0, playerLoop.subSystemList, 1, playerLoop.subSystemList.Length - 1);
+                    playerLoop.subSystemList[0].type = ownerType;
+                    playerLoop.subSystemList[0].updateDelegate = function;
+
+                }
+                // append our custom loop to the end
+                else if (addMode == AddMode.End)
+                {
+                    // simply write into last array element
+                    playerLoop.subSystemList[oldListLength].type = ownerType;
+                    playerLoop.subSystemList[oldListLength].updateDelegate = function;
+                }
 
                 // debugging
                 Debug.Log($"New playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
@@ -83,7 +100,7 @@ namespace Mirror
             {
                 for(int i = 0; i < playerLoop.subSystemList.Length; ++i)
                 {
-                    if (AppendSystemToPlayerLoopList(function, ownerType, ref playerLoop.subSystemList[i], playerLoopSystemType))
+                    if (AddToPlayerLoop(function, ownerType, ref playerLoop.subSystemList[i], playerLoopSystemType, addMode))
                         return true;
                 }
             }
