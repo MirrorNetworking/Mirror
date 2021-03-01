@@ -63,18 +63,12 @@ namespace Mirror
                     Debug.Log($"->{sys.type}");
 
                 // resize & expand subSystemList to fit one more entry
-                // TODO use Array.Resize later if it's safe
                 int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
-                PlayerLoopSystem[] newSubsystemList = new PlayerLoopSystem[oldListLength + 1];
-                for (int i = 0; i < oldListLength; ++i)
-                    newSubsystemList[i] = playerLoop.subSystemList[i];
+                Array.Resize(ref playerLoop.subSystemList, oldListLength + 1);
 
                 // append our custom loop at the end
-                newSubsystemList[oldListLength].type = ownerType;
-                newSubsystemList[oldListLength].updateDelegate = function;
-
-                // assign the new subSystemList
-                playerLoop.subSystemList = newSubsystemList;
+                playerLoop.subSystemList[oldListLength].type = ownerType;
+                playerLoop.subSystemList[oldListLength].updateDelegate = function;
 
                 // debugging
                 Debug.LogWarning($"New playerLoop of type {playerLoop.type} with {playerLoop.subSystemList.Length} Functions:");
