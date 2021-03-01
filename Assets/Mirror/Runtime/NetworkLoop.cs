@@ -20,11 +20,52 @@
 //    this way the user can update the world in Update/FixedUpdate/LateUpdate
 //    and networking still runs before/after those functions no matter what!
 // => see also: https://docs.unity3d.com/Manual/ExecutionOrder.html
+
+using System;
 using UnityEngine;
+using UnityEngine.Experimental.LowLevel;
 
 namespace Mirror
 {
     internal static class NetworkLoop
     {
+        // AddSystemToPlayerLoopList from
+        // com.unity.entities/ScriptBehaviourUpdateOrder (ECS)
+        // => adds an update function to the Unity internal update loop.
+        // => Unity has different update loops:
+        //    https://medium.com/@thebeardphantom/unity-2018-and-playerloop-5c46a12a677
+        //      EarlyUpdate
+        //      FixedUpdate
+        //      PreUpdate
+        //      Update
+        //      PreLateUpdate
+        //      PostLateUpdate
+        internal static bool AddSystemToPlayerLoopList(Action CustomLoop, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType)
+        {
+            // did we find the type? e.g. EarlyUpdate/PreLateUpdate/etc.
+            if (playerLoop.type == playerLoopSystemType)
+            {
+                /*DummyDelegateWrapper del = new DummyDelegateWrapper(system);
+                int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
+                PlayerLoopSystem[] newSubsystemList = new PlayerLoopSystem[oldListLength + 1];
+                for (int i = 0; i < oldListLength; ++i)
+                    newSubsystemList[i] = playerLoop.subSystemList[i];
+                newSubsystemList[oldListLength].type = CustomLoop.GetType(); // TODO
+                newSubsystemList[oldListLength].updateDelegate = del.TriggerUpdate;
+                playerLoop.subSystemList = newSubsystemList;*/
+                Debug.LogWarning($"Found playerLoop of type {playerLoop.type}");
+                return true;
+            }
+            // recursively keep looking
+            if (playerLoop.subSystemList != null)
+            {
+                for(int i=0; i<playerLoop.subSystemList.Length; ++i)
+                {
+                    if (AddSystemToPlayerLoopList(CustomLoop, ref playerLoop.subSystemList[i], playerLoopSystemType))
+                        return true;
+                }
+            }
+            return false;
+        }
     }
 }
