@@ -263,7 +263,6 @@ namespace Mirror
 
 #pragma warning disable 618
         NetworkVisibility visibilityCache;
-#pragma warning restore 618
         [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
         public NetworkVisibility visibility
         {
@@ -276,6 +275,7 @@ namespace Mirror
                 return visibilityCache;
             }
         }
+#pragma warning restore 618
 
         // current visibility
         //
