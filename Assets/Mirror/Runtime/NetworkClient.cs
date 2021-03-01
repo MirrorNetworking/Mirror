@@ -266,6 +266,14 @@ namespace Mirror
             else Debug.LogError("NetworkClient Send with no connection");
         }
 
+        // NetworkEarlyUpdate called before any Update/FixedUpdate
+        // (we add this to the UnityEngine in NetworkLoop)
+        internal static void NetworkEarlyUpdate() {}
+
+        // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
+        // (we add this to the UnityEngine in NetworkLoop)
+        internal static void NetworkLateUpdate() {}
+
         // Called from NetworkManager in LateUpdate
         // The user should never need to pump the update loop manually.
         public static void LateUpdate()
