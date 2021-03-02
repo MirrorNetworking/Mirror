@@ -82,14 +82,11 @@ namespace kcp2k
         // process incoming messages. should be called before updating the world.
         public void ProcessIncoming()
         {
-            // tick client connection
-            if (connection != null)
-            {
-                // recv on socket first, then process incoming
-                // (even if we didn't receive anything. need to tick ping etc.)
-                connection.RawReceive();
-                connection.ProcessIncoming();
-            }
+            // recv on socket first, then process incoming
+            // (even if we didn't receive anything. need to tick ping etc.)
+            // (connection is null if not active)
+            connection?.RawReceive();
+            connection?.ProcessIncoming();
         }
 
         // process outgoing messages. should be called after updating the world.
