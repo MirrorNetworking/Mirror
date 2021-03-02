@@ -114,7 +114,7 @@ namespace kcp2k
             // -> we need to check enabled here
             // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (enabled)
+            if (!enabled)
                 return;
 
             client.ProcessIncoming();
