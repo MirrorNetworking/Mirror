@@ -119,11 +119,8 @@ namespace kcp2k
             // process incoming in early update
             client.ProcessIncoming();
         }
-        public override void ClientLateUpdate()
-        {
-            // process outgoing in late update
-            client.ProcessOutgoing();
-        }
+        // process outgoing in late update
+        public override void ClientLateUpdate() => client.ProcessOutgoing();
 
         // scene change message will disable transports.
         // kcp processes messages in an internal loop which should be
@@ -190,11 +187,8 @@ namespace kcp2k
             // process incoming in early update
             server.ProcessIncoming();
         }
-        public override void ServerLateUpdate()
-        {
-            // process outgoing in late update
-            server.ProcessOutgoing();
-        }
+        // process outgoing in late update
+        public override void ServerLateUpdate() => server.ProcessOutgoing();
 
         // common
         public override void Shutdown() {}
