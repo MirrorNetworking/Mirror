@@ -106,25 +106,18 @@ namespace kcp2k
             }
         }
         public override void ClientDisconnect() => client.Disconnect();
-
-        // IMPORTANT: set script execution order to >1000 to call Transport's
-        //            LateUpdate after all others. Fixes race condition where
-        //            e.g. in uSurvival Transport would apply Cmds before
-        //            ShoulderRotation.LateUpdate, resulting in projectile
-        //            spawns at the point before shoulder rotation.
-        public void LateUpdate()
+        // process incoming in early update
+        public override void ClientEarlyUpdate()
         {
             // scene change messages disable transports to stop them from
             // processing while changing the scene.
             // -> we need to check enabled here
             // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (!enabled)
-                return;
-
-            server.Tick();
-            client.Tick();
+            if (enabled) client.TickIncoming();
         }
+        // process outgoing in late update
+        public override void ClientLateUpdate() => client.TickOutgoing();
 
         // scene change message will disable transports.
         // kcp processes messages in an internal loop which should be
@@ -178,6 +171,17 @@ namespace kcp2k
         }
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
         public override void ServerStop() => server.Stop();
+        public override void ServerEarlyUpdate()
+        {
+            // scene change messages disable transports to stop them from
+            // processing while changing the scene.
+            // -> we need to check enabled here
+            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // (see also: https://github.com/vis2k/Mirror/pull/379)
+            if (enabled) server.TickIncoming();
+        }
+        // process outgoing in late update
+        public override void ServerLateUpdate() => server.TickOutgoing();
 
         // common
         public override void Shutdown() {}
