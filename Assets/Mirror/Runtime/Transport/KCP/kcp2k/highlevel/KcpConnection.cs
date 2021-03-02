@@ -244,7 +244,7 @@ namespace kcp2k
             return false;
         }
 
-        void ProcessIncoming_Connected(uint time)
+        void TickIncoming_Connected(uint time)
         {
             // detect common events & ping
             HandleTimeout(time);
@@ -284,7 +284,7 @@ namespace kcp2k
             }
         }
 
-        void ProcessIncoming_Authenticated(uint time)
+        void TickIncoming_Authenticated(uint time)
         {
             // detect common events & ping
             HandleTimeout(time);
@@ -349,7 +349,7 @@ namespace kcp2k
             }
         }
 
-        public void ProcessIncoming()
+        public void TickIncoming()
         {
             uint time = (uint)refTime.ElapsedMilliseconds;
 
@@ -359,12 +359,12 @@ namespace kcp2k
                 {
                     case KcpState.Connected:
                     {
-                        ProcessIncoming_Connected(time);
+                        TickIncoming_Connected(time);
                         break;
                     }
                     case KcpState.Authenticated:
                     {
-                        ProcessIncoming_Authenticated(time);
+                        TickIncoming_Authenticated(time);
                         break;
                     }
                     case KcpState.Disconnected:
@@ -394,7 +394,7 @@ namespace kcp2k
             }
         }
 
-        public void ProcessOutgoing()
+        public void TickOutgoing()
         {
             uint time = (uint)refTime.ElapsedMilliseconds;
 

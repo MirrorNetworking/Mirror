@@ -125,7 +125,7 @@ namespace kcp2k
 
         // process incoming messages. should be called before updating the world.
         HashSet<int> connectionsToRemove = new HashSet<int>();
-        public void ProcessIncoming()
+        public void TickIncoming()
         {
             while (socket != null && socket.Poll(0, SelectMode.SelectRead))
             {
@@ -216,7 +216,7 @@ namespace kcp2k
                             // tick will process the first message and adds the
                             // connection if it was the handshake.
                             connection.RawInput(rawReceiveBuffer, msgLength);
-                            connection.ProcessIncoming();
+                            connection.TickIncoming();
 
                             // again, do not add to connections.
                             // if the first message wasn't the kcp handshake then
@@ -242,7 +242,7 @@ namespace kcp2k
             // (even if we didn't receive anything. need to tick ping etc.)
             foreach (KcpServerConnection connection in connections.Values)
             {
-                connection.ProcessIncoming();
+                connection.TickIncoming();
             }
 
             // remove disconnected connections
@@ -256,24 +256,21 @@ namespace kcp2k
         }
 
         // process outgoing messages. should be called after updating the world.
-        public void ProcessOutgoing()
+        public void TickOutgoing()
         {
             // flush all server connections
             foreach (KcpServerConnection connection in connections.Values)
             {
-                connection.ProcessOutgoing();
+                connection.TickOutgoing();
             }
         }
 
         // process incoming and outgoing for convenience
-        public void ProcessIncomingAndOutgoing()
+        public void Tick()
         {
-            ProcessIncoming();
-            ProcessOutgoing();
+            TickIncoming();
+            TickOutgoing();
         }
-
-        [Obsolete("Tick was renamed to ProcessIncomingAndOutgoing")]
-        public void Tick() => ProcessIncomingAndOutgoing();
 
         public void Stop()
         {

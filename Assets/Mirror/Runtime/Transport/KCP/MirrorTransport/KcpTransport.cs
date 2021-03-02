@@ -114,10 +114,10 @@ namespace kcp2k
             // -> we need to check enabled here
             // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (enabled) client.ProcessIncoming();
+            if (enabled) client.TickIncoming();
         }
         // process outgoing in late update
-        public override void ClientLateUpdate() => client.ProcessOutgoing();
+        public override void ClientLateUpdate() => client.TickOutgoing();
 
         // scene change message will disable transports.
         // kcp processes messages in an internal loop which should be
@@ -178,10 +178,10 @@ namespace kcp2k
             // -> we need to check enabled here
             // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (enabled) server.ProcessIncoming();
+            if (enabled) server.TickIncoming();
         }
         // process outgoing in late update
-        public override void ServerLateUpdate() => server.ProcessOutgoing();
+        public override void ServerLateUpdate() => server.TickOutgoing();
 
         // common
         public override void Shutdown() {}
