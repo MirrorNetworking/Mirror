@@ -79,16 +79,37 @@ namespace kcp2k
             }
         }
 
-        public void Tick()
+        // process incoming messages. should be called before updating the world.
+        public void ProcessIncoming()
         {
             // tick client connection
             if (connection != null)
             {
-                // recv on socket first
+                // recv on socket first, then process incoming
+                // (even if we didn't receive anything. need to tick ping etc.)
                 connection.RawReceive();
-                // then update
-                connection.Tick();
+                connection.ProcessIncoming();
             }
+        }
+
+        // process outgoing messages. should be called after updating the world.
+        public void ProcessOutgoing()
+        {
+            // tick client connection
+            if (connection != null)
+            {
+                // process outgoing
+                connection.ProcessOutgoing();
+            }
+        }
+
+        // process incoming and outgoing
+        // => ideally call ProcessIncoming() before updating the world and
+        //    ProcessOutgoing() after updating the world for minimum latency
+        public void Tick()
+        {
+            ProcessIncoming();
+            ProcessOutgoing();
         }
 
         // pause/unpause to safely support mirror scene handling and to

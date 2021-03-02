@@ -116,13 +116,13 @@ namespace kcp2k
             if (!enabled)
                 return;
 
-            // TODO only process incoming
-            client.Tick();
+            // process incoming in early update
+            client.ProcessIncoming();
         }
         public override void ClientLateUpdate()
         {
-            // TODO only process outgoing
-            client.Tick();
+            // process outgoing in late update
+            client.ProcessOutgoing();
         }
 
         // scene change message will disable transports.
@@ -187,13 +187,13 @@ namespace kcp2k
             if (!enabled)
                 return;
 
-            // TODO only process incoming
-            server.Tick();
+            // process incoming in early update
+            server.ProcessIncoming();
         }
         public override void ServerLateUpdate()
         {
-            // TODO only process outgoing
-            server.Tick();
+            // process outgoing in late update
+            server.ProcessOutgoing();
         }
 
         // common

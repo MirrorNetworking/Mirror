@@ -123,8 +123,9 @@ namespace kcp2k
             return "";
         }
 
+        // process incoming messages. should be called before updating the world.
         HashSet<int> connectionsToRemove = new HashSet<int>();
-        public void Tick()
+        public void ProcessIncoming()
         {
             while (socket != null && socket.Poll(0, SelectMode.SelectRead))
             {
@@ -210,12 +211,12 @@ namespace kcp2k
                                 OnConnected.Invoke(connectionId);
                             };
 
-                            // now input the message & tick
+                            // now input the message & process received ones
                             // connected event was set up.
                             // tick will process the first message and adds the
                             // connection if it was the handshake.
                             connection.RawInput(rawReceiveBuffer, msgLength);
-                            connection.Tick();
+                            connection.ProcessIncoming();
 
                             // again, do not add to connections.
                             // if the first message wasn't the kcp handshake then
@@ -237,10 +238,11 @@ namespace kcp2k
                 catch (SocketException) {}
             }
 
-            // tick all server connections
+            // process inputs for all server connections
+            // (even if we didn't receive anything. need to tick ping etc.)
             foreach (KcpServerConnection connection in connections.Values)
             {
-                connection.Tick();
+                connection.ProcessIncoming();
             }
 
             // remove disconnected connections
@@ -251,6 +253,16 @@ namespace kcp2k
                 connections.Remove(connectionId);
             }
             connectionsToRemove.Clear();
+        }
+
+        // process outgoing messages. should be called after updating the world.
+        public void ProcessOutgoing()
+        {
+            // flush all server connections
+            foreach (KcpServerConnection connection in connections.Values)
+            {
+                connection.ProcessOutgoing();
+            }
         }
 
         public void Stop()

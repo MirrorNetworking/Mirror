@@ -143,7 +143,6 @@ namespace kcp2k
             state = KcpState.Connected;
 
             refTime.Start();
-            Tick();
         }
 
         void HandleTimeout(uint time)
@@ -245,15 +244,13 @@ namespace kcp2k
             return false;
         }
 
-        void TickConnected(uint time)
+        void ProcessIncoming_Connected(uint time)
         {
             // detect common events & ping
             HandleTimeout(time);
             HandleDeadLink();
             HandlePing(time);
             HandleChoked();
-
-            kcp.Update(time);
 
             // any reliable kcp message received?
             if (ReceiveNextReliable(out KcpHeader header, out ArraySegment<byte> message))
@@ -287,15 +284,13 @@ namespace kcp2k
             }
         }
 
-        void TickAuthenticated(uint time)
+        void ProcessIncoming_Authenticated(uint time)
         {
             // detect common events & ping
             HandleTimeout(time);
             HandleDeadLink();
             HandlePing(time);
             HandleChoked();
-
-            kcp.Update(time);
 
             // process all received messages
             //
@@ -354,7 +349,7 @@ namespace kcp2k
             }
         }
 
-        public void Tick()
+        public void ProcessIncoming()
         {
             uint time = (uint)refTime.ElapsedMilliseconds;
 
@@ -364,12 +359,59 @@ namespace kcp2k
                 {
                     case KcpState.Connected:
                     {
-                        TickConnected(time);
+                        ProcessIncoming_Connected(time);
                         break;
                     }
                     case KcpState.Authenticated:
                     {
-                        TickAuthenticated(time);
+                        ProcessIncoming_Authenticated(time);
+                        break;
+                    }
+                    case KcpState.Disconnected:
+                    {
+                        // do nothing while disconnected
+                        break;
+                    }
+                }
+            }
+            catch (SocketException exception)
+            {
+                // this is ok, the connection was closed
+                Log.Info($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                Disconnect();
+            }
+            catch (ObjectDisposedException exception)
+            {
+                // fine, socket was closed
+                Log.Info($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                Disconnect();
+            }
+            catch (Exception ex)
+            {
+                // unexpected
+                Log.Error(ex.ToString());
+                Disconnect();
+            }
+        }
+
+        public void ProcessOutgoing()
+        {
+            uint time = (uint)refTime.ElapsedMilliseconds;
+
+            try
+            {
+                switch (state)
+                {
+                    case KcpState.Connected:
+                    {
+                        // update flushes out messages
+                        kcp.Update(time);
+                        break;
+                    }
+                    case KcpState.Authenticated:
+                    {
+                        // update flushes out messages
+                        kcp.Update(time);
                         break;
                     }
                     case KcpState.Disconnected:
