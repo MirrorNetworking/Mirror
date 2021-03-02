@@ -114,10 +114,7 @@ namespace kcp2k
             // -> we need to check enabled here
             // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (!enabled)
-                return;
-
-            client.ProcessIncoming();
+            if (enabled) client.ProcessIncoming();
         }
         // process outgoing in late update
         public override void ClientLateUpdate() => client.ProcessOutgoing();
@@ -181,11 +178,7 @@ namespace kcp2k
             // -> we need to check enabled here
             // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (!enabled)
-                return;
-
-            // process incoming in early update
-            server.ProcessIncoming();
+            if (enabled) server.ProcessIncoming();
         }
         // process outgoing in late update
         public override void ServerLateUpdate() => server.ProcessOutgoing();
