@@ -121,14 +121,6 @@ namespace kcp2k
         }
         public override void ClientLateUpdate()
         {
-            // scene change messages disable transports to stop them from
-            // processing while changing the scene.
-            // -> we need to check enabled here
-            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
-            // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (!enabled)
-                return;
-
             // TODO only process outgoing
             client.Tick();
         }
@@ -200,14 +192,6 @@ namespace kcp2k
         }
         public override void ServerLateUpdate()
         {
-            // scene change messages disable transports to stop them from
-            // processing while changing the scene.
-            // -> we need to check enabled here
-            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
-            // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (!enabled)
-                return;
-
             // TODO only process outgoing
             server.Tick();
         }
