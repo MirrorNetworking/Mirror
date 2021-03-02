@@ -268,7 +268,12 @@ namespace Mirror
 
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        internal static void NetworkEarlyUpdate() {}
+        internal static void NetworkEarlyUpdate()
+        {
+            // process all incoming messages first before updating the world
+            if (Transport.activeTransport != null)
+                Transport.activeTransport.ClientEarlyUpdate();
+        }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
@@ -288,6 +293,10 @@ namespace Mirror
                     NetworkTime.UpdateClient();
                 }
             }
+
+            // process all incoming messages after updating the world
+            if (Transport.activeTransport != null)
+                Transport.activeTransport.ClientLateUpdate();
         }
 
         // obsolete to not break people's projects. Update was public.
