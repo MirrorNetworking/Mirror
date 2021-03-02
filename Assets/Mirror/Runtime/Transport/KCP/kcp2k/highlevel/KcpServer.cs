@@ -265,6 +265,16 @@ namespace kcp2k
             }
         }
 
+        // process incoming and outgoing for convenience
+        public void ProcessIncomingAndOutgoing()
+        {
+            ProcessIncoming();
+            ProcessOutgoing();
+        }
+
+        [Obsolete("Tick was renamed to ProcessIncomingAndOutgoing")]
+        public void Tick() => ProcessIncomingAndOutgoing();
+
         public void Stop()
         {
             socket?.Close();

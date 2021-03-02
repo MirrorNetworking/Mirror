@@ -103,14 +103,17 @@ namespace kcp2k
             }
         }
 
-        // process incoming and outgoing
+        // process incoming and outgoing for convenience
         // => ideally call ProcessIncoming() before updating the world and
         //    ProcessOutgoing() after updating the world for minimum latency
-        public void Tick()
+        public void ProcessIncomingAndOutgoing()
         {
             ProcessIncoming();
             ProcessOutgoing();
         }
+
+        [Obsolete("Tick was renamed to ProcessIncomingAndOutgoing")]
+        public void Tick() => ProcessIncomingAndOutgoing();
 
         // pause/unpause to safely support mirror scene handling and to
         // immediately pause the receive while loop if needed.
