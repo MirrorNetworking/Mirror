@@ -208,11 +208,6 @@ namespace kcp2k
         public override int GetMaxBatchSize(int channelId) =>
             KcpConnection.UnreliableMaxMessageSize;
 
-        public override string ToString()
-        {
-            return "KCP";
-        }
-
         // server statistics
         public int GetAverageMaxSendRate() =>
             server.connections.Count > 0
@@ -313,6 +308,8 @@ namespace kcp2k
                 Debug.Log(log);
             }
         }
+
+        public override string ToString() => "KCP";
     }
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet
