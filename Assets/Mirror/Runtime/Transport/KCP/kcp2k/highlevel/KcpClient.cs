@@ -95,12 +95,9 @@ namespace kcp2k
         // process outgoing messages. should be called after updating the world.
         public void ProcessOutgoing()
         {
-            // tick client connection
-            if (connection != null)
-            {
-                // process outgoing
-                connection.ProcessOutgoing();
-            }
+            // process outgoing
+            // (connection is null if not active)
+            connection?.ProcessOutgoing();
         }
 
         // process incoming and outgoing for convenience
