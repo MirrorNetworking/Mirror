@@ -403,11 +403,6 @@ namespace kcp2k
                 switch (state)
                 {
                     case KcpState.Connected:
-                    {
-                        // update flushes out messages
-                        kcp.Update(time);
-                        break;
-                    }
                     case KcpState.Authenticated:
                     {
                         // update flushes out messages
