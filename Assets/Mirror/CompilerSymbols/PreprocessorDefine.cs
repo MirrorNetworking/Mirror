@@ -39,7 +39,8 @@ namespace Mirror
                 "MIRROR_28_0_OR_NEWER",
                 "MIRROR_29_0_OR_NEWER",
                 "MIRROR_30_0_OR_NEWER",
-                "MIRROR_30_5_2_OR_NEWER"
+                "MIRROR_30_5_2_OR_NEWER",
+                "MIRROR_32_1_2_OR_NEWER"
             };
 
             // only touch PlayerSettings if we actually modified it.
