@@ -32,8 +32,8 @@ namespace Mirror.Discovery
         protected int serverBroadcastListenPort = 47777;
         
         [SerializeField]
-        [Tooltip("")]
-        bool enableActiveDiscovery = true;
+        [Tooltip("If true, broadcasts a discovery request every ActiveDiscoveryInterval seconds")]
+        public bool enableActiveDiscovery = true;
         
         [SerializeField]
         [Tooltip("Time in seconds between multi-cast messages")]
