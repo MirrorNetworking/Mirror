@@ -113,22 +113,6 @@ namespace Mirror.SimpleWeb
             server = null;
         }
 
-        void LateUpdate()
-        {
-            ProcessMessages();
-        }
-
-        /// <summary>
-        /// Processes message in server and client queues
-        /// <para>Invokes OnData events allowing mirror to handle messages (Cmd/SyncVar/etc)</para>
-        /// <para>Called within LateUpdate, Can be called by user to process message before important logic</para>
-        /// </summary>
-        public void ProcessMessages()
-        {
-            server?.ProcessMessageQueue(this);
-            client?.ProcessMessageQueue(this);
-        }
-
         #region Client
         string GetClientScheme() => (sslEnabled || clientUseWss) ? SecureScheme : NormalScheme;
         string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
@@ -203,6 +187,12 @@ namespace Mirror.SimpleWeb
             }
 
             client.Send(segment);
+        }
+
+        // messages should always be processed in early update
+        public override void ClientEarlyUpdate()
+        {
+            client?.ProcessMessageQueue(this);
         }
         #endregion
 
@@ -293,6 +283,12 @@ namespace Mirror.SimpleWeb
                 Port = port
             };
             return builder.Uri;
+        }
+
+        // messages should always be processed in early update
+        public override void ServerEarlyUpdate()
+        {
+            server?.ProcessMessageQueue(this);
         }
         #endregion
     }
