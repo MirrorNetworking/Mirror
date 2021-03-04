@@ -1108,42 +1108,47 @@ namespace Mirror.Tests
             NetworkServer.RemoveLocalConnection();
         }
 
-        // updating NetworkServer with a null entry in NetworkIdentity.spawned
-        // should log a warning.
+        // updating NetworkServer with a null entry in connection.observing
+        // should log a warning. someone probably used GameObject.Destroy
+        // instead of NetworkServer.Destroy.
         [Test]
-        public void UpdateDetectsNullEntryInSpawned()
+        public void UpdateDetectsNullEntryInObserving()
         {
             // start
             NetworkServer.Listen(1);
 
-            // add null
-            NetworkIdentity.spawned[42] = null;
+            // add a connection that is observed by a null entity
+            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            NetworkServer.connections[42].observing.Add(null);
 
             // update
-            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
 
             // clean up
             NetworkServer.Shutdown();
         }
 
-        // updating NetworkServer with a null entry in NetworkIdentity.spawned
-        // should log a warning.
+        // updating NetworkServer with a null entry in connection.observing
+        // should log a warning. someone probably used GameObject.Destroy
+        // instead of NetworkServer.Destroy.
+        //
         // => need extra test because of Unity's custom null check
         [Test]
-        public void UpdateDetectsDestroyedEntryInSpawned()
+        public void UpdateDetectsDestroyedEntryInObserving()
         {
             // start
             NetworkServer.Listen(1);
 
-            // add destroyed
+            // add a connection that is observed by a destroyed entity
             GameObject go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            NetworkIdentity.spawned[42] = ni;
+            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            NetworkServer.connections[42].observing.Add(ni);
             GameObject.DestroyImmediate(go);
 
             // update
-            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
 
             // clean up

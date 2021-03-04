@@ -459,6 +459,19 @@ namespace Mirror
                 Transport.activeTransport.ServerEarlyUpdate();
         }
 
+        // cache NetworkIdentity serializations
+        // Update() shouldn't serialize multiple times for multiple connections
+        struct Serialization
+        {
+            public PooledNetworkWriter ownerWriter;
+            public PooledNetworkWriter observersWriter;
+            // TODO there is probably a more simple way later
+            public int ownerWritten;
+            public int observersWritten;
+        }
+        static Dictionary<NetworkIdentity, Serialization> serializations =
+            new Dictionary<NetworkIdentity, Serialization>();
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
@@ -468,22 +481,137 @@ namespace Mirror
             {
                 // Check for dead clients but exclude the host client because it
                 // doesn't ping itself and therefore may appear inactive.
+                // TODO move this into the below foreach
                 CheckForInactiveConnections();
 
-                // update all server objects
-                foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+                // for each READY connection:
+                //   pull in UpdateVarsMessage for each entity it observes
+                foreach (NetworkConnectionToClient conn in connections.Values)
                 {
-                    NetworkIdentity identity = kvp.Value;
-                    if (identity != null)
+                    // only if this connection has joined the world yet
+                    if (conn.isReady)
                     {
-                        identity.ServerUpdate();
+                        // for each entity that this connection is seeing
+                        foreach (NetworkIdentity identity in conn.observing)
+                        {
+                            // make sure it's not null or destroyed.
+                            // (which can happen if someone uses
+                            //  GameObject.Destroy instead of
+                            //  NetworkServer.Destroy)
+                            if (identity != null)
+                            {
+                                // multiple connections might be observed by the
+                                // same NetworkIdentity, but we don't want to
+                                // serialize them multiple times. look it up first.
+                                //
+                                // IMPORTANT: don't forget to return them to pool!
+                                // TODO make this easier later. for now aim for
+                                //      feature parity to not break projects.
+                                if (!serializations.ContainsKey(identity))
+                                {
+                                    // serialize all the dirty components.
+                                    // one version for owner, one for observers.
+                                    PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
+                                    PooledNetworkWriter observersWriter = NetworkWriterPool.GetWriter();
+                                    identity.OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                                    serializations[identity] = new Serialization
+                                    {
+                                        ownerWriter = ownerWriter,
+                                        observersWriter = observersWriter,
+                                        ownerWritten = ownerWritten,
+                                        observersWritten = observersWritten
+                                    };
+
+                                    // clear dirty bits only for the components that we serialized
+                                    // DO NOT clean ALL component's dirty bits, because
+                                    // components can have different syncIntervals and we don't
+                                    // want to reset dirty bits for the ones that were not
+                                    // synced yet.
+                                    // (we serialized only the IsDirty() components, or all of
+                                    //  them if initialState. clearing the dirty ones is enough.)
+                                    //
+                                    // NOTE: this is what we did before push->pull
+                                    //       broadcasting. let's keep doing this for
+                                    //       feature parity to not break anyone's project.
+                                    //       TODO make this more simple / unnecessary later.
+                                    identity.ClearDirtyComponentsDirtyBits();
+                                }
+
+                                // get serialization
+                                Serialization serialization = serializations[identity];
+
+                                // is this entity owned by this connection?
+                                bool owned = identity.connectionToClient == conn;
+
+                                // send serialized data
+                                // owner writer if owned
+                                if (owned)
+                                {
+                                    // was it dirty / did we actually serialize anything?
+                                    if (serialization.ownerWritten > 0)
+                                    {
+                                        UpdateVarsMessage message = new UpdateVarsMessage
+                                        {
+                                            netId = identity.netId,
+                                            payload = serialization.ownerWriter.ToArraySegment()
+                                        };
+                                        conn.Send(message);
+                                    }
+                                }
+                                // observers writer if not owned
+                                else
+                                {
+                                    // was it dirty / did we actually serialize anything?
+                                    if (serialization.observersWritten > 0)
+                                    {
+                                        UpdateVarsMessage message = new UpdateVarsMessage
+                                        {
+                                            netId = identity.netId,
+                                            payload = serialization.observersWriter.ToArraySegment()
+                                        };
+                                        conn.Send(message);
+                                    }
+                                }
+                            }
+                            // spawned list should have no null entries because we
+                            // always call Remove in OnObjectDestroy everywhere.
+                            // if it does have null then someone used
+                            // GameObject.Destroy instead of NetworkServer.Destroy.
+                            else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + conn.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                        }
                     }
-                    // spawned list should have no null entries because we
-                    // always call Remove in OnObjectDestroy everywhere.
-                    else Debug.LogWarning("Found 'null' entry in spawned list for netId=" + kvp.Key + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                }
+
+                // return serialized writers to pool, clear set
+                // TODO this is for feature parity before push->pull change.
+                //      make this more simple / unnecessary later.
+                foreach (Serialization entry in serializations.Values)
+                {
+                    NetworkWriterPool.Recycle(entry.ownerWriter);
+                    NetworkWriterPool.Recycle(entry.observersWriter);
+                }
+                serializations.Clear();
+
+                // TODO this unfortunately means we still need to iterate ALL
+                //      spawned and not just the ones with observers. figure
+                //      out a way to get rid of this.
+                //
+                // for each spawned:
+                //   clear dirty bits if it has no observers.
+                //   we did this before push->pull broadcasting so let's keep
+                //   doing this for now.
+                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+                {
+                    if (identity.observers == null || identity.observers.Count == 0)
+                    {
+                        // clear all component's dirty bits.
+                        // it would be spawned on new observers anyway.
+                        identity.ClearAllComponentsDirtyBits();
+                    }
                 }
 
                 // update all connections to send out batched messages in interval
+                // TODO move this into the above foreach
                 foreach (NetworkConnectionToClient conn in connections.Values)
                 {
                     conn.Update();
