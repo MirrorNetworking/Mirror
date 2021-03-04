@@ -340,6 +340,7 @@ namespace Mirror
         /// <typeparam name="T">Message type.</typeparam>
         /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
+        // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReady<T>(T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
@@ -361,6 +362,7 @@ namespace Mirror
         /// <param name="message">Message</param>
         /// <param name="includeOwner">Should the owner of the object be included</param>
         /// <param name="channelId">Transport channel to use</param>
+        // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReady<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
@@ -397,6 +399,7 @@ namespace Mirror
         /// <param name="identity">identity of the object</param>
         /// <param name="message">Message</param>
         /// <param name="channelId">Transport channel to use</param>
+        // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
             where T : struct, NetworkMessage
         {
