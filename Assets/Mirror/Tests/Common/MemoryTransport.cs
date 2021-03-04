@@ -85,7 +85,8 @@ namespace Mirror.Tests
                 clientConnected = false;
             }
         }
-        void ProcessClientMessages()
+        // messages should always be processed in early update
+        public override void ClientEarlyUpdate()
         {
             // note: process even if not connected because when calling
             // Disconnect, we add a Disconnected event which still needs to be
@@ -164,7 +165,8 @@ namespace Mirror.Tests
             // not active anymore
             serverActive = false;
         }
-        void ProcessServerMessages()
+        // messages should always be processed in early update
+        public override void ServerEarlyUpdate()
         {
             while (serverIncoming.Count > 0)
             {
@@ -185,13 +187,6 @@ namespace Mirror.Tests
                         break;
                 }
             }
-        }
-
-        // processing
-        public void LateUpdate()
-        {
-            ProcessClientMessages();
-            ProcessServerMessages();
         }
     }
 }
