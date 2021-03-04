@@ -501,13 +501,13 @@ namespace Mirror
 
                 // for each READY connection:
                 //   pull in UpdateVarsMessage for each entity it observes
-                foreach (NetworkConnectionToClient conn in connections.Values)
+                foreach (NetworkConnectionToClient connection in connections.Values)
                 {
                     // only if this connection has joined the world yet
-                    if (conn.isReady)
+                    if (connection.isReady)
                     {
                         // for each entity that this connection is seeing
-                        foreach (NetworkIdentity identity in conn.observing)
+                        foreach (NetworkIdentity identity in connection.observing)
                         {
                             // make sure it's not null or destroyed.
                             // (which can happen if someone uses
@@ -556,7 +556,7 @@ namespace Mirror
                                 Serialization serialization = serializations[identity];
 
                                 // is this entity owned by this connection?
-                                bool owned = identity.connectionToClient == conn;
+                                bool owned = identity.connectionToClient == connection;
 
                                 // send serialized data
                                 // owner writer if owned
@@ -570,7 +570,7 @@ namespace Mirror
                                             netId = identity.netId,
                                             payload = serialization.ownerWriter.ToArraySegment()
                                         };
-                                        conn.Send(message);
+                                        connection.Send(message);
                                     }
                                 }
                                 // observers writer if not owned
@@ -584,7 +584,7 @@ namespace Mirror
                                             netId = identity.netId,
                                             payload = serialization.observersWriter.ToArraySegment()
                                         };
-                                        conn.Send(message);
+                                        connection.Send(message);
                                     }
                                 }
                             }
@@ -592,7 +592,7 @@ namespace Mirror
                             // always call Remove in OnObjectDestroy everywhere.
                             // if it does have null then someone used
                             // GameObject.Destroy instead of NetworkServer.Destroy.
-                            else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + conn.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                            else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + connection.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                         }
                     }
                 }
