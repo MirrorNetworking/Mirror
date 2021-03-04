@@ -479,8 +479,7 @@ namespace Mirror
             // only process spawned & connections if active
             if (active)
             {
-                // for each READY connection:
-                //   pull in UpdateVarsMessage for each entity it observes
+                // go through all connections
                 foreach (NetworkConnectionToClient connection in connections.Values)
                 {
                     // check for inactivity
@@ -493,6 +492,8 @@ namespace Mirror
                     }
 
                     // has this connection joined the world yet?
+                    // for each READY connection:
+                    //   pull in UpdateVarsMessage for each entity it observes
                     if (connection.isReady)
                     {
                         // for each entity that this connection is seeing
@@ -584,6 +585,9 @@ namespace Mirror
                             else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + connection.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                         }
                     }
+
+                    // update connection to flush out batched messages
+                    connection.Update();
                 }
 
                 // return serialized writers to pool, clear set
@@ -612,13 +616,6 @@ namespace Mirror
                         // it would be spawned on new observers anyway.
                         identity.ClearAllComponentsDirtyBits();
                     }
-                }
-
-                // update all connections to send out batched messages in interval
-                // TODO move this into the above foreach
-                foreach (NetworkConnectionToClient conn in connections.Values)
-                {
-                    conn.Update();
                 }
             }
 
