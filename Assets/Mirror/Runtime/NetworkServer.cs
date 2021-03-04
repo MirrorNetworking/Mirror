@@ -472,21 +472,6 @@ namespace Mirror
         static Dictionary<NetworkIdentity, Serialization> serializations =
             new Dictionary<NetworkIdentity, Serialization>();
 
-        static void CheckForInactiveConnections()
-        {
-            if (!disconnectInactiveConnections)
-                return;
-
-            foreach (NetworkConnectionToClient conn in connections.Values)
-            {
-                if (!conn.IsAlive(disconnectInactiveTimeout))
-                {
-                    Debug.LogWarning($"Disconnecting {conn} for inactivity!");
-                    conn.Disconnect();
-                }
-            }
-        }
-
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
@@ -494,16 +479,20 @@ namespace Mirror
             // only process spawned & connections if active
             if (active)
             {
-                // Check for dead clients but exclude the host client because it
-                // doesn't ping itself and therefore may appear inactive.
-                // TODO move this into the below foreach
-                CheckForInactiveConnections();
-
                 // for each READY connection:
                 //   pull in UpdateVarsMessage for each entity it observes
                 foreach (NetworkConnectionToClient connection in connections.Values)
                 {
-                    // only if this connection has joined the world yet
+                    // check for inactivity
+                    if (disconnectInactiveConnections &&
+                        !connection.IsAlive(disconnectInactiveTimeout))
+                    {
+                        Debug.LogWarning($"Disconnecting {connection} for inactivity!");
+                        connection.Disconnect();
+                        continue;
+                    }
+
+                    // has this connection joined the world yet?
                     if (connection.isReady)
                     {
                         // for each entity that this connection is seeing
