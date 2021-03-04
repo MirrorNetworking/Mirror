@@ -777,7 +777,7 @@ namespace Mirror.Tests
             identity.connectionToClient = connection;
 
             // send it to that player
-            NetworkServer.SendToClientOfPlayer(identity, message);
+            identity.connectionToClient.Send(message);
 
             // update local connection once so that the incoming queue is processed
             connection.connectionToServer.Update();
