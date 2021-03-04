@@ -31,8 +31,8 @@ namespace Mirror.Tests
 
         void UpdateTransport()
         {
-            Transport.activeTransport.ServerEarlyUpdate();
             Transport.activeTransport.ClientEarlyUpdate();
+            Transport.activeTransport.ServerEarlyUpdate();
         }
 
         [Test]
