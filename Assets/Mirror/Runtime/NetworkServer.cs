@@ -604,6 +604,9 @@ namespace Mirror
                 //      spawned and not just the ones with observers. figure
                 //      out a way to get rid of this.
                 //
+                // TODO clear dirty bits when removing the last observer instead!
+                //      no need to do it for ALL entities ALL the time.
+                //
                 // for each spawned:
                 //   clear dirty bits if it has no observers.
                 //   we did this before push->pull broadcasting so let's keep
