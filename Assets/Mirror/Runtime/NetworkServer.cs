@@ -472,6 +472,21 @@ namespace Mirror
         static Dictionary<NetworkIdentity, Serialization> serializations =
             new Dictionary<NetworkIdentity, Serialization>();
 
+        static void CheckForInactiveConnections()
+        {
+            if (!disconnectInactiveConnections)
+                return;
+
+            foreach (NetworkConnectionToClient conn in connections.Values)
+            {
+                if (!conn.IsAlive(disconnectInactiveTimeout))
+                {
+                    Debug.LogWarning($"Disconnecting {conn} for inactivity!");
+                    conn.Disconnect();
+                }
+            }
+        }
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
@@ -627,21 +642,6 @@ namespace Mirror
         // obsolete to not break people's projects. Update was public.
         [Obsolete("NetworkServer.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
         public static void Update() => NetworkLateUpdate();
-
-        static void CheckForInactiveConnections()
-        {
-            if (!disconnectInactiveConnections)
-                return;
-
-            foreach (NetworkConnectionToClient conn in connections.Values)
-            {
-                if (!conn.IsAlive(disconnectInactiveTimeout))
-                {
-                    Debug.LogWarning($"Disconnecting {conn} for inactivity!");
-                    conn.Disconnect();
-                }
-            }
-        }
 
         static void AddTransportHandlers()
         {
