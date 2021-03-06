@@ -1,0 +1,184 @@
+﻿.primary-colors
+{
+    /* Light - lighter */
+    background-color: rgb(220, 220, 220);
+    /* Light - middle */
+    background-color: rgb(200, 200, 200);
+    /* Light - darker */
+    background-color: rgb(180, 180, 180);
+
+    /* Dark - lighter */
+    background-color: rgb(78, 78, 78);
+    /* Dark - middle */
+    background-color: rgb(68, 68, 68);
+    /* Dark - darker */
+    background-color: rgb(58, 58, 58);
+
+    /* Border color - light */
+    border-color: rgb(200, 200, 200);
+    /* Border color - dark */
+    border-color: rgb(33, 33, 33);
+}
+
+.hyperlink-button
+{
+    color: rgb(68, 113, 229);
+
+    border-color: rgba(0, 0, 0, 0);
+
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.hyperlink-button:hover
+{
+    color: rgb(68, 133, 229);
+}
+
+.hyperlink-button:active
+{
+    color: rgb(68, 93, 229);
+}
+
+.label-help-row > Image
+{
+    --unity-image: resource("d__Help@2x");
+}
+
+.category-menu
+{
+    color: rgb(238, 238, 238);
+
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: rgb(36, 36, 36);
+
+    background-color: rgb(88, 88, 88);
+}
+
+.category-menu:hover
+{
+    background-color: rgb(103, 103, 103);
+}
+
+.validation-paths-scroll-view
+{
+    border-width: 1px;
+    border-color: rgb(33, 33, 33);
+    background-color: rgb(58, 58, 58);
+}
+
+.validation-paths-scroll-view > * > .unity-scroll-view__vertical-scroller
+{
+    border-right-width: 0;
+}
+
+.path-input-field:hover
+{
+    background-color: rgb(78, 78, 78);
+}
+
+.group-expander-box
+{
+    border-width: 0;
+    border-color: rgba(0, 0, 0, 0);
+
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.group-label
+{
+    color: rgb(255, 255, 255);
+    
+    -unity-font-style: bold;
+}
+
+.group-separator
+{
+    background-color: rgb(104, 104, 104);
+}
+
+.foldout-box
+{
+    border-width: 0;
+    border-radius: 0;
+    background-color: rgb(56, 56, 56);
+}
+
+.foldout-box:hover
+{
+    background-color: rgb(68, 68, 68);
+}
+
+.foldout-box:active
+{
+    background-color: rgb(48, 48, 48);
+}
+
+.foldout-box-expanded
+{
+    background-color: rgb(68, 68, 68);
+}
+
+.expander
+{
+    color: rgb(104, 104, 104);
+}
+
+.test-expanded-box
+{
+    background-color: rgb(68, 68, 68);
+}
+
+.test-description > .unity-base-field__input
+{
+    border-width: 0;
+    border-color: rgba(0, 0, 0, 0);
+
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.result-messages-box
+{
+    border-left-width: 2px;
+    border-color: rgb(33, 33, 33);
+
+    background-color: rgb(58, 58, 58);
+}
+
+.result-messages-box-pass
+{
+    border-color: rgb(40, 200, 40);
+}
+
+.result-messages-box-warning
+{
+    border-color: rgb(200, 140, 40);
+}
+
+.result-messages-box-fail
+{
+    border-color: rgb(200, 40, 40);
+}
+
+.result-information-button
+{
+    border-width: 0;
+    border-radius: 0;
+    
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.result-information-button:hover
+{
+    background-color: rgb(78, 78, 78);
+}
+
+.result-information-button:active
+{
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.message-separator
+{
+    background-color: rgb(68, 68, 68);
+}

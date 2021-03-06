@@ -1,0 +1,7 @@
+﻿.bottom-tools-row
+{
+    border-top-width: 1px;
+    border-color: rgb(33, 33, 33);
+
+    background-color: rgb(200, 200, 200);
+}

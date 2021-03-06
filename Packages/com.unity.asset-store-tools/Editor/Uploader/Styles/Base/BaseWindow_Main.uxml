@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<engine:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:editor="UnityEditor.UIElements"
+    xmlns:uploader="AssetStoreTools.Uploader.UIElements"
+>
+    <engine:ScrollView name="MainScrollView" style="flex-grow:1;">
+        <uploader:LoginWindow name="LoginWindow"/>
+        <uploader:UploadWindow name="UploadWindow" style="flex-grow:1;">
+            <uploader:AllPackageView name="AllPackageView" style="flex-grow:1;"/>
+        </uploader:UploadWindow>
+    </engine:ScrollView>
+</engine:UXML>

@@ -1,0 +1,135 @@
+﻿.popup-window-test
+{
+    position: absolute;
+}
+
+.asset-store-logo
+{
+    flex-shrink: 0;
+    flex-grow: 1;
+    
+    align-self: center;
+    
+    height: 32px;
+    width: 250px;
+    
+    margin: 40px 0;
+
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.login-button-cloud
+{
+    align-self: center;
+
+    width: 300px;
+}
+
+.login-description
+{
+    -unity-text-align: middle-center;
+    white-space: normal;
+
+    min-height: 24px;
+    padding-right: 4px;
+}
+
+.or-label
+{
+    align-self: center;
+
+    -unity-text-align: middle-center;
+
+    margin: 10px 0;
+}
+
+.manual-login-box
+{
+    align-self: center;
+    
+    width: 300px;
+    
+    padding: 15px;
+}
+
+.input-box-login
+{
+    align-self: center;
+
+    width: 250px;
+
+    margin: 5px 0;
+}
+
+.input-box-login > Label
+{
+    -unity-text-align: upper-left;
+    
+    margin: 2px 0;
+}
+
+.input-box-login > TextField
+{
+    height: 20px;
+    margin: 0 1px;
+}
+
+.login-button-cred
+{
+    align-self: center;
+
+    width: 250px;
+    margin: 10px 0 15px 0;
+}
+
+.login-error-box
+{
+    flex-direction: row;
+    flex-shrink: 0;
+    
+    align-self: center;
+ 
+    min-width: 300px;
+    max-width: 300px;
+
+    margin: 5px 0 5px 1px;
+}
+
+.login-error-box > Image
+{
+    flex-direction: row;
+
+    width: 32px;
+    height: 32px;
+    
+    margin: 5px 10px;
+}
+
+.login-error-box > Label
+{
+    flex-grow: 1;
+    flex-shrink: 1;
+    
+    -unity-text-align: middle-left;
+    white-space: normal;
+    
+    margin-right: 5px;
+    padding: 2px 0;
+}
+
+.helper-button-box
+{
+    flex-direction: row;
+
+    align-self: center;
+    justify-content: space-between;
+    
+    width: 300px;
+    margin: 5px 0;
+}
+
+.hyperlink-button
+{
+    margin: 0;
+    padding: 0;
+}

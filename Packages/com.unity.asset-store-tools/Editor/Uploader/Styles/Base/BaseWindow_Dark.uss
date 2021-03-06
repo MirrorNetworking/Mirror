@@ -1,0 +1,37 @@
+﻿.primary-colors
+{
+    /* Light - lighter */
+    background-color: rgb(220, 220, 220);
+    /* Light - middle */
+    background-color: rgb(200, 200, 200);
+    /* Light - darker */
+    background-color: rgb(180, 180, 180);
+    
+    /* Dark - lighter */
+    background-color: rgb(78, 78, 78);
+    /* Dark - middle */
+    background-color: rgb(68, 68, 68);
+    /* Dark - darker */
+    background-color: rgb(58, 58, 58);
+    
+    /* Border color - light */
+    border-color: rgb(200, 200, 200);
+    /* Border color - dark */
+    border-color: rgb(33, 33, 33);
+}
+
+.accent-color
+{
+    border-color: rgb(58, 121, 187);
+}
+
+.empty-color
+{
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.root
+{
+    
+}

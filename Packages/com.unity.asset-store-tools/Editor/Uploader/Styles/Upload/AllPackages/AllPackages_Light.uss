@@ -1,0 +1,291 @@
+﻿/* Uploading Window */
+
+.assets-scroll-view
+{
+
+}
+
+.unity-scroller
+{
+    border-width: 1px;
+    border-color: rgb(33, 33, 33);
+}
+
+.assets-scroll-view > .unity-scroll-view__content-viewport
+{
+    border-width: 1px;
+    border-color: rgb(33, 33, 33);
+
+    background-color: rgb(200, 200, 200);
+}
+
+.assets-scroll-view > * > .unity-scroll-view__vertical-scroller
+{
+    border-right-width: 0;
+}
+
+.spinner-image
+{
+    --unity-image: resource("WaitSpin00");
+}
+
+.top-tools-row
+{
+    border-bottom-width: 1px;
+    border-color: rgb(33, 33, 33);
+    
+    background-color: rgb(200, 200, 200);
+}
+
+.sort-menu
+{
+    color: rgb(9, 9, 9);
+    
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: rgb(178, 178, 178);
+    
+    background-color: rgb(228, 228, 228);
+}
+
+.sort-menu:hover
+{
+    background-color: rgb(236, 236, 236);
+}
+
+.sort-menu:active
+{
+    background-color: rgb(220, 220, 220);
+}
+
+.group-expander-box
+{
+    border-width: 0;
+    border-color: rgba(0, 0, 0, 0);
+    
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.group-label
+{
+    color: rgb(0, 0, 0);
+}
+
+.info-box, .group-info-box
+{
+    border-width: 1px;
+    border-color: rgb(33, 33, 33);
+}
+
+.info-box > Image, .group-info-box > Image
+{
+    --unity-image: resource("console.infoicon@2x");
+}
+
+.hyperlink-button
+{
+    color: rgb(68, 113, 229);
+
+    border-color: rgba(0, 0, 0, 0);
+
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.hyperlink-button:hover
+{
+    color: rgb(68, 133, 229);
+}
+
+.hyperlink-button:active
+{
+    color: rgb(68, 93, 229);
+}
+
+.group-content-box
+{
+
+}
+
+.foldout-box
+{
+    border-width: 0;
+    border-radius: 0;
+    background-color: rgb(198, 198, 198);
+}
+
+.foldout-box:hover
+{
+    background-color: rgb(212, 212, 212);
+}
+
+.foldout-box:active
+{
+    background-color: rgb(180, 180, 180);
+}
+
+.foldout-box-expanded
+{
+    background-color: rgb(212, 212, 212);
+}
+
+.open-in-browser-button
+{
+    border-width: 0;
+    border-radius: 0;
+
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("../../../Icons/open-in-browser.png");
+
+    -unity-background-image-tint-color: rgb(200, 200, 200);
+}
+
+.open-in-browser-button:hover
+{
+    -unity-background-image-tint-color: rgb(255, 255, 255);
+}
+
+.open-in-browser-button:active
+{
+    -unity-background-image-tint-color: rgb(155, 155, 155);
+}
+
+.expander
+{
+    color: rgb(77, 77, 77);
+}
+
+.package-image
+{
+    border-radius: 5px;
+    background-image: resource("Sprite Icon");
+}
+
+.package-image-not-found
+{
+    background-color: rgb(160, 160, 160);
+}
+
+.asset-label
+{
+    color: rgb(0, 0, 0);
+}
+
+.asset-info
+{
+    color: rgb(48, 48, 48);
+}
+
+.category-label
+{
+    color: rgb(48, 48, 48);
+}
+
+.header-progress-bar > .unity-progress-bar__container > .unity-progress-bar__background
+{
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.header-progress-bar > .unity-progress-bar__container > .unity-progress-bar__background > .unity-progress-bar__progress
+{
+    background-image: none;
+    background-color: rgb(108, 157, 243);
+}
+
+.group-separator
+{
+    background-color: rgb(48, 48, 48);
+}
+
+/* Uploading functionality Window */
+
+.functionality-box
+{
+    background-color: rgb(212, 212, 212);
+}
+
+.workflow-dropdown
+{
+    color: rgb(9, 9, 9);
+
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: rgb(178, 178, 178);
+
+    background-color: rgb(228, 228, 228);
+}
+
+.workflow-dropdown:hover
+{
+    background-color: rgb(236, 236, 236);
+}
+
+.extra-packages-scroll-view
+{
+    border-width: 1px;
+    border-color: rgb(33, 33, 33);
+
+    background-color: rgb(200, 200, 200);
+}
+
+.extra-packages-scroll-view > * > .unity-scroll-view__vertical-scroller
+{
+    border-right-width: 0;
+}
+
+.filter-packages-dropdown
+{
+    color: rgb(9, 9, 9);
+
+    border-width: 1px;
+    border-radius: 3px;
+    border-color: rgb(178, 178, 178);
+
+    background-color: rgb(228, 228, 228);
+}
+
+.filter-packages-dropdown:hover
+{
+    background-color: rgb(236, 236, 236);
+}
+
+.filter-packages-dropdown:active
+{
+    background-color: rgb(220, 220, 220);
+}
+
+.no-packages-label
+{
+    color: rgb(0, 0, 0);
+}
+
+.packages-filtering-box
+{
+    border-width: 1px;
+    border-color: rgb(33, 33, 33);
+
+    background-color: rgb(200, 200, 200);
+}
+
+.label-help-row > Image
+{
+    --unity-image: resource("_Help@2x");
+}
+
+.upload-progress-bar > .unity-progress-bar__container > .unity-progress-bar__background
+{
+    border-width: 0;
+    border-radius: 2px;
+}
+
+.upload-progress-bar > .unity-progress-bar__container > .unity-progress-bar__background > .unity-progress-bar__progress
+{
+    background-image: none;
+    background-color: rgb(108, 157, 243);
+}
+
+.export-button, .upload-button, .cancel-button
+{
+    border-width: 1px;
+    border-color: rgb(33, 33, 33);
+}

@@ -1,0 +1,43 @@
+﻿.asset-store-logo
+{
+    background-image: url("../../Icons/publisher_portal_black.png");
+}
+
+.or-label
+{
+    color: rgb(28, 28, 28);
+}
+
+.login-error-box
+{
+    background-color: rgb(212, 212, 212);
+}
+
+.manual-login-box
+{
+    background-color: rgb(212, 212, 212);
+}
+
+.hyperlink-button
+{
+    color: rgb(68, 113, 229);
+
+    border-color: rgba(0, 0, 0, 0);
+
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.hyperlink-button:hover
+{
+    color: rgb(68, 133, 229);
+}
+
+.hyperlink-button:active
+{
+    color: rgb(68, 93, 229);
+}
+
+.login-error-box > Image
+{
+    --unity-image: resource("console.erroricon@2x");
+}

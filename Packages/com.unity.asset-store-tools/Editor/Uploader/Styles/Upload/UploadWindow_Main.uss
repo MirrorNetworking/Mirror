@@ -1,0 +1,34 @@
+﻿#UploadWindow
+{
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.bottom-tools-row
+{
+    flex-direction: row;
+    flex-shrink: 0;
+
+    justify-content: space-between;
+    margin: 0;
+}
+
+.toolbar-left-side-container
+{
+    align-self: center;
+    flex-direction: row;
+    margin: 3px 0 3px 5px;
+}
+
+.toolbar-right-side-container
+{
+    align-self: center;
+    flex-direction: row;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.refresh-button, .logout-button, .ongoing-uploads-button, .all-packages-button
+{
+    min-width: 50px;
+}

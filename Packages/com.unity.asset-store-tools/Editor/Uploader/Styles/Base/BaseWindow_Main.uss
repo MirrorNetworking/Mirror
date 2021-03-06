@@ -1,0 +1,15 @@
+﻿#MainScrollView > * > .unity-scroll-view__content-container
+{
+    flex-grow: 1;
+}
+
+#MainScrollView > * > .unity-scroll-view__content-viewport
+{
+    flex-shrink: 1;
+}
+
+#MainScrollView > * > * > .unity-scroll-view__content-container
+{
+    flex-grow: 1;
+    flex-shrink: 1;
+}
