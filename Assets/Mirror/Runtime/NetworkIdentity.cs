@@ -114,24 +114,14 @@ namespace Mirror
     {
         NetworkBehaviour[] networkBehavioursCache;
 
-        /// <summary>
-        /// Returns true if running as a client and this object was spawned by a server.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        ///     <b>IMPORTANT:</b> checking NetworkClient.active means that isClient is false in OnDestroy:
-        /// </para>
-        /// <c>
-        ///     public bool isClient => NetworkClient.active &amp;&amp; netId != 0 &amp;&amp; !serverOnly;
-        /// </c>
-        /// <para>
-        ///     but we need it in OnDestroy, e.g. when saving skillbars on quit. this
-        ///     works fine if we keep the UNET way of setting isClient manually.
-        /// </para>
-        /// <para>
-        ///     => fixes <see href="https://github.com/vis2k/Mirror/issues/1475"/>
-        /// </para>
-        /// </remarks>
+        /// <summary>Returns true if running as a client and this object was spawned by a server.</summary>
+        //
+        // IMPORTANT:
+        //   checking NetworkClient.active means that isClient is false in OnDestroy.
+        //   but we need it in OnDestroy, e.g. when saving skillbars on quit.
+        //   this works fine if we keep the UNET way of setting isClient manually.
+        //   => fixes https://github.com/vis2k/Mirror/issues/1475
+        // public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
         public bool isClient { get; internal set; }
 
         /// <summary>
