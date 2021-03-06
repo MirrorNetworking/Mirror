@@ -29,6 +29,9 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">Network connection of a player.</param>
         /// <returns>True if the player can see this object.</returns>
+        //
+        // Called from NetworkServer.SpawnObserversForConnection the first time
+        // a NetworkIdentity is spawned.
         public abstract bool OnCheckObserver(NetworkConnection conn);
 
         /// <summary>
