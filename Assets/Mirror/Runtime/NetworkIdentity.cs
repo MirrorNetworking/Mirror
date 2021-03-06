@@ -136,20 +136,13 @@ namespace Mirror
         //public bool isServer => NetworkServer.active && netId != 0;
         public bool isServer { get; internal set; }
 
-        /// <summary>
-        /// This returns true if this object is the one that represents the player on the local machine.
-        /// <para>This is set when the server has spawned an object for this particular client.</para>
-        /// </summary>
+        /// <summary>Return true if this object represents the player on the local machine.</summary>
         public bool isLocalPlayer => ClientScene.localPlayer == this;
 
-        /// <summary>
-        /// True if this object only exists on the server
-        /// </summary>
+        /// <summary> True if this object only exists on the server</summary>
         public bool isServerOnly => isServer && !isClient;
 
-        /// <summary>
-        /// True if this object exists on a client that is not also acting as a server
-        /// </summary>
+        /// <summary>True if this object exists on a client that is not also acting as a server.</summary>
         public bool isClientOnly => isClient && !isServer;
 
         /// <summary>
