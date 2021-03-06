@@ -121,7 +121,8 @@ namespace Mirror
         //   but we need it in OnDestroy, e.g. when saving skillbars on quit.
         //   this works fine if we keep the UNET way of setting isClient manually.
         //   => fixes https://github.com/vis2k/Mirror/issues/1475
-        // public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
+        //
+        //public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
         public bool isClient { get; internal set; }
 
         /// <summary>Returns true if NetworkServer.active and server is not stopped.</summary>
@@ -131,6 +132,7 @@ namespace Mirror
         //   but we need it in OnDestroy, e.g. when saving players on quit.
         //   this works fine if we keep the UNET way of setting isServer manually.
         //   => fixes https://github.com/vis2k/Mirror/issues/1484
+        //
         //public bool isServer => NetworkServer.active && netId != 0;
         public bool isServer { get; internal set; }
 
