@@ -124,24 +124,14 @@ namespace Mirror
         // public bool isClient => NetworkClient.active && netId != 0 && !serverOnly;
         public bool isClient { get; internal set; }
 
-        /// <summary>
-        /// Returns true if NetworkServer.active and server is not stopped.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        ///    <b>IMPORTANT:</b> checking NetworkServer.active means that isServer is false in OnDestroy:
-        /// </para>
-        /// <c>
-        ///     public bool isServer => NetworkServer.active &amp;&amp; netId != 0;
-        /// </c>
-        /// <para>
-        ///     but we need it in OnDestroy, e.g. when saving players on quit. this
-        ///     works fine if we keep the UNET way of setting isServer manually.
-        /// </para>
-        /// <para>
-        ///     => fixes <see href="https://github.com/vis2k/Mirror/issues/1484"/>
-        /// </para>
-        /// </remarks>
+        /// <summary>Returns true if NetworkServer.active and server is not stopped.</summary>
+        //
+        // IMPORTANT:
+        //   checking NetworkServer.active means that isServer is false in OnDestroy.
+        //   but we need it in OnDestroy, e.g. when saving players on quit.
+        //   this works fine if we keep the UNET way of setting isServer manually.
+        //   => fixes https://github.com/vis2k/Mirror/issues/1484
+        //public bool isServer => NetworkServer.active && netId != 0;
         public bool isServer { get; internal set; }
 
         /// <summary>
