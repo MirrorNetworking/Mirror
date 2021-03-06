@@ -128,12 +128,16 @@ namespace Mirror
         /// <summary>Returns true if NetworkServer.active and server is not stopped.</summary>
         //
         // IMPORTANT:
-        //   checking NetworkServer.active means that isServer is false in OnDestroy.
-        //   but we need it in OnDestroy, e.g. when saving players on quit.
-        //   this works fine if we keep the UNET way of setting isServer manually.
-        //   => fixes https://github.com/vis2k/Mirror/issues/1484
+        //   OnStartServer sets it to true. we NEVER set it to false after.
+        //   otherwise components like Skillbars couldn't use OnDestroy()
+        //   for saving, etc. since isServer may have been reset before
+        //   OnDestroy was called.
         //
-        //public bool isServer => NetworkServer.active && netId != 0;
+        //   we also DO NOT make it dependent on NetworkServer.active or similar.
+        //   we set it, then never change it. that's the user's expectation too.
+        //
+        //   => fixes https://github.com/vis2k/Mirror/issues/1484
+        //   => fixes https://github.com/vis2k/Mirror/issues/2533
         public bool isServer { get; internal set; }
 
         /// <summary>Return true if this object represents the player on the local machine.</summary>
@@ -892,7 +896,6 @@ namespace Mirror
                 {
                     Debug.LogError("Exception in OnStopClient:" + e.Message + " " + e.StackTrace);
                 }
-                isServer = false;
             }
         }
 
