@@ -139,7 +139,7 @@ namespace Mirror
         /// <summary>Return true if this object represents the player on the local machine.</summary>
         public bool isLocalPlayer => ClientScene.localPlayer == this;
 
-        /// <summary> True if this object only exists on the server</summary>
+        /// <summary>True if this object only exists on the server</summary>
         public bool isServerOnly => isServer && !isClient;
 
         /// <summary>True if this object exists on a client that is not also acting as a server.</summary>
