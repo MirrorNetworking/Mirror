@@ -144,7 +144,18 @@ namespace Mirror
         public bool isServer { get; internal set; }
 
         /// <summary>Return true if this object represents the player on the local machine.</summary>
-        public bool isLocalPlayer => ClientScene.localPlayer == this;
+        //
+        // IMPORTANT:
+        //   OnStartLocalPlayer sets it to true. we NEVER set it to false after.
+        //   otherwise components like Skillbars couldn't use OnDestroy()
+        //   for saving, etc. since isLocalPlayer may have been reset before
+        //   OnDestroy was called.
+        //
+        //   we also DO NOT make it dependent on ClientScene.localPlayer or similar.
+        //   we set it, then never change it. that's the user's expectation too.
+        //
+        //   => fixes https://github.com/vis2k/Mirror/issues/2615
+        public bool isLocalPlayer { get; internal set; }
 
         /// <summary>True if this object only exists on the server</summary>
         public bool isServerOnly => isServer && !isClient;
@@ -793,6 +804,8 @@ namespace Mirror
                 return;
             previousLocalPlayer = this;
 
+            isLocalPlayer = true;
+
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // an exception in OnStartLocalPlayer should be caught, so that
@@ -1243,6 +1256,7 @@ namespace Mirror
             clientStarted = false;
             isClient = false;
             isServer = false;
+            isLocalPlayer = false;
 
             netId = 0;
             connectionToServer = null;
