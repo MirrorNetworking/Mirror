@@ -1029,7 +1029,8 @@ namespace Mirror
         {
             if (identity == localPlayer)
             {
-                // Set isLocalPlayer to true on this NetworkIdentity and trigger OnStartLocalPlayer in all scripts on the same GO
+                // Set isLocalPlayer to true on this NetworkIdentity and trigger
+                // OnStartLocalPlayer in all scripts on the same GO
                 identity.connectionToServer = readyConnection;
                 identity.OnStartLocalPlayer();
 
