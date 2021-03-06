@@ -701,6 +701,15 @@ namespace Mirror
             // set isServer flag
             isServer = true;
 
+            // set isLocalPlayer earlier, in case OnStartLocalplayer is called
+            // AFTER OnStartClient, in which case it would still be falsse here.
+            // many projects will check isLocalPlayer in OnStartClient though.
+            // TODO ideally set isLocalPlayer when ClientScene.localPlayer is set?
+            if (ClientScene.localPlayer == this)
+            {
+                isLocalPlayer = true;
+            }
+
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             // NOTE: this might not be necessary because the above m_IsServer
             //       check already checks netId. BUT this case here checks only
@@ -776,6 +785,15 @@ namespace Mirror
             clientStarted = true;
 
             isClient = true;
+
+            // set isLocalPlayer earlier, in case OnStartLocalplayer is called
+            // AFTER OnStartClient, in which case it would still be falsse here.
+            // many projects will check isLocalPlayer in OnStartClient though.
+            // TODO ideally set isLocalPlayer when ClientScene.localPlayer is set?
+            if (ClientScene.localPlayer == this)
+            {
+                isLocalPlayer = true;
+            }
 
             // Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
