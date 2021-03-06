@@ -777,30 +777,48 @@ namespace Mirror
                 {
                     // Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId.ToString("X"));
 
-                    // not force hidden?
-                    if (identity.visible != Visibility.ForceHidden)
+                    // we need to support three cases:
+                    // - legacy system (identity has .visibility)
+                    // - new system (networkserver has .aoi)
+                    // - default case: no .visibility and no .aoi means add all
+                    //   connections by default)
+                    //
+                    // ForceHidden/ForceShown overwrite all systems so check it
+                    // first!
+
+                    // ForceShown: add no matter what
+                    if (identity.visible == Visibility.ForceShown)
                     {
-                        // legacy system support (for now)
+                        identity.AddObserver(conn);
+                    }
+                    // ForceHidden: don't show no matter what
+                    else if (identity.visible == Visibility.ForceHidden)
+                    {
+                        // do nothing
+                    }
+                    // default: legacy system / new system / no system support
+                    else if (identity.visible == Visibility.Default)
+                    {
+                        // legacy system
 #pragma warning disable 618
                         if (identity.visibility != null)
                         {
+                            // call OnCheckObserver
                             if (identity.visibility.OnCheckObserver(conn))
-                            {
                                 identity.AddObserver(conn);
-                            }
                         }
 #pragma warning restore 618
                         // new system
+                        else if (aoi != null)
+                        {
+                            // call OnCheckObserver
+                            if (aoi.OnCheckObserver(identity, conn))
+                                identity.AddObserver(conn);
+                        }
+                        // no system: add all observers by default
                         else
                         {
-                            // add observer:
-                            // -> if there is no interest management system then simply
-                            //    always add (everyone sees everyone by default)
-                            // -> if there is a system then ask the system to check
-                            if (aoi == null || aoi.OnCheckObserver(identity, conn))
-                            {
-                                identity.AddObserver(conn);
-                            }
+                            identity.AddObserver(conn);
                         }
                     }
                 }
