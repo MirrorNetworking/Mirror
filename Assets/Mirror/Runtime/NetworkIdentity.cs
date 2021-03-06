@@ -144,7 +144,18 @@ namespace Mirror
         public bool isServer { get; internal set; }
 
         /// <summary>Return true if this object represents the player on the local machine.</summary>
-        public bool isLocalPlayer => ClientScene.localPlayer == this;
+        //
+        // IMPORTANT:
+        //   OnStartLocalPlayer sets it to true. we NEVER set it to false after.
+        //   otherwise components like Skillbars couldn't use OnDestroy()
+        //   for saving, etc. since isLocalPlayer may have been reset before
+        //   OnDestroy was called.
+        //
+        //   we also DO NOT make it dependent on ClientScene.localPlayer or similar.
+        //   we set it, then never change it. that's the user's expectation too.
+        //
+        //   => fixes https://github.com/vis2k/Mirror/issues/2615
+        public bool isLocalPlayer { get; internal set; }
 
         /// <summary>True if this object only exists on the server</summary>
         public bool isServerOnly => isServer && !isClient;
@@ -690,6 +701,15 @@ namespace Mirror
             // set isServer flag
             isServer = true;
 
+            // set isLocalPlayer earlier, in case OnStartLocalplayer is called
+            // AFTER OnStartClient, in which case it would still be falsse here.
+            // many projects will check isLocalPlayer in OnStartClient though.
+            // TODO ideally set isLocalPlayer when ClientScene.localPlayer is set?
+            if (ClientScene.localPlayer == this)
+            {
+                isLocalPlayer = true;
+            }
+
             // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
             // NOTE: this might not be necessary because the above m_IsServer
             //       check already checks netId. BUT this case here checks only
@@ -766,6 +786,15 @@ namespace Mirror
 
             isClient = true;
 
+            // set isLocalPlayer earlier, in case OnStartLocalplayer is called
+            // AFTER OnStartClient, in which case it would still be falsse here.
+            // many projects will check isLocalPlayer in OnStartClient though.
+            // TODO ideally set isLocalPlayer when ClientScene.localPlayer is set?
+            if (ClientScene.localPlayer == this)
+            {
+                isLocalPlayer = true;
+            }
+
             // Debug.Log("OnStartClient " + gameObject + " netId:" + netId);
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -792,6 +821,8 @@ namespace Mirror
             if (previousLocalPlayer == this)
                 return;
             previousLocalPlayer = this;
+
+            isLocalPlayer = true;
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -1243,6 +1274,7 @@ namespace Mirror
             clientStarted = false;
             isClient = false;
             isServer = false;
+            isLocalPlayer = false;
 
             netId = 0;
             connectionToServer = null;
