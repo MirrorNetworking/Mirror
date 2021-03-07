@@ -177,13 +177,8 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Find the registered prefab for this asset id.
-        /// Useful for debuggers
-        /// </summary>
-        /// <param name="assetId">asset id of the prefab</param>
-        /// <param name="prefab">the prefab gameobject</param>
-        /// <returns>true if prefab was registered</returns>
+        /// <summary>Find the registered prefab for this asset id.</summary>
+        // Useful for debuggers
         public static bool GetPrefab(Guid assetId, out GameObject prefab)
         {
             prefab = null;
@@ -191,10 +186,7 @@ namespace Mirror
                    prefabs.TryGetValue(assetId, out prefab) && prefab != null;
         }
 
-        /// <summary>
-        /// Valids Prefab then adds it to prefabs dictionary
-        /// </summary>
-        /// <param name="prefab">NetworkIdentity on Prefab GameObject</param>
+        /// <summary>Validates Prefab then adds it to prefabs dictionary.</summary>
         static void RegisterPrefabIdentity(NetworkIdentity prefab)
         {
             if (prefab.assetId == Guid.Empty)
