@@ -814,20 +814,13 @@ namespace Mirror
             removeFromSpawned.Clear();
         }
 
-        internal static void OnObjectHide(ObjectHideMessage msg)
-        {
-            DestroyObject(msg.netId);
-        }
+        internal static void OnObjectHide(ObjectHideMessage msg) => DestroyObject(msg.netId);
 
-        internal static void OnObjectDestroy(ObjectDestroyMessage msg)
-        {
-            DestroyObject(msg.netId);
-        }
+        internal static void OnObjectDestroy(ObjectDestroyMessage msg) => DestroyObject(msg.netId);
 
         static void DestroyObject(uint netId)
         {
             // Debug.Log("ClientScene.OnObjDestroy netId:" + netId);
-
             if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {
                 localObject.OnStopClient();
@@ -856,10 +849,7 @@ namespace Mirror
                 // remove from dictionary no matter how it is unspawned
                 NetworkIdentity.spawned.Remove(netId);
             }
-            else
-            {
-                // Debug.LogWarning("Did not find target for destroy message for " + netId);
-            }
+            //else Debug.LogWarning("Did not find target for destroy message for " + netId);
         }
 
         internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
