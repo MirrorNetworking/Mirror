@@ -649,13 +649,7 @@ namespace Mirror
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Register a handler for message type T. Most should require authentication.</summary>
         [Obsolete("Use RegisterHandler(Action<NetworkConnection, T), requireAuthentication instead.")]
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
@@ -663,13 +657,7 @@ namespace Mirror
             RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
         }
 
-        /// <summary>
-        /// Replaces a handler for a particular message type.
-        /// <para>See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
