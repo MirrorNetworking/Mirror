@@ -54,6 +54,7 @@ namespace Mirror
             DestroyAllClientObjects();
         }
 
+        // add player //////////////////////////////////////////////////////////
         // called from message handler for Owner message
         internal static void InternalAddPlayer(NetworkIdentity identity)
         {
@@ -109,6 +110,7 @@ namespace Mirror
             return true;
         }
 
+        // ready ///////////////////////////////////////////////////////////////
         /// <summary>Sends Ready message to server, indicating that we loaded the scene, ready to enter the game.</summary>
         // This could be for example when a client enters an ongoing game and
         // has finished loading the current scene. The server should respond to
@@ -177,6 +179,7 @@ namespace Mirror
             }
         }
 
+        // spawnable prefabs ///////////////////////////////////////////////////
         /// <summary>Find the registered prefab for this asset id.</summary>
         // Useful for debuggers
         public static bool GetPrefab(Guid assetId, out GameObject prefab)
@@ -501,6 +504,7 @@ namespace Mirror
             unspawnHandlers.Remove(assetId);
         }
 
+        // spawn handlers //////////////////////////////////////////////////////
         /// <summary>This is an advanced spawning function that registers a custom assetId with the spawning system.</summary>
         // This can be used to register custom spawning methods for an assetId -
         // instead of the usual method of registering spawning methods for a
@@ -587,47 +591,7 @@ namespace Mirror
             return false;
         }
 
-        /// <summary>Destroys all networked objects on the client.</summary>
-        // Note: NetworkServer.CleanupNetworkIdentities does the same on server.
-        public static void DestroyAllClientObjects()
-        {
-            // user can modify spawned lists which causes InvalidOperationException
-            // list can modified either in UnSpawnHandler or in OnDisable/OnDestroy
-            // we need the Try/Catch so that the rest of the shutdown does not get stopped
-            try
-            {
-                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-                {
-                    if (identity != null && identity.gameObject != null)
-                    {
-                        identity.OnStopClient();
-                        bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
-                        if (!wasUnspawned)
-                        {
-                            // scene objects are reset and disabled.
-                            // they always stay in the scene, we don't destroy them.
-                            if (identity.sceneId != 0)
-                            {
-                                identity.Reset();
-                                identity.gameObject.SetActive(false);
-                            }
-                            // spawned objects are destroyed
-                            else
-                            {
-                                GameObject.Destroy(identity.gameObject);
-                            }
-                        }
-                    }
-                }
-                NetworkIdentity.spawned.Clear();
-            }
-            catch (InvalidOperationException e)
-            {
-                Debug.LogException(e);
-                Debug.LogError("Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
-            }
-        }
-
+        // spawning ////////////////////////////////////////////////////////////
         internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)
         {
             if (message.assetId != Guid.Empty)
@@ -814,6 +778,7 @@ namespace Mirror
             removeFromSpawned.Clear();
         }
 
+        // hide & destroy //////////////////////////////////////////////////////
         internal static void OnObjectHide(ObjectHideMessage msg) => DestroyObject(msg.netId);
 
         internal static void OnObjectDestroy(ObjectDestroyMessage msg) => DestroyObject(msg.netId);
@@ -852,6 +817,48 @@ namespace Mirror
             //else Debug.LogWarning("Did not find target for destroy message for " + netId);
         }
 
+        /// <summary>Destroys all networked objects on the client.</summary>
+        // Note: NetworkServer.CleanupNetworkIdentities does the same on server.
+        public static void DestroyAllClientObjects()
+        {
+            // user can modify spawned lists which causes InvalidOperationException
+            // list can modified either in UnSpawnHandler or in OnDisable/OnDestroy
+            // we need the Try/Catch so that the rest of the shutdown does not get stopped
+            try
+            {
+                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+                {
+                    if (identity != null && identity.gameObject != null)
+                    {
+                        identity.OnStopClient();
+                        bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+                        if (!wasUnspawned)
+                        {
+                            // scene objects are reset and disabled.
+                            // they always stay in the scene, we don't destroy them.
+                            if (identity.sceneId != 0)
+                            {
+                                identity.Reset();
+                                identity.gameObject.SetActive(false);
+                            }
+                            // spawned objects are destroyed
+                            else
+                            {
+                                GameObject.Destroy(identity.gameObject);
+                            }
+                        }
+                    }
+                }
+                NetworkIdentity.spawned.Clear();
+            }
+            catch (InvalidOperationException e)
+            {
+                Debug.LogException(e);
+                Debug.LogError("Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
+            }
+        }
+
+        // host mode callbacks /////////////////////////////////////////////////
         internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
         {
             // Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
@@ -884,6 +891,7 @@ namespace Mirror
             }
         }
 
+        // callbacks ///////////////////////////////////////////////////////////
         internal static void OnUpdateVarsMessage(UpdateVarsMessage msg)
         {
             // Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);
