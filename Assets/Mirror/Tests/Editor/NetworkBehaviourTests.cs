@@ -367,7 +367,7 @@ namespace Mirror.Tests
             Assert.That(comp.called, Is.EqualTo(0));
 
             // clientscene.readyconnection needs to be set for commands
-            ClientScene.Ready(connection.connectionToServer);
+            NetworkClient.Ready(connection.connectionToServer);
 
             // call command
             comp.CallSendCommandInternal();

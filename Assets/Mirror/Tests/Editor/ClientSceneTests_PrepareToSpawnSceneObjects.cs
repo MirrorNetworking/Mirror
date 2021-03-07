@@ -31,7 +31,7 @@ namespace Mirror.Tests.ClientSceneTests
             obj3.gameObject.SetActive(false);
             obj4.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
             Assert.That(spawnableObjects, Has.Count.EqualTo(4));
 
@@ -54,7 +54,7 @@ namespace Mirror.Tests.ClientSceneTests
             inactive1.gameObject.SetActive(false);
             inactive2.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
             Assert.That(spawnableObjects, Has.Count.EqualTo(2));
 
@@ -78,7 +78,7 @@ namespace Mirror.Tests.ClientSceneTests
             hasId1.gameObject.SetActive(false);
             hasId2.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
             Assert.IsTrue(spawnableObjects.ContainsValue(hasId1));
             Assert.IsTrue(spawnableObjects.ContainsValue(hasId2));
@@ -95,7 +95,7 @@ namespace Mirror.Tests.ClientSceneTests
             obj1.gameObject.SetActive(false);
             obj2.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
             Assert.IsTrue(spawnableObjects.ContainsKey(20));
             Assert.That(spawnableObjects[20], Is.EqualTo(obj1));
@@ -119,7 +119,7 @@ namespace Mirror.Tests.ClientSceneTests
             NetworkIdentity obj2 = CreateSceneObject(63);
             obj2.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
             Assert.That(spawnableObjects, Has.Count.EqualTo(1));
             Assert.IsFalse(spawnableObjects.ContainsValue(null));

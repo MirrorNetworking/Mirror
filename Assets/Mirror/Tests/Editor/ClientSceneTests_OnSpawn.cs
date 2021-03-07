@@ -608,7 +608,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ApplyPayload_LocalPlayerAddsIdentityToConnection()
         {
-            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
+            Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
             const uint netId = 1000;
 
             GameObject go = new GameObject();
@@ -631,19 +631,19 @@ namespace Mirror.Tests.ClientSceneTests
                 payload = default,
             };
 
-            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(ClientScene.readyConnection));
+            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(NetworkClient.readyConnection));
             readyConnProperty.SetValue(null, new FakeNetworkConnection());
 
             NetworkClient.ApplySpawnPayload(identity, msg);
 
-            Assert.That(ClientScene.localPlayer, Is.EqualTo(identity));
-            Assert.That(ClientScene.readyConnection.identity, Is.EqualTo(identity));
+            Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
+            Assert.That(NetworkClient.readyConnection.identity, Is.EqualTo(identity));
         }
 
         [Test]
         public void ApplyPayload_LocalPlayerWarningWhenNoReadyConnection()
         {
-            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
+            Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
             const uint netId = 1000;
 
             GameObject go = new GameObject();
@@ -670,7 +670,7 @@ namespace Mirror.Tests.ClientSceneTests
             LogAssert.Expect(LogType.Warning, "No ready connection found for setting player controller during InternalAddPlayer");
             NetworkClient.ApplySpawnPayload(identity, msg);
 
-            Assert.That(ClientScene.localPlayer, Is.EqualTo(identity));
+            Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
         }
 
         [Flags]

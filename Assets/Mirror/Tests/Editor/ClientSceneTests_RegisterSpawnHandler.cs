@@ -20,7 +20,7 @@ namespace Mirror.Tests.ClientSceneTests
             });
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
             Assert.IsTrue(spawnHandlers.ContainsKey(guid));
 
@@ -46,7 +46,7 @@ namespace Mirror.Tests.ClientSceneTests
             });
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
             Assert.IsTrue(spawnHandlers.ContainsKey(guid));
 
@@ -63,7 +63,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
             Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
             Assert.AreEqual(unspawnHandlers[guid], unspawnHandler);
@@ -77,7 +77,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = null;
 
             LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {guid}");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, "Can not Register SpawnHandler for empty Guid");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
         [Test]
@@ -109,13 +109,13 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
             SpawnDelegate spawnHandler2 = new SpawnDelegate((x, y) => new GameObject());
             UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {guid}");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, $"assetId '{guid}' is already used by prefab '{validPrefab.name}'");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
 
@@ -139,7 +139,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
             Assert.IsTrue(spawnHandlers.ContainsKey(guid));
             Assert.AreEqual(spawnHandlers[guid], spawnHandler);
@@ -152,7 +152,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
             Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
             Assert.AreEqual(unspawnHandlers[guid], unspawnHandler);
@@ -166,7 +166,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {guid}");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = null;
 
             LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {guid}");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
         [Test]
@@ -188,7 +188,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
             LogAssert.Expect(LogType.Error, "Can not Register SpawnHandler for empty Guid");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
         [Test]
@@ -198,13 +198,13 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
             SpawnHandlerDelegate spawnHandler2 = new SpawnHandlerDelegate(x => new GameObject());
             UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
 
             LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {guid}");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler2, unspawnHandler2);
         }
 
         [Test]
@@ -217,7 +217,7 @@ namespace Mirror.Tests.ClientSceneTests
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
 
             LogAssert.Expect(LogType.Error, $"assetId '{guid}' is already used by prefab '{validPrefab.name}'");
-            ClientScene.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
+            NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
         }
 
     }

@@ -9,7 +9,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
 
-            ClientScene.UnregisterSpawnHandler(validPrefabGuid);
+            NetworkClient.UnregisterSpawnHandler(validPrefabGuid);
 
             Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
         }
@@ -19,7 +19,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => {}));
 
-            ClientScene.UnregisterSpawnHandler(validPrefabGuid);
+            NetworkClient.UnregisterSpawnHandler(validPrefabGuid);
 
             Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
         }
@@ -29,7 +29,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             prefabs.Add(validPrefabGuid, validPrefab);
 
-            ClientScene.UnregisterSpawnHandler(validPrefabGuid);
+            NetworkClient.UnregisterSpawnHandler(validPrefabGuid);
 
             // Should not be removed
             Assert.IsTrue(prefabs.ContainsKey(validPrefabGuid));
