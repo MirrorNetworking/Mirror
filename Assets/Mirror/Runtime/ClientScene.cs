@@ -790,7 +790,7 @@ namespace Mirror
             isSpawnFinished = true;
         }
 
-        static readonly List<uint> toRemoveFromSpawned = new List<uint>();
+        static readonly List<uint> removeFromSpawned = new List<uint>();
         static void ClearNullFromSpawned()
         {
             // spawned has null objects after changing scenes on client using
@@ -802,16 +802,16 @@ namespace Mirror
             {
                 if (kvp.Value == null)
                 {
-                    toRemoveFromSpawned.Add(kvp.Key);
+                    removeFromSpawned.Add(kvp.Key);
                 }
             }
 
             // can't modify NetworkIdentity.spawned inside foreach so need 2nd loop to remove
-            foreach (uint id in toRemoveFromSpawned)
+            foreach (uint id in removeFromSpawned)
             {
                 NetworkIdentity.spawned.Remove(id);
             }
-            toRemoveFromSpawned.Clear();
+            removeFromSpawned.Clear();
         }
 
         internal static void OnObjectHide(ObjectHideMessage msg)
