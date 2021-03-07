@@ -40,17 +40,21 @@ namespace Mirror
         /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
         /// <para>The key to the dictionary is the prefab asset Id.</para>
         /// </summary>
-        public static readonly Dictionary<Guid, GameObject> prefabs = new Dictionary<Guid, GameObject>();
+        public static readonly Dictionary<Guid, GameObject> prefabs =
+            new Dictionary<Guid, GameObject>();
 
         /// <summary>
         /// This is dictionary of the disabled NetworkIdentity objects in the scene that could be spawned by messages from the server.
         /// <para>The key to the dictionary is the NetworkIdentity sceneId.</para>
         /// </summary>
-        internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects = new Dictionary<ulong, NetworkIdentity>();
+        internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
+            new Dictionary<ulong, NetworkIdentity>();
 
         // spawn handlers
-        internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers = new Dictionary<Guid, SpawnHandlerDelegate>();
-        internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers = new Dictionary<Guid, UnSpawnDelegate>();
+        internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers =
+            new Dictionary<Guid, SpawnHandlerDelegate>();
+        internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers =
+            new Dictionary<Guid, UnSpawnDelegate>();
 
         internal static void Shutdown()
         {
