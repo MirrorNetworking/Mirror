@@ -587,11 +587,7 @@ namespace Mirror
             return false;
         }
 
-        /// <summary>
-        /// Destroys all networked objects on the client.
-        /// <para>This can be used to clean up when a network connection is closed.</para>
-        /// </summary>
-        //
+        /// <summary>Destroys all networked objects on the client.</summary>
         // Note: NetworkServer.CleanupNetworkIdentities does the same on server.
         public static void DestroyAllClientObjects()
         {
@@ -676,7 +672,6 @@ namespace Mirror
         internal static void OnSpawn(SpawnMessage msg)
         {
             // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
-
             if (FindOrSpawnObject(msg, out NetworkIdentity identity))
             {
                 ApplySpawnPayload(identity, msg);
