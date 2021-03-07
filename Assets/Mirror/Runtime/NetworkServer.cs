@@ -176,10 +176,7 @@ namespace Mirror
             return connections.Remove(connectionId);
         }
 
-        /// <summary>
-        /// called by LocalClient to add itself. don't call directly.
-        /// </summary>
-        /// <param name="conn"></param>
+        // called by LocalClient to add itself. don't call directly.
         internal static void SetLocalConnection(LocalConnectionToClient conn)
         {
             if (localConnection != null)
@@ -213,14 +210,8 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// this is like SendToReady - but it doesn't check the ready flag on the connection.
-        /// this is used for ObjectDestroy messages.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="identity"></param>
-        /// <param name="message"></param>
-        /// <param name="channelId"></param>
+        // this is like SendToReady - but it doesn't check the ready flag on the connection.
+        // this is used for ObjectDestroy messages.
         static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
