@@ -28,6 +28,7 @@ namespace Mirror
         /// <summary>The NetworkConnection object that is currently "ready".</summary>
         // This connection can be used to send messages to the server. There can
         // only be one ClientScene and ready connection at a time.
+        // TODO ready ? NetworkClient.connection : null??????
         public static NetworkConnection readyConnection { get; private set; }
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>
