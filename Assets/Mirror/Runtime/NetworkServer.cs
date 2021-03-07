@@ -806,19 +806,15 @@ namespace Mirror
 
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
         {
-            if (identity.serverOnly)
-                return;
+            if (identity.serverOnly) return;
 
-            // for easier debugging
             // Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId);
 
             // one writer for owner, one for observers
             using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
             {
                 bool isOwner = identity.connectionToClient == conn;
-
                 ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
-
                 SpawnMessage message = new SpawnMessage
                 {
                     netId = identity.netId,
@@ -830,10 +826,8 @@ namespace Mirror
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
-
                     payload = payload,
                 };
-
                 conn.Send(message);
             }
         }
