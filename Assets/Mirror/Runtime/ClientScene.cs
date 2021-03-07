@@ -887,22 +887,17 @@ namespace Mirror
         internal static void OnUpdateVarsMessage(UpdateVarsMessage msg)
         {
             // Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);
-
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
                     localObject.OnDeserializeAllSafely(networkReader, false);
             }
-            else
-            {
-                Debug.LogWarning("Did not find target for sync message for " + msg.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
-            }
+            else Debug.LogWarning("Did not find target for sync message for " + msg.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
         internal static void OnRPCMessage(RpcMessage msg)
         {
             // Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
-
             if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
@@ -918,7 +913,6 @@ namespace Mirror
                 // OnStartLocalPlayer in all scripts on the same GO
                 identity.connectionToServer = readyConnection;
                 identity.OnStartLocalPlayer();
-
                 // Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
             }
         }
