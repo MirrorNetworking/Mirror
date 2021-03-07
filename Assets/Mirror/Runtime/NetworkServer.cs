@@ -65,9 +65,7 @@ namespace Mirror
         internal static Action<NetworkConnection> OnConnectedEvent;
         internal static Action<NetworkConnection> OnDisconnectedEvent;
 
-        /// <summary>
-        /// This shuts down the server and disconnects all clients.
-        /// </summary>
+        /// <summary>Shuts down the server and disconnects all clients</summary>
         public static void Shutdown()
         {
             if (initialized)
