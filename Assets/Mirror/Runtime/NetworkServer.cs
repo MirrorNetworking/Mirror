@@ -268,13 +268,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Send a message to only clients which are ready.
-        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="message">Message</param>
-        /// <param name="channelId">Transport channel to use</param>
+        /// <summary>Send a message to all clients which have joined the world (are ready).</summary>
         // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReady<T>(T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
@@ -288,15 +282,7 @@ namespace Mirror
             SendToAll(message, channelId, true);
         }
 
-        /// <summary>
-        /// Send a message to only clients which are ready with option to include the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type.</typeparam>
-        /// <param name="identity">Identity of the owner</param>
-        /// <param name="message">Message</param>
-        /// <param name="includeOwner">Should the owner of the object be included</param>
-        /// <param name="channelId">Transport channel to use</param>
+        /// <summary>Send a message to only clients which are ready with option to include the owner of the object identity</summary>
         // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReady<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
