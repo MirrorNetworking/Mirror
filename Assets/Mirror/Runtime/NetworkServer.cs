@@ -213,30 +213,6 @@ namespace Mirror
         }
 
         // send ////////////////////////////////////////////////////////////////
-        // this is like SendToReady - but it doesn't check the ready flag on the connection.
-        // this is used for ObjectDestroy messages.
-        static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.DefaultReliable)
-            where T : struct, NetworkMessage
-        {
-            // Debug.Log("Server.SendToObservers id:" + typeof(T));
-            if (identity == null || identity.observers == null || identity.observers.Count == 0)
-                return;
-
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                // pack message into byte[] once
-                MessagePacking.Pack(message, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
-
-                foreach (NetworkConnection conn in identity.observers.Values)
-                {
-                    conn.Send(segment, channelId);
-                }
-
-                NetworkDiagnostics.OnSend(message, channelId, segment.Count, identity.observers.Count);
-            }
-        }
-
         /// <summary>Send a message to all clients, even those that haven't joined the world yet (non ready)</summary>
         public static void SendToAll<T>(T message, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false)
             where T : struct, NetworkMessage
@@ -321,6 +297,30 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             SendToReady(identity, message, true, channelId);
+        }
+
+        // this is like SendToReady - but it doesn't check the ready flag on the connection.
+        // this is used for ObjectDestroy messages.
+        static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.DefaultReliable)
+            where T : struct, NetworkMessage
+        {
+            // Debug.Log("Server.SendToObservers id:" + typeof(T));
+            if (identity == null || identity.observers == null || identity.observers.Count == 0)
+                return;
+
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // pack message into byte[] once
+                MessagePacking.Pack(message, writer);
+                ArraySegment<byte> segment = writer.ToArraySegment();
+
+                foreach (NetworkConnection conn in identity.observers.Values)
+                {
+                    conn.Send(segment, channelId);
+                }
+
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, identity.observers.Count);
+            }
         }
 
         /// <summary>Send this message to the player only</summary>
