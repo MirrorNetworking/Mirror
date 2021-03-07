@@ -312,14 +312,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Send a message to only clients which are ready including the owner of the object identity.
-        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="identity">identity of the object</param>
-        /// <param name="message">Message</param>
-        /// <param name="channelId">Transport channel to use</param>
+        /// <summary>Send a message to only clients which are ready including the owner of the NetworkIdentity</summary>
         // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
             where T : struct, NetworkMessage
