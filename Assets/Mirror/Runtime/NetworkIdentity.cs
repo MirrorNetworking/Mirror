@@ -666,6 +666,9 @@ namespace Mirror
         }
 #endif
 
+        // OnDestroy is called for all SPAWNED NetworkIdentities
+        // => scene objects aren't destroyed. it's not called for them.
+        //
         // Note: Unity will Destroy all networked objects on Scene Change, so we
         // have to handle that here silently. That means we cannot have any
         // warning or logging in this method.
