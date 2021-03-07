@@ -22,24 +22,16 @@ namespace Mirror
         public static Dictionary<int, NetworkConnectionToClient> connections =
             new Dictionary<int, NetworkConnectionToClient>();
 
-        /// <summary>Message Handlers dictionary, with mesageId as key.</summary>
+        /// <summary>Message Handlers dictionary, with mesageId as key</summary>
         static Dictionary<int, NetworkMessageDelegate> handlers =
             new Dictionary<int, NetworkMessageDelegate>();
 
-        /// <summary>
-        /// <para>If you enable this, the server will not listen for incoming connections on the regular network port.</para>
-        /// <para>This can be used if the game is running in host mode and does not want external players to be able to connect - making it like a single-player game. Also this can be useful when using AddExternalConnection().</para>
-        /// </summary>
-        // NOTE: people use this for single player mode where it should not do
-        //       any networking! see https://github.com/vis2k/Mirror/pull/2595
+        /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
+        // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
 
-        /// <summary>
-        /// <para>Checks if the server has been started.</para>
-        /// <para>This will be true after NetworkServer.Listen() has been called.</para>
-        /// </summary>
+        /// <summary>active checks if the server has been started</summary>
         public static bool active { get; internal set; }
-
 
         /// <summary>
         /// batching is still optional until we improve mirror's update order.
