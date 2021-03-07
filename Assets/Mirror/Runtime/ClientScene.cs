@@ -678,9 +678,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Finds Existing Object with NetId or spawns a new one using AssetId or sceneId
-        /// </summary>
+        /// <summary>Finds Existing Object with NetId or spawns a new one using AssetId or sceneId</summary>
         internal static bool FindOrSpawnObject(SpawnMessage msg, out NetworkIdentity identity)
         {
             // was the object already spawned?
@@ -754,12 +752,7 @@ namespace Mirror
                 //foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
                 //    Debug.Log($"Spawnable: SceneId={kvp.Key:X} name={kvp.Value.name}");
             }
-            else
-            {
-                // only log this when successful
-                // Debug.Log($"Client spawn for [netId:{msg.netId}] [sceneId:{msg.sceneId:X}] obj:{identity}");
-            }
-
+            //else Debug.Log($"Client spawn for [netId:{msg.netId}] [sceneId:{msg.sceneId:X}] obj:{identity}");
             return identity;
         }
 
