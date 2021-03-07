@@ -930,11 +930,13 @@ namespace Mirror
             return true;
         }
 
-        /// <summary>
-        /// Sets the client to be ready.
-        /// <para>When a client has signaled that it is ready, this method tells the server that the client is ready to receive spawned objects and state synchronization updates. This is usually called in a handler for the SYSTEM_READY message. If there is not specific action a game needs to take for this message, relying on the default ready handler function is probably fine, so this call wont be needed.</para>
-        /// </summary>
-        /// <param name="conn">The connection of the client to make ready.</param>
+        /// <summary>Flags client connection as ready (=joined world).</summary>
+        // When a client has signaled that it is ready, this method tells the
+        // server that the client is ready to receive spawned objects and state
+        // synchronization updates. This is usually called in a handler for the
+        // SYSTEM_READY message. If there is not specific action a game needs to
+        // take for this message, relying on the default ready handler function
+        // is probably fine, so this call wont be needed.
         public static void SetClientReady(NetworkConnection conn)
         {
             // Debug.Log("SetClientReadyInternal for conn:" + conn);
