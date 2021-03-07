@@ -780,42 +780,6 @@ namespace Mirror
         }
 
         // spawning ////////////////////////////////////////////////////////////
-        internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
-        {
-            if (!active)
-            {
-                Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
-                return;
-            }
-
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            if (identity == null)
-            {
-                Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
-                return;
-            }
-
-            if (identity.SpawnedFromInstantiate)
-            {
-                // Using Instantiate on SceneObject is not allowed, so stop spawning here
-                // NetworkIdentity.Awake already logs error, no need to log a second error here
-                return;
-            }
-
-            identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
-
-            // special case to make sure hasAuthority is set
-            // on start server in host mode
-            if (ownerConnection is LocalConnectionToClient)
-                identity.hasAuthority = true;
-
-            identity.OnStartServer();
-
-            // Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
-
-            RebuildObservers(identity, true);
-        }
-
         static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, PooledNetworkWriter ownerWriter, PooledNetworkWriter observersWriter)
         {
             // Only call OnSerializeAllSafely if there are NetworkBehaviours
@@ -872,6 +836,42 @@ namespace Mirror
 
                 conn.Send(message);
             }
+        }
+
+        static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
+        {
+            if (!active)
+            {
+                Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
+                return;
+            }
+
+            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
+                return;
+            }
+
+            if (identity.SpawnedFromInstantiate)
+            {
+                // Using Instantiate on SceneObject is not allowed, so stop spawning here
+                // NetworkIdentity.Awake already logs error, no need to log a second error here
+                return;
+            }
+
+            identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
+
+            // special case to make sure hasAuthority is set
+            // on start server in host mode
+            if (ownerConnection is LocalConnectionToClient)
+                identity.hasAuthority = true;
+
+            identity.OnStartServer();
+
+            // Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
+
+            RebuildObservers(identity, true);
         }
 
         /// <summary>Spawn the given game object on all clients which are ready.</summary>
