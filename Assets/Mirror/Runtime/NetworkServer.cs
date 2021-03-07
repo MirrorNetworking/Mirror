@@ -1015,11 +1015,8 @@ namespace Mirror
             //else Debug.Log($"Connection {conn} has no identity");
         }
 
-        /// <summary>
-        /// Handle command from specific player, this could be one of multiple players on a single client
-        /// </summary>
-        /// <param name="conn"></param>
-        /// <param name="msg"></param>
+        // Handle command from specific player, this could be one of multiple
+        // players on a single client
         static void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
         {
             if (!NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
@@ -1140,11 +1137,10 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// This destroys all the player objects associated with a NetworkConnections on a server.
-        /// <para>This is used when a client disconnects, to remove the players for that client. This also destroys non-player objects that have client authority set for this connection.</para>
-        /// </summary>
-        /// <param name="conn">The connections object to clean up for.</param>
+        /// <summary>Destroys all of the connection's owned objects on the server.</summary>
+        // This is used when a client disconnects, to remove the players for
+        // that client. This also destroys non-player objects that have client
+        // authority set for this connection.
         public static void DestroyPlayerForConnection(NetworkConnection conn)
         {
             // destroy all objects owned by this connection, including the player object
@@ -1152,12 +1148,9 @@ namespace Mirror
             conn.identity = null;
         }
 
-        /// <summary>
-        /// Spawn the given game object on all clients which are ready.
-        /// <para>This will cause a new object to be instantiated from the registered prefab, or from a custom spawn function.</para>
-        /// </summary>
-        /// <param name="obj">Game object with NetworkIdentity to spawn.</param>
-        /// <param name="ownerConnection">The connection that has authority over the object</param>
+        /// <summary>Spawn the given game object on all clients which are ready.</summary>
+        // This will cause a new object to be instantiated from the registered
+        // prefab, or from a custom spawn function.
         public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
@@ -1166,12 +1159,8 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
-        /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="ownerPlayer">The player object to set Client Authority to.</param>
+        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
+        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
         public static void Spawn(GameObject obj, GameObject ownerPlayer)
         {
             NetworkIdentity identity = ownerPlayer.GetComponent<NetworkIdentity>();
