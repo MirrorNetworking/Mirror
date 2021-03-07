@@ -882,14 +882,20 @@ namespace Mirror
         public static void Shutdown()
         {
             Debug.Log("Shutting down client.");
-            ClientScene.Shutdown();
+            ClearSpawners();
+            ClientScene.spawnableObjects.Clear();
+            ClientScene.readyConnection = null;
+            ClientScene.ready = false;
+            ClientScene.isSpawnFinished = false;
+            ClientScene.DestroyAllClientObjects();
             connectState = ConnectState.None;
             handlers.Clear();
             // disconnect the client connection.
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
             // supposed to be shut down too!
-            Transport.activeTransport.ClientDisconnect();
+            if (Transport.activeTransport != null)
+                Transport.activeTransport.ClientDisconnect();
         }
     }
 }

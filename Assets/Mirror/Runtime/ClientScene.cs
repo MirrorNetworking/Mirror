@@ -18,7 +18,7 @@ namespace Mirror
     /// </summary>
     public static class ClientScene
     {
-        static bool isSpawnFinished;
+        internal static bool isSpawnFinished;
 
         /// <summary> NetworkIdentity of the localPlayer </summary>
         public static NetworkIdentity localPlayer { get; private set; }
@@ -30,7 +30,7 @@ namespace Mirror
         // This connection can be used to send messages to the server. There can
         // only be one ClientScene and ready connection at a time.
         // TODO ready ? NetworkClient.connection : null??????
-        public static NetworkConnection readyConnection { get; private set; }
+        public static NetworkConnection readyConnection { get; internal set; }
 
         [Obsolete("ClientScene.prefabs was moved to NetworkClient.prefabs")]
         public static Dictionary<Guid, GameObject> prefabs => NetworkClient.prefabs;
@@ -434,17 +434,6 @@ namespace Mirror
                 Debug.LogException(e);
                 Debug.LogError("Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
             }
-        }
-
-        // shutdown ////////////////////////////////////////////////////////////
-        internal static void Shutdown()
-        {
-            ClearSpawners();
-            spawnableObjects.Clear();
-            readyConnection = null;
-            ready = false;
-            isSpawnFinished = false;
-            DestroyAllClientObjects();
         }
     }
 }

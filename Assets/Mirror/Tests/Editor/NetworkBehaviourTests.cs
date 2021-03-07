@@ -376,7 +376,6 @@ namespace Mirror.Tests
             // clean up
             RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
-            ClientScene.Shutdown();
             NetworkClient.Shutdown();
             NetworkServer.Shutdown();
             Transport.activeTransport = null;
@@ -458,7 +457,6 @@ namespace Mirror.Tests
             // clean up
             RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
-            ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
             NetworkClient.Shutdown();
             NetworkServer.Shutdown();
@@ -547,7 +545,6 @@ namespace Mirror.Tests
             // clean up
             RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
-            ClientScene.Shutdown();
             NetworkServer.RemoveLocalConnection();
             NetworkClient.Shutdown();
             NetworkServer.Shutdown();

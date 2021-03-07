@@ -353,7 +353,6 @@ namespace Mirror.Tests
             // stop the client
             NetworkClient.Shutdown();
             NetworkServer.RemoveLocalConnection();
-            ClientScene.Shutdown();
 
             // stop the server
             NetworkServer.Shutdown();

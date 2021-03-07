@@ -54,7 +54,7 @@ namespace Mirror.Tests
         [TearDown]
         public virtual void TearDown()
         {
-            ClientScene.Shutdown();
+            NetworkClient.Shutdown();
             // reset asset id in case they are changed by tests
             validPrefabNetworkIdentity.assetId = validPrefabGuid;
 
