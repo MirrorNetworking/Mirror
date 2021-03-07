@@ -175,45 +175,7 @@ namespace Mirror
         [Obsolete("ClientScene.ClearSpawners was moved to NetworkClient.ClearSpawners")]
         public static void ClearSpawners() => NetworkClient.ClearSpawners();
 
-        /// <summary>Destroys all networked objects on the client.</summary>
-        // Note: NetworkServer.CleanupNetworkIdentities does the same on server.
-        public static void DestroyAllClientObjects()
-        {
-            // user can modify spawned lists which causes InvalidOperationException
-            // list can modified either in UnSpawnHandler or in OnDisable/OnDestroy
-            // we need the Try/Catch so that the rest of the shutdown does not get stopped
-            try
-            {
-                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-                {
-                    if (identity != null && identity.gameObject != null)
-                    {
-                        identity.OnStopClient();
-                        bool wasUnspawned = NetworkClient.InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
-                        if (!wasUnspawned)
-                        {
-                            // scene objects are reset and disabled.
-                            // they always stay in the scene, we don't destroy them.
-                            if (identity.sceneId != 0)
-                            {
-                                identity.Reset();
-                                identity.gameObject.SetActive(false);
-                            }
-                            // spawned objects are destroyed
-                            else
-                            {
-                                GameObject.Destroy(identity.gameObject);
-                            }
-                        }
-                    }
-                }
-                NetworkIdentity.spawned.Clear();
-            }
-            catch (InvalidOperationException e)
-            {
-                Debug.LogException(e);
-                Debug.LogError("Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
-            }
-        }
+        [Obsolete("ClientScene.DestroyAllClientObjects was moved to NetworkClient.DestroyAllClientObjects")]
+        public static void DestroyAllClientObjects() => NetworkClient.DestroyAllClientObjects();
     }
 }
