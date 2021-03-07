@@ -132,6 +132,7 @@ namespace Mirror
             NetworkIdentity.ResetNextNetworkId();
         }
 
+        // Note: ClientScene.DestroyAllClientObjects does the same on client.
         static void CleanupNetworkIdentities()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)

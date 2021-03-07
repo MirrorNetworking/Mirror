@@ -671,6 +671,8 @@ namespace Mirror
         /// Destroys all networked objects on the client.
         /// <para>This can be used to clean up when a network connection is closed.</para>
         /// </summary>
+        //
+        // Note: NetworkServer.CleanupNetworkIdentities does the same on server.
         public static void DestroyAllClientObjects()
         {
             // user can modify spawned lists which causes InvalidOperationException
