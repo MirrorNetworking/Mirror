@@ -632,7 +632,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>Finds Existing Object with NetId or spawns a new one using AssetId or sceneId</summary>
+        // Finds Existing Object with NetId or spawns a new one using AssetId or sceneId
         internal static bool FindOrSpawnObject(SpawnMessage msg, out NetworkIdentity identity)
         {
             // was the object already spawned?
