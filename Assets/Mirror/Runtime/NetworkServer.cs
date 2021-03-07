@@ -81,6 +81,14 @@ namespace Mirror
             AddTransportHandlers();
         }
 
+        static void AddTransportHandlers()
+        {
+            Transport.activeTransport.OnServerConnected = OnConnected;
+            Transport.activeTransport.OnServerDataReceived = OnDataReceived;
+            Transport.activeTransport.OnServerDisconnected = OnDisconnected;
+            Transport.activeTransport.OnServerError = OnError;
+        }
+
         public static void ActivateHostScene()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
@@ -339,14 +347,6 @@ namespace Mirror
         }
 
         // transport events ////////////////////////////////////////////////////
-        static void AddTransportHandlers()
-        {
-            Transport.activeTransport.OnServerConnected = OnConnected;
-            Transport.activeTransport.OnServerDataReceived = OnDataReceived;
-            Transport.activeTransport.OnServerDisconnected = OnDisconnected;
-            Transport.activeTransport.OnServerError = OnError;
-        }
-
         static void OnConnected(int connectionId)
         {
             // Debug.Log("Server accepted client:" + connectionId);
