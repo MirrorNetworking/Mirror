@@ -361,6 +361,7 @@ namespace Mirror
         [Obsolete("NoConnections was renamed to NoExternalConnections because that's what it checks for.")]
         public static bool NoConnections() => NoExternalConnections();
 
+        // update //////////////////////////////////////////////////////////////
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkEarlyUpdate()
@@ -543,6 +544,7 @@ namespace Mirror
         [Obsolete("NetworkServer.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
         public static void Update() => NetworkLateUpdate();
 
+        // transport events ////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
             Transport.activeTransport.OnServerConnected = OnConnected;
@@ -637,6 +639,7 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
+        // message handlers ////////////////////////////////////////////////////
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
@@ -930,6 +933,7 @@ namespace Mirror
             return true;
         }
 
+        // ready ///////////////////////////////////////////////////////////////
         /// <summary>Flags client connection as ready (=joined world).</summary>
         // When a client has signaled that it is ready, this method tells the
         // server that the client is ready to receive spawned objects and state
@@ -949,33 +953,6 @@ namespace Mirror
                 SpawnObserversForConnection(conn);
         }
 
-        internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
-        {
-            if (conn.isReady)
-                SendSpawnMessage(identity, conn);
-        }
-
-        internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
-        {
-            ObjectHideMessage msg = new ObjectHideMessage
-            {
-                netId = identity.netId
-            };
-            conn.Send(msg);
-        }
-
-        /// <summary>Marks all connected clients as no longer ready.</summary>
-        // All clients will no longer be sent state synchronization updates. The
-        // player's clients can call ClientManager.Ready() again to re-enter the
-        // ready state. This is useful when switching scenes.
-        public static void SetAllClientsNotReady()
-        {
-            foreach (NetworkConnectionToClient conn in connections.Values)
-            {
-                SetClientNotReady(conn);
-            }
-        }
-
         /// <summary>Marks the client of the connection to be not-ready.</summary>
         // Clients that are not ready do not receive spawned objects or state
         // synchronization updates. They client can be made ready again by
@@ -992,11 +969,39 @@ namespace Mirror
             }
         }
 
+        /// <summary>Marks all connected clients as no longer ready.</summary>
+        // All clients will no longer be sent state synchronization updates. The
+        // player's clients can call ClientManager.Ready() again to re-enter the
+        // ready state. This is useful when switching scenes.
+        public static void SetAllClientsNotReady()
+        {
+            foreach (NetworkConnectionToClient conn in connections.Values)
+            {
+                SetClientNotReady(conn);
+            }
+        }
+
         // default ready handler.
         static void OnClientReadyMessage(NetworkConnection conn, ReadyMessage msg)
         {
             // Debug.Log("Default handler for ready message from " + conn);
             SetClientReady(conn);
+        }
+
+        // show / hide for connection //////////////////////////////////////////
+        internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
+        {
+            if (conn.isReady)
+                SendSpawnMessage(identity, conn);
+        }
+
+        internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
+        {
+            ObjectHideMessage msg = new ObjectHideMessage
+            {
+                netId = identity.netId
+            };
+            conn.Send(msg);
         }
 
         /// <summary>Removes the player object from the connection</summary>
@@ -1043,6 +1048,7 @@ namespace Mirror
                 identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.Command, networkReader, conn as NetworkConnectionToClient);
         }
 
+        // spawning ////////////////////////////////////////////////////////////
         internal static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
             if (!active)
@@ -1137,17 +1143,6 @@ namespace Mirror
             }
         }
 
-        /// <summary>Destroys all of the connection's owned objects on the server.</summary>
-        // This is used when a client disconnects, to remove the players for
-        // that client. This also destroys non-player objects that have client
-        // authority set for this connection.
-        public static void DestroyPlayerForConnection(NetworkConnection conn)
-        {
-            // destroy all objects owned by this connection, including the player object
-            conn.DestroyOwnedObjects();
-            conn.identity = null;
-        }
-
         /// <summary>Spawn the given game object on all clients which are ready.</summary>
         // This will cause a new object to be instantiated from the registered
         // prefab, or from a custom spawn function.
@@ -1201,6 +1196,70 @@ namespace Mirror
                 return false;
             }
             return true;
+        }
+
+        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
+        // The object will be removed from clients that it was spawned on, or
+        // the custom spawn handler function on the client will be called for
+        // the object.
+        // Unlike when calling NetworkServer.Destroy(), on the server the object
+        // will NOT be destroyed. This allows the server to re-use the object,
+        // even spawn it again later.
+        public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
+
+        internal static bool ValidateSceneObject(NetworkIdentity identity)
+        {
+            if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
+                identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
+                return false;
+
+#if UNITY_EDITOR
+            if (UnityEditor.EditorUtility.IsPersistent(identity.gameObject))
+                return false;
+#endif
+
+            // If not a scene object
+            return identity.sceneId != 0;
+        }
+
+        /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
+        // NetworkIdentity objects in a scene are disabled by default. Calling
+        // SpawnObjects() causes these scene objects to be enabled and spawned.
+        // It is like calling NetworkServer.Spawn() for each of them.
+        public static bool SpawnObjects()
+        {
+            // only if server active
+            if (!active)
+                return false;
+
+            NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
+            foreach (NetworkIdentity identity in identities)
+            {
+                if (ValidateSceneObject(identity))
+                {
+                    // Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
+                    identity.gameObject.SetActive(true);
+                }
+            }
+
+            foreach (NetworkIdentity identity in identities)
+            {
+                if (ValidateSceneObject(identity))
+                    Spawn(identity.gameObject);
+            }
+            return true;
+        }
+
+        // destroy /////////////////////////////////////////////////////////////
+        /// <summary>Destroys all of the connection's owned objects on the server.</summary>
+        // This is used when a client disconnects, to remove the players for
+        // that client. This also destroys non-player objects that have client
+        // authority set for this connection.
+        public static void DestroyPlayerForConnection(NetworkConnection conn)
+        {
+            // destroy all objects owned by this connection, including the player object
+            conn.DestroyOwnedObjects();
+            conn.identity = null;
         }
 
         static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
@@ -1257,58 +1316,6 @@ namespace Mirror
         // the server. For that, use NetworkServer.UnSpawn() instead of
         // NetworkServer.Destroy().
         public static void Destroy(GameObject obj) => DestroyObject(obj, true);
-
-        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
-        // The object will be removed from clients that it was spawned on, or
-        // the custom spawn handler function on the client will be called for
-        // the object.
-        // Unlike when calling NetworkServer.Destroy(), on the server the object
-        // will NOT be destroyed. This allows the server to re-use the object,
-        // even spawn it again later.
-        public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
-
-        internal static bool ValidateSceneObject(NetworkIdentity identity)
-        {
-            if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
-                identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
-                return false;
-
-#if UNITY_EDITOR
-            if (UnityEditor.EditorUtility.IsPersistent(identity.gameObject))
-                return false;
-#endif
-
-            // If not a scene object
-            return identity.sceneId != 0;
-        }
-
-        /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
-        // NetworkIdentity objects in a scene are disabled by default. Calling
-        // SpawnObjects() causes these scene objects to be enabled and spawned.
-        // It is like calling NetworkServer.Spawn() for each of them.
-        public static bool SpawnObjects()
-        {
-            // only if server active
-            if (!active)
-                return false;
-
-            NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
-            foreach (NetworkIdentity identity in identities)
-            {
-                if (ValidateSceneObject(identity))
-                {
-                    // Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
-                    identity.gameObject.SetActive(true);
-                }
-            }
-
-            foreach (NetworkIdentity identity in identities)
-            {
-                if (ValidateSceneObject(identity))
-                    Spawn(identity.gameObject);
-            }
-            return true;
-        }
 
         // interest management /////////////////////////////////////////////////
         // Helper function to add all server connections as observers.
