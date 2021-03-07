@@ -56,15 +56,15 @@ namespace Mirror
             }
 
             // client ready
-            if (NetworkClient.isConnected && !ClientScene.ready)
+            if (NetworkClient.isConnected && !NetworkClient.ready)
             {
                 if (GUILayout.Button("Client Ready"))
                 {
-                    ClientScene.Ready(NetworkClient.connection);
+                    NetworkClient.Ready(NetworkClient.connection);
 
-                    if (ClientScene.localPlayer == null)
+                    if (NetworkClient.localPlayer == null)
                     {
-                        ClientScene.AddPlayer(NetworkClient.connection);
+                        NetworkClient.AddPlayer(NetworkClient.connection);
                     }
                 }
             }

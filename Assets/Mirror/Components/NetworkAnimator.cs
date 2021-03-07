@@ -127,7 +127,7 @@ namespace Mirror
                 {
                     animatorSpeed = newSpeed;
                 }
-                else if (ClientScene.readyConnection != null)
+                else if (NetworkClient.readyConnection != null)
                 {
                     CmdSetAnimatorSpeed(newSpeed);
                 }
@@ -215,7 +215,7 @@ namespace Mirror
             {
                 RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, weight, parameters);
             }
-            else if (ClientScene.readyConnection != null)
+            else if (NetworkClient.readyConnection != null)
             {
                 CmdOnAnimationServerMessage(stateHash, normalizedTime, layerId, weight, parameters);
             }
@@ -227,7 +227,7 @@ namespace Mirror
             {
                 RpcOnAnimationParametersClientMessage(parameters);
             }
-            else if (ClientScene.readyConnection != null)
+            else if (NetworkClient.readyConnection != null)
             {
                 CmdOnAnimationParametersServerMessage(parameters);
             }
@@ -455,7 +455,7 @@ namespace Mirror
                     return;
                 }
 
-                if (ClientScene.readyConnection != null)
+                if (NetworkClient.readyConnection != null)
                     CmdOnAnimationTriggerServerMessage(hash);
 
                 // call on client right away
@@ -504,7 +504,7 @@ namespace Mirror
                     return;
                 }
 
-                if (ClientScene.readyConnection != null)
+                if (NetworkClient.readyConnection != null)
                     CmdOnAnimationResetTriggerServerMessage(hash);
 
                 // call on client right away

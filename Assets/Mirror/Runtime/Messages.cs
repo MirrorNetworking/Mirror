@@ -65,7 +65,7 @@ namespace Mirror
         /// </summary>
         public uint netId;
         /// <summary>
-        /// Is the spawning object the local player. Sets ClientScene.localPlayer
+        /// Is the spawning object the local player. Sets NetworkClient.localPlayer
         /// </summary>
         public bool isLocalPlayer;
         /// <summary>

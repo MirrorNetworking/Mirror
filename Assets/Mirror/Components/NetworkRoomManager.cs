@@ -303,7 +303,7 @@ namespace Mirror
         public int clientIndex;
 
         /// <summary>
-        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
+        /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>

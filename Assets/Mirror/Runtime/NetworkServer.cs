@@ -125,7 +125,7 @@ namespace Mirror
             RegisterMessageHandlers();
         }
 
-        // Note: ClientScene.DestroyAllClientObjects does the same on client.
+        // Note: NetworkClient.DestroyAllClientObjects does the same on client.
         static void CleanupNetworkIdentities()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)

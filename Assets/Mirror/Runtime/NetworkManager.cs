@@ -169,7 +169,7 @@ namespace Mirror
 
         /// <summary>
         /// List of prefabs that will be registered with the spawning system.
-        /// <para>For each of these prefabs, ClientScene.RegisterPrefab() will be automatically invoked.</para>
+        /// <para>For each of these prefabs, NetworkClient.RegisterPrefab() will be automatically invoked.</para>
         /// </summary>
         [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
@@ -967,7 +967,7 @@ namespace Mirror
         //   NetworkScenePostProcess disables all scene objects on load, and
         //   * NetworkServer.SpawnObjects enables them again on the server when
         //     calling OnStartServer
-        //   * ClientScene.PrepareToSpawnSceneObjects enables them again on the
+        //   * NetworkClient.PrepareToSpawnSceneObjects enables them again on the
         //     client after the server sends ObjectSpawnStartedMessage to client
         //     in SpawnObserversForConnection. this is only called when the
         //     client joins, so we need to rebuild scene objects manually again
@@ -984,7 +984,7 @@ namespace Mirror
                 }
                 if (NetworkClient.active)
                 {
-                    ClientScene.PrepareToSpawnSceneObjects();
+                    NetworkClient.PrepareToSpawnSceneObjects();
                     // Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
                 }
             }
@@ -1351,7 +1351,7 @@ namespace Mirror
         }
 
         /// <summary>
-        /// Called on the server when a client adds a new player with ClientScene.AddPlayer.
+        /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
@@ -1403,10 +1403,10 @@ namespace Mirror
             if (!clientLoadedScene)
             {
                 // Ready/AddPlayer is usually triggered by a scene load completing. if no scene was loaded, then Ready/AddPlayer it here instead.
-                if (!ClientScene.ready) ClientScene.Ready(conn);
+                if (!NetworkClient.ready) NetworkClient.Ready(conn);
                 if (autoCreatePlayer)
                 {
-                    ClientScene.AddPlayer(conn);
+                    NetworkClient.AddPlayer(conn);
                 }
             }
         }
@@ -1453,13 +1453,13 @@ namespace Mirror
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
-            if (!ClientScene.ready) ClientScene.Ready(conn);
+            if (!NetworkClient.ready) NetworkClient.Ready(conn);
 
             // Only call AddPlayer for normal scene changes, not additive load/unload
-            if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && ClientScene.localPlayer == null)
+            if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && NetworkClient.localPlayer == null)
             {
                 // add player if existing one is null
-                ClientScene.AddPlayer(conn);
+                NetworkClient.AddPlayer(conn);
             }
         }
 

@@ -11,9 +11,9 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [SetUp]
         public void Setup()
         {
-            Debug.Assert(ClientScene.localPlayer == null, "LocalPlayer should be null before this test");
+            Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
 
-            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(ClientScene.readyConnection));
+            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(NetworkClient.readyConnection));
             readyConnProperty.SetValue(null, new FakeNetworkConnection());
         }
 
@@ -37,7 +37,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             if (localPlayer)
             {
-                Assert.That(ClientScene.localPlayer, Is.EqualTo(identity));
+                Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
             }
 
             return identity;
@@ -54,7 +54,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             yield return null;
 
             // use "is null" here to avoid unity == check
-            Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+            Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
 
         [UnityTest]
@@ -68,8 +68,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             // wait a frame for destroy to happen
             yield return null;
 
-            Assert.IsTrue(ClientScene.localPlayer != null, "local player should not be cleared");
-            Assert.IsTrue(ClientScene.localPlayer == player, "local player should still be equal to player");
+            Assert.IsTrue(NetworkClient.localPlayer != null, "local player should not be cleared");
+            Assert.IsTrue(NetworkClient.localPlayer == player, "local player should still be equal to player");
         }
 
         [UnityTest]
@@ -86,7 +86,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             yield return null;
 
             // use "is null" here to avoid unity == check
-            Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+            Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
     }
     public class ClientSceneTest_LocalPlayer_asHost : HostSetup
@@ -117,7 +117,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             yield return null;
 
             // use "is null" here to avoid unity == check
-            Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+            Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
 
         [UnityTest]
@@ -146,7 +146,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             yield return null;
 
             // use "is null" here to avoid unity == check
-            Assert.IsTrue(ClientScene.localPlayer is null, "local player should be set to c# null");
+            Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
     }
 }

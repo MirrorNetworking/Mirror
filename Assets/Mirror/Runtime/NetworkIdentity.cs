@@ -151,7 +151,7 @@ namespace Mirror
         //   for saving, etc. since isLocalPlayer may have been reset before
         //   OnDestroy was called.
         //
-        //   we also DO NOT make it dependent on ClientScene.localPlayer or similar.
+        //   we also DO NOT make it dependent on NetworkClient.localPlayer or similar.
         //   we set it, then never change it. that's the user's expectation too.
         //
         //   => fixes https://github.com/vis2k/Mirror/issues/2615
@@ -706,8 +706,8 @@ namespace Mirror
             // set isLocalPlayer earlier, in case OnStartLocalplayer is called
             // AFTER OnStartClient, in which case it would still be falsse here.
             // many projects will check isLocalPlayer in OnStartClient though.
-            // TODO ideally set isLocalPlayer when ClientScene.localPlayer is set?
-            if (ClientScene.localPlayer == this)
+            // TODO ideally set isLocalPlayer when NetworkClient.localPlayer is set?
+            if (NetworkClient.localPlayer == this)
             {
                 isLocalPlayer = true;
             }
@@ -791,8 +791,8 @@ namespace Mirror
             // set isLocalPlayer earlier, in case OnStartLocalplayer is called
             // AFTER OnStartClient, in which case it would still be falsse here.
             // many projects will check isLocalPlayer in OnStartClient though.
-            // TODO ideally set isLocalPlayer when ClientScene.localPlayer is set?
-            if (ClientScene.localPlayer == this)
+            // TODO ideally set isLocalPlayer when NetworkClient.localPlayer is set?
+            if (NetworkClient.localPlayer == this)
             {
                 isLocalPlayer = true;
             }
