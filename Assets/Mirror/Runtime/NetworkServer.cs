@@ -665,23 +665,14 @@ namespace Mirror
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
-        /// <summary>
-        /// Replaces a handler for a particular message type.
-        /// <para>See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
         public static void ReplaceHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ReplaceHandler<T>((_, value) => { handler(value); }, requireAuthentication);
         }
 
-        /// <summary>
-        /// Unregisters a handler for a particular message type.
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <summary>Unregister a handler for a message type T.</summary>
         public static void UnregisterHandler<T>()
             where T : struct, NetworkMessage
         {
@@ -689,20 +680,13 @@ namespace Mirror
             handlers.Remove(msgType);
         }
 
-        /// <summary>
-        /// Clear all registered callback handlers.
-        /// </summary>
+        /// <summary>Clears all registered message handlers.</summary>
         public static void ClearHandlers()
         {
             handlers.Clear();
         }
 
-        /// <summary>
-        /// send this message to the player only
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="identity"></param>
-        /// <param name="msg"></param>
+        /// <summary>Send this message to the player only</summary>
         [Obsolete("Use identity.connectionToClient.Send() instead! Previously Mirror needed this function internally, but not anymore.")]
         public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
