@@ -1054,25 +1054,25 @@ namespace Mirror.Tests
 
 
         [Test]
-        public void NoConnectionsTest_WithNoConnection()
+        public void NoExternalConnectionsTest_WithNoConnection()
         {
-            Assert.That(NetworkServer.NoConnections(), Is.True);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void NoConnectionsTest_WithConnections()
+        public void NoExternalConnectionsTest_WithConnections()
         {
             NetworkServer.connections.Add(1, null);
             NetworkServer.connections.Add(2, null);
-            Assert.That(NetworkServer.NoConnections(), Is.False);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
 
             NetworkServer.connections.Clear();
         }
 
         [Test]
-        public void NoConnectionsTest_WithHostOnly()
+        public void NoExternalConnectionsTest_WithHostOnly()
         {
             LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
             LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
@@ -1082,7 +1082,7 @@ namespace Mirror.Tests
             NetworkServer.SetLocalConnection(connectionToClient);
             NetworkServer.connections.Add(0, connectionToClient);
 
-            Assert.That(NetworkServer.NoConnections(), Is.True);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             NetworkServer.connections.Clear();
@@ -1090,7 +1090,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NoConnectionsTest_WithHostAndConnection()
+        public void NoExternalConnectionsTest_WithHostAndConnection()
         {
             LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
             LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
@@ -1101,7 +1101,7 @@ namespace Mirror.Tests
             NetworkServer.connections.Add(0, connectionToClient);
             NetworkServer.connections.Add(1, null);
 
-            Assert.That(NetworkServer.NoConnections(), Is.False);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
 
             NetworkServer.connections.Clear();

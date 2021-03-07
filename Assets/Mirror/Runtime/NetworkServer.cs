@@ -353,11 +353,13 @@ namespace Mirror
         }
 
         /// <summary>True if we have no external connections (host is allowed)</summary>
-        public static bool NoConnections()
+        public static bool NoExternalConnections()
         {
             return connections.Count == 0 ||
                    (connections.Count == 1 && localConnection != null);
         }
+        [Obsolete("NoConnections was renamed to NoExternalConnections because that's what it checks for.")]
+        public static bool NoConnections() => NoExternalConnections();
 
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
