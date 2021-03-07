@@ -929,15 +929,6 @@ namespace Mirror
             return true;
         }
 
-        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
-        // The object will be removed from clients that it was spawned on, or
-        // the custom spawn handler function on the client will be called for
-        // the object.
-        // Unlike when calling NetworkServer.Destroy(), on the server the object
-        // will NOT be destroyed. This allows the server to re-use the object,
-        // even spawn it again later.
-        public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
-
         internal static bool ValidateSceneObject(NetworkIdentity identity)
         {
             if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
@@ -1070,6 +1061,15 @@ namespace Mirror
             // is how Unity's Start() function works too)
             conn.Send(new ObjectSpawnFinishedMessage());
         }
+
+        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
+        // The object will be removed from clients that it was spawned on, or
+        // the custom spawn handler function on the client will be called for
+        // the object.
+        // Unlike when calling NetworkServer.Destroy(), on the server the object
+        // will NOT be destroyed. This allows the server to re-use the object,
+        // even spawn it again later.
+        public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
 
         // destroy /////////////////////////////////////////////////////////////
         /// <summary>Destroys all of the connection's owned objects on the server.</summary>
