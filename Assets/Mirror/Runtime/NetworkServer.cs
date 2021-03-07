@@ -868,6 +868,16 @@ namespace Mirror
             RebuildObservers(identity, true);
         }
 
+        static bool VerifyCanSpawn(GameObject obj)
+        {
+            if (Utils.IsPrefab(obj))
+            {
+                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>Spawn the given game object on all clients which are ready.</summary>
         // This will cause a new object to be instantiated from the registered
         // prefab, or from a custom spawn function.
@@ -911,16 +921,6 @@ namespace Mirror
                 }
                 SpawnObject(obj, ownerConnection);
             }
-        }
-
-        static bool VerifyCanSpawn(GameObject obj)
-        {
-            if (Utils.IsPrefab(obj))
-            {
-                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
-                return false;
-            }
-            return true;
         }
 
         internal static bool ValidateSceneObject(NetworkIdentity identity)
