@@ -34,7 +34,10 @@ namespace Mirror
         public static bool active => connectState == ConnectState.Connecting ||
                                      connectState == ConnectState.Connected;
 
-        /// <summary>This gives the current connection status of the client.</summary>
+        /// <summary>Check if client is connecting (before connected).</summary>
+        public static bool isConnecting => connectState == ConnectState.Connecting;
+
+        /// <summary>Check if client is connected (after connecting).</summary>
         public static bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>NetworkClient can connect to local server in host mode too</summary>
