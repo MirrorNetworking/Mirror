@@ -320,10 +320,7 @@ namespace Mirror
             SendToReady(identity, message, true, channelId);
         }
 
-        /// <summary>
-        /// Disconnect all currently connected clients, including the local connection.
-        /// <para>This can only be called on the server. Clients will receive the Disconnect message.</para>
-        /// </summary>
+        /// <summary>Disconnect all connections, including the local connection.</summary>
         public static void DisconnectAll()
         {
             DisconnectAllConnections();
@@ -331,10 +328,7 @@ namespace Mirror
             active = false;
         }
 
-        /// <summary>
-        /// Disconnect all currently connected clients except the local connection.
-        /// <para>This can only be called on the server. Clients will receive the Disconnect message.</para>
-        /// </summary>
+        /// <summary>Disconnect all currently connected clients except the local connection.</summary>
         public static void DisconnectAllConnections()
         {
             // disconnect and remove all connections.
@@ -348,7 +342,7 @@ namespace Mirror
             // until then, let's copy .Values to avoid InvalidOperatinException.
             // note that this is only called when stopping the server, so the
             // copy is no performance problem.
-            foreach (NetworkConnection conn in connections.Values.ToList())
+            foreach (NetworkConnectionToClient conn in connections.Values.ToList())
             {
                 conn.Disconnect();
                 // call OnDisconnected unless local player in host mode
