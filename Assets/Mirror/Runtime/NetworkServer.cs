@@ -637,13 +637,7 @@ namespace Mirror
             Debug.LogException(exception);
         }
 
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Register a handler for message type T. Most should require authentication.</summary>
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
