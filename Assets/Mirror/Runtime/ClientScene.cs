@@ -855,15 +855,14 @@ namespace Mirror
         internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
         {
             // Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
-
             NetworkIdentity.spawned.Remove(msg.netId);
         }
 
         internal static void OnHostClientObjectHide(ObjectHideMessage msg)
         {
             // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
+                localObject != null)
             {
                 localObject.OnSetHostVisibility(false);
             }
@@ -871,7 +870,8 @@ namespace Mirror
 
         internal static void OnHostClientSpawn(SpawnMessage msg)
         {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
+                localObject != null)
             {
                 if (msg.isLocalPlayer)
                     InternalAddPlayer(localObject);
