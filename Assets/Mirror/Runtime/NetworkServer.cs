@@ -33,42 +33,30 @@ namespace Mirror
         /// <summary>active checks if the server has been started</summary>
         public static bool active { get; internal set; }
 
-        /// <summary>
-        /// batching is still optional until we improve mirror's update order.
-        /// right now it increases latency because:
-        ///   enabling batching flushes all state updates in same frame, but
-        ///   transport processes incoming messages afterwards so server would
-        ///   batch them until next frame's flush
-        /// => disable it for super fast paced games
-        /// => enable it for high scale / cpu heavy games
-        /// </summary>
+        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
+        // still optional until we improve mirror's update order.
+        // right now it increases latency because:
+        //   enabling batching flushes all state updates in same frame, but
+        //   transport processes incoming messages afterwards so server would
+        //   batch them until next frame's flush
+        // => disable it for super fast paced games
+        // => enable it for high scale / cpu heavy games
         public static bool batching;
 
-        /// <summary>
-        /// batching from server to client.
-        /// fewer transport calls give us significantly better performance/scale.
-        /// if batch interval is 0, then we only batch until the Update() call.
-        /// </summary>
+        /// <summary>interval in seconds used for batching. 0 means send in every LateUpdate.</summary>
         public static float batchInterval = 0;
 
         // interest management component (optional)
         // by default, everyone observes everyone
         public static InterestManagement aoi;
 
-        /// <summary>
-        /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
-        /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
-        /// </summary>
+        /// <summary>Automatically disconnect inactive connections after a timeout. Can be changed at runtime.</summary>
         public static bool disconnectInactiveConnections;
 
-        /// <summary>
-        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
-        /// <para>This value is initially set from NetworkManager in SetupServer and can be changed at runtime</para>
-        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
-        /// <para>The Host client is immune from idle timeout disconnection.</para>
-        /// <para>Default value is 60 seconds.</para>
-        /// </summary>
-        public static float disconnectInactiveTimeout = 60f;
+        /// <summary>Timeout in seconds to disconnect inactive connections. Can be changed at runtime.</summary>
+        // By default, clients send at least a Ping message every 2 seconds.
+        // The Host client is immune from idle timeout disconnection.
+        public static float disconnectInactiveTimeout = 60;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
