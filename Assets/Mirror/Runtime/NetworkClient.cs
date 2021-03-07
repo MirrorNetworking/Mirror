@@ -50,6 +50,16 @@ namespace Mirror
         internal static Action<NetworkConnection> OnConnectedEvent;
         internal static Action<NetworkConnection> OnDisconnectedEvent;
 
+        /// <summary>Registered spawnable prefabs by assetId.</summary>
+        public static readonly Dictionary<Guid, GameObject> prefabs =
+            new Dictionary<Guid, GameObject>();
+
+        // spawn handlers
+        internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers =
+            new Dictionary<Guid, SpawnHandlerDelegate>();
+        internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers =
+            new Dictionary<Guid, UnSpawnDelegate>();
+
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
@@ -309,6 +319,418 @@ namespace Mirror
             // use int to minimize collisions
             int msgType = MessagePacking.GetId<T>();
             return handlers.Remove(msgType);
+        }
+
+        // spawnable prefabs ///////////////////////////////////////////////////
+        /// <summary>Find the registered prefab for this asset id.</summary>
+        // Useful for debuggers
+        public static bool GetPrefab(Guid assetId, out GameObject prefab)
+        {
+            prefab = null;
+            return assetId != Guid.Empty &&
+                   prefabs.TryGetValue(assetId, out prefab) && prefab != null;
+        }
+
+        /// <summary>Validates Prefab then adds it to prefabs dictionary.</summary>
+        static void RegisterPrefabIdentity(NetworkIdentity prefab)
+        {
+            if (prefab.assetId == Guid.Empty)
+            {
+                Debug.LogError($"Can not Register '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+                return;
+            }
+
+            if (prefab.sceneId != 0)
+            {
+                Debug.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                return;
+            }
+
+            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
+            if (identities.Length > 1)
+            {
+                Debug.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            }
+
+            if (prefabs.ContainsKey(prefab.assetId))
+            {
+                GameObject existingPrefab = prefabs[prefab.assetId];
+                Debug.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
+            }
+
+            if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
+            {
+                Debug.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
+            }
+
+            // Debug.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
+
+            prefabs[prefab.assetId] = prefab.gameObject;
+        }
+
+        /// <summary>Register spawnable prefab with custom assetId.</summary>
+        // Note: newAssetId can not be set on GameObjects that already have an assetId
+        // Note: registering with assetId is useful for assetbundles etc. a lot
+        //       of people use this.
+        public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError("Could not register prefab because it was null");
+                return;
+            }
+
+            if (newAssetId == Guid.Empty)
+            {
+                Debug.LogError($"Could not register '{prefab.name}' with new assetId because the new assetId was empty");
+                return;
+            }
+
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
+                return;
+            }
+
+            if (identity.assetId != Guid.Empty && identity.assetId != newAssetId)
+            {
+                Debug.LogError($"Could not register '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
+                return;
+            }
+
+            identity.assetId = newAssetId;
+
+            RegisterPrefabIdentity(identity);
+        }
+
+        /// <summary>Register spawnable prefab.</summary>
+        public static void RegisterPrefab(GameObject prefab)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError("Could not register prefab because it was null");
+                return;
+            }
+
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
+                return;
+            }
+
+            RegisterPrefabIdentity(identity);
+        }
+
+        /// <summary>Register a spawnable prefab with custom assetId and custom spawn/unspawn handlers.</summary>
+        // Note: newAssetId can not be set on GameObjects that already have an assetId
+        // Note: registering with assetId is useful for assetbundles etc. a lot
+        //       of people use this.
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
+        public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            // We need this check here because we don't want a null handler in the lambda expression below
+            if (spawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null SpawnHandler for {newAssetId}");
+                return;
+            }
+
+            RegisterPrefab(prefab, newAssetId, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
+        }
+
+        /// <summary>Register a spawnable prefab with custom spawn/unspawn handlers.</summary>
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
+        public static void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError("Could not register handler for prefab because the prefab was null");
+                return;
+            }
+
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
+                return;
+            }
+
+            if (identity.sceneId != 0)
+            {
+                Debug.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                return;
+            }
+
+            Guid assetId = identity.assetId;
+
+            if (assetId == Guid.Empty)
+            {
+                Debug.LogError($"Can not Register handler for '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+                return;
+            }
+
+            // We need this check here because we don't want a null handler in the lambda expression below
+            if (spawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                return;
+            }
+
+            RegisterPrefab(prefab, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
+        }
+
+        /// <summary>Register a spawnable prefab with custom assetId and custom spawn/unspawn handlers.</summary>
+        // Note: newAssetId can not be set on GameObjects that already have an assetId
+        // Note: registering with assetId is useful for assetbundles etc. a lot
+        //       of people use this.
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
+        public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            if (newAssetId == Guid.Empty)
+            {
+                Debug.LogError($"Could not register handler for '{prefab.name}' with new assetId because the new assetId was empty");
+                return;
+            }
+
+            if (prefab == null)
+            {
+                Debug.LogError("Could not register handler for prefab because the prefab was null");
+                return;
+            }
+
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
+                return;
+            }
+
+            if (identity.assetId != Guid.Empty && identity.assetId != newAssetId)
+            {
+                Debug.LogError($"Could not register Handler for '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
+                return;
+            }
+
+            if (identity.sceneId != 0)
+            {
+                Debug.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                return;
+            }
+
+            identity.assetId = newAssetId;
+            Guid assetId = identity.assetId;
+
+            if (spawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                return;
+            }
+
+            if (unspawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId}");
+                return;
+            }
+
+            if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
+            {
+                Debug.LogWarning($"Replacing existing spawnHandlers for prefab '{prefab.name}' with assetId '{assetId}'");
+            }
+
+            if (prefabs.ContainsKey(assetId))
+            {
+                // this is error because SpawnPrefab checks prefabs before handler
+                Debug.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}', unregister the prefab first before trying to add handler");
+            }
+
+            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
+            if (identities.Length > 1)
+            {
+                Debug.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            }
+
+            // Debug.Log("Registering custom prefab '" + prefab.name + "' as asset:" + assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
+
+            spawnHandlers[assetId] = spawnHandler;
+            unspawnHandlers[assetId] = unspawnHandler;
+        }
+
+        /// <summary>Register a spawnable prefab with custom spawn/unspawn handlers.</summary>
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
+        public static void RegisterPrefab(GameObject prefab, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError("Could not register handler for prefab because the prefab was null");
+                return;
+            }
+
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
+                return;
+            }
+
+            if (identity.sceneId != 0)
+            {
+                Debug.LogError($"Can not Register '{prefab.name}' because it has a sceneId, make sure you are passing in the original prefab and not an instance in the scene.");
+                return;
+            }
+
+            Guid assetId = identity.assetId;
+
+            if (assetId == Guid.Empty)
+            {
+                Debug.LogError($"Can not Register handler for '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
+                return;
+            }
+
+            if (spawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                return;
+            }
+
+            if (unspawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId}");
+                return;
+            }
+
+            if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
+            {
+                Debug.LogWarning($"Replacing existing spawnHandlers for prefab '{prefab.name}' with assetId '{assetId}'");
+            }
+
+            if (prefabs.ContainsKey(assetId))
+            {
+                // this is error because SpawnPrefab checks prefabs before handler
+                Debug.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}', unregister the prefab first before trying to add handler");
+            }
+
+            NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
+            if (identities.Length > 1)
+            {
+                Debug.LogWarning($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            }
+
+            // Debug.Log("Registering custom prefab '" + prefab.name + "' as asset:" + assetId + " " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
+
+            spawnHandlers[assetId] = spawnHandler;
+            unspawnHandlers[assetId] = unspawnHandler;
+        }
+
+        /// <summary>Removes a registered spawn prefab that was setup with ClientScene.RegisterPrefab.</summary>
+        public static void UnregisterPrefab(GameObject prefab)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError("Could not unregister prefab because it was null");
+                return;
+            }
+
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
+                return;
+            }
+
+            Guid assetId = identity.assetId;
+
+            prefabs.Remove(assetId);
+            spawnHandlers.Remove(assetId);
+            unspawnHandlers.Remove(assetId);
+        }
+
+        // spawn handlers //////////////////////////////////////////////////////
+        /// <summary>This is an advanced spawning function that registers a custom assetId with the spawning system.</summary>
+        // This can be used to register custom spawning methods for an assetId -
+        // instead of the usual method of registering spawning methods for a
+        // prefab. This should be used when no prefab exists for the spawned
+        // objects - such as when they are constructed dynamically at runtime
+        // from configuration data.
+        public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            // We need this check here because we don't want a null handler in the lambda expression below
+            if (spawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                return;
+            }
+
+            RegisterSpawnHandler(assetId, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
+        }
+
+        /// <summary>This is an advanced spawning function that registers a custom assetId with the spawning system.</summary>
+        // This can be used to register custom spawning methods for an assetId -
+        // instead of the usual method of registering spawning methods for a
+        // prefab. This should be used when no prefab exists for the spawned
+        // objects - such as when they are constructed dynamically at runtime
+        // from configuration data.
+        public static void RegisterSpawnHandler(Guid assetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        {
+            if (spawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                return;
+            }
+
+            if (unspawnHandler == null)
+            {
+                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId}");
+                return;
+            }
+
+            if (assetId == Guid.Empty)
+            {
+                Debug.LogError("Can not Register SpawnHandler for empty Guid");
+                return;
+            }
+
+            if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
+            {
+                Debug.LogWarning($"Replacing existing spawnHandlers for {assetId}");
+            }
+
+            if (prefabs.ContainsKey(assetId))
+            {
+                // this is error because SpawnPrefab checks prefabs before handler
+                Debug.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}'");
+            }
+
+            // Debug.Log("RegisterSpawnHandler asset '" + assetId + "' " + spawnHandler.GetMethodName() + "/" + unspawnHandler.GetMethodName());
+
+            spawnHandlers[assetId] = spawnHandler;
+            unspawnHandlers[assetId] = unspawnHandler;
+        }
+
+        /// <summary> Removes a registered spawn handler function that was registered with ClientScene.RegisterHandler().</summary>
+        public static void UnregisterSpawnHandler(Guid assetId)
+        {
+            spawnHandlers.Remove(assetId);
+            unspawnHandlers.Remove(assetId);
+        }
+
+        /// <summary>This clears the registered spawn prefabs and spawn handler functions for this client.</summary>
+        public static void ClearSpawners()
+        {
+            prefabs.Clear();
+            spawnHandlers.Clear();
+            unspawnHandlers.Clear();
+        }
+
+        internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
+        {
+            if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
+            {
+                handler(obj);
+                return true;
+            }
+            return false;
         }
 
         // update //////////////////////////////////////////////////////////////

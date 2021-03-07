@@ -49,7 +49,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
     {
         public static readonly List<GameObject> _createdObjects = new List<GameObject>();
         Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
-        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
+        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
 
         [TearDown]
         public void TearDown()
