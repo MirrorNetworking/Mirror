@@ -12,27 +12,17 @@ namespace Mirror
         static bool initialized;
         public static int maxConnections;
 
-        /// <summary>
-        /// The connection to the host mode client (if any).
-        /// </summary>
+        /// <summary>Connection to host mode client (if any)</summary>
         public static NetworkConnectionToClient localConnection { get; private set; }
 
-        /// <summary>
-        /// <para>True is a local client is currently active on the server.</para>
-        /// <para>This will be true for "Hosts" on hosted server games.</para>
-        /// </summary>
+        /// <summary>True is a local client is currently active on the server</summary>
         public static bool localClientActive => localConnection != null;
 
-        /// <summary>
-        /// A list of local connections on the server.
-        /// </summary>
+        /// <summary>Dictionary of all server connections, with connectionId as key</summary>
         public static Dictionary<int, NetworkConnectionToClient> connections =
             new Dictionary<int, NetworkConnectionToClient>();
 
-        /// <summary>
-        /// <para>Dictionary of the message handlers registered with the server.</para>
-        /// <para>The key to the dictionary is the message Id.</para>
-        /// </summary>
+        /// <summary>Message Handlers dictionary, with mesageId as key.</summary>
         static Dictionary<int, NetworkMessageDelegate> handlers =
             new Dictionary<int, NetworkMessageDelegate>();
 
