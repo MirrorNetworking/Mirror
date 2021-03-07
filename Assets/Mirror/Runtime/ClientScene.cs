@@ -32,7 +32,6 @@ namespace Mirror
         // TODO ready ? NetworkClient.connection : null??????
         public static NetworkConnection readyConnection { get; private set; }
 
-        /// <summary>Registered spawnable prefabs by assetId.</summary>
         [Obsolete("ClientScene.prefabs was moved to NetworkClient.prefabs")]
         public static Dictionary<Guid, GameObject> prefabs => NetworkClient.prefabs;
 
