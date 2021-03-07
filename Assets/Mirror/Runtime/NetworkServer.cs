@@ -138,10 +138,7 @@ namespace Mirror
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
         }
 
-        /// <summary>
-        /// Start the server, setting the maximum number of connections.
-        /// </summary>
-        /// <param name="maxConns">Maximum number of allowed connections</param>
+        /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
         public static void Listen(int maxConns)
         {
             Initialize();
@@ -158,12 +155,7 @@ namespace Mirror
             RegisterMessageHandlers();
         }
 
-        /// <summary>
-        /// <para>This accepts a network connection and adds it to the server.</para>
-        /// <para>This connection will use the callbacks registered with the server.</para>
-        /// </summary>
-        /// <param name="conn">Network connection to add.</param>
-        /// <returns>True if added.</returns>
+        /// <summary>Add a connection and setup callbacks. Returns true if not added yet.</summary>
         public static bool AddConnection(NetworkConnectionToClient conn)
         {
             if (!connections.ContainsKey(conn.connectionId))
@@ -178,11 +170,7 @@ namespace Mirror
             return false;
         }
 
-        /// <summary>
-        /// This removes an external connection added with AddExternalConnection().
-        /// </summary>
-        /// <param name="connectionId">The id of the connection to remove.</param>
-        /// <returns>True if the removal succeeded</returns>
+        /// <summary>Removes a connection by connectionId. Returns true if removed.</summary>
         public static bool RemoveConnection(int connectionId)
         {
             return connections.Remove(connectionId);
