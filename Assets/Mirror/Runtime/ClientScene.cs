@@ -22,31 +22,19 @@ namespace Mirror
         /// <summary> NetworkIdentity of the localPlayer </summary>
         public static NetworkIdentity localPlayer { get; private set; }
 
-        /// <summary>
-        /// Returns true when a client's connection has been set to ready.
-        /// <para>A client that is ready receives state updates from the server, while a client that is not ready does not. This useful when the state of the game is not normal, such as a scene change or end-of-game.</para>
-        /// <para>This is read-only. To change the ready state of a client, use ClientScene.Ready(). The server is able to set the ready state of clients using NetworkServer.SetClientReady(), NetworkServer.SetClientNotReady() and NetworkServer.SetAllClientsNotReady().</para>
-        /// <para>This is done when changing scenes so that clients don't receive state update messages during scene loading.</para>
-        /// </summary>
+        /// <summary>True if client is ready (= joined world).</summary>
         public static bool ready;
 
-        /// <summary>
-        /// The NetworkConnection object that is currently "ready". This is the connection to the server where objects are spawned from.
-        /// <para>This connection can be used to send messages to the server. There can only be one ClientScene and ready connection at a time.</para>
-        /// </summary>
+        /// <summary>The NetworkConnection object that is currently "ready".</summary>
+        // This connection can be used to send messages to the server. There can
+        // only be one ClientScene and ready connection at a time.
         public static NetworkConnection readyConnection { get; private set; }
 
-        /// <summary>
-        /// This is a dictionary of the prefabs that are registered on the client with ClientScene.RegisterPrefab().
-        /// <para>The key to the dictionary is the prefab asset Id.</para>
-        /// </summary>
+        /// <summary>Registered spawnable prefabs by assetId.</summary>
         public static readonly Dictionary<Guid, GameObject> prefabs =
             new Dictionary<Guid, GameObject>();
 
-        /// <summary>
-        /// This is dictionary of the disabled NetworkIdentity objects in the scene that could be spawned by messages from the server.
-        /// <para>The key to the dictionary is the NetworkIdentity sceneId.</para>
-        /// </summary>
+        /// <summary>Disabled scene objects that can be spawned again, by sceneId.</summary>
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
 
