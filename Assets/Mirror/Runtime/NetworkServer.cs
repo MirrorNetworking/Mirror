@@ -220,6 +220,15 @@ namespace Mirror
             RemoveConnection(0);
         }
 
+        /// <summary>True if we have no external connections (host is allowed)</summary>
+        public static bool NoExternalConnections()
+        {
+            return connections.Count == 0 ||
+                   (connections.Count == 1 && localConnection != null);
+        }
+        [Obsolete("NoConnections was renamed to NoExternalConnections because that's what it checks for.")]
+        public static bool NoConnections() => NoExternalConnections();
+
         // send ////////////////////////////////////////////////////////////////
         /// <summary>Send a message to all clients, even those that haven't joined the world yet (non ready)</summary>
         public static void SendToAll<T>(T message, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false)
@@ -523,15 +532,6 @@ namespace Mirror
             }
             connections.Clear();
         }
-
-        /// <summary>True if we have no external connections (host is allowed)</summary>
-        public static bool NoExternalConnections()
-        {
-            return connections.Count == 0 ||
-                   (connections.Count == 1 && localConnection != null);
-        }
-        [Obsolete("NoConnections was renamed to NoExternalConnections because that's what it checks for.")]
-        public static bool NoConnections() => NoExternalConnections();
 
         // add/remove/replace player ///////////////////////////////////////////
         /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>
