@@ -225,6 +225,8 @@ namespace Mirror
 
         /// <summary>Register spawnable prefab with custom assetId.</summary>
         // Note: newAssetId can not be set on GameObjects that already have an assetId
+        // Note: registering with assetId is useful for assetbundles etc. a lot
+        //       of people use this.
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
         {
             if (prefab == null)
@@ -276,19 +278,11 @@ namespace Mirror
             RegisterPrefabIdentity(identity);
         }
 
-        /// <summary>
-        /// Registers a prefab with the spawning system.
-        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
-        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
-        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
-        /// <para>NOTE: newAssetId can not be set on GameObjects that already have an assetId</para>
-        /// </summary>
-        /// <param name="prefab">A GameObject that will be spawned.</param>
-        /// <param name="newAssetId">An assetId to be assigned to this GameObject. This allows a dynamically created game object to be registered for an already known asset Id.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
-        // NOTE: registering with assetId is useful for assetbundles etc. a lot
+        /// <summary>Register a spawnable prefab with custom assetId and custom spawn/unspawn handlers.</summary>
+        // Note: newAssetId can not be set on GameObjects that already have an assetId
+        // Note: registering with assetId is useful for assetbundles etc. a lot
         //       of people use this.
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             // We need this check here because we don't want a null handler in the lambda expression below
@@ -301,15 +295,8 @@ namespace Mirror
             RegisterPrefab(prefab, newAssetId, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
         }
 
-        /// <summary>
-        /// Registers a prefab with the spawning system.
-        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
-        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
-        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
-        /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
+        /// <summary>Register a spawnable prefab with custom spawn/unspawn handlers.</summary>
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
         public static void RegisterPrefab(GameObject prefab, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (prefab == null)
@@ -349,17 +336,11 @@ namespace Mirror
             RegisterPrefab(prefab, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
         }
 
-        /// <summary>
-        /// Registers a prefab with the spawning system.
-        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
-        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
-        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
-        /// <para>NOTE: newAssetId can not be set on GameObjects that already have an assetId</para>
-        /// </summary>
-        /// <param name="prefab">A GameObject that will be spawned.</param>
-        /// <param name="newAssetId">An assetId to be assigned to this GameObject. This allows a dynamically created game object to be registered for an already known asset Id.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
+        /// <summary>Register a spawnable prefab with custom assetId and custom spawn/unspawn handlers.</summary>
+        // Note: newAssetId can not be set on GameObjects that already have an assetId
+        // Note: registering with assetId is useful for assetbundles etc. a lot
+        //       of people use this.
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
         public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (newAssetId == Guid.Empty)
@@ -431,15 +412,8 @@ namespace Mirror
             unspawnHandlers[assetId] = unspawnHandler;
         }
 
-        /// <summary>
-        /// Registers a prefab with the spawning system.
-        /// <para>When a NetworkIdentity object is spawned on a server with NetworkServer.SpawnObject(), and the prefab that the object was created from was registered with RegisterPrefab(), the client will use that prefab to instantiate a corresponding client object with the same netId.</para>
-        /// <para>The NetworkManager has a list of spawnable prefabs, it uses this function to register those prefabs with the ClientScene.</para>
-        /// <para>The set of current spawnable object is available in the ClientScene static member variable ClientScene.prefabs, which is a dictionary of NetworkAssetIds and prefab references.</para>
-        /// </summary>
-        /// <param name="prefab">A Prefab that will be spawned.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
+        /// <summary>Register a spawnable prefab with custom spawn/unspawn handlers.</summary>
+        // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
         public static void RegisterPrefab(GameObject prefab, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (prefab == null)
@@ -504,10 +478,7 @@ namespace Mirror
             unspawnHandlers[assetId] = unspawnHandler;
         }
 
-        /// <summary>
-        /// Removes a registered spawn prefab that was setup with ClientScene.RegisterPrefab.
-        /// </summary>
-        /// <param name="prefab">The prefab to be removed from registration.</param>
+        /// <summary>Removes a registered spawn prefab that was setup with ClientScene.RegisterPrefab.</summary>
         public static void UnregisterPrefab(GameObject prefab)
         {
             if (prefab == null)
@@ -530,13 +501,12 @@ namespace Mirror
             unspawnHandlers.Remove(assetId);
         }
 
-        /// <summary>
-        /// This is an advanced spawning function that registers a custom assetId with the UNET spawning system.
-        /// <para>This can be used to register custom spawning methods for an assetId - instead of the usual method of registering spawning methods for a prefab. This should be used when no prefab exists for the spawned objects - such as when they are constructed dynamically at runtime from configuration data.</para>
-        /// </summary>
-        /// <param name="assetId">Custom assetId string.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
+        /// <summary>This is an advanced spawning function that registers a custom assetId with the spawning system.</summary>
+        // This can be used to register custom spawning methods for an assetId -
+        // instead of the usual method of registering spawning methods for a
+        // prefab. This should be used when no prefab exists for the spawned
+        // objects - such as when they are constructed dynamically at runtime
+        // from configuration data.
         public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             // We need this check here because we don't want a null handler in the lambda expression below
@@ -549,13 +519,12 @@ namespace Mirror
             RegisterSpawnHandler(assetId, msg => spawnHandler(msg.position, msg.assetId), unspawnHandler);
         }
 
-        /// <summary>
-        /// This is an advanced spawning function that registers a custom assetId with the UNET spawning system.
-        /// <para>This can be used to register custom spawning methods for an assetId - instead of the usual method of registering spawning methods for a prefab. This should be used when no prefab exists for the spawned objects - such as when they are constructed dynamically at runtime from configuration data.</para>
-        /// </summary>
-        /// <param name="assetId">Custom assetId string.</param>
-        /// <param name="spawnHandler">A method to use as a custom spawnhandler on clients.</param>
-        /// <param name="unspawnHandler">A method to use as a custom un-spawnhandler on clients.</param>
+        /// <summary>This is an advanced spawning function that registers a custom assetId with the spawning system.</summary>
+        // This can be used to register custom spawning methods for an assetId -
+        // instead of the usual method of registering spawning methods for a
+        // prefab. This should be used when no prefab exists for the spawned
+        // objects - such as when they are constructed dynamically at runtime
+        // from configuration data.
         public static void RegisterSpawnHandler(Guid assetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (spawnHandler == null)
@@ -593,19 +562,14 @@ namespace Mirror
             unspawnHandlers[assetId] = unspawnHandler;
         }
 
-        /// <summary>
-        /// Removes a registered spawn handler function that was registered with ClientScene.RegisterHandler().
-        /// </summary>
-        /// <param name="assetId">The assetId for the handler to be removed for.</param>
+        /// <summary> Removes a registered spawn handler function that was registered with ClientScene.RegisterHandler().</summary>
         public static void UnregisterSpawnHandler(Guid assetId)
         {
             spawnHandlers.Remove(assetId);
             unspawnHandlers.Remove(assetId);
         }
 
-        /// <summary>
-        /// This clears the registered spawn prefabs and spawn handler functions for this client.
-        /// </summary>
+        /// <summary>This clears the registered spawn prefabs and spawn handler functions for this client.</summary>
         public static void ClearSpawners()
         {
             prefabs.Clear();
