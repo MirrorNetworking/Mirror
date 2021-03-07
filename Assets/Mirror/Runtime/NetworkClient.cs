@@ -50,7 +50,7 @@ namespace Mirror
         internal static Action<NetworkConnection> OnConnectedEvent;
         internal static Action<NetworkConnection> OnDisconnectedEvent;
 
-        /// <summary>Connect client to a NetworkServer.</summary>
+        /// <summary>Connect client to a NetworkServer by address.</summary>
         public static void Connect(string address)
         {
             // Debug.Log("Client Connect: " + address);
@@ -68,10 +68,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        /// <summary>
-        /// Connect client to a NetworkServer instance.
-        /// </summary>
-        /// <param name="uri">Address of the server to connect to</param>
+        /// <summary>Connect client to a NetworkServer by Uri.</summary>
         public static void Connect(Uri uri)
         {
             // Debug.Log("Client Connect: " + uri);
@@ -110,9 +107,7 @@ namespace Mirror
             NetworkServer.SetLocalConnection(connectionToClient);
         }
 
-        /// <summary>
-        /// connect host mode
-        /// </summary>
+        /// <summary>Connect host mode</summary>
         public static void ConnectLocalServer()
         {
             // call server OnConnected with server's connection to client
@@ -129,10 +124,8 @@ namespace Mirror
             ((LocalConnectionToServer)connection).QueueConnectedEvent();
         }
 
-        /// <summary>
-        /// disconnect host mode. this is needed to call DisconnectMessage for
-        /// the host client too.
-        /// </summary>
+        /// <summary>Disconnect host mode.</summary>
+        // this is needed to call DisconnectMessage for the host client too.
         public static void DisconnectLocalServer()
         {
             // only if host connection is running
