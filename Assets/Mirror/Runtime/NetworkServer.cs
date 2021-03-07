@@ -580,6 +580,30 @@ namespace Mirror
             return true;
         }
 
+        /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>
+        // When a player is added for a connection, the client for that
+        // connection is made ready automatically. The player object is
+        // automatically spawned, so you do not need to call NetworkServer.Spawn
+        // for that object. This function is used for "adding" a player, not for
+        // "replacing" the player on a connection. If there is already a player
+        // on this playerControllerId for this connection, this will fail.
+        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        {
+            if (GetNetworkIdentity(player, out NetworkIdentity identity))
+            {
+                identity.assetId = assetId;
+            }
+            return AddPlayerForConnection(conn, player);
+        }
+
+        /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
+        // This does NOT change the ready state of the connection, so it can
+        // safely be used while changing scenes.
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
+        {
+            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
+        }
+
         /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
         // This does NOT change the ready state of the connection, so it can
         // safely be used while changing scenes.
@@ -589,14 +613,6 @@ namespace Mirror
             {
                 identity.assetId = assetId;
             }
-            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
-        }
-
-        /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
-        // This does NOT change the ready state of the connection, so it can
-        // safely be used while changing scenes.
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
-        {
             return InternalReplacePlayerForConnection(conn, player, keepAuthority);
         }
 
@@ -647,22 +663,6 @@ namespace Mirror
                 previousPlayer.RemoveClientAuthority();
 
             return true;
-        }
-
-        /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>
-        // When a player is added for a connection, the client for that
-        // connection is made ready automatically. The player object is
-        // automatically spawned, so you do not need to call NetworkServer.Spawn
-        // for that object. This function is used for "adding" a player, not for
-        // "replacing" the player on a connection. If there is already a player
-        // on this playerControllerId for this connection, this will fail.
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
-        {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
-            {
-                identity.assetId = assetId;
-            }
-            return AddPlayerForConnection(conn, player);
         }
 
         // ready ///////////////////////////////////////////////////////////////
