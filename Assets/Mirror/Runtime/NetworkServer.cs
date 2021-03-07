@@ -397,6 +397,18 @@ namespace Mirror
             OnConnectedEvent?.Invoke(conn);
         }
 
+        static void OnDataReceived(int connectionId, ArraySegment<byte> data, int channelId)
+        {
+            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
+            {
+                conn.TransportReceive(data, channelId);
+            }
+            else
+            {
+                Debug.LogError("HandleData Unknown connectionId:" + connectionId);
+            }
+        }
+
         internal static void OnDisconnected(int connectionId)
         {
             // Debug.Log("Server disconnect client:" + connectionId);
@@ -413,18 +425,6 @@ namespace Mirror
         {
             OnDisconnectedEvent?.Invoke(conn);
             //Debug.Log("Server lost client:" + conn);
-        }
-
-        static void OnDataReceived(int connectionId, ArraySegment<byte> data, int channelId)
-        {
-            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
-            {
-                conn.TransportReceive(data, channelId);
-            }
-            else
-            {
-                Debug.LogError("HandleData Unknown connectionId:" + connectionId);
-            }
         }
 
         static void OnError(int connectionId, Exception exception)
