@@ -246,7 +246,7 @@ namespace Mirror
             {
                 identity.NotifyAuthority();
                 identity.OnStartClient();
-                CheckForLocalPlayer(identity);
+                NetworkClient.CheckForLocalPlayer(identity);
             }
         }
 
@@ -366,7 +366,7 @@ namespace Mirror
             {
                 identity.NotifyAuthority();
                 identity.OnStartClient();
-                CheckForLocalPlayer(identity);
+                NetworkClient.CheckForLocalPlayer(identity);
             }
             isSpawnFinished = true;
         }
@@ -472,73 +472,6 @@ namespace Mirror
             {
                 Debug.LogException(e);
                 Debug.LogError("Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
-            }
-        }
-
-        // host mode callbacks /////////////////////////////////////////////////
-        internal static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
-        {
-            // Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
-            NetworkIdentity.spawned.Remove(msg.netId);
-        }
-
-        internal static void OnHostClientObjectHide(ObjectHideMessage msg)
-        {
-            // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
-                localObject != null)
-            {
-                localObject.OnSetHostVisibility(false);
-            }
-        }
-
-        internal static void OnHostClientSpawn(SpawnMessage msg)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
-                localObject != null)
-            {
-                if (msg.isLocalPlayer)
-                    InternalAddPlayer(localObject);
-
-                localObject.hasAuthority = msg.isOwner;
-                localObject.NotifyAuthority();
-                localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
-                CheckForLocalPlayer(localObject);
-            }
-        }
-
-        // callbacks ///////////////////////////////////////////////////////////
-        internal static void OnUpdateVarsMessage(UpdateVarsMessage msg)
-        {
-            // Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
-            {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    localObject.OnDeserializeAllSafely(networkReader, false);
-            }
-            else Debug.LogWarning("Did not find target for sync message for " + msg.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
-        }
-
-        internal static void OnRPCMessage(RpcMessage msg)
-        {
-            // Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
-            {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.ClientRpc, networkReader);
-            }
-        }
-
-        static void CheckForLocalPlayer(NetworkIdentity identity)
-        {
-            if (identity == localPlayer)
-            {
-                // Set isLocalPlayer to true on this NetworkIdentity and trigger
-                // OnStartLocalPlayer in all scripts on the same GO
-                identity.connectionToServer = readyConnection;
-                identity.OnStartLocalPlayer();
-                // Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
             }
         }
 

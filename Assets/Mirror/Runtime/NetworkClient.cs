@@ -76,10 +76,10 @@ namespace Mirror
             // 'message id not found' errors.
             if (hostMode)
             {
-                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnHostClientObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(ClientScene.OnHostClientObjectHide);
+                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>((conn, msg) => {}, false);
-                RegisterHandler<SpawnMessage>(ClientScene.OnHostClientSpawn);
+                RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
                 RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {});
                 // host mode doesn't need spawning
@@ -95,9 +95,9 @@ namespace Mirror
                 RegisterHandler<SpawnMessage>(ClientScene.OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
-                RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
+                RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
             }
-            RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
+            RegisterHandler<RpcMessage>(OnRPCMessage);
         }
 
         // connect /////////////////////////////////////////////////////////////
@@ -731,6 +731,73 @@ namespace Mirror
                 return true;
             }
             return false;
+        }
+
+        // host mode callbacks /////////////////////////////////////////////////
+        static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
+        {
+            // Debug.Log("ClientScene.OnLocalObjectObjDestroy netId:" + msg.netId);
+            NetworkIdentity.spawned.Remove(msg.netId);
+        }
+
+        static void OnHostClientObjectHide(ObjectHideMessage msg)
+        {
+            // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
+                localObject != null)
+            {
+                localObject.OnSetHostVisibility(false);
+            }
+        }
+
+        internal static void OnHostClientSpawn(SpawnMessage msg)
+        {
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
+                localObject != null)
+            {
+                if (msg.isLocalPlayer)
+                    ClientScene.InternalAddPlayer(localObject);
+
+                localObject.hasAuthority = msg.isOwner;
+                localObject.NotifyAuthority();
+                localObject.OnStartClient();
+                localObject.OnSetHostVisibility(true);
+                CheckForLocalPlayer(localObject);
+            }
+        }
+
+        // callbacks ///////////////////////////////////////////////////////////
+        static void OnUpdateVarsMessage(UpdateVarsMessage msg)
+        {
+            // Debug.Log("ClientScene.OnUpdateVarsMessage " + msg.netId);
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            {
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+                    localObject.OnDeserializeAllSafely(networkReader, false);
+            }
+            else Debug.LogWarning("Did not find target for sync message for " + msg.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        static void OnRPCMessage(RpcMessage msg)
+        {
+            // Debug.Log("ClientScene.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
+            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            {
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+                    identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.ClientRpc, networkReader);
+            }
+        }
+
+        internal static void CheckForLocalPlayer(NetworkIdentity identity)
+        {
+            if (identity == ClientScene.localPlayer)
+            {
+                // Set isLocalPlayer to true on this NetworkIdentity and trigger
+                // OnStartLocalPlayer in all scripts on the same GO
+                identity.connectionToServer = ClientScene.readyConnection;
+                identity.OnStartLocalPlayer();
+                // Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
+            }
         }
 
         // update //////////////////////////////////////////////////////////////
