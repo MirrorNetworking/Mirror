@@ -1179,13 +1179,8 @@ namespace Mirror
             Spawn(obj, identity.connectionToClient);
         }
 
-        /// <summary>
-        /// This spawns an object like NetworkServer.Spawn() but also assigns Client Authority to the specified client.
-        /// <para>This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.</para>
-        /// </summary>
-        /// <param name="obj">The object to spawn.</param>
-        /// <param name="assetId">The assetId of the object to spawn. Used for custom spawn handlers.</param>
-        /// <param name="ownerConnection">The connection that has authority over the object</param>
+        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
+        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
         public static void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
         {
             if (VerifyCanSpawn(obj))
@@ -1257,19 +1252,19 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Destroys this object and corresponding objects on all clients.
-        /// <para>In some cases it is useful to remove an object but not delete it on the server. For that, use NetworkServer.UnSpawn() instead of NetworkServer.Destroy().</para>
-        /// </summary>
-        /// <param name="obj">Game object to destroy.</param>
+        /// <summary>Destroys this object and corresponding objects on all clients.</summary>
+        // In some cases it is useful to remove an object but not delete it on
+        // the server. For that, use NetworkServer.UnSpawn() instead of
+        // NetworkServer.Destroy().
         public static void Destroy(GameObject obj) => DestroyObject(obj, true);
 
-        /// <summary>
-        /// This takes an object that has been spawned and un-spawns it.
-        /// <para>The object will be removed from clients that it was spawned on, or the custom spawn handler function on the client will be called for the object.</para>
-        /// <para>Unlike when calling NetworkServer.Destroy(), on the server the object will NOT be destroyed. This allows the server to re-use the object, even spawn it again later.</para>
-        /// </summary>
-        /// <param name="obj">The spawned object to be unspawned.</param>
+        /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
+        // The object will be removed from clients that it was spawned on, or
+        // the custom spawn handler function on the client will be called for
+        // the object.
+        // Unlike when calling NetworkServer.Destroy(), on the server the object
+        // will NOT be destroyed. This allows the server to re-use the object,
+        // even spawn it again later.
         public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
 
         internal static bool ValidateSceneObject(NetworkIdentity identity)
