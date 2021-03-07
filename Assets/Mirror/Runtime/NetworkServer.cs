@@ -832,20 +832,12 @@ namespace Mirror
             }
         }
 
-        static bool VerifyCanSpawn(GameObject obj)
+        static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
+            // verify if we an spawn this
             if (Utils.IsPrefab(obj))
             {
                 Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
-                return false;
-            }
-            return true;
-        }
-
-        static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
-        {
-            if (!VerifyCanSpawn(obj))
-            {
                 return;
             }
 
