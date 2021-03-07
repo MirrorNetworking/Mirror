@@ -352,13 +352,11 @@ namespace Mirror
             connections.Clear();
         }
 
-        /// <summary>
-        /// If connections is empty or if only has host
-        /// </summary>
-        /// <returns></returns>
+        /// <summary>True if we have no external connections (host is allowed)</summary>
         public static bool NoConnections()
         {
-            return connections.Count == 0 || (connections.Count == 1 && localConnection != null);
+            return connections.Count == 0 ||
+                   (connections.Count == 1 && localConnection != null);
         }
 
         // NetworkEarlyUpdate called before any Update/FixedUpdate
