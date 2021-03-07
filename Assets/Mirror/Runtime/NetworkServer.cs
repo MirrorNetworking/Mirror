@@ -504,13 +504,13 @@ namespace Mirror
         /// <summary>Disconnect all connections, including the local connection.</summary>
         public static void DisconnectAll()
         {
-            DisconnectAllConnections();
+            DisconnectAllExternalConnections();
             localConnection = null;
             active = false;
         }
 
         /// <summary>Disconnect all currently connected clients except the local connection.</summary>
-        public static void DisconnectAllConnections()
+        public static void DisconnectAllExternalConnections()
         {
             // disconnect and remove all connections.
             // we can not use foreach here because if
@@ -532,6 +532,9 @@ namespace Mirror
             }
             connections.Clear();
         }
+
+        [Obsolete("DisconnectAllConnections was renamed to DisconnectAllExternalConnections because that's what it does.")]
+        public static void DisconnectAllConnections() => DisconnectAllExternalConnections();
 
         // add/remove/replace player ///////////////////////////////////////////
         /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>

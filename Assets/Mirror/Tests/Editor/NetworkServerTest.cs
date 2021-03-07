@@ -364,7 +364,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // disconnect all connections
-            NetworkServer.DisconnectAllConnections();
+            NetworkServer.DisconnectAllExternalConnections();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
