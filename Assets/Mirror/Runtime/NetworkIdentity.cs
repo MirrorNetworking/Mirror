@@ -1261,12 +1261,15 @@ namespace Mirror
             }
         }
 
-
-        /// <summary>
-        /// Marks the identity for future reset, this is because we cant reset the identity during destroy
-        /// as people might want to be able to read the members inside OnDestroy(), and we have no way
-        /// of invoking reset after OnDestroy is called.
-        /// </summary>
+        // Reset() seems to be called only for Scene objects.
+        // we can't destroy them (they are always in the scene).
+        // instead we disable them and call Reset().
+        //
+        // OLD COMMENT:
+        // Marks the identity for future reset, this is because we cant reset
+        // the identity during destroy as people might want to be able to read
+        // the members inside OnDestroy(), and we have no way of invoking reset
+        // after OnDestroy is called.
         internal void Reset()
         {
             // make sure to call this before networkBehavioursCache is cleared below
