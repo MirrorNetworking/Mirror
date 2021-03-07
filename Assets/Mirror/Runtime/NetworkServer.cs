@@ -81,30 +81,40 @@ namespace Mirror
             AddTransportHandlers();
         }
 
-        /// <summary>Shuts down the server and disconnects all clients</summary>
-        public static void Shutdown()
+        public static void ActivateHostScene()
         {
-            if (initialized)
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                DisconnectAll();
-
-                if (!dontListen)
+                if (!identity.isClient)
                 {
-                    // stop the server.
-                    // we do NOT call Transport.Shutdown, because someone only
-                    // called NetworkServer.Shutdown. we can't assume that the
-                    // client is supposed to be shut down too!
-                    Transport.activeTransport.ServerStop();
+                    // Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
+                    identity.OnStartClient();
                 }
-
-                initialized = false;
             }
-            dontListen = false;
-            active = false;
-            handlers.Clear();
+        }
 
-            CleanupNetworkIdentities();
-            NetworkIdentity.ResetNextNetworkId();
+        internal static void RegisterMessageHandlers()
+        {
+            RegisterHandler<ReadyMessage>(OnClientReadyMessage);
+            RegisterHandler<CommandMessage>(OnCommandMessage);
+            RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
+        }
+
+        /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
+        public static void Listen(int maxConns)
+        {
+            Initialize();
+            maxConnections = maxConns;
+
+            // only start server if we want to listen
+            if (!dontListen)
+            {
+                Transport.activeTransport.ServerStart();
+                Debug.Log("Server started listening");
+            }
+
+            active = true;
+            RegisterMessageHandlers();
         }
 
         // Note: ClientScene.DestroyAllClientObjects does the same on client.
@@ -132,40 +142,30 @@ namespace Mirror
             NetworkIdentity.spawned.Clear();
         }
 
-        internal static void RegisterMessageHandlers()
+        /// <summary>Shuts down the server and disconnects all clients</summary>
+        public static void Shutdown()
         {
-            RegisterHandler<ReadyMessage>(OnClientReadyMessage);
-            RegisterHandler<CommandMessage>(OnCommandMessage);
-            RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
-        }
-
-        /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
-        public static void Listen(int maxConns)
-        {
-            Initialize();
-            maxConnections = maxConns;
-
-            // only start server if we want to listen
-            if (!dontListen)
+            if (initialized)
             {
-                Transport.activeTransport.ServerStart();
-                Debug.Log("Server started listening");
-            }
+                DisconnectAll();
 
-            active = true;
-            RegisterMessageHandlers();
-        }
-
-        public static void ActivateHostScene()
-        {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                if (!identity.isClient)
+                if (!dontListen)
                 {
-                    // Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
-                    identity.OnStartClient();
+                    // stop the server.
+                    // we do NOT call Transport.Shutdown, because someone only
+                    // called NetworkServer.Shutdown. we can't assume that the
+                    // client is supposed to be shut down too!
+                    Transport.activeTransport.ServerStop();
                 }
+
+                initialized = false;
             }
+            dontListen = false;
+            active = false;
+            handlers.Clear();
+
+            CleanupNetworkIdentities();
+            NetworkIdentity.ResetNextNetworkId();
         }
 
         // connections /////////////////////////////////////////////////////////
