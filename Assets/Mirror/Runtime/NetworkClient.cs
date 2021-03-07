@@ -50,6 +50,47 @@ namespace Mirror
         internal static Action<NetworkConnection> OnConnectedEvent;
         internal static Action<NetworkConnection> OnDisconnectedEvent;
 
+        // initialization //////////////////////////////////////////////////////
+        static void AddTransportHandlers()
+        {
+            Transport.activeTransport.OnClientConnected = OnConnected;
+            Transport.activeTransport.OnClientDataReceived = OnDataReceived;
+            Transport.activeTransport.OnClientDisconnected = OnDisconnected;
+            Transport.activeTransport.OnClientError = OnError;
+        }
+
+        internal static void RegisterSystemHandlers(bool hostMode)
+        {
+            // host mode client / regular client react to some messages differently.
+            // but we still need to add handlers for all of them to avoid
+            // 'message id not found' errors.
+            if (hostMode)
+            {
+                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnHostClientObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(ClientScene.OnHostClientObjectHide);
+                RegisterHandler<NetworkPongMessage>((conn, msg) => {}, false);
+                RegisterHandler<SpawnMessage>(ClientScene.OnHostClientSpawn);
+                // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {});
+                // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {});
+                // host mode doesn't need state updates
+                RegisterHandler<UpdateVarsMessage>((conn, msg) => {});
+            }
+            else
+            {
+                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
+                RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
+                RegisterHandler<SpawnMessage>(ClientScene.OnSpawn);
+                RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
+                RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
+                RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
+            }
+            RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
+        }
+
+        // connect /////////////////////////////////////////////////////////////
         /// <summary>Connect client to a NetworkServer by address.</summary>
         public static void Connect(string address)
         {
@@ -124,65 +165,7 @@ namespace Mirror
             ((LocalConnectionToServer)connection).QueueConnectedEvent();
         }
 
-        /// <summary>Disconnect host mode.</summary>
-        // this is needed to call DisconnectMessage for the host client too.
-        public static void DisconnectLocalServer()
-        {
-            // only if host connection is running
-            if (NetworkServer.localConnection != null)
-            {
-                // TODO ConnectLocalServer manually sends a ConnectMessage to the
-                // local connection. should we send a DisconnectMessage here too?
-                // (if we do then we get an Unknown Message ID log)
-                //NetworkServer.localConnection.Send(new DisconnectMessage());
-                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
-            }
-        }
-
-        static void AddTransportHandlers()
-        {
-            Transport.activeTransport.OnClientConnected = OnConnected;
-            Transport.activeTransport.OnClientDataReceived = OnDataReceived;
-            Transport.activeTransport.OnClientDisconnected = OnDisconnected;
-            Transport.activeTransport.OnClientError = OnError;
-        }
-
-        static void OnError(Exception exception) => Debug.LogException(exception);
-
-        static void OnDisconnected()
-        {
-            connectState = ConnectState.Disconnected;
-
-            ClientScene.HandleClientDisconnect(connection);
-
-            if (connection != null) OnDisconnectedEvent?.Invoke(connection);
-        }
-
-        internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
-        {
-            if (connection != null)
-            {
-                connection.TransportReceive(data, channelId);
-            }
-            else Debug.LogError("Skipped Data message handling because connection is null.");
-        }
-
-        static void OnConnected()
-        {
-            if (connection != null)
-            {
-                // reset network time stats
-                NetworkTime.Reset();
-
-                // the handler may want to send messages to the client
-                // thus we should set the connected state before calling the handler
-                connectState = ConnectState.Connected;
-                NetworkTime.UpdateClient();
-                OnConnectedEvent?.Invoke(connection);
-            }
-            else Debug.LogError("Skipped Connect message handling because connection is null.");
-        }
-
+        // disconnect //////////////////////////////////////////////////////////
         /// <summary>Disconnect from server.</summary>
         public static void Disconnect()
         {
@@ -216,6 +199,59 @@ namespace Mirror
             }
         }
 
+        /// <summary>Disconnect host mode.</summary>
+        // this is needed to call DisconnectMessage for the host client too.
+        public static void DisconnectLocalServer()
+        {
+            // only if host connection is running
+            if (NetworkServer.localConnection != null)
+            {
+                // TODO ConnectLocalServer manually sends a ConnectMessage to the
+                // local connection. should we send a DisconnectMessage here too?
+                // (if we do then we get an Unknown Message ID log)
+                //NetworkServer.localConnection.Send(new DisconnectMessage());
+                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
+            }
+        }
+
+        // transport events ////////////////////////////////////////////////////
+        static void OnConnected()
+        {
+            if (connection != null)
+            {
+                // reset network time stats
+                NetworkTime.Reset();
+
+                // the handler may want to send messages to the client
+                // thus we should set the connected state before calling the handler
+                connectState = ConnectState.Connected;
+                NetworkTime.UpdateClient();
+                OnConnectedEvent?.Invoke(connection);
+            }
+            else Debug.LogError("Skipped Connect message handling because connection is null.");
+        }
+
+        internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
+        {
+            if (connection != null)
+            {
+                connection.TransportReceive(data, channelId);
+            }
+            else Debug.LogError("Skipped Data message handling because connection is null.");
+        }
+
+        static void OnDisconnected()
+        {
+            connectState = ConnectState.Disconnected;
+
+            ClientScene.HandleClientDisconnect(connection);
+
+            if (connection != null) OnDisconnectedEvent?.Invoke(connection);
+        }
+
+        static void OnError(Exception exception) => Debug.LogException(exception);
+
+        // send ////////////////////////////////////////////////////////////////
         /// <summary>Send a NetworkMessage to the server over the given channel.</summary>
         public static void Send<T>(T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
@@ -229,37 +265,6 @@ namespace Mirror
                 else Debug.LogError("NetworkClient Send when not connected to a server");
             }
             else Debug.LogError("NetworkClient Send with no connection");
-        }
-
-        internal static void RegisterSystemHandlers(bool hostMode)
-        {
-            // host mode client / regular client react to some messages differently.
-            // but we still need to add handlers for all of them to avoid
-            // 'message id not found' errors.
-            if (hostMode)
-            {
-                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnHostClientObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(ClientScene.OnHostClientObjectHide);
-                RegisterHandler<NetworkPongMessage>((conn, msg) => {}, false);
-                RegisterHandler<SpawnMessage>(ClientScene.OnHostClientSpawn);
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnStartedMessage>((conn, msg) => {});
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>((conn, msg) => {});
-                // host mode doesn't need state updates
-                RegisterHandler<UpdateVarsMessage>((conn, msg) => {});
-            }
-            else
-            {
-                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
-                RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
-                RegisterHandler<SpawnMessage>(ClientScene.OnSpawn);
-                RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
-                RegisterHandler<ObjectSpawnFinishedMessage>(ClientScene.OnObjectSpawnFinished);
-                RegisterHandler<UpdateVarsMessage>(ClientScene.OnUpdateVarsMessage);
-            }
-            RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
         }
 
         // message handlers ////////////////////////////////////////////////////
