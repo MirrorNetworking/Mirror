@@ -183,10 +183,7 @@ namespace Mirror
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
-        /// <summary>
-        /// Disconnect from server.
-        /// <para>The disconnect message will be invoked.</para>
-        /// </summary>
+        /// <summary>Disconnect from server.</summary>
         public static void Disconnect()
         {
             connectState = ConnectState.Disconnected;
@@ -219,14 +216,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// This sends a network message with a message Id to the server. This message is sent on channel zero, which by default is the reliable channel.
-        /// <para>The message must be an instance of a class derived from MessageBase.</para>
-        /// <para>The message id passed to Send() is used to identify the handler function to invoke on the server when the message is received.</para>
-        /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
-        /// <param name="message"></param>
-        /// <param name="channelId"></param>
+        /// <summary>Send a NetworkMessage to the server over the given channel.</summary>
         public static void Send<T>(T message, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
@@ -309,13 +299,7 @@ namespace Mirror
             RegisterHandler<RpcMessage>(ClientScene.OnRPCMessage);
         }
 
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
@@ -327,26 +311,14 @@ namespace Mirror
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
-        /// <summary>
-        /// Register a handler for a particular message type.
-        /// <para>There are several system message types which you can add handlers for. You can also add your own message types.</para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             RegisterHandler((NetworkConnection _, T value) => { handler(value); }, requireAuthentication);
         }
 
-        /// <summary>
-        /// Replaces a handler for a particular message type.
-        /// <para>See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
@@ -354,23 +326,14 @@ namespace Mirror
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
-        /// <summary>
-        /// Replaces a handler for a particular message type.
-        /// <para>See also <see cref="RegisterHandler{T}(Action{NetworkConnection, T}, bool)">RegisterHandler(T)(Action(NetworkConnection, T), bool)</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="handler">Function handler which will be invoked when this message type is received.</param>
-        /// <param name="requireAuthentication">True if the message requires an authenticated connection</param>
+        /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
         public static void ReplaceHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ReplaceHandler((NetworkConnection _, T value) => { handler(value); }, requireAuthentication);
         }
 
-        /// <summary>
-        /// Unregisters a network message handler.
-        /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
+        /// <summary>Unregister a message handler of type T.</summary>
         public static bool UnregisterHandler<T>()
             where T : struct, NetworkMessage
         {
@@ -379,10 +342,7 @@ namespace Mirror
             return handlers.Remove(msgType);
         }
 
-        /// <summary>
-        /// Shut down a client.
-        /// <para>This should be done when a client is no longer going to be used.</para>
-        /// </summary>
+        /// <summary>Shutdown the client.</summary>
         public static void Shutdown()
         {
             Debug.Log("Shutting down client.");
