@@ -688,14 +688,17 @@ namespace Mirror
                         bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
                         if (!wasUnspawned)
                         {
-                            if (identity.sceneId == 0)
-                            {
-                                Object.Destroy(identity.gameObject);
-                            }
-                            else
+                            // scene objects are reset and disabled.
+                            // they always stay in the scene, we don't destroy them.
+                            if (identity.sceneId != 0)
                             {
                                 identity.Reset();
                                 identity.gameObject.SetActive(false);
+                            }
+                            // spawned objects are destroyed
+                            else
+                            {
+                                GameObject.Destroy(identity.gameObject);
                             }
                         }
                     }
