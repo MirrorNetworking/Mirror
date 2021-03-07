@@ -832,6 +832,16 @@ namespace Mirror
             }
         }
 
+        static bool VerifyCanSpawn(GameObject obj)
+        {
+            if (Utils.IsPrefab(obj))
+            {
+                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
+                return false;
+            }
+            return true;
+        }
+
         static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
             if (!active)
@@ -866,16 +876,6 @@ namespace Mirror
             // Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
             RebuildObservers(identity, true);
-        }
-
-        static bool VerifyCanSpawn(GameObject obj)
-        {
-            if (Utils.IsPrefab(obj))
-            {
-                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
-                return false;
-            }
-            return true;
         }
 
         /// <summary>Spawn the given game object on all clients which are ready.</summary>
