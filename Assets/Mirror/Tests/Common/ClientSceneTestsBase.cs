@@ -32,7 +32,7 @@ namespace Mirror.Tests
         protected Dictionary<Guid, GameObject> prefabs => NetworkClient.prefabs;
         protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => NetworkClient.spawnHandlers;
         protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
-        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => ClientScene.spawnableObjects;
+        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => NetworkClient.spawnableObjects;
 
 
         static GameObject LoadPrefab(string guid)

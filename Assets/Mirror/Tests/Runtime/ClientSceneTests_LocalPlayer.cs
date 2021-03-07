@@ -33,7 +33,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
                 isOwner = localPlayer,
             };
 
-            ClientScene.ApplySpawnPayload(identity, msg);
+            NetworkClient.ApplySpawnPayload(identity, msg);
 
             if (localPlayer)
             {
