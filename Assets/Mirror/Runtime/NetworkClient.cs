@@ -147,10 +147,7 @@ namespace Mirror
             Transport.activeTransport.OnClientError = OnError;
         }
 
-        static void OnError(Exception exception)
-        {
-            Debug.LogException(exception);
-        }
+        static void OnError(Exception exception) => Debug.LogException(exception);
 
         static void OnDisconnected()
         {
