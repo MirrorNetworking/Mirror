@@ -138,11 +138,14 @@ namespace Mirror
             {
                 if (identity != null)
                 {
+                    // scene objects are reset and disabled.
+                    // they always stay in the scene, we don't destroy them.
                     if (identity.sceneId != 0)
                     {
                         identity.Reset();
                         identity.gameObject.SetActive(false);
                     }
+                    // spawned objects are destroyed
                     else
                     {
                         GameObject.Destroy(identity.gameObject);
