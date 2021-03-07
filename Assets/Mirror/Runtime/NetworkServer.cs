@@ -964,13 +964,13 @@ namespace Mirror
             conn.Send(msg);
         }
 
-        /// <summary>
-        /// Marks all connected clients as no longer ready.
-        /// <para>All clients will no longer be sent state synchronization updates. The player's clients can call ClientManager.Ready() again to re-enter the ready state. This is useful when switching scenes.</para>
-        /// </summary>
+        /// <summary>Marks all connected clients as no longer ready.</summary>
+        // All clients will no longer be sent state synchronization updates. The
+        // player's clients can call ClientManager.Ready() again to re-enter the
+        // ready state. This is useful when switching scenes.
         public static void SetAllClientsNotReady()
         {
-            foreach (NetworkConnection conn in connections.Values)
+            foreach (NetworkConnectionToClient conn in connections.Values)
             {
                 SetClientNotReady(conn);
             }
