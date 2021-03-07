@@ -976,11 +976,10 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Sets the client of the connection to be not-ready.
-        /// <para>Clients that are not ready do not receive spawned objects or state synchronization updates. They client can be made ready again by calling SetClientReady().</para>
-        /// </summary>
-        /// <param name="conn">The connection of the client to make not ready.</param>
+        /// <summary>Marks the client of the connection to be not-ready.</summary>
+        // Clients that are not ready do not receive spawned objects or state
+        // synchronization updates. They client can be made ready again by
+        // calling SetClientReady().
         public static void SetClientNotReady(NetworkConnection conn)
         {
             if (conn.isReady)
@@ -993,22 +992,15 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// default ready handler.
-        /// </summary>
-        /// <param name="conn"></param>
-        /// <param name="msg"></param>
+        // default ready handler.
         static void OnClientReadyMessage(NetworkConnection conn, ReadyMessage msg)
         {
             // Debug.Log("Default handler for ready message from " + conn);
             SetClientReady(conn);
         }
 
-        /// <summary>
-        /// Removes the player object from the connection
-        /// </summary>
-        /// <param name="conn">The connection of the client to remove from</param>
-        /// <param name="destroyServerObject">Indicates whether the server object should be destroyed</param>
+        /// <summary>Removes the player object from the connection</summary>
+        // destroyServerObject: Indicates whether the server object should be destroyed
         public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
         {
             if (conn.identity != null)
@@ -1020,10 +1012,7 @@ namespace Mirror
 
                 conn.identity = null;
             }
-            else
-            {
-                // Debug.Log($"Connection {conn} has no identity");
-            }
+            //else Debug.Log($"Connection {conn} has no identity");
         }
 
         /// <summary>
