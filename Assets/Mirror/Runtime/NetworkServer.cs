@@ -844,6 +844,11 @@ namespace Mirror
 
         static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
+            if (!VerifyCanSpawn(obj))
+            {
+                return;
+            }
+
             if (!active)
             {
                 Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
@@ -883,10 +888,7 @@ namespace Mirror
         // prefab, or from a custom spawn function.
         public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
         {
-            if (VerifyCanSpawn(obj))
-            {
-                SpawnObject(obj, ownerConnection);
-            }
+            SpawnObject(obj, ownerConnection);
         }
 
         /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
@@ -913,14 +915,11 @@ namespace Mirror
         // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
         public static void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
         {
-            if (VerifyCanSpawn(obj))
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
-                if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-                {
-                    identity.assetId = assetId;
-                }
-                SpawnObject(obj, ownerConnection);
+                identity.assetId = assetId;
             }
+            SpawnObject(obj, ownerConnection);
         }
 
         internal static bool ValidateSceneObject(NetworkIdentity identity)
