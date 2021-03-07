@@ -12,47 +12,32 @@ namespace Mirror
         Disconnected
     }
 
-    /// <summary>
-    /// This is a network client class used by the networking system. It contains a NetworkConnection that is used to connect to a network server.
-    /// <para>The <see cref="NetworkClient">NetworkClient</see> handle connection state, messages handlers, and connection configuration. There can be many <see cref="NetworkClient">NetworkClient</see> instances in a process at a time, but only one that is connected to a game server (<see cref="NetworkServer">NetworkServer</see>) that uses spawned objects.</para>
-    /// <para><see cref="NetworkClient">NetworkClient</see> has an internal update function where it handles events from the transport layer. This includes asynchronous connect events, disconnect events and incoming data from a server.</para>
-    /// <para>The <see cref="NetworkManager">NetworkManager</see> has a NetworkClient instance that it uses for games that it starts, but the NetworkClient may be used by itself.</para>
-    /// </summary>
+    /// <summary>NetworkClient with connection to server.</summary>
     public static class NetworkClient
     {
-        /// <summary>
-        /// The registered network message handlers.
-        /// </summary>
+        // message handlers by messageId
         static readonly Dictionary<int, NetworkMessageDelegate> handlers =
             new Dictionary<int, NetworkMessageDelegate>();
 
-        /// <summary>
-        /// The NetworkConnection object this client is using.
-        /// </summary>
+        /// <summary>Client's NetworkConnection to server.</summary>
         public static NetworkConnection connection { get; internal set; }
 
+        // NetworkClient state
         internal static ConnectState connectState = ConnectState.None;
 
-        /// <summary>
-        /// The IP address of the server that this client is connected to.
-        /// <para>This will be empty if the client has not connected yet.</para>
-        /// </summary>
+        /// <summary>IP address of the connection to server.</summary>
+        // empty if the client has not connected yet.
         public static string serverIp => connection.address;
 
-        /// <summary>
-        /// active is true while a client is connecting/connected
-        /// (= while the network is active)
-        /// </summary>
-        public static bool active => connectState == ConnectState.Connecting || connectState == ConnectState.Connected;
+        /// <summary>active is true while a client is connecting/connected</summary>
+        // (= while the network is active)
+        public static bool active => connectState == ConnectState.Connecting ||
+                                     connectState == ConnectState.Connected;
 
-        /// <summary>
-        /// This gives the current connection status of the client.
-        /// </summary>
+        /// <summary>This gives the current connection status of the client.</summary>
         public static bool isConnected => connectState == ConnectState.Connected;
 
-        /// <summary>
-        /// NetworkClient can connect to local server in host mode too
-        /// </summary>
+        /// <summary>NetworkClient can connect to local server in host mode too</summary>
         public static bool isLocalClient => connection is LocalConnectionToServer;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
@@ -62,10 +47,7 @@ namespace Mirror
         internal static Action<NetworkConnection> OnConnectedEvent;
         internal static Action<NetworkConnection> OnDisconnectedEvent;
 
-        /// <summary>
-        /// Connect client to a NetworkServer instance.
-        /// </summary>
-        /// <param name="address"></param>
+        /// <summary>Connect client to a NetworkServer.</summary>
         public static void Connect(string address)
         {
             // Debug.Log("Client Connect: " + address);
