@@ -4,20 +4,18 @@ about: Create a report to help us improve
 title: ''
 labels: ''
 assignees: ''
+
 ---
 
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**Repro project**
-It would be very helpful if you can produce a small project that reproduces the issue.  Upload it to dropbox or google drive and attach the link to this issue.
+**How to reproduce the issue, step by step**
+Tell us EXACTLY how to reproduce the issue.
+- can we reproduce it with any of our built in examples?
+- if yes, tell us EVERY SINGLE CLICK/KEY PRESS needed to reproduce it
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Open the attached project '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+We will 100% look into every bug report. but if you aren't around and we can't figure out how to reproduce your bug then we can't fix your bug.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
