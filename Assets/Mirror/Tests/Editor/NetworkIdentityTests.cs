@@ -340,7 +340,7 @@ namespace Mirror.Tests
             IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
 
             // set is as local player
-            ClientScene.InternalAddPlayer(identity);
+            NetworkClient.InternalAddPlayer(identity);
 
             // spawn it
             NetworkServer.Spawn(gameObject);

@@ -25,7 +25,7 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            ClientScene.HandleClientDisconnect(this);
+            NetworkClient.HandleClientDisconnect(this);
             Transport.activeTransport.ClientDisconnect();
         }
     }

@@ -690,7 +690,7 @@ namespace Mirror
 
             if (isLocalPlayer)
             {
-                ClientScene.ClearLocalPlayer();
+                NetworkClient.ClearLocalPlayer();
             }
         }
 
@@ -1290,7 +1290,7 @@ namespace Mirror
 
             if (isLocalPlayer)
             {
-                ClientScene.ClearLocalPlayer();
+                NetworkClient.ClearLocalPlayer();
             }
         }
 
