@@ -44,16 +44,6 @@ namespace Mirror
         internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers =
             new Dictionary<Guid, UnSpawnDelegate>();
 
-        internal static void Shutdown()
-        {
-            ClearSpawners();
-            spawnableObjects.Clear();
-            readyConnection = null;
-            ready = false;
-            isSpawnFinished = false;
-            DestroyAllClientObjects();
-        }
-
         // add player //////////////////////////////////////////////////////////
         // called from message handler for Owner message
         internal static void InternalAddPlayer(NetworkIdentity identity)
@@ -923,6 +913,17 @@ namespace Mirror
                 identity.OnStartLocalPlayer();
                 // Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
             }
+        }
+
+        // shutdown ////////////////////////////////////////////////////////////
+        internal static void Shutdown()
+        {
+            ClearSpawners();
+            spawnableObjects.Clear();
+            readyConnection = null;
+            ready = false;
+            isSpawnFinished = false;
+            DestroyAllClientObjects();
         }
     }
 }
