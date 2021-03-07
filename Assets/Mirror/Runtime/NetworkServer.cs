@@ -65,6 +65,22 @@ namespace Mirror
         internal static Action<NetworkConnection> OnConnectedEvent;
         internal static Action<NetworkConnection> OnDisconnectedEvent;
 
+        // initialization / shutdown ///////////////////////////////////////////
+        static void Initialize()
+        {
+            if (initialized)
+                return;
+
+            initialized = true;
+            // Debug.Log("NetworkServer Created version " + Version.Current);
+
+            //Make sure connections are cleared in case any old connections references exist from previous sessions
+            connections.Clear();
+
+            Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
+            AddTransportHandlers();
+        }
+
         /// <summary>Shuts down the server and disconnects all clients</summary>
         public static void Shutdown()
         {
@@ -116,21 +132,6 @@ namespace Mirror
             NetworkIdentity.spawned.Clear();
         }
 
-        static void Initialize()
-        {
-            if (initialized)
-                return;
-
-            initialized = true;
-            // Debug.Log("NetworkServer Created version " + Version.Current);
-
-            //Make sure connections are cleared in case any old connections references exist from previous sessions
-            connections.Clear();
-
-            Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
-            AddTransportHandlers();
-        }
-
         internal static void RegisterMessageHandlers()
         {
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
@@ -155,6 +156,19 @@ namespace Mirror
             RegisterMessageHandlers();
         }
 
+        public static void ActivateHostScene()
+        {
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            {
+                if (!identity.isClient)
+                {
+                    // Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
+                    identity.OnStartClient();
+                }
+            }
+        }
+
+        // connections /////////////////////////////////////////////////////////
         /// <summary>Add a connection and setup callbacks. Returns true if not added yet.</summary>
         public static bool AddConnection(NetworkConnectionToClient conn)
         {
@@ -196,18 +210,6 @@ namespace Mirror
                 localConnection = null;
             }
             RemoveConnection(0);
-        }
-
-        public static void ActivateHostScene()
-        {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                if (!identity.isClient)
-                {
-                    // Debug.Log("ActivateHostScene " + identity.netId + " " + identity);
-                    identity.OnStartClient();
-                }
-            }
         }
 
         // send ////////////////////////////////////////////////////////////////
