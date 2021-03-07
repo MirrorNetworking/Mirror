@@ -596,7 +596,10 @@ namespace Mirror
             return AddPlayerForConnection(conn, player);
         }
 
-        internal static bool InternalReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority)
+        /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
+        // This does NOT change the ready state of the connection, so it can
+        // safely be used while changing scenes.
+        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -648,21 +651,13 @@ namespace Mirror
         /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
         // This does NOT change the ready state of the connection, so it can
         // safely be used while changing scenes.
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
-        {
-            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
-        }
-
-        /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
-        // This does NOT change the ready state of the connection, so it can
-        // safely be used while changing scenes.
         public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId, bool keepAuthority = false)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
                 identity.assetId = assetId;
             }
-            return InternalReplacePlayerForConnection(conn, player, keepAuthority);
+            return ReplacePlayerForConnection(conn, player, keepAuthority);
         }
 
         // ready ///////////////////////////////////////////////////////////////
