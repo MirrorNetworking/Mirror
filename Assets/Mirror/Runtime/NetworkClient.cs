@@ -89,8 +89,8 @@ namespace Mirror
             }
             else
             {
-                RegisterHandler<ObjectDestroyMessage>(ClientScene.OnObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(ClientScene.OnObjectHide);
+                RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
                 RegisterHandler<SpawnMessage>(ClientScene.OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(ClientScene.OnObjectSpawnStarted);
@@ -788,6 +788,10 @@ namespace Mirror
             }
         }
 
+        static void OnObjectHide(ObjectHideMessage msg) => DestroyObject(msg.netId);
+
+        internal static void OnObjectDestroy(ObjectDestroyMessage msg) => DestroyObject(msg.netId);
+
         internal static void CheckForLocalPlayer(NetworkIdentity identity)
         {
             if (identity == ClientScene.localPlayer)
@@ -798,6 +802,41 @@ namespace Mirror
                 identity.OnStartLocalPlayer();
                 // Debug.Log("ClientScene.OnOwnerMessage - player=" + identity.name);
             }
+        }
+
+        // destroy /////////////////////////////////////////////////////////////
+        static void DestroyObject(uint netId)
+        {
+            // Debug.Log("ClientScene.OnObjDestroy netId:" + netId);
+            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
+            {
+                localObject.OnStopClient();
+
+                // user handling
+                if (InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
+                {
+                    // reset object after user's handler
+                    localObject.Reset();
+                }
+                // default handling
+                else if (localObject.sceneId == 0)
+                {
+                    // don't call reset before destroy so that values are still set in OnDestroy
+                    GameObject.Destroy(localObject.gameObject);
+                }
+                // scene object.. disable it in scene instead of destroying
+                else
+                {
+                    localObject.gameObject.SetActive(false);
+                    ClientScene.spawnableObjects[localObject.sceneId] = localObject;
+                    // reset for scene objects
+                    localObject.Reset();
+                }
+
+                // remove from dictionary no matter how it is unspawned
+                NetworkIdentity.spawned.Remove(netId);
+            }
+            //else Debug.LogWarning("Did not find target for destroy message for " + netId);
         }
 
         // update //////////////////////////////////////////////////////////////

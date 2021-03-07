@@ -77,7 +77,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         {
             NetworkIdentity player = SpawnObject(true);
 
-            ClientScene.OnObjectDestroy(new ObjectDestroyMessage
+            NetworkClient.OnObjectDestroy(new ObjectDestroyMessage
             {
                 netId = player.netId
             });

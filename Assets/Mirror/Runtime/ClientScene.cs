@@ -395,45 +395,6 @@ namespace Mirror
             removeFromSpawned.Clear();
         }
 
-        // hide & destroy //////////////////////////////////////////////////////
-        internal static void OnObjectHide(ObjectHideMessage msg) => DestroyObject(msg.netId);
-
-        internal static void OnObjectDestroy(ObjectDestroyMessage msg) => DestroyObject(msg.netId);
-
-        static void DestroyObject(uint netId)
-        {
-            // Debug.Log("ClientScene.OnObjDestroy netId:" + netId);
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
-            {
-                localObject.OnStopClient();
-
-                // user handling
-                if (NetworkClient.InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
-                {
-                    // reset object after user's handler
-                    localObject.Reset();
-                }
-                // default handling
-                else if (localObject.sceneId == 0)
-                {
-                    // don't call reset before destroy so that values are still set in OnDestroy
-                    Object.Destroy(localObject.gameObject);
-                }
-                // scene object.. disable it in scene instead of destroying
-                else
-                {
-                    localObject.gameObject.SetActive(false);
-                    spawnableObjects[localObject.sceneId] = localObject;
-                    // reset for scene objects
-                    localObject.Reset();
-                }
-
-                // remove from dictionary no matter how it is unspawned
-                NetworkIdentity.spawned.Remove(netId);
-            }
-            //else Debug.LogWarning("Did not find target for destroy message for " + netId);
-        }
-
         /// <summary>Destroys all networked objects on the client.</summary>
         // Note: NetworkServer.CleanupNetworkIdentities does the same on server.
         public static void DestroyAllClientObjects()
