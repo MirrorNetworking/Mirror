@@ -1282,11 +1282,10 @@ namespace Mirror
             return identity.sceneId != 0;
         }
 
-        /// <summary>
-        /// This causes NetworkIdentity objects in a scene to be spawned on a server.
-        /// <para>NetworkIdentity objects in a scene are disabled by default. Calling SpawnObjects() causes these scene objects to be enabled and spawned. It is like calling NetworkServer.Spawn() for each of them.</para>
-        /// </summary>
-        /// <returns>Success if objects where spawned.</returns>
+        /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
+        // NetworkIdentity objects in a scene are disabled by default. Calling
+        // SpawnObjects() causes these scene objects to be enabled and spawned.
+        // It is like calling NetworkServer.Spawn() for each of them.
         public static bool SpawnObjects()
         {
             // only if server active
