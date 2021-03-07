@@ -234,14 +234,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Send a message to all connected clients, both ready and not-ready.
-        /// <para>See <see cref="NetworkConnection.isReady">NetworkConnection.isReady</see></para>
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="message">Message</param>
-        /// <param name="channelId">Transport channel to use</param>
-        /// <param name="sendToReadyOnly">Indicates if only ready clients should receive the message</param>
+        /// <summary>Send a message to all clients, even those that haven't joined the world yet (non ready)</summary>
         public static void SendToAll<T>(T message, int channelId = Channels.DefaultReliable, bool sendToReadyOnly = false)
             where T : struct, NetworkMessage
         {
