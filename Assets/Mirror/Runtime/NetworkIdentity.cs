@@ -666,10 +666,9 @@ namespace Mirror
         }
 #endif
 
-        /// <summary>
-        /// Unity will Destroy all networked objects on Scene Change, so we have to handle that here silently.
-        /// That means we cannot have any warning or logging in this method.
-        /// </summary>
+        // Note: Unity will Destroy all networked objects on Scene Change, so we
+        // have to handle that here silently. That means we cannot have any
+        // warning or logging in this method.
         void OnDestroy()
         {
             // Objects spawned from Instantiate are not allowed so are destroyed right away
