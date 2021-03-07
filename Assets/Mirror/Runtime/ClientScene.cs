@@ -54,10 +54,7 @@ namespace Mirror
             DestroyAllClientObjects();
         }
 
-        /// <summary>
-        /// this is called from message handler for Owner message
-        /// </summary>
-        /// <param name="identity"></param>
+        // called from message handler for Owner message
         internal static void InternalAddPlayer(NetworkIdentity identity)
         {
             //Debug.Log("ClientScene.InternalAddPlayer");
@@ -77,21 +74,15 @@ namespace Mirror
             else Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
         }
 
-        /// <summary>
-        /// Sets localPlayer to null
-        /// <para>Should be called when the local player object is destroyed</para>
-        /// </summary>
+        // Sets localPlayer to null. Should be called when the local player
+        // object is destroyed.
         internal static void ClearLocalPlayer()
         {
             //Debug.Log("ClientScene.ClearLocalPlayer");
             localPlayer = null;
         }
 
-        /// <summary>
-        /// This adds a player GameObject for this client. This causes an AddPlayer message to be sent to the server, and NetworkManager.OnServerAddPlayer is called.
-        /// </summary>
-        /// <param name="readyConn">The connection to become ready for this client.</param>
-        /// <returns>True if AddPlayer message was sent</returns>
+        /// <summary>Sends AddPlayer message to the server, indicating that we want to join the world.</summary>
         public static bool AddPlayer(NetworkConnection readyConn)
         {
             // ensure valid ready connection
@@ -118,12 +109,11 @@ namespace Mirror
             return true;
         }
 
-        /// <summary>
-        /// Signal that the client connection is ready to enter the game.
-        /// <para>This could be for example when a client enters an ongoing game and has finished loading the current scene. The server should respond to the SYSTEM_READY event with an appropriate handler which instantiates the players object for example.</para>
-        /// </summary>
-        /// <param name="conn">The client connection which is ready.</param>
-        /// <returns>True if successful</returns>
+        /// <summary>Sends Ready message to server, indicating that we loaded the scene, ready to enter the game.</summary>
+        // This could be for example when a client enters an ongoing game and
+        // has finished loading the current scene. The server should respond to
+        // the SYSTEM_READY event with an appropriate handler which instantiates
+        // the players object for example.
         public static bool Ready(NetworkConnection conn)
         {
             if (ready)
@@ -144,7 +134,6 @@ namespace Mirror
 
                 // Tell server we're ready to have a player object spawned
                 conn.Send(new ReadyMessage());
-
                 return true;
             }
             Debug.LogError("Ready() called with invalid connection object: conn=null");
@@ -160,9 +149,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Checks if identity is not spawned yet, not hidden and has sceneId
-        /// </summary>
+        // Checks if identity is not spawned yet, not hidden and has sceneId
         static bool ConsiderForSpawning(NetworkIdentity identity)
         {
             // not spawned yet, not hidden, etc.?
@@ -172,9 +159,7 @@ namespace Mirror
                    identity.sceneId != 0;
         }
 
-        /// <summary>
-        /// Call this after loading/unloading a scene in the client after connection to register the spawnable objects
-        /// </summary>
+        /// <summary>Call this after loading/unloading a scene in the client after connection to register the spawnable objects</summary>
         public static void PrepareToSpawnSceneObjects()
         {
             // remove existing items, they will be re-added below
