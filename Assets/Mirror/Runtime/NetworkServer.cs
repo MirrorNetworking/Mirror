@@ -480,82 +480,6 @@ namespace Mirror
         /// <summary>Clears all registered message handlers.</summary>
         public static void ClearHandlers() => handlers.Clear();
 
-        static void SpawnObserversForConnection(NetworkConnection conn)
-        {
-            // Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
-
-            if (!conn.isReady)
-            {
-                // client needs to finish initializing before we can spawn objects
-                // otherwise it would not find them.
-                return;
-            }
-
-            // let connection know that we are about to start spawning...
-            conn.Send(new ObjectSpawnStartedMessage());
-
-            // add connection to each nearby NetworkIdentity's observers, which
-            // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
-                // try with far away ones in ummorpg!
-                if (identity.gameObject.activeSelf) //TODO this is different
-                {
-                    // Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId.ToString("X"));
-
-                    // we need to support three cases:
-                    // - legacy system (identity has .visibility)
-                    // - new system (networkserver has .aoi)
-                    // - default case: no .visibility and no .aoi means add all
-                    //   connections by default)
-                    //
-                    // ForceHidden/ForceShown overwrite all systems so check it
-                    // first!
-
-                    // ForceShown: add no matter what
-                    if (identity.visible == Visibility.ForceShown)
-                    {
-                        identity.AddObserver(conn);
-                    }
-                    // ForceHidden: don't show no matter what
-                    else if (identity.visible == Visibility.ForceHidden)
-                    {
-                        // do nothing
-                    }
-                    // default: legacy system / new system / no system support
-                    else if (identity.visible == Visibility.Default)
-                    {
-                        // legacy system
-#pragma warning disable 618
-                        if (identity.visibility != null)
-                        {
-                            // call OnCheckObserver
-                            if (identity.visibility.OnCheckObserver(conn))
-                                identity.AddObserver(conn);
-                        }
-#pragma warning restore 618
-                        // new system
-                        else if (aoi != null)
-                        {
-                            // call OnCheckObserver
-                            if (aoi.OnCheckObserver(identity, conn))
-                                identity.AddObserver(conn);
-                        }
-                        // no system: add all observers by default
-                        else
-                        {
-                            identity.AddObserver(conn);
-                        }
-                    }
-                }
-            }
-
-            // let connection know that we finished spawning, so it can call
-            // OnStartClient on each one (only after all were spawned, which
-            // is how Unity's Start() function works too)
-            conn.Send(new ObjectSpawnFinishedMessage());
-        }
-
         internal static bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
         {
             identity = go.GetComponent<NetworkIdentity>();
@@ -1071,6 +995,82 @@ namespace Mirror
                 // otherwise just replace his data
                 SendSpawnMessage(identity, identity.connectionToClient);
             }
+        }
+
+        static void SpawnObserversForConnection(NetworkConnection conn)
+        {
+            // Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
+
+            if (!conn.isReady)
+            {
+                // client needs to finish initializing before we can spawn objects
+                // otherwise it would not find them.
+                return;
+            }
+
+            // let connection know that we are about to start spawning...
+            conn.Send(new ObjectSpawnStartedMessage());
+
+            // add connection to each nearby NetworkIdentity's observers, which
+            // internally sends a spawn message for each one to the connection.
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            {
+                // try with far away ones in ummorpg!
+                if (identity.gameObject.activeSelf) //TODO this is different
+                {
+                    // Debug.Log("Sending spawn message for current server objects name='" + identity.name + "' netId=" + identity.netId + " sceneId=" + identity.sceneId.ToString("X"));
+
+                    // we need to support three cases:
+                    // - legacy system (identity has .visibility)
+                    // - new system (networkserver has .aoi)
+                    // - default case: no .visibility and no .aoi means add all
+                    //   connections by default)
+                    //
+                    // ForceHidden/ForceShown overwrite all systems so check it
+                    // first!
+
+                    // ForceShown: add no matter what
+                    if (identity.visible == Visibility.ForceShown)
+                    {
+                        identity.AddObserver(conn);
+                    }
+                    // ForceHidden: don't show no matter what
+                    else if (identity.visible == Visibility.ForceHidden)
+                    {
+                        // do nothing
+                    }
+                    // default: legacy system / new system / no system support
+                    else if (identity.visible == Visibility.Default)
+                    {
+                        // legacy system
+#pragma warning disable 618
+                        if (identity.visibility != null)
+                        {
+                            // call OnCheckObserver
+                            if (identity.visibility.OnCheckObserver(conn))
+                                identity.AddObserver(conn);
+                        }
+#pragma warning restore 618
+                        // new system
+                        else if (aoi != null)
+                        {
+                            // call OnCheckObserver
+                            if (aoi.OnCheckObserver(identity, conn))
+                                identity.AddObserver(conn);
+                        }
+                        // no system: add all observers by default
+                        else
+                        {
+                            identity.AddObserver(conn);
+                        }
+                    }
+                }
+            }
+
+            // let connection know that we finished spawning, so it can call
+            // OnStartClient on each one (only after all were spawned, which
+            // is how Unity's Start() function works too)
+            conn.Send(new ObjectSpawnFinishedMessage());
         }
 
         // destroy /////////////////////////////////////////////////////////////
