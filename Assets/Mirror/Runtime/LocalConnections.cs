@@ -28,7 +28,6 @@ namespace Mirror
         }
 
         // true because local connections never timeout
-        /// <inheritdoc/>
         internal override bool IsAlive(float timeout) => true;
 
         internal void DisconnectInternal()
@@ -39,9 +38,7 @@ namespace Mirror
             RemoveObservers();
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             DisconnectInternal();
@@ -106,9 +103,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         internal void DisconnectInternal()
         {
             // set not ready and handle clientscene disconnect in any case
@@ -117,9 +112,7 @@ namespace Mirror
             NetworkClient.HandleClientDisconnect(this);
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             connectionToClient.DisconnectInternal();
@@ -127,7 +120,6 @@ namespace Mirror
         }
 
         // true because local connections never timeout
-        /// <inheritdoc/>
         internal override bool IsAlive(float timeout) => true;
     }
 }
