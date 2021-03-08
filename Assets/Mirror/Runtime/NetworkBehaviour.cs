@@ -127,7 +127,6 @@ namespace Mirror
                 syncObjects.Add(syncObject);
         }
 
-        #region Commands
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requiresAuthority = true)
         {
             // this was in Weaver before
@@ -138,6 +137,7 @@ namespace Mirror
                 Debug.LogError($"Command Function {cmdName} called without an active client.");
                 return;
             }
+
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(!requiresAuthority || isLocalPlayer || hasAuthority))
             {
@@ -165,9 +165,6 @@ namespace Mirror
             NetworkClient.readyConnection.Send(message, channelId);
         }
 
-        #endregion
-
-        #region Client RPCs
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool includeOwner)
         {
             // this was in Weaver before
@@ -176,6 +173,7 @@ namespace Mirror
                 Debug.LogError("RPC Function " + rpcName + " called on Client.");
                 return;
             }
+
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
@@ -243,8 +241,6 @@ namespace Mirror
 
             conn.Send(message, channelId);
         }
-
-        #endregion
 
         #region Helpers
 
