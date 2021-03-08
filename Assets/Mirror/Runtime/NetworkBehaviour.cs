@@ -74,19 +74,11 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
-        /// <summary>
-        /// objects that can synchronize themselves, such as synclists
-        /// </summary>
+        // SyncLists, SyncSets, etc.
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
-        /// <summary>
-        /// NetworkIdentity component caching for easier access
-        /// </summary>
         NetworkIdentity netIdentityCache;
-
-        /// <summary>
-        /// Returns the NetworkIdentity of this object
-        /// </summary>
+        /// <summary>Returns the NetworkIdentity of this object</summary>
         public NetworkIdentity netIdentity
         {
             get
@@ -104,14 +96,13 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Returns the index of the component on this object
-        /// </summary>
+        /// <summary>Returns the index of the component on this object</summary>
         public int ComponentIndex
         {
             get
             {
                 // note: FindIndex causes allocations, we search manually instead
+                // TODO this is not fast at runtime uhh
                 for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
                 {
                     NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
