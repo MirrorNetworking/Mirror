@@ -1,7 +1,1 @@
-namespace Mirror
-{
-    public static class LogFilter
-    {
-        public static bool Debug = false;
-    }
-}
+// removed 2021-03-08
