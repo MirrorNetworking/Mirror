@@ -112,7 +112,6 @@ namespace Mirror
 
                 // this should never happen
                 Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
-
                 return -1;
             }
         }
