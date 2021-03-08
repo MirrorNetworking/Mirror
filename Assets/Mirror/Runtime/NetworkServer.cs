@@ -34,13 +34,6 @@ namespace Mirror
         public static bool active { get; internal set; }
 
         /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        // still optional until we improve mirror's update order.
-        // right now it increases latency because:
-        //   enabling batching flushes all state updates in same frame, but
-        //   transport processes incoming messages afterwards so server would
-        //   batch them until next frame's flush
-        // => disable it for super fast paced games
-        // => enable it for high scale / cpu heavy games
         public static bool batching;
 
         /// <summary>interval in seconds used for batching. 0 means send in every LateUpdate.</summary>

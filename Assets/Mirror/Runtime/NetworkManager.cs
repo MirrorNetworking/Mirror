@@ -62,15 +62,7 @@ namespace Mirror
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
 
-        /// <summary>
-        /// batching is still optional until we improve mirror's update order.
-        /// right now it increases latency because:
-        ///   enabling batching flushes all state updates in same frame, but
-        ///   transport processes incoming messages afterwards so server would
-        ///   batch them until next frame's flush
-        /// => disable it for super fast paced games
-        /// => enable it for high scale / cpu heavy games
-        /// </summary>
+        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
         [Tooltip("Batching greatly reduces CPU & Transport load, but increases latency by one frame time. Use for high scale games / CPU intensive games. Don't use for fast paced games.")]
         public bool serverBatching;
 
