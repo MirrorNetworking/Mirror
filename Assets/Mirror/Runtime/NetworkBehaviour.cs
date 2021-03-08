@@ -5,19 +5,9 @@ using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>
-    /// Sync to everyone, or only to owner.
-    /// </summary>
     public enum SyncMode { Observers, Owner }
 
-    /// <summary>
-    /// Base class which should be inherited by scripts which contain networking functionality.
-    /// </summary>
-    /// <remarks>
-    /// <para>This is a MonoBehaviour class so scripts which need to use the networking feature should inherit this class instead of MonoBehaviour. It allows you to invoke networked actions, receive various callbacks, and automatically synchronize state from server-to-client.</para>
-    /// <para>The NetworkBehaviour component requires a NetworkIdentity on the game object. There can be multiple NetworkBehaviours on a single game object. For an object with sub-components in a hierarchy, the NetworkIdentity must be on the root object, and NetworkBehaviour scripts must also be on the root object.</para>
-    /// <para>Some of the built-in components of the networking system are derived from NetworkBehaviour, including NetworkTransport, NetworkAnimator and NetworkProximityChecker.</para>
-    /// </remarks>
+    /// <summary>Base class for networked components.</summary>
     [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.com/docs/Articles/Guides/NetworkBehaviour.html")]
@@ -25,68 +15,45 @@ namespace Mirror
     {
         internal float lastSyncTime;
 
+        /// <summary>sync mode for OnSerialize</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
-        /// <summary>
-        /// sync mode for OnSerialize
-        /// </summary>
         [HideInInspector] public SyncMode syncMode = SyncMode.Observers;
 
+        /// <summary>sync interval for OnSerialize (in seconds)</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
-        /// <summary>
-        /// sync interval for OnSerialize (in seconds)
-        /// </summary>
-        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
         // [0,2] should be enough. anything >2s is too laggy anyway.
+        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
         [Range(0, 2)]
         [HideInInspector] public float syncInterval = 0.1f;
 
-        /// <summary>
-        /// Returns true if this object is active on an active server.
-        /// <para>This is only true if the object has been spawned. This is different from NetworkServer.active, which is true if the server itself is active rather than this object being active.</para>
-        /// </summary>
+        /// <summary>True if this object is on the server and has been spawned.</summary>
+        // This is different from NetworkServer.active, which is true if the
+        // server itself is active rather than this object being active.
         public bool isServer => netIdentity.isServer;
 
-        /// <summary>
-        /// Returns true if running as a client and this object was spawned by a server.
-        /// </summary>
+        /// <summary>True if this object is on the client and has been spawned by the server.</summary>
         public bool isClient => netIdentity.isClient;
 
-        /// <summary>
-        /// This returns true if this object is the one that represents the player on the local machine.
-        /// <para>In multiplayer games, there are multiple instances of the Player object. The client needs to know which one is for "themselves" so that only that player processes input and potentially has a camera attached. The IsLocalPlayer function will return true only for the player instance that belongs to the player on the local machine, so it can be used to filter out input for non-local players.</para>
-        /// </summary>
+        /// <summary>True if this object is the the client's own local player.</summary>
         public bool isLocalPlayer => netIdentity.isLocalPlayer;
 
-        /// <summary>
-        /// True if this object only exists on the server
-        /// </summary>
+        /// <summary>True if this object is on the server-only, not host.</summary>
         public bool isServerOnly => netIdentity.isServerOnly;
 
-        /// <summary>
-        /// True if this object exists on a client that is not also acting as a server
-        /// </summary>
+        /// <summary>True if this object is on the client-only, not host.</summary>
         public bool isClientOnly => netIdentity.isClientOnly;
 
-        /// <summary>
-        /// This returns true if this object is the authoritative version of the object in the distributed network application.
-        /// <para>The <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> value on the NetworkIdentity determines how authority is determined. For most objects, authority is held by the server. For objects with <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see> set, authority is held by the client of that player.</para>
-        /// </summary>
+        /// <summary>This returns true if this object is the authoritative version of the object in the distributed network application.</summary>
+        // keeping this ridiculous summary as a reminder of a time long gone...
         public bool hasAuthority => netIdentity.hasAuthority;
 
-        /// <summary>
-        /// The unique network Id of this object.
-        /// <para>This is assigned at runtime by the network server and will be unique for all objects for that network session.</para>
-        /// </summary>
+        /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
 
-        /// <summary>
-        /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the client.
-        /// </summary>
+        /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
 
-        /// <summary>
-        /// The <see cref="NetworkConnection">NetworkConnection</see> associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is only valid for player objects on the server.
-        /// </summary>
+        /// <summary>Server's network connection to the client. This is only valid for player objects on the server.</summary>
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
         protected ulong syncVarDirtyBits { get; private set; }
