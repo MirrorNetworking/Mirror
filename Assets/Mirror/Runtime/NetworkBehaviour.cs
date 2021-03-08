@@ -405,8 +405,6 @@ namespace Mirror
                 }
             }
 
-            // old field for log
-            NetworkBehaviourSyncVar oldField = syncField;
             syncField = new NetworkBehaviourSyncVar(newNetId, componentIndex);
 
             SetDirtyBit(dirtyBit);
