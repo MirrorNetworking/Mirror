@@ -59,11 +59,13 @@ namespace Mirror
         protected ulong syncVarDirtyBits { get; private set; }
         ulong syncVarHookGuard;
 
+        // USED BY WEAVER to set syncvars in host mode without deadlocking
         protected bool getSyncVarHookGuard(ulong dirtyBit)
         {
             return (syncVarHookGuard & dirtyBit) != 0UL;
         }
 
+        // USED BY WEAVER to set syncvars in host mode without deadlocking
         protected void setSyncVarHookGuard(ulong dirtyBit, bool value)
         {
             if (value)
