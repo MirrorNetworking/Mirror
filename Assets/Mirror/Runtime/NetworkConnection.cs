@@ -83,7 +83,7 @@ namespace Mirror
         //    would check max size and show errors internally. best to do it
         //    in one place in hlapi.
         // => it's important to log errors, so the user knows what went wrong.
-        protected internal static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
+        protected static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
         {
             if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
