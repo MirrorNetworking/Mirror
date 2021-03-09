@@ -124,8 +124,6 @@ namespace Mirror
 
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
         {
-            // Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-
             //Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
             // validate packet size first.
@@ -146,10 +144,7 @@ namespace Mirror
                     batch.messages.Enqueue(writer);
                 }
                 // otherwise send directly to minimize latency
-                else
-                {
-                    Transport.activeTransport.ServerSend(connectionId, channelId, segment);
-                }
+                else Transport.activeTransport.ServerSend(connectionId, channelId, segment);
             }
         }
 
