@@ -1201,24 +1201,13 @@ namespace Mirror
         [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
-        /// <summary>
-        /// Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed
-        /// <para>This allows server to do work / cleanup / prep before the scene changes.</para>
-        /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
+        /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
 
-        /// <summary>
-        /// Called on the server when a scene is completed loaded, when the scene load was initiated by the server with ServerChangeScene().
-        /// </summary>
-        /// <param name="sceneName">The name of the new scene.</param>
+        /// <summary>Called on server after a scene load with ServerChangeScene() is completed.</summary>
         public virtual void OnServerSceneChanged(string sceneName) {}
 
-        /// <summary>
-        /// Called on the client when connected to a server.
-        /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
-        /// </summary>
-        /// <param name="conn">Connection to the server.</param>
+        /// <summary>Called on the client when connected to a server. By default it sets client as ready and adds a player.</summary>
         public virtual void OnClientConnect(NetworkConnection conn)
         {
             // OnClientConnect by default calls AddPlayer but it should not do
@@ -1235,45 +1224,26 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Called on clients when disconnected from a server.
-        /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
-        /// </summary>
-        /// <param name="conn">Connection to the server.</param>
+        /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
             StopClient();
         }
 
-        /// <summary>
-        /// Called on clients when a network error occurs.
-        /// </summary>
-        /// <param name="conn">Connection to a server.</param>
-        /// <param name="errorCode">Error code.</param>
         [Obsolete("OnClientError was removed because it hasn't been used in a long time.")]
         public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 
-        /// <summary>
-        /// Called on clients when a servers tells the client it is no longer ready.
-        /// <para>This is commonly used when switching scenes.</para>
-        /// </summary>
-        /// <param name="conn">Connection to the server.</param>
+        /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         public virtual void OnClientNotReady(NetworkConnection conn) {}
 
-        /// <summary>
-        /// Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed
-        /// <para>This allows client to do work / cleanup / prep before the scene changes.</para>
-        /// </summary>
-        /// <param name="newSceneName">Name of the scene that's about to be loaded</param>
-        /// <param name="sceneOperation">Scene operation that's about to happen</param>
-        /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
+        /// <summary>Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
+        // customHandling: indicates if scene loading will be handled through overrides
         public virtual void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling) {}
 
-        /// <summary>
-        /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
-        /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
-        /// </summary>
-        /// <param name="conn">The network connection that the scene change message arrived on.</param>
+        /// <summary>Called on clients when a scene has completed loaded, when the scene load was initiated by the server.</summary>
+        // Scene changes can cause player objects to be destroyed. The default
+        // implementation of OnClientSceneChanged in the NetworkManager is to
+        // add a player object for the connection if no player object exists.
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
@@ -1287,40 +1257,27 @@ namespace Mirror
             }
         }
 
-        // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
-        // their functionality, users would need override all the versions. Instead these callbacks are invoked
+        // Since there are multiple versions of StartServer, StartClient and
+        // StartHost, to reliably customize their functionality, users would
+        // need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
 
-        /// <summary>
-        /// This is invoked when a host is started.
-        /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
-        /// </summary>
+        /// <summary>This is invoked when a host is started.</summary>
         public virtual void OnStartHost() {}
 
-        /// <summary>
-        /// This is invoked when a server is started - including when a host is started.
-        /// <para>StartServer has multiple signatures, but they all cause this hook to be called.</para>
-        /// </summary>
+        /// <summary>This is invoked when a server is started - including when a host is started.</summary>
         public virtual void OnStartServer() {}
 
-        /// <summary>
-        /// This is invoked when the client is started.
-        /// </summary>
+        /// <summary>This is invoked when the client is started.</summary>
         public virtual void OnStartClient() {}
 
-        /// <summary>
-        /// This is called when a server is stopped - including when a host is stopped.
-        /// </summary>
+        /// <summary>This is called when a server is stopped - including when a host is stopped.</summary>
         public virtual void OnStopServer() {}
 
-        /// <summary>
-        /// This is called when a client is stopped.
-        /// </summary>
+        /// <summary>This is called when a client is stopped.</summary>
         public virtual void OnStopClient() {}
 
-        /// <summary>
-        /// This is called when a host is stopped.
-        /// </summary>
+        /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() {}
     }
 }
