@@ -302,8 +302,6 @@ namespace Mirror
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
 
-        bool ThisIsAPrefab() => Utils.IsPrefab(gameObject);
-
         // persistent sceneId assignment
         // (because scene objects have no persistent unique ID in Unity)
         //
@@ -436,7 +434,8 @@ namespace Mirror
 
         void SetupIDs()
         {
-            if (ThisIsAPrefab())
+            // is this a prefab?
+            if (Utils.IsPrefab(gameObject))
             {
                 // force 0 for prefabs
                 sceneId = 0;
