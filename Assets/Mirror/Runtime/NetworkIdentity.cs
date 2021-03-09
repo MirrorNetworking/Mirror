@@ -304,24 +304,6 @@ namespace Mirror
 
         bool ThisIsAPrefab() => Utils.IsPrefab(gameObject);
 
-        bool ThisIsASceneObjectWithPrefabParent(out GameObject prefab)
-        {
-            prefab = null;
-
-            if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
-            {
-                return false;
-            }
-            prefab = PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
-
-            if (prefab == null)
-            {
-                Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
-                return false;
-            }
-            return true;
-        }
-
         // persistent sceneId assignment
         // (because scene objects have no persistent unique ID in Unity)
         //
@@ -494,7 +476,7 @@ namespace Mirror
                     AssignAssetID(path);
                 }
             }
-            else if (ThisIsASceneObjectWithPrefabParent(out GameObject prefab))
+            else if (Utils.IsSceneObjectWithPrefabParent(gameObject, out GameObject prefab))
             {
                 AssignSceneID();
                 AssignAssetID(prefab);

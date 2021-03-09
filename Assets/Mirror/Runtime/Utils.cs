@@ -97,5 +97,25 @@ namespace Mirror
             return false;
 #endif
         }
+
+        public static bool IsSceneObjectWithPrefabParent(GameObject gameObject, out GameObject prefab)
+        {
+            prefab = null;
+
+#if UNITY_EDITOR
+            if (!UnityEditor.PrefabUtility.IsPartOfPrefabInstance(gameObject))
+            {
+                return false;
+            }
+            prefab = UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+#endif
+
+            if (prefab == null)
+            {
+                Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
+                return false;
+            }
+            return true;
+        }
     }
 }
