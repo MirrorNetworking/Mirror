@@ -525,17 +525,12 @@ namespace Mirror
             return false;
         }
 
-        /// <summary>
-        /// Virtual function to override to send custom serialization data. The corresponding function to send serialization data is OnDeserialize().
-        /// </summary>
-        /// <remarks>
-        /// <para>The initialState flag is useful to differentiate between the first time an object is serialized and when incremental updates can be sent. The first time an object is sent to a client, it must include a full state snapshot, but subsequent updates can save on bandwidth by including only incremental changes. Note that SyncVar hook functions are not called when initialState is true, only for incremental updates.</para>
-        /// <para>If a class has SyncVars, then an implementation of this function and OnDeserialize() are added automatically to the class. So a class that has SyncVars cannot also have custom serialization functions.</para>
-        /// <para>The OnSerialize function should return true to indicate that an update should be sent. If it returns true, then the dirty bits for that script are set to zero, if it returns false then the dirty bits are not changed. This allows multiple changes to a script to be accumulated over time and sent when the system is ready, instead of every frame.</para>
-        /// </remarks>
-        /// <param name="writer">Writer to use to write to the stream.</param>
-        /// <param name="initialState">If this is being called to send initial state.</param>
-        /// <returns>True if data was written.</returns>
+        /// <summary>Override to do custom serialization (instead of SyncVars/SyncLists). Use OnDeserialize too.</summary>
+        // if a class has syncvars, then OnSerialize/OnDeserialize are added
+        // automatically.
+        //
+        // initialState is true for full spawns, false for delta syncs.
+        //   note: SyncVar hooks are only called when inital=false
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             bool objectWritten = false;
@@ -556,11 +551,7 @@ namespace Mirror
         }
 
 
-        /// <summary>
-        /// Virtual function to override to receive custom serialization data. The corresponding function to send serialization data is OnSerialize().
-        /// </summary>
-        /// <param name="reader">Reader to read from the stream.</param>
-        /// <param name="initialState">True if being sent initial state.</param>
+        /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
         public virtual void OnDeserialize(NetworkReader reader, bool initialState)
         {
             if (initialState)
@@ -575,7 +566,7 @@ namespace Mirror
             DeserializeSyncVars(reader, initialState);
         }
 
-        // Don't rename. Weaver uses this exact function name.
+        // USED BY WEAVER
         protected virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
         {
             return false;
@@ -589,7 +580,7 @@ namespace Mirror
             //   write dirty SyncVars
         }
 
-        // Don't rename. Weaver uses this exact function name.
+        // USED BY WEAVER
         protected virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
         {
             // SyncVars are read here in subclass
@@ -675,48 +666,25 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// This is invoked for NetworkBehaviour objects when they become active on the server.
-        /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
-        /// <para>This will be called for objects on a "host" as well as for object on a dedicated server.</para>
-        /// </summary>
+        /// <summary>Like Start(), but only called on server & host.</summary>
         public virtual void OnStartServer() {}
 
-        /// <summary>
-        /// Invoked on the server when the object is unspawned
-        /// <para>Useful for saving object data in persistent storage</para>
-        /// </summary>
+        /// <summary>Stop event, only called on server & host.</summary>
         public virtual void OnStopServer() {}
 
-        /// <summary>
-        /// Called on every NetworkBehaviour when it is activated on a client.
-        /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
-        /// </summary>
+        /// <summary>Like Start(), but only called on client & host.</summary>
         public virtual void OnStartClient() {}
 
-        /// <summary>
-        /// This is invoked on clients when the server has caused this object to be destroyed.
-        /// <para>This can be used as a hook to invoke effects or do client specific cleanup.</para>
-        /// </summary>
+        /// <summary>Stop event, only called on client & host.</summary>
         public virtual void OnStopClient() {}
 
-        /// <summary>
-        /// Called when the local player object has been set up.
-        /// <para>This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.</para>
-        /// </summary>
+        /// <summary>Like Start(), but only called on client & host for the local player object.</summary>
         public virtual void OnStartLocalPlayer() {}
 
-        /// <summary>
-        /// This is invoked on behaviours that have authority, based on context and <see cref="NetworkIdentity.hasAuthority">NetworkIdentity.hasAuthority</see>.
-        /// <para>This is called after <see cref="OnStartServer">OnStartServer</see> and before <see cref="OnStartClient">OnStartClient.</see></para>
-        /// <para>When <see cref="NetworkIdentity.AssignClientAuthority">AssignClientAuthority</see> is called on the server, this will be called on the client that owns the object. When an object is spawned with <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included, this will be called on the client that owns the object.</para>
-        /// </summary>
+        /// <summary>Like Start(), but only called for objects the client has authority over.</summary>
         public virtual void OnStartAuthority() {}
 
-        /// <summary>
-        /// This is invoked on behaviours when authority is removed.
-        /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
-        /// </summary>
+        /// <summary>Stop event, only called for objects the client has authority over.</summary>
         public virtual void OnStopAuthority() {}
     }
 }
