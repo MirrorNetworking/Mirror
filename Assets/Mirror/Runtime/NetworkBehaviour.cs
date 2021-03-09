@@ -242,8 +242,6 @@ namespace Mirror
             conn.Send(message, channelId);
         }
 
-        #region Helpers
-
         // helper function for [SyncVar] GameObjects.
         // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver
         //            can't resolve it
@@ -477,22 +475,17 @@ namespace Mirror
             SetDirtyBit(dirtyBit);
             fieldValue = value;
         }
-        #endregion
 
-        /// <summary>
-        /// Used to set the behaviour as dirty, so that a network update will be sent for the object.
-        /// these are masks, not bit numbers, ie. 0x004 not 2
-        /// </summary>
-        /// <param name="dirtyBit">Bit mask to set.</param>
+        /// <summary>Set as dirty so that it's synced to clients again.</summary>
+        // these are masks, not bit numbers, ie. 0x004 not 2
         public void SetDirtyBit(ulong dirtyBit)
         {
             syncVarDirtyBits |= dirtyBit;
         }
 
-        /// <summary>
-        /// This clears all the dirty bits that were set on this script by SetDirtyBits();
-        /// <para>This is automatically invoked when an update is sent for this object, but can be called manually as well.</para>
-        /// </summary>
+        /// <summary>Clears all the dirty bits that were set by SetDirtyBits()</summary>
+        // automatically invoked when an update is sent for this object, but can
+        // be called manually as well.
         public void ClearAllDirtyBits()
         {
             lastSyncTime = Time.time;
