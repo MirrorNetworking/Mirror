@@ -56,8 +56,8 @@ namespace Mirror
         public int serverTickRate = 30;
 
         /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        [Tooltip("Batching greatly reduces CPU & Transport load, but increases latency by one frame time. Use for high scale games / CPU intensive games. Don't use for fast paced games.")]
-        public bool serverBatching;
+        [Tooltip("Batch message and send them out in LateUpdate (or after batchInterval). This is pretty much always a good idea.")]
+        public bool serverBatching = true;
 
         /// <summary>
         /// batching from server to client.

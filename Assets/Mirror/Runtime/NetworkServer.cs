@@ -34,7 +34,8 @@ namespace Mirror
         public static bool active { get; internal set; }
 
         /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        public static bool batching;
+        // (this is pretty much always a good idea)
+        public static bool batching = true;
 
         /// <summary>interval in seconds used for batching. 0 means send in every LateUpdate.</summary>
         public static float batchInterval = 0;
