@@ -4,16 +4,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>
-    /// A High level network connection. This is used for connections from client-to-server and for connection from server-to-client.
-    /// </summary>
-    /// <remarks>
-    /// <para>A NetworkConnection corresponds to a specific connection for a host in the transport layer. It has a connectionId that is assigned by the transport layer and passed to the Initialize function.</para>
-    /// <para>A NetworkClient has one NetworkConnection. A NetworkServerSimple manages multiple NetworkConnections. The NetworkServer has multiple "remote" connections and a "local" connection for the local client.</para>
-    /// <para>The NetworkConnection class provides message sending and handling facilities. For sending data over a network, there are methods to send message objects, byte arrays, and NetworkWriter objects. To handle data arriving from the network, handler functions can be registered for message Ids, byte arrays can be processed by HandleBytes(), and NetworkReader object can be processed by HandleReader().</para>
-    /// <para>NetworkConnection objects also act as observers for networked objects. When a connection is an observer of a networked object with a NetworkIdentity, then the object will be visible to corresponding client for the connection, and incremental state changes will be sent to the client.</para>
-    /// <para>There are many virtual functions on NetworkConnection that allow its behaviour to be customized. NetworkClient and NetworkServer can both be made to instantiate custom classes derived from NetworkConnection by setting their networkConnectionClass member variable.</para>
-    /// </remarks>
+    /// <summary>Base NetworkConnection class for server-to-client and client-to-server connection.</summary>
     public abstract class NetworkConnection
     {
         public const int LocalConnectionId = 0;
@@ -23,38 +14,21 @@ namespace Mirror
 
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
-        /// <summary>
-        /// Unique identifier for this connection that is assigned by the transport layer.
-        /// </summary>
-        /// <remarks>
-        /// <para>On a server, this Id is unique for every connection on the server. On a client this Id is local to the client, it is not the same as the Id on the server for this connection.</para>
-        /// <para>Transport layers connections begin at one. So on a client with a single connection to a server, the connectionId of that connection will be one. In NetworkServer, the connectionId of the local connection is zero.</para>
-        /// <para>Clients do not know their connectionId on the server, and do not know the connectionId of other clients on the server.</para>
-        /// </remarks>
+        /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
+        // assigned by transport, this id is unique for every connection on server.
+        // clients don't know their own id and they don't know other client's ids.
         public readonly int connectionId;
 
-        /// <summary>
-        /// Flag that indicates the client has been authenticated.
-        /// </summary>
+        /// <summary>Flag that indicates the client has been authenticated.</summary>
         public bool isAuthenticated;
 
-        /// <summary>
-        /// General purpose object to hold authentication data, character selection, tokens, etc.
-        /// associated with the connection for reference after Authentication completes.
-        /// </summary>
+        /// <summary>General purpose object to hold authentication data, character selection, tokens, etc.</summary>
         public object authenticationData;
 
-        /// <summary>
-        /// Flag that tells if the connection has been marked as "ready" by a client calling NetworkClient.Ready().
-        /// <para>This property is read-only. It is set by the system on the client when NetworkClient.Ready() is called, and set by the system on the server when a ready message is received from a client.</para>
-        /// <para>A client that is ready is sent spawned objects by the server and updates to the state of spawned objects. A client that is not ready is not sent spawned objects.</para>
-        /// </summary>
+        /// <summary>A server connection is ready after joining the game world.</summary>
         public bool isReady;
 
-        /// <summary>
-        /// The IP address / URL / FQDN associated with the connection.
-        /// Can be useful for a game master to do IP Bans etc.
-        /// </summary>
+        /// <summary>IP address of the connection. Can be useful for game master IP bans etc.</summary>
         public abstract string address { get; }
 
         /// <summary>
