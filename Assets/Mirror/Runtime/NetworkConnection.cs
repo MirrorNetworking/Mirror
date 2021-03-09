@@ -116,14 +116,14 @@ namespace Mirror
             NetworkServer.ShowForConnection(netIdentity, this);
         }
 
-        internal void RemoveFromObserving(NetworkIdentity identity, bool isDestroyed)
+        internal void RemoveFromObserving(NetworkIdentity netIdentity, bool isDestroyed)
         {
-            observing.Remove(identity);
+            observing.Remove(netIdentity);
 
             if (!isDestroyed)
             {
                 // hide identity for this conn
-                NetworkServer.HideForConnection(identity, this);
+                NetworkServer.HideForConnection(netIdentity, this);
             }
         }
 
