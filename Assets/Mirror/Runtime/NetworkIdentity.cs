@@ -869,7 +869,6 @@ namespace Mirror
             }
         }
 
-
         void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
             // read header as 4 bytes and calculate this chunk's start+end
