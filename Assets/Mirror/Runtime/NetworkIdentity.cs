@@ -655,6 +655,26 @@ namespace Mirror
             }
         }
 
+        internal void OnStopClient()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnStopClient should be caught, so that
+                // one component's exception doesn't stop all other components
+                // from being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStopClient();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Exception in OnStopClient:" + e.Message + " " + e.StackTrace);
+                }
+            }
+        }
+
         // TODO why is this static? find out, add a comment, or make it not static.
         static NetworkIdentity previousLocalPlayer = null;
         internal void OnStartLocalPlayer()
@@ -752,26 +772,6 @@ namespace Mirror
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
                 rend.enabled = visible;
-        }
-
-        internal void OnStopClient()
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStopClient should be caught, so that
-                // one component's exception doesn't stop all other components
-                // from being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnStopClient();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError("Exception in OnStopClient:" + e.Message + " " + e.StackTrace);
-                }
-            }
         }
 
         // vis2k: readstring bug prevention: https://issuetracker.unity3d.com/issues/unet-networkwriter-dot-write-causing-readstring-slash-readbytes-out-of-range-errors-in-clients
