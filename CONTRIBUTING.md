@@ -148,6 +148,9 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 * **private** 
     Fields and methods in a class are private by default, no need to use the private keyword there.
 * This is open source software. Consider the people who will read your code, and make it look nice for them. It's sort of like driving a car: Perhaps you love doing donuts when you're alone, but with passengers the goal is to make the ride as smooth as possible.
+* comment EVERYTHING that's not obvious. networking is hard. 10 years from now nothing that we did today is still obvious.
+* ![image](https://user-images.githubusercontent.com/16416509/110442880-44d43480-80f6-11eb-942e-40a1a98efd08.png)
+
 
 **The Python Way**
 
