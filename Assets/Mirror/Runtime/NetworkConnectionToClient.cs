@@ -5,7 +5,8 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
-        public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
+        public override string address =>
+            Transport.activeTransport.ServerGetClientAddress(connectionId);
 
         // batching from server to client.
         // fewer transport calls give us significantly better performance/scale.
