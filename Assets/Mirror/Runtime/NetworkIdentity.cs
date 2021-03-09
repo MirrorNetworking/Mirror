@@ -174,8 +174,6 @@ namespace Mirror
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
         public Visibility visible = Visibility.Default;
 
-        [SerializeField, HideInInspector] string m_AssetId;
-
         /// <summary>Prefab GUID used to spawn prefabs across the network.</summary>
         //
         // The AssetId trick:
@@ -234,6 +232,7 @@ namespace Mirror
                 // Debug.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
             }
         }
+        [SerializeField, HideInInspector] string m_AssetId;
 
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
