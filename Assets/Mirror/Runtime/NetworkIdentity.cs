@@ -655,6 +655,7 @@ namespace Mirror
             }
         }
 
+        // TODO why is this static? find out, add a comment, or make it not static.
         static NetworkIdentity previousLocalPlayer = null;
         internal void OnStartLocalPlayer()
         {
