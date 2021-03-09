@@ -675,7 +675,9 @@ namespace Mirror
             }
         }
 
-        // TODO why is this static? find out, add a comment, or make it not static.
+        // TODO any way to make this not static?
+        // introduced in https://github.com/vis2k/Mirror/commit/c7530894788bb843b0f424e8f25029efce72d8ca#diff-dc8b7a5a67840f75ccc884c91b9eb76ab7311c9ca4360885a7e41d980865bdc2
+        // for PR https://github.com/vis2k/Mirror/pull/1263
         static NetworkIdentity previousLocalPlayer = null;
         internal void OnStartLocalPlayer()
         {
