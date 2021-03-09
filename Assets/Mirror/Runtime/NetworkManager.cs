@@ -74,20 +74,11 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
-        // This value is passed to NetworkServer in SetupServer
-        /// <summary>
-        /// Should the server disconnect remote connections that have gone silent for more than Server Idle Timeout?
-        /// </summary>
+        /// <summary>Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout</summary>
         [Tooltip("Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout")]
         public bool disconnectInactiveConnections;
 
-        // This value is passed to NetworkServer in SetupServer
-        /// <summary>
-        /// Timeout in seconds since last message from a client after which server will auto-disconnect.
-        /// <para>By default, clients send at least a Ping message every 2 seconds.</para>
-        /// <para>The Host client is immune from idle timeout disconnection.</para>
-        /// <para>Default value is 60 seconds.</para>
-        /// </summary>
+        /// <summary>Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.</summary>
         [Tooltip("Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.")]
         public float disconnectInactiveTimeout = 60f;
 
@@ -95,57 +86,39 @@ namespace Mirror
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
 
-        /// <summary>
-        /// The default prefab to be used to create player objects on the server.
-        /// <para>Player objects are created in the default handler for AddPlayer() on the server. Implementing OnServerAddPlayer overrides this behaviour.</para>
-        /// </summary>
+        /// <summary>The default prefab to be used to create player objects on the server.</summary>
+        // Player objects are created in the default handler for AddPlayer() on
+        // the server. Implementing OnServerAddPlayer overrides this behaviour.
         [Header("Player Object")]
         [FormerlySerializedAs("m_PlayerPrefab")]
         [Tooltip("Prefab of the player object. Prefab must have a Network Identity component. May be an empty game object or a full avatar.")]
         public GameObject playerPrefab;
 
-        /// <summary>
-        /// A flag to control whether or not player objects are automatically created on connect, and on scene change.
-        /// </summary>
+        /// <summary>Enable to automatically create player objects on connect and on scene change.</summary>
         [FormerlySerializedAs("m_AutoCreatePlayer")]
         [Tooltip("Should Mirror automatically spawn the player after scene change?")]
         public bool autoCreatePlayer = true;
 
-        /// <summary>
-        /// The current method of spawning players used by the NetworkManager.
-        /// </summary>
+        /// <summary>Where to spawn players.</summary>
         [FormerlySerializedAs("m_PlayerSpawnMethod")]
         [Tooltip("Round Robin or Random order of Start Position selection")]
         public PlayerSpawnMethod playerSpawnMethod;
 
-        /// <summary>
-        /// List of prefabs that will be registered with the spawning system.
-        /// <para>For each of these prefabs, NetworkClient.RegisterPrefab() will be automatically invoked.</para>
-        /// </summary>
+        /// <summary>Prefabs that can be spawned over the network need to be registered here.</summary>
         [FormerlySerializedAs("m_SpawnPrefabs"), HideInInspector]
         public List<GameObject> spawnPrefabs = new List<GameObject>();
 
-        /// <summary>
-        /// List of transforms populated by NetworkStartPosition components found in the scene.
-        /// </summary>
+        /// <summary>List of transforms populated by NetworkStartPositions</summary>
         public static List<Transform> startPositions = new List<Transform>();
         public static int startPositionIndex;
 
-        /// <summary>
-        /// NetworkManager singleton
-        /// </summary>
+        /// <summary>The one and only NetworkManager</summary>
         public static NetworkManager singleton { get; private set; }
 
-        /// <summary>
-        /// Number of active player objects across all connections on the server.
-        /// <para>This is only valid on the host / server.</para>
-        /// </summary>
+        /// <summary>Number of active player objects across all connections on the server.</summary>
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
-        /// <summary>
-        /// True if the server or client is started and running
-        /// <para>This is set True in StartServer / StartClient, and set False in StopServer / StopClient</para>
-        /// </summary>
+        /// <summary>True if the server is running or client is connected/connecting.</summary>
         [NonSerialized]
         public bool isNetworkActive;
 
