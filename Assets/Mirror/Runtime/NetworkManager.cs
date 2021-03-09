@@ -1000,22 +1000,15 @@ namespace Mirror
             startPositions = startPositions.OrderBy(transform => transform.GetSiblingIndex()).ToList();
         }
 
-        /// <summary>
-        /// Unregisters the transform of a game object as a player spawn location.
-        /// <para>This is done automatically by the <see cref="NetworkStartPosition">NetworkStartPosition</see> component, but can be done manually from user code.</para>
-        /// </summary>
-        /// <param name="start">Transform to unregister.</param>
+        /// <summary>Unregister a Transform from start positions.</summary>
+        // TODO why is this static?
         public static void UnRegisterStartPosition(Transform start)
         {
             // Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
             startPositions.Remove(start);
         }
 
-        /// <summary>
-        /// This finds a spawn position based on NetworkStartPosition objects in the scene.
-        /// <para>This is used by the default implementation of OnServerAddPlayer.</para>
-        /// </summary>
-        /// <returns>Returns the transform to spawn a player at, or null.</returns>
+        /// <summary>Get the next NetworkStartPosition based on the selected PlayerSpawnMethod.</summary>
         public Transform GetStartPosition()
         {
             // first remove any dead transforms
@@ -1053,6 +1046,7 @@ namespace Mirror
         }
 
         // called after successful authentication
+        // TODO do the NetworkServer.OnAuthenticated thing from x branch
         void OnServerAuthenticated(NetworkConnection conn)
         {
             //Debug.Log("NetworkManager.OnServerAuthenticated");
