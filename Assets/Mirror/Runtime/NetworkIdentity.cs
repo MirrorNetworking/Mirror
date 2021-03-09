@@ -299,8 +299,8 @@ namespace Mirror
         }
 
 #if UNITY_EDITOR
-        void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
         void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
 
         // persistent sceneId assignment
         // (because scene objects have no persistent unique ID in Unity)
