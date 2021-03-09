@@ -1156,36 +1156,23 @@ namespace Mirror
         void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)
         {
             //Debug.Log("NetworkManager.OnClientSceneInternal");
-
             if (NetworkClient.isConnected && !NetworkServer.active)
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
         }
 
-        /// <summary>
-        /// Called on the server when a new client connects.
-        /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
+        /// <summary>Called on the server when a new client connects.</summary>
         public virtual void OnServerConnect(NetworkConnection conn) {}
 
-        /// <summary>
-        /// Called on the server when a client disconnects.
-        /// <para>This is called on the Server when a Client disconnects from the Server. Use an override to decide what should happen when a disconnection is detected.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
+        /// <summary>Called on the server when a client disconnects.</summary>
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
             NetworkServer.DestroyPlayerForConnection(conn);
             Debug.Log("OnServerDisconnect: Client disconnected.");
         }
 
-        /// <summary>
-        /// Called on the server when a client is ready.
-        /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
+        /// <summary>Called on the server when a client is ready (= loaded the scene)</summary>
         public virtual void OnServerReady(NetworkConnection conn)
         {
             if (conn.identity == null)
@@ -1196,11 +1183,8 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        /// <summary>
-        /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.
-        /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
+        /// <summary>Called on server when a client requests to add the player. Adds playerPrefab by default. Can be overwritte.</summary>
+        // The default implementation for this function creates a new player object from the playerPrefab.
         public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
             Transform startPos = GetStartPosition();
@@ -1211,11 +1195,6 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-        /// <summary>
-        /// Called on the server when a network error occurs for a client connection.
-        /// </summary>
-        /// <param name="conn">Connection from client.</param>
-        /// <param name="errorCode">Error code.</param>
         [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
