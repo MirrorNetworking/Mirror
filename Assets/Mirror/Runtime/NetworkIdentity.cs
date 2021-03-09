@@ -228,7 +228,6 @@ namespace Mirror
 
                 // old is empty
                 m_AssetId = newAssetIdString;
-
                 // Debug.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
             }
         }
