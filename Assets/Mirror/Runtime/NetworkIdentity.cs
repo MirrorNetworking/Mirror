@@ -476,6 +476,7 @@ namespace Mirror
                     AssignAssetID(path);
                 }
             }
+            // is this a scene object with prefab parent?
             else if (Utils.IsSceneObjectWithPrefabParent(gameObject, out GameObject prefab))
             {
                 AssignSceneID();
