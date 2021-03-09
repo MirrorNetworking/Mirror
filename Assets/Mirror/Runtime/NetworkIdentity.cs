@@ -1070,6 +1070,7 @@ namespace Mirror
 
                 NetworkConnectionToClient previousOwner = connectionToClient;
 
+                // TODO why do we clear this twice?
                 connectionToClient = null;
 
                 // we need to resynchronize the entire object
@@ -1078,6 +1079,7 @@ namespace Mirror
                 // reset all variables and remove authority
                 NetworkServer.SendSpawnMessage(this, previousOwner);
 
+                // TODO why do we clear this twice?
                 connectionToClient = null;
             }
         }
