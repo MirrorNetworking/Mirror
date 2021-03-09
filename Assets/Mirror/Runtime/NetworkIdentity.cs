@@ -925,14 +925,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Helper function to handle Command/Rpc
-        /// </summary>
-        /// <param name="componentIndex"></param>
-        /// <param name="functionHash"></param>
-        /// <param name="invokeType"></param>
-        /// <param name="reader"></param>
-        /// <param name="senderConnection"></param>
+        // Helper function to handle Command/Rpc
         internal void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             // check if unity object has been destroyed
@@ -956,12 +949,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Runs on server
-        /// </summary>
-        /// <param name="componentIndex"></param>
-        /// <param name="cmdHash"></param>
-        /// <returns></returns>
+        // Runs on server
         internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
         {
             // check if unity object has been destroyed
@@ -984,9 +972,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Called when NetworkIdentity is destroyed
-        /// </summary>
+        // Called when NetworkIdentity is destroyed
         internal void ClearObservers()
         {
             if (observers != null)
@@ -1020,13 +1006,15 @@ namespace Mirror
             conn.AddToObserving(this);
         }
 
-        /// <summary>
-        /// Assign control of an object to a client via the client's <see cref="NetworkConnection">NetworkConnection.</see>
-        /// <para>This causes hasAuthority to be set on the client that owns the object, and NetworkBehaviour.OnStartAuthority will be called on that client. This object then will be in the NetworkConnection.clientOwnedObjects list for the connection.</para>
-        /// <para>Authority can be removed with RemoveClientAuthority. Only one client can own an object at any time. This does not need to be called for player objects, as their authority is setup automatically.</para>
-        /// </summary>
-        /// <param name="conn">	The connection of the client to assign authority to.</param>
-        /// <returns>True if authority was assigned.</returns>
+        /// <summary>Assign control of an object to a client via the client's NetworkConnection.</summary>
+        // This causes hasAuthority to be set on the client that owns the object,
+        // and NetworkBehaviour.OnStartAuthority will be called on that client.
+        // This object then will be in the NetworkConnection.clientOwnedObjects
+        // list for the connection.
+        //
+        // Authority can be removed with RemoveClientAuthority. Only one client
+        // can own an object at any time. This does not need to be called for
+        // player objects, as their authority is setup automatically.
         public bool AssignClientAuthority(NetworkConnection conn)
         {
             if (!isServer)
