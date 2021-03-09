@@ -57,9 +57,7 @@ namespace Mirror
             // TODO why isn't lastMessageTime set in here like in the other ctor?
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         public abstract void Disconnect();
 
         internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
@@ -67,12 +65,7 @@ namespace Mirror
             messageHandlers = handlers;
         }
 
-        /// <summary>
-        /// This sends a network message with a message ID on the connection. This message is sent on channel zero, which by default is the reliable channel.
-        /// </summary>
-        /// <typeparam name="T">The message type to unregister.</typeparam>
-        /// <param name="msg">The message to send.</param>
-        /// <param name="channelId">The transport layer channel to send on.</param>
+        /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
         public void Send<T>(T msg, int channelId = Channels.DefaultReliable)
             where T : struct, NetworkMessage
         {
