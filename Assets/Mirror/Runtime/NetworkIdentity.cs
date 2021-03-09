@@ -238,22 +238,14 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Keep track of all sceneIds to detect scene duplicates
-        /// </summary>
-        static readonly Dictionary<ulong, NetworkIdentity> sceneIds = new Dictionary<ulong, NetworkIdentity>();
+        // Keep track of all sceneIds to detect scene duplicates
+        static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
+            new Dictionary<ulong, NetworkIdentity>();
 
-        /// <summary>
-        /// Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>NetworkIdentity from the sceneIds dictionary</returns>
+        /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
-        /// <summary>
-        /// used when adding players
-        /// </summary>
-        /// <param name="conn"></param>
+        // used when adding players
         internal void SetClientOwner(NetworkConnection conn)
         {
             // do nothing if it already has an owner
