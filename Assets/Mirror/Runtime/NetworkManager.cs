@@ -28,18 +28,12 @@ namespace Mirror
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
 
-        /// <summary>
-        /// Automatically invoke StartServer()
-        /// <para>If the application is a Server Build, StartServer is automatically invoked.</para>
-        /// <para>Server build is true when "Server build" is checked in build menu, or BuildOptions.EnableHeadlessMode flag is in BuildOptions</para>
-        /// </summary>
+        /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
         [FormerlySerializedAs("startOnHeadless")]
         public bool autoStartServerBuild = true;
 
-        /// <summary>
-        /// Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.
-        /// </summary>
+        /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
 
@@ -47,28 +41,18 @@ namespace Mirror
         [Tooltip("Batch message and send them out in LateUpdate (or after batchInterval). This is pretty much always a good idea.")]
         public bool serverBatching = true;
 
-        /// <summary>
-        /// batching from server to client.
-        /// fewer transport calls give us significantly better performance/scale.
-        /// if batch interval is 0, then we only batch until the Update() call
-        /// </summary>
+        /// <summary>Server can batch messages to significantly reduce transport calls and improve performance/scale.</summary>
         [Tooltip("Server can batch messages up to Transport.GetMaxPacketSize to significantly reduce transport calls and improve performance/scale.\nIf batch interval is 0, then we only batch until the Update() call. Otherwise we batch until interval elapsed (note that this increases latency).")]
         public float serverBatchInterval = 0;
 
-        /// <summary>
-        /// The scene to switch to when offline.
-        /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is completed - such as a client disconnect, or a server shutdown.</para>
-        /// </summary>
+        /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
         [Scene]
         [FormerlySerializedAs("m_OfflineScene")]
         [Tooltip("Scene that Mirror will switch to when the client or server is stopped")]
         public string offlineScene = "";
 
-        /// <summary>
-        /// The scene to switch to when online.
-        /// <para>Setting this makes the NetworkManager do scene management. This scene will be switched to when a network session is started - such as a client connect, or a server listen.</para>
-        /// </summary>
+        /// <summary>Automatically switch to this scene upon going online (after connect/startserver).</summary>
         [Scene]
         [FormerlySerializedAs("m_OnlineScene")]
         [Tooltip("Scene that Mirror will switch to when the server is started. Clients will recieve a Scene Message to load the server's current scene when they connect.")]
@@ -80,18 +64,12 @@ namespace Mirror
         [SerializeField]
         protected Transport transport;
 
-        /// <summary>
-        /// The network address currently in use.
-        /// <para>For clients, this is the address of the server that is connected to. For servers, this is the local address.</para>
-        /// </summary>
+        /// <summary>Server's address for clients to connect to.</summary>
         [FormerlySerializedAs("m_NetworkAddress")]
         [Tooltip("Network Address where the client should connect to the server. Server does not use this for anything.")]
         public string networkAddress = "localhost";
 
-        /// <summary>
-        /// The maximum number of concurrent network connections to support.
-        /// <para>This effects the memory usage of the network layer.</para>
-        /// </summary>
+        /// <summary>The maximum number of concurrent network connections to support.</summary>
         [FormerlySerializedAs("m_MaxConnections")]
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
