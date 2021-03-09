@@ -179,30 +179,20 @@ namespace Mirror
 
         [SerializeField, HideInInspector] string m_AssetId;
 
-        /// <summary>
-        /// Unique identifier used to find the source assets when server spawns the on clients.
-        /// </summary>
-        /// <remarks>
-        /// <list type="bullet">
-        /// <listheader><description>
-        ///     The AssetId trick:
-        /// </description></listheader>
-        ///     <item><description>
-        ///         Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
-        ///         serialize it because Guid's internal bytes are private
-        ///     </description></item>
-        ///     <item><description>
-        ///         UNET used 'NetworkHash128' originally, with byte0, ..., byte16
-        ///         which works, but it just unnecessary extra code
-        ///     </description></item>
-        ///     <item><description>
-        ///         Using just the Guid string would work, but it's 32 chars long and
-        ///         would then be sent over the network as 64 instead of 16 bytes
-        ///     </description></item>
-        /// </list>
-        /// The solution is to serialize the string internally here and then
-        /// use the real 'Guid' type for everything else via .assetId
-        /// </remarks>
+        /// <summary>Prefab GUID used to spawn prefabs across the network.</summary>
+        //
+        // The AssetId trick:
+        //   Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
+        //   serialize it because Guid's internal bytes are private
+        //
+        //   UNET used 'NetworkHash128' originally, with byte0, ..., byte16
+        //   which works, but it just unnecessary extra code
+        //
+        //   Using just the Guid string would work, but it's 32 chars long and
+        //   would then be sent over the network as 64 instead of 16 bytes
+        //
+        // => The solution is to serialize the string internally here and then
+        //    use the real 'Guid' type for everything else via .assetId
         public Guid assetId
         {
             get
