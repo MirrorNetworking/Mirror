@@ -1117,9 +1117,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// clear all component's dirty bits no matter what
-        /// </summary>
+        // clear all component's dirty bits no matter what
         internal void ClearAllComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
@@ -1128,10 +1126,8 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Clear only dirty component's dirty bits. ignores components which
-        /// may be dirty but not ready to be synced yet (because of syncInterval)
-        /// </summary>
+        // Clear only dirty component's dirty bits. ignores components which
+        // may be dirty but not ready to be synced yet (because of syncInterval)
         internal void ClearDirtyComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
