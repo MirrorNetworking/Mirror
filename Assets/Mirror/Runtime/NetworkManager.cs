@@ -124,10 +124,9 @@ namespace Mirror
 
         static NetworkConnection clientReadyConnection;
 
-        /// <summary>
-        /// This is true if the client loaded a new scene when connecting to the server.
-        /// <para>This is set before OnClientConnect is called, so it can be checked there to perform different logic if a scene load occurred.</para>
-        /// </summary>
+        /// <summary>True if the client loaded a new scene when connecting to the server.</summary>
+        // This is set before OnClientConnect is called, so it can be checked
+        // there to perform different logic if a scene load occurred.
         [NonSerialized]
         public bool clientLoadedScene;
 
@@ -139,11 +138,7 @@ namespace Mirror
         //    during FinishLoadScene.
         public NetworkManagerMode mode { get; private set; }
 
-        #region Unity Callbacks
-
-        /// <summary>
-        /// virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
-        /// </summary>
+        // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
             // add transport if there is none yet. makes upgrading easier.
@@ -218,10 +213,6 @@ namespace Mirror
         {
             UpdateScene();
         }
-
-        #endregion
-
-        #region Start & Stop
 
         // keep the online scene change check in a separate function
         bool IsServerOnlineSceneChangeNeeded()
@@ -758,10 +749,6 @@ namespace Mirror
             //Debug.Log("NetworkManager destroyed");
         }
 
-        #endregion
-
-        #region Scene Management
-
         /// <summary>
         /// The name of the current network scene.
         /// </summary>
@@ -1034,10 +1021,6 @@ namespace Mirror
             }
         }
 
-        #endregion
-
-        #region Start Positions
-
         /// <summary>
         /// Registers the transform of a game object as a player spawn location.
         /// <para>This is done automatically by NetworkStartPosition components, but can be done manually from user script code.</para>
@@ -1090,10 +1073,6 @@ namespace Mirror
                 return startPosition;
             }
         }
-
-        #endregion
-
-        #region Server Internal Message Handlers
 
         void OnServerConnectInternal(NetworkConnection conn)
         {
@@ -1166,10 +1145,6 @@ namespace Mirror
             OnServerAddPlayer(conn);
         }
 
-        #endregion
-
-        #region Client Internal Message Handlers
-
         void OnClientConnectInternal(NetworkConnection conn)
         {
             //Debug.Log("NetworkManager.OnClientConnectInternal");
@@ -1233,10 +1208,6 @@ namespace Mirror
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
         }
-
-        #endregion
-
-        #region Server System Callbacks
 
         /// <summary>
         /// Called on the server when a new client connects.
@@ -1306,10 +1277,6 @@ namespace Mirror
         /// </summary>
         /// <param name="sceneName">The name of the new scene.</param>
         public virtual void OnServerSceneChanged(string sceneName) {}
-
-        #endregion
-
-        #region Client System Callbacks
 
         /// <summary>
         /// Called on the client when connected to a server.
@@ -1384,10 +1351,6 @@ namespace Mirror
             }
         }
 
-        #endregion
-
-        #region Start & Stop callbacks
-
         // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
         // from all versions, so users only need to implement this one case.
@@ -1423,7 +1386,5 @@ namespace Mirror
         /// This is called when a host is stopped.
         /// </summary>
         public virtual void OnStopHost() {}
-
-        #endregion
     }
 }
