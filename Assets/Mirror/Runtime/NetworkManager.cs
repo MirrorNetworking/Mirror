@@ -168,9 +168,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// virtual so that inheriting classes' Awake() can call base.Awake() too
-        /// </summary>
+        // virtual so that inheriting classes' Awake() can call base.Awake() too
         public virtual void Awake()
         {
             // Don't allow collision-destroyed second instance to continue.
@@ -186,9 +184,7 @@ namespace Mirror
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
-        /// <summary>
-        /// virtual so that inheriting classes' Start() can call base.Start() too
-        /// </summary>
+        // virtual so that inheriting classes' Start() can call base.Start() too
         public virtual void Start()
         {
             // headless mode? then start the server
@@ -204,11 +200,7 @@ namespace Mirror
 #endif
         }
 
-        // NetworkIdentity.UNetStaticUpdate is called from UnityEngine while LLAPI network is active.
-        // If we want TCP then we need to call it manually. Probably best from NetworkManager, although this means that we can't use NetworkServer/NetworkClient without a NetworkManager invoking Update anymore.
-        /// <summary>
-        /// virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
-        /// </summary>
+        // virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
         public virtual void LateUpdate()
         {
             UpdateScene();
@@ -271,9 +263,7 @@ namespace Mirror
             isNetworkActive = true;
         }
 
-        /// <summary>
-        /// This starts a new server.
-        /// </summary>
+        /// <summary>Starts the server, listening for incoming connections.</summary>
         public void StartServer()
         {
             if (NetworkServer.active)
@@ -314,10 +304,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// This starts a network client. It uses the networkAddress property as the address to connect to.
-        /// <para>This makes the newly created client connect to the server immediately.</para>
-        /// </summary>
+        /// <summary>Starts the client, connects it to the server with networkAddress.</summary>
         public void StartClient()
         {
             if (NetworkClient.active)
@@ -355,11 +342,7 @@ namespace Mirror
             OnStartClient();
         }
 
-        /// <summary>
-        /// This starts a network client. It uses the Uri parameter as the address to connect to.
-        /// <para>This makes the newly created client connect to the server immediately.</para>
-        /// </summary>
-        /// <param name="uri">location of the server to connect to</param>
+        /// <summary>Starts the client, connects it to the server via Uri</summary>
         public void StartClient(Uri uri)
         {
             if (NetworkClient.active)
@@ -395,10 +378,7 @@ namespace Mirror
             OnStartClient();
         }
 
-        /// <summary>
-        /// This starts a network "host" - a server and client in the same application.
-        /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
-        /// </summary>
+        /// <summary>Starts a network "host" - a server and client in the same application.</summary>
         public void StartHost()
         {
             if (NetworkServer.active || NetworkClient.active)
@@ -526,9 +506,7 @@ namespace Mirror
             OnStartClient();
         }
 
-        /// <summary>
-        /// This stops both the client and the server that the manager is using.
-        /// </summary>
+        /// <summary>This stops both the client and the server that the manager is using.</summary>
         public void StopHost()
         {
             OnStopHost();
@@ -545,9 +523,7 @@ namespace Mirror
             StopServer();
         }
 
-        /// <summary>
-        /// Stops the server that the manager is using.
-        /// </summary>
+        /// <summary>Stops the server from listening and simulating the game.</summary>
         public void StopServer()
         {
             if (!NetworkServer.active)
@@ -589,9 +565,7 @@ namespace Mirror
             networkSceneName = "";
         }
 
-        /// <summary>
-        /// Stops the client that the manager is using.
-        /// </summary>
+        /// <summary>Stops and disconnects the client.</summary>
         public void StopClient()
         {
             if (authenticator != null)
@@ -634,10 +608,9 @@ namespace Mirror
             networkSceneName = "";
         }
 
-        /// <summary>
-        /// called when quitting the application by closing the window / pressing stop in the editor
-        /// <para>virtual so that inheriting classes' OnApplicationQuit() can call base.OnApplicationQuit() too</para>
-        /// </summary>
+        // called when quitting the application by closing the window / pressing
+        // stop in the editor. virtual so that inheriting classes'
+        // OnApplicationQuit() can call base.OnApplicationQuit() too
         public virtual void OnApplicationQuit()
         {
             // stop client first
@@ -657,10 +630,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Set the frame rate for a headless server.
-        /// <para>Override if you wish to disable the behavior or set your own tick rate.</para>
-        /// </summary>
+        /// <summary>Set the frame rate for a headless server. Override to disable or modify.</summary>
         public virtual void ConfigureServerFrameRate()
         {
             // only set framerate for server build
@@ -672,7 +642,8 @@ namespace Mirror
 
         bool InitializeSingleton()
         {
-            if (singleton != null && singleton == this) return true;
+            if (singleton != null && singleton == this)
+                return true;
 
             if (dontDestroyOnLoad)
             {
@@ -697,7 +668,6 @@ namespace Mirror
             // set active transport AFTER setting singleton.
             // so only if we didn't destroy ourselves.
             Transport.activeTransport = transport;
-
             return true;
         }
 
@@ -725,9 +695,7 @@ namespace Mirror
                 NetworkClient.RegisterPrefab(prefab);
         }
 
-        /// <summary>
-        /// This is the only way to clear the singleton, so another instance can be created.
-        /// </summary>
+        // This is the only way to clear the singleton, so another instance can be created.
         public static void Shutdown()
         {
             if (singleton == null)
@@ -741,31 +709,25 @@ namespace Mirror
             singleton = null;
         }
 
-        /// <summary>
-        /// virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
-        /// </summary>
+        // virtual so that inheriting classes' OnDestroy() can call base.OnDestroy() too
         public virtual void OnDestroy()
         {
             //Debug.Log("NetworkManager destroyed");
         }
 
-        /// <summary>
-        /// The name of the current network scene.
-        /// </summary>
-        /// <remarks>
-        /// <para>This is populated if the NetworkManager is doing scene management. Calls to ServerChangeScene() cause this to change. New clients that connect to a server will automatically load this scene.</para>
-        /// <para>This is used to make sure that all scene changes are initialized by Mirror.</para>
-        /// <para>Loading a scene manually wont set networkSceneName, so Mirror would still load it again on start.</para>
-        /// </remarks>
+        /// <summary>The name of the current network scene.</summary>
+        // set by NetworkManager when changing the scene.
+        // new clients will automatically load this scene.
+        // Loading a scene manually won't set it.
         public static string networkSceneName { get; protected set; } = "";
 
-        public static UnityEngine.AsyncOperation loadingSceneAsync;
+        public static AsyncOperation loadingSceneAsync;
 
-        /// <summary>
-        /// This causes the server to switch scenes and sets the networkSceneName.
-        /// <para>Clients that connect to this server will automatically switch to this scene. This is called automatically if onlineScene or offlineScene are set, but it can be called from user code to switch scenes again while the game is in progress. This automatically sets clients to be not-ready during the change and ready again to participate in the new scene.</para>
-        /// </summary>
-        /// <param name="newSceneName"></param>
+        /// <summary>Change the server scene and all client's scenes across the network.</summary>
+        // Called automatically if onlineScene or offlineScene are set, but it
+        // can be called from user code to switch scenes again while the game is
+        // in progress. This automatically sets clients to be not-ready during
+        // the change and ready again to participate in the new scene.
         public virtual void ServerChangeScene(string newSceneName)
         {
             if (string.IsNullOrEmpty(newSceneName))
