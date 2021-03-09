@@ -8,14 +8,7 @@ using UnityEngine.Serialization;
 
 namespace Mirror
 {
-    /// <summary>
-    /// Enumeration of methods of where to spawn player objects in multiplayer games.
-    /// </summary>
     public enum PlayerSpawnMethod { Random, RoundRobin }
-
-    /// <summary>
-    /// Enumeration of methods of current Network Manager state at runtime.
-    /// </summary>
     public enum NetworkManagerMode { Offline, ServerOnly, ClientOnly, Host }
 
     [DisallowMultipleComponent]
@@ -23,21 +16,16 @@ namespace Mirror
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkManager.html")]
     public class NetworkManager : MonoBehaviour
     {
-        /// <summary>
-        /// A flag to control whether the NetworkManager object is destroyed when the scene changes.
-        /// <para>This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
-        /// </summary>
+        /// <summary>Enable to keep NetworkManager alive when changing scenes.</summary>
+        // This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
         [Header("Configuration")]
         [FormerlySerializedAs("m_DontDestroyOnLoad")]
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
-        /// <summary>
-        /// Controls whether the program runs when it is in the background.
-        /// <para>This is required when multiple instances of a program using networking are running on the same machine, such as when testing using localhost. But this is not recommended when deploying to mobile platforms.</para>
-        /// </summary>
+        /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
         [FormerlySerializedAs("m_RunInBackground")]
-        [Tooltip("Should the server or client keep running in the background?")]
+        [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
 
         /// <summary>
