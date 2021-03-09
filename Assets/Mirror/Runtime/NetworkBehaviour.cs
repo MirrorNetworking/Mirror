@@ -550,7 +550,6 @@ namespace Mirror
             return objectWritten || syncVarWritten;
         }
 
-
         /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
         public virtual void OnDeserialize(NetworkReader reader, bool initialState)
         {
