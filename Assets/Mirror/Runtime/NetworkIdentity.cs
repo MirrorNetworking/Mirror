@@ -110,7 +110,6 @@ namespace Mirror
         public NetworkConnectionToClient connectionToClient
         {
             get => _connectionToClient;
-
             internal set
             {
                 _connectionToClient?.RemoveOwnedObject(this);
