@@ -17,9 +17,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             // set not ready and handle clientscene disconnect in any case
