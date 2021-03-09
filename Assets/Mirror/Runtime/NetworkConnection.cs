@@ -31,42 +31,30 @@ namespace Mirror
         /// <summary>IP address of the connection. Can be useful for game master IP bans etc.</summary>
         public abstract string address { get; }
 
-        /// <summary>
-        /// The last time that a message was received on this connection.
-        /// <para>This includes internal system messages (such as Commands and ClientRpc calls) and user messages.</para>
-        /// </summary>
+        /// <summary>Last time a message was received for this connection. Includes system & user messages.</summary>
         public float lastMessageTime;
 
-        /// <summary>
-        /// The NetworkIdentity for this connection.
-        /// </summary>
+        /// <summary>This connection's main object (usually the player object).</summary>
         public NetworkIdentity identity { get; internal set; }
 
-        /// <summary>
-        /// A list of the NetworkIdentity objects owned by this connection. This list is read-only.
-        /// <para>This includes the player object for the connection - if it has localPlayerAutority set, and any objects spawned with local authority or set with AssignLocalAuthority.</para>
-        /// <para>This list can be used to validate messages from clients, to ensure that clients are only trying to control objects that they own.</para>
-        /// </summary>
-        // IMPORTANT: this needs to be <NetworkIdentity>, not <uint netId>. fixes a bug where DestroyOwnedObjects wouldn't find
-        //            the netId anymore: https://github.com/vis2k/Mirror/issues/1380 . Works fine with NetworkIdentity pointers though.
+        /// <summary>All NetworkIdentities owned by this connection. Can be main player, pets, etc.</summary>
+        // IMPORTANT: this needs to be <NetworkIdentity>, not <uint netId>.
+        //            fixes a bug where DestroyOwnedObjects wouldn't find the
+        //            netId anymore: https://github.com/vis2k/Mirror/issues/1380
+        //            Works fine with NetworkIdentity pointers though.
         public readonly HashSet<NetworkIdentity> clientOwnedObjects = new HashSet<NetworkIdentity>();
 
-        /// <summary>
-        /// Creates a new NetworkConnection
-        /// </summary>
         internal NetworkConnection()
         {
-            // set lastTime to current time when creating connection to make sure it isn't instantly kicked for inactivity
+            // set lastTime to current time when creating connection to make
+            // sure it isn't instantly kicked for inactivity
             lastMessageTime = Time.time;
         }
 
-        /// <summary>
-        /// Creates a new NetworkConnection with the specified connectionId
-        /// </summary>
-        /// <param name="networkConnectionId"></param>
         internal NetworkConnection(int networkConnectionId) : this()
         {
             connectionId = networkConnectionId;
+            // TODO why isn't lastMessageTime set in here like in the other ctor?
         }
 
         /// <summary>
