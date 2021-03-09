@@ -281,11 +281,9 @@ namespace Mirror
             if (hasSpawned)
             {
                 Debug.LogError($"{name} has already spawned. Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects).  Otherwise the client won't know which object to use for a SpawnSceneObject message.");
-
                 SpawnedFromInstantiate = true;
                 Destroy(gameObject);
             }
-
             hasSpawned = true;
         }
 
