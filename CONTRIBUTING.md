@@ -132,9 +132,11 @@ If your optimization pull request does not come with profiling data showing real
 
 Start reading our code and you'll get the hang of it. We optimize for readability:
 
-* We indent using 4 spaces (soft tabs)
+* 4 spaces isntead of tabs
 * We value simplicity. The code should be easy to read and avoid magic
 * No abbrevations. Use 'parentBody' instead of 'pB' or similar
+* XML summary comments as one liners. short and simple for intellisense.
+* Use string interpolation like $"name = {name}" instead of "name = " + name
 * **KISS / Occam's Razor** - always use the most simple solution.
 * **No Premature Optimizations**
 	MMOs need to run for weeks without issues or exploits.
