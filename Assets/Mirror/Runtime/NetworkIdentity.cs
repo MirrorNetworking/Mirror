@@ -1046,11 +1046,10 @@ namespace Mirror
             return true;
         }
 
-        /// <summary>
-        /// Removes ownership for an object.
-        /// <para>This applies to objects that had authority set by AssignClientAuthority, or <see cref="NetworkServer.Spawn">NetworkServer.Spawn</see> with a NetworkConnection parameter included.</para>
-        /// <para>Authority cannot be removed for player objects.</para>
-        /// </summary>
+        /// <summary>Removes ownership for an object.</summary>
+        // Applies to objects that had authority set by AssignClientAuthority,
+        // or NetworkServer.Spawn with a NetworkConnection parameter included.
+        // Authority cannot be removed for player objects.
         public void RemoveClientAuthority()
         {
             if (!isServer)
