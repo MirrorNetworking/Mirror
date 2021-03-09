@@ -36,16 +36,7 @@ namespace Mirror
         }
         Dictionary<int, Batch> batches = new Dictionary<int, Batch>();
 
-        // batching is optional because due to mirror's non-optimal update order
-        // it would increase latency.
-
-        // batching is still optional until we improve mirror's update order.
-        // right now it increases latency because:
-        //   enabling batching flushes all state updates in same frame, but
-        //   transport processes incoming messages afterwards so server would
-        //   batch them until next frame's flush
-        // => disable it for super fast paced games
-        // => enable it for high scale / cpu heavy games
+        // batch messages and send them out in LateUpdate (or after batchInterval)
         bool batching;
 
         // batch interval is 0 by default, meaning that we send immediately.
