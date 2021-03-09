@@ -19,94 +19,7 @@ namespace Mirror
     //              to everyone etc.
     public enum Visibility { Default, ForceHidden, ForceShown }
 
-    /// <summary>
-    /// The NetworkIdentity identifies objects across the network, between server and clients.
-    /// Its primary data is a NetworkInstanceId which is allocated by the server and then set on clients.
-    /// This is used in network communications to be able to lookup game objects on different machines.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    ///     The NetworkIdentity is used to synchronize information in the object with the network.
-    ///     Only the server should create instances of objects which have NetworkIdentity as otherwise
-    ///     they will not be properly connected to the system.
-    /// </para>
-    /// <para>
-    ///     For complex objects with a hierarchy of subcomponents, the NetworkIdentity must be on the root of the hierarchy.
-    ///     It is not supported to have multiple NetworkIdentity components on subcomponents of a hierarchy.
-    /// </para>
-    /// <para>
-    ///     NetworkBehaviour scripts require a NetworkIdentity on the game object to be able to function.
-    /// </para>
-    /// <para>
-    ///     The NetworkIdentity manages the dirty state of the NetworkBehaviours of the object.
-    ///     When it discovers that NetworkBehaviours are dirty, it causes an update packet to be created and sent to clients.
-    /// </para>
-    ///
-    /// <list type="bullet">
-    ///     <listheader><description>
-    ///         The flow for serialization updates managed by the NetworkIdentity is:
-    ///     </description></listheader>
-    ///
-    ///     <item><description>
-    ///         Each NetworkBehaviour has a dirty mask. This mask is available inside OnSerialize as syncVarDirtyBits
-    ///     </description></item>
-    ///     <item><description>
-    ///         Each SyncVar in a NetworkBehaviour script is assigned a bit in the dirty mask.
-    ///     </description></item>
-    ///     <item><description>
-    ///         Changing the value of SyncVars causes the bit for that SyncVar to be set in the dirty mask
-    ///     </description></item>
-    ///     <item><description>
-    ///         Alternatively, calling SetDirtyBit() writes directly to the dirty mask
-    ///     </description></item>
-    ///     <item><description>
-    ///         NetworkIdentity objects are checked on the server as part of it&apos;s update loop
-    ///     </description></item>
-    ///     <item><description>
-    ///         If any NetworkBehaviours on a NetworkIdentity are dirty, then an UpdateVars packet is created for that object
-    ///     </description></item>
-    ///     <item><description>
-    ///         The UpdateVars packet is populated by calling OnSerialize on each NetworkBehaviour on the object
-    ///     </description></item>
-    ///     <item><description>
-    ///         NetworkBehaviours that are NOT dirty write a zero to the packet for their dirty bits
-    ///     </description></item>
-    ///     <item><description>
-    ///         NetworkBehaviours that are dirty write their dirty mask, then the values for the SyncVars that have changed
-    ///     </description></item>
-    ///     <item><description>
-    ///         If OnSerialize returns true for a NetworkBehaviour, the dirty mask is reset for that NetworkBehaviour,
-    ///         so it will not send again until its value changes.
-    ///     </description></item>
-    ///     <item><description>
-    ///         The UpdateVars packet is sent to ready clients that are observing the object
-    ///     </description></item>
-    /// </list>
-    ///
-    /// <list type="bullet">
-    ///     <listheader><description>
-    ///         On the client:
-    ///     </description></listheader>
-    ///     <item><description>
-    ///         an UpdateVars packet is received for an object
-    ///     </description></item>
-    ///     <item><description>
-    ///         The OnDeserialize function is called for each NetworkBehaviour script on the object
-    ///     </description></item>
-    ///     <item><description>
-    ///         Each NetworkBehaviour script on the object reads a dirty mask.
-    ///     </description></item>
-    ///     <item><description>
-    ///         If the dirty mask for a NetworkBehaviour is zero, the OnDeserialize functions returns without reading any more
-    ///     </description></item>
-    ///     <item><description>
-    ///         If the dirty mask is non-zero value, then the OnDeserialize function reads the values for the SyncVars that correspond to the dirty bits that are set
-    ///     </description></item>
-    ///     <item><description>
-    ///         If there are SyncVar hook functions, those are invoked with the value read from the stream.
-    ///     </description></item>
-    /// </list>
-    /// </remarks>
+    /// <summary>NetworkIdentity identifies objects across the network.</summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkIdentity")]
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkIdentity.html")]
@@ -163,56 +76,39 @@ namespace Mirror
         /// <summary>True if this object exists on a client that is not also acting as a server.</summary>
         public bool isClientOnly => isClient && !isServer;
 
-        /// <summary>
-        /// This returns true if this object is the authoritative player object on the client.
-        /// <para>This value is determined at runtime. For most objects, authority is held by the server.</para>
-        /// <para>For objects that had their authority set by AssignClientAuthority on the server, this will be true on the client that owns the object. NOT on other clients.</para>
-        /// </summary>
+        /// <summary>True if this object is the authoritative player object on the client.</summary>
+        // Determined at runtime. For most objects, authority is held by the server.
+        // For objects that had their authority set by AssignClientAuthority on
+        // the server, this will be true on the client that owns the object. NOT
+        // on other clients.
         public bool hasAuthority { get; internal set; }
 
-        /// <summary>
-        /// The set of network connections (players) that can see this object.
-        /// <para>null until OnStartServer was called. this is necessary for SendTo* to work properly in server-only mode.</para>
-        /// </summary>
+        /// <summary>The set of network connections (players) that can see this object.</summary>
+        // note: null until OnStartServer was called. this is necessary for
+        //       SendTo* to work properly in server-only mode.
         public Dictionary<int, NetworkConnection> observers;
 
-        /// <summary>
-        /// Unique identifier for this particular object instance, used for tracking objects between networked clients and the server.
-        /// <para>This is a unique identifier for this particular GameObject instance. Use it to track GameObjects between networked clients and the server.</para>
-        /// </summary>
+        /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId { get; internal set; }
 
-        /// <summary>
-        /// A unique identifier for NetworkIdentity objects within a scene.
-        /// <para>This is used for spawning scene objects on clients.</para>
-        /// </summary>
+        /// <summary>Unique identifier for NetworkIdentity objects within a scene, used for spawning scene objects.</summary>
         // persistent scene id <sceneHash/32,sceneId/32> (see AssignSceneID comments)
         [FormerlySerializedAs("m_SceneId"), HideInInspector]
         public ulong sceneId;
 
-        /// <summary>
-        /// Flag to make this object only exist when the game is running as a server (or host).
-        /// </summary>
+        /// <summary>Make this object only exist when the game is running as a server (or host).</summary>
         [FormerlySerializedAs("m_ServerOnly")]
         [Tooltip("Prevents this object from being spawned / enabled on clients")]
         public bool serverOnly;
 
-        /// <summary>
-        /// Set to try before Destroy is called so that OnDestroy doesn't try to destroy the object again
-        /// </summary>
+        // Set before Destroy is called so that OnDestroy doesn't try to destroy
+        // the object again
         internal bool destroyCalled;
 
-        /// <summary>
-        /// The NetworkConnection associated with this NetworkIdentity. This is only valid for player objects on a local client.
-        /// </summary>
+        /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
         public NetworkConnection connectionToServer { get; internal set; }
 
-        NetworkConnectionToClient _connectionToClient;
-
-        /// <summary>
-        /// The NetworkConnection associated with this <see cref="NetworkIdentity">NetworkIdentity.</see> This is valid for player and other owned objects in the server.
-        /// <para>Use it to return details such as the connection&apos;s identity, IP address and ready status.</para>
-        /// </summary>
+        /// <summary>Server's network connection to the client. This is only valid for player objects on the server.</summary>
         public NetworkConnectionToClient connectionToClient
         {
             get => _connectionToClient;
@@ -224,10 +120,11 @@ namespace Mirror
                 _connectionToClient?.AddOwnedObject(this);
             }
         }
+        NetworkConnectionToClient _connectionToClient;
 
-        /// <summary>
-        /// All spawned NetworkIdentities by netId. Available on server and client.
-        /// </summary>
+        /// <summary>All spawned NetworkIdentities by netId. Available on server and client.</summary>
+        // server sees ALL spawned ones.
+        // client sees OBSERVED spawned ones.
         public static readonly Dictionary<uint, NetworkIdentity> spawned =
             new Dictionary<uint, NetworkIdentity>();
 
