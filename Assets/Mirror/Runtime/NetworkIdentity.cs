@@ -811,16 +811,10 @@ namespace Mirror
             return result;
         }
 
-        /// <summary>
-        /// serialize all components using dirtyComponentsMask
-        /// <para>check ownerWritten/observersWritten to know if anything was written</para>
-        /// <para>We pass dirtyComponentsMask into this function so that we can check if any Components are dirty before creating writers</para>
-        /// </summary>
-        /// <param name="initialState"></param>
-        /// <param name="ownerWriter"></param>
-        /// <param name="ownerWritten"></param>
-        /// <param name="observersWriter"></param>
-        /// <param name="observersWritten"></param>
+        // serialize all components using dirtyComponentsMask
+        // check ownerWritten/observersWritten to know if anything was written
+        // We pass dirtyComponentsMask into this function so that we can check
+        // if any Components are dirty before creating writers
         internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
         {
             // clear 'written' variables
