@@ -108,12 +108,12 @@ namespace Mirror
 
         public override string ToString() => $"connection({connectionId})";
 
-        internal void AddToObserving(NetworkIdentity identity)
+        internal void AddToObserving(NetworkIdentity netIdentity)
         {
-            observing.Add(identity);
+            observing.Add(netIdentity);
 
             // spawn identity for this conn
-            NetworkServer.ShowForConnection(identity, this);
+            NetworkServer.ShowForConnection(netIdentity, this);
         }
 
         internal void RemoveFromObserving(NetworkIdentity identity, bool isDestroyed)
