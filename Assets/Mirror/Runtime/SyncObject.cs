@@ -1,9 +1,6 @@
 namespace Mirror
 {
-    /// <summary>
-    /// A sync object is an object that can synchronize it's state
-    /// between server and client, such as a SyncList
-    /// </summary>
+    /// <summary>SyncObjects sync state between server and client. E.g. SyncLists.</summary>
     public interface SyncObject
     {
         /// <summary>True if there are changes since the last flush</summary>
