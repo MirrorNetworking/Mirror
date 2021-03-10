@@ -118,7 +118,9 @@ namespace Mirror
         public static double timeVar => timeVariance;
 
         /// <summary>Time standard deviation. The highe, the less accurate the time is.</summary>
-        public static double timeSd => Math.Sqrt(timeVariance);
+        public static double timeStandardDeviation => Math.Sqrt(timeVariance);
+        [Obsolete("NetworkTime.timeSd was renamed to timeStandardDeviation")]
+        public static double timeSd => timeStandardDeviation;
 
         /// <summary>Clock difference in seconds between the client and the server. Always 0 on server.</summary>
         public static double offset => _offset.Value;
