@@ -127,7 +127,7 @@ namespace Mirror
                 {
                     animatorSpeed = newSpeed;
                 }
-                else if (NetworkClient.readyConnection != null)
+                else if (isClient)
                 {
                     CmdSetAnimatorSpeed(newSpeed);
                 }
