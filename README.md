@@ -98,4 +98,4 @@ Rewards based on Mirror's [donations](https://github.com/sponsors/vis2k), capped
 We are **not** looking for DOS/DDOS attacks. The exploit should be possible with just a couple of network packets, and it should be reproducible.
 
 **Credits / past findings / fixes:**
-* 2020, fholm: fuzzing ConnectMessage to prevent further connects [#2397]
+* 2020, fholm: fuzzing ConnectMessage to prevent further connects [#2397](https://github.com/vis2k/Mirror/pull/2397)
