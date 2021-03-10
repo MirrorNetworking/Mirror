@@ -88,7 +88,7 @@ _At this point, what we don't add to Mirror is more important than what we do ad
 
 A lot of projects use Mirror in production. If you found a critical bug / exploit, please reach out to us.
 Depending on the severity of the exploit, we offer $50 - $500 for now.
-Rewards come from Mirror's donations, capped at amount of donations we received that month.
+Rewards based on Mirror's [donations](https://github.com/sponsors/vis2k), capped at amount of donations we received that month.
 
 **Specifically we are looking for:**
 * Ways to crash a Mirror server
