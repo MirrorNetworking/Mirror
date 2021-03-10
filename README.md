@@ -84,8 +84,7 @@ Keeping the next decade in mind, contributing **fixes** / **tests** / **improvem
 _At this point, what we don't add to Mirror is more important than what we do add to it!_
 
 # Bug Bounty
-![image](https://user-images.githubusercontent.com/16416509/110572995-718b5900-8195-11eb-802c-235c82a03bf7.png)
-<img width="420" alt="2021-03-10_11-41-18@2x" src="https://user-images.githubusercontent.com/16416509/110573073-8ff15480-8195-11eb-976e-bd062b34341c.png">
+<img width="420" src="https://user-images.githubusercontent.com/16416509/110572995-718b5900-8195-11eb-802c-235c82a03bf7.png">
 
 A lot of projects use Mirror in production. If you found a critical bug / exploit, please reach out to us.
 Depending on the severity of the exploit, we offer $50 - $500 for now.
