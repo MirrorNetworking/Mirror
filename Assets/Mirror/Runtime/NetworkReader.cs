@@ -66,12 +66,7 @@ namespace Mirror
             return bytes;
         }
 
-        /// <summary>
-        /// Create Segment from current position
-        /// <para>
-        ///     Useful to parse payloads etc. without allocating
-        /// </para>
-        /// </summary>
+        /// <summary>Read 'count' bytes allocation-free as ArraySegment that points to the internal array.</summary>
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
             // check if within buffer limits
@@ -86,17 +81,12 @@ namespace Mirror
             return result;
         }
 
-        /// <returns>Information about reader: pos, len, buffer contents</returns>
         public override string ToString()
         {
             return $"NetworkReader pos={Position} len={Length} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
         }
 
-        /// <summary>
-        /// Reads any data type that mirror supports
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader<T>.read</summary>
         public T Read<T>()
         {
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;
@@ -108,7 +98,6 @@ namespace Mirror
             return readerDelegate(this);
         }
     }
-
 
     // Mirror's Weaver automatically detects all NetworkReader function types,
     // but they do all need to be extensions.
@@ -230,7 +219,6 @@ namespace Mirror
         public static Rect ReadRect(this NetworkReader reader) => new Rect(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Plane ReadPlane(this NetworkReader reader) => new Plane(reader.ReadVector3(), reader.ReadSingle());
         public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());
-
         public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader)
         {
             return new Matrix4x4
@@ -253,15 +241,14 @@ namespace Mirror
                 m33 = reader.ReadSingle()
             };
         }
-
         public static byte[] ReadBytes(this NetworkReader reader, int count)
         {
             byte[] bytes = new byte[count];
             reader.ReadBytes(bytes, count);
             return bytes;
         }
-
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
+
         public static Transform ReadTransform(this NetworkReader reader)
         {
             // Don't use null propagation here as it could lead to MissingReferenceException
