@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -12,9 +11,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public void Setup()
         {
             Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
-
-            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(NetworkClient.readyConnection));
-            readyConnProperty.SetValue(null, new FakeNetworkConnection());
+            NetworkClient.readyConnection = new FakeNetworkConnection();
         }
 
         NetworkIdentity SpawnObject(bool localPlayer)
