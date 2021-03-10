@@ -68,7 +68,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 [Laurum Online](https://laurum.online/)<br/>
 
 ## Funding
-Mirror is free & open source software funded by Donations. If you love it, please consider supporting [Mirror on GitHub](https://github.com/sponsors/vis2k). As reward, you'll receive our [Network Profiler](https://mirror-networking.gitbook.io/docs/guides/network-profiler), priority support and more :)
+Mirror is free & open source software funded by [Donations](https://github.com/sponsors/vis2k). If you love it, please consider supporting [Mirror on GitHub](https://github.com/sponsors/vis2k). As reward, you'll receive our [Network Profiler](https://mirror-networking.gitbook.io/docs/guides/network-profiler), priority support and more :)
 
 ## Benchmarks
 * [uMMORPG 480 CCU worst case test](https://youtu.be/mDCNff1S9ZU) (everyone broadcasting to everyone else)
