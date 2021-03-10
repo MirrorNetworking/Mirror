@@ -6,21 +6,14 @@ using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>
-    /// A class that holds writers for the different types
-    /// <para>Note that c# creates a different static variable for each type</para>
-    /// <para>This will be populated by the weaver</para>
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <summary>Helper class that weaver populates with all writer types.</summary>
+    // Note that c# creates a different static variable for each type
     public static class Writer<T>
     {
         public static Action<NetworkWriter, T> write;
     }
 
-    /// <summary>
-    /// Binary stream Writer. Supports simple types, buffers, arrays, structs, and nested types
-    /// <para>Use <see cref="NetworkWriterPool.GetWriter">NetworkWriter.GetWriter</see> to reduce memory allocation</para>
-    /// </summary>
+    /// <summary>Network Writer for most simple types like floats, ints, buffers, structs, etc. Use NetworkWriterPool.GetReader() to avoid allocations.</summary>
     public class NetworkWriter
     {
         public const int MaxStringLength = 1024 * 32;
@@ -35,14 +28,10 @@ namespace Mirror
         int position;
         int length;
 
-        /// <summary>
-        /// Number of bytes writen to the buffer
-        /// </summary>
+        /// <summary>Number of bytes writen to the buffer</summary>
         public int Length => length;
 
-        /// <summary>
-        /// Next position to write to the buffer
-        /// </summary>
+        /// <summary>Next position to write to the buffer</summary>
         public int Position
         {
             get => position;
@@ -53,25 +42,17 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Reset both the position and length of the stream
-        /// </summary>
-        /// <remarks>
-        /// Leaves the capacity the same so that we can reuse this writer without extra allocations
-        /// </remarks>
+        /// <summary>Reset both the position and length of the stream</summary>
+        // Leaves the capacity the same so that we can reuse this writer without
+        // extra allocations
         public void Reset()
         {
             position = 0;
             length = 0;
         }
 
-        /// <summary>
-        /// Sets length, moves position if it is greater than new length
-        /// </summary>
-        /// <param name="newLength"></param>
-        /// <remarks>
+        /// <summary>Sets length, moves position if it is greater than new length</summary>
         /// Zeros out any extra length created by setlength
-        /// </remarks>
         public void SetLength(int newLength)
         {
             int oldLength = length;
@@ -109,11 +90,7 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Copies buffer to new array with the size of <see cref="Length"/>
-        /// <para></para>
-        /// </summary>
-        /// <returns>all the data we have written, regardless of the current position</returns>
+        /// <summary>Copies buffer to new array of size 'Length'. Ignores 'Position'.</summary>
         public byte[] ToArray()
         {
             byte[] data = new byte[length];
@@ -121,16 +98,7 @@ namespace Mirror
             return data;
         }
 
-        /// <summary>
-        /// Create an ArraySegment using the buffer and <see cref="Length"/>
-        /// <para>
-        ///     Don't modify the NetworkWriter while using the ArraySegment as this can overwrite the bytes
-        /// </para>
-        /// <para>
-        ///     Use ToArraySegment instead of ToArray to avoid allocations
-        /// </para>
-        /// </summary>
-        /// <returns>all the data we have written, regardless of the current position</returns>
+        /// <summary>Returns allocatin-free ArraySegment which points to buffer up to 'Length' (ignores 'Position').</summary>
         public ArraySegment<byte> ToArraySegment()
         {
             return new ArraySegment<byte>(buffer, 0, length);
@@ -151,11 +119,7 @@ namespace Mirror
             position += count;
         }
 
-        /// <summary>
-        /// Writes any type that mirror supports
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
+        /// <summary>Writes any type that mirror supports. Uses weaver populated Writer<T>.write.</summary>
         public void Write<T>(T value)
         {
             Action<NetworkWriter, T> writeDelegate = Writer<T>.write;
@@ -169,7 +133,6 @@ namespace Mirror
             }
         }
     }
-
 
     // Mirror's Weaver automatically detects all NetworkWriter function types,
     // but they do all need to be extensions.
