@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>Start position for player spawning, automaticallyr egisters itself in the NetworkManager.</summary>
+    /// <summary>Start position for player spawning, automatically registers itself in the NetworkManager.</summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkStartPosition")]
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkStartPosition.html")]
