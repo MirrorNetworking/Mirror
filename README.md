@@ -96,4 +96,4 @@ Rewards come from Mirror's donations, capped at amount of donations we received 
 We are **not** looking for DOS/DDOS attacks. The exploit should be possible with just a couple of network packets, and it should be reproducible.
 
 **Credits / past findings / fixes:**
-* 2020: fholm fuzzing ConnectMessage to prevent further connects [fixed in #2397]
+* 2020, fholm: fuzzing ConnectMessage to prevent further connects [#2397]
