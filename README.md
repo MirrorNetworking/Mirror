@@ -88,12 +88,12 @@ A lot of projects use Mirror in production. If you found a critical bug / exploi
 Depending on the severity of the exploit, we offer $50 - $500 for now.
 Rewards come from Mirror's donations, capped at amount of donations we received that month.
 
-Specifically we are looking for:
+**Specifically we are looking for:**
 * Ways to crash a Mirror server
 * Ways to exploit a Mirror server
 * Ways to leave a Mirror server in undefined state
 
 We are **not** looking for DOS/DDOS attacks. The exploit should be possible with just a couple of network packets, and it should be reproducible.
 
-Credits / past findings / fixes:
+**Credits / past findings / fixes:**
 * 2020: fholm fuzzing ConnectMessage to prevent further connects [fixed in #2397]
