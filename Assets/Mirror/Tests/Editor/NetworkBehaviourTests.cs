@@ -316,7 +316,10 @@ namespace Mirror.Tests
                 isAuthenticated = true
             };
             connection.connectionToServer.connectionToClient = connection;
+
+            // host needs connection to both directions
             identity.connectionToClient = connection;
+            identity.connectionToServer = connection.connectionToServer;
 
             // calling command before client is connected shouldn't work
             // error log is expected
