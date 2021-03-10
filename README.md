@@ -67,6 +67,8 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 ![Laurum Online](https://i.imgur.com/2I8wnxO.png)<br/>
 [Laurum Online](https://laurum.online/)<br/>
 
+And [many more](https://mirror-networking.com/showcase/)...
+
 ## Funding
 Mirror is free & open source software funded by [Donations](https://github.com/sponsors/vis2k). If you love it, please consider supporting [Mirror on GitHub](https://github.com/sponsors/vis2k). As reward, you'll receive our [Network Profiler](https://mirror-networking.gitbook.io/docs/guides/network-profiler), priority support and more :)
 
