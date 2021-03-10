@@ -1110,7 +1110,7 @@ namespace Mirror
             clientStarted = false;
             isClient = false;
             isServer = false;
-            isLocalPlayer = false;
+            //isLocalPlayer = false; <- cleared AFTER ClearLocalPlayer below!
 
             netId = 0;
             connectionToServer = null;
@@ -1119,10 +1119,13 @@ namespace Mirror
 
             ClearObservers();
 
+            // clear local player if it was the local player,
+            // THEN reset isLocalPlayer AFTERWARDS
             if (isLocalPlayer)
             {
                 NetworkClient.ClearLocalPlayer();
             }
+            isLocalPlayer = false;
         }
 
         // clear all component's dirty bits no matter what
