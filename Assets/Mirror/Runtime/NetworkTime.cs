@@ -113,10 +113,12 @@ namespace Mirror
         public static double time => LocalTime() - _offset.Value;
 
         /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
-        public static double timeVar => _offset.Var;
+        public static double timeVariance => _offset.Var;
+        [Obsolete("NetworkTime.timeVar was renamed to timeVariance")]
+        public static double timeVar => timeVariance;
 
         /// <summary>Time standard deviation. The highe, the less accurate the time is.</summary>
-        public static double timeSd => Math.Sqrt(timeVar);
+        public static double timeSd => Math.Sqrt(timeVariance);
 
         /// <summary>Clock difference in seconds between the client and the server. Always 0 on server.</summary>
         public static double offset => _offset.Value;
