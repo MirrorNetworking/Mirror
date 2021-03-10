@@ -24,12 +24,13 @@ namespace Mirror
         public static NetworkConnection connection { get; internal set; }
 
         /// <summary>True if client is ready (= joined world).</summary>
+        // TODO redundant state. point it to .connection.isReady instead (& test)
         public static bool ready;
 
         /// <summary>The NetworkConnection object that is currently "ready".</summary>
         // This connection can be used to send messages to the server. There can
         // only be one ClientScene and ready connection at a time.
-        // TODO ready ? NetworkClient.connection : null??????
+        // TODO redundant state. it's set when .connection is set to .ready
         public static NetworkConnection readyConnection { get; internal set; }
 
         /// <summary>NetworkIdentity of the localPlayer </summary>
