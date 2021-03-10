@@ -362,12 +362,16 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // calling command before clientscene has ready connection shouldn't work
+            // calling command if connection isn't ready should not work
             // error log is expected
             LogAssert.ignoreFailingMessages = true;
+            identity.connectionToServer.isReady = false;
             comp.CallSendCommandInternal();
             LogAssert.ignoreFailingMessages = false;
             Assert.That(comp.called, Is.EqualTo(0));
+
+            // reset ready
+            identity.connectionToServer.isReady = true;
 
             // clientscene.readyconnection needs to be set for commands
             NetworkClient.Ready(connection.connectionToServer);
