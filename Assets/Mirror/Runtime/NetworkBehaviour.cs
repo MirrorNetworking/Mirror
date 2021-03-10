@@ -145,14 +145,21 @@ namespace Mirror
                 return;
             }
 
-            // TODO use connectionToServer directly?
-            if (NetworkClient.readyConnection == null)
+            // originally we checked if NetworkClient.readyConnection == null
+            // instead check connectionToServer and isReady.
+            if (connectionToServer == null)
             {
                 Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
                 return;
             }
 
-            // construct the message
+            if (!connectionToServer.isReady)
+            {
+                Debug.LogError("Trying to send command, but connectionToServer isn't ready");
+                return;
+            }
+
+            // send CommandMessage to the server
             CommandMessage message = new CommandMessage
             {
                 netId = netId,
@@ -163,8 +170,7 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            // TODO use connectionToServer directly?
-            NetworkClient.readyConnection.Send(message, channelId);
+            connectionToServer.Send(message, channelId);
         }
 
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool includeOwner)
