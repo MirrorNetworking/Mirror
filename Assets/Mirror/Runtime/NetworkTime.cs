@@ -129,9 +129,11 @@ namespace Mirror
         public static double rtt => _rtt.Value;
 
         /// <summary>Round trip time variance. The higher, the less accurate the rtt is.</summary>
-        public static double rttVar => _rtt.Var;
+        public static double rttVariance => _rtt.Var;
+        [Obsolete("NetworkTime.rttVar was renamed to rttVariance")]
+        public static double rttVar => rttVariance;
 
         /// <summary>Round trip time standard deviation. The higher, the less accurate the rtt is.</summary>
-        public static double rttSd => Math.Sqrt(rttVar);
+        public static double rttSd => Math.Sqrt(rttVariance);
     }
 }
