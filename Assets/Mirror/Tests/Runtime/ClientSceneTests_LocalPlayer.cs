@@ -30,7 +30,14 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
                 isOwner = localPlayer,
             };
 
+            // ApplySpawnPayload applies the message (sets netId etc.)
             NetworkClient.ApplySpawnPayload(identity, msg);
+
+            // isLocalPlayer is set in OnStartLocalPlayer.
+            // that function is only called by ApplySpawnPayload if isSpawnFinished.
+            // spawn finished isn't set.
+            // so let's set local player manually instead.
+            identity.isLocalPlayer = localPlayer;
 
             if (localPlayer)
             {
