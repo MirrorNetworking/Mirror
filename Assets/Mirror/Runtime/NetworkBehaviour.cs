@@ -145,6 +145,7 @@ namespace Mirror
                 return;
             }
 
+            // TODO use connectionToServer directly?
             if (NetworkClient.readyConnection == null)
             {
                 Debug.LogError("Send command attempted with no client running [client=" + connectionToServer + "].");
@@ -162,6 +163,7 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
+            // TODO use connectionToServer directly?
             NetworkClient.readyConnection.Send(message, channelId);
         }
 
