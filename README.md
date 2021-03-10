@@ -82,3 +82,18 @@ Mirror is used **in production** by games ranging from small indie projects to l
 Keeping the next decade in mind, contributing **fixes** / **tests** / **improvements** is highly appreciated while new features have a low probability of being merged.
 
 _At this point, what we don't add to Mirror is more important than what we do add to it!_
+
+# Bug Bounty
+A lot of projects use Mirror in production. If you found a critical bug / exploit, please reach out to us.
+Depending on the severity of the exploit, we offer $50 - $500 for now.
+Rewards come from Mirror's donations, capped at amount of donations we received that month.
+
+Specifically we are looking for:
+* Ways to crash a Mirror server
+* Ways to exploit a Mirror server
+* Ways to leave a Mirror server in undefined state
+
+We are **not** looking for DOS/DDOS attacks. The exploit should be possible with just a couple of network packets, and it should be reproducible.
+
+Credits / past findings / fixes:
+* 2020: fholm fuzzing ConnectMessage to prevent further connects [fixed in #2397]
