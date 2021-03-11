@@ -35,7 +35,7 @@ namespace Mirror.Weaver
             if (HasNetworkConnectionParameter(md))
             {
                 // if call has NetworkConnection write clients connection as first arg
-                //ClientScene.readyconnection
+                //NetworkClient.readyconnection
                 worker.Emit(OpCodes.Call, WeaverTypes.ReadyConnectionReference);
             }
 
