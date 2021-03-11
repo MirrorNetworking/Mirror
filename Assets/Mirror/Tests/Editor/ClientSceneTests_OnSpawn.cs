@@ -631,9 +631,7 @@ namespace Mirror.Tests.ClientSceneTests
                 payload = default,
             };
 
-            PropertyInfo readyConnProperty = typeof(ClientScene).GetProperty(nameof(NetworkClient.readyConnection));
-            readyConnProperty.SetValue(null, new FakeNetworkConnection());
-
+            NetworkClient.readyConnection = new FakeNetworkConnection();
             NetworkClient.ApplySpawnPayload(identity, msg);
 
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
