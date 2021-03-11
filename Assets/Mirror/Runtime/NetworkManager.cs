@@ -23,6 +23,14 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
+        // Deprecated 3/10/2021
+        // Temporary bool to allow Network Manager to persist to offline scene
+        // Based on Discord convo, BigBox is invoking StopHost in startup sequence, bouncing the server and clients back to offline scene, which resets Network Manager.
+        // Request is for a checkbox to persist Network Manager to offline scene, despite the collision and warning.
+        [Obsolete("This was added temporarily and will be removed in a future release.")]
+        [Tooltip("Should the Network Manager object be persisted through scene change to the offline scene?")]
+        public bool PersistNetworkManagerToOfflineScene;
+
         /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
         [FormerlySerializedAs("m_RunInBackground")]
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
@@ -539,11 +547,13 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null &&
+#pragma warning disable 618
+            if (gameObject != null && !PersistNetworkManagerToOfflineScene &&
                 gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+#pragma warning restore 618
 
             OnStopServer();
 
@@ -578,11 +588,13 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null &&
+#pragma warning disable 618
+            if (gameObject != null && !PersistNetworkManagerToOfflineScene &&
                 gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+#pragma warning restore 618
 
             OnStopClient();
 
