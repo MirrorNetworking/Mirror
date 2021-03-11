@@ -86,7 +86,7 @@ namespace Mirror
             return $"NetworkReader pos={Position} len={Length} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
         }
 
-        /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader<T>.read</summary>
+        /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
         public T Read<T>()
         {
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;

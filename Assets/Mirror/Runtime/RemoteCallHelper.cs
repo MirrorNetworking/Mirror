@@ -138,7 +138,7 @@ namespace Mirror.RemoteCalls
             return default;
         }
 
-        /// <summary>Gets the handler function by hash. Useful for profilers & debuggers.</summary>
+        /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
         public static CmdDelegate GetDelegate(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))

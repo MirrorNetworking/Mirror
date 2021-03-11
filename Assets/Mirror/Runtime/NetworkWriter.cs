@@ -119,7 +119,7 @@ namespace Mirror
             position += count;
         }
 
-        /// <summary>Writes any type that mirror supports. Uses weaver populated Writer<T>.write.</summary>
+        /// <summary>Writes any type that mirror supports. Uses weaver populated Writer(T).write.</summary>
         public void Write<T>(T value)
         {
             Action<NetworkWriter, T> writeDelegate = Writer<T>.write;

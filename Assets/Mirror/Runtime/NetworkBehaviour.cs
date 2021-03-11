@@ -673,19 +673,19 @@ namespace Mirror
             }
         }
 
-        /// <summary>Like Start(), but only called on server & host.</summary>
+        /// <summary>Like Start(), but only called on server and host.</summary>
         public virtual void OnStartServer() {}
 
-        /// <summary>Stop event, only called on server & host.</summary>
+        /// <summary>Stop event, only called on server and host.</summary>
         public virtual void OnStopServer() {}
 
-        /// <summary>Like Start(), but only called on client & host.</summary>
+        /// <summary>Like Start(), but only called on client and host.</summary>
         public virtual void OnStartClient() {}
 
-        /// <summary>Stop event, only called on client & host.</summary>
+        /// <summary>Stop event, only called on client and host.</summary>
         public virtual void OnStopClient() {}
 
-        /// <summary>Like Start(), but only called on client & host for the local player object.</summary>
+        /// <summary>Like Start(), but only called on client and host for the local player object.</summary>
         public virtual void OnStartLocalPlayer() {}
 
         /// <summary>Like Start(), but only called for objects the client has authority over.</summary>

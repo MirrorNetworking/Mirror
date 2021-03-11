@@ -31,7 +31,7 @@ namespace Mirror
         /// <summary>IP address of the connection. Can be useful for game master IP bans etc.</summary>
         public abstract string address { get; }
 
-        /// <summary>Last time a message was received for this connection. Includes system & user messages.</summary>
+        /// <summary>Last time a message was received for this connection. Includes system and user messages.</summary>
         public float lastMessageTime;
 
         /// <summary>This connection's main object (usually the player object).</summary>

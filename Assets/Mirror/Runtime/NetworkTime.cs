@@ -4,10 +4,10 @@ using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Mirror
 {
-    /// <summary>Synchronizes server time to clients.<summary>
+    /// <summary>Synchronizes server time to clients.</summary>
     public static class NetworkTime
     {
-        /// <summary>Ping message frequency, used to calculate network time & RTT</summary>
+        /// <summary>Ping message frequency, used to calculate network time and RTT</summary>
         public static float PingFrequency = 2.0f;
 
         /// <summary>Average out the last few results from Ping</summary>
