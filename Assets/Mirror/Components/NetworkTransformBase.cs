@@ -86,7 +86,7 @@ namespace Mirror
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             // use local position/rotation/scale for VR support
-            SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+            SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale);
             return true;
         }
 
@@ -119,7 +119,7 @@ namespace Mirror
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
-            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent.transform, syncInterval);
+            temp.movementSpeed = EstimateMovementSpeed(goal, temp, targetComponent, syncInterval);
 
             // reassign start wisely
             // -> first ever data point? then make something up for previous one
@@ -130,9 +130,9 @@ namespace Mirror
                 {
                     timeStamp = Time.time - syncInterval,
                     // local position/rotation for VR support
-                    localPosition = targetComponent.transform.localPosition,
-                    localRotation = targetComponent.transform.localRotation,
-                    localScale = targetComponent.transform.localScale,
+                    localPosition = targetComponent.localPosition,
+                    localRotation = targetComponent.localRotation,
+                    localScale = targetComponent.localScale,
                     movementSpeed = temp.movementSpeed
                 };
             }
@@ -176,11 +176,11 @@ namespace Mirror
                 // position if we aren't too far away
                 //
                 // local position/rotation for VR support
-                if (Vector3.Distance(targetComponent.transform.localPosition, start.localPosition) < oldDistance + newDistance)
+                if (Vector3.Distance(targetComponent.localPosition, start.localPosition) < oldDistance + newDistance)
                 {
-                    start.localPosition = targetComponent.transform.localPosition;
-                    start.localRotation = targetComponent.transform.localRotation;
-                    start.localScale = targetComponent.transform.localScale;
+                    start.localPosition = targetComponent.localPosition;
+                    start.localRotation = targetComponent.localRotation;
+                    start.localScale = targetComponent.localScale;
                 }
             }
 
@@ -290,9 +290,9 @@ namespace Mirror
         {
             // moved or rotated or scaled?
             // local position/rotation/scale for VR support
-            bool moved = Vector3.Distance(lastPosition, targetComponent.transform.localPosition) > localPositionSensitivity;
-            bool scaled = Vector3.Distance(lastScale, targetComponent.transform.localScale) > localScaleSensitivity;
-            bool rotated = Quaternion.Angle(lastRotation, targetComponent.transform.localRotation) > localRotationSensitivity;
+            bool moved = Vector3.Distance(lastPosition, targetComponent.localPosition) > localPositionSensitivity;
+            bool scaled = Vector3.Distance(lastScale, targetComponent.localScale) > localScaleSensitivity;
+            bool rotated = Quaternion.Angle(lastRotation, targetComponent.localRotation) > localRotationSensitivity;
 
             // save last for next frame to compare
             // (only if change was detected. otherwise slow moving objects might
@@ -302,9 +302,9 @@ namespace Mirror
             if (change)
             {
                 // local position/rotation for VR support
-                lastPosition = targetComponent.transform.localPosition;
-                lastRotation = targetComponent.transform.localRotation;
-                lastScale = targetComponent.transform.localScale;
+                lastPosition = targetComponent.localPosition;
+                lastRotation = targetComponent.localRotation;
+                lastScale = targetComponent.localScale;
             }
             return change;
         }
@@ -313,9 +313,9 @@ namespace Mirror
         void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // local position/rotation for VR support
-            targetComponent.transform.localPosition = position;
-            targetComponent.transform.localRotation = rotation;
-            targetComponent.transform.localScale = scale;
+            targetComponent.localPosition = position;
+            targetComponent.localRotation = rotation;
+            targetComponent.localScale = scale;
         }
 
         void Update()
@@ -344,7 +344,7 @@ namespace Mirror
                             // local position/rotation for VR support
                             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                             {
-                                SerializeIntoWriter(writer, targetComponent.transform.localPosition, targetComponent.transform.localRotation, targetComponent.transform.localScale);
+                                SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale);
 
                                 // send to server
                                 CmdClientToServerSync(writer.ToArraySegment());
@@ -375,9 +375,9 @@ namespace Mirror
                         else
                         {
                             // local position/rotation for VR support
-                            ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.transform.localPosition),
-                                                       InterpolateRotation(start, goal, targetComponent.transform.localRotation),
-                                                       InterpolateScale(start, goal, targetComponent.transform.localScale));
+                            ApplyPositionRotationScale(InterpolatePosition(start, goal, targetComponent.localPosition),
+                                                       InterpolateRotation(start, goal, targetComponent.localRotation),
+                                                       InterpolateScale(start, goal, targetComponent.localScale));
                         }
                     }
                 }
