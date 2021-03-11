@@ -837,14 +837,14 @@ namespace Mirror
                 return false;
             }
 
-            if (readyConnection.identity != null)
+            if (connection.identity != null)
             {
                 Debug.LogError("NetworkClient.AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
                 return false;
             }
 
             // Debug.Log("NetworkClient.AddPlayer() called with connection [" + readyConnection + "]");
-            readyConnection.Send(new AddPlayerMessage());
+            connection.Send(new AddPlayerMessage());
             return true;
         }
 
