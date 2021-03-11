@@ -787,11 +787,7 @@ namespace Mirror
 
         internal static void HandleClientDisconnect(NetworkConnection conn)
         {
-            // TODO the connection comparison probably isn't needed
-            if (readyConnection == conn && ready)
-            {
-                ready = false;
-            }
+            ready = false;
         }
 
         // add player //////////////////////////////////////////////////////////
