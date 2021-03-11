@@ -11,7 +11,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public void Setup()
         {
             Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
-            NetworkClient.readyConnection = new FakeNetworkConnection();
+            NetworkClient.connection = new FakeNetworkConnection();
         }
 
         NetworkIdentity SpawnObject(bool localPlayer)

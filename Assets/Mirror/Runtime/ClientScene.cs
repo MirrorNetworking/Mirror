@@ -26,7 +26,7 @@ namespace Mirror
         public static NetworkConnection readyConnection
         {
             get { return NetworkClient.readyConnection; }
-            set { NetworkClient.readyConnection = value; }
+            set { NetworkClient.connection = value; }
         }
 
         [Obsolete("ClientScene.prefabs was moved to NetworkClient.prefabs")]

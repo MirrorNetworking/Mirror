@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -631,7 +630,8 @@ namespace Mirror.Tests.ClientSceneTests
                 payload = default,
             };
 
-            NetworkClient.readyConnection = new FakeNetworkConnection();
+            NetworkClient.connection = new FakeNetworkConnection();
+            NetworkClient.ready = true;
             NetworkClient.ApplySpawnPayload(identity, msg);
 
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));

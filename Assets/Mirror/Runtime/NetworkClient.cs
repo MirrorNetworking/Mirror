@@ -30,8 +30,8 @@ namespace Mirror
         /// <summary>The NetworkConnection object that is currently "ready".</summary>
         // This connection can be used to send messages to the server. There can
         // only be one ClientScene and ready connection at a time.
-        // TODO redundant state. it's set when .connection is set to .ready
-        public static NetworkConnection readyConnection { get; internal set; }
+        // TODO this is from UNET. it's redundant and we should probably remove it.
+        public static NetworkConnection readyConnection => ready ? connection : null;
 
         /// <summary>NetworkIdentity of the localPlayer </summary>
         public static NetworkIdentity localPlayer { get; internal set; }
@@ -775,8 +775,7 @@ namespace Mirror
                 // Set these before sending the ReadyMessage, otherwise host client
                 // will fail in InternalAddPlayer with null readyConnection.
                 ready = true;
-                readyConnection = conn;
-                readyConnection.isReady = true;
+                connection.isReady = true;
 
                 // Tell server we're ready to have a player object spawned
                 conn.Send(new ReadyMessage());
@@ -788,10 +787,10 @@ namespace Mirror
 
         internal static void HandleClientDisconnect(NetworkConnection conn)
         {
+            // TODO the connection comparison probably isn't needed
             if (readyConnection == conn && ready)
             {
                 ready = false;
-                readyConnection = null;
             }
         }
 
@@ -831,7 +830,7 @@ namespace Mirror
             if (readyConn != null)
             {
                 ready = true;
-                readyConnection = readyConn;
+                connection = readyConn;
             }
 
             if (!ready)
@@ -1258,7 +1257,6 @@ namespace Mirror
             Debug.Log("Shutting down client.");
             ClearSpawners();
             spawnableObjects.Clear();
-            readyConnection = null;
             ready = false;
             isSpawnFinished = false;
             DestroyAllClientObjects();
