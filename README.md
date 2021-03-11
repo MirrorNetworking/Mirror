@@ -88,7 +88,7 @@ _At this point, what we don't add to Mirror is more important than what we do ad
 # Bug Bounty
 <img width="470" src="https://user-images.githubusercontent.com/16416509/110572995-718b5900-8195-11eb-802c-235c82a03bf7.png">
 
-A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please reach out to us.
+A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please reach out to us in private.
 Depending on the severity of the exploit, we offer $50 - $500 for now.
 Rewards based on Mirror's [donations](https://github.com/sponsors/vis2k), capped at amount of donations we received that month.
 
