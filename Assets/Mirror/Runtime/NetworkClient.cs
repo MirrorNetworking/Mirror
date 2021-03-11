@@ -804,9 +804,11 @@ namespace Mirror
             // is called before OnStartLocalPlayer, hence it's already set.
             // localPlayer.isClient = true;
 
-            if (readyConnection != null)
+            // TODO this check might not be necessary
+            //if (readyConnection != null)
+            if (ready && connection != null)
             {
-                readyConnection.identity = identity;
+                connection.identity = identity;
             }
             else Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
         }
