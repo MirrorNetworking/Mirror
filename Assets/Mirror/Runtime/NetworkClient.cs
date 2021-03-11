@@ -1128,7 +1128,7 @@ namespace Mirror
             {
                 // Set isLocalPlayer to true on this NetworkIdentity and trigger
                 // OnStartLocalPlayer in all scripts on the same GO
-                identity.connectionToServer = readyConnection;
+                identity.connectionToServer = connection;
                 identity.OnStartLocalPlayer();
                 // Debug.Log("NetworkClient.OnOwnerMessage - player=" + identity.name);
             }
