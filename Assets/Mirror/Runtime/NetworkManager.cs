@@ -23,6 +23,12 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
+        // Deprecated 3/10/2021
+        // Temporary bool to allow Network Manager to persist to offline scene
+        [Obsolete("This was added temporarily and will be removed in a future release.")]
+        [Tooltip("Should the Network Manager object be persisted through scene change to the offline scene?")]
+        public bool PersistNetworkManagerToOfflineScene;
+
         /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
         [FormerlySerializedAs("m_RunInBackground")]
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
@@ -539,7 +545,7 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null &&
+            if (gameObject != null && PersistNetworkManagerToOfflineScene &&
                 gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
@@ -578,7 +584,7 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-            if (gameObject != null &&
+            if (gameObject != null && PersistNetworkManagerToOfflineScene &&
                 gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
