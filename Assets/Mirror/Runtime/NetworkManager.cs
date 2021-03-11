@@ -546,7 +546,7 @@ namespace Mirror
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
 #pragma warning disable 618
-            if (gameObject != null && PersistNetworkManagerToOfflineScene &&
+            if (gameObject != null && !PersistNetworkManagerToOfflineScene &&
                 gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
@@ -587,7 +587,7 @@ namespace Mirror
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
 #pragma warning disable 618
-            if (gameObject != null && PersistNetworkManagerToOfflineScene &&
+            if (gameObject != null && !PersistNetworkManagerToOfflineScene &&
                 gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
