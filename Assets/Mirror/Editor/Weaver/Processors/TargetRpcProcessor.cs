@@ -39,6 +39,10 @@ namespace Mirror.Weaver
                 // function signature. we pass in the connection to server,
                 // which is cleaner than just passing null)
                 //NetworkClient.readyconnection
+                //
+                // TODO
+                // a) .connectionToServer = best solution. no doubt.
+                // b) NetworkClient.connection for now. add TODO to not use static later.
                 worker.Emit(OpCodes.Call, WeaverTypes.ReadyConnectionReference);
             }
 
