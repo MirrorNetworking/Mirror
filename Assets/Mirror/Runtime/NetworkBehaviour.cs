@@ -145,14 +145,22 @@ namespace Mirror
                 return;
             }
 
+            // previously we used NetworkClient.readyConnection.
+            // now we check .ready separately and use .connection instead.
+            if (!NetworkClient.ready)
+            {
+                Debug.LogError("Send command attempted while NetworkClient is not ready.");
+                return;
+            }
+
             // IMPORTANT: can't use .connectionToServer here because calling
             // a command on other objects is allowed if requireAuthority is
             // false. other objects don't have a .connectionToServer.
             // => so we always need to use NetworkClient.connection instead.
             // => see also: https://github.com/vis2k/Mirror/issues/2629
-            if (NetworkClient.readyConnection == null)
+            if (NetworkClient.connection == null)
             {
-                Debug.LogError("Send command attempted with no client running [client=" + NetworkClient.readyConnection + "].");
+                Debug.LogError("Send command attempted with no client running.");
                 return;
             }
 
@@ -172,7 +180,7 @@ namespace Mirror
             // false. other objects don't have a .connectionToServer.
             // => so we always need to use NetworkClient.connection instead.
             // => see also: https://github.com/vis2k/Mirror/issues/2629
-            NetworkClient.readyConnection.Send(message, channelId);
+            NetworkClient.connection.Send(message, channelId);
         }
 
         protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool includeOwner)
