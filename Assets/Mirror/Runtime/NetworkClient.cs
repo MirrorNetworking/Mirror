@@ -773,6 +773,11 @@ namespace Mirror
                 // Set these before sending the ReadyMessage, otherwise host client
                 // will fail in InternalAddPlayer with null readyConnection.
                 ready = true;
+                // UNET used to set .readyConnection = conn;
+                // for feature parity, we still set .connection = conn;
+                // => in the future we should just remove the NetworkConnection
+                //    parameter from this function. it's pointless.
+                connection = conn; //
                 connection.isReady = true;
 
                 // Tell server we're ready to have a player object spawned
