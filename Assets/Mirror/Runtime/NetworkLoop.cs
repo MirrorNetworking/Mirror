@@ -26,7 +26,11 @@
 //      to the beginning of PostLateUpdate doesn't actually work.
 using System;
 using UnityEngine;
-#if UNITY_2019_1_OR_NEWER
+
+// PlayerLoop and LowLevel were in the Experimental namespace until 2019.3
+// https://docs.unity3d.com/2019.2/Documentation/ScriptReference/Experimental.LowLevel.PlayerLoop.html
+// https://docs.unity3d.com/2019.3/Documentation/ScriptReference/LowLevel.PlayerLoop.html
+#if UNITY_2019_3_OR_NEWER
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 #else
