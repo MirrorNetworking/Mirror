@@ -37,9 +37,9 @@ namespace Mirror.Tests
         }
 
         // SendCommandInternal is protected. let's expose it so we can test it.
-        public void CallSendCommandInternal()
+        public void CallSendCommandInternal(bool requiresAuthority = true)
         {
-            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(), 0);
+            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(), 0, requiresAuthority);
         }
     }
 
@@ -378,6 +378,87 @@ namespace Mirror.Tests
 
             // call command
             comp.CallSendCommandInternal();
+            Assert.That(comp.called, Is.EqualTo(1));
+
+            // clean up
+            RemoteCallHelper.RemoveDelegate(registeredHash);
+            // clear clientscene.readyconnection
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
+            Transport.activeTransport = null;
+            GameObject.DestroyImmediate(transportGO);
+        }
+
+        // test to prevent https://github.com/vis2k/Mirror/issues/2629
+        // from happening again in the future
+        // -> [Command]s can be called on other objects with requiresAuthority=false.
+        // -> those objects don't have a .connectionToServer
+        // -> we broke it when using .connectionToServer instead of
+        //    NetworkClient.connection in SendCommandInternal.
+        [Test]
+        public void SendCommandInternal_RequiresAuthorityFalse_ForOtherObjectWithoutConnectionToServer()
+        {
+            // transport is needed by server and client.
+            // it needs to be on a gameobject because client.connect enables it,
+            // which throws a NRE if not on a gameobject
+            GameObject transportGO = new GameObject();
+            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+
+            // we need to start a server and connect a client in order to be
+            // able to send commands
+            // message handlers
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            NetworkServer.Listen(1);
+            Assert.That(NetworkServer.active, Is.True);
+
+            // create a connection from client to server and from server to client
+            LocalConnectionToClient connection = new LocalConnectionToClient
+            {
+                isReady = true,
+                // commands require authentication
+                isAuthenticated = true
+            };
+            connection.connectionToServer = new LocalConnectionToServer
+            {
+                isReady = true,
+                // commands require authentication
+                isAuthenticated = true
+            };
+            connection.connectionToServer.connectionToClient = connection;
+
+            // connect client
+            NetworkClient.Connect("localhost");
+            Assert.That(NetworkClient.active, Is.True);
+
+            // add command component
+            NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
+
+            // DO NOT ASSIGN connectionToServer for the identity
+
+            // isClient needs to be true, otherwise we can't call commands
+            identity.isClient = true;
+
+            // register our connection at the server so that it sets up the
+            // connection's handlers
+            NetworkServer.AddConnection(connection);
+
+            // register the command delegate, otherwise it's not found
+            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
+                    nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
+                    MirrorInvokeType.Command,
+                    NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
+                    false);
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // clientscene.readyconnection needs to be set for commands
+            NetworkClient.Ready(connection.connectionToServer);
+
+            // call command. don't require authority.
+            // the object doesn't have a .connectionToClient (like a scene object)
+            comp.CallSendCommandInternal(false);
             Assert.That(comp.called, Is.EqualTo(1));
 
             // clean up
