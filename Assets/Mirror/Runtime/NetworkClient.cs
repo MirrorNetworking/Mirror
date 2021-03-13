@@ -960,12 +960,12 @@ namespace Mirror
             return null;
         }
 
-        static NetworkIdentity SpawnSceneObject(SpawnMessage msg)
+        static NetworkIdentity SpawnSceneObject(SpawnMessage message)
         {
-            NetworkIdentity identity = GetAndRemoveSceneObject(msg.sceneId);
+            NetworkIdentity identity = GetAndRemoveSceneObject(message.sceneId);
             if (identity == null)
             {
-                Debug.LogError($"Spawn scene object not found for {msg.sceneId:X} SpawnableObjects.Count={spawnableObjects.Count}");
+                Debug.LogError($"Spawn scene object not found for {message.sceneId:X} SpawnableObjects.Count={spawnableObjects.Count}");
 
                 // dump the whole spawnable objects dict for easier debugging
                 //foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
