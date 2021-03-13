@@ -1231,7 +1231,7 @@ namespace Mirror
                 // Ready/AddPlayer is usually triggered by a scene load
                 // completing. if no scene was loaded, then Ready/AddPlayer it
                 // here instead.
-                if (!NetworkClient.ready) NetworkClient.Ready(conn);
+                if (!NetworkClient.ready) NetworkClient.Ready();
                 if (autoCreatePlayer)
                 {
                     NetworkClient.AddPlayer();
@@ -1265,7 +1265,7 @@ namespace Mirror
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
-            if (!NetworkClient.ready) NetworkClient.Ready(conn);
+            if (!NetworkClient.ready) NetworkClient.Ready();
 
             // Only call AddPlayer for normal scene changes, not additive load/unload
             if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && NetworkClient.localPlayer == null)

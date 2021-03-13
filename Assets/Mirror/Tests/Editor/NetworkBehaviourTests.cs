@@ -373,8 +373,9 @@ namespace Mirror.Tests
             // reset ready
             identity.connectionToServer.isReady = true;
 
-            // clientscene.readyconnection needs to be set for commands
-            NetworkClient.Ready(connection.connectionToServer);
+            // clientscene.connection needs to be set for commands
+            NetworkClient.connection = connection.connectionToServer;
+            NetworkClient.Ready();
 
             // call command
             comp.CallSendCommandInternal();
@@ -454,7 +455,8 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // clientscene.readyconnection needs to be set for commands
-            NetworkClient.Ready(connection.connectionToServer);
+            NetworkClient.connection = connection.connectionToServer;
+            NetworkClient.Ready();
 
             // call command. don't require authority.
             // the object doesn't have a .connectionToClient (like a scene object)
