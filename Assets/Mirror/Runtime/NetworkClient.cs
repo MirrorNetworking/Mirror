@@ -203,7 +203,7 @@ namespace Mirror
         public static void Disconnect()
         {
             connectState = ConnectState.Disconnected;
-            HandleClientDisconnect(connection);
+            HandleClientDisconnect();
 
             // local or remote connection?
             if (isLocalClient)
@@ -277,7 +277,7 @@ namespace Mirror
         {
             connectState = ConnectState.Disconnected;
 
-            HandleClientDisconnect(connection);
+            HandleClientDisconnect();
 
             if (connection != null) OnDisconnectedEvent?.Invoke(connection);
         }
@@ -792,7 +792,9 @@ namespace Mirror
         [Obsolete("NetworkClient.Ready doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
         public static bool Ready(NetworkConnection conn) => Ready();
 
-        internal static void HandleClientDisconnect(NetworkConnection conn)
+        // TODO just set ready=false directly. the name doesn't imply what this
+        // function does.
+        internal static void HandleClientDisconnect()
         {
             ready = false;
         }

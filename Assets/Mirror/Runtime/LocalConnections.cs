@@ -109,7 +109,7 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            NetworkClient.HandleClientDisconnect(this);
+            NetworkClient.HandleClientDisconnect();
         }
 
         /// <summary>Disconnects this connection.</summary>
