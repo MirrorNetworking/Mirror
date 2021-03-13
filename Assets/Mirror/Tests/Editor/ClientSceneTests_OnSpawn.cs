@@ -635,7 +635,7 @@ namespace Mirror.Tests.ClientSceneTests
             NetworkClient.ApplySpawnPayload(identity, msg);
 
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
-            Assert.That(NetworkClient.readyConnection.identity, Is.EqualTo(identity));
+            Assert.That(NetworkClient.connection.identity, Is.EqualTo(identity));
         }
 
         [Test]
