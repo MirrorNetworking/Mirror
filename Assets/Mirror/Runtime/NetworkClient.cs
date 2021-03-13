@@ -1071,6 +1071,11 @@ namespace Mirror
         static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
         {
             // Debug.Log("NetworkClient.OnLocalObjectObjDestroy netId:" + msg.netId);
+
+            // TODO why do we do this?
+            // in host mode, .spawned is shared between server and client.
+            // removing it on client would remove it on server.
+            // huh.
             NetworkIdentity.spawned.Remove(message.netId);
         }
 
