@@ -1165,7 +1165,7 @@ namespace Mirror
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
 
-        void OnClientSceneInternal(NetworkConnection conn, SceneMessage msg)
+        void OnClientSceneInternal(SceneMessage msg)
         {
             //Debug.Log("NetworkManager.OnClientSceneInternal");
             if (NetworkClient.isConnected && !NetworkServer.active)
