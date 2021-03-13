@@ -932,31 +932,31 @@ namespace Mirror
             return localObject;
         }
 
-        static NetworkIdentity SpawnPrefab(SpawnMessage msg)
+        static NetworkIdentity SpawnPrefab(SpawnMessage message)
         {
-            if (GetPrefab(msg.assetId, out GameObject prefab))
+            if (GetPrefab(message.assetId, out GameObject prefab))
             {
-                GameObject obj = GameObject.Instantiate(prefab, msg.position, msg.rotation);
+                GameObject obj = GameObject.Instantiate(prefab, message.position, message.rotation);
                 //Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
                 return obj.GetComponent<NetworkIdentity>();
             }
-            if (spawnHandlers.TryGetValue(msg.assetId, out SpawnHandlerDelegate handler))
+            if (spawnHandlers.TryGetValue(message.assetId, out SpawnHandlerDelegate handler))
             {
-                GameObject obj = handler(msg);
+                GameObject obj = handler(message);
                 if (obj == null)
                 {
-                    Debug.LogError($"Spawn Handler returned null, Handler assetId '{msg.assetId}'");
+                    Debug.LogError($"Spawn Handler returned null, Handler assetId '{message.assetId}'");
                     return null;
                 }
                 NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
                 if (identity == null)
                 {
-                    Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{msg.assetId}'");
+                    Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{message.assetId}'");
                     return null;
                 }
                 return identity;
             }
-            Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={msg.assetId} netId={msg.netId}");
+            Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={message.assetId} netId={message.netId}");
             return null;
         }
 
