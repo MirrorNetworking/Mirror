@@ -528,7 +528,28 @@ namespace Mirror
 
             if (isLocalPlayer)
             {
-                NetworkClient.ClearLocalPlayer();
+                // previously there was a bug where isLocalPlayer was
+                // false in OnDestroy because it was dynamically defined as:
+                //   isLocalPlayer => NetworkClient.localPlayer == this
+                // we fixed it by setting isLocalPlayer manually and never
+                // resetting it.
+                //
+                // BUT now we need to be aware of a possible data race like in
+                // our rooms example:
+                // => GamePlayer is in world
+                // => player returns to room
+                // => GamePlayer is destroyed
+                // => NetworkClient.localPlayer is set to RoomPlayer
+                // => GamePlayer.OnDestroy is called 1 frame later
+                // => GamePlayer.OnDestroy 'isLocalPlayer' is true, so here we
+                //    are trying to clear NetworkClient.localPlayer
+                // => which would overwrite the new RoomPlayer local player
+                //
+                // FIXED by simply only clearing if NetworkClient.localPlayer
+                // still points to US!
+                // => see also: https://github.com/vis2k/Mirror/issues/2635
+                if (NetworkClient.localPlayer == this)
+                    NetworkClient.ClearLocalPlayer();
             }
         }
 
