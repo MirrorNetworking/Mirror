@@ -101,7 +101,7 @@ namespace Mirror
             if (hostMode)
             {
                 RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
+                RegisterHandler<ObjectHideMessage>(msg => { });
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
@@ -1081,16 +1081,6 @@ namespace Mirror
             NetworkIdentity.spawned.Remove(message.netId);
         }
 
-        static void OnHostClientObjectHide(ObjectHideMessage message)
-        {
-            // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
-                localObject != null)
-            {
-                localObject.OnSetHostVisibility(false);
-            }
-        }
-
         internal static void OnHostClientSpawn(SpawnMessage message)
         {
             if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
@@ -1102,7 +1092,6 @@ namespace Mirror
                 localObject.hasAuthority = message.isOwner;
                 localObject.NotifyAuthority();
                 localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
                 CheckForLocalPlayer(localObject);
             }
         }

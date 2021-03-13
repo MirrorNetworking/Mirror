@@ -186,20 +186,12 @@ namespace Mirror.Tests
             {
                 observers.Add(observer);
             }
-            public override void OnSetHostVisibility(bool visible) {}
         }
 
         class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
         {
             public override bool OnCheckObserver(NetworkConnection conn) { return true; }
             public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
-            public int hostVisibilityCalled;
-            public bool hostVisibilityValue;
-            public override void OnSetHostVisibility(bool visible)
-            {
-                ++hostVisibilityCalled;
-                hostVisibilityValue = visible;
-            }
         }
 #pragma warning restore 618
 

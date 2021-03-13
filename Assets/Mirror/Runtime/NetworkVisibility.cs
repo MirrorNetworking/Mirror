@@ -32,12 +32,5 @@ namespace Mirror
         // Implementations of this callback should add network connections of
         // players that can see this object to the observers set.
         public abstract void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize);
-
-        /// <summary>Callback used by the visibility system for objects on a host.</summary>
-        public virtual void OnSetHostVisibility(bool visible)
-        {
-            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
-                rend.enabled = visible;
-        }
     }
 }
