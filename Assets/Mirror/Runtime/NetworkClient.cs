@@ -26,6 +26,9 @@ namespace Mirror
         /// <summary>True if client is ready (= joined world).</summary>
         // TODO redundant state. point it to .connection.isReady instead (& test)
         // TODO OR remove NetworkConnection.isReady? unless it's used on server
+        //
+        // TODO maybe ClientState.Connected/Ready/AddedPlayer/etc.?
+        //      way better for security if we can check states in callbacks
         public static bool ready;
 
         /// <summary>The NetworkConnection object that is currently "ready".</summary>
