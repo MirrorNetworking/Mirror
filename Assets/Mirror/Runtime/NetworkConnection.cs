@@ -10,6 +10,7 @@ namespace Mirror
         public const int LocalConnectionId = 0;
 
         // NetworkIdentities that this connection can see
+        // TODO move to server's NetworkConnectionToClient?
         internal readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
         // TODO this is NetworkServer.handlers on server and NetworkClient.handlers on client.
@@ -113,6 +114,7 @@ namespace Mirror
 
         public override string ToString() => $"connection({connectionId})";
 
+        // TODO move to server's NetworkConnectionToClient?
         internal void AddToObserving(NetworkIdentity netIdentity)
         {
             observing.Add(netIdentity);
@@ -121,6 +123,7 @@ namespace Mirror
             NetworkServer.ShowForConnection(netIdentity, this);
         }
 
+        // TODO move to server's NetworkConnectionToClient?
         internal void RemoveFromObserving(NetworkIdentity netIdentity, bool isDestroyed)
         {
             observing.Remove(netIdentity);
@@ -132,6 +135,7 @@ namespace Mirror
             }
         }
 
+        // TODO move to server's NetworkConnectionToClient?
         internal void RemoveObservers()
         {
             foreach (NetworkIdentity netIdentity in observing)
