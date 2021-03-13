@@ -26,6 +26,9 @@ namespace Mirror
         public object authenticationData;
 
         /// <summary>A server connection is ready after joining the game world.</summary>
+        // TODO move this to ConnectionToClient so the flag only lives on server
+        // connections? clients could use NetworkClient.ready to avoid redundant
+        // state.
         public bool isReady;
 
         /// <summary>IP address of the connection. Can be useful for game master IP bans etc.</summary>
