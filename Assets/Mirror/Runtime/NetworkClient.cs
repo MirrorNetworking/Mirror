@@ -898,10 +898,10 @@ namespace Mirror
         }
 
         // Finds Existing Object with NetId or spawns a new one using AssetId or sceneId
-        internal static bool FindOrSpawnObject(SpawnMessage msg, out NetworkIdentity identity)
+        internal static bool FindOrSpawnObject(SpawnMessage message, out NetworkIdentity identity)
         {
             // was the object already spawned?
-            identity = GetExistingObject(msg.netId);
+            identity = GetExistingObject(message.netId);
 
             // if found, return early
             if (identity != null)
@@ -909,17 +909,17 @@ namespace Mirror
                 return true;
             }
 
-            if (msg.assetId == Guid.Empty && msg.sceneId == 0)
+            if (message.assetId == Guid.Empty && message.sceneId == 0)
             {
-                Debug.LogError($"OnSpawn message with netId '{msg.netId}' has no AssetId or sceneId");
+                Debug.LogError($"OnSpawn message with netId '{message.netId}' has no AssetId or sceneId");
                 return false;
             }
 
-            identity = msg.sceneId == 0 ? SpawnPrefab(msg) : SpawnSceneObject(msg);
+            identity = message.sceneId == 0 ? SpawnPrefab(message) : SpawnSceneObject(message);
 
             if (identity == null)
             {
-                Debug.LogError($"Could not spawn assetId={msg.assetId} scene={msg.sceneId:X} netId={msg.netId}");
+                Debug.LogError($"Could not spawn assetId={message.assetId} scene={message.sceneId:X} netId={message.netId}");
                 return false;
             }
 
