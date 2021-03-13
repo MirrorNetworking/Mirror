@@ -162,6 +162,7 @@ namespace Mirror
         }
 
         // TODO why are there two connect host methods?
+        // called from NetworkManager.FinishStartHost()
         public static void ConnectHost()
         {
             //Debug.Log("Client Connect Host to Server");
