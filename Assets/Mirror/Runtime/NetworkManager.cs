@@ -1113,19 +1113,19 @@ namespace Mirror
             OnServerAddPlayer(conn);
         }
 
-        void OnClientConnectInternal(NetworkConnection conn)
+        void OnClientConnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientConnectInternal");
 
             if (authenticator != null)
             {
                 // we have an authenticator - let it handle authentication
-                authenticator.OnClientAuthenticate(conn);
+                authenticator.OnClientAuthenticate(NetworkClient.connection);
             }
             else
             {
                 // authenticate immediately
-                OnClientAuthenticated(conn);
+                OnClientAuthenticated(NetworkClient.connection);
             }
         }
 
@@ -1151,10 +1151,10 @@ namespace Mirror
             }
         }
 
-        void OnClientDisconnectInternal(NetworkConnection conn)
+        void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
-            OnClientDisconnect(conn);
+            OnClientDisconnect(NetworkClient.connection);
         }
 
         void OnClientNotReadyMessageInternal(NetworkConnection conn, NotReadyMessage msg)

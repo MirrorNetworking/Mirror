@@ -81,7 +81,7 @@ namespace Mirror
             if (connectedEventPending)
             {
                 connectedEventPending = false;
-                NetworkClient.OnConnectedEvent?.Invoke(this);
+                NetworkClient.OnConnectedEvent?.Invoke();
             }
 
             // process internal messages so they are applied at the correct time
@@ -99,7 +99,7 @@ namespace Mirror
             if (disconnectedEventPending)
             {
                 disconnectedEventPending = false;
-                NetworkClient.OnDisconnectedEvent?.Invoke(this);
+                NetworkClient.OnDisconnectedEvent?.Invoke();
             }
         }
 

@@ -64,8 +64,8 @@ namespace Mirror
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
-        internal static Action<NetworkConnection> OnConnectedEvent;
-        internal static Action<NetworkConnection> OnDisconnectedEvent;
+        internal static Action OnConnectedEvent;
+        internal static Action OnDisconnectedEvent;
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>
         public static readonly Dictionary<Guid, GameObject> prefabs =
@@ -262,7 +262,7 @@ namespace Mirror
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
                 NetworkTime.UpdateClient();
-                OnConnectedEvent?.Invoke(connection);
+                OnConnectedEvent?.Invoke();
             }
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
@@ -281,7 +281,7 @@ namespace Mirror
             connectState = ConnectState.Disconnected;
             ready = false;
 
-            if (connection != null) OnDisconnectedEvent?.Invoke(connection);
+            if (connection != null) OnDisconnectedEvent?.Invoke();
         }
 
         static void OnError(Exception exception) => Debug.LogException(exception);
