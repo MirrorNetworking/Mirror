@@ -184,6 +184,7 @@ namespace Mirror
         }
 
         /// <summary>Connect host mode</summary>
+        // called from NetworkManager.StartHostClient
         // TODO why are there two connect host methods?
         public static void ConnectLocalServer()
         {
