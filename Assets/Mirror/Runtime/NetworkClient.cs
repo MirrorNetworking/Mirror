@@ -1062,31 +1062,31 @@ namespace Mirror
         }
 
         // host mode callbacks /////////////////////////////////////////////////
-        static void OnHostClientObjectDestroy(ObjectDestroyMessage msg)
+        static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
         {
             // Debug.Log("NetworkClient.OnLocalObjectObjDestroy netId:" + msg.netId);
-            NetworkIdentity.spawned.Remove(msg.netId);
+            NetworkIdentity.spawned.Remove(message.netId);
         }
 
-        static void OnHostClientObjectHide(ObjectHideMessage msg)
+        static void OnHostClientObjectHide(ObjectHideMessage message)
         {
             // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
+            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
                 localObject != null)
             {
                 localObject.OnSetHostVisibility(false);
             }
         }
 
-        internal static void OnHostClientSpawn(SpawnMessage msg)
+        internal static void OnHostClientSpawn(SpawnMessage message)
         {
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) &&
+            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
                 localObject != null)
             {
-                if (msg.isLocalPlayer)
+                if (message.isLocalPlayer)
                     InternalAddPlayer(localObject);
 
-                localObject.hasAuthority = msg.isOwner;
+                localObject.hasAuthority = message.isOwner;
                 localObject.NotifyAuthority();
                 localObject.OnStartClient();
                 localObject.OnSetHostVisibility(true);
