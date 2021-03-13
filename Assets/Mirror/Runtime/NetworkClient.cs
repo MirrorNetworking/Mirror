@@ -158,6 +158,7 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
+        // TODO why are there two connect host methods?
         public static void ConnectHost()
         {
             //Debug.Log("Client Connect Host to Server");
@@ -180,6 +181,7 @@ namespace Mirror
         }
 
         /// <summary>Connect host mode</summary>
+        // TODO why are there two connect host methods?
         public static void ConnectLocalServer()
         {
             // call server OnConnected with server's connection to client
