@@ -762,7 +762,7 @@ namespace Mirror
         // has finished loading the current scene. The server should respond to
         // the SYSTEM_READY event with an appropriate handler which instantiates
         // the players object for example.
-        public static bool Ready(NetworkConnection conn)
+        public static bool Ready()
         {
             // Debug.Log("NetworkClient.Ready() called with connection [" + conn + "]");
             if (ready)
@@ -771,25 +771,25 @@ namespace Mirror
                 return false;
             }
 
-            if (conn != null)
+            // need a valid connection to become ready
+            if (connection != null)
             {
                 // Set these before sending the ReadyMessage, otherwise host client
                 // will fail in InternalAddPlayer with null readyConnection.
+                // TODO this is redundant. have one source of truth for .ready
                 ready = true;
-                // UNET used to set .readyConnection = conn;
-                // for feature parity, we still set .connection = conn;
-                // => in the future we should just remove the NetworkConnection
-                //    parameter from this function. it's pointless.
-                connection = conn; //
                 connection.isReady = true;
 
                 // Tell server we're ready to have a player object spawned
-                conn.Send(new ReadyMessage());
+                connection.Send(new ReadyMessage());
                 return true;
             }
             Debug.LogError("Ready() called with invalid connection object: conn=null");
             return false;
         }
+
+        [Obsolete("NetworkClient.Ready doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
+        public static bool Ready(NetworkConnection conn) => Ready();
 
         internal static void HandleClientDisconnect(NetworkConnection conn)
         {
