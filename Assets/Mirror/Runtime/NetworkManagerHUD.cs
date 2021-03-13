@@ -50,7 +50,7 @@ namespace Mirror
 
                     if (NetworkClient.localPlayer == null)
                     {
-                        NetworkClient.AddPlayer(NetworkClient.connection);
+                        NetworkClient.AddPlayer();
                     }
                 }
             }

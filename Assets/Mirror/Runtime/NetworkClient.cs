@@ -826,16 +826,14 @@ namespace Mirror
         }
 
         /// <summary>Sends AddPlayer message to the server, indicating that we want to join the world.</summary>
-        public static bool AddPlayer(NetworkConnection readyConn)
+        public static bool AddPlayer()
         {
             // ensure valid ready connection
-            if (readyConn != null)
+            if (connection != null)
             {
                 ready = true;
-                connection = readyConn;
             }
-
-            if (!ready)
+            else
             {
                 Debug.LogError("Must call AddPlayer() with a connection the first time to become ready.");
                 return false;
@@ -851,6 +849,9 @@ namespace Mirror
             connection.Send(new AddPlayerMessage());
             return true;
         }
+
+        [Obsolete("NetworkClient.AddPlayer doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
+        public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer();
 
         // spawning ////////////////////////////////////////////////////////////
         internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)

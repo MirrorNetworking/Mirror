@@ -1231,7 +1231,7 @@ namespace Mirror
                 if (!NetworkClient.ready) NetworkClient.Ready(conn);
                 if (autoCreatePlayer)
                 {
-                    NetworkClient.AddPlayer(conn);
+                    NetworkClient.AddPlayer();
                 }
             }
         }
@@ -1265,7 +1265,7 @@ namespace Mirror
             if (clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && NetworkClient.localPlayer == null)
             {
                 // add player if existing one is null
-                NetworkClient.AddPlayer(conn);
+                NetworkClient.AddPlayer();
             }
         }
 
