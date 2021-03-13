@@ -45,13 +45,16 @@ namespace Mirror
         public virtual void OnStopClient() {}
 
         /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
+        // TODO client callbacks don't need NetworkConnection parameter. use NetworkClient.connection!
         public abstract void OnClientAuthenticate(NetworkConnection conn);
 
+        // TODO client callbacks don't need NetworkConnection parameter. use NetworkClient.connection!
         protected void ClientAccept(NetworkConnection conn)
         {
             OnClientAuthenticated.Invoke(conn);
         }
 
+        // TODO client callbacks don't need NetworkConnection parameter. use NetworkClient.connection!
         protected void ClientReject(NetworkConnection conn)
         {
             // Set this on the client for local reference
