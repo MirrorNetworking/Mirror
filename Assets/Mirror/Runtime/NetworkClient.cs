@@ -843,11 +843,6 @@ namespace Mirror
                 return false;
             }
 
-            // TODO UNET had this before the below identity != null check.
-            // should probably be after it though. no need to be ready when we
-            // don't even add a player?
-            ready = true;
-
             if (connection.identity != null)
             {
                 Debug.LogError("NetworkClient.AddPlayer: a PlayerController was already added. Did you call AddPlayer twice?");
