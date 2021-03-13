@@ -772,20 +772,21 @@ namespace Mirror
             }
 
             // need a valid connection to become ready
-            if (connection != null)
+            if (connection == null)
             {
-                // Set these before sending the ReadyMessage, otherwise host client
-                // will fail in InternalAddPlayer with null readyConnection.
-                // TODO this is redundant. have one source of truth for .ready
-                ready = true;
-                connection.isReady = true;
-
-                // Tell server we're ready to have a player object spawned
-                connection.Send(new ReadyMessage());
-                return true;
+                Debug.LogError("Ready() called with invalid connection object: conn=null");
+                return false;
             }
-            Debug.LogError("Ready() called with invalid connection object: conn=null");
-            return false;
+
+            // Set these before sending the ReadyMessage, otherwise host client
+            // will fail in InternalAddPlayer with null readyConnection.
+            // TODO this is redundant. have one source of truth for .ready
+            ready = true;
+            connection.isReady = true;
+
+            // Tell server we're ready to have a player object spawned
+            connection.Send(new ReadyMessage());
+            return true;
         }
 
         [Obsolete("NetworkClient.Ready doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
