@@ -29,6 +29,7 @@ namespace Mirror
 
         /// <summary>The NetworkConnection object that is currently "ready".</summary>
         // TODO this is from UNET. it's redundant and we should probably obsolete it.
+        [Obsolete("NetworkClient.readyConnection is redundant. Use NetworkClient.connection and use NetworkClient.ready to check if it's ready.")]
         public static NetworkConnection readyConnection => ready ? connection : null;
 
         /// <summary>NetworkIdentity of the localPlayer </summary>
