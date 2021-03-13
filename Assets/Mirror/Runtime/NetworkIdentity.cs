@@ -549,7 +549,7 @@ namespace Mirror
                 // still points to US!
                 // => see also: https://github.com/vis2k/Mirror/issues/2635
                 if (NetworkClient.localPlayer == this)
-                    NetworkClient.ClearLocalPlayer();
+                    NetworkClient.localPlayer = null;
             }
         }
 
@@ -1148,7 +1148,7 @@ namespace Mirror
                 // see OnDestroy() comments. it does the same.
                 // (https://github.com/vis2k/Mirror/issues/2635)
                 if (NetworkClient.localPlayer == this)
-                    NetworkClient.ClearLocalPlayer();
+                    NetworkClient.localPlayer = null;
             }
             isLocalPlayer = false;
         }

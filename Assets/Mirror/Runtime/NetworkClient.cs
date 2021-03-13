@@ -818,14 +818,6 @@ namespace Mirror
             else Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
         }
 
-        // Sets localPlayer to null. Should be called when the local player
-        // object is destroyed.
-        internal static void ClearLocalPlayer()
-        {
-            //Debug.Log("NetworkClient.ClearLocalPlayer");
-            localPlayer = null;
-        }
-
         /// <summary>Sends AddPlayer message to the server, indicating that we want to join the world.</summary>
         public static bool AddPlayer()
         {
