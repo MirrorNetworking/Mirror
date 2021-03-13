@@ -324,6 +324,7 @@ namespace Mirror
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
+        // TODO does anyone even use that? consider removing
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
@@ -332,6 +333,7 @@ namespace Mirror
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
+        // TODO does anyone even use that? consider removing
         public static void ReplaceHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
