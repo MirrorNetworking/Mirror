@@ -1144,7 +1144,11 @@ namespace Mirror
             // THEN reset isLocalPlayer AFTERWARDS
             if (isLocalPlayer)
             {
-                NetworkClient.ClearLocalPlayer();
+                // only clear NetworkClient.localPlayer IF IT POINTS TO US!
+                // see OnDestroy() comments. it does the same.
+                // (https://github.com/vis2k/Mirror/issues/2635)
+                if (NetworkClient.localPlayer == this)
+                    NetworkClient.ClearLocalPlayer();
             }
             isLocalPlayer = false;
         }
