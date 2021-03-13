@@ -766,7 +766,7 @@ namespace Mirror
         {
             if (ready)
             {
-                Debug.LogError("A connection has already been set as ready. There can only be one.");
+                Debug.LogError("NetworkClient is already ready. It shouldn't be called twice.");
                 return false;
             }
 
