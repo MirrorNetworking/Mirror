@@ -831,7 +831,15 @@ namespace Mirror
             // ensure valid ready connection
             if (connection == null)
             {
-                Debug.LogError("Must call AddPlayer() with a connection the first time to become ready.");
+                Debug.LogError("AddPlayer requires a valid NetworkClient.connection.");
+                return false;
+            }
+
+            // UNET checked 'if readyConnection != null'.
+            // in other words, we need a connection and we need to be ready.
+            if (!ready)
+            {
+                Debug.LogError("AddPlayer requires a ready NetworkClient.");
                 return false;
             }
 
