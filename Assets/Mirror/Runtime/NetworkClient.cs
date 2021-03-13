@@ -829,15 +829,16 @@ namespace Mirror
         public static bool AddPlayer()
         {
             // ensure valid ready connection
-            if (connection != null)
-            {
-                ready = true;
-            }
-            else
+            if (connection == null)
             {
                 Debug.LogError("Must call AddPlayer() with a connection the first time to become ready.");
                 return false;
             }
+
+            // TODO UNET had this before the below identity != null check.
+            // should probably be after it though. no need to be ready when we
+            // don't even add a player?
+            ready = true;
 
             if (connection.identity != null)
             {
