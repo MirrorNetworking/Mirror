@@ -1220,6 +1220,7 @@ namespace Mirror
         public virtual void OnServerSceneChanged(string sceneName) {}
 
         /// <summary>Called on the client when connected to a server. By default it sets client as ready and adds a player.</summary>
+        // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
         public virtual void OnClientConnect(NetworkConnection conn)
         {
             // OnClientConnect by default calls AddPlayer but it should not do
@@ -1239,6 +1240,7 @@ namespace Mirror
         }
 
         /// <summary>Called on clients when disconnected from a server.</summary>
+        // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
             StopClient();
@@ -1248,6 +1250,7 @@ namespace Mirror
         public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
+        // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
         public virtual void OnClientNotReady(NetworkConnection conn) {}
 
         /// <summary>Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
@@ -1258,6 +1261,7 @@ namespace Mirror
         // Scene changes can cause player objects to be destroyed. The default
         // implementation of OnClientSceneChanged in the NetworkManager is to
         // add a player object for the connection if no player object exists.
+        // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
         public virtual void OnClientSceneChanged(NetworkConnection conn)
         {
             // always become ready.
