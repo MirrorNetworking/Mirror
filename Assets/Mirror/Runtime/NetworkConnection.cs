@@ -12,6 +12,8 @@ namespace Mirror
         // NetworkIdentities that this connection can see
         internal readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
+        // TODO this is NetworkServer.handlers on server and NetworkClient.handlers on client.
+        //      maybe use them directly. avoid extra state.
         Dictionary<int, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
