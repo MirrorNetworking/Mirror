@@ -1095,37 +1095,37 @@ namespace Mirror
         }
 
         // client-only mode callbacks //////////////////////////////////////////
-        static void OnUpdateVarsMessage(UpdateVarsMessage msg)
+        static void OnUpdateVarsMessage(UpdateVarsMessage message)
         {
             // Debug.Log("NetworkClient.OnUpdateVarsMessage " + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
             {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(message.payload))
                     localObject.OnDeserializeAllSafely(networkReader, false);
             }
-            else Debug.LogWarning("Did not find target for sync message for " + msg.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+            else Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
-        static void OnRPCMessage(RpcMessage msg)
+        static void OnRPCMessage(RpcMessage message)
         {
             // Debug.Log("NetworkClient.OnRPCMessage hash:" + msg.functionHash + " netId:" + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity identity))
             {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                    identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.ClientRpc, networkReader);
+                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(message.payload))
+                    identity.HandleRemoteCall(message.componentIndex, message.functionHash, MirrorInvokeType.ClientRpc, networkReader);
             }
         }
 
-        static void OnObjectHide(ObjectHideMessage msg) => DestroyObject(msg.netId);
+        static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
 
-        internal static void OnObjectDestroy(ObjectDestroyMessage msg) => DestroyObject(msg.netId);
+        internal static void OnObjectDestroy(ObjectDestroyMessage message) => DestroyObject(message.netId);
 
-        internal static void OnSpawn(SpawnMessage msg)
+        internal static void OnSpawn(SpawnMessage message)
         {
             // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
-            if (FindOrSpawnObject(msg, out NetworkIdentity identity))
+            if (FindOrSpawnObject(message, out NetworkIdentity identity))
             {
-                ApplySpawnPayload(identity, msg);
+                ApplySpawnPayload(identity, message);
             }
         }
 
