@@ -74,6 +74,28 @@ namespace Mirror.Tests
             Assert.That(decompressed.w, Is.EqualTo(value.w).Within(0.005f));
         }
 
+        // someone mentioned issues with 90 degree euler becoming -90 degree
+        [Test]
+        public void CompressAndDecompressQuaternion_90DegreeEuler()
+        {
+            // we need a normalized value
+            Quaternion value = Quaternion.Euler(0, 90, 0).normalized;
+
+            // compress
+            uint data = Compression.CompressQuaternion(value);
+
+            // decompress
+            Quaternion decompressed = Compression.DecompressQuaternion(data);
+
+            // compare them. Quaternion.Angle is easiest to get the angle
+            // between them. using .eulerAngles would give 0, 90, 360 which is
+            // hard to compare.
+            Debug.Log("euler=" + decompressed.eulerAngles);
+            float angle = Quaternion.Angle(value, decompressed);
+            // 1 degree tolerance
+            Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));
+        }
+
         // client sending invalid data should still produce valid quaternions to
         // avoid any possible bugs on server
         [Test]
