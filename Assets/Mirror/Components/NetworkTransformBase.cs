@@ -16,6 +16,11 @@
 // * Only way for smooth movement is to use a fixed movement speed during
 //   interpolation. interpolation over time is never that good.
 //
+
+// JesusLuvsYooh
+// NT V1.1
+// Compress rotation boolean, temp fix for some problems, check its tooltip.
+
 using System;
 using UnityEngine;
 
@@ -46,6 +51,10 @@ namespace Mirror
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localScaleSensitivity = .01f;
 
+        [Header("Compression")]
+        [Tooltip("Uses 1/3rd of the bandwidth. Set to false if you want perfectly accurate results, where 0.079 instead of 0, or experience flipping problems.")]
+        public bool compressRotation = false;
+
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
@@ -73,17 +82,20 @@ namespace Mirror
 
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
-        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
+        public void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // serialize position, rotation, scale
             // => compress rotation from 4*4=16 to 4 bytes
             // => less bandwidth = better CCU tests / scale
             writer.WriteVector3(position);
-            // use uncompressed quaternion for now.
-            // smallest three is only good for 3D games.
-            // in 2D, sprites would have tiny noticeable 'wonky' rotations to them.
-            // => need to make 2D rotations optional/selectable later!
-            writer.WriteQuaternion(rotation);
+            if (compressRotation)
+            {
+                writer.WriteUInt32(Compression.CompressQuaternion(rotation));
+            }
+            else
+            {
+                writer.WriteQuaternion(rotation);
+            }
             writer.WriteVector3(scale);
         }
 
@@ -110,20 +122,30 @@ namespace Mirror
         // serialization is needed by OnSerialize and by manual sending from authority
         void DeserializeFromReader(NetworkReader reader)
         {
-            // put it into a data point immediately
+
+            // create temp data point of current transform data
+
             DataPoint temp = new DataPoint
             {
-                // deserialize position, rotation, scale
-                // (rotation is compressed)
-                localPosition = reader.ReadVector3(),
-                // use uncompressed quaternion for now.
-                // smallest three is only good for 3D games.
-                // in 2D, sprites would have tiny noticeable 'wonky' rotations to them.
-                // => need to make 2D rotations optional/selectable later!
-                localRotation = reader.ReadQuaternion(),
-                localScale = reader.ReadVector3(),
+                localPosition = targetComponent.localPosition,
+                localRotation = targetComponent.localRotation,
+                localScale = targetComponent.localScale,
                 timeStamp = Time.time
             };
+
+            // now apply any changes to DataPoint, if needed.
+            temp.localPosition = reader.ReadVector3();
+
+            if (compressRotation)
+            {
+                temp.localRotation = Compression.DecompressQuaternion(reader.ReadUInt32());
+            }
+            else
+            {
+                temp.localRotation = reader.ReadQuaternion();
+            }
+
+            temp.localScale = reader.ReadVector3();
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
