@@ -12,8 +12,11 @@ namespace Mirror
     {
         public Transport wrap;
 
-        [Header("Latency Simulation")]
-        public int health;
+        [Header("Unreliable Messages")]
+        [Tooltip("Packet loss in %")]
+        [Range(0, 1)] public float unreliableLoss;
+
+        System.Random random = new System.Random();
 
         public void Awake()
         {
@@ -51,8 +54,25 @@ namespace Mirror
 
         public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            // TODO
-            wrap.ClientSend(channelId, segment);
+            switch (channelId)
+            {
+                case Channels.DefaultReliable:
+                    wrap.ClientSend(channelId, segment);
+                    break;
+                case Channels.DefaultUnreliable:
+                    // simulate packet loss
+                    // UnityEngine.Random.value is [0, 1] but we need [0, 1)
+                    // aka exclusive to 1, not inclusive.
+                    // => NextDouble() is NEVER < 0 so loss=0 never drops!
+                    // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
+                    bool drop = random.NextDouble() < unreliableLoss;
+                    if (!drop)
+                        wrap.ClientSend(channelId, segment);
+                    break;
+                default:
+                    Debug.LogError($"{nameof(PressureDrop)} unexpected channelId: {channelId}");
+                    break;
+            }
         }
 
         public override Uri ServerUri() => wrap.ServerUri();
@@ -65,8 +85,25 @@ namespace Mirror
 
         public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
-            // TODO
-            wrap.ServerSend(connectionId, channelId, segment);
+            switch (channelId)
+            {
+                case Channels.DefaultReliable:
+                    wrap.ServerSend(connectionId, channelId, segment);
+                    break;
+                case Channels.DefaultUnreliable:
+                    // simulate packet loss
+                    // UnityEngine.Random.value is [0, 1] but we need [0, 1)
+                    // aka exclusive to 1, not inclusive.
+                    // => NextDouble() is NEVER < 0 so loss=0 never drops!
+                    // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
+                    bool drop = random.NextDouble() < unreliableLoss;
+                    if (!drop)
+                        wrap.ServerSend(connectionId, channelId, segment);
+                    break;
+                default:
+                    Debug.LogError($"{nameof(PressureDrop)} unexpected channelId: {channelId}");
+                    break;
+            }
         }
 
         public override void ServerStart()
