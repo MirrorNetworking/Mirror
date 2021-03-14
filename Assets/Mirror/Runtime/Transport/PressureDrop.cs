@@ -33,10 +33,11 @@ namespace Mirror
         public float unreliableLatency = 0;
 
         // message queues
-        Queue<QueuedMessage> reliableClientToServer = new Queue<QueuedMessage>();
-        Queue<QueuedMessage> reliableServerToClient = new Queue<QueuedMessage>();
-        Queue<QueuedMessage> unreliableClientToServer = new Queue<QueuedMessage>();
-        Queue<QueuedMessage> unreliableServerToClient = new Queue<QueuedMessage>();
+        // list so we can insert randomly (scramble)
+        List<QueuedMessage> reliableClientToServer = new List<QueuedMessage>();
+        List<QueuedMessage> reliableServerToClient = new List<QueuedMessage>();
+        List<QueuedMessage> unreliableClientToServer = new List<QueuedMessage>();
+        List<QueuedMessage> unreliableServerToClient = new List<QueuedMessage>();
 
         // random
         // UnityEngine.Random.value is [0, 1] but we need [0, 1)
@@ -102,7 +103,7 @@ namespace Mirror
             {
                 case Channels.DefaultReliable:
                     // simulate latency
-                    reliableClientToServer.Enqueue(message);
+                    reliableClientToServer.Add(message);
                     break;
                 case Channels.DefaultUnreliable:
                     // simulate packet loss
@@ -110,7 +111,7 @@ namespace Mirror
                     if (!drop)
                     {
                         // simulate latency
-                        unreliableClientToServer.Enqueue(message);
+                        unreliableClientToServer.Add(message);
                     }
                     break;
                 default:
@@ -145,7 +146,7 @@ namespace Mirror
             {
                 case Channels.DefaultReliable:
                     // simulate latency
-                    reliableServerToClient.Enqueue(message);
+                    reliableServerToClient.Add(message);
                     break;
                 case Channels.DefaultUnreliable:
                     // simulate packet loss
@@ -153,7 +154,7 @@ namespace Mirror
                     if (!drop)
                     {
                         // simulate latency
-                        unreliableServerToClient.Enqueue(message);
+                        unreliableServerToClient.Add(message);
                     }
                     break;
                 default:
@@ -186,12 +187,12 @@ namespace Mirror
             while (reliableClientToServer.Count > 0)
             {
                 // check the first message time
-                QueuedMessage message = reliableClientToServer.Peek();
+                QueuedMessage message = reliableClientToServer[0];
                 if (message.time + reliableLatency <= Time.time)
                 {
-                    // send and eat (we peeked before)
+                    // send and eat
                     wrap.ClientSend(Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
-                    reliableClientToServer.Dequeue();
+                    reliableClientToServer.RemoveAt(0);
                 }
                 // not enough time elapsed yet
                 break;
@@ -201,12 +202,12 @@ namespace Mirror
             while (unreliableClientToServer.Count > 0)
             {
                 // check the first message time
-                QueuedMessage message = unreliableClientToServer.Peek();
+                QueuedMessage message = unreliableClientToServer[0];
                 if (message.time + unreliableLatency <= Time.time)
                 {
                     // send and eat (we peeked before)
                     wrap.ClientSend(Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
-                    unreliableClientToServer.Dequeue();
+                    unreliableClientToServer.RemoveAt(0);
                 }
                 // not enough time elapsed yet
                 break;
@@ -221,12 +222,12 @@ namespace Mirror
             while (reliableServerToClient.Count > 0)
             {
                 // check the first message time
-                QueuedMessage message = reliableServerToClient.Peek();
+                QueuedMessage message = reliableServerToClient[0];
                 if (message.time + reliableLatency <= Time.time)
                 {
                     // send and eat (we peeked before)
                     wrap.ServerSend(message.connectionId, Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
-                    reliableServerToClient.Dequeue();
+                    reliableServerToClient.RemoveAt(0);
                 }
                 // not enough time elapsed yet
                 break;
@@ -236,12 +237,12 @@ namespace Mirror
             while (unreliableServerToClient.Count > 0)
             {
                 // check the first message time
-                QueuedMessage message = unreliableServerToClient.Peek();
+                QueuedMessage message = unreliableServerToClient[0];
                 if (message.time + unreliableLatency <= Time.time)
                 {
                     // send and eat (we peeked before)
                     wrap.ServerSend(message.connectionId, Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
-                    unreliableServerToClient.Dequeue();
+                    unreliableServerToClient.RemoveAt(0);
                 }
                 // not enough time elapsed yet
                 break;
