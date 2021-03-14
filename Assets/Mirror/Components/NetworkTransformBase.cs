@@ -46,6 +46,10 @@ namespace Mirror
         [Tooltip("Changes to the transform must exceed these values to be transmitted on the network.")]
         public float localScaleSensitivity = .01f;
 
+        [Header("Compression")]
+        [Tooltip("Enables smallest-three quaternion compression, which is lossy. Great for 3D, not great for 2D where minimal sprite rotations would look wobbly.")]
+        public bool compressRotation; // disabled by default to not break 2D projects
+
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
@@ -73,24 +77,29 @@ namespace Mirror
 
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
-        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
+        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale, bool compressRotation)
         {
             // serialize position, rotation, scale
             // => compress rotation from 4*4=16 to 4 bytes
             // => less bandwidth = better CCU tests / scale
             writer.WriteVector3(position);
-            // use uncompressed quaternion for now.
-            // smallest three is only good for 3D games.
-            // in 2D, sprites would have tiny noticeable 'wonky' rotations to them.
-            // => need to make 2D rotations optional/selectable later!
-            writer.WriteQuaternion(rotation);
+            if (compressRotation)
+            {
+                // smalles three compression for 3D
+                writer.WriteUInt32(Compression.CompressQuaternion(rotation));
+            }
+            else
+            {
+                // uncompressed for 2D
+                writer.WriteQuaternion(rotation);
+            }
             writer.WriteVector3(scale);
         }
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             // use local position/rotation/scale for VR support
-            SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale);
+            SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale, compressRotation);
             return true;
         }
 
@@ -116,11 +125,9 @@ namespace Mirror
                 // deserialize position, rotation, scale
                 // (rotation is compressed)
                 localPosition = reader.ReadVector3(),
-                // use uncompressed quaternion for now.
-                // smallest three is only good for 3D games.
-                // in 2D, sprites would have tiny noticeable 'wonky' rotations to them.
-                // => need to make 2D rotations optional/selectable later!
-                localRotation = reader.ReadQuaternion(),
+                localRotation = compressRotation
+                                ? Compression.DecompressQuaternion(reader.ReadUInt32())
+                                : reader.ReadQuaternion(),
                 localScale = reader.ReadVector3(),
                 timeStamp = Time.time
             };
@@ -352,7 +359,7 @@ namespace Mirror
                             // local position/rotation for VR support
                             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                             {
-                                SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale);
+                                SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale, compressRotation);
 
                                 // send to server
                                 CmdClientToServerSync(writer.ToArraySegment());
