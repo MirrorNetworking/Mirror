@@ -756,7 +756,7 @@ namespace Mirror
             OnServerChangeScene(newSceneName);
 
             // Suspend the server's transport while changing scenes
-            // It will be re-enabled in FinishScene.
+            // It will be re-enabled in FinishLoadScene.
             Transport.activeTransport.enabled = false;
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
