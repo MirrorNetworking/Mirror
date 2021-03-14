@@ -50,6 +50,11 @@ namespace Mirror
         [Tooltip("Enables smallest-three quaternion compression, which is lossy. Great for 3D, not great for 2D where minimal sprite rotations would look wobbly.")]
         public bool compressRotation; // disabled by default to not break 2D projects
 
+        [Header("Interpolation")]
+        [Tooltip("Set to true if scale should be interpolated, false is ideal for instant sprite flipping.")]
+        [SyncVar]
+        public bool interpolateScale = true;
+
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
@@ -275,14 +280,21 @@ namespace Mirror
             return defaultRotation;
         }
 
-        static Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
+        Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
         {
-            if (start != null)
+            if (!interpolateScale)
+            {
+                return currentScale;
+            }
+            else if (start != null)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Vector3.Lerp(start.localScale, goal.localScale, t);
             }
-            return currentScale;
+            else
+            {
+                return currentScale;
+            }
         }
 
         // teleport / lag / stuck detection
