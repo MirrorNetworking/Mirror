@@ -20,12 +20,18 @@ namespace Mirror
     {
         public Transport wrap;
 
+        [Header("Reliable Messages")]
+        [Tooltip("Reliable latency in seconds")]
+        public float reliableLatency = 0;
+
         [Header("Unreliable Messages")]
         [Tooltip("Packet loss in %")]
         [Range(0, 1)] public float unreliableLoss;
+        [Tooltip("Unreliable latency in seconds")]
         public float unreliableLatency = 0;
 
         // message queues
+        Queue<QueuedMessage> reliableClientToServer = new Queue<QueuedMessage>();
         Queue<QueuedMessage> unreliableClientToServer = new Queue<QueuedMessage>();
 
         // random
@@ -66,15 +72,29 @@ namespace Mirror
         public override void ClientDisconnect()
         {
             wrap.ClientDisconnect();
+            reliableClientToServer.Clear();
             unreliableClientToServer.Clear();
         }
 
         public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
+            // segment is only valid after returning. copy it.
+            // (allocates for now. it's only for testing anyway.)
+            byte[] bytes = new byte[segment.Count];
+            Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
+            // enqueue message. send after latency interval.
+            QueuedMessage message = new QueuedMessage
+            {
+                connectionId = 0,
+                bytes = bytes,
+                time = Time.time
+            };
+
             switch (channelId)
             {
                 case Channels.DefaultReliable:
-                    wrap.ClientSend(channelId, segment);
+                    // simulate latency
+                    reliableClientToServer.Enqueue(message);
                     break;
                 case Channels.DefaultUnreliable:
                     // simulate packet loss
@@ -85,17 +105,7 @@ namespace Mirror
                     bool drop = random.NextDouble() < unreliableLoss;
                     if (!drop)
                     {
-                        // segment is only valid after returning. copy it.
-                        // (allocates for now. it's only for testing anyway.)
-                        byte[] bytes = new byte[segment.Count];
-                        Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
-                        // enqueue message. send after latency interval.
-                        QueuedMessage message = new QueuedMessage
-                        {
-                            connectionId = 0,
-                            bytes = bytes,
-                            time = Time.time
-                        };
+                        // simulate latency
                         unreliableClientToServer.Enqueue(message);
                     }
                     break;
@@ -151,6 +161,21 @@ namespace Mirror
         public override void ServerEarlyUpdate() => wrap.ServerEarlyUpdate();
         public override void ClientLateUpdate()
         {
+            // flush reliable messages after latency
+            while (reliableClientToServer.Count > 0)
+            {
+                // check the first message time
+                QueuedMessage message = reliableClientToServer.Peek();
+                if (message.time + reliableLatency <= Time.time)
+                {
+                    // send and eat (we peeked before)
+                    wrap.ClientSend(Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
+                    reliableClientToServer.Dequeue();
+                }
+                // not enough time elapsed yet
+                break;
+            }
+
             // flush unreliable messages after latency
             while (unreliableClientToServer.Count > 0)
             {
