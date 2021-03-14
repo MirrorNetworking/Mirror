@@ -32,9 +32,15 @@ namespace Mirror
 
         // message queues
         Queue<QueuedMessage> reliableClientToServer = new Queue<QueuedMessage>();
+        Queue<QueuedMessage> reliableServerToClient = new Queue<QueuedMessage>();
         Queue<QueuedMessage> unreliableClientToServer = new Queue<QueuedMessage>();
+        Queue<QueuedMessage> unreliableServerToClient = new Queue<QueuedMessage>();
 
         // random
+        // UnityEngine.Random.value is [0, 1] but we need [0, 1)
+        // aka exclusive to 1, not inclusive.
+        // => NextDouble() is NEVER < 0 so loss=0 never drops!
+        // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
         System.Random random = new System.Random();
 
         public void Awake()
@@ -98,10 +104,6 @@ namespace Mirror
                     break;
                 case Channels.DefaultUnreliable:
                     // simulate packet loss
-                    // UnityEngine.Random.value is [0, 1] but we need [0, 1)
-                    // aka exclusive to 1, not inclusive.
-                    // => NextDouble() is NEVER < 0 so loss=0 never drops!
-                    // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
                     bool drop = random.NextDouble() < unreliableLoss;
                     if (!drop)
                     {
@@ -125,20 +127,32 @@ namespace Mirror
 
         public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
+            // segment is only valid after returning. copy it.
+            // (allocates for now. it's only for testing anyway.)
+            byte[] bytes = new byte[segment.Count];
+            Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
+            // enqueue message. send after latency interval.
+            QueuedMessage message = new QueuedMessage
+            {
+                connectionId = connectionId,
+                bytes = bytes,
+                time = Time.time
+            };
+
             switch (channelId)
             {
                 case Channels.DefaultReliable:
-                    wrap.ServerSend(connectionId, channelId, segment);
+                    // simulate latency
+                    reliableServerToClient.Enqueue(message);
                     break;
                 case Channels.DefaultUnreliable:
                     // simulate packet loss
-                    // UnityEngine.Random.value is [0, 1] but we need [0, 1)
-                    // aka exclusive to 1, not inclusive.
-                    // => NextDouble() is NEVER < 0 so loss=0 never drops!
-                    // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
                     bool drop = random.NextDouble() < unreliableLoss;
                     if (!drop)
-                        wrap.ServerSend(connectionId, channelId, segment);
+                    {
+                        // simulate latency
+                        unreliableServerToClient.Enqueue(message);
+                    }
                     break;
                 default:
                     Debug.LogError($"{nameof(PressureDrop)} unexpected channelId: {channelId}");
@@ -155,7 +169,12 @@ namespace Mirror
             wrap.ServerStart();
         }
 
-        public override void ServerStop() => wrap.ServerStop();
+        public override void ServerStop()
+        {
+            wrap.ServerStop();
+            reliableServerToClient.Clear();
+            unreliableServerToClient.Clear();
+        }
 
         public override void ClientEarlyUpdate() => wrap.ClientEarlyUpdate();
         public override void ServerEarlyUpdate() => wrap.ServerEarlyUpdate();
@@ -196,6 +215,37 @@ namespace Mirror
         }
         public override void ServerLateUpdate()
         {
+            // flush reliable messages after latency
+            while (reliableServerToClient.Count > 0)
+            {
+                // check the first message time
+                QueuedMessage message = reliableServerToClient.Peek();
+                if (message.time + reliableLatency <= Time.time)
+                {
+                    // send and eat (we peeked before)
+                    wrap.ServerSend(message.connectionId, Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
+                    reliableServerToClient.Dequeue();
+                }
+                // not enough time elapsed yet
+                break;
+            }
+
+            // flush unreliable messages after latency
+            while (unreliableServerToClient.Count > 0)
+            {
+                // check the first message time
+                QueuedMessage message = unreliableServerToClient.Peek();
+                if (message.time + unreliableLatency <= Time.time)
+                {
+                    // send and eat (we peeked before)
+                    wrap.ServerSend(message.connectionId, Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
+                    unreliableServerToClient.Dequeue();
+                }
+                // not enough time elapsed yet
+                break;
+            }
+
+            // update wrapped transport too
             wrap.ServerLateUpdate();
         }
 
