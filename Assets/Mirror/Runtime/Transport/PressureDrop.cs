@@ -3,10 +3,18 @@
 // reliable: latency
 // unreliable: latency, loss, scramble (unreliable isn't ordered so we scramble)
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
 {
+    struct QueuedMessage
+    {
+        public int connectionId;
+        public byte[] bytes;
+        public float time;
+    }
+
     [DisallowMultipleComponent]
     public class PressureDrop : Transport
     {
@@ -15,7 +23,12 @@ namespace Mirror
         [Header("Unreliable Messages")]
         [Tooltip("Packet loss in %")]
         [Range(0, 1)] public float unreliableLoss;
+        public float unreliableLatency = 0;
 
+        // message queues
+        Queue<QueuedMessage> unreliableClientToServer = new Queue<QueuedMessage>();
+
+        // random
         System.Random random = new System.Random();
 
         public void Awake()
@@ -50,7 +63,11 @@ namespace Mirror
 
         public override bool ClientConnected() => wrap.ClientConnected();
 
-        public override void ClientDisconnect() => wrap.ClientDisconnect();
+        public override void ClientDisconnect()
+        {
+            wrap.ClientDisconnect();
+            unreliableClientToServer.Clear();
+        }
 
         public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
@@ -67,7 +84,20 @@ namespace Mirror
                     // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
                     bool drop = random.NextDouble() < unreliableLoss;
                     if (!drop)
-                        wrap.ClientSend(channelId, segment);
+                    {
+                        // segment is only valid after returning. copy it.
+                        // (allocates for now. it's only for testing anyway.)
+                        byte[] bytes = new byte[segment.Count];
+                        Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
+                        // enqueue message. send after latency interval.
+                        QueuedMessage message = new QueuedMessage
+                        {
+                            connectionId = 0,
+                            bytes = bytes,
+                            time = Time.time
+                        };
+                        unreliableClientToServer.Enqueue(message);
+                    }
                     break;
                 default:
                     Debug.LogError($"{nameof(PressureDrop)} unexpected channelId: {channelId}");
@@ -119,8 +149,30 @@ namespace Mirror
 
         public override void ClientEarlyUpdate() => wrap.ClientEarlyUpdate();
         public override void ServerEarlyUpdate() => wrap.ServerEarlyUpdate();
-        public override void ClientLateUpdate() => wrap.ClientLateUpdate();
-        public override void ServerLateUpdate() => wrap.ServerLateUpdate();
+        public override void ClientLateUpdate()
+        {
+            // flush unreliable messages after latency
+            while (unreliableClientToServer.Count > 0)
+            {
+                // check the first message time
+                QueuedMessage message = unreliableClientToServer.Peek();
+                if (message.time + unreliableLatency <= Time.time)
+                {
+                    // send and eat (we peeked before)
+                    wrap.ClientSend(Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
+                    unreliableClientToServer.Dequeue();
+                }
+                // not enough time elapsed yet
+                break;
+            }
+
+            // update wrapped transport too
+            wrap.ClientLateUpdate();
+        }
+        public override void ServerLateUpdate()
+        {
+            wrap.ServerLateUpdate();
+        }
 
         public override int GetMaxBatchSize(int channelId) => wrap.GetMaxBatchSize(channelId);
         public override int GetMaxPacketSize(int channelId = 0) => wrap.GetMaxPacketSize(channelId);
