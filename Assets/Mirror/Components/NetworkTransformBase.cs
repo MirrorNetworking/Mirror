@@ -79,7 +79,11 @@ namespace Mirror
             // => compress rotation from 4*4=16 to 4 bytes
             // => less bandwidth = better CCU tests / scale
             writer.WriteVector3(position);
-            writer.WriteUInt32(Compression.CompressQuaternion(rotation));
+            // use uncompressed quaternion for now.
+            // smallest three is only good for 3D games.
+            // in 2D, sprites would have tiny noticeable 'wonky' rotations to them.
+            // => need to make 2D rotations optional/selectable later!
+            writer.WriteQuaternion(rotation);
             writer.WriteVector3(scale);
         }
 
@@ -112,7 +116,11 @@ namespace Mirror
                 // deserialize position, rotation, scale
                 // (rotation is compressed)
                 localPosition = reader.ReadVector3(),
-                localRotation = Compression.DecompressQuaternion(reader.ReadUInt32()),
+                // use uncompressed quaternion for now.
+                // smallest three is only good for 3D games.
+                // in 2D, sprites would have tiny noticeable 'wonky' rotations to them.
+                // => need to make 2D rotations optional/selectable later!
+                localRotation = reader.ReadQuaternion(),
                 localScale = reader.ReadVector3(),
                 timeStamp = Time.time
             };
