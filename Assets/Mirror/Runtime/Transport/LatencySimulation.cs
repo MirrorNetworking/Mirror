@@ -16,7 +16,7 @@ namespace Mirror
     }
 
     [DisallowMultipleComponent]
-    public class PressureDrop : Transport
+    public class LatencySimulation : Transport
     {
         public Transport wrap;
 
@@ -122,7 +122,7 @@ namespace Mirror
                     }
                     break;
                 default:
-                    Debug.LogError($"{nameof(PressureDrop)} unexpected channelId: {channelId}");
+                    Debug.LogError($"{nameof(LatencySimulation)} unexpected channelId: {channelId}");
                     break;
             }
         }
@@ -169,7 +169,7 @@ namespace Mirror
                     }
                     break;
                 default:
-                    Debug.LogError($"{nameof(PressureDrop)} unexpected channelId: {channelId}");
+                    Debug.LogError($"{nameof(LatencySimulation)} unexpected channelId: {channelId}");
                     break;
             }
         }
@@ -268,6 +268,6 @@ namespace Mirror
 
         public override void Shutdown() => wrap.Shutdown();
 
-        public override string ToString() => nameof(PressureDrop) + " " + wrap;
+        public override string ToString() => nameof(LatencySimulation) + " " + wrap;
     }
 }
