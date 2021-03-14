@@ -25,12 +25,15 @@ namespace Mirror
         public float reliableLatency = 0;
         // note: packet loss over reliable manifests itself in latency.
         //       don't need (and can't add) a loss option here.
+        // note: reliable is ordered by definition. no need to scramble.
 
         [Header("Unreliable Messages")]
         [Tooltip("Packet loss in %")]
         [Range(0, 1)] public float unreliableLoss;
         [Tooltip("Unreliable latency in seconds")]
         public float unreliableLatency = 0;
+        [Tooltip("Scramble unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
+        public bool unreliableScramble;
 
         // message queues
         // list so we can insert randomly (scramble)
@@ -110,8 +113,12 @@ namespace Mirror
                     bool drop = random.NextDouble() < unreliableLoss;
                     if (!drop)
                     {
+                        // simulate scramble (Random.Next is < max, so +1)
+                        int last = unreliableClientToServer.Count;
+                        int index = unreliableScramble ? random.Next(0, last + 1) : last;
+
                         // simulate latency
-                        unreliableClientToServer.Add(message);
+                        unreliableClientToServer.Insert(index, message);
                     }
                     break;
                 default:
@@ -153,8 +160,12 @@ namespace Mirror
                     bool drop = random.NextDouble() < unreliableLoss;
                     if (!drop)
                     {
+                        // simulate scramble (Random.Next is < max, so +1)
+                        int last = unreliableServerToClient.Count;
+                        int index = unreliableScramble ? random.Next(0, last + 1) : last;
+
                         // simulate latency
-                        unreliableServerToClient.Add(message);
+                        unreliableServerToClient.Insert(index, message);
                     }
                     break;
                 default:
