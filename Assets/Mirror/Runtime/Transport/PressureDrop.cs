@@ -23,6 +23,8 @@ namespace Mirror
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
         public float reliableLatency = 0;
+        // note: packet loss over reliable manifests itself in latency.
+        //       don't need (and can't add) a loss option here.
 
         [Header("Unreliable Messages")]
         [Tooltip("Packet loss in %")]
