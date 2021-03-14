@@ -15,6 +15,7 @@ namespace Mirror
         public float time;
     }
 
+    [HelpURL("https://mirror-networking.gitbook.io/docs/transports/latency-simulaton-transport")]
     [DisallowMultipleComponent]
     public class LatencySimulation : Transport
     {
