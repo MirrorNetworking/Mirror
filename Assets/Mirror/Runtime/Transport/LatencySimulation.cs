@@ -87,6 +87,8 @@ namespace Mirror
                     if (!drop)
                     {
                         // simulate scramble (Random.Next is < max, so +1)
+                        // note that list entries are NOT ordered by time anymore
+                        // after inserting randomly.
                         int last = unreliableQueue.Count;
                         int index = unreliableScramble ? random.Next(0, last + 1) : last;
 
