@@ -24,6 +24,8 @@ namespace Mirror
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
         public float reliableLatency = 0;
+        [Tooltip("Simulate latency spikes with % of latency for % of messages.")]
+        [Range(0, 1)] public float reliableLatencySpikes;
         // note: packet loss over reliable manifests itself in latency.
         //       don't need (and can't add) a loss option here.
         // note: reliable is ordered by definition. no need to scramble.
@@ -31,6 +33,8 @@ namespace Mirror
         [Header("Unreliable Messages")]
         [Tooltip("Unreliable latency in seconds")]
         public float unreliableLatency = 0;
+        [Tooltip("Simulate latency spikes with % of latency for % of messages.")]
+        [Range(0, 1)] public float unreliableLatencySpikes;
         [Tooltip("Packet loss in %")]
         [Range(0, 1)] public float unreliableLoss;
         [Tooltip("Scramble unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
@@ -60,6 +64,19 @@ namespace Mirror
         void OnEnable() { wrap.enabled = true; }
         void OnDisable() { wrap.enabled = false; }
 
+        // helper function to simulate latency & spike with spike probability
+        float SimulateLatency(float latency, float spikesPercent)
+        {
+            // will this one spike?
+            bool spike = random.NextDouble() < spikesPercent;
+
+            // if it spiked, add spike latency by percent of original latency
+            float add = spike ? latency * spikesPercent : 0;
+
+            // return latency + spike
+            return latency + add;
+        }
+
         // helper function to simulate a send with latency/loss/scramble
         void SimulateSend(int connectionId, int channelId, ArraySegment<byte> segment, List<QueuedMessage> reliableQueue, List<QueuedMessage> unreliableQueue)
         {
@@ -78,8 +95,8 @@ namespace Mirror
             switch (channelId)
             {
                 case Channels.DefaultReliable:
-                    // simulate latency
-                    message.timeToSend = Time.time + reliableLatency;
+                    // simulate latency & spikes
+                    message.timeToSend = Time.time + SimulateLatency(reliableLatency, reliableLatencySpikes);
                     reliableQueue.Add(message);
                     break;
                 case Channels.DefaultUnreliable:
@@ -93,8 +110,8 @@ namespace Mirror
                         int last = unreliableQueue.Count;
                         int index = unreliableScramble ? random.Next(0, last + 1) : last;
 
-                        // simulate latency
-                        message.timeToSend = Time.time + unreliableLatency;
+                        // simulate latency & spikes
+                        message.timeToSend = Time.time + SimulateLatency(unreliableLatency, unreliableLatencySpikes);
                         unreliableQueue.Insert(index, message);
                     }
                     break;
