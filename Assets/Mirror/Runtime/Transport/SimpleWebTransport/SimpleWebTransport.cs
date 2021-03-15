@@ -150,7 +150,7 @@ namespace Mirror.SimpleWeb
                 // there should be no more messages after disconnect
                 client = null;
             };
-            client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.DefaultReliable);
+            client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.Reliable);
             client.onError += (Exception e) =>
             {
                 OnClientError.Invoke(e);
@@ -214,7 +214,7 @@ namespace Mirror.SimpleWeb
 
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
-            server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.DefaultReliable);
+            server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.Reliable);
             server.onError += OnServerError.Invoke;
 
             SendLoopConfig.batchSend = batchSend || waitBeforeSend;

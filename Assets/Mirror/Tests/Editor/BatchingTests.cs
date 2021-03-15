@@ -39,7 +39,7 @@ namespace Mirror.Tests
         public void SendEmptyBatch()
         {
             // empty batch - nothing should be sent
-            connection.SendBatch(Channels.DefaultReliable, batch);
+            connection.SendBatch(Channels.Reliable, batch);
             Assert.That(transport.clientIncoming.Count, Is.EqualTo(0));
         }
 
@@ -47,7 +47,7 @@ namespace Mirror.Tests
         public void SendAlmostMaxBatchSizedMessageBatch()
         {
             // create a message < max batch size
-            int max = transport.GetMaxBatchSize(Channels.DefaultReliable);
+            int max = transport.GetMaxBatchSize(Channels.Reliable);
             byte[] message = new byte[max-1];
 
             // add to batch queue
@@ -56,7 +56,7 @@ namespace Mirror.Tests
             batch.messages.Enqueue(writer);
 
             // send batch - client should receive that exact message
-            connection.SendBatch(Channels.DefaultReliable, batch);
+            connection.SendBatch(Channels.Reliable, batch);
             Assert.That(transport.clientIncoming.Count, Is.EqualTo(1));
             Assert.That(transport.clientIncoming.Dequeue().data.Length, Is.EqualTo(message.Length));
         }
@@ -65,7 +65,7 @@ namespace Mirror.Tests
         public void SendMaxBatchSizedMessageBatch()
         {
             // create a message == max batch size
-            int max = transport.GetMaxBatchSize(Channels.DefaultReliable);
+            int max = transport.GetMaxBatchSize(Channels.Reliable);
             byte[] message = new byte[max];
 
             // add to batch queue
@@ -74,7 +74,7 @@ namespace Mirror.Tests
             batch.messages.Enqueue(writer);
 
             // send batch - client should receive that exact message
-            connection.SendBatch(Channels.DefaultReliable, batch);
+            connection.SendBatch(Channels.Reliable, batch);
             Assert.That(transport.clientIncoming.Count, Is.EqualTo(1));
             Assert.That(transport.clientIncoming.Dequeue().data.Length, Is.EqualTo(message.Length));
         }
@@ -97,7 +97,7 @@ namespace Mirror.Tests
             batch.messages.Enqueue(writerB);
 
             // send batch - client should receive one message that contains A, B
-            connection.SendBatch(Channels.DefaultReliable, batch);
+            connection.SendBatch(Channels.Reliable, batch);
             Assert.That(transport.clientIncoming.Count, Is.EqualTo(1));
             MemoryTransport.Message msg = transport.clientIncoming.Dequeue();
             Assert.That(msg.data.Length, Is.EqualTo(4));
@@ -111,7 +111,7 @@ namespace Mirror.Tests
         public void SendAlmostMaxBatchSizedAndSmallMessageBatch()
         {
             // create a message < max batch size
-            int max = transport.GetMaxBatchSize(Channels.DefaultReliable);
+            int max = transport.GetMaxBatchSize(Channels.Reliable);
             byte[] almost = new byte[max-1];
 
             // create small message
@@ -129,7 +129,7 @@ namespace Mirror.Tests
 
             // send batch - should send the first one and then the second one
             // because both together would've been > max
-            connection.SendBatch(Channels.DefaultReliable, batch);
+            connection.SendBatch(Channels.Reliable, batch);
             Assert.That(transport.clientIncoming.Count, Is.EqualTo(2));
             Assert.That(transport.clientIncoming.Dequeue().data.Length, Is.EqualTo(almost.Length));
             Assert.That(transport.clientIncoming.Dequeue().data.Length, Is.EqualTo(small.Length));
@@ -142,8 +142,8 @@ namespace Mirror.Tests
         [Test]
         public void SendLargerMaxBatchSizedMessageBatch()
         {
-            int maxBatch = transport.GetMaxBatchSize(Channels.DefaultReliable);
-            int maxPacket = transport.GetMaxPacketSize(Channels.DefaultReliable);
+            int maxBatch = transport.GetMaxBatchSize(Channels.Reliable);
+            int maxPacket = transport.GetMaxPacketSize(Channels.Reliable);
 
             // we can only tested if transport max batch < max message
             Assert.That(maxBatch < maxPacket, Is.True);
@@ -157,7 +157,7 @@ namespace Mirror.Tests
             batch.messages.Enqueue(writer);
 
             // send batch - client should receive that exact message
-            connection.SendBatch(Channels.DefaultReliable, batch);
+            connection.SendBatch(Channels.Reliable, batch);
             Assert.That(transport.clientIncoming.Count, Is.EqualTo(1));
             Assert.That(transport.clientIncoming.Dequeue().data.Length, Is.EqualTo(message.Length));
         }

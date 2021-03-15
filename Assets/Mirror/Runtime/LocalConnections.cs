@@ -14,7 +14,7 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             // get a writer to copy the message into since the segment is only
             // valid until returning.
@@ -63,7 +63,7 @@ namespace Mirror
         internal void QueueConnectedEvent() => connectedEventPending = true;
         internal void QueueDisconnectedEvent() => disconnectedEventPending = true;
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             if (segment.Count == 0)
             {
@@ -91,7 +91,7 @@ namespace Mirror
                 PooledNetworkWriter writer = queue.Dequeue();
                 ArraySegment<byte> segment = writer.ToArraySegment();
                 //Debug.Log("Dequeue " + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-                TransportReceive(segment, Channels.DefaultReliable);
+                TransportReceive(segment, Channels.Reliable);
                 NetworkWriterPool.Recycle(writer);
             }
 

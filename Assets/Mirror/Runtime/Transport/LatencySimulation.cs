@@ -12,7 +12,7 @@ namespace Mirror
     {
         public int connectionId;
         public byte[] bytes;
-        public float timeToSend;
+        public float time;
     }
 
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/latency-simulaton-transport")]
@@ -24,19 +24,15 @@ namespace Mirror
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
         public float reliableLatency = 0;
-        [Tooltip("Simulate latency spikes with % of latency for % of messages.")]
-        [Range(0, 1)] public float reliableLatencySpikes;
         // note: packet loss over reliable manifests itself in latency.
         //       don't need (and can't add) a loss option here.
         // note: reliable is ordered by definition. no need to scramble.
 
         [Header("Unreliable Messages")]
-        [Tooltip("Unreliable latency in seconds")]
-        public float unreliableLatency = 0;
-        [Tooltip("Simulate latency spikes with % of latency for % of messages.")]
-        [Range(0, 1)] public float unreliableLatencySpikes;
         [Tooltip("Packet loss in %")]
         [Range(0, 1)] public float unreliableLoss;
+        [Tooltip("Unreliable latency in seconds")]
+        public float unreliableLatency = 0;
         [Tooltip("Scramble unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         public bool unreliableScramble;
 
@@ -64,19 +60,6 @@ namespace Mirror
         void OnEnable() { wrap.enabled = true; }
         void OnDisable() { wrap.enabled = false; }
 
-        // helper function to simulate latency & spike with spike probability
-        float SimulateLatency(float latency, float spikesPercent)
-        {
-            // will this one spike?
-            bool spike = random.NextDouble() < spikesPercent;
-
-            // if it spiked, add spike latency by percent of original latency
-            float add = spike ? latency * spikesPercent : 0;
-
-            // return latency + spike
-            return latency + add;
-        }
-
         // helper function to simulate a send with latency/loss/scramble
         void SimulateSend(int connectionId, int channelId, ArraySegment<byte> segment, List<QueuedMessage> reliableQueue, List<QueuedMessage> unreliableQueue)
         {
@@ -84,34 +67,30 @@ namespace Mirror
             // (allocates for now. it's only for testing anyway.)
             byte[] bytes = new byte[segment.Count];
             Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
-
             // enqueue message. send after latency interval.
             QueuedMessage message = new QueuedMessage
             {
                 connectionId = connectionId,
-                bytes = bytes
+                bytes = bytes,
+                time = Time.time
             };
 
             switch (channelId)
             {
-                case Channels.DefaultReliable:
-                    // simulate latency & spikes
-                    message.timeToSend = Time.time + SimulateLatency(reliableLatency, reliableLatencySpikes);
+                case Channels.Reliable:
+                    // simulate latency
                     reliableQueue.Add(message);
                     break;
-                case Channels.DefaultUnreliable:
+                case Channels.Unreliable:
                     // simulate packet loss
                     bool drop = random.NextDouble() < unreliableLoss;
                     if (!drop)
                     {
                         // simulate scramble (Random.Next is < max, so +1)
-                        // note that list entries are NOT ordered by time anymore
-                        // after inserting randomly.
                         int last = unreliableQueue.Count;
                         int index = unreliableScramble ? random.Next(0, last + 1) : last;
 
-                        // simulate latency & spikes
-                        message.timeToSend = Time.time + SimulateLatency(unreliableLatency, unreliableLatencySpikes);
+                        // simulate latency
                         unreliableQueue.Insert(index, message);
                     }
                     break;
@@ -184,32 +163,34 @@ namespace Mirror
         public override void ServerEarlyUpdate() => wrap.ServerEarlyUpdate();
         public override void ClientLateUpdate()
         {
-            // flush reliable messages that are ready to be sent
-            // => list isn't ordered (due to scramble). need to iterate all.
-            for (int i = 0; i < reliableClientToServer.Count; ++i)
+            // flush reliable messages after latency
+            while (reliableClientToServer.Count > 0)
             {
-                QueuedMessage message = reliableClientToServer[i];
-                if (Time.time >= message.timeToSend)
+                // check the first message time
+                QueuedMessage message = reliableClientToServer[0];
+                if (message.time + reliableLatency <= Time.time)
                 {
-                    // send and remove
-                    wrap.ClientSend(Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
-                    reliableClientToServer.RemoveAt(i);
-                    --i;
+                    // send and eat
+                    wrap.ClientSend(Channels.Reliable, new ArraySegment<byte>(message.bytes));
+                    reliableClientToServer.RemoveAt(0);
                 }
+                // not enough time elapsed yet
+                break;
             }
 
-            // flush unrelabe messages that are ready to be sent
-            // => list isn't ordered (due to scramble). need to iterate all.
-            for (int i = 0; i < unreliableClientToServer.Count; ++i)
+            // flush unreliable messages after latency
+            while (unreliableClientToServer.Count > 0)
             {
-                QueuedMessage message = unreliableClientToServer[i];
-                if (Time.time >= message.timeToSend)
+                // check the first message time
+                QueuedMessage message = unreliableClientToServer[0];
+                if (message.time + unreliableLatency <= Time.time)
                 {
-                    // send and remove
-                    wrap.ClientSend(Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
-                    unreliableClientToServer.RemoveAt(i);
-                    --i;
+                    // send and eat
+                    wrap.ClientSend(Channels.Unreliable, new ArraySegment<byte>(message.bytes));
+                    unreliableClientToServer.RemoveAt(0);
                 }
+                // not enough time elapsed yet
+                break;
             }
 
             // update wrapped transport too
@@ -217,32 +198,34 @@ namespace Mirror
         }
         public override void ServerLateUpdate()
         {
-            // flush reliable messages that are ready to be sent
-            // => list isn't ordered (due to scramble). need to iterate all.
-            for (int i = 0; i < reliableServerToClient.Count; ++i)
+            // flush reliable messages after latency
+            while (reliableServerToClient.Count > 0)
             {
-                QueuedMessage message = reliableServerToClient[i];
-                if (Time.time >= message.timeToSend)
+                // check the first message time
+                QueuedMessage message = reliableServerToClient[0];
+                if (message.time + reliableLatency <= Time.time)
                 {
-                    // send and remove
-                    wrap.ServerSend(message.connectionId, Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
-                    reliableServerToClient.RemoveAt(i);
-                    --i;
+                    // send and eat
+                    wrap.ServerSend(message.connectionId, Channels.Reliable, new ArraySegment<byte>(message.bytes));
+                    reliableServerToClient.RemoveAt(0);
                 }
+                // not enough time elapsed yet
+                break;
             }
 
-            // flush unrelabe messages that are ready to be sent
-            // => list isn't ordered (due to scramble). need to iterate all.
-            for (int i = 0; i < unreliableServerToClient.Count; ++i)
+            // flush unreliable messages after latency
+            while (unreliableServerToClient.Count > 0)
             {
-                QueuedMessage message = unreliableServerToClient[i];
-                if (Time.time >= message.timeToSend)
+                // check the first message time
+                QueuedMessage message = unreliableServerToClient[0];
+                if (message.time + unreliableLatency <= Time.time)
                 {
-                    // send and remove
-                    wrap.ServerSend(message.connectionId, Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
-                    unreliableServerToClient.RemoveAt(i);
-                    --i;
+                    // send and eat
+                    wrap.ServerSend(message.connectionId, Channels.Unreliable, new ArraySegment<byte>(message.bytes));
+                    unreliableServerToClient.RemoveAt(0);
                 }
+                // not enough time elapsed yet
+                break;
             }
 
             // update wrapped transport too
