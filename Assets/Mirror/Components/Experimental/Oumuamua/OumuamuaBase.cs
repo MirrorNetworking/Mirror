@@ -62,7 +62,7 @@ namespace Mirror.Experimental
             if (isServer)
             {
                 // check only each 'sendInterval'
-                if (Time.time - lastServerSendTime >= sendInterval)
+                if (Time.time >= lastServerSendTime + sendInterval)
                 {
                     // broadcast to clients
                     RpcServerToClientSync(targetComponent.localPosition,
@@ -79,7 +79,7 @@ namespace Mirror.Experimental
                 if (!isServer && IsClientWithAuthority)
                 {
                     // check only each 'sendInterval'
-                    if (Time.time - lastClientSendTime >= sendInterval)
+                    if (Time.time >= lastClientSendTime + sendInterval)
                     {
                         // send to server
                         CmdClientToServerSync(targetComponent.localPosition,
