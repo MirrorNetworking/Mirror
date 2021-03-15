@@ -46,16 +46,6 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.test-framework.performance": {
-      "version": "2.7.0-preview",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.test-framework": "1.1.0",
-        "com.unity.modules.jsonserialize": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.textmeshpro": {
       "version": "2.0.1",
       "depth": 0,
