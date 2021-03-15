@@ -44,8 +44,8 @@ namespace Mirror
         List<QueuedMessage> unreliableServerToClient = new List<QueuedMessage>();
 
         // random
-        // UnityEngine.Random.value is [0, 1] but we need [0, 1)
-        // aka exclusive to 1, not inclusive.
+        // UnityEngine.Random.value is [0, 1] with both upper and lower bounds inclusive
+        // but we need the upper bound to be exclusive, so using System.Random instead.
         // => NextDouble() is NEVER < 0 so loss=0 never drops!
         // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
         System.Random random = new System.Random();
