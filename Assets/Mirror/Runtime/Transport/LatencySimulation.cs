@@ -60,6 +60,46 @@ namespace Mirror
         void OnEnable() { wrap.enabled = true; }
         void OnDisable() { wrap.enabled = false; }
 
+        // helper function to simulate a send with latency/loss/scramble
+        void SimulateSend(int connectionId, int channelId, ArraySegment<byte> segment, List<QueuedMessage> reliableQueue, List<QueuedMessage> unreliableQueue)
+        {
+            // segment is only valid after returning. copy it.
+            // (allocates for now. it's only for testing anyway.)
+            byte[] bytes = new byte[segment.Count];
+            Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
+            // enqueue message. send after latency interval.
+            QueuedMessage message = new QueuedMessage
+            {
+                connectionId = connectionId,
+                bytes = bytes,
+                time = Time.time
+            };
+
+            switch (channelId)
+            {
+                case Channels.DefaultReliable:
+                    // simulate latency
+                    reliableQueue.Add(message);
+                    break;
+                case Channels.DefaultUnreliable:
+                    // simulate packet loss
+                    bool drop = random.NextDouble() < unreliableLoss;
+                    if (!drop)
+                    {
+                        // simulate scramble (Random.Next is < max, so +1)
+                        int last = unreliableQueue.Count;
+                        int index = unreliableScramble ? random.Next(0, last + 1) : last;
+
+                        // simulate latency
+                        unreliableQueue.Insert(index, message);
+                    }
+                    break;
+                default:
+                    Debug.LogError($"{nameof(LatencySimulation)} unexpected channelId: {channelId}");
+                    break;
+            }
+        }
+
         public override bool Available() => wrap.Available();
 
         public override void ClientConnect(string address)
@@ -89,44 +129,8 @@ namespace Mirror
             unreliableClientToServer.Clear();
         }
 
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
-        {
-            // segment is only valid after returning. copy it.
-            // (allocates for now. it's only for testing anyway.)
-            byte[] bytes = new byte[segment.Count];
-            Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
-            // enqueue message. send after latency interval.
-            QueuedMessage message = new QueuedMessage
-            {
-                connectionId = 0,
-                bytes = bytes,
-                time = Time.time
-            };
-
-            switch (channelId)
-            {
-                case Channels.DefaultReliable:
-                    // simulate latency
-                    reliableClientToServer.Add(message);
-                    break;
-                case Channels.DefaultUnreliable:
-                    // simulate packet loss
-                    bool drop = random.NextDouble() < unreliableLoss;
-                    if (!drop)
-                    {
-                        // simulate scramble (Random.Next is < max, so +1)
-                        int last = unreliableClientToServer.Count;
-                        int index = unreliableScramble ? random.Next(0, last + 1) : last;
-
-                        // simulate latency
-                        unreliableClientToServer.Insert(index, message);
-                    }
-                    break;
-                default:
-                    Debug.LogError($"{nameof(LatencySimulation)} unexpected channelId: {channelId}");
-                    break;
-            }
-        }
+        public override void ClientSend(int channelId, ArraySegment<byte> segment) =>
+            SimulateSend(0, channelId, segment, reliableClientToServer, unreliableClientToServer);
 
         public override Uri ServerUri() => wrap.ServerUri();
 
@@ -136,44 +140,8 @@ namespace Mirror
 
         public override bool ServerDisconnect(int connectionId) => wrap.ServerDisconnect(connectionId);
 
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
-        {
-            // segment is only valid after returning. copy it.
-            // (allocates for now. it's only for testing anyway.)
-            byte[] bytes = new byte[segment.Count];
-            Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
-            // enqueue message. send after latency interval.
-            QueuedMessage message = new QueuedMessage
-            {
-                connectionId = connectionId,
-                bytes = bytes,
-                time = Time.time
-            };
-
-            switch (channelId)
-            {
-                case Channels.DefaultReliable:
-                    // simulate latency
-                    reliableServerToClient.Add(message);
-                    break;
-                case Channels.DefaultUnreliable:
-                    // simulate packet loss
-                    bool drop = random.NextDouble() < unreliableLoss;
-                    if (!drop)
-                    {
-                        // simulate scramble (Random.Next is < max, so +1)
-                        int last = unreliableServerToClient.Count;
-                        int index = unreliableScramble ? random.Next(0, last + 1) : last;
-
-                        // simulate latency
-                        unreliableServerToClient.Insert(index, message);
-                    }
-                    break;
-                default:
-                    Debug.LogError($"{nameof(LatencySimulation)} unexpected channelId: {channelId}");
-                    break;
-            }
-        }
+        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment) =>
+            SimulateSend(connectionId, channelId, segment, reliableServerToClient, unreliableServerToClient);
 
         public override void ServerStart()
         {
