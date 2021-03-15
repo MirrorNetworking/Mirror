@@ -1,47 +1,22 @@
+// Transport Rules
+//
+// All transports should follow these rules so that they work correctly with mirror:
+// * When Monobehaviour is disabled the Transport should not invoke callbacks
+// * Callbacks should be invoked on main thread. It is best to do this from LateUpdate
+// * Callbacks can be invoked after ServerStop or ClientDisconnect has been called
+// * ServerStop or ClientDisconnect can be called by mirror multiple times
+// * Available should check the platform and 32 vs 64 bit if the transport only works on some of them
+// * GetMaxPacketSize should return size even if transport is not running
+// * Default channel should be reliable Channels.DefaultReliable
 using System;
 using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>
-    /// Abstract transport layer component
-    /// </summary>
-    /// <remarks>
-    /// <h2>
-    ///   Transport Rules
-    /// </h2>
-    /// <list type="bullet">
-    ///   <listheader><description>
-    ///     All transports should follow these rules so that they work correctly with mirror
-    ///   </description></listheader>
-    ///   <item><description>
-    ///     When Monobehaviour is disabled the Transport should not invoke callbacks
-    ///   </description></item>
-    ///   <item><description>
-    ///     Callbacks should be invoked on main thread. It is best to do this from LateUpdate
-    ///   </description></item>
-    ///   <item><description>
-    ///     Callbacks can be invoked after <see cref="ServerStop"/> or <see cref="ClientDisconnect"/> as been called
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="ServerStop"/> or <see cref="ClientDisconnect"/> can be called by mirror multiple times
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="Available"/> should check the platform and 32 vs 64 bit if the transport only works on some of them
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="GetMaxPacketSize"/> should return size even if transport is not running
-    ///   </description></item>
-    ///   <item><description>
-    ///     Default channel should be reliable <see cref="Channels.DefaultReliable"/>
-    ///   </description></item>
-    /// </list>
-    /// </remarks>
+    /// <summary>Abstract transport layer component</summary>
     public abstract class Transport : MonoBehaviour
     {
-        /// <summary>
-        /// The current transport used by Mirror.
-        /// </summary>
+        /// <summary>The current transport used by Mirror.</summary>
         public static Transport activeTransport;
 
         /// <summary>
@@ -53,47 +28,25 @@ namespace Mirror
         /// <returns>True if this transport works in the current platform</returns>
         public abstract bool Available();
 
-        #region Client
-        /// <summary>
-        /// Notify subscribers when this client establish a successful connection to the server
-        /// <para>callback()</para>
-        /// </summary>
+        /// <summary>Notify subscribers when this client establish a successful connection to the server</summary>
         public Action OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
 
-        /// <summary>
-        /// Notify subscribers when this client receive data from the server
-        /// <para>callback(ArraySegment&lt;byte&gt; data, int channel)</para>
-        /// </summary>
+        /// <summary>Notify subscribers when this client receive data from the server</summary>
         public Action<ArraySegment<byte>, int> OnClientDataReceived = (data, channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
 
-        /// <summary>
-        /// Notify subscribers when this client encounters an error communicating with the server
-        /// <para>callback(Exception e)</para>
-        /// </summary>
+        /// <summary>Notify subscribers when this client encounters an error communicating with the server</summary>
         public Action<Exception> OnClientError = (error) => Debug.LogWarning("OnClientError called with no handler");
 
-        /// <summary>
-        /// Notify subscribers when this client disconnects from the server
-        /// <para>callback()</para>
-        /// </summary>
+        /// <summary>Notify subscribers when this client disconnects from the server</summary>
         public Action OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
 
-        /// <summary>
-        /// Determines if we are currently connected to the server
-        /// </summary>
-        /// <returns>True if a connection has been established to the server</returns>
+        /// <summary>Determines if we are currently connected to the server</summary>
         public abstract bool ClientConnected();
 
-        /// <summary>
-        /// Establish a connection to a server
-        /// </summary>
-        /// <param name="address">The IP address or FQDN of the server we are trying to connect to</param>
+        /// <summary>Establish a connection to a server</summary>
         public abstract void ClientConnect(string address);
 
-        /// <summary>
-        /// Establish a connection to a server
-        /// </summary>
-        /// <param name="uri">The address of the server we are trying to connect to</param>
+        /// <summary>Establish a connection to a server</summary>
         public virtual void ClientConnect(Uri uri)
         {
             // By default, to keep backwards compatibility, just connect to the host
@@ -101,36 +54,16 @@ namespace Mirror
             ClientConnect(uri.Host);
         }
 
-        /// <summary>
-        /// Send data to the server
-        /// </summary>
-        /// <param name="channelId">The channel to use.  0 is the default channel,
-        /// but some transports might want to provide unreliable, encrypted, compressed, or any other feature
-        /// as new channels</param>
-        /// <param name="segment">The data to send to the server. Will be recycled after returning, so either use it directly or copy it internally. This allows for allocation-free sends!</param>
+        /// <summary>Send data to the server over a given channel</summary>
         public abstract void ClientSend(int channelId, ArraySegment<byte> segment);
 
-        /// <summary>
-        /// Disconnect this client from the server
-        /// </summary>
+        /// <summary>Disconnect this client from the server</summary>
         public abstract void ClientDisconnect();
 
-        #endregion
-
-        #region Server
-
-
-        /// <summary>
-        /// Retrieves the address of this server.
-        /// Useful for network discovery
-        /// </summary>
-        /// <returns>the url at which this server can be reached</returns>
+        /// <summary>Get the address of this server. Useful for network discovery</summary>
         public abstract Uri ServerUri();
 
-        /// <summary>
-        /// Notify subscribers when a client connects to this server
-        /// <para>callback(int connId)</para>
-        /// </summary>
+        /// <summary>Notify subscribers when a client connects to this server</summary>
         public Action<int> OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
 
         /// <summary>
