@@ -71,22 +71,18 @@ namespace Mirror.Experimental
                     lastServerSendTime = Time.time;
                 }
             }
-
-            // no 'else if' since host mode would be both
-            if (isClient)
+            // 'else if' because host mode shouldn't send anything to server.
+            // it is the server. don't overwrite anything there.
+            else if (isClient && IsClientWithAuthority)
             {
-                // send to server if we have local authority (and aren't the server)
-                if (!isServer && IsClientWithAuthority)
+                // check only each 'sendInterval'
+                if (Time.time >= lastClientSendTime + sendInterval)
                 {
-                    // check only each 'sendInterval'
-                    if (Time.time >= lastClientSendTime + sendInterval)
-                    {
-                        // send to server
-                        CmdClientToServerSync(targetComponent.localPosition,
-                                              targetComponent.localRotation,
-                                              targetComponent.localScale);
-                        lastClientSendTime = Time.time;
-                    }
+                    // send to server
+                    CmdClientToServerSync(targetComponent.localPosition,
+                                          targetComponent.localRotation,
+                                          targetComponent.localScale);
+                    lastClientSendTime = Time.time;
                 }
             }
         }
