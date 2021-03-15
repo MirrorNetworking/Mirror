@@ -269,6 +269,6 @@ namespace Mirror
 
         public override void Shutdown() => wrap.Shutdown();
 
-        public override string ToString() => nameof(LatencySimulation) + " " + wrap;
+        public override string ToString() => $"{nameof(LatencySimulation)} {wrap}";
     }
 }
