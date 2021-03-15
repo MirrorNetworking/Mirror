@@ -1,13 +1,7 @@
 {
   "dependencies": {
-    "com.unity.2d.sprite": "1.0.0",
-    "com.unity.2d.tilemap": "1.0.0",
-    "com.unity.ide.rider": "1.1.4",
-    "com.unity.ide.vscode": "1.2.3",
     "com.unity.test-framework": "1.1.22",
-    "com.unity.test-framework.performance": "2.7.0-preview",
     "com.unity.textmeshpro": "2.0.1",
-    "com.unity.timeline": "1.2.6",
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.legacyinputhelpers": "2.1.7",
     "com.unity.modules.ai": "1.0.0",
@@ -41,8 +35,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "testables": [
-    "com.unity.test-framework.performance"
-  ]
+  }
 }
