@@ -12,7 +12,7 @@ namespace Mirror
     {
         public int connectionId;
         public byte[] bytes;
-        public float time;
+        public float timeToSend;
     }
 
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/latency-simulaton-transport")]
@@ -67,18 +67,19 @@ namespace Mirror
             // (allocates for now. it's only for testing anyway.)
             byte[] bytes = new byte[segment.Count];
             Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
+
             // enqueue message. send after latency interval.
             QueuedMessage message = new QueuedMessage
             {
                 connectionId = connectionId,
-                bytes = bytes,
-                time = Time.time
+                bytes = bytes
             };
 
             switch (channelId)
             {
                 case Channels.DefaultReliable:
                     // simulate latency
+                    message.timeToSend = Time.time + reliableLatency;
                     reliableQueue.Add(message);
                     break;
                 case Channels.DefaultUnreliable:
@@ -93,6 +94,7 @@ namespace Mirror
                         int index = unreliableScramble ? random.Next(0, last + 1) : last;
 
                         // simulate latency
+                        message.timeToSend = Time.time + unreliableLatency;
                         unreliableQueue.Insert(index, message);
                     }
                     break;
@@ -165,34 +167,32 @@ namespace Mirror
         public override void ServerEarlyUpdate() => wrap.ServerEarlyUpdate();
         public override void ClientLateUpdate()
         {
-            // flush reliable messages after latency
-            while (reliableClientToServer.Count > 0)
+            // flush reliable messages that are ready to be sent
+            // => list isn't ordered (due to scramble). need to iterate all.
+            for (int i = 0; i < reliableClientToServer.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = reliableClientToServer[0];
-                if (message.time + reliableLatency <= Time.time)
+                QueuedMessage message = reliableClientToServer[i];
+                if (Time.time >= message.timeToSend)
                 {
-                    // send and eat
+                    // send and remove
                     wrap.ClientSend(Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
-                    reliableClientToServer.RemoveAt(0);
+                    reliableClientToServer.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
-            // flush unreliable messages after latency
-            while (unreliableClientToServer.Count > 0)
+            // flush unrelabe messages that are ready to be sent
+            // => list isn't ordered (due to scramble). need to iterate all.
+            for (int i = 0; i < unreliableClientToServer.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = unreliableClientToServer[0];
-                if (message.time + unreliableLatency <= Time.time)
+                QueuedMessage message = unreliableClientToServer[i];
+                if (Time.time >= message.timeToSend)
                 {
-                    // send and eat
+                    // send and remove
                     wrap.ClientSend(Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
-                    unreliableClientToServer.RemoveAt(0);
+                    unreliableClientToServer.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
             // update wrapped transport too
@@ -200,34 +200,32 @@ namespace Mirror
         }
         public override void ServerLateUpdate()
         {
-            // flush reliable messages after latency
-            while (reliableServerToClient.Count > 0)
+            // flush reliable messages that are ready to be sent
+            // => list isn't ordered (due to scramble). need to iterate all.
+            for (int i = 0; i < reliableServerToClient.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = reliableServerToClient[0];
-                if (message.time + reliableLatency <= Time.time)
+                QueuedMessage message = reliableServerToClient[i];
+                if (Time.time >= message.timeToSend)
                 {
-                    // send and eat
+                    // send and remove
                     wrap.ServerSend(message.connectionId, Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
-                    reliableServerToClient.RemoveAt(0);
+                    reliableServerToClient.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
-            // flush unreliable messages after latency
-            while (unreliableServerToClient.Count > 0)
+            // flush unrelabe messages that are ready to be sent
+            // => list isn't ordered (due to scramble). need to iterate all.
+            for (int i = 0; i < unreliableServerToClient.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = unreliableServerToClient[0];
-                if (message.time + unreliableLatency <= Time.time)
+                QueuedMessage message = unreliableServerToClient[i];
+                if (Time.time >= message.timeToSend)
                 {
-                    // send and eat
+                    // send and remove
                     wrap.ServerSend(message.connectionId, Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
-                    unreliableServerToClient.RemoveAt(0);
+                    unreliableServerToClient.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
             // update wrapped transport too
