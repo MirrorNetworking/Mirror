@@ -25,6 +25,15 @@ namespace Mirror.Experimental
         float lastClientSendTime;
         float lastServerSendTime;
 
+        // set position carefully depending on the target component
+        void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            // local position/rotation for VR support
+            targetComponent.localPosition = position;
+            targetComponent.localRotation = rotation;
+            targetComponent.localScale = scale;
+        }
+
         // local authority client sends sync message to server for broadcasting
         [Command(channel = Channels.DefaultUnreliable)]
         void CmdClientToServerSync(Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
@@ -45,15 +54,6 @@ namespace Mirror.Experimental
             {
                 ApplyPositionRotationScale(localPosition, localRotation, localScale);
             }
-        }
-
-        // set position carefully depending on the target component
-        void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
-        {
-            // local position/rotation for VR support
-            targetComponent.localPosition = position;
-            targetComponent.localRotation = rotation;
-            targetComponent.localScale = scale;
         }
 
         void Update()
