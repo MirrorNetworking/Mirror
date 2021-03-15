@@ -142,7 +142,6 @@ namespace Mirror
                 localScale = targetComponent.localScale,
                 timeStamp = Time.time
             };
-
             
             if (syncScale)
             {
