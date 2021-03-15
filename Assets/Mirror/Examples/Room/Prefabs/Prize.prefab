@@ -50,7 +50,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
+  visible: 0
   m_AssetId: 
+  hasSpawned: 0
 --- !u!114 &114048121767222990
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,7 +68,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   available: 1
-  spawner: {fileID: 0}
   randomColor: {fileID: 7669440687796875101}
 --- !u!114 &7669440687796875101
 MonoBehaviour:
@@ -168,6 +169,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

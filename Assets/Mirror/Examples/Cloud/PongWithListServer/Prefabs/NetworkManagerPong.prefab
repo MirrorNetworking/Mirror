@@ -79,10 +79,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
+  PersistNetworkManagerToOfflineScene: 0
   runInBackground: 1
   autoStartServerBuild: 1
-  showDebugMessages: 0
   serverTickRate: 30
+  serverBatching: 1
+  serverBatchInterval: 0
   offlineScene: Assets/Mirror/Examples/Cloud/PongWithListServer/Scenes/ListServerLobbyScenePong.unity
   onlineScene: Assets/Mirror/Examples/Cloud/PongWithListServer/Scenes/PongGameScene.unity
   transport: {fileID: 7877660282335013212}

@@ -45,4 +45,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
-  m_AssetId: 5d01c4bf42a9b434dac396c2ba1aea10
+  visible: 0
+  m_AssetId: 
+  hasSpawned: 0
