@@ -76,7 +76,6 @@ namespace Mirror.Experimental
             if (isClient)
             {
                 // send to server if we have local authority (and aren't the server)
-                // -> only if connectionToServer has been initialized yet too
                 if (!isServer && IsClientWithAuthority)
                 {
                     // check only each 'sendInterval'
