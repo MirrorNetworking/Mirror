@@ -217,7 +217,7 @@ namespace Mirror
                 QueuedMessage message = unreliableClientToServer[0];
                 if (message.time + unreliableLatency <= Time.time)
                 {
-                    // send and eat (we peeked before)
+                    // send and eat
                     wrap.ClientSend(Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
                     unreliableClientToServer.RemoveAt(0);
                 }
@@ -237,7 +237,7 @@ namespace Mirror
                 QueuedMessage message = reliableServerToClient[0];
                 if (message.time + reliableLatency <= Time.time)
                 {
-                    // send and eat (we peeked before)
+                    // send and eat
                     wrap.ServerSend(message.connectionId, Channels.DefaultReliable, new ArraySegment<byte>(message.bytes));
                     reliableServerToClient.RemoveAt(0);
                 }
@@ -252,7 +252,7 @@ namespace Mirror
                 QueuedMessage message = unreliableServerToClient[0];
                 if (message.time + unreliableLatency <= Time.time)
                 {
-                    // send and eat (we peeked before)
+                    // send and eat
                     wrap.ServerSend(message.connectionId, Channels.DefaultUnreliable, new ArraySegment<byte>(message.bytes));
                     unreliableServerToClient.RemoveAt(0);
                 }
