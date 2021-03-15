@@ -29,10 +29,10 @@ namespace Mirror
         // note: reliable is ordered by definition. no need to scramble.
 
         [Header("Unreliable Messages")]
-        [Tooltip("Packet loss in %")]
-        [Range(0, 1)] public float unreliableLoss;
         [Tooltip("Unreliable latency in seconds")]
         public float unreliableLatency = 0;
+        [Tooltip("Packet loss in %")]
+        [Range(0, 1)] public float unreliableLoss;
         [Tooltip("Scramble unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         public bool unreliableScramble;
 
