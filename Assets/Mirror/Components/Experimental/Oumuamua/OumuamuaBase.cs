@@ -40,9 +40,7 @@ namespace Mirror.Experimental
         {
             // apply if in client authority mode
             if (clientAuthority)
-            {
                 ApplyPositionRotationScale(localPosition, localRotation, localScale);
-            }
         }
 
         // server broadcasts sync message to all clients
@@ -51,9 +49,7 @@ namespace Mirror.Experimental
         {
             // apply for all objects except local player with authority
             if (!IsClientWithAuthority)
-            {
                 ApplyPositionRotationScale(localPosition, localRotation, localScale);
-            }
         }
 
         void Update()
