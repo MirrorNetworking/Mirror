@@ -33,8 +33,8 @@ namespace Mirror
         [Range(0, 1)] public float unreliableLoss;
         [Tooltip("Unreliable latency in seconds")]
         public float unreliableLatency = 0;
-        [Tooltip("Scramble unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
-        public bool unreliableScramble;
+        [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
+        [Range(0, 1)] public float unreliableScramble;
 
         // message queues
         // list so we can insert randomly (scramble)
@@ -87,8 +87,9 @@ namespace Mirror
                     if (!drop)
                     {
                         // simulate scramble (Random.Next is < max, so +1)
+                        bool scramble = random.NextDouble() < unreliableScramble;
                         int last = unreliableQueue.Count;
-                        int index = unreliableScramble ? random.Next(0, last + 1) : last;
+                        int index = scramble ? random.Next(0, last + 1) : last;
 
                         // simulate latency
                         unreliableQueue.Insert(index, message);
