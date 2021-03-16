@@ -81,10 +81,10 @@ namespace Mirror.Experimental
             // if server then always sync to others.
             if (isServer)
             {
-                // check only each 'sendInterval'
+                // broadcast to all clients each 'sendInterval'
+                // (client with authority will drop the rpc)
                 if (Time.time >= lastServerSendTime + sendInterval)
                 {
-                    // broadcast to clients
                     ++serverSendSequence;
                     Snapshot snapshot = new Snapshot(
                         serverSendSequence,
@@ -101,10 +101,9 @@ namespace Mirror.Experimental
             // it is the server. don't overwrite anything there.
             else if (isClient && IsClientWithAuthority)
             {
-                // check only each 'sendInterval'
+                // send to server each 'sendInterval'
                 if (Time.time >= lastClientSendTime + sendInterval)
                 {
-                    // send to server
                     ++clientSendSequence;
                     Snapshot snapshot = new Snapshot(
                         clientSendSequence,
