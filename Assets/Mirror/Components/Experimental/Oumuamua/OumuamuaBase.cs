@@ -99,21 +99,25 @@ namespace Mirror.Experimental
             }
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
-            else if (isClient && IsClientWithAuthority)
+            else if (isClient)
             {
-                // send to server each 'sendInterval'
-                if (Time.time >= lastClientSendTime + sendInterval)
+                // client authority, and local player (= allowed to move myself)?
+                if (IsClientWithAuthority)
                 {
-                    ++clientSendSequence;
-                    Snapshot snapshot = new Snapshot(
-                        clientSendSequence,
-                        targetComponent.localPosition,
-                        targetComponent.localRotation,
-                        targetComponent.localScale
-                    );
+                    // send to server each 'sendInterval'
+                    if (Time.time >= lastClientSendTime + sendInterval)
+                    {
+                        ++clientSendSequence;
+                        Snapshot snapshot = new Snapshot(
+                            clientSendSequence,
+                            targetComponent.localPosition,
+                            targetComponent.localRotation,
+                            targetComponent.localScale
+                        );
 
-                    CmdClientToServerSync(snapshot);
-                    lastClientSendTime = Time.time;
+                        CmdClientToServerSync(snapshot);
+                        lastClientSendTime = Time.time;
+                    }
                 }
             }
         }
