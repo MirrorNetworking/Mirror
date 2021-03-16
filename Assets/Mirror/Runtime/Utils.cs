@@ -38,8 +38,13 @@ namespace Mirror
     // add custom channels anymore.
     public static class Channels
     {
-        public const int DefaultReliable = 0;
-        public const int DefaultUnreliable = 1;
+        public const int Reliable = 0;      // ordered
+        public const int Unreliable = 1;    // unordered
+
+        [Obsolete("Use Channels.Reliable instead")]
+        public const int DefaultReliable = Reliable;
+        [Obsolete("Use Channels.Unreliable instead")]
+        public const int DefaultUnreliable = Unreliable;
     }
 
     // -- helpers for float conversion without allocations --

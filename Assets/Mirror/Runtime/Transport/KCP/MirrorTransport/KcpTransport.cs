@@ -57,14 +57,14 @@ namespace kcp2k
             // client
             client = new KcpClient(
                 () => OnClientConnected.Invoke(),
-                (message) => OnClientDataReceived.Invoke(message, Channels.DefaultReliable),
+                (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
                 () => OnClientDisconnected.Invoke()
             );
 
             // server
             server = new KcpServer(
                 (connectionId) => OnServerConnected.Invoke(connectionId),
-                (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.DefaultReliable),
+                (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
                 (connectionId) => OnServerDisconnected.Invoke(connectionId),
                 NoDelay,
                 Interval,
@@ -97,7 +97,7 @@ namespace kcp2k
             // default to reliable just to be sure.
             switch (channelId)
             {
-                case Channels.DefaultUnreliable:
+                case Channels.Unreliable:
                     client.Send(segment, KcpChannel.Unreliable);
                     break;
                 default:
@@ -156,7 +156,7 @@ namespace kcp2k
             // default to reliable just to be sure.
             switch (channelId)
             {
-                case Channels.DefaultUnreliable:
+                case Channels.Unreliable:
                     server.Send(connectionId, segment, KcpChannel.Unreliable);
                     break;
                 default:
@@ -187,14 +187,14 @@ namespace kcp2k
         public override void Shutdown() {}
 
         // max message size
-        public override int GetMaxPacketSize(int channelId = Channels.DefaultReliable)
+        public override int GetMaxPacketSize(int channelId = Channels.Reliable)
         {
             // switch to kcp channel.
             // unreliable or reliable.
             // default to reliable just to be sure.
             switch (channelId)
             {
-                case Channels.DefaultUnreliable:
+                case Channels.Unreliable:
                     return KcpConnection.UnreliableMaxMessageSize;
                 default:
                     return KcpConnection.ReliableMaxMessageSize;
