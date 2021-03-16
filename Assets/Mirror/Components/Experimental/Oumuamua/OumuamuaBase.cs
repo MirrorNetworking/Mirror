@@ -35,14 +35,15 @@ namespace Mirror.Experimental
         ushort serverReceivedSequence;
         ushort clientReceivedSequence;
 
-        // set position carefully depending on the target component
-        void ApplySnapshot(Snapshot snapshot)
-        {
-            // local position/rotation for VR support
-            targetComponent.localPosition = snapshot.position;
-            targetComponent.localRotation = snapshot.rotation;
-            targetComponent.localScale = snapshot.scale;
-        }
+        // "Experimentally I’ve found that the amount of delay that works best
+        //  at 2-5% packet loss is 3X the packet send rate"
+        [Tooltip("Snapshots are buffered for sendInterval * multiplier seconds. At 2-5% packet loss, 3x supposedly works best.")]
+        public int bufferTimeMultiplier = 3;
+        public float bufferTime => sendInterval * bufferTimeMultiplier;
+
+        // snapshot buffers
+        SnapshotBuffer serverBuffer = new SnapshotBuffer();
+        SnapshotBuffer clientBuffer = new SnapshotBuffer();
 
         // local authority client sends sync message to server for broadcasting
         [Command(channel = Channels.Unreliable)]
@@ -54,7 +55,8 @@ namespace Mirror.Experimental
                 // newer than most recent received snapshot?
                 if (snapshot.sequence > serverReceivedSequence)
                 {
-                    ApplySnapshot(snapshot);
+                    // add to buffer
+                    serverBuffer.Enqueue(snapshot, Time.time);
                     serverReceivedSequence = snapshot.sequence;
                 }
             }
@@ -70,10 +72,37 @@ namespace Mirror.Experimental
                 // newer than most recent received snapshot?
                 if (snapshot.sequence > clientReceivedSequence)
                 {
-                    ApplySnapshot(snapshot);
+                    // add to buffer
+                    clientBuffer.Enqueue(snapshot, Time.time);
                     clientReceivedSequence = snapshot.sequence;
                 }
             }
+        }
+
+        // set position carefully depending on the target component
+        void ApplySnapshot(Snapshot snapshot)
+        {
+            // local position/rotation for VR support
+            targetComponent.localPosition = snapshot.position;
+            targetComponent.localRotation = snapshot.rotation;
+            targetComponent.localScale = snapshot.scale;
+        }
+
+        // helper function to apply snapshots.
+        // we use the same one on server and client.
+        // => called every Update() depending on authority.
+        void ApplySnapshots(SnapshotBuffer buffer)
+        {
+            Debug.Log($"{name} snapshotbuffer={buffer.Count}");
+
+            // we buffer snapshots for 'bufferTime'
+            // for example:
+            //   * we buffer for 3 x sendInterval = 300ms
+            //   * the idea is to wait long enough so we at least have a few
+            //     snapshots to interpolate between
+            //   * we process anything older 100ms immediately
+            if (buffer.DequeueIfOldEnough(Time.time, bufferTime, out Snapshot snapshot))
+                ApplySnapshot(snapshot);
         }
 
         void Update()
@@ -95,6 +124,18 @@ namespace Mirror.Experimental
 
                     RpcServerToClientSync(snapshot);
                     lastServerSendTime = Time.time;
+                }
+
+                // apply buffered snapshots IF client authority
+                // -> in server authority, server moves the object
+                //    so no need to apply any snapshots there.
+                // -> don't apply for host mode player either, even if in
+                //    client authority mode. if it doesn't go over the network,
+                //    then we don't need to do anything.
+                if (clientAuthority && !isLocalPlayer)
+                {
+                    // apply snapshots
+                    ApplySnapshots(serverBuffer);
                 }
             }
             // 'else if' because host mode shouldn't send anything to server.
@@ -119,7 +160,30 @@ namespace Mirror.Experimental
                         lastClientSendTime = Time.time;
                     }
                 }
+                // for all other clients (and for local player if !authority),
+                // we need to apply snapshots from the buffer
+                else
+                {
+                    // apply snapshots
+                    ApplySnapshots(clientBuffer);
+                }
             }
+        }
+
+        void OnDisable()
+        {
+            // disabled objects aren't updated anymore.
+            // so let's clear the buffers.
+            serverBuffer.Clear();
+            clientBuffer.Clear();
+        }
+
+        void OnEnable()
+        {
+            // just in case we received anything while disabled...
+            // it's outdated now anyway. clear the buffers.
+            serverBuffer.Clear();
+            clientBuffer.Clear();
         }
     }
 }
