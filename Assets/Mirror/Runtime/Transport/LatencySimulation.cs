@@ -60,6 +60,20 @@ namespace Mirror
         void OnEnable() { wrap.enabled = true; }
         void OnDisable() { wrap.enabled = false; }
 
+        // helper function to simulate latency
+        float SimulateLatency(int channeldId)
+        {
+            switch (channeldId)
+            {
+                case Channels.Reliable:
+                    return reliableLatency;
+                case Channels.Unreliable:
+                    return unreliableLatency;
+                default:
+                    return 0;
+            }
+        }
+
         // helper function to simulate a send with latency/loss/scramble
         void SimulateSend(int connectionId, int channelId, ArraySegment<byte> segment, float latency, List<QueuedMessage> reliableQueue, List<QueuedMessage> unreliableQueue)
         {
@@ -133,9 +147,7 @@ namespace Mirror
 
         public override void ClientSend(int channelId, ArraySegment<byte> segment)
         {
-            float latency = channelId == Channels.Reliable
-                            ? reliableLatency
-                            : unreliableLatency;
+            float latency = SimulateLatency(channelId);
             SimulateSend(0, channelId, segment, latency, reliableClientToServer, unreliableClientToServer);
         }
 
@@ -149,9 +161,7 @@ namespace Mirror
 
         public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {
-            float latency = channelId == Channels.Reliable
-                            ? reliableLatency
-                            : unreliableLatency;
+            float latency = SimulateLatency(channelId);
             SimulateSend(connectionId, channelId, segment, latency, reliableServerToClient, unreliableServerToClient);
         }
 
