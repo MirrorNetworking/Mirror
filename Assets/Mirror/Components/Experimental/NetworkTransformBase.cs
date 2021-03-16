@@ -212,7 +212,7 @@ namespace Mirror.Experimental
         }
 
         // local authority client sends sync message to server for broadcasting
-        [Command(channel = Channels.DefaultUnreliable)]
+        [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSync(Vector3 position, uint packedRotation, Vector3 scale)
         {
             // Ignore messages from client if not in client authority mode
@@ -229,7 +229,7 @@ namespace Mirror.Experimental
             RpcMove(position, packedRotation, scale);
         }
 
-        [ClientRpc(channel = Channels.DefaultUnreliable)]
+        [ClientRpc(channel = Channels.Unreliable)]
         void RpcMove(Vector3 position, uint packedRotation, Vector3 scale)
         {
             if (hasAuthority && excludeOwnerUpdate) return;
@@ -456,7 +456,7 @@ namespace Mirror.Experimental
             lastRotation = newLocalRotation;
         }
 
-        [ClientRpc(channel = Channels.DefaultUnreliable)]
+        [ClientRpc(channel = Channels.Unreliable)]
         void RpcTeleport(Vector3 newPosition, uint newPackedRotation, bool isClientAuthority)
         {
             DoTeleport(newPosition, Compression.DecompressQuaternion(newPackedRotation));
@@ -470,7 +470,7 @@ namespace Mirror.Experimental
         /// This RPC will be invoked on server after client finishes overriding the position.
         /// </summary>
         /// <param name="initialAuthority"></param>
-        [Command(channel = Channels.DefaultUnreliable)]
+        [Command(channel = Channels.Unreliable)]
         void CmdTeleportFinished()
         {
             if (clientAuthorityBeforeTeleport)

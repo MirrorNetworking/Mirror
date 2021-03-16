@@ -21,11 +21,11 @@ namespace Mirror.Tests
         {
             CommandAttribute attrib = new CommandAttribute();
 
-            Assert.That(attrib.channel == Channels.DefaultReliable);
+            Assert.That(attrib.channel == Channels.Reliable);
 
-            attrib.channel = Channels.DefaultUnreliable;
+            attrib.channel = Channels.Unreliable;
 
-            Assert.That(attrib.channel == Channels.DefaultUnreliable);
+            Assert.That(attrib.channel == Channels.Unreliable);
         }
 
         [Test]
@@ -33,11 +33,11 @@ namespace Mirror.Tests
         {
             ClientRpcAttribute attrib = new ClientRpcAttribute();
 
-            Assert.That(attrib.channel == Channels.DefaultReliable);
+            Assert.That(attrib.channel == Channels.Reliable);
 
-            attrib.channel = Channels.DefaultUnreliable;
+            attrib.channel = Channels.Unreliable;
 
-            Assert.That(attrib.channel == Channels.DefaultUnreliable);
+            Assert.That(attrib.channel == Channels.Unreliable);
         }
 
         [Test]
@@ -45,9 +45,9 @@ namespace Mirror.Tests
         {
             TargetRpcAttribute attrib = new TargetRpcAttribute();
 
-            Assert.That(attrib.channel == Channels.DefaultReliable);
+            Assert.That(attrib.channel == Channels.Reliable);
 
-            attrib.channel = Channels.DefaultUnreliable;
+            attrib.channel = Channels.Unreliable;
 
             Assert.That(attrib.channel == 1);
         }

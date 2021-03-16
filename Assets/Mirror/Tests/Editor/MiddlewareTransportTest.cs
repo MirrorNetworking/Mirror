@@ -44,9 +44,9 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(Channels.DefaultReliable, 4000)]
-        [TestCase(Channels.DefaultReliable, 2000)]
-        [TestCase(Channels.DefaultUnreliable, 4000)]
+        [TestCase(Channels.Reliable, 4000)]
+        [TestCase(Channels.Reliable, 2000)]
+        [TestCase(Channels.Unreliable, 4000)]
         public void TestGetMaxPacketSize(int channel, int packageSize)
         {
             inner.GetMaxPacketSize(Arg.Any<int>()).Returns(packageSize);
@@ -97,8 +97,8 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(Channels.DefaultReliable)]
-        [TestCase(Channels.DefaultUnreliable)]
+        [TestCase(Channels.Reliable)]
+        [TestCase(Channels.Unreliable)]
         public void TestClientSend(int channel)
         {
             byte[] array = new byte[10];
