@@ -72,7 +72,7 @@ namespace Mirror
         }
 
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
-        public void Send<T>(T msg, int channelId = Channels.DefaultReliable)
+        public void Send<T>(T msg, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -93,7 +93,7 @@ namespace Mirror
         {
             if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
             {
-                Debug.LogError("NetworkConnection.ValidatePacketSize: cannot send packet larger than " + Transport.activeTransport.GetMaxPacketSize(channelId) + " bytes");
+                Debug.LogError($"NetworkConnection.ValidatePacketSize: cannot send packet larger than {Transport.activeTransport.GetMaxPacketSize(channelId)} bytes, was {segment.Count} bytes");
                 return false;
             }
 
@@ -110,7 +110,7 @@ namespace Mirror
 
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal abstract void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable);
+        internal abstract void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         public override string ToString() => $"connection({connectionId})";
 

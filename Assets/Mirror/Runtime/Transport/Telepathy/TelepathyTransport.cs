@@ -80,7 +80,7 @@ namespace Mirror
             // them all in a lambda and always call the latest hook.
             // (= lazy call)
             client.OnConnected = () => OnClientConnected.Invoke();
-            client.OnData = (segment) => OnClientDataReceived.Invoke(segment, Channels.DefaultReliable);
+            client.OnData = (segment) => OnClientDataReceived.Invoke(segment, Channels.Reliable);
             client.OnDisconnected = () => OnClientDisconnected.Invoke();
 
             // client configuration
@@ -98,7 +98,7 @@ namespace Mirror
             // them all in a lambda and always call the latest hook.
             // (= lazy call)
             server.OnConnected = (connectionId) => OnServerConnected.Invoke(connectionId);
-            server.OnData = (connectionId, segment) => OnServerDataReceived.Invoke(connectionId, segment, Channels.DefaultReliable);
+            server.OnData = (connectionId, segment) => OnServerDataReceived.Invoke(connectionId, segment, Channels.Reliable);
             server.OnDisconnected = (connectionId) => OnServerDisconnected.Invoke(connectionId);
 
             // server configuration

@@ -290,7 +290,7 @@ namespace Mirror
 
         // send ////////////////////////////////////////////////////////////////
         /// <summary>Send a NetworkMessage to the server over the given channel.</summary>
-        public static void Send<T>(T message, int channelId = Channels.DefaultReliable)
+        public static void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
             if (connection != null)
