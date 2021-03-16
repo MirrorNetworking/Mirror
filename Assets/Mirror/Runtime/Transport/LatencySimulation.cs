@@ -66,6 +66,9 @@ namespace Mirror
         void OnEnable() { wrap.enabled = true; }
         void OnDisable() { wrap.enabled = false; }
 
+        // noise function can be replaced if needed
+        protected virtual float Noise(float time) => Mathf.PerlinNoise(time, time);
+
         // helper function to simulate latency
         float SimulateLatency(int channeldId)
         {
@@ -73,8 +76,7 @@ namespace Mirror
             // no spikes isn't realistic.
             // sin is too predictable / no realistic.
             // perlin is still deterministic and random enough.
-            float sample = Time.time * latencySpikeSpeedMultiplier;
-            float spike = Mathf.PerlinNoise(sample, sample) * latencySpikeMultiplier;
+            float spike = Noise(Time.time * latencySpikeSpeedMultiplier) * latencySpikeMultiplier;
 
             // base latency
             switch (channeldId)
