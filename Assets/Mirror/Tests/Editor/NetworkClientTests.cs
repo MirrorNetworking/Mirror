@@ -29,6 +29,12 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
         }
 
+        void UpdateTransport()
+        {
+            Transport.activeTransport.ClientEarlyUpdate();
+            Transport.activeTransport.ServerEarlyUpdate();
+        }
+
         [Test]
         public void serverIp()
         {
@@ -49,7 +55,7 @@ namespace Mirror.Tests
         {
             NetworkClient.Connect(new Uri("memory://localhost"));
             // update transport so connect event is processed
-            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+            UpdateTransport();
             Assert.That(NetworkClient.isConnected, Is.True);
         }
 
@@ -76,14 +82,14 @@ namespace Mirror.Tests
             // connId=0 but memorytransport uses connId=1
             NetworkClient.Connect("localhost");
             // update transport so connect event is processed
-            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+            UpdateTransport();
 
             // send it
             AddPlayerMessage message = new AddPlayerMessage();
             NetworkClient.Send(message);
 
             // update transport so data event is processed
-            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+            UpdateTransport();
 
             // received it on server?
             Assert.That(called, Is.EqualTo(1));

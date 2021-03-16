@@ -33,7 +33,7 @@ namespace Mirror
     ///     <see cref="GetMaxPacketSize"/> should return size even if transport is not running
     ///   </description></item>
     ///   <item><description>
-    ///     Default channel should be reliable <see cref="Channels.DefaultReliable"/>
+    ///     Default channel should be reliable <see cref="Channels.Reliable"/>
     ///   </description></item>
     /// </list>
     /// </remarks>
@@ -204,7 +204,7 @@ namespace Mirror
         /// </summary>
         /// <param name="channelId">channel id</param>
         /// <returns>the size in bytes that can be sent via the provided channel</returns>
-        public abstract int GetMaxPacketSize(int channelId = Channels.DefaultReliable);
+        public abstract int GetMaxPacketSize(int channelId = Channels.Reliable);
 
         /// <summary>
         /// The maximum batch(!) size for a given channel.

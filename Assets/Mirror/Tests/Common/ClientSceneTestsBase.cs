@@ -29,10 +29,10 @@ namespace Mirror.Tests
         protected readonly List<GameObject> _createdObjects = new List<GameObject>();
 
 
-        protected Dictionary<Guid, GameObject> prefabs => ClientScene.prefabs;
-        protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => ClientScene.spawnHandlers;
-        protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
-        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => ClientScene.spawnableObjects;
+        protected Dictionary<Guid, GameObject> prefabs => NetworkClient.prefabs;
+        protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => NetworkClient.spawnHandlers;
+        protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
+        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => NetworkClient.spawnableObjects;
 
 
         static GameObject LoadPrefab(string guid)
@@ -54,7 +54,7 @@ namespace Mirror.Tests
         [TearDown]
         public virtual void TearDown()
         {
-            ClientScene.Shutdown();
+            NetworkClient.Shutdown();
             // reset asset id in case they are changed by tests
             validPrefabNetworkIdentity.assetId = validPrefabGuid;
 

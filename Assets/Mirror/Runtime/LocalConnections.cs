@@ -14,7 +14,7 @@ namespace Mirror
 
         public override string address => "localhost";
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             // get a writer to copy the message into since the segment is only
             // valid until returning.
@@ -28,7 +28,6 @@ namespace Mirror
         }
 
         // true because local connections never timeout
-        /// <inheritdoc/>
         internal override bool IsAlive(float timeout) => true;
 
         internal void DisconnectInternal()
@@ -39,9 +38,7 @@ namespace Mirror
             RemoveObservers();
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             DisconnectInternal();
@@ -66,7 +63,7 @@ namespace Mirror
         internal void QueueConnectedEvent() => connectedEventPending = true;
         internal void QueueDisconnectedEvent() => disconnectedEventPending = true;
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             if (segment.Count == 0)
             {
@@ -84,7 +81,7 @@ namespace Mirror
             if (connectedEventPending)
             {
                 connectedEventPending = false;
-                NetworkClient.OnConnectedEvent?.Invoke(this);
+                NetworkClient.OnConnectedEvent?.Invoke();
             }
 
             // process internal messages so they are applied at the correct time
@@ -94,7 +91,7 @@ namespace Mirror
                 PooledNetworkWriter writer = queue.Dequeue();
                 ArraySegment<byte> segment = writer.ToArraySegment();
                 //Debug.Log("Dequeue " + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-                TransportReceive(segment, Channels.DefaultReliable);
+                TransportReceive(segment, Channels.Reliable);
                 NetworkWriterPool.Recycle(writer);
             }
 
@@ -102,24 +99,21 @@ namespace Mirror
             if (disconnectedEventPending)
             {
                 disconnectedEventPending = false;
-                NetworkClient.OnDisconnectedEvent?.Invoke(this);
+                NetworkClient.OnDisconnectedEvent?.Invoke();
             }
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         internal void DisconnectInternal()
         {
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
+            // TODO remove redundant state. have one source of truth for .ready!
             isReady = false;
-            ClientScene.HandleClientDisconnect(this);
+            NetworkClient.ready = false;
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             connectionToClient.DisconnectInternal();
@@ -127,7 +121,6 @@ namespace Mirror
         }
 
         // true because local connections never timeout
-        /// <inheritdoc/>
         internal override bool IsAlive(float timeout) => true;
     }
 }

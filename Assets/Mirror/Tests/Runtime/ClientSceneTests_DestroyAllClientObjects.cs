@@ -49,7 +49,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
     {
         public static readonly List<GameObject> _createdObjects = new List<GameObject>();
         Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
-        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => ClientScene.unspawnHandlers;
+        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
 
         [TearDown]
         public void TearDown()
@@ -93,7 +93,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             listener2.onDestroyCalled += () => destroyCalled2++;
             listener3.onDestroyCalled += () => destroyCalled3++;
 
-            ClientScene.DestroyAllClientObjects();
+            NetworkClient.DestroyAllClientObjects();
 
             // wait for frame to make sure unity events are called
             yield return null;
@@ -127,7 +127,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             listener2.onDestroyCalled += () => destroyCalled2++;
             listener3.onDestroyCalled += () => destroyCalled3++;
 
-            ClientScene.DestroyAllClientObjects();
+            NetworkClient.DestroyAllClientObjects();
 
             // wait for frame to make sure unity events are called
             yield return null;
@@ -172,7 +172,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             listener2.onDisableCalled += () => disableCalled2++;
             listener3.onDisableCalled += () => disableCalled3++;
 
-            ClientScene.DestroyAllClientObjects();
+            NetworkClient.DestroyAllClientObjects();
 
             Assert.That(unspawnCalled1, Is.EqualTo(1));
             Assert.That(unspawnCalled2, Is.EqualTo(1));
@@ -191,7 +191,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             TestListenerBehaviour listener2 = CreateAndAddObject(30002, 0);
             TestListenerBehaviour listener3 = CreateAndAddObject(30003, 0);
 
-            ClientScene.DestroyAllClientObjects();
+            NetworkClient.DestroyAllClientObjects();
 
             Assert.That(spawned, Is.Empty);
         }
@@ -207,7 +207,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             LogAssert.Expect(LogType.Exception, new Regex("InvalidOperationException"));
             LogAssert.Expect(LogType.Error, "Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
-            ClientScene.DestroyAllClientObjects();
+            NetworkClient.DestroyAllClientObjects();
         }
     }
 }

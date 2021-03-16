@@ -6,7 +6,7 @@ namespace Mirror
     {
         public override string address => "";
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.DefaultReliable)
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             // Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
@@ -17,15 +17,14 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Disconnects this connection.
-        /// </summary>
+        /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
+            // TODO remove redundant state. have one source of truth for .ready!
             isReady = false;
-            ClientScene.HandleClientDisconnect(this);
+            NetworkClient.ready = false;
             Transport.activeTransport.ClientDisconnect();
         }
     }

@@ -38,6 +38,12 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(transportGO);
         }
 
+        void UpdateTransport()
+        {
+            transport.ServerEarlyUpdate();
+            transport.ClientEarlyUpdate();
+        }
+
         [Test]
         public void Send_WithoutBatching_SendsImmediately()
         {
@@ -47,7 +53,7 @@ namespace Mirror.Tests
             connection.Send(new ArraySegment<byte>(message));
 
             // Send() should send immediately, not only in server.update flushing
-            transport.LateUpdate();
+            UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
         }
 
@@ -60,12 +66,12 @@ namespace Mirror.Tests
             connection.Send(new ArraySegment<byte>(message));
 
             // Send() should only add to batch, not send anything yet
-            transport.LateUpdate();
+            UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(0));
 
             // updating the connection should now send
             connection.Update();
-            transport.LateUpdate();
+            UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
         }
 
@@ -81,7 +87,7 @@ namespace Mirror.Tests
 
             // Send() and update shouldn't send yet until interval elapsed
             connection.Update();
-            transport.LateUpdate();
+            UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(0));
 
             // wait 'interval'
@@ -89,7 +95,7 @@ namespace Mirror.Tests
 
             // updating again should flush out the batch
             connection.Update();
-            transport.LateUpdate();
+            UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
         }
 
@@ -110,7 +116,7 @@ namespace Mirror.Tests
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
             connection.Update();
-            transport.LateUpdate();
+            UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
             Assert.That(clientReceived[0].Length, Is.EqualTo(2));
             Assert.That(clientReceived[0][0], Is.EqualTo(0x01));
@@ -123,7 +129,7 @@ namespace Mirror.Tests
             message = new byte[]{0xFF};
             connection.Send(new ArraySegment<byte>(message));
             connection.Update();
-            transport.LateUpdate();
+            UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
             Assert.That(clientReceived[0].Length, Is.EqualTo(1));
             Assert.That(clientReceived[0][0], Is.EqualTo(0xFF));

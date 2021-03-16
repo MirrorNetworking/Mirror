@@ -16,34 +16,24 @@ namespace Mirror
     public static class NetworkVisibilityObsoleteMessage
     {
         // obsolete message in one place. show them everywhere.
-        public const string Message = "Per-NetworkIdentity Interest Management is being replaced by global Interest Management.\n\nPlease remove Proximity checkers from NetworkIdentity prefabs and add one global InterestManagement component to your NetworkManager instead. See our Benchmark example and our Mirror/Components/InterestManagement for available implementations.\n\nIf you need to port a custom solution, move your code into a new class that inherits from InterestManagement and add one global update method instead of using NetworkBehaviour.Update.\n\nDon't panic. The whole change mostly moved code from NetworkVisibility components into one global place on NetworkManager. Allows for Spatial Hashing which is ~30x faster.\n\n(╯°□°)╯︵ ┻━┻";
+        public const string Message = "Per-NetworkIdentity Interest Management is being replaced by global Interest Management.\n\nWe already converted some components to the new system. For those, please remove Proximity checkers from NetworkIdentity prefabs and add one global InterestManagement component to your NetworkManager instead. If we didn't convert this one yet, then simply wait. See our Benchmark example and our Mirror/Components/InterestManagement for available implementations.\n\nIf you need to port a custom solution, move your code into a new class that inherits from InterestManagement and add one global update method instead of using NetworkBehaviour.Update.\n\nDon't panic. The whole change mostly moved code from NetworkVisibility components into one global place on NetworkManager. Allows for Spatial Hashing which is ~30x faster.\n\n(╯°□°)╯︵ ┻━┻";
     }
 
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [DisallowMultipleComponent]
     public abstract class NetworkVisibility : NetworkBehaviour
     {
-        /// <summary>
-        /// Callback used by the visibility system to determine if an observer (player) can see this object.
-        /// <para>If this function returns true, the network connection will be added as an observer.</para>
-        /// </summary>
-        /// <param name="conn">Network connection of a player.</param>
-        /// <returns>True if the player can see this object.</returns>
+        /// <summary>Callback used by the visibility system to determine if an observer (player) can see this object.</summary>
+        // Called from NetworkServer.SpawnObserversForConnection the first time
+        // a NetworkIdentity is spawned.
         public abstract bool OnCheckObserver(NetworkConnection conn);
 
-        /// <summary>
-        /// Callback used by the visibility system to (re)construct the set of observers that can see this object.
-        /// <para>Implementations of this callback should add network connections of players that can see this object to the observers set.</para>
-        /// </summary>
-        /// <param name="observers">The new set of observers for this object.</param>
-        /// <param name="initialize">True if the set of observers is being built for the first time.</param>
+        /// <summary>Callback used by the visibility system to (re)construct the set of observers that can see this object.</summary>
+        // Implementations of this callback should add network connections of
+        // players that can see this object to the observers set.
         public abstract void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize);
 
-        /// <summary>
-        /// Callback used by the visibility system for objects on a host.
-        /// <para>Objects on a host (with a local client) cannot be disabled or destroyed when they are not visible to the local client. So this function is called to allow custom code to hide these objects. A typical implementation will disable renderer components on the object. This is only called on local clients on a host.</para>
-        /// </summary>
-        /// <param name="visible">New visibility state.</param>
+        /// <summary>Callback used by the visibility system for objects on a host.</summary>
         public virtual void OnSetHostVisibility(bool visible)
         {
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())

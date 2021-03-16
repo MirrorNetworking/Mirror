@@ -1,13 +1,7 @@
 {
   "dependencies": {
-    "com.unity.collab-proxy": "1.2.16",
-    "com.unity.ide.rider": "1.1.4",
-    "com.unity.ide.vscode": "1.1.4",
-    "com.unity.test-framework": "1.1.11",
-    "com.unity.testtools.codecoverage": "0.2.3-preview",
-    "com.unity.test-framework.performance": "0.1.50-preview",
+    "com.unity.test-framework": "1.1.24",
     "com.unity.textmeshpro": "2.0.1",
-    "com.unity.timeline": "1.2.10",
     "com.unity.ugui": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
@@ -40,8 +34,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "testables": [
-    "com.unity.test-framework.performance"
-  ]
+  }
 }

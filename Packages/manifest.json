@@ -1,9 +1,11 @@
 {
   "dependencies": {
-    "com.unity.package-manager-ui": "2.0.13",
-    "com.unity.test-framework.performance": "0.1.50-preview",
-    "com.unity.textmeshpro": "1.4.1",
+    "com.unity.test-framework": "1.1.22",
+    "com.unity.textmeshpro": "2.0.1",
+    "com.unity.ugui": "1.0.0",
+    "com.unity.xr.legacyinputhelpers": "2.1.7",
     "com.unity.modules.ai": "1.0.0",
+    "com.unity.modules.androidjni": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.assetbundle": "1.0.0",
     "com.unity.modules.audio": "1.0.0",
@@ -33,8 +35,5 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "testables": [
-    "com.unity.test-framework.performance"
-  ]
+  }
 }

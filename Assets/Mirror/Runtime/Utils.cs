@@ -23,15 +23,28 @@ namespace Mirror
         ClientRpc
     }
 
+    [Obsolete("Version has never been used, neither by UNET nor by Mirror.")]
     public enum Version
     {
         Current = 1
     }
 
+    // channels are const ints instead of an enum so people can add their own
+    // channels (can't extend an enum otherwise).
+    //
+    // note that Mirror is slowly moving towards quake style networking which
+    // will only require reliable for handshake, and unreliable for the rest.
+    // so eventually we can change this to an Enum and transports shouldn't
+    // add custom channels anymore.
     public static class Channels
     {
-        public const int DefaultReliable = 0;
-        public const int DefaultUnreliable = 1;
+        public const int Reliable = 0;      // ordered
+        public const int Unreliable = 1;    // unordered
+
+        [Obsolete("Use Channels.Reliable instead")]
+        public const int DefaultReliable = Reliable;
+        [Obsolete("Use Channels.Unreliable instead")]
+        public const int DefaultUnreliable = Unreliable;
     }
 
     // -- helpers for float conversion without allocations --
@@ -84,18 +97,30 @@ namespace Mirror
         public static bool IsPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
-    #if UNITY_2018_3_OR_NEWER
             return UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj);
-    #elif UNITY_2018_2_OR_NEWER
-            return UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(obj) == null &&
-                   UnityEditor.PrefabUtility.GetPrefabObject(obj) != null;
-    #else
-            return UnityEditor.PrefabUtility.GetPrefabParent(obj) == null &&
-                   UnityEditor.PrefabUtility.GetPrefabObject(obj) != null;
-    #endif
 #else
             return false;
 #endif
+        }
+
+        public static bool IsSceneObjectWithPrefabParent(GameObject gameObject, out GameObject prefab)
+        {
+            prefab = null;
+
+#if UNITY_EDITOR
+            if (!UnityEditor.PrefabUtility.IsPartOfPrefabInstance(gameObject))
+            {
+                return false;
+            }
+            prefab = UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+#endif
+
+            if (prefab == null)
+            {
+                Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
+                return false;
+            }
+            return true;
         }
     }
 }

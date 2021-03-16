@@ -11,7 +11,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             prefabs.Add(validPrefabGuid, validPrefab);
 
-            ClientScene.UnregisterPrefab(validPrefab);
+            NetworkClient.UnregisterPrefab(validPrefab);
 
             Assert.IsFalse(prefabs.ContainsKey(validPrefabGuid));
         }
@@ -21,7 +21,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
 
-            ClientScene.UnregisterPrefab(validPrefab);
+            NetworkClient.UnregisterPrefab(validPrefab);
 
             Assert.IsFalse(spawnHandlers.ContainsKey(validPrefabGuid));
         }
@@ -31,7 +31,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => {}));
 
-            ClientScene.UnregisterPrefab(validPrefab);
+            NetworkClient.UnregisterPrefab(validPrefab);
 
             Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
         }
@@ -40,14 +40,14 @@ namespace Mirror.Tests.ClientSceneTests
         public void ErrorWhenPrefabIsNull()
         {
             LogAssert.Expect(LogType.Error, "Could not unregister prefab because it was null");
-            ClientScene.UnregisterPrefab(null);
+            NetworkClient.UnregisterPrefab(null);
         }
 
         [Test]
         public void ErrorWhenPrefabHasNoNetworkIdentity()
         {
             LogAssert.Expect(LogType.Error, $"Could not unregister '{invalidPrefab.name}' since it contains no NetworkIdentity component");
-            ClientScene.UnregisterPrefab(invalidPrefab);
+            NetworkClient.UnregisterPrefab(invalidPrefab);
         }
 
     }

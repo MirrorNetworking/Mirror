@@ -9,7 +9,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ReturnsFalseForEmptyGuid()
         {
-            bool result = ClientScene.GetPrefab(new Guid(), out GameObject prefab);
+            bool result = NetworkClient.GetPrefab(new Guid(), out GameObject prefab);
 
             Assert.IsFalse(result);
             Assert.IsNull(prefab);
@@ -19,7 +19,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void ReturnsFalseForPrefabNotFound()
         {
             Guid guid = Guid.NewGuid();
-            bool result = ClientScene.GetPrefab(guid, out GameObject prefab);
+            bool result = NetworkClient.GetPrefab(guid, out GameObject prefab);
 
             Assert.IsFalse(result);
             Assert.IsNull(prefab);
@@ -30,7 +30,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             Guid guid = Guid.NewGuid();
             prefabs.Add(guid, null);
-            bool result = ClientScene.GetPrefab(guid, out GameObject prefab);
+            bool result = NetworkClient.GetPrefab(guid, out GameObject prefab);
 
             Assert.IsFalse(result);
             Assert.IsNull(prefab);
@@ -40,7 +40,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void ReturnsTrueWhenPrefabIsFound()
         {
             prefabs.Add(validPrefabGuid, validPrefab);
-            bool result = ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
+            bool result = NetworkClient.GetPrefab(validPrefabGuid, out GameObject prefab);
 
             Assert.IsTrue(result);
             Assert.NotNull(prefab);
@@ -50,7 +50,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void HasOutPrefabWithCorrectGuid()
         {
             prefabs.Add(validPrefabGuid, validPrefab);
-            ClientScene.GetPrefab(validPrefabGuid, out GameObject prefab);
+            NetworkClient.GetPrefab(validPrefabGuid, out GameObject prefab);
 
 
             Assert.NotNull(prefab);

@@ -1,11 +1,3 @@
-// Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
-// avoid allocations.
-//
-// Benchmark: 100kb byte[] passed to NetworkReader constructor 1000x
-//   before with MemoryStream
-//     0.8% CPU time, 250KB memory, 3.82ms
-//   now:
-//     0.0% CPU time,  32KB memory, 0.02ms
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,53 +6,30 @@ using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>
-    /// a class that holds readers for the different types
-    /// Note that c# creates a different static variable for each
-    /// type
-    /// This will be populated by the weaver
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <summary>Helper class that weaver populates with all reader types.</summary>
+    // Note that c# creates a different static variable for each type
     public static class Reader<T>
     {
         public static Func<NetworkReader, T> read;
     }
 
-    /// <summary>
-    /// Binary stream Reader. Supports simple types, buffers, arrays, structs, and nested types
-    /// <para>Use <see cref="NetworkReaderPool.GetReader">NetworkReaderPool.GetReader</see> to reduce memory allocation</para>
-    /// <para>
-    /// Note: This class is intended to be extremely pedantic,
-    /// and throw exceptions whenever stuff is going slightly wrong.
-    /// The exceptions will be handled in NetworkServer/NetworkClient.
-    /// </para>
-    /// </summary>
+    /// <summary>Network Reader for most simple types like floats, ints, buffers, structs, etc. Use NetworkReaderPool.GetReader() to avoid allocations.</summary>
+    // Note: This class is intended to be extremely pedantic,
+    // and throw exceptions whenever stuff is going slightly wrong.
+    // The exceptions will be handled in NetworkServer/NetworkClient.
     public class NetworkReader
     {
-        // Custom NetworkReader that doesn't use C#'s built in MemoryStream in order to
-        // avoid allocations.
-        //
-        // Benchmark: 100kb byte[] passed to NetworkReader constructor 1000x
-        //   before with MemoryStream
-        //     0.8% CPU time, 250KB memory, 3.82ms
-        //   now:
-        //     0.0% CPU time,  32KB memory, 0.02ms
-
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
         // the ArraySegment constructor
         internal ArraySegment<byte> buffer;
 
+        /// <summary>Next position to read from the buffer</summary>
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        /// <summary>
-        /// Next position to read from the buffer
-        /// </summary>
         public int Position;
 
-        /// <summary>
-        /// Total number of bytes to read from buffer
-        /// </summary>
+        /// <summary>Total number of bytes to read from buffer</summary>
         public int Length => buffer.Count;
 
         public NetworkReader(byte[] bytes)
@@ -82,10 +51,8 @@ namespace Mirror
             return buffer.Array[buffer.Offset + Position++];
         }
 
-        /// <summary>
-        /// read bytes into <paramref name="bytes"/>
-        /// </summary>
-        /// <returns><paramref name="bytes"/></returns>
+        /// <summary>Read 'count' bytes into the bytes array</summary>
+        // TODO why does this also return bytes[]???
         public byte[] ReadBytes(byte[] bytes, int count)
         {
             // check if passed byte array is big enough
@@ -99,12 +66,7 @@ namespace Mirror
             return bytes;
         }
 
-        /// <summary>
-        /// Create Segment from current position
-        /// <para>
-        ///     Useful to parse payloads etc. without allocating
-        /// </para>
-        /// </summary>
+        /// <summary>Read 'count' bytes allocation-free as ArraySegment that points to the internal array.</summary>
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
             // check if within buffer limits
@@ -119,17 +81,12 @@ namespace Mirror
             return result;
         }
 
-        /// <returns>Information about reader: pos, len, buffer contents</returns>
         public override string ToString()
         {
             return $"NetworkReader pos={Position} len={Length} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
         }
 
-        /// <summary>
-        /// Reads any data type that mirror supports
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
+        /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
         public T Read<T>()
         {
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;
@@ -141,7 +98,6 @@ namespace Mirror
             return readerDelegate(this);
         }
     }
-
 
     // Mirror's Weaver automatically detects all NetworkReader function types,
     // but they do all need to be extensions.
@@ -263,7 +219,6 @@ namespace Mirror
         public static Rect ReadRect(this NetworkReader reader) => new Rect(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         public static Plane ReadPlane(this NetworkReader reader) => new Plane(reader.ReadVector3(), reader.ReadSingle());
         public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());
-
         public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader)
         {
             return new Matrix4x4
@@ -286,15 +241,14 @@ namespace Mirror
                 m33 = reader.ReadSingle()
             };
         }
-
         public static byte[] ReadBytes(this NetworkReader reader, int count)
         {
             byte[] bytes = new byte[count];
             reader.ReadBytes(bytes, count);
             return bytes;
         }
-
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
+
         public static Transform ReadTransform(this NetworkReader reader)
         {
             // Don't use null propagation here as it could lead to MissingReferenceException

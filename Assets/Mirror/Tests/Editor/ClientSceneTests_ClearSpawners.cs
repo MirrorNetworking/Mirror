@@ -12,7 +12,7 @@ namespace Mirror.Tests.ClientSceneTests
             prefabs.Add(Guid.NewGuid(), null);
             prefabs.Add(Guid.NewGuid(), null);
 
-            ClientScene.ClearSpawners();
+            NetworkClient.ClearSpawners();
 
             Assert.IsEmpty(prefabs);
         }
@@ -24,7 +24,7 @@ namespace Mirror.Tests.ClientSceneTests
             spawnHandlers.Add(Guid.NewGuid(), null);
             spawnHandlers.Add(Guid.NewGuid(), null);
 
-            ClientScene.ClearSpawners();
+            NetworkClient.ClearSpawners();
 
             Assert.IsEmpty(spawnHandlers);
         }
@@ -36,7 +36,7 @@ namespace Mirror.Tests.ClientSceneTests
             unspawnHandlers.Add(Guid.NewGuid(), null);
             unspawnHandlers.Add(Guid.NewGuid(), null);
 
-            ClientScene.ClearSpawners();
+            NetworkClient.ClearSpawners();
 
             Assert.IsEmpty(unspawnHandlers);
         }
@@ -56,7 +56,7 @@ namespace Mirror.Tests.ClientSceneTests
             unspawnHandlers.Add(Guid.NewGuid(), null);
             unspawnHandlers.Add(Guid.NewGuid(), null);
 
-            ClientScene.ClearSpawners();
+            NetworkClient.ClearSpawners();
 
             Assert.IsEmpty(prefabs);
             Assert.IsEmpty(spawnHandlers);

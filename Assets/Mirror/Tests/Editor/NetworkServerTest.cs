@@ -364,7 +364,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // disconnect all connections
-            NetworkServer.DisconnectAllConnections();
+            NetworkServer.DisconnectAllExternalConnections();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
@@ -777,7 +777,7 @@ namespace Mirror.Tests
             identity.connectionToClient = connection;
 
             // send it to that player
-            NetworkServer.SendToClientOfPlayer(identity, message);
+            identity.connectionToClient.Send(message);
 
             // update local connection once so that the incoming queue is processed
             connection.connectionToServer.Update();
@@ -1054,25 +1054,25 @@ namespace Mirror.Tests
 
 
         [Test]
-        public void NoConnectionsTest_WithNoConnection()
+        public void NoExternalConnectionsTest_WithNoConnection()
         {
-            Assert.That(NetworkServer.NoConnections(), Is.True);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void NoConnectionsTest_WithConnections()
+        public void NoExternalConnectionsTest_WithConnections()
         {
             NetworkServer.connections.Add(1, null);
             NetworkServer.connections.Add(2, null);
-            Assert.That(NetworkServer.NoConnections(), Is.False);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
 
             NetworkServer.connections.Clear();
         }
 
         [Test]
-        public void NoConnectionsTest_WithHostOnly()
+        public void NoExternalConnectionsTest_WithHostOnly()
         {
             LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
             LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
@@ -1082,7 +1082,7 @@ namespace Mirror.Tests
             NetworkServer.SetLocalConnection(connectionToClient);
             NetworkServer.connections.Add(0, connectionToClient);
 
-            Assert.That(NetworkServer.NoConnections(), Is.True);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             NetworkServer.connections.Clear();
@@ -1090,7 +1090,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NoConnectionsTest_WithHostAndConnection()
+        public void NoExternalConnectionsTest_WithHostAndConnection()
         {
             LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
             LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
@@ -1101,49 +1101,54 @@ namespace Mirror.Tests
             NetworkServer.connections.Add(0, connectionToClient);
             NetworkServer.connections.Add(1, null);
 
-            Assert.That(NetworkServer.NoConnections(), Is.False);
+            Assert.That(NetworkServer.NoExternalConnections(), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
 
             NetworkServer.connections.Clear();
             NetworkServer.RemoveLocalConnection();
         }
 
-        // updating NetworkServer with a null entry in NetworkIdentity.spawned
-        // should log a warning.
+        // updating NetworkServer with a null entry in connection.observing
+        // should log a warning. someone probably used GameObject.Destroy
+        // instead of NetworkServer.Destroy.
         [Test]
-        public void UpdateDetectsNullEntryInSpawned()
+        public void UpdateDetectsNullEntryInObserving()
         {
             // start
             NetworkServer.Listen(1);
 
-            // add null
-            NetworkIdentity.spawned[42] = null;
+            // add a connection that is observed by a null entity
+            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            NetworkServer.connections[42].observing.Add(null);
 
             // update
-            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
 
             // clean up
             NetworkServer.Shutdown();
         }
 
-        // updating NetworkServer with a null entry in NetworkIdentity.spawned
-        // should log a warning.
+        // updating NetworkServer with a null entry in connection.observing
+        // should log a warning. someone probably used GameObject.Destroy
+        // instead of NetworkServer.Destroy.
+        //
         // => need extra test because of Unity's custom null check
         [Test]
-        public void UpdateDetectsDestroyedEntryInSpawned()
+        public void UpdateDetectsDestroyedEntryInObserving()
         {
             // start
             NetworkServer.Listen(1);
 
-            // add destroyed
+            // add a connection that is observed by a destroyed entity
             GameObject go = new GameObject();
             NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            NetworkIdentity.spawned[42] = ni;
+            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            NetworkServer.connections[42].observing.Add(ni);
             GameObject.DestroyImmediate(go);
 
             // update
-            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned list.*"));
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
 
             // clean up

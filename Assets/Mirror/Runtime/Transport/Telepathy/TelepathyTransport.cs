@@ -80,7 +80,7 @@ namespace Mirror
             // them all in a lambda and always call the latest hook.
             // (= lazy call)
             client.OnConnected = () => OnClientConnected.Invoke();
-            client.OnData = (segment) => OnClientDataReceived.Invoke(segment, Channels.DefaultReliable);
+            client.OnData = (segment) => OnClientDataReceived.Invoke(segment, Channels.Reliable);
             client.OnDisconnected = () => OnClientDisconnected.Invoke();
 
             // client configuration
@@ -98,7 +98,7 @@ namespace Mirror
             // them all in a lambda and always call the latest hook.
             // (= lazy call)
             server.OnConnected = (connectionId) => OnServerConnected.Invoke(connectionId);
-            server.OnData = (connectionId, segment) => OnServerDataReceived.Invoke(connectionId, segment, Channels.DefaultReliable);
+            server.OnData = (connectionId, segment) => OnServerDataReceived.Invoke(connectionId, segment, Channels.Reliable);
             server.OnDisconnected = (connectionId) => OnServerDisconnected.Invoke(connectionId);
 
             // server configuration
@@ -133,29 +133,18 @@ namespace Mirror
         }
         public override void ClientSend(int channelId, ArraySegment<byte> segment) => client.Send(segment);
         public override void ClientDisconnect() => client.Disconnect();
-
-        // IMPORTANT: set script execution order to >1000 to call Transport's
-        //            LateUpdate after all others. Fixes race condition where
-        //            e.g. in uSurvival Transport would apply Cmds before
-        //            ShoulderRotation.LateUpdate, resulting in projectile
-        //            spawns at the point before shoulder rotation.
-        public void LateUpdate()
+        // messages should always be processed in early update
+        public override void ClientEarlyUpdate()
         {
             // note: we need to check enabled in case we set it to false
             // when LateUpdate already started.
             // (https://github.com/vis2k/Mirror/pull/379)
-            if (!enabled)
-                return;
+            if (!enabled) return;
 
             // process a maximum amount of client messages per tick
             // IMPORTANT: check .enabled to stop processing immediately after a
             //            scene change message arrives!
             client.Tick(clientMaxReceivesPerTick, enabledCheck);
-
-            // process a maximum amount of server messages per tick
-            // IMPORTANT: check .enabled to stop processing immediately after a
-            //            scene change message arrives!
-            server.Tick(serverMaxReceivesPerTick, enabledCheck);
         }
 
         // server
@@ -191,6 +180,19 @@ namespace Mirror
             }
         }
         public override void ServerStop() => server.Stop();
+        // messages should always be processed in early update
+        public override void ServerEarlyUpdate()
+        {
+            // note: we need to check enabled in case we set it to false
+            // when LateUpdate already started.
+            // (https://github.com/vis2k/Mirror/pull/379)
+            if (!enabled) return;
+
+            // process a maximum amount of server messages per tick
+            // IMPORTANT: check .enabled to stop processing immediately after a
+            //            scene change message arrives!
+            server.Tick(serverMaxReceivesPerTick, enabledCheck);
+        }
 
         // common
         public override void Shutdown()

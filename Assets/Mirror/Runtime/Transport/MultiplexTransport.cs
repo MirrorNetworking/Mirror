@@ -20,6 +20,38 @@ namespace Mirror
             }
         }
 
+        public override void ClientEarlyUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ClientEarlyUpdate();
+            }
+        }
+
+        public override void ServerEarlyUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ServerEarlyUpdate();
+            }
+        }
+
+        public override void ClientLateUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ClientLateUpdate();
+            }
+        }
+
+        public override void ServerLateUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ServerLateUpdate();
+            }
+        }
+
         void OnEnable()
         {
             foreach (Transport transport in transports)
