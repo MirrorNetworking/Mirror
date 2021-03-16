@@ -23,7 +23,7 @@ namespace Mirror
 
         [Header("Common")]
         [Tooltip("Spike latency via Sin(Time) * multiplier")]
-        public float latencySineMultiplier;
+        [Range(0, 1)] public float latencySineMultiplier;
 
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
