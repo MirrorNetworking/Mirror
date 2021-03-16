@@ -35,7 +35,7 @@ namespace Mirror.Experimental
         }
 
         // local authority client sends sync message to server for broadcasting
-        [Command(channel = Channels.DefaultUnreliable)]
+        [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSync(Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
         {
             // apply if in client authority mode
@@ -44,7 +44,7 @@ namespace Mirror.Experimental
         }
 
         // server broadcasts sync message to all clients
-        [ClientRpc(channel = Channels.DefaultUnreliable)]
+        [ClientRpc(channel = Channels.Unreliable)]
         void RpcServerToClientSync(Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
         {
             // apply for all objects except local player with authority
