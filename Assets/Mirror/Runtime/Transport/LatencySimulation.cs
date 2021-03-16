@@ -21,6 +21,10 @@ namespace Mirror
     {
         public Transport wrap;
 
+        [Header("Common")]
+        [Tooltip("Spike latency via Sin(Time) * multiplier")]
+        public float latencySineMultiplier;
+
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
         public float reliableLatency;
@@ -63,12 +67,16 @@ namespace Mirror
         // helper function to simulate latency
         float SimulateLatency(int channeldId)
         {
+            // spike over sine
+            float spike = (float)Math.Sin(Time.time) * latencySineMultiplier;
+
+            // base latency
             switch (channeldId)
             {
                 case Channels.Reliable:
-                    return reliableLatency;
+                    return reliableLatency + spike;
                 case Channels.Unreliable:
-                    return unreliableLatency;
+                    return unreliableLatency + spike;
                 default:
                     return 0;
             }
