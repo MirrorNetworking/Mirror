@@ -61,7 +61,7 @@ namespace Mirror
         void OnDisable() { wrap.enabled = false; }
 
         // helper function to simulate a send with latency/loss/scramble
-        void SimulateSend(int connectionId, int channelId, ArraySegment<byte> segment, List<QueuedMessage> reliableQueue, List<QueuedMessage> unreliableQueue)
+        void SimulateSend(int connectionId, int channelId, ArraySegment<byte> segment, float latency, List<QueuedMessage> reliableQueue, List<QueuedMessage> unreliableQueue)
         {
             // segment is only valid after returning. copy it.
             // (allocates for now. it's only for testing anyway.)
@@ -73,7 +73,7 @@ namespace Mirror
             {
                 connectionId = connectionId,
                 bytes = bytes,
-                time = Time.time
+                time = Time.time + latency
             };
 
             switch (channelId)
@@ -131,8 +131,13 @@ namespace Mirror
             unreliableClientToServer.Clear();
         }
 
-        public override void ClientSend(int channelId, ArraySegment<byte> segment) =>
-            SimulateSend(0, channelId, segment, reliableClientToServer, unreliableClientToServer);
+        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        {
+            float latency = channelId == Channels.Reliable
+                            ? reliableLatency
+                            : unreliableLatency;
+            SimulateSend(0, channelId, segment, latency, reliableClientToServer, unreliableClientToServer);
+        }
 
         public override Uri ServerUri() => wrap.ServerUri();
 
@@ -142,8 +147,13 @@ namespace Mirror
 
         public override bool ServerDisconnect(int connectionId) => wrap.ServerDisconnect(connectionId);
 
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment) =>
-            SimulateSend(connectionId, channelId, segment, reliableServerToClient, unreliableServerToClient);
+        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        {
+            float latency = channelId == Channels.Reliable
+                            ? reliableLatency
+                            : unreliableLatency;
+            SimulateSend(connectionId, channelId, segment, latency, reliableServerToClient, unreliableServerToClient);
+        }
 
         public override void ServerStart()
         {
@@ -170,7 +180,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = reliableClientToServer[0];
-                if (message.time + reliableLatency <= Time.time)
+                if (message.time <= Time.time)
                 {
                     // send and eat
                     wrap.ClientSend(Channels.Reliable, new ArraySegment<byte>(message.bytes));
@@ -185,7 +195,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = unreliableClientToServer[0];
-                if (message.time + unreliableLatency <= Time.time)
+                if (message.time <= Time.time)
                 {
                     // send and eat
                     wrap.ClientSend(Channels.Unreliable, new ArraySegment<byte>(message.bytes));
@@ -205,7 +215,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = reliableServerToClient[0];
-                if (message.time + reliableLatency <= Time.time)
+                if (message.time <= Time.time)
                 {
                     // send and eat
                     wrap.ServerSend(message.connectionId, Channels.Reliable, new ArraySegment<byte>(message.bytes));
@@ -220,7 +230,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = unreliableServerToClient[0];
-                if (message.time + unreliableLatency <= Time.time)
+                if (message.time <= Time.time)
                 {
                     // send and eat
                     wrap.ServerSend(message.connectionId, Channels.Unreliable, new ArraySegment<byte>(message.bytes));
