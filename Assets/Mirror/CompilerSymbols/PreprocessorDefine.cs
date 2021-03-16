@@ -14,8 +14,12 @@ namespace Mirror
             string currentDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
             HashSet<string> defines = new HashSet<string>(currentDefines.Split(';'))
             {
+				// Only keep the following Define Symbols.
+				// The rest can be removed, since they are legacy leftovers.
                 "MIRROR",
-				// Fast-forwarding to 26.0 and newer.
+				"MIRROR_17_0_OR_NEWER",
+                "MIRROR_18_0_OR_NEWER",
+                "MIRROR_24_0_OR_NEWER",
                 "MIRROR_26_0_OR_NEWER",
                 "MIRROR_27_0_OR_NEWER",
                 "MIRROR_28_0_OR_NEWER",
