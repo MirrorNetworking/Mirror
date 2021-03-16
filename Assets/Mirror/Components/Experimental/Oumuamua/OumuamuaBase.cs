@@ -64,7 +64,9 @@ namespace Mirror.Experimental
                     Snapshot snapshot = new Snapshot(
                         targetComponent.localPosition,
                         targetComponent.localRotation,
-                        targetComponent.localScale);
+                        targetComponent.localScale
+                    );
+
                     RpcServerToClientSync(snapshot);
                     lastServerSendTime = Time.time;
                 }
@@ -80,7 +82,9 @@ namespace Mirror.Experimental
                     Snapshot snapshot = new Snapshot(
                         targetComponent.localPosition,
                         targetComponent.localRotation,
-                        targetComponent.localScale);
+                        targetComponent.localScale
+                    );
+
                     CmdClientToServerSync(snapshot);
                     lastClientSendTime = Time.time;
                 }
