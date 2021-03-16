@@ -25,6 +25,16 @@ namespace Mirror.Experimental
         float lastClientSendTime;
         float lastServerSendTime;
 
+        // "When we send snapshot data in packets, we include at the top a 16 bit
+        // sequence number. This sequence number starts at zero and increases
+        // with each packet sent. We use this sequence number on receive to
+        // determine if the snapshot in a packet is newer or older than the most
+        // recent snapshot received. If it’s older then it’s thrown away."
+        ushort serverSendSequence;
+        ushort clientSendSequence;
+        ushort serverReceivedSequence;
+        ushort clientReceivedSequence;
+
         // set position carefully depending on the target component
         void ApplySnapshot(Snapshot snapshot)
         {
@@ -40,7 +50,14 @@ namespace Mirror.Experimental
         {
             // apply if in client authority mode
             if (clientAuthority)
-                ApplySnapshot(snapshot);
+            {
+                // newer than most recent received snapshot?
+                if (snapshot.sequence > serverReceivedSequence)
+                {
+                    ApplySnapshot(snapshot);
+                    serverReceivedSequence = snapshot.sequence;
+                }
+            }
         }
 
         // server broadcasts sync message to all clients
@@ -49,7 +66,14 @@ namespace Mirror.Experimental
         {
             // apply for all objects except local player with authority
             if (!IsClientWithAuthority)
-                ApplySnapshot(snapshot);
+            {
+                // newer than most recent received snapshot?
+                if (snapshot.sequence > clientReceivedSequence)
+                {
+                    ApplySnapshot(snapshot);
+                    clientReceivedSequence = snapshot.sequence;
+                }
+            }
         }
 
         void Update()
@@ -61,7 +85,9 @@ namespace Mirror.Experimental
                 if (Time.time >= lastServerSendTime + sendInterval)
                 {
                     // broadcast to clients
+                    ++serverSendSequence;
                     Snapshot snapshot = new Snapshot(
+                        serverSendSequence,
                         targetComponent.localPosition,
                         targetComponent.localRotation,
                         targetComponent.localScale
@@ -79,7 +105,9 @@ namespace Mirror.Experimental
                 if (Time.time >= lastClientSendTime + sendInterval)
                 {
                     // send to server
+                    ++clientSendSequence;
                     Snapshot snapshot = new Snapshot(
+                        clientSendSequence,
                         targetComponent.localPosition,
                         targetComponent.localRotation,
                         targetComponent.localScale
