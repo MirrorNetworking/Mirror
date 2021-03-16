@@ -26,30 +26,30 @@ namespace Mirror.Experimental
         float lastServerSendTime;
 
         // set position carefully depending on the target component
-        void ApplyPositionRotationScale(Vector3 position, Quaternion rotation, Vector3 scale)
+        void ApplySnapshot(Snapshot snapshot)
         {
             // local position/rotation for VR support
-            targetComponent.localPosition = position;
-            targetComponent.localRotation = rotation;
-            targetComponent.localScale = scale;
+            targetComponent.localPosition = snapshot.position;
+            targetComponent.localRotation = snapshot.rotation;
+            targetComponent.localScale = snapshot.scale;
         }
 
         // local authority client sends sync message to server for broadcasting
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
+        void CmdClientToServerSync(Snapshot snapshot)
         {
             // apply if in client authority mode
             if (clientAuthority)
-                ApplyPositionRotationScale(localPosition, localRotation, localScale);
+                ApplySnapshot(snapshot);
         }
 
         // server broadcasts sync message to all clients
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
+        void RpcServerToClientSync(Snapshot snapshot)
         {
             // apply for all objects except local player with authority
             if (!IsClientWithAuthority)
-                ApplyPositionRotationScale(localPosition, localRotation, localScale);
+                ApplySnapshot(snapshot);
         }
 
         void Update()
@@ -61,9 +61,11 @@ namespace Mirror.Experimental
                 if (Time.time >= lastServerSendTime + sendInterval)
                 {
                     // broadcast to clients
-                    RpcServerToClientSync(targetComponent.localPosition,
-                                          targetComponent.localRotation,
-                                          targetComponent.localScale);
+                    Snapshot snapshot = new Snapshot(
+                        targetComponent.localPosition,
+                        targetComponent.localRotation,
+                        targetComponent.localScale);
+                    RpcServerToClientSync(snapshot);
                     lastServerSendTime = Time.time;
                 }
             }
@@ -75,9 +77,11 @@ namespace Mirror.Experimental
                 if (Time.time >= lastClientSendTime + sendInterval)
                 {
                     // send to server
-                    CmdClientToServerSync(targetComponent.localPosition,
-                                          targetComponent.localRotation,
-                                          targetComponent.localScale);
+                    Snapshot snapshot = new Snapshot(
+                        targetComponent.localPosition,
+                        targetComponent.localRotation,
+                        targetComponent.localScale);
+                    CmdClientToServerSync(snapshot);
                     lastClientSendTime = Time.time;
                 }
             }
