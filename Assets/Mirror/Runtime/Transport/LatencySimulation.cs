@@ -22,8 +22,10 @@ namespace Mirror
         public Transport wrap;
 
         [Header("Common")]
-        [Tooltip("Spike latency via Sin(Time) * multiplier")]
-        [Range(0, 1)] public float latencySineMultiplier;
+        [Tooltip("Spike latency via perlin(Time * speedMultiplier) * spikeMultiplier")]
+        [Range(0, 1)] public float latencySpikeMultiplier;
+        [Tooltip("Spike latency via perlin(Time * speedMultiplier) * spikeMultiplier")]
+        public float latencySpikeSpeedMultiplier = 1;
 
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
@@ -67,8 +69,12 @@ namespace Mirror
         // helper function to simulate latency
         float SimulateLatency(int channeldId)
         {
-            // spike over sine
-            float spike = (float)Math.Sin(Time.time) * latencySineMultiplier;
+            // spike over perlin noise.
+            // no spikes isn't realistic.
+            // sin is too predictable / no realistic.
+            // perlin is still deterministic and random enough.
+            float sample = Time.time * latencySpikeSpeedMultiplier;
+            float spike = Mathf.PerlinNoise(sample, sample) * latencySpikeMultiplier;
 
             // base latency
             switch (channeldId)
