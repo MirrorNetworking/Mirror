@@ -67,6 +67,7 @@ namespace Mirror
             // (allocates for now. it's only for testing anyway.)
             byte[] bytes = new byte[segment.Count];
             Buffer.BlockCopy(segment.Array, segment.Offset, bytes, 0, segment.Count);
+
             // enqueue message. send after latency interval.
             QueuedMessage message = new QueuedMessage
             {
