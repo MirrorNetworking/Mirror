@@ -23,7 +23,7 @@ namespace Mirror
 
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
-        public float reliableLatency = 0;
+        public float reliableLatency;
         // note: packet loss over reliable manifests itself in latency.
         //       don't need (and can't add) a loss option here.
         // note: reliable is ordered by definition. no need to scramble.
@@ -32,7 +32,7 @@ namespace Mirror
         [Tooltip("Packet loss in %")]
         [Range(0, 1)] public float unreliableLoss;
         [Tooltip("Unreliable latency in seconds")]
-        public float unreliableLatency = 0;
+        public float unreliableLatency;
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         [Range(0, 1)] public float unreliableScramble;
 
