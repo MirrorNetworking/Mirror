@@ -172,14 +172,39 @@ namespace Mirror.Experimental
                     // interpolation starts
                     interpolationTime += Time.deltaTime;
 
+                    // delta time is needed a lot
+                    float delta = second.timestamp - first.timestamp;
+
+                    // if interpolation time is already >= delta, then remove
+                    // the snapshot BEFORE we interpolate.
+                    // otherwise we might:
+                    // * overshoot the interpolation to 'second' because t > 1
+                    // * see jitter where InverseLerp clamps t > 1 to t = 1
+                    //   and we miss out on some smooth movement
+                    if (interpolationTime >= delta)
+                    {
+                        // subtract exactly delta from interpolation time
+                        // instead of setting to '0', where we would lose the
+                        // overshoot part and see jitter again.
+                        interpolationTime -= delta;
+                        Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
+
+                        // remove first one from buffer
+                        buffer.RemoveAt(0);
+
+                        // reassign first, second
+                        first = buffer.Values[0];
+                        second = buffer.Values[1];
+
+                        // TODO what if we overshoot more than one? handle that too.
+                    }
+
                     // first, second, interpolationTime are all absolute values.
                     // inverse lerp calculate relative 't' interpolation factor.
                     // TODO store 't' directly instead of all this magic. or not.
-                    // TODO THIS IS CLAMPED :((((((((
+                    // IMPORTANT: this clamps. but we already handle overshoot
+                    //            above
                     float t = Mathf.InverseLerp(first.timestamp, second.timestamp, first.timestamp + interpolationTime);
-
-                    // TODO if t >= 1 then remove immediately before applying.
-                    // always apply the precise point
 
                     // TODO catchup
 
@@ -190,13 +215,6 @@ namespace Mirror.Experimental
 
                     // apply snapshot
                     ApplySnapshot(interpolated);
-
-                    // if destination was reached, remove first entry!
-                    if (t >= 1)
-                    {
-                        buffer.RemoveAt(0);
-                        interpolationTime = 0; // TODO subtract, not reset
-                    }
 
                     // TODO should we set remoteTime = second.time for precision?
                     // probably better not. we are not exactly at second.time.
