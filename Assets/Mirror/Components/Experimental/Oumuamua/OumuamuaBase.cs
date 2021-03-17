@@ -135,6 +135,7 @@ namespace Mirror.Experimental
             if (buffer.Count > 0)
             {
                 // snapshot needs to be older than currentTime - bufferTime
+                // because we buffer 'bufferTime' seconds worth of snapshots
                 float threshold = remoteTime - bufferTime;
                 Snapshot first = buffer.Values[0];
                 if (first.timestamp <= threshold)
