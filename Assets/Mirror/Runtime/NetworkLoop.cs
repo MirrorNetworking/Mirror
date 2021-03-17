@@ -103,8 +103,11 @@ namespace Mirror
                 // prepend our custom loop to the beginning
                 if (addMode == AddMode.Beginning)
                 {
-                    // shift to the right, write into first array element
+                    // copy to the right and clear the first element
                     Array.Copy(playerLoop.subSystemList, 0, playerLoop.subSystemList, 1, playerLoop.subSystemList.Length - 1);
+                    playerLoop.subSystemList[0].updateFunction = IntPtr.Zero;
+                    playerLoop.subSystemList[0].loopConditionFunction = IntPtr.Zero;
+                    // write into first array element
                     playerLoop.subSystemList[0].type = ownerType;
                     playerLoop.subSystemList[0].updateDelegate = function;
 
@@ -145,7 +148,7 @@ namespace Mirror
 
             // get loop
             // 2019 has GetCURRENTPlayerLoop which is safe to use without
-            // breaking other custom system's custom loops. 
+            // breaking other custom system's custom loops.
             // see also: https://github.com/vis2k/Mirror/pull/2627/files
             PlayerLoopSystem playerLoop =
 #if UNITY_2019_3_OR_NEWER
