@@ -72,6 +72,17 @@ namespace Mirror.Experimental
             }
         }
 
+        // construct a snapshot of the current state
+        Snapshot ConstructSnapshot()
+        {
+            return new Snapshot(
+                Time.time,
+                targetComponent.localPosition,
+                targetComponent.localRotation,
+                targetComponent.localScale
+            );
+        }
+
         // set position carefully depending on the target component
         void ApplySnapshot(Snapshot snapshot)
         {
@@ -136,13 +147,7 @@ namespace Mirror.Experimental
                 // (client with authority will drop the rpc)
                 if (Time.time >= lastServerSendTime + sendInterval)
                 {
-                    Snapshot snapshot = new Snapshot(
-                        Time.time,
-                        targetComponent.localPosition,
-                        targetComponent.localRotation,
-                        targetComponent.localScale
-                    );
-
+                    Snapshot snapshot = ConstructSnapshot();
                     RpcServerToClientSync(snapshot);
                     lastServerSendTime = Time.time;
                 }
@@ -169,13 +174,7 @@ namespace Mirror.Experimental
                     // send to server each 'sendInterval'
                     if (Time.time >= lastClientSendTime + sendInterval)
                     {
-                        Snapshot snapshot = new Snapshot(
-                            Time.time,
-                            targetComponent.localPosition,
-                            targetComponent.localRotation,
-                            targetComponent.localScale
-                        );
-
+                        Snapshot snapshot = ConstructSnapshot();
                         CmdClientToServerSync(snapshot);
                         lastClientSendTime = Time.time;
                     }
