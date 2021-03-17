@@ -25,15 +25,26 @@ namespace Mirror.Experimental
         float lastClientSendTime;
         float lastServerSendTime;
 
-        // "When we send snapshot data in packets, we include at the top a 16 bit
-        // sequence number. This sequence number starts at zero and increases
-        // with each packet sent. We use this sequence number on receive to
-        // determine if the snapshot in a packet is newer or older than the most
-        // recent snapshot received. If it’s older then it’s thrown away."
-        ushort serverSendSequence;
-        ushort clientSendSequence;
-        ushort serverReceivedSequence;
-        ushort clientReceivedSequence;
+        // keep track of last received timestamps and throw out any snapshots
+        // older than that (according to the article).
+        // TODO seems like any snapshot that still fits in the buffer before we
+        //      process it seems worth keeping?
+        // TODO consider double for precision over days
+        float serverLastReceivedTimestamp;
+        float clientLastReceivedTimestamp;
+
+        // snapshot timestamps are _remote_ time
+        // we need to interpolate and calculate buffer lifetimes based on it.
+        // -> we don't know remote's current time
+        // -> NetworkTime.time fluctuates too much, that's no good
+        // -> we _could_ calculate an offset when the first snapshot arrives,
+        //    but if there was high latency then we'll always calculate time
+        //    with high latency
+        // -> at any given time, we are interpolating from snapshot A to B
+        // => seems like A.timestamp += deltaTime is a good way to do it
+        // => let's store it in two variables:
+        float serverRemoteClientTime;
+        float clientRemoteServerTime;
 
         // "Experimentally I’ve found that the amount of delay that works best
         //  at 2-5% packet loss is 3X the packet send rate"
@@ -53,11 +64,11 @@ namespace Mirror.Experimental
             if (clientAuthority)
             {
                 // newer than most recent received snapshot?
-                if (snapshot.sequence > serverReceivedSequence)
+                if (snapshot.timestamp > serverLastReceivedTimestamp)
                 {
                     // add to buffer
-                    serverBuffer.Enqueue(snapshot, Time.time);
-                    serverReceivedSequence = snapshot.sequence;
+                    serverBuffer.Enqueue(snapshot);
+                    serverLastReceivedTimestamp = snapshot.timestamp;
                 }
             }
         }
@@ -70,11 +81,11 @@ namespace Mirror.Experimental
             if (!IsClientWithAuthority)
             {
                 // newer than most recent received snapshot?
-                if (snapshot.sequence > clientReceivedSequence)
+                if (snapshot.timestamp > clientLastReceivedTimestamp)
                 {
                     // add to buffer
-                    clientBuffer.Enqueue(snapshot, Time.time);
-                    clientReceivedSequence = snapshot.sequence;
+                    clientBuffer.Enqueue(snapshot);
+                    clientLastReceivedTimestamp = snapshot.timestamp;
                 }
             }
         }
@@ -91,9 +102,10 @@ namespace Mirror.Experimental
         // helper function to apply snapshots.
         // we use the same one on server and client.
         // => called every Update() depending on authority.
-        void ApplySnapshots(SnapshotBuffer buffer)
+        void ApplySnapshots(ref float remoteTime, SnapshotBuffer buffer)
         {
             Debug.Log($"{name} snapshotbuffer={buffer.Count}");
+
 
             // we buffer snapshots for 'bufferTime'
             // for example:
@@ -101,7 +113,36 @@ namespace Mirror.Experimental
             //   * the idea is to wait long enough so we at least have a few
             //     snapshots to interpolate between
             //   * we process anything older 100ms immediately
-            if (buffer.DequeueIfOldEnough(Time.time, bufferTime, out Snapshot snapshot))
+            //
+            // IMPORTANT: snapshot timestamps are _remote_ time
+            // we need to interpolate and calculate buffer lifetimes based on it.
+            // -> we don't know remote's current time
+            // -> NetworkTime.time fluctuates too much, that's no good
+            // -> we _could_ calculate an offset when the first snapshot arrives,
+            //    but if there was high latency then we'll always calculate time
+            //    with high latency
+            // -> at any given time, we are interpolating from snapshot A to B
+            // => seems like A.timestamp += deltaTime is a good way to do it
+
+            // if remote time wasn't initialized yet
+            if (remoteTime == 0)
+            {
+                // then set it to first snapshot received (if any)
+                if (buffer.Peek(out Snapshot first))
+                {
+                    remoteTime = first.timestamp;
+                    Debug.LogWarning("remoteTime initialized to " + first.timestamp);
+                }
+                // otherwise wait for the first one
+                else return;
+            }
+
+            // move remote time along deltaTime
+            // TODO consider double for precision over days
+            // (probably need to speed this up based on buffer size later)
+            remoteTime += Time.deltaTime;
+
+            if (buffer.DequeueIfOldEnough(remoteTime, bufferTime, out Snapshot snapshot))
                 ApplySnapshot(snapshot);
         }
 
@@ -114,9 +155,8 @@ namespace Mirror.Experimental
                 // (client with authority will drop the rpc)
                 if (Time.time >= lastServerSendTime + sendInterval)
                 {
-                    ++serverSendSequence;
                     Snapshot snapshot = new Snapshot(
-                        serverSendSequence,
+                        Time.time,
                         targetComponent.localPosition,
                         targetComponent.localRotation,
                         targetComponent.localScale
@@ -135,7 +175,7 @@ namespace Mirror.Experimental
                 if (clientAuthority && !isLocalPlayer)
                 {
                     // apply snapshots
-                    ApplySnapshots(serverBuffer);
+                    ApplySnapshots(ref serverRemoteClientTime, serverBuffer);
                 }
             }
             // 'else if' because host mode shouldn't send anything to server.
@@ -148,9 +188,8 @@ namespace Mirror.Experimental
                     // send to server each 'sendInterval'
                     if (Time.time >= lastClientSendTime + sendInterval)
                     {
-                        ++clientSendSequence;
                         Snapshot snapshot = new Snapshot(
-                            clientSendSequence,
+                            Time.time,
                             targetComponent.localPosition,
                             targetComponent.localRotation,
                             targetComponent.localScale
@@ -165,25 +204,24 @@ namespace Mirror.Experimental
                 else
                 {
                     // apply snapshots
-                    ApplySnapshots(clientBuffer);
+                    ApplySnapshots(ref clientRemoteServerTime, clientBuffer);
                 }
             }
         }
 
-        void OnDisable()
+        void Reset()
         {
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
             serverBuffer.Clear();
             clientBuffer.Clear();
+
+            // and reset remoteTime so it's initialized to first snapshot again
+            clientRemoteServerTime = 0;
+            serverRemoteClientTime = 0;
         }
 
-        void OnEnable()
-        {
-            // just in case we received anything while disabled...
-            // it's outdated now anyway. clear the buffers.
-            serverBuffer.Clear();
-            clientBuffer.Clear();
-        }
+        void OnDisable() => Reset();
+        void OnEnable() => Reset();
     }
 }

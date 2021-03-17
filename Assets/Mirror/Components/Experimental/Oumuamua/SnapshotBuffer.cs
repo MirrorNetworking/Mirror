@@ -2,29 +2,11 @@ using System.Collections.Generic;
 
 namespace Mirror.Experimental
 {
-    // need to store snapshots with timestamp.
-    // can't put .timestamp into snapshot because we don't want to sync it.
-    internal struct BufferEntry
-    {
-        internal Snapshot snapshot;
-        internal float timestamp;
-
-        internal BufferEntry(Snapshot snapshot, float timestamp)
-        {
-            this.snapshot = snapshot;
-            this.timestamp = timestamp;
-        }
-    }
-
     internal class SnapshotBuffer
     {
-        Queue<BufferEntry> queue = new Queue<BufferEntry>();
+        Queue<Snapshot> queue = new Queue<Snapshot>();
 
-        internal void Enqueue(Snapshot snapshot, float timestamp)
-        {
-            BufferEntry entry = new BufferEntry(snapshot, timestamp);
-            queue.Enqueue(entry);
-        }
+        internal void Enqueue(Snapshot snapshot) => queue.Enqueue(snapshot);
 
         // dequeue the first snapshot if it's older enough.
         // for example, currentTime = 100, bufferInterval = 0.3
@@ -37,13 +19,23 @@ namespace Mirror.Experimental
                 float thresholdTime = currentTime - bufferInterval;
 
                 // peek and compare time
-                BufferEntry entry = queue.Peek();
-                if (entry.timestamp <= thresholdTime)
+                if (queue.Peek().timestamp <= thresholdTime)
                 {
-                    snapshot = entry.snapshot;
-                    queue.Dequeue();
+                    snapshot = queue.Dequeue();
                     return true;
                 }
+            }
+            snapshot = default;
+            return false;
+        }
+
+        // peek
+        internal bool Peek(out Snapshot snapshot)
+        {
+            if (queue.Count > 0)
+            {
+                snapshot = queue.Peek();
+                return true;
             }
             snapshot = default;
             return false;
