@@ -55,6 +55,11 @@ namespace Mirror.Experimental
         SortedList<float, Snapshot> serverBuffer = new SortedList<float, Snapshot>();
         SortedList<float, Snapshot> clientBuffer = new SortedList<float, Snapshot>();
 
+        // absolute interpolation time, moved along with deltaTime
+        // TODO might be possible to use only remoteTime - bufferTime later?
+        float serverInterpolationTime;
+        float clientInterpolationTime;
+
         // snapshot functions //////////////////////////////////////////////////
         // insert into snapshot buffer if newer than first entry
         static void InsertIfNewEnough(Snapshot snapshot, SortedList<float, Snapshot> buffer)
@@ -66,6 +71,22 @@ namespace Mirror.Experimental
 
             // otherwise sort it into the list
             buffer.Add(snapshot.timestamp, snapshot);
+        }
+
+        // interpolate all components of a snapshot
+        // t is interpolation step [0,1]
+        //
+        // unclamped for maximum transition smoothness.
+        // although the caller should switch to next snapshot if t >= 1 instead
+        // of calling this with a t >= 1!
+        static Snapshot InterpolateSnapshot(Snapshot from, Snapshot to, float t)
+        {
+            return new Snapshot(
+                Mathf.LerpUnclamped(from.timestamp, to.timestamp, t),
+                Vector3.LerpUnclamped(from.position, to.position, t),
+                Quaternion.LerpUnclamped(from.rotation, to.rotation, t),
+                Vector3.LerpUnclamped(from.scale, to.scale, t)
+            );
         }
 
         // construct a snapshot of the current state
@@ -91,9 +112,9 @@ namespace Mirror.Experimental
         // helper function to apply snapshots.
         // we use the same one on server and client.
         // => called every Update() depending on authority.
-        void ApplySnapshots(ref float remoteTime, SortedList<float, Snapshot> buffer)
+        void ApplySnapshots(ref float remoteTime, ref float interpolationTime, SortedList<float, Snapshot> buffer)
         {
-            Debug.Log($"{name} snapshotbuffer={buffer.Count}");
+            //Debug.Log($"{name} snapshotbuffer={buffer.Count}");
 
             // we buffer snapshots for 'bufferTime'
             // for example:
@@ -131,18 +152,54 @@ namespace Mirror.Experimental
             // (probably need to speed this up based on buffer size later)
             remoteTime += Time.deltaTime;
 
-            // apply first snapshot if old enough
-            if (buffer.Count > 0)
+            // interpolation always requires at least two snapshots
+            if (buffer.Count >= 2)
             {
-                // snapshot needs to be older than currentTime - bufferTime
-                // because we buffer 'bufferTime' seconds worth of snapshots
-                float threshold = remoteTime - bufferTime;
                 Snapshot first = buffer.Values[0];
-                if (first.timestamp <= threshold)
+                Snapshot second = buffer.Values[1];
+
+                // and they both need to be older than bufferTime
+                // (because we always buffer for 'bufferTime' seconds first)
+                // (second is always older than first. only check second's time)
+                float threshold = remoteTime - bufferTime;
+                if (second.timestamp <= threshold)
                 {
-                    ApplySnapshot(first);
-                    // remove it, now that we have applied it
-                    buffer.RemoveAt(0);
+                    // we can't use remoteTime for interpolation because we always
+                    // interpolate on two old snapshots.
+                    //   | first.time | second.time | remoteTime |
+                    // translating remoteTime - bufferTime into the past isn't exact.
+                    // let's keep a separate interpolation time that is set when the
+                    // interpolation starts
+                    interpolationTime += Time.deltaTime;
+
+                    // first, second, interpolationTime are all absolute values.
+                    // inverse lerp calculate relative 't' interpolation factor.
+                    // TODO store 't' directly instead of all this magic. or not.
+                    // TODO THIS IS CLAMPED :((((((((
+                    float t = Mathf.InverseLerp(first.timestamp, second.timestamp, first.timestamp + interpolationTime);
+
+                    // TODO if t >= 1 then remove immediately before applying.
+                    // always apply the precise point
+
+                    // TODO catchup
+
+                    Debug.Log($"{name} first={first.timestamp:F2} second={second.timestamp:F2} remoteTime={remoteTime:F2} interpolationTime={interpolationTime:F2} t={t:F2} snapshotbuffer={buffer.Count}");
+
+                    // interpolate snapshot
+                    Snapshot interpolated = InterpolateSnapshot(first, second, t);
+
+                    // apply snapshot
+                    ApplySnapshot(interpolated);
+
+                    // if destination was reached, remove first entry!
+                    if (t >= 1)
+                    {
+                        buffer.RemoveAt(0);
+                        interpolationTime = 0; // TODO subtract, not reset
+                    }
+
+                    // TODO should we set remoteTime = second.time for precision?
+                    // probably better not. we are not exactly at second.time.
                 }
             }
         }
@@ -196,7 +253,7 @@ namespace Mirror.Experimental
                 if (clientAuthority && !isLocalPlayer)
                 {
                     // apply snapshots
-                    ApplySnapshots(ref serverRemoteClientTime, serverBuffer);
+                    ApplySnapshots(ref serverRemoteClientTime, ref serverInterpolationTime, serverBuffer);
                 }
             }
             // 'else if' because host mode shouldn't send anything to server.
@@ -219,7 +276,7 @@ namespace Mirror.Experimental
                 else
                 {
                     // apply snapshots
-                    ApplySnapshots(ref clientRemoteServerTime, clientBuffer);
+                    ApplySnapshots(ref clientRemoteServerTime, ref clientInterpolationTime, clientBuffer);
                 }
             }
         }
