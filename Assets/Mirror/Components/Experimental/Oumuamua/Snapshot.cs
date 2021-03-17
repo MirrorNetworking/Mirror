@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Mirror.Experimental
 {
-    internal struct Snapshot
+    public struct Snapshot
     {
         // time or sequence are needed to throw away older snapshots.
         //
@@ -22,13 +22,13 @@ namespace Mirror.Experimental
         // TODO consider double for precision over days
         //
         // [REMOTE TIME, NOT LOCAL TIME]
-        internal float timestamp;
+        public float timestamp;
 
-        internal Vector3 position;
-        internal Quaternion rotation;
-        internal Vector3 scale;
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 scale;
 
-        internal Snapshot(float timestamp, Vector3 position, Quaternion rotation, Vector3 scale)
+        public Snapshot(float timestamp, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             this.timestamp = timestamp;
             this.position = position;
