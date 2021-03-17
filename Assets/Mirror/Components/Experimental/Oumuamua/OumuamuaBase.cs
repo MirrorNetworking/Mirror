@@ -25,14 +25,6 @@ namespace Mirror.Experimental
         float lastClientSendTime;
         float lastServerSendTime;
 
-        // keep track of last received timestamps and throw out any snapshots
-        // older than that (according to the article).
-        // TODO seems like any snapshot that still fits in the buffer before we
-        //      process it seems worth keeping?
-        // TODO consider double for precision over days
-        float serverLastReceivedTimestamp;
-        float clientLastReceivedTimestamp;
-
         // snapshot timestamps are _remote_ time
         // we need to interpolate and calculate buffer lifetimes based on it.
         // -> we don't know remote's current time
@@ -63,13 +55,8 @@ namespace Mirror.Experimental
             // apply if in client authority mode
             if (clientAuthority)
             {
-                // newer than most recent received snapshot?
-                if (snapshot.timestamp > serverLastReceivedTimestamp)
-                {
-                    // add to buffer
-                    serverBuffer.Enqueue(snapshot);
-                    serverLastReceivedTimestamp = snapshot.timestamp;
-                }
+                // add to buffer (or drop if older than first element)
+                serverBuffer.InsertIfNewEnough(snapshot);
             }
         }
 
@@ -80,13 +67,8 @@ namespace Mirror.Experimental
             // apply for all objects except local player with authority
             if (!IsClientWithAuthority)
             {
-                // newer than most recent received snapshot?
-                if (snapshot.timestamp > clientLastReceivedTimestamp)
-                {
-                    // add to buffer
-                    clientBuffer.Enqueue(snapshot);
-                    clientLastReceivedTimestamp = snapshot.timestamp;
-                }
+                // add to buffer (or drop if older than first element)
+                clientBuffer.InsertIfNewEnough(snapshot);
             }
         }
 
@@ -105,7 +87,6 @@ namespace Mirror.Experimental
         void ApplySnapshots(ref float remoteTime, SnapshotBuffer buffer)
         {
             Debug.Log($"{name} snapshotbuffer={buffer.Count}");
-
 
             // we buffer snapshots for 'bufferTime'
             // for example:
