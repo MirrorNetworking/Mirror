@@ -1,4 +1,13 @@
 // the snapshot buffer's job is to hold for example 100ms worth of snapshots.
+//
+// from the article:
+// "What we do is instead of immediately rendering snapshot data received is
+//  that we buffer snapshots for a short amount of time in an interpolation
+//  buffer. This interpolation buffer holds on to snapshots for a period of time
+//  such that you have not only the snapshot you want to render but also,
+//  statistically speaking, you are very likely to have the next snapshot as
+//  well."
+//
 // SnapshotBuffer simply wraps a sorted list with some time functions.
 // it's nothing special and we could do the time math in NetworkTransform,
 // but this way we shield ourselves from life's complexities and it's testable!
