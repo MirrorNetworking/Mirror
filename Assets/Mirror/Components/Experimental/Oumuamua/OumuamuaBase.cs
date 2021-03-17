@@ -3,6 +3,8 @@
 // Base class for NetworkTransform and NetworkTransformChild.
 // => simple unreliable sync without any interpolation for now.
 // => which means we don't need teleport detection either
+
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Experimental
@@ -44,9 +46,26 @@ namespace Mirror.Experimental
         public int bufferTimeMultiplier = 3;
         public float bufferTime => sendInterval * bufferTimeMultiplier;
 
-        // snapshot buffers
-        SnapshotBuffer serverBuffer = new SnapshotBuffer();
-        SnapshotBuffer clientBuffer = new SnapshotBuffer();
+        // snapshots sorted by timestamp
+        // in the original article, glenn fiedler drops any snapshots older than
+        // the last received snapshot.
+        // -> instead, we insert into a sorted buffer
+        // -> the higher the buffer information density, the better
+        // -> we still drop anything older than the first element in the buffer
+        SortedList<float, Snapshot> serverBuffer = new SortedList<float, Snapshot>();
+        SortedList<float, Snapshot> clientBuffer = new SortedList<float, Snapshot>();
+
+        // insert into snapshot buffer if newer than first entry
+        static void InsertIfNewEnough(Snapshot snapshot, SortedList<float, Snapshot> buffer)
+        {
+            // drop it if it's older than the first snapshot
+            if (buffer.Count > 0 &&
+                buffer.Values[0].timestamp > snapshot.timestamp)
+                return;
+
+            // otherwise sort it into the list
+            buffer.Add(snapshot.timestamp, snapshot);
+        }
 
         // local authority client sends sync message to server for broadcasting
         [Command(channel = Channels.Unreliable)]
@@ -56,7 +75,7 @@ namespace Mirror.Experimental
             if (clientAuthority)
             {
                 // add to buffer (or drop if older than first element)
-                serverBuffer.InsertIfNewEnough(snapshot);
+                InsertIfNewEnough(snapshot, serverBuffer);
             }
         }
 
@@ -68,7 +87,7 @@ namespace Mirror.Experimental
             if (!IsClientWithAuthority)
             {
                 // add to buffer (or drop if older than first element)
-                clientBuffer.InsertIfNewEnough(snapshot);
+                InsertIfNewEnough(snapshot, clientBuffer);
             }
         }
 
@@ -95,7 +114,7 @@ namespace Mirror.Experimental
         // helper function to apply snapshots.
         // we use the same one on server and client.
         // => called every Update() depending on authority.
-        void ApplySnapshots(ref float remoteTime, SnapshotBuffer buffer)
+        void ApplySnapshots(ref float remoteTime, SortedList<float, Snapshot> buffer)
         {
             Debug.Log($"{name} snapshotbuffer={buffer.Count}");
 
@@ -120,8 +139,9 @@ namespace Mirror.Experimental
             if (remoteTime == 0)
             {
                 // then set it to first snapshot received (if any)
-                if (buffer.Peek(out Snapshot first))
+                if (buffer.Count > 0)
                 {
+                    Snapshot first = buffer.Values[0];
                     remoteTime = first.timestamp;
                     Debug.LogWarning("remoteTime initialized to " + first.timestamp);
                 }
@@ -134,8 +154,19 @@ namespace Mirror.Experimental
             // (probably need to speed this up based on buffer size later)
             remoteTime += Time.deltaTime;
 
-            if (buffer.DequeueIfOldEnough(remoteTime, bufferTime, out Snapshot snapshot))
-                ApplySnapshot(snapshot);
+            // apply first snapshot if old enough
+            if (buffer.Count > 0)
+            {
+                // snapshot needs to be older than currentTime - bufferTime
+                float threshold = remoteTime - bufferTime;
+                Snapshot first = buffer.Values[0];
+                if (first.timestamp <= threshold)
+                {
+                    ApplySnapshot(first);
+                    // remove it, now that we have applied it
+                    buffer.RemoveAt(0);
+                }
+            }
         }
 
         void Update()
