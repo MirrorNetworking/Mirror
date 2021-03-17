@@ -55,6 +55,7 @@ namespace Mirror.Experimental
         SortedList<float, Snapshot> serverBuffer = new SortedList<float, Snapshot>();
         SortedList<float, Snapshot> clientBuffer = new SortedList<float, Snapshot>();
 
+        // snapshot functions //////////////////////////////////////////////////
         // insert into snapshot buffer if newer than first entry
         static void InsertIfNewEnough(Snapshot snapshot, SortedList<float, Snapshot> buffer)
         {
@@ -65,30 +66,6 @@ namespace Mirror.Experimental
 
             // otherwise sort it into the list
             buffer.Add(snapshot.timestamp, snapshot);
-        }
-
-        // local authority client sends sync message to server for broadcasting
-        [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Snapshot snapshot)
-        {
-            // apply if in client authority mode
-            if (clientAuthority)
-            {
-                // add to buffer (or drop if older than first element)
-                InsertIfNewEnough(snapshot, serverBuffer);
-            }
-        }
-
-        // server broadcasts sync message to all clients
-        [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(Snapshot snapshot)
-        {
-            // apply for all objects except local player with authority
-            if (!IsClientWithAuthority)
-            {
-                // add to buffer (or drop if older than first element)
-                InsertIfNewEnough(snapshot, clientBuffer);
-            }
         }
 
         // construct a snapshot of the current state
@@ -169,6 +146,32 @@ namespace Mirror.Experimental
             }
         }
 
+        // remote calls ////////////////////////////////////////////////////////
+        // local authority client sends sync message to server for broadcasting
+        [Command(channel = Channels.Unreliable)]
+        void CmdClientToServerSync(Snapshot snapshot)
+        {
+            // apply if in client authority mode
+            if (clientAuthority)
+            {
+                // add to buffer (or drop if older than first element)
+                InsertIfNewEnough(snapshot, serverBuffer);
+            }
+        }
+
+        // server broadcasts sync message to all clients
+        [ClientRpc(channel = Channels.Unreliable)]
+        void RpcServerToClientSync(Snapshot snapshot)
+        {
+            // apply for all objects except local player with authority
+            if (!IsClientWithAuthority)
+            {
+                // add to buffer (or drop if older than first element)
+                InsertIfNewEnough(snapshot, clientBuffer);
+            }
+        }
+
+        // update //////////////////////////////////////////////////////////////
         void Update()
         {
             // if server then always sync to others.
