@@ -2,16 +2,16 @@ using System.Collections.Generic;
 
 namespace Mirror.Experimental
 {
-    internal class SnapshotBuffer
+    public class SnapshotBuffer
     {
         Queue<Snapshot> queue = new Queue<Snapshot>();
 
-        internal void Enqueue(Snapshot snapshot) => queue.Enqueue(snapshot);
+        public void Enqueue(Snapshot snapshot) => queue.Enqueue(snapshot);
 
         // dequeue the first snapshot if it's older enough.
         // for example, currentTime = 100, bufferInterval = 0.3
         // so any snapshot before time = 99.7
-        internal bool DequeueIfOldEnough(float currentTime, float bufferInterval, out Snapshot snapshot)
+        public bool DequeueIfOldEnough(float currentTime, float bufferInterval, out Snapshot snapshot)
         {
             if (queue.Count > 0)
             {
@@ -30,7 +30,7 @@ namespace Mirror.Experimental
         }
 
         // peek
-        internal bool Peek(out Snapshot snapshot)
+        public bool Peek(out Snapshot snapshot)
         {
             if (queue.Count > 0)
             {
@@ -42,8 +42,8 @@ namespace Mirror.Experimental
         }
 
         // count queue size independent of time
-        internal int Count => queue.Count;
+        public int Count => queue.Count;
 
-        internal void Clear() => queue.Clear();
+        public void Clear() => queue.Clear();
     }
 }
