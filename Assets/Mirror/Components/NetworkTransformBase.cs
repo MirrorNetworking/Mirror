@@ -229,7 +229,7 @@ namespace Mirror
         }
 
         // local authority client sends sync message to server for broadcasting
-        [Command]
+        [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSync(ArraySegment<byte> payload)
         {
             // Ignore messages from client if not in client authority mode
