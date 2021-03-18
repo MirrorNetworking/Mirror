@@ -11,9 +11,6 @@ namespace Mirror.Examples.Basic
     [AddComponentMenu("")]
     public class BasicNetManager : NetworkManager
     {
-        // Players List to manage playerNumber
-        internal readonly List<Player> playersList = new List<Player>();
-
         [Header("Canvas UI")]
 
         [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
@@ -30,7 +27,7 @@ namespace Mirror.Examples.Basic
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
             base.OnServerAddPlayer(conn);
-            ResetPlayerNumbers();
+            Player.ResetPlayerNumbers();
         }
 
         /// <summary>
@@ -41,17 +38,8 @@ namespace Mirror.Examples.Basic
         public override void OnServerDisconnect(NetworkConnection conn)
         {
             base.OnServerDisconnect(conn);
-            ResetPlayerNumbers();
+            Player.ResetPlayerNumbers();
         }
 
-        void ResetPlayerNumbers()
-        {
-            int playerNumber = 0;
-            foreach (Player player in playersList)
-            {
-                player.playerNumber = playerNumber;
-                playerNumber++;
-            }
-        }
     }
 }
