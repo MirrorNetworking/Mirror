@@ -100,21 +100,29 @@ namespace Mirror
                 int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
                 Array.Resize(ref playerLoop.subSystemList, oldListLength + 1);
 
+                // IMPORTANT: always insert a FRESH PlayerLoopSystem!
+                // We CAN NOT resize and then OVERWRITE an entry's type/loop.
+                // => PlayerLoopSystem has native IntPtr loop members
+                // => forgetting to clear those would cause undefined behaviour!
+                // see also: https://github.com/vis2k/Mirror/pull/2652
+                PlayerLoopSystem system = new PlayerLoopSystem {
+                    type = ownerType,
+                    updateDelegate = function
+                };
+
                 // prepend our custom loop to the beginning
                 if (addMode == AddMode.Beginning)
                 {
                     // shift to the right, write into first array element
                     Array.Copy(playerLoop.subSystemList, 0, playerLoop.subSystemList, 1, playerLoop.subSystemList.Length - 1);
-                    playerLoop.subSystemList[0].type = ownerType;
-                    playerLoop.subSystemList[0].updateDelegate = function;
+                    playerLoop.subSystemList[0] = system;
 
                 }
                 // append our custom loop to the end
                 else if (addMode == AddMode.End)
                 {
                     // simply write into last array element
-                    playerLoop.subSystemList[oldListLength].type = ownerType;
-                    playerLoop.subSystemList[oldListLength].updateDelegate = function;
+                    playerLoop.subSystemList[oldListLength] = system;
                 }
 
                 // debugging
@@ -145,7 +153,7 @@ namespace Mirror
 
             // get loop
             // 2019 has GetCURRENTPlayerLoop which is safe to use without
-            // breaking other custom system's custom loops. 
+            // breaking other custom system's custom loops.
             // see also: https://github.com/vis2k/Mirror/pull/2627/files
             PlayerLoopSystem playerLoop =
 #if UNITY_2019_3_OR_NEWER
