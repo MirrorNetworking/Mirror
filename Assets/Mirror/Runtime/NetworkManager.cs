@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using kcp2k;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
@@ -612,7 +615,7 @@ namespace Mirror
             // If this is the host player, StopServer will already be changing scenes.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
             // Check if NetworkServer.active because we can get here via Disconnect before server has started to change scenes.
-            if (!string.IsNullOrEmpty(offlineScene) && !IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)
+            if (!string.IsNullOrEmpty(offlineScene) && !IsSceneActive(offlineScene) && loadingSceneAsync.IsValid() && !NetworkServer.active)
             {
                 ClientChangeScene(offlineScene, SceneOperation.Normal);
             }
@@ -733,7 +736,7 @@ namespace Mirror
         // Loading a scene manually won't set it.
         public static string networkSceneName { get; protected set; } = "";
 
-        public static AsyncOperation loadingSceneAsync;
+        public static AsyncOperationHandle<SceneInstance> loadingSceneAsync;
 
         /// <summary>Change the server scene and all client's scenes across the network.</summary>
         // Called automatically if onlineScene or offlineScene are set, but it
@@ -759,7 +762,8 @@ namespace Mirror
             // It will be re-enabled in FinishLoadScene.
             Transport.activeTransport.enabled = false;
 
-            loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+            loadingSceneAsync = Addressables.LoadSceneAsync(newSceneName, LoadSceneMode.Single, false);
+            activatedScene = false;
 
             // ServerChangeScene can be called when stopping the server
             // when this happens the server is not active so does not need to tell clients about the change
@@ -810,13 +814,17 @@ namespace Mirror
             switch (sceneOperation)
             {
                 case SceneOperation.Normal:
-                    loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
+                    loadingSceneAsync = Addressables.LoadSceneAsync(newSceneName, LoadSceneMode.Single, false);
+                    activatedScene = false;
                     break;
                 case SceneOperation.LoadAdditive:
                     // Ensure additive scene is not already loaded on client by name or path
                     // since we don't know which was passed in the Scene message
                     if (!SceneManager.GetSceneByName(newSceneName).IsValid() && !SceneManager.GetSceneByPath(newSceneName).IsValid())
-                        loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
+                    {
+                        loadingSceneAsync = Addressables.LoadSceneAsync(newSceneName, LoadSceneMode.Additive);
+                        activatedScene = false;
+                    }
                     else
                     {
                         Debug.LogWarning($"Scene {newSceneName} is already loaded");
@@ -829,7 +837,7 @@ namespace Mirror
                     // Ensure additive scene is actually loaded on client by name or path
                     // since we don't know which was passed in the Scene message
                     if (SceneManager.GetSceneByName(newSceneName).IsValid() || SceneManager.GetSceneByPath(newSceneName).IsValid())
-                        loadingSceneAsync = SceneManager.UnloadSceneAsync(newSceneName, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
+                        loadingSceneAsync = Addressables.UnloadSceneAsync(loadingSceneAsync, true);
                     else
                     {
                         Debug.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
@@ -874,14 +882,17 @@ namespace Mirror
 
         static void UpdateScene()
         {
-            if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
+            if (!activatedScene && singleton != null && loadingSceneAsync.IsValid() && loadingSceneAsync.IsDone)
             {
                 // Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
                 singleton.FinishLoadScene();
-                loadingSceneAsync.allowSceneActivation = true;
-                loadingSceneAsync = null;
+                loadingSceneAsync.Result.ActivateAsync();
+                activatedScene = true;
             }
         }
+
+
+        private static bool activatedScene = false;
 
         void FinishLoadScene()
         {

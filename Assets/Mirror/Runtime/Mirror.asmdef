@@ -3,7 +3,9 @@
     "references": [
         "Mirror.CompilerSymbols",
         "Telepathy",
-        "kcp2k"
+        "kcp2k",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
