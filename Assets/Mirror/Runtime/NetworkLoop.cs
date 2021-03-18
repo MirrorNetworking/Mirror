@@ -103,16 +103,14 @@ namespace Mirror
                 // prepend our custom loop to the beginning
                 if (addMode == AddMode.Beginning)
                 {
-                    // shift to the right and write into the first element
-                    // IMPORTANT: PlayerLoopSystem struct has IntPtrs for native loops:
-                    //   * updateFunction IntPtr
-                    //   * loopConditionFunction IntPtr
-                    // we need to clear them, otherwise our custom loop causes undefined
-                    // behaviour (https://github.com/vis2k/Mirror/pull/2652)
+                    // shift to the right, write into the first element
+                    // 
+                    // IMPORTANT: PlayerLoopSystem struct has IntPtrs for native loops.
+                    // => clear them so our added loop doesn't contain old IntPtr loops!
+                    //    https://github.com/vis2k/Mirror/pull/2652
                     Array.Copy(playerLoop.subSystemList, 0, playerLoop.subSystemList, 1, playerLoop.subSystemList.Length - 1);
                     playerLoop.subSystemList[0].updateFunction = IntPtr.Zero;
                     playerLoop.subSystemList[0].loopConditionFunction = IntPtr.Zero;
-                    // write into first array element
                     playerLoop.subSystemList[0].type = ownerType;
                     playerLoop.subSystemList[0].updateDelegate = function;
 
