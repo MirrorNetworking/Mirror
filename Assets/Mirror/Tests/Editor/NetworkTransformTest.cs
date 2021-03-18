@@ -14,7 +14,7 @@ namespace Mirror.Tests
             Quaternion rotation = new Quaternion(0.1f, 0.2f, 0.3f, 0.4f);
             Vector3 scale = new Vector3(0.5f, 0.6f, 0.7f);
 
-            NetworkTransformBase.SerializeIntoWriter(writer, position, rotation, scale, true);
+            NetworkTransformBase.SerializeIntoWriter(writer, position, rotation, scale, true, true);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadVector3(), Is.EqualTo(position));
             Assert.That(reader.ReadUInt32(), Is.EqualTo(Compression.CompressQuaternion(rotation)));
