@@ -52,8 +52,13 @@ namespace Mirror
 
         [Header("Interpolation")]
         [Tooltip("Set to true if scale should be interpolated, false is ideal for instant sprite flipping.")]
-        [SyncVar]
         public bool interpolateScale = true;
+
+        [Header("Synchronization")]
+        // It should be very rare cases that people want to continuously sync scale, true by default to not break previous projects that use it
+        // Users in most scenarios are best to send change of scale via cmd/rpc, syncvar/hooks, only once, and when required.  Saves instant 12 bytes (25% of NT bandwidth!)
+        [Tooltip("Set to false to not continuously send scale data, and save bandwidth.")]
+        public bool syncScale = true;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -82,7 +87,7 @@ namespace Mirror
 
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
-        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale, bool compressRotation)
+        public static void SerializeIntoWriter(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale, bool compressRotation, bool syncScale)
         {
             // serialize position, rotation, scale
             // => compress rotation from 4*4=16 to 4 bytes
@@ -98,13 +103,13 @@ namespace Mirror
                 // uncompressed for 2D
                 writer.WriteQuaternion(rotation);
             }
-            writer.WriteVector3(scale);
+            if (syncScale) { writer.WriteVector3(scale); }
         }
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             // use local position/rotation/scale for VR support
-            SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale, compressRotation);
+            SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale, compressRotation, syncScale);
             return true;
         }
 
@@ -128,14 +133,23 @@ namespace Mirror
             DataPoint temp = new DataPoint
             {
                 // deserialize position, rotation, scale
-                // (rotation is compressed)
+                // (rotation is optionally compressed)
                 localPosition = reader.ReadVector3(),
                 localRotation = compressRotation
                                 ? Compression.DecompressQuaternion(reader.ReadUInt32())
                                 : reader.ReadQuaternion(),
-                localScale = reader.ReadVector3(),
+                // use current target scale, so we can check boolean and reader later, to see if the data is actually sent.
+                localScale = targetComponent.localScale,
                 timeStamp = Time.time
             };
+            
+            if (syncScale)
+            {
+                // Reader length is checked here, 12 is used as thats the current Vector3 (3 floats) amount.
+                // In rare cases people may do mis-matched builds, log useful warning message, and then do not process missing scale data.
+                if (reader.Length >= 12) { temp.localScale = reader.ReadVector3(); }
+                else { Debug.LogWarning("Reader length does not contain enough data for a scale, please check that both server and client builds syncScale booleans match.", this); }
+            }
 
             // movement speed: based on how far it moved since last time
             // has to be calculated before 'start' is overwritten
@@ -215,7 +229,7 @@ namespace Mirror
         }
 
         // local authority client sends sync message to server for broadcasting
-        [Command]
+        [Command(channel = Channels.Unreliable)]
         void CmdClientToServerSync(ArraySegment<byte> payload)
         {
             // Ignore messages from client if not in client authority mode
@@ -282,11 +296,7 @@ namespace Mirror
 
         Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
         {
-            if (!interpolateScale)
-            {
-                return currentScale;
-            }
-            else if (start != null)
+            if (start != null && interpolateScale)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Vector3.Lerp(start.localScale, goal.localScale, t);
@@ -371,7 +381,7 @@ namespace Mirror
                             // local position/rotation for VR support
                             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                             {
-                                SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale, compressRotation);
+                                SerializeIntoWriter(writer, targetComponent.localPosition, targetComponent.localRotation, targetComponent.localScale, compressRotation, syncScale);
 
                                 // send to server
                                 CmdClientToServerSync(writer.ToArraySegment());
