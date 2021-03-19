@@ -884,7 +884,7 @@ namespace Mirror
             }
         }
 
-        void FinishLoadScene()
+        public void FinishLoadScene()
         {
             // NOTE: this cannot use NetworkClient.allClients[0] - that client may be for a completely different purpose.
 
