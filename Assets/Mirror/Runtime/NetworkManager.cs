@@ -794,6 +794,10 @@ namespace Mirror
             // Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
             Transport.activeTransport.enabled = false;
 
+            // Cache sceneOperation so we know what was requested by the
+            // Scene message in OnClientChangeScene and OnClientSceneChanged
+            clientSceneOperation = sceneOperation;
+
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName, sceneOperation, customHandling);
 
@@ -803,9 +807,6 @@ namespace Mirror
                 FinishLoadScene();
                 return;
             }
-
-            // cache sceneOperation so we know what was done in OnClientSceneChanged called from FinishLoadSceneClientOnly
-            clientSceneOperation = sceneOperation;
 
             switch (sceneOperation)
             {
