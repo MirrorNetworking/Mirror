@@ -26,6 +26,9 @@ namespace Mirror
         static Dictionary<int, NetworkMessageDelegate> handlers =
             new Dictionary<int, NetworkMessageDelegate>();
 
+        // List of identities of networked scene objects
+        static List<NetworkIdentity> SceneIdentities = new List<NetworkIdentity>();
+
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
@@ -144,6 +147,16 @@ namespace Mirror
             NetworkIdentity.spawned.Clear();
         }
 
+        // Called from Shutdown
+        static void CleanupSceneIdentities()
+        {
+            // Discard any nulls
+            SceneIdentities.RemoveAll(t => t == null);
+
+            foreach (NetworkIdentity identity in SceneIdentities)
+                identity.OnStopServer();
+        }
+
         /// <summary>Shuts down the server and disconnects all clients</summary>
         public static void Shutdown()
         {
@@ -166,6 +179,7 @@ namespace Mirror
             active = false;
             handlers.Clear();
 
+            CleanupSceneIdentities();
             CleanupNetworkIdentities();
             NetworkIdentity.ResetNextNetworkId();
         }
@@ -933,11 +947,17 @@ namespace Mirror
             if (!active)
                 return false;
 
+            // Start with a new list
+            SceneIdentities.Clear();
+
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
             foreach (NetworkIdentity identity in identities)
             {
                 if (ValidateSceneObject(identity))
                 {
+                    // Add it to this list so we can call OnStopServer on it later
+                    SceneIdentities.Add(identity);
+
                     // Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
                     identity.gameObject.SetActive(true);
                 }
