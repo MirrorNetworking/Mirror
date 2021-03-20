@@ -1179,6 +1179,7 @@ namespace Mirror
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
+                comp.OnStopServer();
                 comp.ResetSyncObjects();
             }
         }
