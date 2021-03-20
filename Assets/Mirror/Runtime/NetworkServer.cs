@@ -130,7 +130,6 @@ namespace Mirror
                     // they always stay in the scene, we don't destroy them.
                     if (identity.sceneId != 0)
                     {
-                        identity.OnStopServer();
                         identity.Reset();
                         identity.gameObject.SetActive(false);
                     }
