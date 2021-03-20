@@ -7,6 +7,8 @@ using System.Collections.Generic;
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkBehaviour.html
 */
 
+// NOTE: Do not put objects in DontDestroyOnLoad (DDOL) in Awake.  You can do that in Start instead.
+
 public class #SCRIPTNAME# : NetworkBehaviour
 {
     #region Start & Stop Callbacks
