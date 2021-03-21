@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6852530814182375316}
   - component: {fileID: 6852530814182375318}
-  - component: {fileID: 6852530814182375317}
+  - component: {fileID: -5193239034636282016}
   - component: {fileID: 6852530814182375313}
   m_Layer: 0
   m_Name: Cylinder
@@ -48,8 +48,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
+  visible: 0
   m_AssetId: 
---- !u!114 &6852530814182375317
+  hasSpawned: 0
+--- !u!114 &-5193239034636282016
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -58,18 +60,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 6852530814182375312}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1731d8de2d0c84333b08ebe1e79f4118, type: 3}
+  m_Script: {fileID: 11500000, guid: 8f60becab051427fbdd3c8ac9ab4712b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
   visRange: 5
-  visUpdateInterval: 0.1
-  checkMethod: 0
-  forceHidden: 0
-  castLayers:
-    serializedVersion: 2
-    m_Bits: 256
+  rebuildInterval: 0.1
 --- !u!136 &6852530814182375313
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -138,6 +133,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -149,6 +145,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0

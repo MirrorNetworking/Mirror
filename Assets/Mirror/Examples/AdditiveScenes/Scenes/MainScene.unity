@@ -369,13 +369,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: reconTank
       objectReference: {fileID: 0}
-    - target: {fileID: 160176458, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
-      propertyPath: forceHidden
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 160176459, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
       propertyPath: sceneId
-      value: 1521238664
+      value: 2610252511
       objectReference: {fileID: 0}
     - target: {fileID: 160176459, guid: ab222ed73ada1ac4ba2f61e843d7627c, type: 3}
       propertyPath: m_AssetId
@@ -785,11 +781,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sphere
       objectReference: {fileID: 0}
-    - target: {fileID: 855244094988030908, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
-        type: 3}
-      propertyPath: forceHidden
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 855244094988030909, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
       propertyPath: m_RootOrder
@@ -813,7 +804,7 @@ PrefabInstance:
     - target: {fileID: 855244094988030909, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.38268343
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 855244094988030909, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
@@ -823,7 +814,7 @@ PrefabInstance:
     - target: {fileID: 855244094988030909, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.92387956
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 855244094988030909, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
@@ -838,7 +829,7 @@ PrefabInstance:
     - target: {fileID: 855244094988030909, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 135
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 855244094988030909, guid: f6d08eb9a8e35d84fa30a7e3ae64181a,
         type: 3}
@@ -2072,11 +2063,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_SceneId
       value: 2061538488
-      objectReference: {fileID: 0}
-    - target: {fileID: 5697694911122891659, guid: e1971f4a8c7661546bc509b44bd91b80,
-        type: 3}
-      propertyPath: forceHidden
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e1971f4a8c7661546bc509b44bd91b80, type: 3}
