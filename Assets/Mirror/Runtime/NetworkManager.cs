@@ -873,12 +873,12 @@ namespace Mirror
             }
         }
 
-        static void UpdateScene()
+        void UpdateScene()
         {
-            if (singleton != null && loadingSceneAsync != null && loadingSceneAsync.isDone)
+            if (loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
                 // Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
-                singleton.FinishLoadScene();
+                FinishLoadScene();
                 loadingSceneAsync.allowSceneActivation = true;
                 loadingSceneAsync = null;
             }
