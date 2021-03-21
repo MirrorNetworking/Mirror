@@ -133,6 +133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 0
   serverOnly: 0
+  visible: 0
   m_AssetId: 
   hasSpawned: 0
 --- !u!114 &114720308987319626
@@ -168,6 +169,9 @@ MonoBehaviour:
   localPositionSensitivity: 0.01
   localRotationSensitivity: 0.01
   localScaleSensitivity: 0.01
+  compressRotation: 0
+  interpolateScale: 0
+  syncScale: 0
 --- !u!143 &143011667059871024
 CharacterController:
   m_ObjectHideFlags: 0
@@ -231,8 +235,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   characterController: {fileID: 143011667059871024}
-  capsuleCollider: {fileID: 4839740653866577337}
-  rigidbody3d: {fileID: 1849877933717427647}
   moveSpeed: 8
   turnSensitivity: 5
   maxTurnSpeed: 150
