@@ -208,12 +208,6 @@ namespace Mirror
 #endif
         }
 
-        // virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
-        public virtual void LateUpdate()
-        {
-            UpdateScene();
-        }
-
         // keep the online scene change check in a separate function
         bool IsServerOnlineSceneChangeNeeded()
         {
@@ -871,10 +865,12 @@ namespace Mirror
                     // Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
                 }
             }
-        }
 
-        void UpdateScene()
-        {
+            // this was previously in UpdateScene(), called every Update to
+            // check if a scene load was finished.
+            // let's just do it in OnSceneLoaded instead.
+            // TODO loadingSceneAsync checks have been there before. might not
+            //      be necessary anymore, but let's not break things for now.
             if (loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
                 // Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
