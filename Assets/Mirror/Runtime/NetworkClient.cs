@@ -280,6 +280,11 @@ namespace Mirror
 
         static void OnDisconnected()
         {
+            // StopClient called from user code triggers Disconnected event
+            // from transport which calls StopClient again, so check here
+            // and short circuit running the Shutdown process twice.
+            if (connectState == ConnectState.Disconnected) return;
+
             connectState = ConnectState.Disconnected;
             ready = false;
 
