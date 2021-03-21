@@ -878,9 +878,20 @@ namespace Mirror
             if (loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
                 // Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
-                FinishLoadScene();
-                loadingSceneAsync.allowSceneActivation = true;
-                loadingSceneAsync = null;
+
+                // try-finally to guarantee loadingSceneAsync being cleared.
+                // fixes https://github.com/vis2k/Mirror/issues/2517 where if
+                // FinishLoadScene throws an exception, loadingSceneAsync would
+                // never be cleared and this code would run every Update.
+                try
+                {
+                    FinishLoadScene();
+                }
+                finally
+                {
+                    loadingSceneAsync.allowSceneActivation = true;
+                    loadingSceneAsync = null;
+                }
             }
         }
 
