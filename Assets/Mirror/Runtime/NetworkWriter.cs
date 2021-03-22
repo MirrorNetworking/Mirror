@@ -1,18 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>Helper class that weaver populates with all writer types.</summary>
-    // Note that c# creates a different static variable for each type
-    public static class Writer<T>
-    {
-        public static Action<NetworkWriter, T> write;
-    }
-
     /// <summary>Network Writer for most simple types like floats, ints, buffers, structs, etc. Use NetworkWriterPool.GetReader() to avoid allocations.</summary>
     public class NetworkWriter
     {
@@ -117,20 +109,6 @@ namespace Mirror
             EnsureLength(position + count);
             Array.ConstrainedCopy(buffer, offset, this.buffer, position, count);
             position += count;
-        }
-
-        /// <summary>Writes any type that mirror supports. Uses weaver populated Writer(T).write.</summary>
-        public void Write<T>(T value)
-        {
-            Action<NetworkWriter, T> writeDelegate = Writer<T>.write;
-            if (writeDelegate == null)
-            {
-                Debug.LogError($"No writer found for {typeof(T)}. Use a type supported by Mirror or define a custom writer");
-            }
-            else
-            {
-                writeDelegate(this, value);
-            }
         }
     }
 
@@ -439,6 +417,7 @@ namespace Mirror
             writer.WriteString(uri.ToString());
         }
 
+        /* add this again later. not needed atm because weaver rollback.
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
             if (list is null)
@@ -471,6 +450,12 @@ namespace Mirror
             {
                 writer.Write(segment.Array[segment.Offset + i]);
             }
+        }
+        */
+
+        public static void WriteMessage<T>(this NetworkWriter writer, T msg) where T : NetworkMessage
+        {
+            msg.Serialize(writer);
         }
     }
 }

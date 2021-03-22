@@ -1,18 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>Helper class that weaver populates with all reader types.</summary>
-    // Note that c# creates a different static variable for each type
-    public static class Reader<T>
-    {
-        public static Func<NetworkReader, T> read;
-    }
-
     /// <summary>Network Reader for most simple types like floats, ints, buffers, structs, etc. Use NetworkReaderPool.GetReader() to avoid allocations.</summary>
     // Note: This class is intended to be extremely pedantic,
     // and throw exceptions whenever stuff is going slightly wrong.
@@ -84,18 +76,6 @@ namespace Mirror
         public override string ToString()
         {
             return $"NetworkReader pos={Position} len={Length} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
-        }
-
-        /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
-        public T Read<T>()
-        {
-            Func<NetworkReader, T> readerDelegate = Reader<T>.read;
-            if (readerDelegate == null)
-            {
-                Debug.LogError($"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader");
-                return default;
-            }
-            return readerDelegate(this);
         }
     }
 
@@ -321,6 +301,7 @@ namespace Mirror
             return new NetworkBehaviour.NetworkBehaviourSyncVar(netId, componentIndex);
         }
 
+        /* add this again later. not needed atm because weaver rollback.
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt32();
@@ -359,10 +340,16 @@ namespace Mirror
             }
             return result;
         }
+        */
 
         public static Uri ReadUri(this NetworkReader reader)
         {
             return new Uri(reader.ReadString());
+        }
+
+        public static void ReadMessage<T>(this NetworkReader reader, T msg) where T : NetworkMessage
+        {
+            msg.Deserialize(reader);
         }
     }
 }

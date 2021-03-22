@@ -7,8 +7,8 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncListTest
     {
-        SyncList<string> serverSyncList;
-        SyncList<string> clientSyncList;
+        SyncListString serverSyncList;
+        SyncListString clientSyncList;
 
         public static void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -39,8 +39,8 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            serverSyncList = new SyncList<string>();
-            clientSyncList = new SyncList<string>();
+            serverSyncList = new SyncListString();
+            clientSyncList = new SyncListString();
 
             // add some data to the list
             serverSyncList.Add("Hello");
@@ -197,8 +197,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListIntTest()
         {
-            SyncList<int> serverList = new SyncList<int>();
-            SyncList<int> clientList = new SyncList<int>();
+            SyncListInt serverList = new SyncListInt();
+            SyncListInt clientList = new SyncListInt();
 
             serverList.Add(1);
             serverList.Add(2);
@@ -211,8 +211,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListBoolTest()
         {
-            SyncList<bool> serverList = new SyncList<bool>();
-            SyncList<bool> clientList = new SyncList<bool>();
+            SyncListBool serverList = new SyncListBool();
+            SyncListBool clientList = new SyncListBool();
 
             serverList.Add(true);
             serverList.Add(false);
@@ -225,8 +225,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListUIntTest()
         {
-            SyncList<uint> serverList = new SyncList<uint>();
-            SyncList<uint> clientList = new SyncList<uint>();
+            SyncListUInt serverList = new SyncListUInt();
+            SyncListUInt clientList = new SyncListUInt();
 
             serverList.Add(1U);
             serverList.Add(2U);
@@ -239,8 +239,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncListFloatTest()
         {
-            SyncList<float> serverList = new SyncList<float>();
-            SyncList<float> clientList = new SyncList<float>();
+            SyncListFloat serverList = new SyncListFloat();
+            SyncListFloat clientList = new SyncListFloat();
 
             serverList.Add(1.0F);
             serverList.Add(2.0F);
@@ -353,8 +353,8 @@ namespace Mirror.Tests
             clientSyncList.Reset();
 
             // make old client the host
-            SyncList<string> hostList = clientSyncList;
-            SyncList<string> clientList2 = new SyncList<string>();
+            SyncListString hostList = clientSyncList;
+            SyncListString clientList2 = new SyncListString();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 

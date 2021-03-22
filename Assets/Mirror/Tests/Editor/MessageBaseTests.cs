@@ -35,6 +35,10 @@ namespace Mirror.Tests.MessageTests
         public int IntValue;
         public string StringValue;
         public double DoubleValue;
+
+        // weaver populates (de)serialize automatically
+        public void Deserialize(NetworkReader reader) {}
+        public void Serialize(NetworkWriter writer) {}
     }
 
     [TestFixture]

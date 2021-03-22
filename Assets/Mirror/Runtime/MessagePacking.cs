@@ -35,9 +35,7 @@ namespace Mirror
         {
             int msgType = GetId<T>();
             writer.WriteUInt16((ushort)msgType);
-
-            // serialize message into writer
-            writer.Write(message);
+            message.Serialize(writer);
         }
 
         // unpack message after receiving
@@ -95,7 +93,7 @@ namespace Mirror
 
                 // if it is a value type, just use default(T)
                 // otherwise allocate a new instance
-                message = reader.Read<T>();
+                message.Deserialize(reader);
             }
             catch (Exception exception)
             {

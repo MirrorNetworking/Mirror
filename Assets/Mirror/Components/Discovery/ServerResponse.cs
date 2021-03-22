@@ -14,5 +14,9 @@ namespace Mirror.Discovery
 
         // Prevent duplicate server appearance when a connection can be made via LAN on multiple NICs
         public long serverId;
+
+        // weaver populates (de)serialize automatically
+        public void Deserialize(NetworkReader reader) {}
+        public void Serialize(NetworkWriter writer) {}
     }
 }

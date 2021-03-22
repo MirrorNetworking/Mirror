@@ -3,11 +3,14 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
+    class SyncListTestObject : SyncList<TestObject> {}
+
     class TestObjectBehaviour : NetworkBehaviour
     {
         // note synclists must be a property of a NetworkBehavior so that
         // the weaver generates the reader and writer for the object
-        public SyncList<TestObject> myList = new SyncList<TestObject>();
+        // TODO change to SyncListTestObject again later
+        public SyncListTestObject myList = new SyncListTestObject();
     }
 
     public class SyncListClassTest
@@ -15,8 +18,8 @@ namespace Mirror.Tests
         [Test]
         public void RemoveShouldRemoveItem()
         {
-            SyncList<TestObject> serverList = new SyncList<TestObject>();
-            SyncList<TestObject> clientList = new SyncList<TestObject>();
+            SyncListTestObject serverList = new SyncListTestObject();
+            SyncListTestObject clientList = new SyncListTestObject();
 
             SyncListTest.SerializeAllTo(serverList, clientList);
 
@@ -29,7 +32,7 @@ namespace Mirror.Tests
             // sync
             SyncListTest.SerializeDeltaTo(serverList, clientList);
 
-            // clear all items            
+            // clear all items
             serverList.Remove(item1);
 
             // sync
@@ -42,8 +45,8 @@ namespace Mirror.Tests
         [Test]
         public void ClearShouldClearAll()
         {
-            SyncList<TestObject> serverList = new SyncList<TestObject>();
-            SyncList<TestObject> clientList = new SyncList<TestObject>();
+            SyncListTestObject serverList = new SyncListTestObject();
+            SyncListTestObject clientList = new SyncListTestObject();
 
             SyncListTest.SerializeAllTo(serverList, clientList);
 
@@ -56,7 +59,7 @@ namespace Mirror.Tests
             // sync
             SyncListTest.SerializeDeltaTo(serverList, clientList);
 
-            // clear all items            
+            // clear all items
             serverList.Clear();
 
             // sync

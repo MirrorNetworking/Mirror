@@ -30,6 +30,7 @@ namespace Mirror.Tests.SyncVarTests
         }
     }
 
+    /* TODO enable again when weaver can write NetworkBehaviours
     class NetworkIdentityHookBehaviour : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnValueChanged))]
@@ -42,7 +43,9 @@ namespace Mirror.Tests.SyncVarTests
             HookCalled.Invoke(oldValue, newValue);
         }
     }
+    */
 
+    /* TODO enable again when weaver can write NetworkBehaviour
     class NetworkBehaviourHookBehaviour : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnValueChanged))]
@@ -55,6 +58,7 @@ namespace Mirror.Tests.SyncVarTests
             HookCalled.Invoke(oldValue, newValue);
         }
     }
+    */
 
 
     class StaticHookBehaviour : NetworkBehaviour
@@ -220,6 +224,7 @@ namespace Mirror.Tests.SyncVarTests
             Assert.That(callCount, Is.EqualTo(1));
         }
 
+        /* TODO enable again when weaver can write NetworkBehaviours
         [Test]
         [TestCase(true)]
         [TestCase(false)]
@@ -273,6 +278,7 @@ namespace Mirror.Tests.SyncVarTests
             Assert.IsTrue(written);
             Assert.That(callCount, Is.EqualTo(1));
         }
+        */
 
         [Test]
         [TestCase(true)]

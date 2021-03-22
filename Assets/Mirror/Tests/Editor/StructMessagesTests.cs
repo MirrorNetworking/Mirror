@@ -5,6 +5,10 @@ namespace Mirror.Tests.StructMessages
     public struct SomeStructMessage : NetworkMessage
     {
         public int someValue;
+
+        // weaver populates (de)serialize automatically
+        public void Deserialize(NetworkReader reader) {}
+        public void Serialize(NetworkWriter writer) {}
     }
 
     [TestFixture]
@@ -16,15 +20,17 @@ namespace Mirror.Tests.StructMessages
             NetworkWriter writer = new NetworkWriter();
 
             const int someValue = 3;
-            writer.Write(new SomeStructMessage
+            SomeStructMessage send = new SomeStructMessage
             {
                 someValue = someValue,
-            });
+            };
+            send.Serialize(writer);
 
             byte[] arr = writer.ToArray();
 
             NetworkReader reader = new NetworkReader(arr);
-            SomeStructMessage received = reader.Read<SomeStructMessage>();
+            SomeStructMessage received = new SomeStructMessage();
+            received.Deserialize(reader);
 
             Assert.AreEqual(someValue, received.someValue);
 

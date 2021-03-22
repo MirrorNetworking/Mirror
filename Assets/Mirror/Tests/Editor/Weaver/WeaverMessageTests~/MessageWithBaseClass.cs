@@ -16,5 +16,8 @@ namespace WeaverMessageTests.MessageWithBaseClass
     class SomeBaseMessage : NetworkMessage
     {
         public int myExtraType;
+
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
     }
 }

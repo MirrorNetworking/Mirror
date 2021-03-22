@@ -5,12 +5,15 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.MultipleMatch
 {
+    // TODO use SyncDictionarY<T> again later
+    class SyncDictionaryNetworkIdentityMatchPlayerData : SyncDictionary<NetworkIdentity, MatchPlayerData> {}
+
 #pragma warning disable 618
     [RequireComponent(typeof(NetworkMatchChecker))]
 #pragma warning restore 618
     public class MatchController : NetworkBehaviour
     {
-        internal readonly SyncDictionary<NetworkIdentity, MatchPlayerData> matchPlayerData = new SyncDictionary<NetworkIdentity, MatchPlayerData>();
+        internal readonly SyncDictionaryNetworkIdentityMatchPlayerData matchPlayerData = new SyncDictionaryNetworkIdentityMatchPlayerData();
         internal readonly Dictionary<CellValue, CellGUI> MatchCells = new Dictionary<CellValue, CellGUI>();
 
         CellValue boardScore = CellValue.None;

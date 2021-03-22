@@ -9,12 +9,20 @@ namespace Mirror.Tests
         {
             public string authUsername;
             public string authPassword;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
         }
 
         public struct AuthResponseMessage : NetworkMessage
         {
             public byte code;
             public string message;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
         }
 
         [Test]
@@ -31,12 +39,13 @@ namespace Mirror.Tests
 
             // serialize
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(message);
+            message.Serialize(writer);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
             NetworkReader reader = new NetworkReader(writerData);
-            AuthRequestMessage fresh = reader.Read<AuthRequestMessage>();
+            AuthRequestMessage fresh = new AuthRequestMessage();
+            fresh.Deserialize(reader);
             Assert.That(fresh.authUsername, Is.EqualTo("abc"));
             Assert.That(fresh.authPassword, Is.EqualTo("123"));
         }
@@ -55,12 +64,13 @@ namespace Mirror.Tests
 
             // serialize
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(message);
+            message.Serialize(writer);
             byte[] writerData = writer.ToArray();
 
             // try deserialize
             NetworkReader reader = new NetworkReader(writerData);
-            AuthResponseMessage fresh = reader.Read<AuthResponseMessage>();
+            AuthResponseMessage fresh = new AuthResponseMessage();
+            fresh.Deserialize(reader);
             Assert.That(fresh.code, Is.EqualTo(123));
             Assert.That(fresh.message, Is.EqualTo("abc"));
         }

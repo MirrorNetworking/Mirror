@@ -13,5 +13,8 @@ namespace WeaverMessageTests.MessageNestedInheritance
         {
             public int errorCode;
         }
+
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
     }
 }

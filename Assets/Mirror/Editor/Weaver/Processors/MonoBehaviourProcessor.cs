@@ -18,7 +18,7 @@ namespace Mirror.Weaver
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.HasCustomAttribute<SyncVarAttribute>())
+                if (fd.HasCustomAttribute(WeaverTypes.SyncVarType))
                     Weaver.Error($"SyncVar {fd.Name} must be inside a NetworkBehaviour.  {td.Name} is not a NetworkBehaviour", fd);
 
                 if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
@@ -33,12 +33,16 @@ namespace Mirror.Weaver
             // find command and RPC functions
             foreach (MethodDefinition md in td.Methods)
             {
-                if (md.HasCustomAttribute<CommandAttribute>())
-                    Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
-                if (md.HasCustomAttribute<ClientRpcAttribute>())
-                    Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
-                if (md.HasCustomAttribute<TargetRpcAttribute>())
-                    Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                // TODO MethodDefinition.HasCustomAttribute extension again!
+                foreach (CustomAttribute ca in md.CustomAttributes)
+                {
+                    if (ca.AttributeType.FullName == WeaverTypes.CommandType.FullName)
+                        Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
+                    if (ca.AttributeType.FullName == WeaverTypes.ClientRpcType.FullName)
+                        Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                    if (ca.AttributeType.FullName == WeaverTypes.TargetRpcType.FullName)
+                        Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                }
             }
         }
     }

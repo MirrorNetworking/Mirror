@@ -12,5 +12,8 @@ namespace WeaverMessageTests.MessageSelfReferencing
         public Quaternion rotation;
         public MessageSelfReferencing selfReference = new MessageSelfReferencing();
         public byte[] payload;
+
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
     }
 }

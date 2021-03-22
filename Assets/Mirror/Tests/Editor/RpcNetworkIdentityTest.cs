@@ -1,3 +1,4 @@
+/* TODO enable again when Weaver can write NetworkBehavior again
 using System;
 using NUnit.Framework;
 using UnityEngine;
@@ -112,3 +113,4 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 }
+*/

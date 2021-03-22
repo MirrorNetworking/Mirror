@@ -4,7 +4,7 @@ namespace WeaverSyncListTests.SyncListInterfaceWithCustomMethods
 {
     class SyncListInterfaceWithCustomMethods : NetworkBehaviour
     {
-        SyncList<IMyInterface> Foo;
+        MyInterfaceList Foo;
     }
 
     interface IMyInterface
@@ -17,13 +17,13 @@ namespace WeaverSyncListTests.SyncListInterfaceWithCustomMethods
         public int someNumber { get; set; }
     }
 
-    static class MyInterfaceList
+    class MyInterfaceList : SyncList<IMyInterface>
     {
-        static void SerializeItem(this NetworkWriter writer, IMyInterface item)
+        protected override void SerializeItem(NetworkWriter writer, IMyInterface item)
         {
             writer.WriteInt32(item.someNumber);
         }
-        static IMyInterface DeserializeItem(this NetworkReader reader)
+        protected override IMyInterface DeserializeItem(NetworkReader reader)
         {
             return new MyUser { someNumber = reader.ReadInt32() };
         }

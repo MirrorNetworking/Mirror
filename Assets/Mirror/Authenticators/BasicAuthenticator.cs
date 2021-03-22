@@ -21,12 +21,20 @@ namespace Mirror.Authenticators
             // for example, you might want to pass the accessToken if using oauth
             public string authUsername;
             public string authPassword;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
         }
 
         public struct AuthResponseMessage : NetworkMessage
         {
             public byte code;
             public string message;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
         }
 
         #endregion

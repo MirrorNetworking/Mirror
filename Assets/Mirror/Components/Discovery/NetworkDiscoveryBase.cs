@@ -18,8 +18,8 @@ namespace Mirror.Discovery
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkDiscovery.html")]
     public abstract class NetworkDiscoveryBase<Request, Response> : MonoBehaviour
-        where Request : NetworkMessage
-        where Response : NetworkMessage
+        where Request : NetworkMessage, new()
+        where Response : NetworkMessage, new()
     {
         public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
 
@@ -169,7 +169,8 @@ namespace Mirror.Discovery
                     throw new ProtocolViolationException("Invalid handshake");
                 }
 
-                Request request = networkReader.Read<Request>();
+                Request request = new Request();
+                request.Deserialize(networkReader);
 
                 ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
             }
@@ -182,7 +183,7 @@ namespace Mirror.Discovery
         /// Override if you wish to ignore server requests based on
         /// custom criteria such as language, full server game mode or difficulty
         /// </remarks>
-        /// <param name="request">Request coming from client</param>
+        /// <param name="request">Request comming from client</param>
         /// <param name="endpoint">Address of the client that sent the request</param>
         protected virtual void ProcessClientRequest(Request request, IPEndPoint endpoint)
         {
@@ -197,7 +198,7 @@ namespace Mirror.Discovery
                 {
                     writer.WriteInt64(secretHandshake);
 
-                    writer.Write(info);
+                    info.Serialize(writer);
 
                     ArraySegment<byte> data = writer.ToArraySegment();
                     // signature matches
@@ -308,7 +309,7 @@ namespace Mirror.Discovery
                 {
                     Request request = GetRequest();
 
-                    writer.Write(request);
+                    request.Serialize(writer);
 
                     ArraySegment<byte> data = writer.ToArraySegment();
 
@@ -342,7 +343,8 @@ namespace Mirror.Discovery
                 if (networkReader.ReadInt64() != secretHandshake)
                     return;
 
-                Response response = networkReader.Read<Response>();
+                Response response = new Response();
+                response.Deserialize(networkReader);
 
                 ProcessResponse(response, udpReceiveResult.RemoteEndPoint);
             }

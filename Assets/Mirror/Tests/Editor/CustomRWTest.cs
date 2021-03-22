@@ -36,6 +36,10 @@ namespace Mirror.Tests
         public struct QuestMessage : NetworkMessage
         {
             public MockQuest quest;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
         }
 
         [Test]

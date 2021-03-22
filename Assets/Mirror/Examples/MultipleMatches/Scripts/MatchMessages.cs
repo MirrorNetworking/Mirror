@@ -9,6 +9,10 @@ namespace Mirror.Examples.MultipleMatch
     {
         public ServerMatchOperation serverMatchOperation;
         public Guid matchId;
+
+        // weaver populates (de)serialize automatically
+        public void Deserialize(NetworkReader reader) {}
+        public void Serialize(NetworkWriter writer) {}
     }
 
     /// <summary>
@@ -20,6 +24,10 @@ namespace Mirror.Examples.MultipleMatch
         public Guid matchId;
         public MatchInfo[] matchInfos;
         public PlayerInfo[] playerInfos;
+
+        // weaver populates (de)serialize automatically
+        public void Deserialize(NetworkReader reader) {}
+        public void Serialize(NetworkWriter writer) {}
     }
 
     /// <summary>

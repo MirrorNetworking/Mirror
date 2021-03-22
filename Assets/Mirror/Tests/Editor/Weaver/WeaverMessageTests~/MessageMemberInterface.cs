@@ -14,5 +14,8 @@ namespace WeaverMessageTests.MessageMemberInterface
         public Quaternion rotation;
         public SuperCoolInterface invalidField;
         public byte[] payload;
+
+        public void Serialize(NetworkWriter writer) {}
+        public void Deserialize(NetworkReader reader) {}
     }
 }

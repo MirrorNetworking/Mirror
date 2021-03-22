@@ -4,6 +4,14 @@ namespace Mirror.Weaver.Tests
 {
     public class WeaverGeneratedReaderWriterTests : WeaverTestsBuildFromTestName
     {
+        [SetUp]
+        public override void TestSetup()
+        {
+            WeaverAssembler.AddReferencesByAssemblyName(new string[] { "WeaverTestExtraAssembly.dll" });
+
+            base.TestSetup();
+        }
+
         [Test]
         public void CreatesForStructs()
         {
@@ -37,6 +45,30 @@ namespace Mirror.Weaver.Tests
 
         [Test]
         public void CreatesForInheritedFromScriptableObject()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void CreatesForStructFromDifferentAssemblies()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void CreatesForClassFromDifferentAssemblies()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void CreatesForClassFromDifferentAssembliesWithValidConstructor()
+        {
+            IsSuccess();
+        }
+
+        [Test]
+        public void CanUseCustomReadWriteForTypesFromDifferentAssemblies()
         {
             IsSuccess();
         }
@@ -152,20 +184,21 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForJaggedArray()
         {
-            IsSuccess();
+            HasError("Int32[][] is an unsupported type. Jagged and multidimensional arrays are not supported",
+                "System.Int32[][]");
         }
 
         [Test]
         public void GivesErrorForMultidimensionalArray()
         {
-            HasError("Int32[0...,0...] is an unsupported type. Multidimensional arrays are not supported",
+            HasError("Int32[0...,0...] is an unsupported type. Jagged and multidimensional arrays are not supported",
                 "System.Int32[0...,0...]");
         }
 
         [Test]
         public void GivesErrorForInvalidArrayType()
         {
-            HasError("Cannot generate writer for UnityEngine.MonoBehaviour[]. Use a supported type or provide a custom writer",
+            HasError("Cannot generate writer for Array because element MonoBehaviour does not have a writer. Use a supported type or provide a custom writer",
                 "UnityEngine.MonoBehaviour[]");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for Array because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
@@ -175,7 +208,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForInvalidArraySegmentType()
         {
-            HasError("Cannot generate writer for System.ArraySegment`1<UnityEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
+            HasError("Cannot generate writer for ArraySegment because element MonoBehaviour does not have a writer. Use a supported type or provide a custom writer",
                 "System.ArraySegment`1<UnityEngine.MonoBehaviour>");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for ArraySegment because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
@@ -197,22 +230,11 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForInvalidListType()
         {
-            HasError("Cannot generate writer for System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>. Use a supported type or provide a custom writer",
+            HasError("Cannot generate writer for List because element MonoBehaviour does not have a writer. Use a supported type or provide a custom writer",
                 "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for List because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
             //    "System.Collections.Generic.List`1<UnityEngine.MonoBehaviour>");
-        }
-
-        [Test]
-        public void GivesWarningWhenRegisteringExistingExtensionMethod()
-        {
-            const string typeName = "GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType";
-            HasNoErrors();
-            HasWarning($"Registering a Write method for {typeName} when one already exists",
-                "System.Void GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.ReadWriteExtension::WriteMyType2(Mirror.NetworkWriter,GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType)");
-            HasWarning($"Registering a Read method for {typeName} when one already exists",
-                "GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.MyType GeneratedReaderWriter.GivesWarningWhenRegisteringExistingExtensionMethod.ReadWriteExtension::ReadMyType2(Mirror.NetworkReader)");
         }
     }
 }

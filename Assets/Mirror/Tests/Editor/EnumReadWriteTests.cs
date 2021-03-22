@@ -23,19 +23,40 @@ namespace Mirror.Tests
     }
     public class EnumReadWriteTests
     {
-        public struct ByteMessage : NetworkMessage { public MyByteEnum byteEnum; }
+        public struct ByteMessage : NetworkMessage
+        {
+            public MyByteEnum byteEnum;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
+        }
         public enum MyByteEnum : byte
         {
             A, B, C, D
         }
 
-        public struct ShortMessage : NetworkMessage { public MyShortEnum shortEnum; }
+        public struct ShortMessage : NetworkMessage
+        {
+            public MyShortEnum shortEnum;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
+        }
         public enum MyShortEnum : short
         {
             E, F, G, H
         }
 
-        public struct CustomMessage : NetworkMessage { public MyCustomEnum customEnum; }
+        public struct CustomMessage : NetworkMessage
+        {
+            public MyCustomEnum customEnum;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
+        }
 
         public enum MyCustomEnum
         {
@@ -49,7 +70,7 @@ namespace Mirror.Tests
             ByteMessage msg = new ByteMessage() { byteEnum = MyByteEnum.B };
 
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(msg);
+            msg.Serialize(writer);
 
             // should be 1 byte for data
             Assert.That(writer.Length, Is.EqualTo(1));
@@ -61,7 +82,7 @@ namespace Mirror.Tests
             ShortMessage msg = new ShortMessage() { shortEnum = MyShortEnum.G };
 
             NetworkWriter writer = new NetworkWriter();
-            writer.Write(msg);
+            msg.Serialize(writer);
 
             // should be 2 bytes for data
             Assert.That(writer.Length, Is.EqualTo(2));
@@ -81,11 +102,13 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
 
-            writer.Write(msg);
+            msg.Serialize(writer);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
-            return reader.Read<T>();
+            T result = new T();
+            result.Deserialize(reader);
+            return result;
         }
     }
 }

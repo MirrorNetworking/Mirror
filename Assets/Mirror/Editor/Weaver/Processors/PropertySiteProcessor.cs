@@ -19,6 +19,22 @@ namespace Mirror.Weaver
                 }
             }
 
+            if (Weaver.WeaveLists.generateContainerClass != null)
+            {
+                moduleDef.Types.Add(Weaver.WeaveLists.generateContainerClass);
+                moduleDef.ImportReference(Weaver.WeaveLists.generateContainerClass);
+
+                foreach (MethodDefinition f in Weaver.WeaveLists.generatedReadFunctions)
+                {
+                    moduleDef.ImportReference(f);
+                }
+
+                foreach (MethodDefinition f in Weaver.WeaveLists.generatedWriteFunctions)
+                {
+                    moduleDef.ImportReference(f);
+                }
+            }
+
             Console.WriteLine("  ProcessSitesModule " + moduleDef.Name + " elapsed time:" + (DateTime.Now - startTime));
         }
 

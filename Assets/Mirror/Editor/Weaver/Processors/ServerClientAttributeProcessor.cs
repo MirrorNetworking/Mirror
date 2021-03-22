@@ -11,7 +11,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (MethodDefinition md in td.Methods)
             {
-                modified |= ProcessSiteMethod(md);
+                modified |= ProcessSiteMethod(td, md);
             }
 
             foreach (TypeDefinition nested in td.NestedTypes)
@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool ProcessSiteMethod(MethodDefinition md)
+        static bool ProcessSiteMethod(TypeDefinition td, MethodDefinition md)
         {
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
@@ -39,7 +39,7 @@ namespace Mirror.Weaver
 
             if (md.Body != null && md.Body.Instructions != null)
             {
-                return ProcessMethodAttributes(md);
+                return ProcessMethodAttributes(td, md);
             }
             return false;
         }
@@ -62,20 +62,35 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static bool ProcessMethodAttributes(MethodDefinition md)
+        public static bool ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
-            if (md.HasCustomAttribute<ServerAttribute>())
-                InjectServerGuard(md, true);
-            else if (md.HasCustomAttribute<ServerCallbackAttribute>())
-                InjectServerGuard(md, false);
-            else if (md.HasCustomAttribute<ClientAttribute>())
-                InjectClientGuard(md, true);
-            else if (md.HasCustomAttribute<ClientCallbackAttribute>())
-                InjectClientGuard(md, false);
-            else
-                return false;
+            bool modified = false;
+            foreach (CustomAttribute attr in md.CustomAttributes)
+            {
+                switch (attr.Constructor.DeclaringType.ToString())
+                {
+                    case "Mirror.ServerAttribute":
+                        InjectServerGuard(md, true);
+                        modified = true;
+                        break;
+                    case "Mirror.ServerCallbackAttribute":
+                        InjectServerGuard(md, false);
+                        modified = true;
+                        break;
+                    case "Mirror.ClientAttribute":
+                        InjectClientGuard(md, true);
+                        modified = true;
+                        break;
+                    case "Mirror.ClientCallbackAttribute":
+                        InjectClientGuard(md, false);
+                        modified = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
 
-            return true;
+            return modified;
         }
 
         static void InjectServerGuard(MethodDefinition md, bool logWarning)
@@ -139,7 +154,7 @@ namespace Mirror.Weaver
         // this is required to early-out from a function with a return value.
         static void InjectGuardReturnValue(MethodDefinition md, ILProcessor worker, Instruction top)
         {
-            if (!md.ReturnType.Is(typeof(void)))
+            if (md.ReturnType.FullName != WeaverTypes.voidType.FullName)
             {
                 md.Body.Variables.Add(new VariableDefinition(md.ReturnType));
                 md.Body.InitLocals = true;

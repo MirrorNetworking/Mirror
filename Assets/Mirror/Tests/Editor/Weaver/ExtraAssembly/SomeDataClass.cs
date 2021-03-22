@@ -1,4 +1,4 @@
-namespace Mirror.Weaver.Tests.Extra
+﻿namespace Mirror.Weaver.Tests.Extra
 {
     public class SomeDataClass
     {

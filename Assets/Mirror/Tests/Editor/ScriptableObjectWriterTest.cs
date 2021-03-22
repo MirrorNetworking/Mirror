@@ -19,6 +19,10 @@ namespace Mirror.Tests
         public struct ScriptableObjectMessage : NetworkMessage
         {
             public MyScriptableObject scriptableObject;
+
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
         }
 
         [Test]

@@ -5,7 +5,12 @@ namespace Mirror.Tests
     [TestFixture]
     public class MessagePackingTest
     {
-        public struct EmptyMessage : NetworkMessage {}
+        public struct EmptyMessage : NetworkMessage
+        {
+            // weaver populates (de)serialize automatically
+            public void Deserialize(NetworkReader reader) {}
+            public void Serialize(NetworkWriter writer) {}
+        }
 
         // helper function to pack message into a simple byte[]
         public static byte[] PackToByteArray<T>(T message)
@@ -30,7 +35,9 @@ namespace Mirror.Tests
                 if (id != msgType)
                     throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
-                return networkReader.Read<T>();
+                T result = new T();
+                result.Deserialize(networkReader);
+                return result;
             }
         }
 
