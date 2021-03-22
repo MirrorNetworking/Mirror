@@ -337,7 +337,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static bool WeaveAssemblies(IEnumerable<string> assemblies, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
+        static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
@@ -349,12 +349,9 @@ namespace Mirror.Weaver
 
                 try
                 {
-                    foreach (string asm in assemblies)
+                    if (!Weave(assembly, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath))
                     {
-                        if (!Weave(asm, unityAssembly, mirrorAssembly, dependencies, unityEngineDLLPath, mirrorNetDLLPath))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
                 catch (Exception e)
@@ -366,35 +363,30 @@ namespace Mirror.Weaver
             return true;
         }
 
-        public static bool Process(string unityEngine, string netDLL, string[] assemblies, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
+        public static bool Process(string unityEngine, string netDLL, string assembly, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
         {
-            Validate(unityEngine, netDLL, assemblies);
+            Validate(unityEngine, netDLL, assembly);
             Log.Warning = printWarning;
             Log.Error = printError;
-            return WeaveAssemblies(assemblies, extraAssemblyPaths, unityEngine, netDLL);
+            return WeaveAssembly(assembly, extraAssemblyPaths, unityEngine, netDLL);
         }
 
-        static void Validate(string unityEngine, string netDLL, string[] assemblies)
+        static void Validate(string unityEngine, string netDLL, string assembly)
         {
             CheckDllPath(unityEngine);
             CheckDllPath(netDLL);
-            CheckAssemblies(assemblies);
+            CheckAssemblyPath(assembly);
         }
         static void CheckDllPath(string path)
         {
             if (!File.Exists(path))
                 throw new Exception("dll could not be located at " + path + "!");
         }
-        static void CheckAssemblies(IEnumerable<string> assemblyPaths)
-        {
-            foreach (string assemblyPath in assemblyPaths)
-                CheckAssemblyPath(assemblyPath);
-        }
+        // TODO reuse CheckDllPath instead?
         static void CheckAssemblyPath(string assemblyPath)
         {
             if (!File.Exists(assemblyPath))
                 throw new Exception("Assembly " + assemblyPath + " does not exist!");
         }
-
     }
 }
