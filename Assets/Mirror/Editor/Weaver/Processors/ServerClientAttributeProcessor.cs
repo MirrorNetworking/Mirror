@@ -55,8 +55,6 @@ namespace Mirror.Weaver
                     case "Mirror.ClientAttribute":
                     case "Mirror.ClientCallbackAttribute":
                         return true;
-                    default:
-                        break;
                 }
             }
             return false;
