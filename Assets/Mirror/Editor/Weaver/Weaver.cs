@@ -325,7 +325,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
+        public static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies, string unityEngineDLLPath, string mirrorNetDLLPath)
         {
             WeavingFailed = false;
             WeaveLists = new WeaverLists();
@@ -345,13 +345,6 @@ namespace Mirror.Weaver
                     return false;
                 }
             }
-        }
-
-        public static bool Process(string unityEngine, string netDLL, string assembly, string[] extraAssemblyPaths, Action<string> printWarning, Action<string> printError)
-        {
-            Log.Warning = printWarning;
-            Log.Error = printError;
-            return WeaveAssembly(assembly, extraAssemblyPaths, unityEngine, netDLL);
         }
     }
 }
