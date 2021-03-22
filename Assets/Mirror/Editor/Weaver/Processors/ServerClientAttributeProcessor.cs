@@ -62,6 +62,9 @@ namespace Mirror.Weaver
 
         public static bool ProcessMethodAttributes(TypeDefinition td, MethodDefinition md)
         {
+            // note: we process ALL attributes instead of returning after the
+            //       first one. so in theory, we allow multiple attributes.
+            //       (hence why we use 'modified' here)
             bool modified = false;
             foreach (CustomAttribute attr in md.CustomAttributes)
             {
