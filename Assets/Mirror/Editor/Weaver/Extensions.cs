@@ -7,11 +7,6 @@ namespace Mirror.Weaver
 {
     public static class Extensions
     {
-        public static bool IsDerivedFrom(this TypeDefinition td, TypeReference baseClass)
-        {
-            return IsDerivedFrom(td, baseClass.FullName);
-        }
-
         // removes <T> from class names (if any generic parameters)
         internal static string StripGenericParametersFromClassName(string className)
         {
@@ -54,6 +49,11 @@ namespace Mirror.Weaver
                 }
             }
             return false;
+        }
+
+        public static bool IsDerivedFrom(this TypeDefinition td, TypeReference baseClass)
+        {
+            return IsDerivedFrom(td, baseClass.FullName);
         }
 
         public static TypeReference GetEnumUnderlyingType(this TypeDefinition td)
