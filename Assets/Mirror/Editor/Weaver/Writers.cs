@@ -225,6 +225,9 @@ namespace Mirror.Weaver
             return true;
         }
 
+        // TODO GenerateForLoop() helper again from:
+        // 5c4d8a27cc8234df14863bf7ea576a99d39d109c
+
         static MethodDefinition GenerateArrayWriteFunc(TypeReference variable, int recursionCount)
         {
             if (!variable.IsArrayType())
