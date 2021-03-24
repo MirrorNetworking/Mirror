@@ -121,6 +121,9 @@ namespace Mirror.Weaver
             Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
         }
 
+        // TODO GenerateForLoop() helper again:
+        // 7c2a6595eb9a246481370623a3ffafc665646c41
+
         static MethodDefinition GenerateArrayReadFunc(TypeReference variable, int recursionCount)
         {
             if (!variable.IsArrayType())
