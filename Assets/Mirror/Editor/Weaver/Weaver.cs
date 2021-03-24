@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Mono.CecilX;
-using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
