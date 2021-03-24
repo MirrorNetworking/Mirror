@@ -217,68 +217,18 @@ namespace Mirror.Weaver
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
 
-            MethodReference elementReadFunc = GetReadFunc(elementType, recursionCount + 1);
-            if (elementReadFunc == null)
-            {
-                Weaver.Error($"Cannot generate reader for ArraySegment because element {elementType.Name} does not have a reader. Use a supported type or provide a custom reader", variable);
-                return null;
-            }
-
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
-
-            // int lengh
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
-            // T[] array
-            readerFunc.Body.Variables.Add(new VariableDefinition(elementType.MakeArrayType()));
-            // int i;
-            readerFunc.Body.Variables.Add(new VariableDefinition(WeaverTypes.int32Type));
-
 
             ILProcessor worker = readerFunc.Body.GetILProcessor();
 
-            // int length = reader.ReadPackedInt32();
-            GenerateReadLength(worker);
+            // just deserialize the array and transform to array segment
 
-            // T[] array = new int[length]
-            worker.Emit(OpCodes.Ldloc_0);
-            worker.Emit(OpCodes.Newarr, elementType);
-            worker.Emit(OpCodes.Stloc_1);
+            // $array = reader.Read<[T]>()
+            ArrayType arrayType = elementType.MakeArrayType();
+            worker.Append(worker.Create(OpCodes.Ldarg_0));
+            worker.Append(worker.Create(OpCodes.Call, GetReadFunc(arrayType)));
 
-            // loop through array and deserialize each element
-            // generates code like this
-            // for (int i=0; i< length ; i++)
-            // {
-            //     value[i] = reader.ReadXXX();
-            // }
-            worker.Emit(OpCodes.Ldc_I4_0);
-            worker.Emit(OpCodes.Stloc_2);
-            Instruction labelHead = worker.Create(OpCodes.Nop);
-            worker.Emit(OpCodes.Br, labelHead);
-
-            // loop body
-            Instruction labelBody = worker.Create(OpCodes.Nop);
-            worker.Append(labelBody);
-            // value[i] = reader.ReadT();
-            worker.Emit(OpCodes.Ldloc_1);
-            worker.Emit(OpCodes.Ldloc_2);
-            worker.Emit(OpCodes.Ldelema, elementType);
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Call, elementReadFunc);
-            worker.Emit(OpCodes.Stobj, elementType);
-
-            worker.Emit(OpCodes.Ldloc_2);
-            worker.Emit(OpCodes.Ldc_I4_1);
-            worker.Emit(OpCodes.Add);
-            worker.Emit(OpCodes.Stloc_2);
-
-            // loop while check
-            worker.Append(labelHead);
-            worker.Emit(OpCodes.Ldloc_2);
-            worker.Emit(OpCodes.Ldloc_0);
-            worker.Emit(OpCodes.Blt, labelBody);
-
-            // return new ArraySegment<T>(array);
-            worker.Emit(OpCodes.Ldloc_1);
+            // return new ArraySegment<T>($array);
             worker.Emit(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance));
             worker.Emit(OpCodes.Ret);
             return readerFunc;
