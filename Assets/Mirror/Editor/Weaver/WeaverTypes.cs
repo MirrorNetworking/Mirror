@@ -34,9 +34,6 @@ namespace Mirror.Weaver
         public static TypeReference NetworkIdentityType;
         public static TypeReference IEnumeratorType;
 
-        public static TypeReference ClientSceneType;
-        public static MethodReference ReadyConnectionReference;
-
         public static TypeReference ComponentType;
         public static TypeReference ObjectType;
 
@@ -46,6 +43,7 @@ namespace Mirror.Weaver
         public static MethodReference NetworkServerGetActive;
         public static MethodReference NetworkServerGetLocalClientActive;
         public static MethodReference NetworkClientGetActive;
+        public static MethodReference NetworkClientConnection;
 
         // custom attribute types
         public static TypeReference SyncVarType;
@@ -176,6 +174,7 @@ namespace Mirror.Weaver
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_active");
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, currentAssembly, "get_localClientActive");
             NetworkClientGetActive = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_active");
+            NetworkClientConnection = Resolvers.ResolveMethod(NetworkClientType, currentAssembly, "get_connection");
 
             CmdDelegateReference = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.CmdDelegate");
             CmdDelegateConstructor = Resolvers.ResolveMethod(CmdDelegateReference, currentAssembly, ".ctor");
@@ -214,8 +213,6 @@ namespace Mirror.Weaver
 
             ComponentType = unityAssembly.MainModule.GetType("UnityEngine.Component");
             ObjectType = unityAssembly.MainModule.GetType("UnityEngine.Object");
-            ClientSceneType = mirrorAssembly.MainModule.GetType("Mirror.ClientScene");
-            ReadyConnectionReference = Resolvers.ResolveMethod(ClientSceneType, currentAssembly, "get_readyConnection");
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarNetworkIdentityEqual");
