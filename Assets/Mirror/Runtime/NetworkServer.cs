@@ -687,7 +687,7 @@ namespace Mirror
             {
                 // Debug.Log("PlayerNotReady " + conn);
                 conn.isReady = false;
-                conn.RemoveObservers();
+                conn.RemoveObservers(false);
 
                 conn.Send(new NotReadyMessage());
             }

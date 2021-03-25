@@ -136,13 +136,12 @@ namespace Mirror
         }
 
         // TODO move to server's NetworkConnectionToClient?
-        internal void RemoveObservers()
+        /// <param name="removeDontDestroyOnLoadObjects">If true, removes all observers, even when they won't be destroyed on load</param>
+        internal void RemoveObservers(bool removeDontDestroyOnLoadObjects = true)
         {
-            foreach (NetworkIdentity netIdentity in observing)
-            {
-                netIdentity.RemoveObserverInternal(this);
-            }
-            observing.Clear();
+            // only remove from observing if either removeDontDestroyOnLoadObjects is true, or if netIdentity is not in "DontDestroyOnLoad"
+            // (DontDestroyOnLoad is checked in netIdentity.RemoveObserverInternal
+            observing.RemoveWhere(netIdentity => netIdentity.RemoveObserverInternal(this, removeDontDestroyOnLoadObjects));
         }
 
         // helper function

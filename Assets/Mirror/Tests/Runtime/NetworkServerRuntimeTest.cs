@@ -76,6 +76,99 @@ namespace Mirror.Tests.Runtime
         }
 
         [UnityTest]
+        public IEnumerator SetClientReadyAndNotReadyCheckObserversOfNetworkIdentityTest()
+        {
+            // add connection
+            LocalConnectionToClient connection = new LocalConnectionToClient();
+            connection.connectionToServer = new LocalConnectionToServer();
+            NetworkServer.AddConnection(connection);
+            Assert.That(connection.isReady, Is.False);
+            connection.isAuthenticated = true;
+
+            // set client ready
+            NetworkServer.SetClientReady(connection);
+            Assert.That(connection.isReady, Is.True);
+
+            // spawn network identity on the server
+            GameObject gameObject = new GameObject();
+            NetworkIdentity networkIdentity = gameObject.AddComponent<NetworkIdentity>();
+            NetworkServer.Spawn(gameObject);
+
+            // allow 1 frame to spawn object
+            yield return null;
+
+            // connection should now automatically be observing the spawned identity
+            Assert.That(connection.observing.Contains(networkIdentity), Is.True);
+            Assert.That(networkIdentity.observers.ContainsKey(connection.connectionId), Is.True);
+            Assert.That(networkIdentity.observers[connection.connectionId], Is.EqualTo(connection));
+
+            // setting client to not ready
+            // note: we need runtime test instead of edit mode test
+            //       because otherwise gameobject.scene.buildIndex is not valid,
+            //       and buildIndex is needed to check if observer should be removed
+            NetworkServer.SetClientNotReady(connection);
+            Assert.That(connection.isReady, Is.False);
+
+            // client that is not ready should not observe the spawned identity
+            Assert.That(connection.observing.Contains(networkIdentity), Is.False);
+            Assert.That(networkIdentity.observers.ContainsKey(connection.connectionId), Is.False);
+
+            // clean up
+            NetworkServer.Destroy(gameObject);
+            NetworkIdentity.spawned.Clear();
+            NetworkServer.Shutdown();
+        }
+
+        [UnityTest]
+        public IEnumerator SetClientReadyAndNotReadyCheckObserversOfDontDestroyOnLoadNetworkIdentityTest()
+        {
+            // add connection
+            LocalConnectionToClient connection = new LocalConnectionToClient();
+            connection.connectionToServer = new LocalConnectionToServer();
+            NetworkServer.AddConnection(connection);
+            Assert.That(connection.isReady, Is.False);
+            connection.isAuthenticated = true;
+
+            // set client ready
+            NetworkServer.SetClientReady(connection);
+            Assert.That(connection.isReady, Is.True);
+
+            // spawn network identity on the server
+            // note: we need runtime test instead of edit mode test
+            //       because otherwise DontDestroyOnLoad won't work
+            GameObject gameObject = new GameObject();
+            NetworkIdentity networkIdentity = gameObject.AddComponent<NetworkIdentity>();
+            NetworkServer.Spawn(gameObject);
+            UnityEngine.Object.DontDestroyOnLoad(gameObject);
+
+            // allow 1 frame to spawn object
+            yield return null;
+
+            // connection should now automatically be observing the spawned identity
+            Assert.That(connection.observing.Contains(networkIdentity), Is.True);
+            Assert.That(networkIdentity.observers.ContainsKey(connection.connectionId), Is.True);
+            Assert.That(networkIdentity.observers[connection.connectionId], Is.EqualTo(connection));
+
+            // setting client to not ready
+            NetworkServer.SetClientNotReady(connection);
+            Assert.That(connection.isReady, Is.False);
+
+            // client that is not ready should still be observing network identity, since it's "DontDestroyOnLoad"
+            Assert.That(connection.observing.Contains(networkIdentity), Is.True);
+            Assert.That(networkIdentity.observers.ContainsKey(connection.connectionId), Is.True);
+            Assert.That(networkIdentity.observers[connection.connectionId], Is.EqualTo(connection));
+
+            // clean up
+            NetworkIdentity.spawned.Clear();
+            NetworkServer.Shutdown();
+            // destroy the test gameobject AFTER server was stopped.
+            // otherwise isServer is true in OnDestroy, which means it would try
+            // to call Destroy(go). but we need to use DestroyImmediate in
+            // Editor
+            GameObject.DestroyImmediate(gameObject);
+        }
+
+        [UnityTest]
         public IEnumerator Shutdown_DestroysAllSpawnedPrefabs()
         {
             // setup

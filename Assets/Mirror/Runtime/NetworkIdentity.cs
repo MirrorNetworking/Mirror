@@ -267,9 +267,20 @@ namespace Mirror
         public static event ClientAuthorityCallback clientAuthorityCallback;
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
-        internal void RemoveObserverInternal(NetworkConnection conn)
+        /// <param name="conn">The NetworkConnection that should be removed as observer</param>
+        /// <param name="removeEvenWhenDontDestroyOnLoad">If true, conn will always be removed as observer,
+        /// otherwise only if this gameObject is not part of DontDestroyOnLoad</param>
+        /// <returns>true if conn has been removed from observers</returns>
+        internal bool RemoveObserverInternal(NetworkConnection conn, bool removeEvenWhenDontDestroyOnLoad = true)
         {
-            observers?.Remove(conn.connectionId);
+            // only remove conn from observers if either removeEvenWhenDontDestroyOnLoad is true,
+            // or if not "DontDestroyOnLoad" (scene.buildIndex of -1 means DontDestroyOnLoad has been activated)
+            if (removeEvenWhenDontDestroyOnLoad || gameObject.scene.buildIndex != -1)
+            {
+                observers?.Remove(conn.connectionId);
+                return true;
+            }
+            return false;
         }
 
         // hasSpawned should always be false before runtime
