@@ -49,6 +49,12 @@ namespace Mirror.Weaver
                 // serialize enum as their base type
                 return GetWriteFunc(variable.Resolve().GetEnumUnderlyingType());
             }
+            // all types inheriting from NetworkBehaviour will reuse the same
+            // base NetworkBehaviour write function.
+            else if (variable.IsNetworkBehaviourField())
+            {
+                return GetNetworkBehaviourWriter(variable);
+            }
             else
             {
                 MethodReference newWriterFunc = GenerateWriter(variable, recursionCount);
@@ -148,6 +154,22 @@ namespace Mirror.Weaver
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, Weaver.CurrentAssembly.MainModule.ImportReference(variable)));
             writerFunc.Body.InitLocals = true;
             return writerFunc;
+        }
+
+        // for any type inheriting from NetworkBehaviour, we return the same
+        // base NetworkBehaviour write function
+        static MethodReference GetNetworkBehaviourWriter(TypeReference variable)
+        {
+            if (writeFuncs.TryGetValue(WeaverTypes.NetworkBehaviourType.FullName, out MethodReference func))
+            {
+                return func;
+            }
+            else
+            {
+                // this error only happens if mirror is missing the WriteNetworkBehaviour method
+                Weaver.Error($"{variable.Name} Could not find writer for NetworkBehaviour");
+                return null;
+            }
         }
 
         static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable, int recursionCount)

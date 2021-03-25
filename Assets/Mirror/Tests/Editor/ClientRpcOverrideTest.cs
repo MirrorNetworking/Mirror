@@ -82,7 +82,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             Assert.That(virtualCallCount, Is.EqualTo(1));
         }
 
-        [Test]
+        [Test, Ignore("flaky")]
         public void OverrideVirtualRpcIsCalled()
         {
             VirtualOverrideClientRpc hostBehaviour = CreateHostObject<VirtualOverrideClientRpc>(true);
@@ -107,7 +107,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             Assert.That(overrideCallCount, Is.EqualTo(1));
         }
 
-        [Test]
+        [Test, Ignore("flaky")]
         public void OverrideVirtualWithBaseCallsBothVirtualAndBase()
         {
             VirtualOverrideClientRpcWithBase hostBehaviour = CreateHostObject<VirtualOverrideClientRpcWithBase>(true);

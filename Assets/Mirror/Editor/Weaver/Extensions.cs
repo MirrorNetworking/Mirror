@@ -108,8 +108,17 @@ namespace Mirror.Weaver
         // does type use netId as backing field
         public static bool IsNetworkIdentityField(this TypeReference tr)
         {
+            TypeDefinition td = tr.Resolve();
             return tr.FullName == WeaverTypes.gameObjectType.FullName ||
-                   tr.FullName == WeaverTypes.NetworkIdentityType.FullName;
+                   tr.FullName == WeaverTypes.NetworkIdentityType.FullName ||
+                   IsNetworkBehaviourField(tr);
+        }
+
+        // does type inherit from NetworkBehaviour?
+        public static bool IsNetworkBehaviourField(this TypeReference tr)
+        {
+            TypeDefinition td = tr.Resolve();
+            return IsDerivedFrom(td, WeaverTypes.NetworkBehaviourType.FullName);
         }
 
         public static bool CanBeResolved(this TypeReference parent)
@@ -139,6 +148,16 @@ namespace Mirror.Weaver
             return true;
         }
 
+
+        // Makes T => Variable and imports function
+        public static MethodReference MakeGeneric(this MethodReference generic, TypeReference variableReference)
+        {
+            GenericInstanceMethod instance = new GenericInstanceMethod(generic);
+            instance.GenericArguments.Add(variableReference);
+
+            MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+            return readFunc;
+        }
 
         /// <summary>
         /// Given a method of a generic class such as ArraySegment`T.get_Count,

@@ -1,7 +1,9 @@
 using System;
+using Mirror.Tests.RemoteAttrributeTest;
 //using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -1047,7 +1049,6 @@ namespace Mirror.Tests
             }
         }*/
 
-        /* TODO enable again when Weaver can write NetworkBehavior again
         [Test]
         public void TestNetworkBehaviour()
         {
@@ -1100,6 +1101,7 @@ namespace Mirror.Tests
             Assert.That(reader.Position, Is.EqualTo(4), "should read 4 bytes when netid is 0");
         }
 
+        /* TODO enable again
         [Test]
         [Description("Uses Generic read function to check weaver correctly creates it")]
         public void TestNetworkBehaviourWeaverGenerated()

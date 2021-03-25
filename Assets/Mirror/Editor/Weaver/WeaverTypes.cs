@@ -7,6 +7,7 @@ namespace Mirror.Weaver
     {
         // Network types
         public static TypeReference NetworkBehaviourType;
+        public static TypeReference NetworkBehaviourSyncVarType;
         public static TypeReference RemoteCallHelperType;
         public static TypeReference MonoBehaviourType;
         public static TypeReference ScriptableObjectType;
@@ -83,6 +84,7 @@ namespace Mirror.Weaver
 
         public static MethodReference syncVarEqualReference;
         public static MethodReference syncVarNetworkIdentityEqualReference;
+        public static MethodReference syncVarNetworkBehaviourEqualReference;
         public static MethodReference syncVarGameObjectEqualReference;
         public static MethodReference setSyncVarReference;
         public static MethodReference setSyncVarHookGuard;
@@ -91,6 +93,8 @@ namespace Mirror.Weaver
         public static MethodReference getSyncVarGameObjectReference;
         public static MethodReference setSyncVarNetworkIdentityReference;
         public static MethodReference getSyncVarNetworkIdentityReference;
+        public static MethodReference setSyncVarNetworkBehaviourReference;
+        public static MethodReference getSyncVarNetworkBehaviourReference;
         public static MethodReference registerCommandDelegateReference;
         public static MethodReference registerRpcDelegateReference;
         public static MethodReference getTypeReference;
@@ -186,6 +190,13 @@ namespace Mirror.Weaver
             NetworkIdentityType = currentAssembly.MainModule.ImportReference(networkIdentityTmp);
 
             NetworkBehaviourType = mirrorAssembly.MainModule.GetType("Mirror.NetworkBehaviour");
+
+            NetworkBehaviourSyncVarType = mirrorAssembly.MainModule.GetType("Mirror.NetworkBehaviourSyncVar");
+            // need to import a reference too in order to avoid this error:
+            // "Member 'Mirror.NetworkBehaviourSyncVar' is declared in another module and needs to be imported"
+            // see also: https://mono-cecil.narkive.com/xIph8zPX/member-x-is-declared-in-a-another-module-and-needs-to-be-imported
+            NetworkBehaviourSyncVarType = currentAssembly.MainModule.ImportReference(NetworkBehaviourSyncVarType);
+
             RemoteCallHelperType = mirrorAssembly.MainModule.GetType("Mirror.RemoteCalls.RemoteCallHelper");
 
             MonoBehaviourType = unityAssembly.MainModule.GetType("UnityEngine.MonoBehaviour");
@@ -216,6 +227,7 @@ namespace Mirror.Weaver
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarEqual");
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarNetworkIdentityEqual");
+            syncVarNetworkBehaviourEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarNetworkBehaviourEqual");
             syncVarGameObjectEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SyncVarGameObjectEqual");
             setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVar");
             setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "setSyncVarHookGuard");
@@ -225,6 +237,8 @@ namespace Mirror.Weaver
             getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarGameObject");
             setSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVarNetworkIdentity");
             getSyncVarNetworkIdentityReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkIdentity");
+            setSyncVarNetworkBehaviourReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "SetSyncVarNetworkBehaviour");
+            getSyncVarNetworkBehaviourReference = Resolvers.ResolveMethod(NetworkBehaviourType, currentAssembly, "GetSyncVarNetworkBehaviour");
             registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterCommandDelegate");
             registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, currentAssembly, "RegisterRpcDelegate");
             getTypeReference = Resolvers.ResolveMethod(objectType, currentAssembly, "GetType");

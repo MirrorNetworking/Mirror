@@ -94,6 +94,20 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Call, WeaverTypes.getSyncVarGameObjectReference);
                 worker.Emit(OpCodes.Ret);
             }
+            // [SyncVar] NetworkBehaviour?
+            else if (fd.FieldType.IsNetworkBehaviourField())
+            {
+                // return this.GetSyncVarNetworkBehaviour<T>(ref field, uint netId);
+                // this.
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldflda, fd));
+                MethodReference getFunc = WeaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(fd.FieldType);
+                worker.Append(worker.Create(OpCodes.Call, getFunc));
+                worker.Append(worker.Create(OpCodes.Ret));
+            }
             // [SyncVar] NetworkIdentity?
             else if (fd.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName)
             {
@@ -149,6 +163,15 @@ namespace Mirror.Weaver
 
                 worker.Emit(OpCodes.Call, WeaverTypes.syncVarGameObjectEqualReference);
             }
+            else if (fd.FieldType.IsNetworkBehaviourField())
+            {
+                // reference to netId Field to set
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldfld, netFieldId));
+
+                MethodReference getFunc = WeaverTypes.syncVarNetworkBehaviourEqualReference.MakeGeneric(fd.FieldType);
+                worker.Append(worker.Create(OpCodes.Call, getFunc));
+            }
             else if (fd.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName)
             {
                 // reference to netId Field to set
@@ -198,6 +221,15 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldflda, netFieldId);
 
                 worker.Emit(OpCodes.Call, WeaverTypes.setSyncVarGameObjectReference);
+            }
+            else if (fd.FieldType.IsNetworkBehaviourField())
+            {
+                // reference to netId Field to set
+                worker.Append(worker.Create(OpCodes.Ldarg_0));
+                worker.Append(worker.Create(OpCodes.Ldflda, netFieldId));
+
+                MethodReference getFunc = WeaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(fd.FieldType);
+                worker.Append(worker.Create(OpCodes.Call, getFunc));
             }
             else if (fd.FieldType.FullName == WeaverTypes.NetworkIdentityType.FullName)
             {
@@ -266,7 +298,17 @@ namespace Mirror.Weaver
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
-            if (fd.FieldType.IsNetworkIdentityField())
+
+            // NetworkBehaviour has different field type than other NetworkIdentityFields
+            if (fd.FieldType.IsNetworkBehaviourField())
+            {
+                netIdField = new FieldDefinition("___" + fd.Name + "NetId",
+                    FieldAttributes.Private,
+                    WeaverTypes.NetworkBehaviourSyncVarType);
+
+                syncVarNetIds[fd] = netIdField;
+            }
+            else if (fd.FieldType.IsNetworkIdentityField())
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,

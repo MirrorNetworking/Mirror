@@ -1,4 +1,3 @@
-/* TODO enable again when Weaver can write NetworkBehavior again
 using System;
 using NUnit.Framework;
 using UnityEngine;
@@ -9,8 +8,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
     {
         public event Action<NetworkIdentity> onSendNetworkIdentityCalled;
         public event Action<GameObject> onSendGameObjectCalled;
-        public event Action<NetworkBehaviour> onSendNetworkBehaviourCalled;
-        public event Action<RpcNetworkIdentityBehaviour> onSendNetworkBehaviourDerivedCalled;
+        //public event Action<NetworkBehaviour> onSendNetworkBehaviourCalled;
+        //public event Action<RpcNetworkIdentityBehaviour> onSendNetworkBehaviourDerivedCalled;
 
         [ClientRpc]
         public void SendNetworkIdentity(NetworkIdentity value)
@@ -24,6 +23,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             onSendGameObjectCalled?.Invoke(value);
         }
 
+        /* NetworkBehaviour in rpcs not supported again yet
         [ClientRpc]
         public void SendNetworkBehaviour(NetworkBehaviour value)
         {
@@ -34,7 +34,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void SendNetworkBehaviourDerived(RpcNetworkIdentityBehaviour value)
         {
             onSendNetworkBehaviourDerivedCalled?.Invoke(value);
-        }
+        }*/
     }
 
     [Description("Test for sending NetworkIdentity fields (NI/GO/NB) in RPC")]
@@ -76,6 +76,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             Assert.That(callCount, Is.EqualTo(1));
         }
 
+        /* Rpc NetworkBehaviour parameters not supported again yet
         [Test]
         public void RpcCanSendNetworkBehaviour()
         {
@@ -111,6 +112,6 @@ namespace Mirror.Tests.RemoteAttrributeTest
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
+        */
     }
 }
-*/
