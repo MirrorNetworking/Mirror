@@ -27,13 +27,15 @@ namespace Mirror.Weaver
             writeFuncs[typeName] = methodReference;
         }
 
-        static void RegisterWriteFunc(string name, MethodDefinition newWriterFunc)
+        static void RegisterWriteFunc(string name, MethodReference newWriterFunc)
         {
-            writeFuncs[name] = newWriterFunc;
-            Weaver.WeaveLists.generatedWriteFunctions.Add(newWriterFunc);
+            MethodDefinition resolved = newWriterFunc.Resolve();
+
+            writeFuncs[name] = resolved;
+            Weaver.WeaveLists.generatedWriteFunctions.Add(resolved);
 
             Weaver.ConfirmGeneratedCodeClass();
-            Weaver.WeaveLists.generateContainerClass.Methods.Add(newWriterFunc);
+            Weaver.WeaveLists.generateContainerClass.Methods.Add(resolved);
         }
 
         public static MethodReference GetWriteFunc(TypeReference variable, int recursionCount = 0)
@@ -49,7 +51,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                MethodDefinition newWriterFunc = GenerateWriter(variable, recursionCount);
+                MethodReference newWriterFunc = GenerateWriter(variable, recursionCount);
                 if (newWriterFunc != null)
                 {
                     RegisterWriteFunc(variable.FullName, newWriterFunc);
@@ -58,7 +60,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static MethodDefinition GenerateWriter(TypeReference variableReference, int recursionCount = 0)
+        static MethodReference GenerateWriter(TypeReference variableReference, int recursionCount = 0)
         {
             // TODO: do we need this check? do we ever receieve types that are "ByReference"s
             if (variableReference.IsByReference)
