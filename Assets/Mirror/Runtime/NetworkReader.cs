@@ -8,6 +8,7 @@ namespace Mirror
 {
     /// <summary>Helper class that weaver populates with all reader types.</summary>
     // Note that c# creates a different static variable for each type
+    // -> Weaver.ReaderWriterProcessor.InitializeReaderAndWriters() populates it
     public static class Reader<T>
     {
         public static Func<NetworkReader, T> read;
