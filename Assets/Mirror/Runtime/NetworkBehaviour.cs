@@ -17,6 +17,7 @@ namespace Mirror
 
         /// <summary>sync mode for OnSerialize</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        [Tooltip("By default synced data is sent from the server to all Observers of the object.\nChange this to Owner to only have the server update the client that has ownership authority for this object")]
         [HideInInspector] public SyncMode syncMode = SyncMode.Observers;
 
         /// <summary>sync interval for OnSerialize (in seconds)</summary>
