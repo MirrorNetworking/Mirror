@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
@@ -173,6 +174,11 @@ namespace Mirror.Weaver
                         asmResolver.AddSearchDirectory(path);
                     }
                 }
+
+                // When unity restarts, it may try to weave an assembly that has
+                // already been weaved.
+                if (CurrentAssembly.MainModule.GetTypes().Any(td => td.FullName == "Mirror.GeneratedNetworkCode"))
+                    return true;
 
                 WeaverTypes.SetupTargetTypes(CurrentAssembly);
                 // WeaverList depends on WeaverTypes setup because it uses Import
