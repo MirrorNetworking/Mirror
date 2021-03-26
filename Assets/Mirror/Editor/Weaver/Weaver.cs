@@ -177,7 +177,7 @@ namespace Mirror.Weaver
 
                 // When unity restarts, it may try to weave an assembly that has
                 // already been weaved.
-                if (CurrentAssembly.MainModule.GetTypes().Any(td => td.FullName == "Mirror.GeneratedNetworkCode"))
+                if (CurrentAssembly.MainModule.GetTypes().Any(td => td.FullName.StartsWith("Mirror.GeneratedNetworkCode")))
                     return true;
 
                 WeaverTypes.SetupTargetTypes(CurrentAssembly);
