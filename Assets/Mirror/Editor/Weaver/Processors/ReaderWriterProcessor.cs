@@ -164,6 +164,10 @@ namespace Mirror.Weaver
             // fill function body with reader/writer initializers
             ILProcessor worker = rwInitializer.Body.GetILProcessor();
 
+            // for debugging: add a log to see if initialized on load
+            //worker.Emit(OpCodes.Ldstr, $"[InitReadWriters] called!");
+            //worker.Emit(OpCodes.Call, WeaverTypes.logWarningReference);
+
             Writers.InitializeWriters(worker);
             Readers.InitializeReaders(worker);
 
