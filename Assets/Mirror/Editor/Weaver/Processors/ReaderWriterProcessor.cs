@@ -127,8 +127,10 @@ namespace Mirror.Weaver
 
         static bool IsEditorAssembly(AssemblyDefinition currentAssembly)
         {
+            // we want to add the [InitializeOnLoad] attribute if it's available
+            // -> usually either 'UnityEditor' or 'UnityEditor.CoreModule'
             return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
-                assemblyReference.Name == nameof(UnityEditor)
+                assemblyReference.Name.StartsWith(nameof(UnityEditor))
                 );
         }
 
