@@ -171,8 +171,14 @@ namespace Mirror
 
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
-                Debug.LogError("NetworkManager - playerPrefab must have a NetworkIdentity.");
+                Debug.LogError("NetworkManager - Player Prefab must have a NetworkIdentity.");
                 playerPrefab = null;
+            }
+
+            if (playerPrefab != null && spawnPrefabs.Contains(playerPrefab))
+            {
+                Debug.LogWarning("NetworkManager - Player Prefab should not be added to Registered Spawnable Prefabs list...removed it.");
+                spawnPrefabs.Remove(playerPrefab);
             }
         }
 
