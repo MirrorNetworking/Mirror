@@ -32,8 +32,8 @@ namespace Mirror.Weaver
 
         public WeaverLists()
         {
-            // create Mirror.GeneratedNetworkCode class
-            generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
+            // create "Mirror.GeneratedNetworkCode" class
+            generateContainerClass = new TypeDefinition(Weaver.GeneratedCodeNamespace, Weaver.GeneratedCodeClassName,
                     TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
                     WeaverTypes.Import<object>());
         }
@@ -42,6 +42,9 @@ namespace Mirror.Weaver
     internal static class Weaver
     {
         public static string InvokeRpcPrefix => "InvokeUserCode_";
+
+        public const string GeneratedCodeNamespace = "Mirror";
+        public const string GeneratedCodeClassName = "GeneratedNetworkCode";
 
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
