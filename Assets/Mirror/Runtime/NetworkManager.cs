@@ -325,16 +325,19 @@ namespace Mirror
 
             InitializeSingleton();
 
+            if (runInBackground)
+                Application.runInBackground = true;
+
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
-            if (runInBackground)
-                Application.runInBackground = true;
-
             isNetworkActive = true;
+
+            // In case this is a headless client...
+            ConfigureServerFrameRate();
 
             RegisterClientMessages();
 
@@ -363,15 +366,13 @@ namespace Mirror
 
             InitializeSingleton();
 
+            if (runInBackground)
+                Application.runInBackground = true;
+
             if (authenticator != null)
             {
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
-
-            if (runInBackground)
-            {
-                Application.runInBackground = true;
             }
 
             isNetworkActive = true;
