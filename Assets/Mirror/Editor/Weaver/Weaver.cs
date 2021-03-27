@@ -32,6 +32,7 @@ namespace Mirror.Weaver
 
         public WeaverLists()
         {
+            // create Mirror.GeneratedNetworkCode class
             generateContainerClass = new TypeDefinition("Mirror", "GeneratedNetworkCode",
                     TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
                     WeaverTypes.Import<object>());
