@@ -184,6 +184,7 @@ namespace Mirror.Weaver
                         asmResolver.AddSearchDirectory(path);
                     }
                 }
+
                 // fix "No writer found for ..." error
                 // https://github.com/vis2k/Mirror/issues/2579
                 // -> when restarting Unity, weaver would try to weave a DLL
