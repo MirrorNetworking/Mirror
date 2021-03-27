@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
@@ -163,6 +164,12 @@ namespace Mirror.Weaver
                 WeaverTypes.Import<object>());
         }
 
+        static bool ContainsGeneratedCodeClass(ModuleDefinition module)
+        {
+            return module.GetTypes().Any(td => td.Namespace == GeneratedCodeNamespace &&
+                                               td.Name == GeneratedCodeClassName);
+        }
+
         static bool Weave(string assName, IEnumerable<string> dependencies)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
@@ -176,6 +183,17 @@ namespace Mirror.Weaver
                     {
                         asmResolver.AddSearchDirectory(path);
                     }
+                }
+                // fix "No writer found for ..." error
+                // https://github.com/vis2k/Mirror/issues/2579
+                // -> when restarting Unity, weaver would try to weave a DLL
+                //    again
+                // -> resulting in two GeneratedNetworkCode classes (see ILSpy)
+                // -> the second one wouldn't have all the writer types setup
+                if (ContainsGeneratedCodeClass(CurrentAssembly.MainModule))
+                {
+                    //Log.Warning($"Weaver: skipping {CurrentAssembly.Name} because already weaved");
+                    return true;
                 }
 
                 WeaverTypes.SetupTargetTypes(CurrentAssembly);
