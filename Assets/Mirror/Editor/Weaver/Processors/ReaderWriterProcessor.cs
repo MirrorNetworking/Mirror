@@ -173,9 +173,7 @@ namespace Mirror.Weaver
 
             worker.Emit(OpCodes.Ret);
 
-            TypeDefinition generateClass = Weaver.WeaveLists.generateContainerClass;
-
-            generateClass.Methods.Add(rwInitializer);
+            Weaver.GeneratedCodeClass.Methods.Add(rwInitializer);
         }
     }
 }
