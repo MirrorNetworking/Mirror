@@ -158,7 +158,7 @@ namespace Mirror.Weaver
         static void CreateGeneratedCodeClass()
         {
             // create "Mirror.GeneratedNetworkCode" class
-            GeneratedCodeClass = new TypeDefinition(Weaver.GeneratedCodeNamespace, Weaver.GeneratedCodeClassName,
+            GeneratedCodeClass = new TypeDefinition(GeneratedCodeNamespace, GeneratedCodeClassName,
                 TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
                 WeaverTypes.Import<object>());
         }
