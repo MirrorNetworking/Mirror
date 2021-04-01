@@ -16,7 +16,7 @@ namespace Mirror.Discovery
     /// <see cref="NetworkDiscovery">NetworkDiscovery</see> for a sample implementation
     /// </summary>
     [DisallowMultipleComponent]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkDiscovery.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-discovery")]
     public abstract class NetworkDiscoveryBase<Request, Response> : MonoBehaviour
         where Request : NetworkMessage
         where Response : NetworkMessage

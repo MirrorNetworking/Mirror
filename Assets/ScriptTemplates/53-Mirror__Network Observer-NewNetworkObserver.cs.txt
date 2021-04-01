@@ -3,8 +3,8 @@ using Mirror;
 using System.Collections.Generic;
 
 /*
-	Visibility Guide: https://mirror-networking.com/docs/Guides/Visibility.html
-	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkBehaviour.html
+	Visibility Guide: https://mirror-networking.gitbook.io/docs/guides/legacy-interest-management
+	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkVisibility.html
 */
 
 public class #SCRIPTNAME# : NetworkVisibility

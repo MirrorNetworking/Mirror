@@ -15,7 +15,7 @@ namespace Mirror
     /// </remarks>
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkAnimator.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-animator")]
     public class NetworkAnimator : NetworkBehaviour
     {
         [Header("Authority")]

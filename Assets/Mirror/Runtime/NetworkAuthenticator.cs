@@ -7,7 +7,7 @@ namespace Mirror
     [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnection> {}
 
     /// <summary>Base class for implementing component-based authentication during the Connect phase</summary>
-    [HelpURL("https://mirror-networking.com/docs/Articles/Guides/Authentication.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators")]
     public abstract class NetworkAuthenticator : MonoBehaviour
     {
         /// <summary>Notify subscribers on the server when a client is authenticated</summary>

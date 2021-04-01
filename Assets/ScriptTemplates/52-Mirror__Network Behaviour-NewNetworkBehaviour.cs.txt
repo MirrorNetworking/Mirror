@@ -3,7 +3,7 @@ using Mirror;
 using System.Collections.Generic;
 
 /*
-	Documentation: https://mirror-networking.com/docs/Guides/NetworkBehaviour.html
+	Documentation: https://mirror-networking.gitbook.io/docs/guides/networkbehaviour
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkBehaviour.html
 */
 

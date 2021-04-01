@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [HelpURL("https://mirror-networking.com/docs/Articles/Transports/Fallback.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/transports/fallback-transport")]
     [DisallowMultipleComponent]
     public class FallbackTransport : Transport
     {

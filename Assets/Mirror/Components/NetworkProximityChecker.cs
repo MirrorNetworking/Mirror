@@ -11,7 +11,7 @@ namespace Mirror
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkProximityChecker.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-proximity-checker")]
     public class NetworkProximityChecker : NetworkVisibility
     {
         /// <summary>

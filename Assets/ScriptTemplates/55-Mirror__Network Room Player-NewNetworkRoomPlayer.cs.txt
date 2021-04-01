@@ -2,7 +2,7 @@ using UnityEngine;
 using Mirror;
 
 /*
-	Documentation: https://mirror-networking.com/docs/Components/NetworkRoomPlayer.html
+	Documentation: https://mirror-networking.gitbook.io/docs/components/network-room-player
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkRoomPlayer.html
 */
 

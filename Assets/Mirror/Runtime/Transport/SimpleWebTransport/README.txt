@@ -10,7 +10,7 @@ Requirements:
   Mirror v18.0.0
 
 Documentation:
-  https://mirror-networking.com/docs/
+  https://mirror-networking.gitbook.io/docs/
   https://github.com/MirrorNetworking/SimpleWebTransport/blob/master/README.md
 
 Support:

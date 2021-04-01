@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /*
-	Documentation: https://mirror-networking.com/docs/Articles/Components/NetworkManager.html
+	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
 */
 
