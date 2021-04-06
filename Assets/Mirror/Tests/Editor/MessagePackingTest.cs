@@ -101,7 +101,7 @@ namespace Mirror.Tests
             byte[] data = PackToByteArray(message);
             NetworkReader reader = new NetworkReader(data);
 
-            bool result = MessagePacking.Unpack(reader, out int msgType);
+            bool result = MessagePacking.Unpack(reader, out ushort msgType);
             Assert.That(result, Is.EqualTo(true));
             Assert.That(msgType, Is.EqualTo(BitConverter.ToUInt16(data, 0)));
         }
@@ -111,7 +111,7 @@ namespace Mirror.Tests
         {
             // try an invalid message
             NetworkReader reader2 = new NetworkReader(new byte[0]);
-            bool result2 = MessagePacking.Unpack(reader2, out int msgType2);
+            bool result2 = MessagePacking.Unpack(reader2, out ushort msgType2);
             Assert.That(result2, Is.EqualTo(false));
             Assert.That(msgType2, Is.EqualTo(0));
         }

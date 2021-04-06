@@ -23,8 +23,8 @@ namespace Mirror
             new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>Message Handlers dictionary, with mesageId as key</summary>
-        static Dictionary<int, NetworkMessageDelegate> handlers =
-            new Dictionary<int, NetworkMessageDelegate>();
+        static Dictionary<ushort, NetworkMessageDelegate> handlers =
+            new Dictionary<ushort, NetworkMessageDelegate>();
 
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
@@ -441,7 +441,7 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacking.GetId<T>();
+            ushort msgType = MessagePacking.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
@@ -461,7 +461,7 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacking.GetId<T>();
+            ushort msgType = MessagePacking.GetId<T>();
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
@@ -476,7 +476,7 @@ namespace Mirror
         public static void UnregisterHandler<T>()
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacking.GetId<T>();
+            ushort msgType = MessagePacking.GetId<T>();
             handlers.Remove(msgType);
         }
 

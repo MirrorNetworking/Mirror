@@ -687,7 +687,7 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
             {
                 { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
             });
@@ -763,7 +763,7 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
             {
                 { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
             });
@@ -839,7 +839,7 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
             {
                 { MessagePacking.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++called) }
             });
@@ -886,7 +886,7 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>()
+            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
             {
                 { MessagePacking.GetId<ObjectHideMessage>(), ((conn, reader, channelId) => ++called) }
             });

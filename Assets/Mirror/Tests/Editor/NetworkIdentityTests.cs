@@ -608,7 +608,7 @@ namespace Mirror.Tests
             // add client handlers
             owner.connectionToServer = new LocalConnectionToServer();
             int spawnCalled = 0;
-            owner.connectionToServer.SetHandlers(new Dictionary<int, NetworkMessageDelegate>{
+            owner.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>{
                 { MessagePacking.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++spawnCalled) }
             });
 

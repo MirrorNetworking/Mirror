@@ -15,7 +15,7 @@ namespace Mirror
 
         // TODO this is NetworkServer.handlers on server and NetworkClient.handlers on client.
         //      maybe use them directly. avoid extra state.
-        Dictionary<int, NetworkMessageDelegate> messageHandlers;
+        Dictionary<ushort, NetworkMessageDelegate> messageHandlers;
 
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
         // assigned by transport, this id is unique for every connection on server.
@@ -66,7 +66,7 @@ namespace Mirror
         /// <summary>Disconnects this connection.</summary>
         public abstract void Disconnect();
 
-        internal void SetHandlers(Dictionary<int, NetworkMessageDelegate> handlers)
+        internal void SetHandlers(Dictionary<ushort, NetworkMessageDelegate> handlers)
         {
             messageHandlers = handlers;
         }
@@ -148,7 +148,7 @@ namespace Mirror
         // helper function
         protected bool UnpackAndInvoke(NetworkReader reader, int channelId)
         {
-            if (MessagePacking.Unpack(reader, out int msgType))
+            if (MessagePacking.Unpack(reader, out ushort msgType))
             {
                 // try to invoke the handler for that message
                 if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
