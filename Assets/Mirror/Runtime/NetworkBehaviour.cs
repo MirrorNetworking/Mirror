@@ -13,6 +13,26 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
+         void OnValidate()
+        {
+            Debug.Log("NetworkBehaviour:OnValidate");
+        }
+
+#if UNITY_EDITOR
+         void Reset()
+        {
+            Debug.Log("NetworkBehaviour:Reset");
+
+            // Prevent adding NetworkBehaviour to NetworkManager
+            if (GetComponentsInParent<NetworkManager>(true).Length > 0)
+            {
+                DestroyImmediate(this);
+                return;
+            }
+        }
+#endif
+
+
         internal float lastSyncTime;
 
         /// <summary>sync mode for OnSerialize</summary>

@@ -146,9 +146,50 @@ namespace Mirror
         //    during FinishLoadScene.
         public NetworkManagerMode mode { get; private set; }
 
+#if UNITY_EDITOR
+        void Reset()
+        {
+            // Prevent adding NetworkManager to child of NetworkManager
+            if (GetComponentsInParent<NetworkManager>().Length > 1)
+            {
+                DestroyImmediate(this);
+                return;
+            }
+        }
+#endif
+
+
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+//#if UNITY_EDITOR
+//            Debug.Log("NetworkManager:OnValidate");
+
+//            // Remove NetworkBehaviours from parents of this NetworkManager
+//            List<NetworkBehaviour> NBs = GetComponentsInParent<NetworkBehaviour>().ToList();
+//            foreach (NetworkBehaviour nb in NBs)
+//                if (nb != this)
+//                    DestroyImmediate(nb);
+
+//            // Remove NetworkIdentitys from parents of this NetworkManager
+//            List<NetworkIdentity> NIs = GetComponentsInParent<NetworkIdentity>().ToList();
+//            foreach (NetworkIdentity ni in NIs)
+//                if (ni != this)
+//                    DestroyImmediate(ni);
+
+//            // Remove NetworkManagers from parents of this NetworkManager
+//            List<NetworkManager> NMs = GetComponentsInParent<NetworkManager>().ToList();
+//            foreach (NetworkManager nm in NMs)
+//                if (nm != this)
+//                    DestroyImmediate(nm);
+
+//            // Remove NetworkManagers from children of this NetworkManager
+//            NMs = GetComponentsInChildren<NetworkManager>().ToList();
+//            foreach (NetworkManager nm in NMs)
+//                if (nm != this)
+//                    DestroyImmediate(nm);
+//#endif
+
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
