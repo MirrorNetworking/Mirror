@@ -1132,41 +1132,28 @@ namespace Mirror
             // Prevent adding NetworkIdentity to NetworkManager
             if (GetComponentsInParent<NetworkManager>(true).Length > 0 || GetComponentsInChildren<NetworkManager>(true).Length > 0)
             {
+                Debug.LogError("NetworkIdentity cannot be added to the same object hierarchy as NetworkManager.");
                 DestroyImmediate(this);
                 return;
             }
 
             // Prevent adding NetworkIdentity to child of another NetworkIdentity
-            foreach (NetworkIdentity ni in GetComponentsInParent<NetworkIdentity>(true).ToList())
-                if (ni != this)
+            foreach (NetworkIdentity networkIdentity in GetComponentsInParent<NetworkIdentity>(true).ToList())
+                if (networkIdentity != this)
                 {
+                    Debug.LogError("NetworkIdentity cannot be added to a child of another NetworkIdentity.");
                     DestroyImmediate(this);
                     return;
                 }
 
             // Prevent adding NetworkIdentity to parent of another NetworkIdentity
-            foreach (NetworkIdentity ni in GetComponentsInChildren<NetworkIdentity>(true).ToList())
-                if (ni != this)
+            foreach (NetworkIdentity networkIdentity in GetComponentsInChildren<NetworkIdentity>(true).ToList())
+                if (networkIdentity != this)
                 {
+                    Debug.LogError("NetworkIdentity cannot be added to a parent of another NetworkIdentity.");
                     DestroyImmediate(this);
                     return;
                 }
-
-
-
-            //// Prevent adding NetworkIdentity to child of another NetworkIdentity
-            //if (GetComponentsInParent<NetworkIdentity>().Length > 1)
-            //{
-            //    DestroyImmediate(this);
-            //    return;
-            //}
-
-            //// Prevent adding NetworkIdentity to child of another NetworkIdentity
-            //if (GetComponentsInChildren<NetworkIdentity>().Length > 1)
-            //{
-            //    DestroyImmediate(this);
-            //    return;
-            //}
 #endif
 
             // make sure to call this before networkBehavioursCache is cleared below
