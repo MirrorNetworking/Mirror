@@ -290,7 +290,7 @@ namespace Mirror
 
         void OnValidate()
         {
-            Debug.Log("NetworkIdentity:OnValidate");
+            Debug.Log($"NetworkIdentity:OnValidate for {gameObject.name}");
             // OnValidate is not called when using Instantiate, so we can use
             // it to make sure that hasSpawned is false
             hasSpawned = false;
@@ -1127,31 +1127,31 @@ namespace Mirror
         internal void Reset()
         {
 #if UNITY_EDITOR
+            // This fires in editor when adding a component to an object
             Debug.Log("NetworkIdentity:Reset");
 
             // Prevent adding NetworkIdentity to NetworkManager
-            if (GetComponentsInParent<NetworkManager>(true).Length > 0 || GetComponentsInChildren<NetworkManager>(true).Length > 0)
+            if (transform.root.GetComponentInChildren<NetworkManager>() != null)
             {
                 Debug.LogError("NetworkIdentity cannot be added to the same object hierarchy as NetworkManager.");
-                DestroyImmediate(this);
+                DestroyImmediate(this, true);
                 return;
             }
 
-            // Prevent adding NetworkIdentity to child of another NetworkIdentity
-            foreach (NetworkIdentity networkIdentity in GetComponentsInParent<NetworkIdentity>(true).ToList())
+            // Prevent adding NetworkIdentity to parent or child of another NetworkIdentity
+            foreach (NetworkIdentity networkIdentity in transform.root.GetComponentsInChildren<NetworkIdentity>().ToList())
                 if (networkIdentity != this)
                 {
-                    Debug.LogError("NetworkIdentity cannot be added to a child of another NetworkIdentity.");
-                    DestroyImmediate(this);
-                    return;
-                }
+                    Debug.LogError("NetworkIdentity cannot be added to a parent or child of another object with a NetworkIdentity.");
 
-            // Prevent adding NetworkIdentity to parent of another NetworkIdentity
-            foreach (NetworkIdentity networkIdentity in GetComponentsInChildren<NetworkIdentity>(true).ToList())
-                if (networkIdentity != this)
-                {
-                    Debug.LogError("NetworkIdentity cannot be added to a parent of another NetworkIdentity.");
-                    DestroyImmediate(this);
+                    // Remove any NetworkBehaviours that might be here without a NetworkIdentity
+                    foreach (NetworkBehaviour networkBehaviour in transform.root.GetComponentsInChildren<NetworkBehaviour>().ToList())
+                    {
+                        Debug.LogError($"Removing NetworkBehaviour {networkBehaviour.GetType()} from {gameObject.name} for lack of a NetworkIdentity.");
+                        DestroyImmediate(networkBehaviour, true);
+                    }
+
+                    DestroyImmediate(this, true);
                     return;
                 }
 #endif
