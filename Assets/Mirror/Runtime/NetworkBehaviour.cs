@@ -168,7 +168,6 @@ namespace Mirror
             {
                 Debug.LogError("NetworkBehaviour cannot be added without NetworkIdentity.");
                 DestroyImmediate(this, true);
-                return;
             }
         }
 #endif

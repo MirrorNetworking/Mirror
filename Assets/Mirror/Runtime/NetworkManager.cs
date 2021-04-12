@@ -150,12 +150,12 @@ namespace Mirror
         void Reset()
         {
             // Prevent adding NetworkManager to parent or child of another NetworkManager
-            if (transform.root.GetComponentInChildren<NetworkManager>() != null)
-            {
-                Debug.LogError("NetworkManager cannot be added to the same object hierarchy as another NetworkManager.");
-                DestroyImmediate(this, true);
-                return;
-            }
+            foreach (NetworkManager networkManager in transform.root.GetComponentsInChildren<NetworkManager>().ToList())
+                if (networkManager != this)
+                {
+                    Debug.LogError("NetworkManager cannot be added to the same object hierarchy as another NetworkManager.");
+                    DestroyImmediate(this, true);
+                }
         }
 #endif
 
