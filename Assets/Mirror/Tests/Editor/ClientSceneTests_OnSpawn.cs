@@ -328,7 +328,7 @@ namespace Mirror.Tests.ClientSceneTests
                 sceneId = sceneId,
             };
 
-            LogAssert.Expect(LogType.Error, $"Spawn scene object not found for {msg.sceneId:X} SpawnableObjects.Count={spawnableObjects.Count}");
+            LogAssert.Expect(LogType.Error, $"Spawn scene object not found for {msg.sceneId:X}. Make sure that client and server use exactly the same project. This only happens if the hierarchy gets out of sync.");
             LogAssert.Expect(LogType.Error, $"Could not spawn assetId={msg.assetId} scene={msg.sceneId:X} netId={msg.netId}");
             bool success = NetworkClient.FindOrSpawnObject(msg, out NetworkIdentity networkIdentity);
 
