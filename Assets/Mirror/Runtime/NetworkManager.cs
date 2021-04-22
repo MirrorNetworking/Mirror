@@ -1215,7 +1215,7 @@ namespace Mirror
             NetworkServer.SetClientReady(conn);
         }
 
-        /// <summary>Called on server when a client requests to add the player. Adds playerPrefab by default. Can be overwritte.</summary>
+        /// <summary>Called on server when a client requests to add the player. Adds playerPrefab by default. Can be overwritten.</summary>
         // The default implementation for this function creates a new player object from the playerPrefab.
         public virtual void OnServerAddPlayer(NetworkConnection conn)
         {
