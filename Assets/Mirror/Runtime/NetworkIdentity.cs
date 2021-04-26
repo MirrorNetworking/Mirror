@@ -17,8 +17,7 @@ namespace Mirror
     // ForceHidden = useful to hide monsters while they respawn etc.
     // ForceShown = useful to have score NetworkIdentities that always broadcast
     //              to everyone etc.
-    // Manual = manually set visibility on this NetworkIdentity somewhere else in code
-    public enum Visibility { Default, ForceHidden, ForceShown, Manual }
+    public enum Visibility { Default, ForceHidden, ForceShown }
 
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
     [DisallowMultipleComponent]
@@ -170,7 +169,6 @@ namespace Mirror
         // ForceHidden = useful to hide monsters while they respawn etc.
         // ForceShown = useful to have score NetworkIdentities that always broadcast
         //              to everyone etc.
-        // Manual = manually set visibility on this NetworkIdentity somewhere else in code
         //
         // TODO rename to 'visibility' after removing .visibility some day!
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
@@ -803,10 +801,6 @@ namespace Mirror
         //    directly in NetworkIdentity.
         internal void OnSetHostVisibility(bool visible)
         {
-            if (this.visible == Visibility.Manual) {
-                return;
-            }
-
             foreach (Renderer rend in GetComponentsInChildren<Renderer>())
                 rend.enabled = visible;
         }
