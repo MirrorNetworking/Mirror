@@ -67,8 +67,7 @@ public class #SCRIPTNAME# : NetworkAuthenticator
     /// <summary>
     /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
     /// </summary>
-    /// <param name="conn">Connection of the client.</param>
-    public override void OnClientAuthenticate(NetworkConnection conn)
+    public override void OnClientAuthenticate()
     {
         AuthRequestMessage authRequestMessage = new AuthRequestMessage();
 
@@ -78,12 +77,11 @@ public class #SCRIPTNAME# : NetworkAuthenticator
     /// <summary>
     /// Called on client when the server's AuthResponseMessage arrives
     /// </summary>
-    /// <param name="conn">Connection to client.</param>
     /// <param name="msg">The message payload</param>
     public void OnAuthResponseMessage(AuthResponseMessage msg)
     {
         // Authentication has been accepted
-        ClientAccept(NetworkClient.connection);
+        ClientAccept();
     }
 
     #endregion

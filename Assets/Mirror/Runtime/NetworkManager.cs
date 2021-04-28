@@ -1140,7 +1140,7 @@ namespace Mirror
             if (authenticator != null)
             {
                 // we have an authenticator - let it handle authentication
-                authenticator.OnClientAuthenticate(NetworkClient.connection);
+                authenticator.OnClientAuthenticate();
             }
             else
             {
