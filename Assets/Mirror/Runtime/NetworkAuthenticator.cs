@@ -44,24 +44,30 @@ namespace Mirror
         /// <summary>Called when client stops, used to unregister message handlers if needed.</summary>
         public virtual void OnStopClient() {}
 
-        /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
-        // TODO client callbacks don't need NetworkConnection parameter. use NetworkClient.connection!
-        public abstract void OnClientAuthenticate(NetworkConnection conn);
+        [Obsolete("Deprecated: Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
+        public virtual void OnClientAuthenticate(NetworkConnection conn) => OnClientAuthenticate();
 
-        // TODO client callbacks don't need NetworkConnection parameter. use NetworkClient.connection!
-        protected void ClientAccept(NetworkConnection conn)
+        /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
+        public abstract void OnClientAuthenticate();
+
+        [Obsolete("Deprecated: Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
+        protected void ClientAccept(NetworkConnection conn) => ClientAccept();
+
+        protected void ClientAccept()
         {
-            OnClientAuthenticated.Invoke(conn);
+            OnClientAuthenticated.Invoke(NetworkClient.connection);
         }
 
-        // TODO client callbacks don't need NetworkConnection parameter. use NetworkClient.connection!
-        protected void ClientReject(NetworkConnection conn)
+        [Obsolete("Deprecated: Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
+        protected void ClientReject(NetworkConnection conn) => ClientReject();
+
+        protected void ClientReject()
         {
             // Set this on the client for local reference
-            conn.isAuthenticated = false;
+            NetworkClient.connection.isAuthenticated = false;
 
             // disconnect the client
-            conn.Disconnect();
+            NetworkClient.connection.Disconnect();
         }
 
         void OnValidate()
