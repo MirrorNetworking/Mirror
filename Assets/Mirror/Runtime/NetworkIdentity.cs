@@ -174,6 +174,9 @@ namespace Mirror
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
         public Visibility visible = Visibility.Default;
 
+        [Tooltip("Whether or not OnSetHostVisibility() should affect the status of renderers based on the visibility.")]
+        public bool updateRenderersInOnSetHostVisibility = true;
+
         /// <summary>Prefab GUID used to spawn prefabs across the network.</summary>
         //
         // The AssetId trick:
@@ -801,8 +804,13 @@ namespace Mirror
         //    directly in NetworkIdentity.
         internal void OnSetHostVisibility(bool visible)
         {
-            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
-                rend.enabled = visible;
+            if (updateRenderersInOnSetHostVisibility)
+            {
+                foreach (Renderer rend in GetComponentsInChildren<Renderer>())
+                {
+                    rend.enabled = visible;
+                }
+            }
         }
 
         // vis2k: readstring bug prevention: https://github.com/vis2k/Mirror/issues/2617
