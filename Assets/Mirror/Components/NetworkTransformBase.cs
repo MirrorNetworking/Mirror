@@ -55,7 +55,7 @@ namespace Mirror
         public bool interpolateScale = true;
         [Tooltip("Set to true if rotation should be interpolated, false is ideal for instant turning, common in retro 2d style games")]
         public bool interpolateRotation = true;
-        [Tooltip("Set to true if rotation should be interpolated, false is ideal for grid bassed movement")]
+        [Tooltip("Set to true if position should be interpolated, false is ideal for grid bassed movement")]
         public bool interpolatePosition = true;
 
 
