@@ -147,9 +147,8 @@ namespace Mirror
             }
         }
 
-#pragma warning disable 618
         NetworkVisibility visibilityCache;
-        [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
+
         public NetworkVisibility visibility
         {
             get
@@ -161,7 +160,6 @@ namespace Mirror
                 return visibilityCache;
             }
         }
-#pragma warning restore 618
 
         // current visibility
         //
@@ -785,9 +783,6 @@ namespace Mirror
         }
 
         // interest management /////////////////////////////////////////////////
-        // obsoletes to still support ProximityChecker while transitioning to
-        // global Interest Management
-        [Obsolete("Use NetworkServer.RebuildObservers(identity, initialize) instead.")]
         public void RebuildObservers(bool initialize) => NetworkServer.RebuildObservers(this, initialize);
 
         // Callback used by the visibility system for objects on a host.
