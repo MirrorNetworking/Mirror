@@ -58,7 +58,6 @@ namespace Mirror
         [Tooltip("Set to true if position should be interpolated, false is ideal for grid bassed movement")]
         public bool interpolatePosition = true;
 
-
         [Header("Synchronization")]
         // It should be very rare cases that people want to continuously sync scale, true by default to not break previous projects that use it
         // Users in most scenarios are best to send change of scale via cmd/rpc, syncvar/hooks, only once, and when required.  Saves instant 12 bytes (25% of NT bandwidth!)
