@@ -82,12 +82,10 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
-        /// <summary>Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout</summary>
-        [Tooltip("Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout")]
+        [Obsolete("Transport is responsible for timeouts.")]
         public bool disconnectInactiveConnections;
 
-        /// <summary>Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.</summary>
-        [Tooltip("Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.")]
+        [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
         public float disconnectInactiveTimeout = 60f;
 
         [Header("Authentication")]
@@ -256,8 +254,10 @@ namespace Mirror
             NetworkServer.batchInterval = serverBatchInterval;
 
             // Copy auto-disconnect settings to NetworkServer
+#pragma warning disable 618
             NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
             NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
+#pragma warning restore 618
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);
