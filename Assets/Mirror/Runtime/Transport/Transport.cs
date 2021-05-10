@@ -1,42 +1,33 @@
+// For future reference, here is what Transports need to do in Mirror:
+//
+// Connecting:
+//   * Transports are responsible to call either OnConnected || OnDisconnected
+//     in a certain time after a Connect was called. It can not end in limbo.
+//
+// Disconnecting:
+//   * Connections might disconnect voluntarily by the other end.
+//   * Connections might be disconnect involuntarily by the server.
+//   * Either way, Transports need to detect it and call OnDisconnected.
+//
+// Timeouts:
+//   * Transports should expose a configurable timeout
+//   * Transports are responsible for calling OnDisconnected after a timeout
+//
+// Channels:
+//   * Default channel is Reliable, as in reliable ordered (OR DISCONNECT)
+//   * Where possible, Unreliable should be supported (unordered, no guarantee)
+//
+// Other:
+//   * Transports functions are all bound to the main thread.
+//     (Transports can use other threads in the background if they manage them)
+//   * Transports should only process messages while the component is enabled.
+//
 using System;
 using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>
-    /// Abstract transport layer component
-    /// </summary>
-    /// <remarks>
-    /// <h2>
-    ///   Transport Rules
-    /// </h2>
-    /// <list type="bullet">
-    ///   <listheader><description>
-    ///     All transports should follow these rules so that they work correctly with mirror
-    ///   </description></listheader>
-    ///   <item><description>
-    ///     When Monobehaviour is disabled the Transport should not invoke callbacks
-    ///   </description></item>
-    ///   <item><description>
-    ///     Callbacks should be invoked on main thread. It is best to do this from LateUpdate
-    ///   </description></item>
-    ///   <item><description>
-    ///     Callbacks can be invoked after <see cref="ServerStop"/> or <see cref="ClientDisconnect"/> as been called
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="ServerStop"/> or <see cref="ClientDisconnect"/> can be called by mirror multiple times
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="Available"/> should check the platform and 32 vs 64 bit if the transport only works on some of them
-    ///   </description></item>
-    ///   <item><description>
-    ///     <see cref="GetMaxPacketSize"/> should return size even if transport is not running
-    ///   </description></item>
-    ///   <item><description>
-    ///     Default channel should be reliable <see cref="Channels.Reliable"/>
-    ///   </description></item>
-    /// </list>
-    /// </remarks>
+    /// <summary>Abstract transport layer component</summary>
     public abstract class Transport : MonoBehaviour
     {
         /// <summary>
