@@ -1165,6 +1165,7 @@ namespace Mirror
             }
         }
 
+        // TODO call OnClientDisconnect directly, don't pass the connection
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
