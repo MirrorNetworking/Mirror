@@ -694,7 +694,7 @@ namespace Mirror
         void RegisterServerMessages()
         {
             NetworkServer.OnConnectedEvent = OnServerConnectInternal;
-            NetworkServer.OnDisconnectedEvent = OnServerDisconnectInternal;
+            NetworkServer.OnDisconnectedEvent = OnServerDisconnect;
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
 
             // Network Server initially registers its own handler for this, so we replace it here.
@@ -1096,12 +1096,6 @@ namespace Mirror
             OnServerConnect(conn);
         }
 
-        void OnServerDisconnectInternal(NetworkConnection conn)
-        {
-            //Debug.Log("NetworkManager.OnServerDisconnectInternal");
-            OnServerDisconnect(conn);
-        }
-
         void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
         {
             //Debug.Log("NetworkManager.OnServerReadyMessageInternal");
@@ -1198,6 +1192,7 @@ namespace Mirror
         public virtual void OnServerConnect(NetworkConnection conn) {}
 
         /// <summary>Called on the server when a client disconnects.</summary>
+        // Called by NetworkServer.OnTransportDisconnect!
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
             NetworkServer.DestroyPlayerForConnection(conn);
