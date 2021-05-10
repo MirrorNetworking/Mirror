@@ -173,12 +173,19 @@ namespace Mirror
         }
 
         /// <summary>Disconnects this connection.</summary>
+        // IMPORTANT: calls Transport.Disconnect.
+        // Transport.OnDisconnected is then called at some point in the future.
         public override void Disconnect()
         {
-            // set not ready and handle clientscene disconnect in any case
-            // (might be client or host mode here)
-            isReady = false;
+            // old UNET disconnect handling:
+            //isReady = false;
+            // NetworkServer.OnTransportDisconnected removes conn so not needed!
+
+            // ask transport to disconnect
             Transport.activeTransport.ServerDisconnect(connectionId);
+
+            // remove self from observing's observers
+            // TODO move to OnTransportDisconnected? 
             RemoveFromObservingsObservers();
         }
     }
