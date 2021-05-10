@@ -423,6 +423,11 @@ namespace Mirror
                 conn.Disconnect();
                 RemoveConnection(connectionId);
                 // Debug.Log("Server lost client:" + connectionId);
+
+                // call OnDisconnected event.
+                // NetworkManager hooks into it with a virtual function to make
+                // DestroyPlayerForConnection(conn) optional, e.g. for PvP MMOs
+                // where players shouldn't be able to escape combat instantly.
                 OnDisconnected(conn);
             }
         }
