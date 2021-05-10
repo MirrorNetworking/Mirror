@@ -25,7 +25,7 @@ namespace Mirror.Tests.GeneratedWriterTests
 
     public class FieldsInBaseClasses : RemoteTestBase
     {
-        [Test]
+        [Test, Ignore("Destroy is needed for the code. Can't be called in Edit mode.")]
         public void WriterShouldIncludeFieldsInBaseClass()
         {
             DataSenderBehaviour hostBehaviour = CreateHostObject<DataSenderBehaviour>(true);
