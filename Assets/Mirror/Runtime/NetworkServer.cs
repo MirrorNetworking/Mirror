@@ -406,7 +406,7 @@ namespace Mirror
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
-                conn.TransportReceive(data, channelId);
+                conn.OnTransportData(data, channelId);
             }
             else
             {

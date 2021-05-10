@@ -72,7 +72,7 @@ namespace Mirror
             }
 
             // handle the server's message directly
-            connectionToClient.TransportReceive(segment, channelId);
+            connectionToClient.OnTransportData(segment, channelId);
         }
 
         internal void Update()
@@ -91,7 +91,7 @@ namespace Mirror
                 PooledNetworkWriter writer = queue.Dequeue();
                 ArraySegment<byte> segment = writer.ToArraySegment();
                 //Debug.Log("Dequeue " + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-                TransportReceive(segment, Channels.Reliable);
+                OnTransportData(segment, Channels.Reliable);
                 NetworkWriterPool.Recycle(writer);
             }
 

@@ -171,8 +171,8 @@ namespace Mirror
             }
         }
 
-        // called when receiving data from the transport
-        internal void TransportReceive(ArraySegment<byte> buffer, int channelId)
+        // called by NetworkServer/NetworkClient OnTransportData
+        internal void OnTransportData(ArraySegment<byte> buffer, int channelId)
         {
             if (buffer.Count < MessagePacking.HeaderSize)
             {

@@ -275,7 +275,7 @@ namespace Mirror
         {
             if (connection != null)
             {
-                connection.TransportReceive(data, channelId);
+                connection.OnTransportData(data, channelId);
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
