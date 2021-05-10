@@ -390,6 +390,7 @@ namespace Mirror
             }
         }
 
+        // TODO move this into OnTransportConnected later :/
         internal static void OnConnected(NetworkConnectionToClient conn)
         {
             // Debug.Log("Server accepted client:" + conn);
@@ -418,7 +419,8 @@ namespace Mirror
             // Debug.Log("Server disconnect client:" + connectionId);
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
-                conn.Disconnect();
+                // remove connection, call OnDisconnectEvent which is used by
+                // NetworkManager (calls NetworkManager.OnServerDisconnect)
                 RemoveConnection(connectionId);
                 // Debug.Log("Server lost client:" + connectionId);
 
@@ -532,10 +534,9 @@ namespace Mirror
             // copy is no performance problem.
             foreach (NetworkConnectionToClient conn in connections.Values.ToList())
             {
+                // simply disconnect.
+                // Transport.OnDisconnected is called later.
                 conn.Disconnect();
-                // call OnDisconnected unless local player in host mode
-                if (conn.connectionId != NetworkConnection.LocalConnectionId)
-                    OnDisconnected(conn);
             }
             connections.Clear();
         }
