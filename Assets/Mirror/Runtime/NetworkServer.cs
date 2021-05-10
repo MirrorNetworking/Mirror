@@ -77,9 +77,9 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnServerConnected = OnConnected;
-            Transport.activeTransport.OnServerDataReceived = OnDataReceived;
-            Transport.activeTransport.OnServerDisconnected = OnDisconnected;
+            Transport.activeTransport.OnServerConnected = OnTransportConnected;
+            Transport.activeTransport.OnServerDataReceived = OnTransportData;
+            Transport.activeTransport.OnServerDisconnected = OnTransportDisconnected;
             Transport.activeTransport.OnServerError = OnError;
         }
 
@@ -350,7 +350,8 @@ namespace Mirror
         }
 
         // transport events ////////////////////////////////////////////////////
-        static void OnConnected(int connectionId)
+        // called by transport
+        static void OnTransportConnected(int connectionId)
         {
             // Debug.Log("Server accepted client:" + connectionId);
 
@@ -400,7 +401,8 @@ namespace Mirror
             OnConnectedEvent?.Invoke(conn);
         }
 
-        static void OnDataReceived(int connectionId, ArraySegment<byte> data, int channelId)
+        // called by transport
+        static void OnTransportData(int connectionId, ArraySegment<byte> data, int channelId)
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
@@ -412,7 +414,8 @@ namespace Mirror
             }
         }
 
-        internal static void OnDisconnected(int connectionId)
+        // called by transport
+        internal static void OnTransportDisconnected(int connectionId)
         {
             // Debug.Log("Server disconnect client:" + connectionId);
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))

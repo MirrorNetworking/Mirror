@@ -248,7 +248,7 @@ namespace Mirror
                 // local connection. should we send a DisconnectMessage here too?
                 // (if we do then we get an Unknown Message ID log)
                 //NetworkServer.localConnection.Send(new DisconnectMessage());
-                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
+                NetworkServer.OnTransportDisconnected(NetworkServer.localConnection.connectionId);
             }
         }
 
