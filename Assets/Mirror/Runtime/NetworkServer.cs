@@ -44,13 +44,11 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagement aoi;
 
-        /// <summary>Automatically disconnect inactive connections after a timeout. Can be changed at runtime.</summary>
+        [Obsolete("Transport is responsible for timeouts.")]
         public static bool disconnectInactiveConnections;
 
-        /// <summary>Timeout in seconds to disconnect inactive connections. Can be changed at runtime.</summary>
-        // By default, clients send at least a Ping message every 2 seconds.
-        // The Host client is immune from idle timeout disconnection.
-        public static float disconnectInactiveTimeout = 60;
+        [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
+        public static float disconnectInactiveTimeout = 60f;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
@@ -1360,6 +1358,7 @@ namespace Mirror
                 foreach (NetworkConnectionToClient connection in connections.Values)
                 {
                     // check for inactivity
+#pragma warning disable 618
                     if (disconnectInactiveConnections &&
                         !connection.IsAlive(disconnectInactiveTimeout))
                     {
@@ -1367,6 +1366,7 @@ namespace Mirror
                         connection.Disconnect();
                         continue;
                     }
+#pragma warning restore 618
 
                     // has this connection joined the world yet?
                     // for each READY connection:
