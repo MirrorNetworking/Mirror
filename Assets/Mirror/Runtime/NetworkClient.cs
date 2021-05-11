@@ -213,22 +213,12 @@ namespace Mirror
             connectState = ConnectState.Disconnected;
             ready = false;
 
-            // local or remote connection?
-            if (isLocalClient)
-            {
-                // isConnected is always false because set to Disconnected above
-                // leaving this here in case we did actually need it.
-                //if (isConnected)
-                //    ((LocalConnectionToServer)connection).QueueDisconnectedEvent();
+            // call Disconnect on the NetworkConnection
+            connection.Disconnect();
 
-                // TODO move to LocalConnectionToServer.Disconnect?
-                NetworkServer.RemoveLocalConnection();
-            }
-            else
-            {
-                connection.Disconnect();
-                connection = null;
-            }
+            // clean up
+            // (previously only for remote connection, not for local)
+            connection = null;
         }
 
         /// <summary>Disconnect host mode.</summary>

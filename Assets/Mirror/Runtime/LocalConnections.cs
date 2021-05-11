@@ -118,6 +118,12 @@ namespace Mirror
         {
             connectionToClient.DisconnectInternal();
             DisconnectInternal();
+
+            // this was in NetworkClient.Disconnect 'if isLocalConnection' before
+            // but it's clearly local connection related, so put it in here.
+            // TODO should probably be in connectionToClient.DisconnectInternal
+            //      because that's the NetworkServer's connection!
+            NetworkServer.RemoveLocalConnection();
         }
 
         // true because local connections never timeout
