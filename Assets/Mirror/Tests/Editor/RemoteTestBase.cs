@@ -30,8 +30,6 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void TearDown()
         {
             // stop server/client
-            NetworkClient.DisconnectLocalServer();
-
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
 

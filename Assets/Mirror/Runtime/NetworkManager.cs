@@ -527,13 +527,12 @@ namespace Mirror
         {
             OnStopHost();
 
-            // TODO try to move DisconnectLocalServer into StopClient(), and
-            // then call StopClient() before StopServer(). needs testing!.
-
-            // DisconnectLocalServer needs to be called so that the host client
-            // receives a DisconnectMessage too.
-            // fixes: https://github.com/vis2k/Mirror/issues/1515
-            NetworkClient.DisconnectLocalServer();
+            // calling OnTransportDisconnected was needed to fix
+            // https://github.com/vis2k/Mirror/issues/1515
+            // so that the host client receives a DisconnectMessage
+            // TODO reevaluate if this is still needed after all the disconnect
+            //      fixes, and try to put this into LocalConnection.Disconnect!
+            NetworkServer.OnTransportDisconnected(NetworkConnection.LocalConnectionId);
 
             StopClient();
             StopServer();
