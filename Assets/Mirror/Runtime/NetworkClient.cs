@@ -210,6 +210,7 @@ namespace Mirror
             // only if connected or connecting
             if (connectState == ConnectState.Disconnected) return;
 
+            // TODO move to 'cleanup' code below if safe
             connectState = ConnectState.Disconnected;
             ready = false;
 
