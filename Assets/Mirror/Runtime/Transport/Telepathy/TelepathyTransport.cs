@@ -159,7 +159,7 @@ namespace Mirror
         public override bool ServerActive() => server.Active;
         public override void ServerStart() => server.Start(port);
         public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment) => server.Send(connectionId, segment);
-        public override bool ServerDisconnect(int connectionId) => server.Disconnect(connectionId);
+        public override void ServerDisconnect(int connectionId) => server.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId)
         {
             try

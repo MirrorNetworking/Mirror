@@ -173,7 +173,7 @@ namespace Mirror
 
         public override string ServerGetClientAddress(int connectionId) => wrap.ServerGetClientAddress(connectionId);
 
-        public override bool ServerDisconnect(int connectionId) => wrap.ServerDisconnect(connectionId);
+        public override void ServerDisconnect(int connectionId) => wrap.ServerDisconnect(connectionId);
 
         public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
         {

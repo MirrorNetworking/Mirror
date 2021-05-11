@@ -162,19 +162,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(0, true)]
-        [TestCase(19, false)]
-        public void TestServerDisconnect(int id, bool result)
-        {
-            inner.ServerDisconnect(id).Returns(result);
-
-            Assert.That(middleware.ServerDisconnect(id), Is.EqualTo(result));
-
-            inner.Received(1).ServerDisconnect(id);
-            inner.Received(0).ServerDisconnect(Arg.Is<int>(x => x != id));
-        }
-
-        [Test]
         [TestCase(0, "tcp4://localhost:7777")]
         [TestCase(19, "tcp4://example.com:7777")]
         public void TestServerGetClientAddress(int id, string result)

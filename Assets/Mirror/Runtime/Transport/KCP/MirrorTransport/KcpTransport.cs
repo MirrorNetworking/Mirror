@@ -164,11 +164,7 @@ namespace kcp2k
                     break;
             }
         }
-        public override bool ServerDisconnect(int connectionId)
-        {
-            server.Disconnect(connectionId);
-            return true;
-        }
+        public override void ServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()
