@@ -269,7 +269,7 @@ namespace Mirror
             // this was in Disconnect() before.
             // but it should happen after truly disconnecting here.
 
-            // local or remote connection?
+            // local connection
             if (isLocalClient)
             {
                 // TODO move into LocalConnection.Disconnect
@@ -287,16 +287,13 @@ namespace Mirror
                 }
                 NetworkServer.RemoveLocalConnection();
             }
-            else
-            {
-                if (connection != null)
-                {
-                    connection.Disconnect();
-                    connection = null;
-                }
-            }
+            // remote connection
+            else connection.Disconnect();
 
-            if (connection != null) OnDisconnectedEvent?.Invoke();
+            OnDisconnectedEvent?.Invoke();
+
+            // cleanup
+            connection = null;
         }
 
         static void OnError(Exception exception) => Debug.LogException(exception);
