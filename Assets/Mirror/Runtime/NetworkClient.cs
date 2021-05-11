@@ -220,6 +220,8 @@ namespace Mirror
                 // leaving this here in case we did actually need it.
                 //if (isConnected)
                 //    ((LocalConnectionToServer)connection).QueueDisconnectedEvent();
+
+                // TODO move to LocalConnectionToServer.Disconnect?
                 NetworkServer.RemoveLocalConnection();
             }
             else
