@@ -413,6 +413,11 @@ namespace Mirror
         }
 
         // called by transport
+        // IMPORTANT: often times when disconnecting, we call this from Mirror
+        //            too because we want to remove the connection and handle
+        //            the disconnect immediately.
+        //            => which is fine as long as we guarantee it only runs once
+        //            => which we do by removing the connection!
         internal static void OnTransportDisconnected(int connectionId)
         {
             // Debug.Log("Server disconnect client:" + connectionId);
@@ -421,24 +426,18 @@ namespace Mirror
                 RemoveConnection(connectionId);
                 // Debug.Log("Server lost client:" + connectionId);
 
-                // call OnDisconnected below. it's used in multiple places.
-                OnDisconnected(conn);
-            }
-        }
-
-        static void OnDisconnected(NetworkConnection conn)
-        {
-            // NetworkManager hooks into OnDisconnectedEvent to make
-            // DestroyPlayerForConnection(conn) optional, e.g. for PvP MMOs
-            // where players shouldn't be able to escape combat instantly.
-            if (OnDisconnectedEvent != null)
-            {
-                OnDisconnectedEvent.Invoke(conn);
-            }
-            // if nobody hooked into it, then simply call DestroyPlayerForConnection
-            else
-            {
-                DestroyPlayerForConnection(conn);
+                // NetworkManager hooks into OnDisconnectedEvent to make
+                // DestroyPlayerForConnection(conn) optional, e.g. for PvP MMOs
+                // where players shouldn't be able to escape combat instantly.
+                if (OnDisconnectedEvent != null)
+                {
+                    OnDisconnectedEvent.Invoke(conn);
+                }
+                // if nobody hooked into it, then simply call DestroyPlayerForConnection
+                else
+                {
+                    DestroyPlayerForConnection(conn);
+                }
             }
         }
 
@@ -516,6 +515,7 @@ namespace Mirror
         }
 
         /// <summary>Disconnect all currently connected clients except the local connection.</summary>
+        // synchronous: handles disconnect events and cleans up fully before returning!
         public static void DisconnectAllExternalConnections()
         {
             // disconnect and remove all connections.
@@ -531,11 +531,22 @@ namespace Mirror
             // copy is no performance problem.
             foreach (NetworkConnectionToClient conn in connections.Values.ToList())
             {
+                // disconnect via connection->transport
                 conn.Disconnect();
+
+                // we want this function to be synchronous: handle disconnect
+                // events and clean up fully before returning.
+                // -> OnTransportDisconnected can safely be called without
+                //    waiting for the Transport's callback.
+                // -> it has checks to only run once.
+
                 // call OnDisconnected unless local player in host mode
                 if (conn.connectionId != NetworkConnection.LocalConnectionId)
-                    OnDisconnected(conn);
+                    OnTransportDisconnected(conn.connectionId);
             }
+
+            // TODO this technically clears the local connection too.
+            // which the function name would not suggest.
             connections.Clear();
         }
 
