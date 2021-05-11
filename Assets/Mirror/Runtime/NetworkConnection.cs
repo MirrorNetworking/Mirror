@@ -153,7 +153,7 @@ namespace Mirror
         }
 
         // TODO move to server's NetworkConnectionToClient?
-        internal void RemoveObservers()
+        internal void RemoveFromObservingsObservers()
         {
             foreach (NetworkIdentity netIdentity in observing)
             {
