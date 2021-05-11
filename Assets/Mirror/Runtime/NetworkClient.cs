@@ -205,8 +205,9 @@ namespace Mirror
 
         // disconnect //////////////////////////////////////////////////////////
         /// <summary>Disconnect from server.</summary>
-        // Simply call NetworkConnection.Disconnect -> Transport.Disconnect.
-        // Cleanup happens in OnTransportDisconnected!
+        // IMPORTANT: calling Disconnect() asks Transport to Disconnect and then
+        //            Disconnects later in OnTransportDisconnected.
+        //            => it does NOT fully disconnect IMMEDIATELY!
         public static void Disconnect()
         {
             connection?.Disconnect();
