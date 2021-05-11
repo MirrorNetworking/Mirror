@@ -18,13 +18,10 @@ namespace Mirror
         }
 
         /// <summary>Disconnects this connection.</summary>
+        // IMPORTANT: calls Transport.Disconnect.
+        // Transport.OnDisconnected is then called at some point in the future.
         public override void Disconnect()
         {
-            // set not ready and handle clientscene disconnect in any case
-            // (might be client or host mode here)
-            // TODO remove redundant state. have one source of truth for .ready!
-            isReady = false;
-            NetworkClient.ready = false;
             Transport.activeTransport.ClientDisconnect();
         }
     }
