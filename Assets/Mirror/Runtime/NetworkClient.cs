@@ -207,6 +207,9 @@ namespace Mirror
         /// <summary>Disconnect from server.</summary>
         public static void Disconnect()
         {
+            // only if connected or connecting
+            if (connectState == ConnectState.Disconnected) return;
+
             connectState = ConnectState.Disconnected;
             ready = false;
 
