@@ -266,6 +266,11 @@ namespace Mirror
         }
 
         // called by Transport
+        // IMPORTANT: often times when disconnecting, we call this from Mirror
+        //            too because we want to remove the connection and handle
+        //            the disconnect immediately.
+        //            => which is fine as long as we guarantee it only runs once
+        //            => which we do by setting the state to Disconnected!
         static void OnTransportDisconnected()
         {
             // StopClient called from user code triggers Disconnected event
