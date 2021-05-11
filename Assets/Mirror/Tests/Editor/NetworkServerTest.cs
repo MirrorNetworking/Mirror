@@ -107,6 +107,13 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
         }
 
+        // helper function to update the transport and process all messages
+        public void UpdateTransport()
+        {
+            transport.ClientEarlyUpdate();
+            transport.ServerEarlyUpdate();
+        }
+
         [Test]
         public void IsActiveTest()
         {
