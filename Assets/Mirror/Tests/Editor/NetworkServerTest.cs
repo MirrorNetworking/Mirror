@@ -88,10 +88,12 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkServerTest
     {
+        MemoryTransport transport;
+
         [SetUp]
         public void SetUp()
         {
-            Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
+            Transport.activeTransport = transport = new GameObject().AddComponent<MemoryTransport>();
         }
 
         [TearDown]
@@ -101,7 +103,7 @@ namespace Mirror.Tests
             // shutdown should be called before setting activeTransport to null
             NetworkServer.Shutdown();
 
-            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
+            GameObject.DestroyImmediate(transport.gameObject);
             Transport.activeTransport = null;
         }
 
@@ -124,11 +126,11 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first: should work
-            Transport.activeTransport.OnServerConnected.Invoke(42);
+            transport.OnServerConnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // connect second: should fail
-            Transport.activeTransport.OnServerConnected.Invoke(43);
+            transport.OnServerConnected.Invoke(43);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
         }
 
@@ -144,7 +146,7 @@ namespace Mirror.Tests
             Assert.That(connectCalled, Is.False);
 
             // connect
-            Transport.activeTransport.OnServerConnected.Invoke(42);
+            transport.OnServerConnected.Invoke(42);
             Assert.That(connectCalled, Is.True);
         }
 
@@ -160,11 +162,11 @@ namespace Mirror.Tests
             Assert.That(disconnectCalled, Is.False);
 
             // connect
-            Transport.activeTransport.OnServerConnected.Invoke(42);
+            transport.OnServerConnected.Invoke(42);
             Assert.That(disconnectCalled, Is.False);
 
             // disconnect
-            Transport.activeTransport.OnServerDisconnected.Invoke(42);
+            transport.OnServerDisconnected.Invoke(42);
             Assert.That(disconnectCalled, Is.True);
         }
 
@@ -177,22 +179,22 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first
-            Transport.activeTransport.OnServerConnected.Invoke(42);
+            transport.OnServerConnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
 
             // connect second
-            Transport.activeTransport.OnServerConnected.Invoke(43);
+            transport.OnServerConnected.Invoke(43);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
             Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
 
             // disconnect second
-            Transport.activeTransport.OnServerDisconnected.Invoke(43);
+            transport.OnServerDisconnected.Invoke(43);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
 
             // disconnect first
-            Transport.activeTransport.OnServerDisconnected.Invoke(42);
+            transport.OnServerDisconnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
@@ -211,11 +213,11 @@ namespace Mirror.Tests
             // connect 0
             // (it will show an error message, which is expected)
             LogAssert.ignoreFailingMessages = true;
-            Transport.activeTransport.OnServerConnected.Invoke(0);
+            transport.OnServerConnected.Invoke(0);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect == 0 should fail
-            Transport.activeTransport.OnServerConnected.Invoke(0);
+            transport.OnServerConnected.Invoke(0);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             LogAssert.ignoreFailingMessages = false;
         }
@@ -229,12 +231,12 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first
-            Transport.activeTransport.OnServerConnected.Invoke(42);
+            transport.OnServerConnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             NetworkConnectionToClient original = NetworkServer.connections[42];
 
             // connect duplicate - shouldn't overwrite first one
-            Transport.activeTransport.OnServerConnected.Invoke(42);
+            transport.OnServerConnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(original));
         }
@@ -365,6 +367,10 @@ namespace Mirror.Tests
 
             // disconnect all connections
             NetworkServer.DisconnectAllExternalConnections();
+
+            // update transports. OnTransportDisconnected should be fired and
+            // clear all connections.
+
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
@@ -426,7 +432,7 @@ namespace Mirror.Tests
             // -> should call NetworkServer.OnDataReceived
             //    -> conn.TransportReceive
             //       -> Handler(CommandMessage)
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, segment, 0);
+            transport.OnServerDataReceived.Invoke(42, segment, 0);
 
             // was our message handler called now?
             Assert.That(wasReceived, Is.True);
@@ -462,7 +468,7 @@ namespace Mirror.Tests
             // call transport.OnDataReceived with an invalid connectionId
             // an error log is expected.
             LogAssert.ignoreFailingMessages = true;
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, segment, 0);
+            transport.OnServerDataReceived.Invoke(42, segment, 0);
             LogAssert.ignoreFailingMessages = false;
 
             // message handler should never be called
@@ -529,7 +535,7 @@ namespace Mirror.Tests
             // call transport.OnDataReceived with the message
             // -> calls NetworkServer.OnClientReadyMessage
             //    -> calls SetClientReady(conn)
-            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+            transport.OnServerDataReceived.Invoke(0, segment, 0);
 
             // ready?
             Assert.That(connection.isReady, Is.True);
@@ -590,7 +596,7 @@ namespace Mirror.Tests
             // call transport.OnDataReceived with the message
             // -> calls NetworkServer.OnRemovePlayerMessage
             //    -> destroys conn.identity and sets it to null
-            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+            transport.OnServerDataReceived.Invoke(0, segment, 0);
 
             // was the command called in the first component, not in the second one?
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -602,7 +608,7 @@ namespace Mirror.Tests
             writer = new NetworkWriter();
             MessagePacking.Pack(message, writer);
             segment = writer.ToArraySegment();
-            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+            transport.OnServerDataReceived.Invoke(0, segment, 0);
 
             // was the command called in the second component, not in the first one?
             Assert.That(comp0.called, Is.EqualTo(0));
@@ -614,7 +620,7 @@ namespace Mirror.Tests
             identity.connectionToClient = new LocalConnectionToClient();
             comp0.called = 0;
             comp1.called = 0;
-            Transport.activeTransport.OnServerDataReceived.Invoke(0, segment, 0);
+            transport.OnServerDataReceived.Invoke(0, segment, 0);
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(0));
             // restore authority
@@ -629,7 +635,7 @@ namespace Mirror.Tests
             ArraySegment<byte> segmentWrongNetId = writer.ToArraySegment();
             comp0.called = 0;
             comp1.called = 0;
-            Transport.activeTransport.OnServerDataReceived.Invoke(0, segmentWrongNetId, 0);
+            transport.OnServerDataReceived.Invoke(0, segmentWrongNetId, 0);
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(0));
 
@@ -725,7 +731,7 @@ namespace Mirror.Tests
             // serialize first message, send it to server, check if it was handled
             NetworkWriter writer = new NetworkWriter();
             MessagePacking.Pack(new TestMessage1(), writer);
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            transport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             Assert.That(variant1Called, Is.EqualTo(1));
 
             // unregister first handler, send, should fail
@@ -734,7 +740,7 @@ namespace Mirror.Tests
             MessagePacking.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            transport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             LogAssert.ignoreFailingMessages = false;
             // still 1, not 2
             Assert.That(variant1Called, Is.EqualTo(1));
@@ -746,7 +752,7 @@ namespace Mirror.Tests
             MessagePacking.Pack(new TestMessage1(), writer);
             // log error messages are expected
             LogAssert.ignoreFailingMessages = true;
-            Transport.activeTransport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            transport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
             LogAssert.ignoreFailingMessages = false;
         }
 
@@ -1018,7 +1024,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localClientActive, Is.True);
 
             // connect
-            Transport.activeTransport.OnServerConnected.Invoke(42);
+            transport.OnServerConnected.Invoke(42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // shutdown
