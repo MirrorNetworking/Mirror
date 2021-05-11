@@ -120,15 +120,7 @@ namespace Mirror
             DisconnectInternal();
 
             // THIS WAS PREVIOUSLY IN NETWORKCLIENT.DISCONNECT:
-
-            // call client OnDisconnected with connection to server
-            // => previously we used to send a DisconnectMessage to
-            //    NetworkServer.localConnection. this would queue the
-            //    message until NetworkClient.Update processes it.
-            // => invoking the client's OnDisconnected event directly
-            //    here makes tests fail. so let's do it exactly the same
-            //    order as before by queueing the event for next Update!
-            //OnDisconnectedEvent?.Invoke(connection);
+            // TODO move into DisconnectInternal? or not?
             QueueDisconnectedEvent();
             NetworkServer.RemoveLocalConnection();
         }
