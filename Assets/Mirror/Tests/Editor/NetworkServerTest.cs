@@ -360,9 +360,8 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void DisconnectAllConnectionsTest()
+        public void DisconnectAllTest_RemoteConnection()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -373,7 +372,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // disconnect all connections
-            NetworkServer.DisconnectAllExternalConnections();
+            NetworkServer.DisconnectAll();
 
             // update transports. OnTransportDisconnected should be fired and
             // clear all connections.
@@ -382,9 +381,8 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void DisconnectAllTest()
+        public void DisconnectAllTest_LocalConnection()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));

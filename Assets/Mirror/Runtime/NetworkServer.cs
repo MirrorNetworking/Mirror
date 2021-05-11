@@ -507,16 +507,8 @@ namespace Mirror
 
         // disconnect //////////////////////////////////////////////////////////
         /// <summary>Disconnect all connections, including the local connection.</summary>
-        public static void DisconnectAll()
-        {
-            DisconnectAllExternalConnections();
-            localConnection = null;
-            active = false;
-        }
-
-        /// <summary>Disconnect all currently connected clients except the local connection.</summary>
         // synchronous: handles disconnect events and cleans up fully before returning!
-        public static void DisconnectAllExternalConnections()
+        public static void DisconnectAll()
         {
             // disconnect and remove all connections.
             // we can not use foreach here because if
@@ -540,18 +532,24 @@ namespace Mirror
                 //    waiting for the Transport's callback.
                 // -> it has checks to only run once.
 
-                // call OnDisconnected unless local player in host mode
+                // call OnDisconnected unless local player in host mod
+                // TODO unnecessary check?
                 if (conn.connectionId != NetworkConnection.LocalConnectionId)
                     OnTransportDisconnected(conn.connectionId);
             }
 
-            // TODO this technically clears the local connection too.
-            // which the function name would not suggest.
+            // cleanup
             connections.Clear();
+            localConnection = null;
+            active = false;
         }
 
-        [Obsolete("DisconnectAllConnections was renamed to DisconnectAllExternalConnections because that's what it does.")]
-        public static void DisconnectAllConnections() => DisconnectAllExternalConnections();
+        /// <summary>Disconnect all currently connected clients except the local connection.</summary>
+        [Obsolete("Call NetworkClient.DisconnectAll() instead")]
+        public static void DisconnectAllExternalConnections() => DisconnectAll();
+
+        [Obsolete("Call NetworkClient.DisconnectAll() instead")]
+        public static void DisconnectAllConnections() => DisconnectAll();
 
         // add/remove/replace player ///////////////////////////////////////////
         /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>
