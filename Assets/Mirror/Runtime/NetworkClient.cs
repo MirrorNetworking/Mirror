@@ -216,18 +216,10 @@ namespace Mirror
             // local or remote connection?
             if (isLocalClient)
             {
-                if (isConnected)
-                {
-                    // call client OnDisconnected with connection to server
-                    // => previously we used to send a DisconnectMessage to
-                    //    NetworkServer.localConnection. this would queue the
-                    //    message until NetworkClient.Update processes it.
-                    // => invoking the client's OnDisconnected event directly
-                    //    here makes tests fail. so let's do it exactly the same
-                    //    order as before by queueing the event for next Update!
-                    //OnDisconnectedEvent?.Invoke(connection);
-                    ((LocalConnectionToServer)connection).QueueDisconnectedEvent();
-                }
+                // isConnected is always false because set to Disconnected above
+                // leaving this here in case we did actually need it.
+                //if (isConnected)
+                //    ((LocalConnectionToServer)connection).QueueDisconnectedEvent();
                 NetworkServer.RemoveLocalConnection();
             }
             else
