@@ -207,24 +207,14 @@ namespace Mirror
         /// <summary>Disconnect from server.</summary>
         public static void Disconnect()
         {
+            if (connectState == ConnectState.Disconnected) return;
+
             connectState = ConnectState.Disconnected;
             ready = false;
 
             // local or remote connection?
             if (isLocalClient)
             {
-                if (isConnected)
-                {
-                    // call client OnDisconnected with connection to server
-                    // => previously we used to send a DisconnectMessage to
-                    //    NetworkServer.localConnection. this would queue the
-                    //    message until NetworkClient.Update processes it.
-                    // => invoking the client's OnDisconnected event directly
-                    //    here makes tests fail. so let's do it exactly the same
-                    //    order as before by queueing the event for next Update!
-                    //OnDisconnectedEvent?.Invoke(connection);
-                    ((LocalConnectionToServer)connection).QueueDisconnectedEvent();
-                }
                 NetworkServer.RemoveLocalConnection();
             }
             else
@@ -1278,6 +1268,9 @@ namespace Mirror
         }
 
         /// <summary>Shutdown the client.</summary>
+        //  Do not call NetworkClient.Disconnect or activeTranspoort.ClientDisconnect here!
+        //  This is only called from one place, NetworkManager.StopClient, which calls
+        //  NetworkClient.Disconnect right before calling this.
         public static void Shutdown()
         {
             Debug.Log("Shutting down client.");
@@ -1288,12 +1281,6 @@ namespace Mirror
             DestroyAllClientObjects();
             connectState = ConnectState.None;
             handlers.Clear();
-            // disconnect the client connection.
-            // we do NOT call Transport.Shutdown, because someone only called
-            // NetworkClient.Shutdown. we can't assume that the server is
-            // supposed to be shut down too!
-            if (Transport.activeTransport != null)
-                Transport.activeTransport.ClientDisconnect();
         }
     }
 }
