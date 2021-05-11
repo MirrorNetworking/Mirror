@@ -287,8 +287,6 @@ namespace Mirror
                 }
                 NetworkServer.RemoveLocalConnection();
             }
-            // remote connection
-            else connection.Disconnect();
 
             // call OnDisconnected event. NetworkManager hooks into it.
             OnDisconnectedEvent?.Invoke();
