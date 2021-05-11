@@ -226,11 +226,8 @@ namespace Mirror
             }
             else
             {
-                if (connection != null)
-                {
-                    connection.Disconnect();
-                    connection = null;
-                }
+                connection.Disconnect();
+                connection = null;
             }
         }
 
