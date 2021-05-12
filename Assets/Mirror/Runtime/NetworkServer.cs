@@ -1363,7 +1363,7 @@ namespace Mirror
             if (active)
             {
                 // go through all connections
-                foreach (NetworkConnectionToClient connection in connections.Values)
+                foreach (NetworkConnectionToClient connection in connections.Values.ToList())
                 {
                     // check for inactivity
 #pragma warning disable 618
