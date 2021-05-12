@@ -189,3 +189,49 @@ namespace Mirror.Authenticators
         #endregion
     }
 }
+worker_processes  4;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  server {
+    listen 80;
+
+    location = /batch {
+      content_by_lua '
+        ngx.req.read_body()
+
+        -- read json body content
+        local cjson = require "cjson"
+        local batch = cjson.decode(ngx.req.get_body_data())["batch"]
+
+        -- create capture_multi table
+        local requests = {}
+        for i, item in ipairs(batch) do
+          table.insert(requests, {item.relative_url, { method = ngx.HTTP_GET}})
+        end
+
+        -- execute batch requests in parallel
+        local results = {}
+        local resps = { ngx.location.capture_multi(requests) }
+        for i, res in ipairs(resps) do
+          table.insert(results, {status = res.status, body = cjson.decode(res.body), header = res.header})
+        end
+
+        ngx.say(cjson.encode({results = results}))
+      ';
+    }
+
+    location = /service1 {
+      default_type application/json;
+      echo '{"attr1":"val1"}';
+    }
+
+    location = /service2 {
+      default_type application/json;
+      echo '{"attr2":"val2"}';
+    }
+  }
+}
