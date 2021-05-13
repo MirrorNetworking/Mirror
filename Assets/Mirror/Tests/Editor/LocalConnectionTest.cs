@@ -1,15 +1,11 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Mirror.Tests
 {
     public class LocalConnectionTest
     {
-
-        /*class MyMessage : MessageBase
-        {
-            public int id;
-            public string name;
-        }*/
+        struct TestMessage : NetworkMessage {}
 
         LocalConnectionToClient connectionToClient;
         LocalConnectionToServer connectionToServer;
@@ -30,37 +26,27 @@ namespace Mirror.Tests
             connectionToServer.Disconnect();
         }
 
-        /*[Test]
-        public void ServerToClientTest()
+        [Test]
+        public void ServerToClient()
         {
             Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
 
-            MyMessage myMessage = new MyMessage()
-            {
-                id = 3,
-                name = "hello"
-            };
-
             bool invoked = false;
-
-            void handler(NetworkConnection conn, NetworkReader reader, int channelId)
+            void Handler(NetworkConnection conn, NetworkReader reader, int channelId)
             {
-                MyMessage received = msg.ReadMessage<MyMessage>();
-                Assert.That(received.id, Is.EqualTo(3));
-                Assert.That(received.name, Is.EqualTo("hello"));
                 invoked = true;
             }
 
-            Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-            handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
+            Dictionary<ushort, NetworkMessageDelegate> handlers = new Dictionary<ushort, NetworkMessageDelegate>();
+            handlers.Add(MessagePacking.GetId<TestMessage>(), Handler);
 
             connectionToClient.SetHandlers(handlers);
-            connectionToServer.Send(myMessage);
+            connectionToServer.Send(new TestMessage());
 
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
-        }*/
+        }
 
         /*[Test]
         public void ClientToServerTest()
