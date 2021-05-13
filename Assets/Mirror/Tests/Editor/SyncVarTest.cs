@@ -13,7 +13,6 @@ namespace Mirror.Tests.SyncVarTests
 
         [SyncVar]
         public Guild guild;
-
     }
 
     class SyncVarGameObject : NetworkBehaviour
@@ -42,7 +41,6 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSettingStruct()
         {
-
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
@@ -71,7 +69,6 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSyncIntervalAndClearDirtyComponents()
         {
-
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
@@ -100,7 +97,6 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSyncIntervalAndClearAllComponents()
         {
-
             GameObject gameObject = new GameObject();
 
             MockPlayer player = gameObject.AddComponent<MockPlayer>();
@@ -157,7 +153,6 @@ namespace Mirror.Tests.SyncVarTests
             // check that the syncvars got updated
             Assert.That(player2.guild.name, Is.EqualTo("Back street boys"), "Data should be synchronized");
         }
-
 
         [Test]
         [TestCase(true)]
