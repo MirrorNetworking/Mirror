@@ -179,7 +179,6 @@ namespace Mirror.Tests
         [Test]
         public void ConnectionsDict()
         {
-
             // listen
             NetworkServer.Listen(2);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -211,7 +210,6 @@ namespace Mirror.Tests
             // 0 is for local player
             // <0 is never used
 
-
             // listen
             NetworkServer.Listen(2);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -231,7 +229,6 @@ namespace Mirror.Tests
         [Test]
         public void ConnectDuplicateConnectionIds()
         {
-
             // listen
             NetworkServer.Listen(2);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
