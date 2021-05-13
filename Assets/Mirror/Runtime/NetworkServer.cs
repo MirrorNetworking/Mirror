@@ -1093,11 +1093,11 @@ namespace Mirror
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
-            ObjectDestroyMessage msg = new ObjectDestroyMessage
+            ObjectDestroyMessage message = new ObjectDestroyMessage
             {
                 netId = identity.netId
             };
-            SendToObservers(identity, msg);
+            SendToObservers(identity, message);
 
             identity.ClearObservers();
             if (NetworkClient.active && localClientActive)
