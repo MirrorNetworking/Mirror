@@ -335,7 +335,6 @@ namespace Mirror.Tests
         [Test]
         public void RemoveConnection()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -401,7 +400,6 @@ namespace Mirror.Tests
         [Test]
         public void OnDataReceived()
         {
-
             // add one custom message handler
             bool wasReceived = false;
             NetworkConnection connectionReceived = null;
@@ -443,7 +441,6 @@ namespace Mirror.Tests
         [Test]
         public void OnDataReceivedInvalidConnectionId()
         {
-
             // add one custom message handler
             bool wasReceived = false;
             NetworkConnection connectionReceived = null;
