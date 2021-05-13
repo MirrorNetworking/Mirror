@@ -299,7 +299,6 @@ namespace Mirror.Tests
         [Test]
         public void AddConnection()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
