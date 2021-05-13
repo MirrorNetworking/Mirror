@@ -127,7 +127,6 @@ namespace Mirror.Tests
         [Test]
         public void MaxConnections()
         {
-
             // listen with maxconnections=1
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -142,7 +141,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ConnectMessageHandler()
+        public void OnConnectedEventCalled()
         {
             // message handlers
             bool connectCalled = false;
@@ -158,7 +157,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void DisconnectMessageHandler()
+        public void OnDisconnectedEventCalled()
         {
             // message handlers
             bool disconnectCalled = false;
