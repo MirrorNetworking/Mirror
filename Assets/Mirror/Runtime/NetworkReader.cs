@@ -394,6 +394,7 @@ namespace Mirror
             return result;
         }
 
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public static Uri ReadUri(this NetworkReader reader)
         {
             return new Uri(reader.ReadString());

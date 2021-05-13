@@ -145,6 +145,7 @@ namespace Mirror
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public static void Connect(Uri uri)
         {
             // Debug.Log("Client Connect: " + uri);

@@ -55,6 +55,7 @@ namespace Mirror
         public abstract void ClientConnect(string address);
 
         /// <summary>Connects the client to the server at the Uri.</summary>
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public virtual void ClientConnect(Uri uri)
         {
             // By default, to keep backwards compatibility, just connect to the host

@@ -133,6 +133,7 @@ namespace Mirror.Tests
         }
 
         [Test]
+#pragma warning disable 618
         public void StartClientUriTest()
         {
             UriBuilder uriBuilder = new UriBuilder
@@ -146,5 +147,6 @@ namespace Mirror.Tests
             Assert.That(manager.isNetworkActive, Is.EqualTo(true));
             Assert.That(manager.networkAddress, Is.EqualTo(uriBuilder.Uri.Host));
         }
+#pragma warning restore 618
     }
 }

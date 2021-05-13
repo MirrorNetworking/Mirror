@@ -113,6 +113,7 @@ namespace Mirror.Tests
         }
 
         public override bool ServerActive() => serverActive;
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public override Uri ServerUri() => throw new NotImplementedException();
         public override void ServerStart() { serverActive = true; }
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)

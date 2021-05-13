@@ -123,6 +123,7 @@ namespace Mirror
         // client
         public override bool ClientConnected() => client.Connected;
         public override void ClientConnect(string address) => client.Connect(address, port);
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public override void ClientConnect(Uri uri)
         {
             if (uri.Scheme != Scheme)
@@ -148,6 +149,7 @@ namespace Mirror
         }
 
         // server
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public override Uri ServerUri()
         {
             UriBuilder builder = new UriBuilder();

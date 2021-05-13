@@ -36,6 +36,7 @@ namespace Mirror.Tests
             Assert.That(NetworkClient.isConnected, Is.True);
         }
 
+#pragma warning disable 618
         [Test]
         public void ConnectUri()
         {
@@ -44,6 +45,7 @@ namespace Mirror.Tests
             UpdateTransport();
             Assert.That(NetworkClient.isConnected, Is.True);
         }
+#pragma warning restore 618
 
         [Test]
         public void DisconnectInHostMode()

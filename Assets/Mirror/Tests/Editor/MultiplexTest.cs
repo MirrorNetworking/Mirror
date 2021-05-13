@@ -64,6 +64,7 @@ namespace Mirror.Tests
         }
 
         // A Test behaves as an ordinary method
+#pragma warning disable 618
         [Test]
         public void TestConnectFirstUri()
         {
@@ -76,9 +77,10 @@ namespace Mirror.Tests
             transport1.Received().ClientConnect(uri);
             transport2.DidNotReceive().ClientConnect(uri);
         }
-
+#pragma warning restore 61
 
         // A Test behaves as an ordinary method
+#pragma warning disable 618
         [Test]
         public void TestConnectSecondUri()
         {
@@ -96,6 +98,7 @@ namespace Mirror.Tests
             transport.ClientConnect(uri);
             transport2.Received().ClientConnect(uri);
         }
+#pragma warning restore 618
 
         [Test]
         public void TestConnected()

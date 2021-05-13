@@ -413,6 +413,7 @@ namespace Mirror
             }
         }
 
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
             writer.WriteString(uri.ToString());

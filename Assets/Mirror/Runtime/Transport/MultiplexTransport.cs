@@ -101,6 +101,7 @@ namespace Mirror
             throw new ArgumentException("No transport suitable for this platform");
         }
 
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public override void ClientConnect(Uri uri)
         {
             foreach (Transport transport in transports)
@@ -198,6 +199,7 @@ namespace Mirror
 
         // for now returns the first uri,
         // should we return all available uris?
+        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
         public override Uri ServerUri()
         {
             return transports[0].ServerUri();

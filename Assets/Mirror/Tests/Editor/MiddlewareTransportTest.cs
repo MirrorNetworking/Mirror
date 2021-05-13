@@ -176,6 +176,7 @@ namespace Mirror.Tests
         [Test]
         [TestCase("tcp4://localhost:7777")]
         [TestCase("tcp4://example.com:7777")]
+#pragma warning disable 618
         public void TestServerUri(string address)
         {
             Uri uri = new Uri(address);
@@ -185,6 +186,7 @@ namespace Mirror.Tests
 
             inner.Received(1).ServerUri();
         }
+#pragma warning restore 618
 
         [Test]
         public void TestClientConnectedCallback()
