@@ -1285,6 +1285,7 @@ namespace Mirror
             // supposed to be shut down too!
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ClientDisconnect();
+            connection = null;
         }
     }
 }
