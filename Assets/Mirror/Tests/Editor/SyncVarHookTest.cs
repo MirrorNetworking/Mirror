@@ -111,7 +111,6 @@ namespace Mirror.Tests.SyncVarTests
         }
     }
 
-
     public class SyncVarHookTest : SyncVarTestBase
     {
         [Test]
