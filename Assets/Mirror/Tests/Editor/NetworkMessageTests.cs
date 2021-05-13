@@ -44,22 +44,22 @@ namespace Mirror.Tests.MessageTests
         [Test]
         public void StructWithMethods()
         {
-            byte[] arr = MessagePackingTest.PackToByteArray(new TestMessage(1, "2", 3.3));
-            TestMessage t = MessagePackingTest.UnpackFromByteArray<TestMessage>(arr);
+            byte[] bytes = MessagePackingTest.PackToByteArray(new TestMessage(1, "2", 3.3));
+            TestMessage message = MessagePackingTest.UnpackFromByteArray<TestMessage>(bytes);
 
-            Assert.AreEqual(1, t.IntValue);
+            Assert.AreEqual(1, message.IntValue);
         }
 
         // without Serialize/Deserialize. Weaver should handle it.
         [Test]
         public void StructWithEmptyMethods()
         {
-            byte[] arr = MessagePackingTest.PackToByteArray(new StructWithEmptyMethodMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
-            StructWithEmptyMethodMessage t = MessagePackingTest.UnpackFromByteArray<StructWithEmptyMethodMessage>(arr);
+            byte[] bytes = MessagePackingTest.PackToByteArray(new StructWithEmptyMethodMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
+            StructWithEmptyMethodMessage message = MessagePackingTest.UnpackFromByteArray<StructWithEmptyMethodMessage>(bytes);
 
-            Assert.AreEqual(1, t.IntValue);
-            Assert.AreEqual("2", t.StringValue);
-            Assert.AreEqual(3.3, t.DoubleValue);
+            Assert.AreEqual(1, message.IntValue);
+            Assert.AreEqual("2", message.StringValue);
+            Assert.AreEqual(3.3, message.DoubleValue);
         }
     }
 }
