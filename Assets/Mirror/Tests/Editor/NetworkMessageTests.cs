@@ -40,6 +40,7 @@ namespace Mirror.Tests.MessageTests
     [TestFixture]
     public class NetworkMessageTests
     {
+        // with Serialize/Deserialize
         [Test]
         public void StructWithMethods()
         {
@@ -49,6 +50,7 @@ namespace Mirror.Tests.MessageTests
             Assert.AreEqual(1, t.IntValue);
         }
 
+        // without Serialize/Deserialize. Weaver should handle it.
         [Test]
         public void StructWithEmptyMethods()
         {
