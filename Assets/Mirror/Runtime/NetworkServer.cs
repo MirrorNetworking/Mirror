@@ -955,6 +955,8 @@ namespace Mirror
                 return false;
 
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
+
+            // first pass: activate all scene objects
             foreach (NetworkIdentity identity in identities)
             {
                 if (ValidateSceneObject(identity))
@@ -964,6 +966,7 @@ namespace Mirror
                 }
             }
 
+            // second pass: spawn all scene objects
             foreach (NetworkIdentity identity in identities)
             {
                 if (ValidateSceneObject(identity))
