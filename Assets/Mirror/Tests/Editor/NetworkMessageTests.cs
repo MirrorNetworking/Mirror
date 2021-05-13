@@ -38,7 +38,7 @@ namespace Mirror.Tests.MessageTests
     }
 
     [TestFixture]
-    public class MessageBaseTests
+    public class NetworkMessageTests
     {
         [Test]
         public void StructWithMethods()
