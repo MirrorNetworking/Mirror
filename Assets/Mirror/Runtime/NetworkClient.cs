@@ -329,8 +329,8 @@ namespace Mirror
             // we use the same WrapHandler function for server and client.
             // so let's wrap it to ignore the NetworkConnection parameter.
             // it's not needed on client. it's always NetworkClient.connection.
-            Action<NetworkConnection, T> handlerWrapped = (_, value) => { handler(value); };
-            handlers[msgType] = MessagePacking.WrapHandler(handlerWrapped, requireAuthentication);
+            void HandlerWrapped(NetworkConnection _, T value) => handler(value);
+            handlers[msgType] = MessagePacking.WrapHandler((Action<NetworkConnection, T>) HandlerWrapped, requireAuthentication);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
