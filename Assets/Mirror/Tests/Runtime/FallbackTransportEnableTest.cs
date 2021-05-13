@@ -8,6 +8,7 @@ namespace Mirror.Tests.Runtime.TransportEnableTest
     {
         Transport transport1;
         MemoryTransport transport2;
+#pragma warning disable 618
         FallbackTransport transport;
 
         [SetUp]
@@ -25,6 +26,7 @@ namespace Mirror.Tests.Runtime.TransportEnableTest
 
             gameObject.SetActive(true);
         }
+#pragma warning restore 618
 
         [TearDown]
         public void TearDown()
