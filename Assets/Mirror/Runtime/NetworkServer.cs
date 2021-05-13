@@ -469,6 +469,7 @@ namespace Mirror
         }
 
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
+        [Obsolete("We are considering to remove ReplaceHandler<T>. If you have a good reason why we should keep it, please let us know.")]
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
@@ -477,6 +478,7 @@ namespace Mirror
         }
 
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
+        [Obsolete("We are considering to remove ReplaceHandler<T>. If you have a good reason why we should keep it, please let us know.")]
         public static void ReplaceHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
