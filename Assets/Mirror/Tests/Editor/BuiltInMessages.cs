@@ -33,100 +33,87 @@ namespace Mirror.Tests.MessageTests
         [Test]
         public void NetworkPingMessage()
         {
-            // try setting value with constructor
             NetworkPingMessage message = new NetworkPingMessage(DateTime.Now.ToOADate());
             byte[] arr = MessagePackingTest.PackToByteArray(message);
+
             NetworkPingMessage fresh = MessagePackingTest.UnpackFromByteArray<NetworkPingMessage>(arr);
-            Assert.That(fresh.clientTime, Is.EqualTo(message.clientTime));
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
         public void NetworkPongMessage()
         {
-            // try setting value with constructor
             NetworkPongMessage message = new NetworkPongMessage
             {
                 clientTime = DateTime.Now.ToOADate(),
                 serverTime = DateTime.Now.ToOADate(),
             };
             byte[] arr = MessagePackingTest.PackToByteArray(message);
+
             NetworkPongMessage fresh = MessagePackingTest.UnpackFromByteArray<NetworkPongMessage>(arr);
-            Assert.That(fresh.clientTime, Is.EqualTo(message.clientTime));
-            Assert.That(fresh.serverTime, Is.EqualTo(message.serverTime));
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
         public void NotReadyMessage()
         {
-            // try setting value with constructor
             NotReadyMessage message = new NotReadyMessage();
             byte[] arr = MessagePackingTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                NotReadyMessage fresh = MessagePackingTest.UnpackFromByteArray<NotReadyMessage>(arr);
-            });
+
+            NotReadyMessage fresh = MessagePackingTest.UnpackFromByteArray<NotReadyMessage>(arr);
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
         public void ObjectDestroyMessage()
         {
             // try setting value with constructor
-            ObjectDestroyMessage message = new ObjectDestroyMessage
-            {
-                netId = 42,
-            };
+            ObjectDestroyMessage message = new ObjectDestroyMessage{ netId = 42 };
             byte[] arr = MessagePackingTest.PackToByteArray(message);
+
             ObjectDestroyMessage fresh = MessagePackingTest.UnpackFromByteArray<ObjectDestroyMessage>(arr);
-            Assert.That(fresh.netId, Is.EqualTo(message.netId));
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
         public void ObjectHideMessage()
         {
             // try setting value with constructor
-            ObjectHideMessage message = new ObjectHideMessage
-            {
-                netId = 42,
-            };
+            ObjectHideMessage message = new ObjectHideMessage{ netId = 42};
             byte[] arr = MessagePackingTest.PackToByteArray(message);
+
             ObjectHideMessage fresh = MessagePackingTest.UnpackFromByteArray<ObjectHideMessage>(arr);
-            Assert.That(fresh.netId, Is.EqualTo(message.netId));
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
         public void ObjectSpawnFinishedMessage()
         {
-            // try setting value with constructor
             ObjectSpawnFinishedMessage message = new ObjectSpawnFinishedMessage();
             byte[] arr = MessagePackingTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                ObjectSpawnFinishedMessage fresh = MessagePackingTest.UnpackFromByteArray<ObjectSpawnFinishedMessage>(arr);
-            });
+
+            ObjectSpawnFinishedMessage fresh = MessagePackingTest.UnpackFromByteArray<ObjectSpawnFinishedMessage>(arr);
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
         public void ObjectSpawnStartedMessage()
         {
-            // try setting value with constructor
             ObjectSpawnStartedMessage message = new ObjectSpawnStartedMessage();
             byte[] arr = MessagePackingTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                ObjectSpawnStartedMessage fresh = MessagePackingTest.UnpackFromByteArray<ObjectSpawnStartedMessage>(arr);
-            });
+
+            ObjectSpawnStartedMessage fresh = MessagePackingTest.UnpackFromByteArray<ObjectSpawnStartedMessage>(arr);
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
         public void ReadyMessage()
         {
-            // try setting value with constructor
             ReadyMessage message = new ReadyMessage();
             byte[] arr = MessagePackingTest.PackToByteArray(message);
-            Assert.DoesNotThrow(() =>
-            {
-                ReadyMessage fresh = MessagePackingTest.UnpackFromByteArray<ReadyMessage>(arr);
-            });
+
+            ReadyMessage fresh = MessagePackingTest.UnpackFromByteArray<ReadyMessage>(arr);
+            Assert.That(fresh, Is.EqualTo(message));
         }
 
         [Test]
@@ -141,6 +128,7 @@ namespace Mirror.Tests.MessageTests
                 payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
             };
             byte[] arr = MessagePackingTest.PackToByteArray(message);
+
             RpcMessage fresh = MessagePackingTest.UnpackFromByteArray<RpcMessage>(arr);
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
             Assert.That(fresh.componentIndex, Is.EqualTo(message.componentIndex));
