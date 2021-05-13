@@ -115,7 +115,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void IsActiveTest()
+        public void IsActive()
         {
             Assert.That(NetworkServer.active, Is.False);
             NetworkServer.Listen(1);
@@ -125,7 +125,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void MaxConnectionsTest()
+        public void MaxConnections()
         {
 
             // listen with maxconnections=1
@@ -142,7 +142,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ConnectMessageHandlerTest()
+        public void ConnectMessageHandler()
         {
             // message handlers
             bool connectCalled = false;
@@ -158,7 +158,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void DisconnectMessageHandlerTest()
+        public void DisconnectMessageHandler()
         {
             // message handlers
             bool disconnectCalled = false;
@@ -178,7 +178,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ConnectionsDictTest()
+        public void ConnectionsDict()
         {
 
             // listen
@@ -206,7 +206,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnConnectedOnlyAllowsNonZeroConnectionIdsTest()
+        public void OnConnectedOnlyAllowsNonZeroConnectionIds()
         {
             // OnConnected should only allow connectionIds >= 0
             // 0 is for local player
@@ -230,7 +230,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ConnectDuplicateConnectionIdsTest()
+        public void ConnectDuplicateConnectionIds()
         {
 
             // listen
@@ -249,7 +249,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SetLocalConnectionTest()
+        public void SetLocalConnection()
         {
             // listen
             NetworkServer.Listen(1);
@@ -269,7 +269,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RemoveLocalConnectionTest()
+        public void RemoveLocalConnection()
         {
             // listen
             NetworkServer.Listen(1);
@@ -289,7 +289,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void LocalClientActiveTest()
+        public void LocalClientActive()
         {
             // listen
             NetworkServer.Listen(1);
@@ -301,7 +301,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void AddConnectionTest()
+        public void AddConnection()
         {
 
             // listen
@@ -338,7 +338,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RemoveConnectionTest()
+        public void RemoveConnection()
         {
 
             // listen
@@ -404,7 +404,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnDataReceivedTest()
+        public void OnDataReceived()
         {
 
             // add one custom message handler
@@ -446,7 +446,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnDataReceivedInvalidConnectionIdTest()
+        public void OnDataReceivedInvalidConnectionId()
         {
 
             // add one custom message handler
@@ -482,7 +482,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SetClientReadyAndNotReadyTest()
+        public void SetClientReadyAndNotReady()
         {
             LocalConnectionToClient connection = new LocalConnectionToClient();
             connection.connectionToServer = new LocalConnectionToServer();
@@ -496,7 +496,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SetAllClientsNotReadyTest()
+        public void SetAllClientsNotReady()
         {
             // add first ready client
             LocalConnectionToClient first = new LocalConnectionToClient();
@@ -517,7 +517,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ReadyMessageSetsClientReadyTest()
+        public void ReadyMessageSetsClientReady()
         {
             // listen
             NetworkServer.Listen(1);
@@ -549,7 +549,7 @@ namespace Mirror.Tests
         // this runs a command all the way:
         //   byte[]->transport->server->identity->component
         [Test]
-        public void CommandMessageCallsCommandTest()
+        public void CommandMessageCallsCommand()
         {
             // listen
             NetworkServer.Listen(1);
@@ -686,7 +686,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SendToAllTest()
+        public void SendToAll()
         {
 
             // listen
@@ -718,7 +718,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterUnregisterClearHandlerTest()
+        public void RegisterUnregisterClearHandler()
         {
             // RegisterHandler(conn, msg) variant
             int variant1Called = 0;
@@ -1017,7 +1017,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ShutdownCleanupTest()
+        public void ShutdownCleanup()
         {
 
             // listen
