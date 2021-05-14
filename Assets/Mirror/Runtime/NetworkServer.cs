@@ -1442,6 +1442,14 @@ namespace Mirror
                 // clear cached list
                 connectionsToDisconnect.Clear();
 
+                // world state can be huge, even bigger than transport max size.
+                // we only send what fits.
+                int transportMaxSize = Transport.activeTransport.GetMaxPacketSize(Channels.Reliable);
+
+                // we add a header before sending the world message.
+                // let's calculate world message max size without header.
+                int messageMaxSize = transportMaxSize - MessagePacking.HeaderSize;
+
                 // go through all connections
                 foreach (NetworkConnectionToClient connection in connections.Values)
                 {
@@ -1465,7 +1473,8 @@ namespace Mirror
                         PartialWorldStateMessage world = new PartialWorldStateMessage();
                         using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                         {
-                            // for each entity that this connection is seeing
+                            // for each entity that this connection is seeing,
+                            // sorted by priority (see NetworkConnection.observing)
                             foreach (NetworkIdentity identity in connection.observing)
                             {
                                 // make sure it's not null or destroyed.
@@ -1482,8 +1491,24 @@ namespace Mirror
                                     // TODO always write netId so we know it's still spawned?
                                     if (bytesWritten > 0)
                                     {
-                                        writer.WriteUInt32(identity.netId);
-                                        writer.WriteBytesAndSizeSegment(serialization.ToArraySegment());
+                                        // does this entity still fit into our
+                                        // WorldState?
+                                        // -> whatever we wrote into worldstate so far (rpcs etc.)
+                                        // -> + all our entity serialization so far (not in worldstate yet)
+                                        // -> + this one which is 4 bytes netId + 4 bytes payload size + payload size
+                                        int bytesNeeded = 4 + 4 + serialization.Position;
+                                        if (world.TotalSize() + writer.Position + bytesNeeded <= messageMaxSize)
+                                        {
+                                            writer.WriteUInt32(identity.netId);
+                                            writer.WriteBytesAndSizeSegment(serialization.ToArraySegment());
+                                        }
+                                        // otherwise we can stop constructing
+                                        // the world packet for this connection.
+                                        else
+                                        {
+                                            Debug.Log($"World construction for connId={connection.connectionId} full, skipping the rest.");
+                                            break;
+                                        }
                                     }
                                 }
                                 // spawned list should have no null entries because we
@@ -1496,13 +1521,9 @@ namespace Mirror
                             // put payload into message
                             world.entitiesPayload = writer.ToArraySegment();
 
-                            // world state can be huge.
-                            // need to make sure that transport can handle a
-                            // message of that size.
-                            // => we use MaxPacketSize. don't want to batch it.
-                            // => message header + content
-                            int maxSize = Transport.activeTransport.GetMaxPacketSize(Channels.Reliable);
-                            if (world.TotalSize() + MessagePacking.HeaderSize <= maxSize)
+                            // double check to make sure the end state fits into
+                            // transport max.
+                            if (world.TotalSize() + MessagePacking.HeaderSize <= transportMaxSize)
                             {
                                 // TODO SEND without batching
                                 connection.Send(world);
@@ -1511,7 +1532,7 @@ namespace Mirror
                             else
                             {
                                 // show a useful(!) message
-                                Debug.LogWarning($"Disconnecting connectionId={connection.connectionId} because the World around it with {world.TotalSize()} bytes doesn't fit into Transport {maxSize} max message size. Either optimize bandwidth or increase Transport max message size if possible.");
+                                Debug.LogError($"Disconnecting connectionId={connection.connectionId} because the World around it with {world.TotalSize()} bytes doesn't fit into Transport {transportMaxSize} max message size. This should never happen.");
 
                                 // disconnect that connection for now,
                                 // since we don't have a way to deal with it yet.
