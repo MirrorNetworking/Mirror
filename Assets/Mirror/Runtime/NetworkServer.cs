@@ -1404,6 +1404,31 @@ namespace Mirror
             return serializations[identity];
         }
 
+        // helper function to get the serialization that should be used for this
+        // NetworkConnection
+        // TODO out bytesWritten might not be needed anymore?
+        static NetworkWriter GetEntitySerializationForConnection(NetworkIdentity identity, NetworkConnection connection, out int bytesWritten)
+        {
+            // get serialization for this entity (cached)
+            Serialization serialization = GetEntitySerialization(identity);
+
+            // is this entity owned by this connection?
+            bool owned = identity.connectionToClient == connection;
+
+            // use owner writer if owned
+            if (owned)
+            {
+                bytesWritten = serialization.ownerWritten;
+                return serialization.ownerWriter;
+            }
+            // use observers writer if not owned
+            else
+            {
+                bytesWritten = serialization.observersWritten;
+                return serialization.observersWriter;
+            }
+        }
+
         // avoid allocations in NetworkLateUpdate
         static Queue<NetworkConnection> connectionsToDisconnect = new Queue<NetworkConnection>();
 
@@ -1450,32 +1475,15 @@ namespace Mirror
                                 if (identity != null)
                                 {
                                     // get serialization for this entity (cached)
-                                    Serialization serialization = GetEntitySerialization(identity);
+                                    // and this connection (depending on owned)
+                                    NetworkWriter serialization = GetEntitySerializationForConnection(identity, connection, out int bytesWritten);
 
-                                    // is this entity owned by this connection?
-                                    bool owned = identity.connectionToClient == connection;
-
-                                    // use owner writer if owned
-                                    if (owned)
+                                    // was it dirty / did we actually serialize anything?
+                                    // TODO always write netId so we know it's still spawned?
+                                    if (bytesWritten > 0)
                                     {
-                                        // was it dirty / did we actually serialize anything?
-                                        // TODO always write netId so we know it's still spawned?
-                                        if (serialization.ownerWritten > 0)
-                                        {
-                                            writer.WriteUInt32(identity.netId);
-                                            writer.WriteBytesAndSizeSegment(serialization.ownerWriter.ToArraySegment());
-                                        }
-                                    }
-                                    // use observers writer if not owned
-                                    else
-                                    {
-                                        // was it dirty / did we actually serialize anything?
-                                        // TODO always write netId so we know it's still spawned?
-                                        if (serialization.observersWritten > 0)
-                                        {
-                                            writer.WriteUInt32(identity.netId);
-                                            writer.WriteBytesAndSizeSegment(serialization.observersWriter.ToArraySegment());
-                                        }
+                                        writer.WriteUInt32(identity.netId);
+                                        writer.WriteBytesAndSizeSegment(serialization.ToArraySegment());
                                     }
                                 }
                                 // spawned list should have no null entries because we
