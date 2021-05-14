@@ -1400,6 +1400,8 @@ namespace Mirror
                                 // IMPORTANT: don't forget to return them to pool!
                                 // TODO make this easier later. for now aim for
                                 //      feature parity to not break projects.
+                                // TODO let the entity cache it's own serialization
+                                //      and recompute only if it was dirty.
                                 if (!serializations.ContainsKey(identity))
                                 {
                                     // serialize all the dirty components.
