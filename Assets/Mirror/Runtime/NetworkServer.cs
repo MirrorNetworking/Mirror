@@ -1498,6 +1498,7 @@ namespace Mirror
                             {
                                 // TODO SEND without batching
                                 connection.Send(world);
+                                //Debug.Log($"Sending {world.TotalSize()} bytes World to connId={connection.connectionId}");
                             }
                             else
                             {
