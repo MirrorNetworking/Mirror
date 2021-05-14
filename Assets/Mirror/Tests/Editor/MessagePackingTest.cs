@@ -60,7 +60,7 @@ namespace Mirror.Tests
 
             Assert.Throws<FormatException>(() =>
             {
-                UpdateVarsMessage unpacked = UnpackFromByteArray<UpdateVarsMessage>(data);
+                SceneMessage unpacked = UnpackFromByteArray<SceneMessage>(data);
             });
         }
 

@@ -87,12 +87,15 @@ namespace Mirror
         public uint netId;
     }
 
-    public struct UpdateVarsMessage : NetworkMessage
+    // a snapshot for the part of the world that a connection sees
+    public struct PartialWorldStateMessage : NetworkMessage
     {
-        public uint netId;
-        // the serialized component data
-        // -> ArraySegment to avoid unnecessary allocations
-        public ArraySegment<byte> payload;
+        // serialized entities <<netid, payloadsize, payload, ...>
+        public ArraySegment<byte> entitiesPayload;
+
+        // calculate total size
+        // TODO include Rpcs etc. later
+        public int TotalSize() => entitiesPayload.Count;
     }
 
     // A client sends this message to the server

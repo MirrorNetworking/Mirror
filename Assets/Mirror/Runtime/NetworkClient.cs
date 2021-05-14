@@ -109,7 +109,7 @@ namespace Mirror
                 // host mode doesn't need spawning
                 RegisterHandler<ObjectSpawnFinishedMessage>(msg => {});
                 // host mode doesn't need state updates
-                RegisterHandler<UpdateVarsMessage>(msg => {});
+                RegisterHandler<PartialWorldStateMessage>(msg => {});
             }
             else
             {
@@ -119,7 +119,7 @@ namespace Mirror
                 RegisterHandler<SpawnMessage>(OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
-                RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
+                RegisterHandler<PartialWorldStateMessage>(OnPartialWorldStateMessage);
             }
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
@@ -1107,15 +1107,33 @@ namespace Mirror
         }
 
         // client-only mode callbacks //////////////////////////////////////////
-        static void OnUpdateVarsMessage(UpdateVarsMessage message)
+        static void OnPartialWorldStateMessage(PartialWorldStateMessage message)
         {
-            // Debug.Log("NetworkClient.OnUpdateVarsMessage " + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
+            // Debug.Log("NetworkClient.PartialWorldStateMessage");
+
+            // parse entities
+            // TODO infer spawn/despawn from it too
+            using (PooledNetworkReader reader = NetworkReaderPool.GetReader(message.entitiesPayload))
             {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(message.payload))
-                    localObject.OnDeserializeAllSafely(networkReader, false);
+                while (reader.Position < reader.Length)
+                {
+                    // read netid
+                    uint netId = reader.ReadUInt32();
+                    // Debug.Log($"NetworkClient.PartialWorldStateMessage for netId={netId}");
+
+                    // read payload
+                    ArraySegment<byte> payload = reader.ReadBytesAndSizeSegment();
+
+                    // find that entity
+                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
+                    {
+                        using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(payload))
+                            identity.OnDeserializeAllSafely(networkReader, false);
+                    }
+                    // TODO remove this message after inferring spawn/despawn from it later
+                    else Debug.LogWarning("Did not find target for sync message for " + netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+                }
             }
-            else Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
         static void OnRPCMessage(RpcMessage message)

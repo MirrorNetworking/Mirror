@@ -1404,6 +1404,9 @@ namespace Mirror
             return serializations[identity];
         }
 
+        // avoid allocations in NetworkLateUpdate
+        static Queue<NetworkConnection> connectionsToDisconnect = new Queue<NetworkConnection>();
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
@@ -1411,6 +1414,9 @@ namespace Mirror
             // only process spawned & connections if active
             if (active)
             {
+                // clear cached list
+                connectionsToDisconnect.Clear();
+
                 // go through all connections
                 foreach (NetworkConnectionToClient connection in connections.Values)
                 {
@@ -1430,61 +1436,93 @@ namespace Mirror
                     //   pull in UpdateVarsMessage for each entity it observes
                     if (connection.isReady)
                     {
-                        // for each entity that this connection is seeing
-                        foreach (NetworkIdentity identity in connection.observing)
+                        // pack everything the connection sees into a world state
+                        PartialWorldStateMessage world = new PartialWorldStateMessage();
+                        using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                         {
-                            // make sure it's not null or destroyed.
-                            // (which can happen if someone uses
-                            //  GameObject.Destroy instead of
-                            //  NetworkServer.Destroy)
-                            if (identity != null)
+                            // for each entity that this connection is seeing
+                            foreach (NetworkIdentity identity in connection.observing)
                             {
-                                // get serialization for this entity (cached)
-                                Serialization serialization = GetEntitySerialization(identity);
-
-                                // is this entity owned by this connection?
-                                bool owned = identity.connectionToClient == connection;
-
-                                // send serialized data
-                                // owner writer if owned
-                                if (owned)
+                                // make sure it's not null or destroyed.
+                                // (which can happen if someone uses
+                                //  GameObject.Destroy instead of
+                                //  NetworkServer.Destroy)
+                                if (identity != null)
                                 {
-                                    // was it dirty / did we actually serialize anything?
-                                    if (serialization.ownerWritten > 0)
+                                    // get serialization for this entity (cached)
+                                    Serialization serialization = GetEntitySerialization(identity);
+
+                                    // is this entity owned by this connection?
+                                    bool owned = identity.connectionToClient == connection;
+
+                                    // use owner writer if owned
+                                    if (owned)
                                     {
-                                        UpdateVarsMessage message = new UpdateVarsMessage
+                                        // was it dirty / did we actually serialize anything?
+                                        // TODO always write netId so we know it's still spawned?
+                                        if (serialization.ownerWritten > 0)
                                         {
-                                            netId = identity.netId,
-                                            payload = serialization.ownerWriter.ToArraySegment()
-                                        };
-                                        connection.Send(message);
+                                            writer.WriteUInt32(identity.netId);
+                                            writer.WriteBytesAndSizeSegment(serialization.ownerWriter.ToArraySegment());
+                                        }
+                                    }
+                                    // use observers writer if not owned
+                                    else
+                                    {
+                                        // was it dirty / did we actually serialize anything?
+                                        // TODO always write netId so we know it's still spawned?
+                                        if (serialization.observersWritten > 0)
+                                        {
+                                            writer.WriteUInt32(identity.netId);
+                                            writer.WriteBytesAndSizeSegment(serialization.observersWriter.ToArraySegment());
+                                        }
                                     }
                                 }
-                                // observers writer if not owned
-                                else
-                                {
-                                    // was it dirty / did we actually serialize anything?
-                                    if (serialization.observersWritten > 0)
-                                    {
-                                        UpdateVarsMessage message = new UpdateVarsMessage
-                                        {
-                                            netId = identity.netId,
-                                            payload = serialization.observersWriter.ToArraySegment()
-                                        };
-                                        connection.Send(message);
-                                    }
-                                }
+                                // spawned list should have no null entries because we
+                                // always call Remove in OnObjectDestroy everywhere.
+                                // if it does have null then someone used
+                                // GameObject.Destroy instead of NetworkServer.Destroy.
+                                else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + connection.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                             }
-                            // spawned list should have no null entries because we
-                            // always call Remove in OnObjectDestroy everywhere.
-                            // if it does have null then someone used
-                            // GameObject.Destroy instead of NetworkServer.Destroy.
-                            else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + connection.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+
+                            // put payload into message
+                            world.entitiesPayload = writer.ToArraySegment();
+
+                            // world state can be huge.
+                            // need to make sure that transport can handle a
+                            // message of that size.
+                            // => we use MaxPacketSize. don't want to batch it.
+                            // => message header + content
+                            int maxSize = Transport.activeTransport.GetMaxPacketSize(Channels.Reliable);
+                            if (world.TotalSize() + MessagePacking.HeaderSize <= maxSize)
+                            {
+                                // TODO SEND without batching
+                                connection.Send(world);
+                            }
+                            else
+                            {
+                                // show a useful(!) message
+                                Debug.LogWarning($"Disconnecting connectionId={connection.connectionId} because the World around it with {world.TotalSize()} bytes doesn't fit into Transport {maxSize} max message size. Either optimize bandwidth or increase Transport max message size if possible.");
+
+                                // disconnect that connection for now,
+                                // since we don't have a way to deal with it yet.
+                                // -> need to do it after the loop to not break it
+                                //connection.Disconnect();
+                                connectionsToDisconnect.Enqueue(connection);
+                            }
                         }
                     }
 
                     // update connection to flush out batched messages
                     connection.Update();
+                }
+
+                // disconnect the connections we wanted to disconnect now that
+                // we are not in the for loop anymore.
+                while (connectionsToDisconnect.Count > 0)
+                {
+                    NetworkConnection connection = connectionsToDisconnect.Dequeue();
+                    connection.Disconnect();
                 }
 
                 // return serialized writers to pool, clear set
