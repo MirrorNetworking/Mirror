@@ -65,17 +65,6 @@ namespace Mirror.Tests.MessageTests
         }
 
         [Test]
-        public void ObjectDestroyMessage()
-        {
-            // try setting value with constructor
-            ObjectDestroyMessage message = new ObjectDestroyMessage{ netId = 42 };
-            byte[] arr = MessagePackingTest.PackToByteArray(message);
-
-            ObjectDestroyMessage fresh = MessagePackingTest.UnpackFromByteArray<ObjectDestroyMessage>(arr);
-            Assert.That(fresh, Is.EqualTo(message));
-        }
-
-        [Test]
         public void ObjectHideMessage()
         {
             // try setting value with constructor

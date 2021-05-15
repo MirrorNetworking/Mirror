@@ -52,11 +52,6 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
-    public struct ObjectDestroyMessage : NetworkMessage
-    {
-        public uint netId;
-    }
-
     public struct ObjectHideMessage : NetworkMessage
     {
         public uint netId;

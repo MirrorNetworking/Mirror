@@ -100,13 +100,11 @@ namespace Mirror
             // 'message id not found' errors.
             if (hostMode)
             {
-                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
             }
             else
             {
-                RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
             }
@@ -1034,7 +1032,7 @@ namespace Mirror
         }
 
         // host mode callbacks /////////////////////////////////////////////////
-        static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
+        static void OnHostClientObjectDestroy(uint netId)
         {
             // Debug.Log("NetworkClient.OnLocalObjectObjDestroy netId:" + msg.netId);
 
@@ -1042,7 +1040,7 @@ namespace Mirror
             // in host mode, .spawned is shared between server and client.
             // removing it on client would remove it on server.
             // huh.
-            NetworkIdentity.spawned.Remove(message.netId);
+            NetworkIdentity.spawned.Remove(netId);
         }
 
         static void OnHostClientObjectHide(ObjectHideMessage message)
@@ -1085,6 +1083,25 @@ namespace Mirror
             if (initialSpawn && !isLocalClient)
                 PrepareToSpawnSceneObjects();
 
+            // in order to destroy all objects which aren't in WorldState,
+            // we need a helper hashset to remember which weren't mentioned.
+            // TODO nonalloc
+            // TODO what about host mode? only consider the ones spawned
+            HashSet<uint> despawn = new HashSet<uint>();
+            // TODO .Clear when we use nonalloc later
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in NetworkIdentity.spawned)
+            {
+                // host mode shares the same .spawned.
+                // here we only consider those with hostSpawnHandled=true
+                // TODO shorter
+                if (isLocalClient)
+                {
+                    if (kvp.Value.hostSpawnHandled)
+                        despawn.Add(kvp.Key);
+                }
+                else despawn.Add(kvp.Key);
+            }
+
             // parse entities
             // TODO infer spawn/despawn from it too
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(message.entitiesPayload))
@@ -1094,6 +1111,9 @@ namespace Mirror
                     // deserialize next entry
                     PartialWorldStateEntity entry = new PartialWorldStateEntity();
                     entry.Deserialize(reader);
+
+                    // it was mentioned. remove from the ones to despawn.
+                    despawn.Remove(entry.netId);
 
                     // spawn if not spawned yet
                     if (!NetworkIdentity.spawned.ContainsKey(entry.netId))
@@ -1168,7 +1188,22 @@ namespace Mirror
             // reset
             initialSpawn = false;
 
-            // TODO despawn all netIds that were not included
+            // despawn all netIds that were not mentioned
+            foreach (uint netId in despawn)
+            {
+                // on host, we hide.
+                // on regular client, we destroy.
+                if (isLocalClient)
+                {
+                    // TODO see OnHostClientObjectDestroy comments.
+                    // it might not be necessary.
+                    OnHostClientObjectDestroy(netId);
+                }
+                else
+                {
+                    DestroyObject(netId);
+                }
+            }
         }
 
         static void OnRPCMessage(RpcMessage message)
@@ -1182,8 +1217,6 @@ namespace Mirror
         }
 
         static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
-
-        internal static void OnObjectDestroy(ObjectDestroyMessage message) => DestroyObject(message.netId);
 
         internal static void CheckForLocalPlayer(NetworkIdentity identity)
         {

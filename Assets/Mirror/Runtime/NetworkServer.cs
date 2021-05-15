@@ -1029,11 +1029,8 @@ namespace Mirror
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
-            ObjectDestroyMessage message = new ObjectDestroyMessage
-            {
-                netId = identity.netId
-            };
-            SendToObservers(identity, message);
+            // NOTE: no need to send a destroy message anymore.
+            // WorldState handling destroys the ones not included automatically.
 
             identity.ClearObservers();
             if (NetworkClient.active && localClientActive)

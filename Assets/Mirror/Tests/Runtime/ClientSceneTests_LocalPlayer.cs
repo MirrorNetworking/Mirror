@@ -75,23 +75,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Assert.IsTrue(NetworkClient.localPlayer != null, "local player should not be cleared");
             Assert.IsTrue(NetworkClient.localPlayer == player, "local player should still be equal to player");
         }
-
-        [UnityTest]
-        public IEnumerator LocalPlayerIsSetToNullAfterDestroyMessage()
-        {
-            NetworkIdentity player = SpawnObject(true);
-
-            NetworkClient.OnObjectDestroy(new ObjectDestroyMessage
-            {
-                netId = player.netId
-            });
-
-            // wait a frame for destroy to happen
-            yield return null;
-
-            // use "is null" here to avoid unity == check
-            Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
-        }
     }
     public class ClientSceneTest_LocalPlayer_asHost : HostSetup
     {
