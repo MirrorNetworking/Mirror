@@ -1429,9 +1429,6 @@ namespace Mirror
             }
         }
 
-        // avoid allocations in NetworkLateUpdate
-        static Queue<NetworkConnection> connectionsToDisconnect = new Queue<NetworkConnection>();
-
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
@@ -1439,9 +1436,6 @@ namespace Mirror
             // only process spawned & connections if active
             if (active)
             {
-                // clear cached list
-                connectionsToDisconnect.Clear();
-
                 // world state can be huge, even bigger than transport max size.
                 // we only send what fits.
                 int transportMaxSize = Transport.activeTransport.GetMaxPacketSize(Channels.Reliable);
@@ -1529,30 +1523,16 @@ namespace Mirror
                                 connection.Send(world);
                                 //Debug.Log($"Sending {world.TotalSize()} bytes World to connId={connection.connectionId}");
                             }
-                            else
-                            {
-                                // show a useful(!) message
-                                Debug.LogError($"Disconnecting connectionId={connection.connectionId} because the World around it with {world.TotalSize()} bytes doesn't fit into Transport {transportMaxSize} max message size. This should never happen.");
-
-                                // disconnect that connection for now,
-                                // since we don't have a way to deal with it yet.
-                                // -> need to do it after the loop to not break it
-                                //connection.Disconnect();
-                                connectionsToDisconnect.Enqueue(connection);
-                            }
+                            // show a useful(!) message
+                            // note: don't need to disconnect because this is
+                            //       not supposed to happen unless our above
+                            //       'does it fit' calculation is wrong
+                            else Debug.LogError($"The World around connectionId={connection.connectionId} with {world.TotalSize()} bytes doesn't fit into Transport {transportMaxSize} max message size. This should never happen.");
                         }
                     }
 
                     // update connection to flush out batched messages
                     connection.Update();
-                }
-
-                // disconnect the connections we wanted to disconnect now that
-                // we are not in the for loop anymore.
-                while (connectionsToDisconnect.Count > 0)
-                {
-                    NetworkConnection connection = connectionsToDisconnect.Dequeue();
-                    connection.Disconnect();
                 }
 
                 // return serialized writers to pool, clear set
