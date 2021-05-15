@@ -9,11 +9,17 @@ namespace Mirror
     {
         public const int LocalConnectionId = 0;
 
-        // NetworkIdentities that this connection can see
-        // sorted by distance to the main player object,
-        // which is necessary for priority based WorldState sync
+        // NetworkIdentities that this connection can see.
+        // IMPORTANT: priority WorldState needs them sorted, but we can NOT
+        //            store them sorted for two reasons:
+        //            - they are only sorted during insertion, but
+        //              entities still move around after
+        //            - SortedSet uses comparer as key so entities with the same
+        //              distance would be dropped
+        // => keep this unsorted. sort when needed.
         // TODO move to server's NetworkConnectionToClient?
-        internal readonly SortedSet<NetworkIdentity> observing;
+        internal readonly HashSet<NetworkIdentity> observing =
+            new HashSet<NetworkIdentity>();
 
         // TODO this is NetworkServer.handlers on server and NetworkClient.handlers on client.
         //      maybe use them directly. avoid extra state.
@@ -54,9 +60,6 @@ namespace Mirror
 
         internal NetworkConnection()
         {
-            // initialize 'observing' with the custom comparer
-            observing = new SortedSet<NetworkIdentity>(new ObservingComparer(this));
-
             // set lastTime to current time when creating connection to make
             // sure it isn't instantly kicked for inactivity
             lastMessageTime = Time.time;

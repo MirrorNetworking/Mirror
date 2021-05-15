@@ -1467,6 +1467,15 @@ namespace Mirror
                         PartialWorldStateMessage world = new PartialWorldStateMessage();
                         using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
                         {
+                            // we want to fill WorldState by priority.
+                            // we can't store .observing as sorted because that
+                            // guarantee would only exist during insertion since
+                            // entities still move around after.
+                            // => so let's sorted here
+                            // TODO nonalloc
+                            List<NetworkIdentity> sorted = connection.observing.ToList();
+                            sorted.Sort(new ObservingComparer(connection));
+
                             // for each entity that this connection is seeing,
                             // sorted by priority (see NetworkConnection.observing)
                             foreach (NetworkIdentity identity in connection.observing)
