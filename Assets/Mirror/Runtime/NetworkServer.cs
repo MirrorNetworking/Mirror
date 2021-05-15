@@ -69,6 +69,9 @@ namespace Mirror
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
 
+            // reset NetworkTime
+            NetworkTime.Reset();
+
             Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
             AddTransportHandlers();
         }
