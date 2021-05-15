@@ -1478,7 +1478,7 @@ namespace Mirror
 
                             // for each entity that this connection is seeing,
                             // sorted by priority (see NetworkConnection.observing)
-                            foreach (NetworkIdentity identity in connection.observing)
+                            foreach (NetworkIdentity identity in sorted)
                             {
                                 // make sure it's not null or destroyed.
                                 // (which can happen if someone uses
