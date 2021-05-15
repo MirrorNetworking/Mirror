@@ -1498,6 +1498,15 @@ namespace Mirror
                                         }
                                         // otherwise we can stop constructing
                                         // the world packet for this connection.
+                                        //
+                                        // IMPORTANT: some approaches like the
+                                        // one from glenn fiedler would simply
+                                        // skip this entity and try the next one
+                                        // in hopes that it fits.
+                                        // but this could result in flickering
+                                        // where if this entity fits again next
+                                        // time, then the one after would unspawn
+                                        // again and so on.
                                         else
                                         {
                                             Debug.Log($"World construction for connId={connection.connectionId} full, skipping the rest.");
