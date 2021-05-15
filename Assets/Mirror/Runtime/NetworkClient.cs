@@ -103,24 +103,14 @@ namespace Mirror
                 RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
-                RegisterHandler<SpawnMessage>(OnHostClientSpawn);
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnStartedMessage>(msg => {});
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>(msg => {});
-                // host mode doesn't need state updates
-                RegisterHandler<PartialWorldStateMessage>(msg => {});
             }
             else
             {
                 RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
-                RegisterHandler<SpawnMessage>(OnSpawn);
-                RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
-                RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
-                RegisterHandler<PartialWorldStateMessage>(OnPartialWorldStateMessage);
             }
+            RegisterHandler<PartialWorldStateMessage>(OnPartialWorldStateMessage);
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
 
@@ -863,10 +853,10 @@ namespace Mirror
         public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer();
 
         // spawning ////////////////////////////////////////////////////////////
-        internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)
+        internal static void ApplySpawnPayload(NetworkIdentity identity, PartialWorldStateEntity spawnData)
         {
-            if (message.assetId != Guid.Empty)
-                identity.assetId = message.assetId;
+            if (spawnData.assetId != Guid.Empty)
+                identity.assetId = spawnData.assetId;
 
             if (!identity.gameObject.activeSelf)
             {
@@ -874,26 +864,26 @@ namespace Mirror
             }
 
             // apply local values for VR support
-            identity.transform.localPosition = message.position;
-            identity.transform.localRotation = message.rotation;
-            identity.transform.localScale = message.scale;
-            identity.hasAuthority = message.isOwner;
-            identity.netId = message.netId;
+            identity.transform.localPosition = spawnData.position;
+            identity.transform.localRotation = spawnData.rotation;
+            identity.transform.localScale = spawnData.scale;
+            identity.hasAuthority = spawnData.isOwner;
+            identity.netId = spawnData.netId;
 
-            if (message.isLocalPlayer)
+            if (spawnData.isLocalPlayer)
                 InternalAddPlayer(identity);
 
             // deserialize components if any payload
             // (Count is 0 if there were no components)
-            if (message.payload.Count > 0)
+            if (spawnData.payload.Count > 0)
             {
-                using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(message.payload))
+                using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(spawnData.payload))
                 {
                     identity.OnDeserializeAllSafely(payloadReader, true);
                 }
             }
 
-            NetworkIdentity.spawned[message.netId] = identity;
+            NetworkIdentity.spawned[spawnData.netId] = identity;
 
             // objects spawned as part of initial state are started on a second pass
             if (isSpawnFinished)
@@ -904,75 +894,50 @@ namespace Mirror
             }
         }
 
-        // Finds Existing Object with NetId or spawns a new one using AssetId or sceneId
-        internal static bool FindOrSpawnObject(SpawnMessage message, out NetworkIdentity identity)
-        {
-            // was the object already spawned?
-            identity = GetExistingObject(message.netId);
-
-            // if found, return early
-            if (identity != null)
-            {
-                return true;
-            }
-
-            if (message.assetId == Guid.Empty && message.sceneId == 0)
-            {
-                Debug.LogError($"OnSpawn message with netId '{message.netId}' has no AssetId or sceneId");
-                return false;
-            }
-
-            identity = message.sceneId == 0 ? SpawnPrefab(message) : SpawnSceneObject(message);
-
-            if (identity == null)
-            {
-                Debug.LogError($"Could not spawn assetId={message.assetId} scene={message.sceneId:X} netId={message.netId}");
-                return false;
-            }
-
-            return true;
-        }
-
         static NetworkIdentity GetExistingObject(uint netid)
         {
             NetworkIdentity.spawned.TryGetValue(netid, out NetworkIdentity localObject);
             return localObject;
         }
 
-        static NetworkIdentity SpawnPrefab(SpawnMessage message)
+        // called by OnPartialWorldState when spawning a new object that has an
+        // assetId, not a sceneId.
+        static NetworkIdentity SpawnPrefab(PartialWorldStateEntity spawnData)
         {
-            if (GetPrefab(message.assetId, out GameObject prefab))
+            if (GetPrefab(spawnData.assetId, out GameObject prefab))
             {
-                GameObject obj = GameObject.Instantiate(prefab, message.position, message.rotation);
+                GameObject obj = GameObject.Instantiate(prefab, spawnData.position, spawnData.rotation);
                 //Debug.Log("Client spawn handler instantiating [netId:" + msg.netId + " asset ID:" + msg.assetId + " pos:" + msg.position + " rotation: " + msg.rotation + "]");
                 return obj.GetComponent<NetworkIdentity>();
             }
-            if (spawnHandlers.TryGetValue(message.assetId, out SpawnHandlerDelegate handler))
+            if (spawnHandlers.TryGetValue(spawnData.assetId, out SpawnHandlerDelegate handler))
             {
-                GameObject obj = handler(message);
+                GameObject obj = handler(spawnData);
                 if (obj == null)
                 {
-                    Debug.LogError($"Spawn Handler returned null, Handler assetId '{message.assetId}'");
+                    Debug.LogError($"Spawn Handler returned null, Handler assetId '{spawnData.assetId}'");
                     return null;
                 }
                 NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
                 if (identity == null)
                 {
-                    Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{message.assetId}'");
+                    Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{spawnData.assetId}'");
                     return null;
                 }
                 return identity;
             }
-            Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={message.assetId} netId={message.netId}");
+            Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={spawnData.assetId} netId={spawnData.netId}");
             return null;
         }
 
-        static NetworkIdentity SpawnSceneObject(SpawnMessage message)
+        // called by OnPartialWorldState when spawning a new object that has a
+        // sceneId, not an assetId.
+        static NetworkIdentity SpawnSceneObject(PartialWorldStateEntity spawnData)
         {
-            NetworkIdentity identity = GetAndRemoveSceneObject(message.sceneId);
+            NetworkIdentity identity = GetAndRemoveSceneObject(spawnData.sceneId);
             if (identity == null)
             {
-                Debug.LogError($"Spawn scene object not found for {message.sceneId:X}. Make sure that client and server use exactly the same project. This only happens if the hierarchy gets out of sync.");
+                Debug.LogError($"Spawn scene object not found for {spawnData.sceneId:X}. Make sure that client and server use exactly the same project. This only happens if the hierarchy gets out of sync.");
 
                 // dump the whole spawnable objects dict for easier debugging
                 //foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
@@ -1020,14 +985,14 @@ namespace Mirror
             }
         }
 
-        internal static void OnObjectSpawnStarted(ObjectSpawnStartedMessage _)
+        internal static void OnObjectSpawnStarted()
         {
             // Debug.Log("SpawnStarted");
             PrepareToSpawnSceneObjects();
             isSpawnFinished = false;
         }
 
-        internal static void OnObjectSpawnFinished(ObjectSpawnFinishedMessage _)
+        internal static void OnObjectSpawnFinished()
         {
             //Debug.Log("SpawnFinished");
             ClearNullFromSpawned();
@@ -1090,15 +1055,16 @@ namespace Mirror
             }
         }
 
-        internal static void OnHostClientSpawn(SpawnMessage message)
+        // called by OnPartialWorldState if a new netId is found during host mode
+        internal static void OnHostClientSpawn(PartialWorldStateEntity spawnData)
         {
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
+            if (NetworkIdentity.spawned.TryGetValue(spawnData.netId, out NetworkIdentity localObject) &&
                 localObject != null)
             {
-                if (message.isLocalPlayer)
+                if (spawnData.isLocalPlayer)
                     InternalAddPlayer(localObject);
 
-                localObject.hasAuthority = message.isOwner;
+                localObject.hasAuthority = spawnData.isOwner;
                 localObject.NotifyAuthority();
                 localObject.OnStartClient();
                 localObject.OnSetHostVisibility(true);
@@ -1107,9 +1073,17 @@ namespace Mirror
         }
 
         // client-only mode callbacks //////////////////////////////////////////
+        // previously we used BeginSpawnMessage/FinishSpawnMessage.
+        // let's do it automatically for first spawn instead.
+        static bool initialSpawn = true;
+
         static void OnPartialWorldStateMessage(PartialWorldStateMessage message)
         {
             // Debug.Log("NetworkClient.PartialWorldStateMessage");
+
+            // this was previously OnBeginSpawnMessage (not in host mode)
+            if (initialSpawn && !isLocalClient)
+                PrepareToSpawnSceneObjects();
 
             // parse entities
             // TODO infer spawn/despawn from it too
@@ -1117,23 +1091,84 @@ namespace Mirror
             {
                 while (reader.Position < reader.Length)
                 {
-                    // read netid
-                    uint netId = reader.ReadUInt32();
-                    // Debug.Log($"NetworkClient.PartialWorldStateMessage for netId={netId}");
+                    // deserialize next entry
+                    PartialWorldStateEntity entry = new PartialWorldStateEntity();
+                    entry.Deserialize(reader);
 
-                    // read payload
-                    ArraySegment<byte> payload = reader.ReadBytesAndSizeSegment();
-
-                    // find that entity
-                    if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
+                    // spawn if not spawned yet
+                    if (!NetworkIdentity.spawned.ContainsKey(entry.netId))
                     {
-                        using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(payload))
-                            identity.OnDeserializeAllSafely(networkReader, false);
+                        // we definitely need either assetId or sceneId
+                        // (this was previously in FindOrSpawnObject())
+                        if (entry.assetId != Guid.Empty || entry.sceneId != 0)
+                        {
+                            // previously we had a custom OnHostClientSpawn for
+                            // host mode. let's do the same here.
+                            if (isLocalClient)
+                            {
+                                // TODO it's already in .spawned hmmm
+                            }
+                            else
+                            {
+                                // spawn prefab or scene object
+                                NetworkIdentity spawned = entry.sceneId == 0 ? SpawnPrefab(entry) : SpawnSceneObject(entry);
+
+                                // apply spawn payload
+                                // that's what we did before right after spawning.
+                                // TODO have a common ApplyPayload to reuse below
+                                // if already spawn.
+                                // => with authorithy/localplayer change detection etc.
+                                ApplySpawnPayload(spawned, entry);
+                            }
+                        }
+                        else Debug.LogError($"Can't spawn netId '{entry.netId}': missing AssetId or sceneId");
                     }
-                    // TODO remove this message after inferring spawn/despawn from it later
-                    else Debug.LogWarning("Did not find target for sync message for " + netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+                    // special case: host mode spawning
+                    //
+                    // spawning a NetworkIdentity on the server puts it into .spawned.
+                    // NetworkClient.OnPartialWorldMessage would then always consider it
+                    // 'already spawned' in host mode because it's always in .spawned already.
+                    // => so OnStartLocalPlayer etc. would never be called.
+                    // => we need a helper flag to indicate if spawn was handled for host yet.
+                    else if (NetworkIdentity.spawned.TryGetValue(entry.netId, out NetworkIdentity hostIdentity) &&
+                             hostIdentity != null &&
+                             !hostIdentity.hostSpawnHandled)
+                    {
+                        // handle spawn for host.
+                        OnHostClientSpawn(entry);
+
+                        // set as handled
+                        hostIdentity.hostSpawnHandled = true;
+                    }
+                    // otherwise simply apply deserialization
+                    else if (NetworkIdentity.spawned.TryGetValue(entry.netId, out NetworkIdentity identity) &&
+                             identity != null)
+                    {
+                        // previously we ignored UpdateVarsMessage in host mode.
+                        // let's do that again.
+                        // host already has latest state. don't need to apply any.
+                        // TODO maybe it shouldn't send any to begin with...
+                        if (!isLocalClient)
+                        {
+                            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(entry.payload))
+                                // TODO initial is always TRUE because spawn data
+                                // is always included in WorldState.
+                                // TODO remove parameter and use delta compression instead later
+                                identity.OnDeserializeAllSafely(networkReader, true);
+                        }
+                    }
+                    else Debug.LogError("Did not find target for sync message for " + entry.netId + " . This should never happen.");
                 }
             }
+
+            // this was previously OnFinishSpawnMessage (not in host mode)
+            if (initialSpawn && !isLocalClient)
+                OnObjectSpawnFinished();
+
+            // reset
+            initialSpawn = false;
+
+            // TODO despawn all netIds that were not included
         }
 
         static void OnRPCMessage(RpcMessage message)
@@ -1149,15 +1184,6 @@ namespace Mirror
         static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
 
         internal static void OnObjectDestroy(ObjectDestroyMessage message) => DestroyObject(message.netId);
-
-        internal static void OnSpawn(SpawnMessage message)
-        {
-            // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
-            if (FindOrSpawnObject(message, out NetworkIdentity identity))
-            {
-                ApplySpawnPayload(identity, message);
-            }
-        }
 
         internal static void CheckForLocalPlayer(NetworkIdentity identity)
         {
@@ -1293,6 +1319,7 @@ namespace Mirror
             ClearSpawners();
             spawnableObjects.Clear();
             ready = false;
+            initialSpawn = true;
             isSpawnFinished = false;
             DestroyAllClientObjects();
             connectState = ConnectState.None;

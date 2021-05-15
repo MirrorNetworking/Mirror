@@ -145,7 +145,8 @@ namespace Mirror
             observing.Add(netIdentity);
 
             // spawn identity for this conn
-            NetworkServer.ShowForConnection(netIdentity, this);
+            // => NOT NEEDED ANYMORE. WorldState will include it automatically.
+            //NetworkServer.ShowForConnection(netIdentity, this);
         }
 
         // TODO move to server's NetworkConnectionToClient?

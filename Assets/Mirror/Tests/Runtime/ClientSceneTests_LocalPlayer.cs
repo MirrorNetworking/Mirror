@@ -23,7 +23,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
 
-            SpawnMessage msg = new SpawnMessage
+            PartialWorldStateEntity msg = new PartialWorldStateEntity
             {
                 netId = netId,
                 isLocalPlayer = localPlayer,
@@ -104,7 +104,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
 
-            SpawnMessage msg = new SpawnMessage
+            PartialWorldStateEntity msg = new PartialWorldStateEntity
             {
                 netId = netId,
                 isLocalPlayer = true,
@@ -133,7 +133,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
 
-            SpawnMessage msg = new SpawnMessage
+            PartialWorldStateEntity msg = new PartialWorldStateEntity
             {
                 netId = netId,
                 isLocalPlayer = true,

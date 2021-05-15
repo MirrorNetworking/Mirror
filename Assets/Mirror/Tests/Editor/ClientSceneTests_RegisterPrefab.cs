@@ -251,7 +251,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             // check spawnHandler above is called
             SpawnHandlerDelegate handlerInDictionary = spawnHandlers[guid];
-            handlerInDictionary.Invoke(new SpawnMessage { position = somePosition, assetId = guid });
+            handlerInDictionary.Invoke(new PartialWorldStateEntity{ position = somePosition, assetId = guid });
             Assert.That(handlerCalled, Is.EqualTo(1));
         }
 

@@ -103,6 +103,14 @@ namespace Mirror
         // the object again
         internal bool destroyCalled;
 
+        // spawning a NetworkIdentity on the server puts it into .spawned.
+        // NetworkClient.OnPartialWorldMessage would then always consider it
+        // 'already spawned' in host mode because it's always in .spawned already.
+        // => so OnStartLocalPlayer etc. would never be called.
+        // => we need a helper flag to indicate if spawn was handled for host yet.
+        // TODO reuse .hasSpawned?
+        internal bool hostSpawnHandled;
+
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
         public NetworkConnection connectionToServer { get; internal set; }
 
@@ -1068,7 +1076,8 @@ namespace Mirror
 
             // The client will match to the existing object
             // update all variables and assign authority
-            NetworkServer.SendSpawnMessage(this, conn);
+            // => NOT NEEDED ANYMORE. WorldState will include it automatically.
+            //NetworkServer.SendSpawnMessage(this, conn);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
 
@@ -1106,7 +1115,8 @@ namespace Mirror
                 // so just spawn it again,
                 // the client will not create a new instance,  it will simply
                 // reset all variables and remove authority
-                NetworkServer.SendSpawnMessage(this, previousOwner);
+                // => NOT NEEDED ANYMORE. WorldState will include it automatically.
+                //NetworkServer.SendSpawnMessage(this, previousOwner);
 
                 // TODO why do we clear this twice?
                 connectionToClient = null;
@@ -1151,6 +1161,7 @@ namespace Mirror
                     NetworkClient.localPlayer = null;
             }
             isLocalPlayer = false;
+            hostSpawnHandled = false;
         }
 
         // clear all component's dirty bits no matter what

@@ -52,7 +52,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             // check spawnHandler above is called
             SpawnHandlerDelegate handler = spawnHandlers[guid];
-            handler.Invoke(new SpawnMessage { position = somePosition, assetId = guid });
+            handler.Invoke(new PartialWorldStateEntity{ position = somePosition, assetId = guid });
             Assert.That(handlerCalled, Is.EqualTo(1));
         }
 

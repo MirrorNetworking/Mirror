@@ -54,7 +54,7 @@ namespace Mirror.Tests
         [Test]
         public void UnpackWrongMessage()
         {
-            SpawnMessage message = new SpawnMessage();
+            ReadyMessage message = new ReadyMessage();
 
             byte[] data = PackToByteArray(message);
 

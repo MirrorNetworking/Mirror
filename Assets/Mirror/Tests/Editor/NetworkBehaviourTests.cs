@@ -294,7 +294,7 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            //NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -408,7 +408,7 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            //NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -493,7 +493,7 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            //NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
@@ -575,7 +575,7 @@ namespace Mirror.Tests
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
+            //NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 

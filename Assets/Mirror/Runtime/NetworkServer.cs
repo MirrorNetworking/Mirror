@@ -654,7 +654,7 @@ namespace Mirror
             // controller.
             //
             // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
-            SpawnObserversForConnection(conn);
+            AddObserversForConnection(conn);
 
             // Debug.Log("Replacing playerGameObject object netId: " + player.GetComponent<NetworkIdentity>().netId + " asset ID " + player.GetComponent<NetworkIdentity>().assetId);
 
@@ -695,7 +695,7 @@ namespace Mirror
 
             // client is ready to start spawning objects
             if (conn.identity != null)
-                SpawnObserversForConnection(conn);
+                AddObserversForConnection(conn);
         }
 
         /// <summary>Marks the client of the connection to be not-ready.</summary>
@@ -734,12 +734,6 @@ namespace Mirror
         }
 
         // show / hide for connection //////////////////////////////////////////
-        internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
-        {
-            if (conn.isReady)
-                SendSpawnMessage(identity, conn);
-        }
-
         internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
             ObjectHideMessage msg = new ObjectHideMessage
@@ -795,58 +789,6 @@ namespace Mirror
         }
 
         // spawning ////////////////////////////////////////////////////////////
-        static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, PooledNetworkWriter ownerWriter, PooledNetworkWriter observersWriter)
-        {
-            // Only call OnSerializeAllSafely if there are NetworkBehaviours
-            if (identity.NetworkBehaviours.Length == 0)
-            {
-                return default;
-            }
-
-            // serialize all components with initialState = true
-            // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
-
-            // convert to ArraySegment to avoid reader allocations
-            // (need to handle null case too)
-            ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
-            ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
-
-            // use owner segment if 'conn' owns this identity, otherwise
-            // use observers segment
-            ArraySegment<byte> payload = isOwner ? ownerSegment : observersSegment;
-
-            return payload;
-        }
-
-        internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
-        {
-            if (identity.serverOnly) return;
-
-            // Debug.Log("Server SendSpawnMessage: name=" + identity.name + " sceneId=" + identity.sceneId.ToString("X") + " netid=" + identity.netId);
-
-            // one writer for owner, one for observers
-            using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
-            {
-                bool isOwner = identity.connectionToClient == conn;
-                ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);
-                SpawnMessage message = new SpawnMessage
-                {
-                    netId = identity.netId,
-                    isLocalPlayer = conn.identity == identity,
-                    isOwner = isOwner,
-                    sceneId = identity.sceneId,
-                    assetId = identity.assetId,
-                    // use local values for VR support
-                    position = identity.transform.localPosition,
-                    rotation = identity.transform.localRotation,
-                    scale = identity.transform.localScale,
-                    payload = payload,
-                };
-                conn.Send(message);
-            }
-        }
-
         static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
             // verify if we an spawn this
@@ -985,11 +927,13 @@ namespace Mirror
             else
             {
                 // otherwise just replace his data
-                SendSpawnMessage(identity, identity.connectionToClient);
+                // => NOT NEEDED ANYMORE.
+                // => WorldState will include it automatically
+                //SendSpawnMessage(identity, identity.connectionToClient);
             }
         }
 
-        static void SpawnObserversForConnection(NetworkConnection conn)
+        static void AddObserversForConnection(NetworkConnection conn)
         {
             // Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
 
@@ -999,9 +943,6 @@ namespace Mirror
                 // otherwise it would not find them.
                 return;
             }
-
-            // let connection know that we are about to start spawning...
-            conn.Send(new ObjectSpawnStartedMessage());
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
@@ -1058,11 +999,6 @@ namespace Mirror
                     }
                 }
             }
-
-            // let connection know that we finished spawning, so it can call
-            // OnStartClient on each one (only after all were spawned, which
-            // is how Unity's Start() function works too)
-            conn.Send(new ObjectSpawnFinishedMessage());
         }
 
         /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
@@ -1376,7 +1312,10 @@ namespace Mirror
                 // one version for owner, one for observers.
                 PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter();
                 PooledNetworkWriter observersWriter = NetworkWriterPool.GetWriter();
-                identity.OnSerializeAllSafely(false, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+                // TODO initial is always TRUE because spawn data
+                // is always included in WorldState.
+                // TODO remove parameter and use delta compression instead later
+                identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
                 serializations[identity] = new Serialization
                 {
                     ownerWriter = ownerWriter,
@@ -1484,7 +1423,8 @@ namespace Mirror
                                 // (which can happen if someone uses
                                 //  GameObject.Destroy instead of
                                 //  NetworkServer.Destroy)
-                                if (identity != null)
+                                // and don't sync or spawn serverOnly ones
+                                if (identity != null && !identity.serverOnly)
                                 {
                                     // get serialization for this entity (cached)
                                     // and this connection (depending on owned)
@@ -1494,16 +1434,37 @@ namespace Mirror
                                     // TODO always write netId so we know it's still spawned?
                                     if (bytesWritten > 0)
                                     {
+                                        // construct an PartialWorldStateEntity
+                                        Transform transform = identity.transform;
+                                        bool isOwner = identity.connectionToClient == connection;
+                                        bool isLocalPlayer = connection.identity == identity;
+                                        PartialWorldStateEntity entry = new PartialWorldStateEntity
+                                        (
+                                            identity.netId,
+
+                                            // local position/rotation/scale for VR
+                                            transform.localPosition,
+                                            transform.localRotation,
+                                            transform.localScale,
+
+                                            // spawn data
+                                            isLocalPlayer,
+                                            isOwner,
+                                            identity.sceneId,
+                                            identity.assetId,
+
+                                            // components serialization
+                                            serialization.ToArraySegment()
+                                        );
+
                                         // does this entity still fit into our
                                         // WorldState?
                                         // -> whatever we wrote into worldstate so far (rpcs etc.)
                                         // -> + all our entity serialization so far (not in worldstate yet)
-                                        // -> + this one which is 4 bytes netId + 4 bytes payload size + payload size
-                                        int bytesNeeded = 4 + 4 + serialization.Position;
-                                        if (world.TotalSize() + writer.Position + bytesNeeded <= messageMaxSize)
+                                        // -> + this one
+                                        if (world.TotalSize() + writer.Position + entry.TotalSize() <= messageMaxSize)
                                         {
-                                            writer.WriteUInt32(identity.netId);
-                                            writer.WriteBytesAndSizeSegment(serialization.ToArraySegment());
+                                            entry.Serialize(writer);
                                         }
                                         // otherwise we can stop constructing
                                         // the world packet for this connection.
