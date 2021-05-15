@@ -90,7 +90,8 @@ namespace Mirror
     // a snapshot for the part of the world that a connection sees
     public struct PartialWorldStateMessage : NetworkMessage
     {
-        // serialized entities <<netid, payloadsize, payload, ...>
+        // serialized entities
+        // <<netid:4, payloadsize:4, payload, ...>
         public ArraySegment<byte> entitiesPayload;
 
         // calculate total size
