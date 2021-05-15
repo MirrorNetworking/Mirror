@@ -106,7 +106,7 @@ namespace Mirror
         void StatusLabels()
         {
             // server / client status message
-            if (NetworkClient.isConnected)
+            if (NetworkServer.active)
             {
                 GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
             }
