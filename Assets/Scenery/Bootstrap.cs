@@ -16,16 +16,6 @@ public class Bootstrap : MonoBehaviour
 
     static bool initialized;
 
-    // helper function to LoadScene with a custom name
-    // -> LoadScene additive can duplicate but not change the name
-    // -> we need to Create & Merge for that
-    void LoadSceneCustomName(string scenePath, LoadSceneParameters parameters, string customName)
-    {
-        SceneManager.CreateScene(customName);
-        SceneManager.LoadScene(gameObject.scene.path, LoadSceneMode.Additive);
-        //SceneManager.MergeScenes();
-    }
-
     void Awake()
     {
         // we only do world initialization ONCE
