@@ -55,7 +55,8 @@ public class Bootstrap : MonoBehaviour
     {
         Debug.Log($"Bootstrap: stripping {scene.name}");
 
-        // remove all audio listeners in that scene
+        // remove critical components
+        RemoveAll<Bootstrap>(scene);
         RemoveAll<AudioListener>(scene);
         RemoveAll<Camera>(scene);
         RemoveAll<Light>(scene);
