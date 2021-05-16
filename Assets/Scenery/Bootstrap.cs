@@ -47,6 +47,32 @@ public class Bootstrap : MonoBehaviour
         SceneManager.LoadScene(originalScene.path, LoadSceneMode.Additive);
     }
 
+    // remove audio listener and main camera from server world
+    static void StripServerWorld()
+    {
+        // backup active scene
+        Scene backup = SceneManager.GetActiveScene();
+
+        // load server scene
+        if (SceneManager.SetActiveScene(ServerWorld))
+        {
+            Debug.Log($"Bootstrap: stripping {ServerWorldName}");
+
+            // remove all audio listeners
+            foreach (AudioListener audio in FindObjectsOfType<AudioListener>())
+                Destroy(audio);
+
+            // remove all cameras
+            foreach (Camera cam in FindObjectsOfType<Camera>())
+                Destroy(cam);
+
+            // restore active scene
+            if (!SceneManager.SetActiveScene(backup))
+                Debug.LogError($"Bootstrap: failed to restore active scene {backup.path}");
+        }
+        else Debug.LogError($"Bootstrap: failed to activate {ServerWorldName}");
+    }
+
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         //Debug.Log($"OnSceneLoaded: {scene.name} {scene.path}");
@@ -54,10 +80,11 @@ public class Bootstrap : MonoBehaviour
         // is this for the original scene?
         if (scene == originalScene)
         {
-            // merge original into ServerWorld
+            // merge original into ServerWorld & strip it
             //Debug.Log($"original scene loaded");
             SceneManager.MergeScenes(scene, ServerWorld);
-            Debug.Log($"Original scene merged into {ServerWorldName}!");
+            Debug.Log($"Bootstrap: original scene merged into {ServerWorldName}!");
+            StripServerWorld();
         }
         // not the same scene, but same path. so it's the duplicate.
         else if (scene.path == originalScenePath)
@@ -65,7 +92,7 @@ public class Bootstrap : MonoBehaviour
             // merge duplicate into serverworld
             //Debug.Log($"duplicated scene loaded");
             SceneManager.MergeScenes(scene, ClientWorld);
-            Debug.Log($"Original scene merged into {ClientWorldName}!");
+            Debug.Log($"Bootstrap: original scene merged into {ClientWorldName}!");
         }
     }
 }
