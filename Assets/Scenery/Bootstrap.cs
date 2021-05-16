@@ -66,8 +66,8 @@ public class Bootstrap : MonoBehaviour
         {
             Debug.Log($"original scene loaded");
         }
-        // not the same scene, but same path. so it's the duplicate.
-        else if (scene.path == ClientWorld.path)
+        // additive & not the same scene, but same path so it's the duplicate.
+        else if (mode == LoadSceneMode.Additive && scene.path == ClientWorld.path)
         {
             Debug.Log($"duplicated scene loaded");
 
