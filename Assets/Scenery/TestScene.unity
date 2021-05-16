@@ -309,6 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1065197676}
   - component: {fileID: 1065197677}
+  - component: {fileID: 1065197678}
   m_Layer: 0
   m_Name: NetMan
   m_TagString: Untagged
@@ -342,6 +343,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5bb53c6d46254f9699b4211d98066b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1065197678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1065197675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 370248bbb59744ee68fac916d81a43b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 7367654138024725798, guid: 4fa4b6cefc571493cae78616efd31d53, type: 3}
 --- !u!1 &1111352673
 GameObject:
   m_ObjectHideFlags: 0
