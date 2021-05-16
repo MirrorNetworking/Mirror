@@ -1,23 +1,12 @@
 ﻿// Bootstrap ServerWorld, ClientWorld just like in ECS.
-
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Bootstrap : MonoBehaviour
 {
     // Server/Client worlds for easy access
-    public const string ClientWorldName = "ClientWorld";
-    public const string ServerWorldName = "ServerWorld";
-
     public static Scene ClientWorld;
     public static Scene ServerWorld;
-
-    // original scene is not public. it will become the server scene after merge.
-    static Scene originalScene;
-
-    // this will always be the original scene's path.
-    public static string originalScenePath;
 
     static bool initialized;
 
@@ -28,17 +17,16 @@ public class Bootstrap : MonoBehaviour
         if (initialized) return;
         initialized = true;
 
-        // remember the original scene
-        originalScene = SceneManager.GetActiveScene();
-        originalScenePath = originalScene.path;
+        // original scene has to become the ClientWorld and it has to keep the
+        // same name. renaming it to ClientWorld would not load lighting data,
+        // and everything look pretty dark:
+        // https://forum.unity.com/threads/scenemanager-mergescenes-leaves-lighting-data.949203/
+        ClientWorld = SceneManager.GetActiveScene();
 
-        // let's create a ServerWorld and ClientWorld like in DOTSNET
-        // so that even if we connect client 1 hour after starting server,
-        // the client still starts with a fresh client scene like everyone else.
-        SceneManager.CreateScene(ClientWorldName);
-        SceneManager.CreateScene(ServerWorldName);
-        ClientWorld = SceneManager.GetSceneByName(ClientWorldName);
-        ServerWorld = SceneManager.GetSceneByName(ServerWorldName);
+        // create a scene with [ServerWorld] suffix
+        string serverWorldName = ClientWorld.name + " [ServerWorld]";
+        SceneManager.CreateScene(serverWorldName);
+        ServerWorld = SceneManager.GetSceneByName(serverWorldName);
 
         // can't merge any scenes yet because not loaded in Awake() yet.
         // setup OnSceneLoaded callback and continue there.
@@ -46,57 +34,48 @@ public class Bootstrap : MonoBehaviour
 
         // duplicate original scene. we'll move it into ClientWorld
         // -> additive, otherwise we would just reload it
-        //SceneManager.LoadScene(originalScene.path, LoadSceneMode.Additive);
+        SceneManager.LoadScene(ClientWorld.path, LoadSceneMode.Additive);
+    }
+
+    // helper function to remove all components in a scene
+    static void RemoveAll<T>(Scene scene) where T : Component
+    {
+        foreach (T component in FindObjectsOfType<T>())
+            if (component.gameObject.scene == scene)
+                Destroy(component);
     }
 
     // remove audio listener and main camera from server world
-    static void StripServerWorld()
+    static void Strip(Scene scene)
     {
-        // backup active scene
-        Scene backup = SceneManager.GetActiveScene();
+        Debug.Log($"Bootstrap: stripping {scene.name}");
 
-        // load server scene
-        if (SceneManager.SetActiveScene(ServerWorld))
-        {
-            Debug.Log($"Bootstrap: stripping {ServerWorldName}");
-
-            // remove all audio listeners
-            foreach (AudioListener audio in FindObjectsOfType<AudioListener>())
-                Destroy(audio);
-
-            // remove all cameras
-            foreach (Camera cam in FindObjectsOfType<Camera>())
-                Destroy(cam);
-
-            // remove all lights, otherwise we have double intensity
-            //foreach (Light light in FindObjectsOfType<Light>())
-            //    Destroy(light);
-
-            // restore active scene
-            if (!SceneManager.SetActiveScene(backup))
-                Debug.LogError($"Bootstrap: failed to restore active scene {backup.path}");
-        }
-        else Debug.LogError($"Bootstrap: failed to activate {ServerWorldName}");
+        // remove all audio listeners in that scene
+        RemoveAll<AudioListener>(scene);
+        RemoveAll<Camera>(scene);
+        RemoveAll<Light>(scene);
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"OnSceneLoaded: {scene.name} {scene.path}");
 
-        // is this for the original scene?
-        if (scene == originalScene)
+        // is this the original scene?
+        if (scene == ClientWorld)
         {
-            //Debug.Log($"duplicated scene loaded");
-            SceneManager.MergeScenes(scene, ClientWorld);
-            Debug.Log($"Bootstrap: original scene merged into {ClientWorldName}!");
+            Debug.Log($"original scene loaded");
         }
         // not the same scene, but same path. so it's the duplicate.
-        else if (scene.path == originalScenePath)
+        else if (scene.path == ClientWorld.path)
         {
-            //Debug.Log($"original scene loaded");
+            Debug.Log($"duplicated scene loaded");
+
+            // merge the duplicate into it
             SceneManager.MergeScenes(scene, ServerWorld);
-            Debug.Log($"Bootstrap: original scene merged into {ServerWorldName}!");
-            StripServerWorld();
+            Debug.Log($"Bootstrap: duplicate scene merged into {ServerWorld.name}!");
+
+            // strip it
+            Strip(ServerWorld);
         }
     }
 }
