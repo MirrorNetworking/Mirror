@@ -56,23 +56,21 @@ public class Bootstrap : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"OnSceneLoaded: {scene.name} {scene.path}");
+        //Debug.Log($"OnSceneLoaded: {scene.name} {scene.path}");
 
         // is this for the original scene?
         if (scene == originalScene)
         {
-            Debug.Log($"original scene loaded");
-
             // merge original into ServerWorld
+            //Debug.Log($"original scene loaded");
             SceneManager.MergeScenes(scene, ServerWorld);
             Debug.Log($"Original scene merged into {ServerWorldName}!");
         }
         // not the same scene, but same path. so it's the duplicate.
         else if (scene.path == originalScenePath)
         {
-            Debug.Log($"duplicated scene loaded");
-
             // merge duplicate into serverworld
+            //Debug.Log($"duplicated scene loaded");
             SceneManager.MergeScenes(scene, ClientWorld);
             Debug.Log($"Original scene merged into {ClientWorldName}!");
         }
