@@ -21,6 +21,7 @@ public class Bootstrap : MonoBehaviour
         // same name. renaming it to ClientWorld would not load lighting data,
         // and everything look pretty dark:
         // https://forum.unity.com/threads/scenemanager-mergescenes-leaves-lighting-data.949203/
+        // TODO figure out how to load light data for modified scene name
         ClientWorld = SceneManager.GetActiveScene();
 
         // create a scene with [ServerWorld] suffix
