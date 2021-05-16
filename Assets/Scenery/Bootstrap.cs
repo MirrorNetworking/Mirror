@@ -85,4 +85,11 @@ public class Bootstrap : MonoBehaviour
             Strip(ServerWorld);
         }
     }
+
+    void FixedUpdate()
+    {
+        // then simulate physics in our server physics scene too
+        // TODO 2D?
+        ServerWorld.GetPhysicsScene().Simulate(Time.fixedDeltaTime);
+    }
 }
