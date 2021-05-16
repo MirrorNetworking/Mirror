@@ -7,11 +7,14 @@ public class Bootstrap : MonoBehaviour
     // Server/Client worlds for easy access
     public const string ClientWorldName = "ClientWorld";
     public const string ServerWorldName = "ServerWorld";
+
     public static Scene ClientWorld;
     public static Scene ServerWorld;
+
     static Scene originalScene;
     static string originalScenePath;
-    static bool initialized = false;
+
+    static bool initialized;
 
     // helper function to LoadScene with a custom name
     // -> LoadScene additive can duplicate but not change the name
@@ -72,18 +75,6 @@ public class Bootstrap : MonoBehaviour
             // merge duplicate into serverworld
             SceneManager.MergeScenes(scene, ClientWorld);
             Debug.Log($"Original scene merged into {ClientWorldName}!");
-        }
-    }
-
-    void OnGUI()
-    {
-        if (GUI.Button(new Rect(5, 5, 100, 25), "Start Server"))
-        {
-            //
-        }
-
-        if (GUI.Button(new Rect(5, 30, 100, 25), "Start Client"))
-        {
         }
     }
 }
