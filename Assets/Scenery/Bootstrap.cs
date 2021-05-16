@@ -55,6 +55,7 @@ public class Bootstrap : MonoBehaviour
         RemoveAll<AudioListener>(scene);
         RemoveAll<Camera>(scene);
         RemoveAll<Light>(scene);
+        RemoveAll<Renderer>(scene);
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
