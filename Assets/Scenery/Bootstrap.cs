@@ -1,4 +1,6 @@
 ﻿// Bootstrap ServerWorld, ClientWorld just like in ECS.
+
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -44,7 +46,7 @@ public class Bootstrap : MonoBehaviour
 
         // duplicate original scene. we'll move it into ClientWorld
         // -> additive, otherwise we would just reload it
-        SceneManager.LoadScene(originalScene.path, LoadSceneMode.Additive);
+        //SceneManager.LoadScene(originalScene.path, LoadSceneMode.Additive);
     }
 
     // remove audio listener and main camera from server world
@@ -66,6 +68,10 @@ public class Bootstrap : MonoBehaviour
             foreach (Camera cam in FindObjectsOfType<Camera>())
                 Destroy(cam);
 
+            // remove all lights, otherwise we have double intensity
+            //foreach (Light light in FindObjectsOfType<Light>())
+            //    Destroy(light);
+
             // restore active scene
             if (!SceneManager.SetActiveScene(backup))
                 Debug.LogError($"Bootstrap: failed to restore active scene {backup.path}");
@@ -75,24 +81,22 @@ public class Bootstrap : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        //Debug.Log($"OnSceneLoaded: {scene.name} {scene.path}");
+        Debug.Log($"OnSceneLoaded: {scene.name} {scene.path}");
 
         // is this for the original scene?
         if (scene == originalScene)
         {
-            // merge original into ServerWorld & strip it
-            //Debug.Log($"original scene loaded");
-            SceneManager.MergeScenes(scene, ServerWorld);
-            Debug.Log($"Bootstrap: original scene merged into {ServerWorldName}!");
-            StripServerWorld();
+            //Debug.Log($"duplicated scene loaded");
+            SceneManager.MergeScenes(scene, ClientWorld);
+            Debug.Log($"Bootstrap: original scene merged into {ClientWorldName}!");
         }
         // not the same scene, but same path. so it's the duplicate.
         else if (scene.path == originalScenePath)
         {
-            // merge duplicate into serverworld
-            //Debug.Log($"duplicated scene loaded");
-            SceneManager.MergeScenes(scene, ClientWorld);
-            Debug.Log($"Bootstrap: original scene merged into {ClientWorldName}!");
+            //Debug.Log($"original scene loaded");
+            SceneManager.MergeScenes(scene, ServerWorld);
+            Debug.Log($"Bootstrap: original scene merged into {ServerWorldName}!");
+            StripServerWorld();
         }
     }
 }
