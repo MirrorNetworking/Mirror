@@ -11,8 +11,11 @@ public class Bootstrap : MonoBehaviour
     public static Scene ClientWorld;
     public static Scene ServerWorld;
 
+    // original scene is not public. it will become the server scene after merge.
     static Scene originalScene;
-    static string originalScenePath;
+
+    // this will always be the original scene's path.
+    public static string originalScenePath;
 
     static bool initialized;
 
