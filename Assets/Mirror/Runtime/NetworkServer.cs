@@ -84,6 +84,8 @@ namespace Mirror
             Transport.activeTransport.OnServerError = OnError;
         }
 
+        // calls OnStartClient for all SERVER objects in host mode once.
+        // client doesn't get spawn messages for those, so need to call manually.
         public static void ActivateHostScene()
         {
             foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
