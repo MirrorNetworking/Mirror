@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿// Bootstrap ServerWorld, ClientWorld just like in ECS.
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class NetMan : MonoBehaviour
+public class Bootstrap : MonoBehaviour
 {
     // Server/Client worlds for easy access
     public const string ClientWorldName = "ClientWorld";
