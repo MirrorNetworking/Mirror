@@ -26,7 +26,11 @@ public class Bootstrap : MonoBehaviour
 
         // create a scene with [ServerWorld] suffix
         string serverWorldName = ClientWorld.name + " [ServerWorld]";
-        SceneManager.CreateScene(serverWorldName);
+        // need a separate physics scene so ClientWorld objects don't call
+        // ServerWorld object's OnTrigger/OnCollision
+        // TODO 2D? via '|'?
+        CreateSceneParameters parameters = new CreateSceneParameters(LocalPhysicsMode.Physics3D);
+        SceneManager.CreateScene(serverWorldName, parameters);
         ServerWorld = SceneManager.GetSceneByName(serverWorldName);
 
         // can't merge any scenes yet because not loaded in Awake() yet.
