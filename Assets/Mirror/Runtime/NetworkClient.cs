@@ -1103,7 +1103,6 @@ namespace Mirror
             }
 
             // parse entities
-            // TODO infer spawn/despawn from it too
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(message.entitiesPayload))
             {
                 while (reader.Position < reader.Length)
