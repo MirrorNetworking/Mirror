@@ -60,7 +60,7 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
             bool written = serverObject.OnSerialize(writer, initialState);
-            writeLength = writer.Length;
+            writeLength = writer.Position;
             data = writer.ToArraySegment();
 
             return written;
