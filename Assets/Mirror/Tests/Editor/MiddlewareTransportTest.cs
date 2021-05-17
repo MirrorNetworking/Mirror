@@ -106,13 +106,11 @@ namespace Mirror.Tests
             const int count = 5;
             ArraySegment<byte> segment = new ArraySegment<byte>(array, offset, count);
 
-            middleware.ClientSend(channel, segment);
+            middleware.ClientSend(segment, channel);
 
-            inner.Received(1).ClientSend(channel, Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count));
-            inner.Received(0).ClientSend(Arg.Is<int>(x => x != channel), Arg.Any<ArraySegment<byte>>());
+            inner.Received(1).ClientSend(Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count), channel);
+            inner.Received(0).ClientSend(Arg.Any<ArraySegment<byte>>(), Arg.Is<int>(x => x != channel));
         }
-
-
 
         [Test]
         [TestCase(true)]
@@ -154,11 +152,11 @@ namespace Mirror.Tests
             const int count = 5;
             ArraySegment<byte> segment = new ArraySegment<byte>(array, offset, count);
 
-            middleware.ServerSend(id, channel, segment);
+            middleware.ServerSend(id, segment, channel);
 
-            inner.Received(1).ServerSend(id, channel, Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count));
+            inner.Received(1).ServerSend(id, Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count), channel);
             // only need to check first arg,
-            inner.Received(0).ServerSend(Arg.Is<int>(x => x != id), Arg.Any<int>(), Arg.Any<ArraySegment<byte>>());
+            inner.Received(0).ServerSend(Arg.Is<int>(x => x != id), Arg.Any<ArraySegment<byte>>(), Arg.Any<int>());
         }
 
         [Test]

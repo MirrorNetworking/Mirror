@@ -166,7 +166,7 @@ namespace Mirror.SimpleWeb
             client?.Disconnect();
         }
 
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
             if (!ClientConnected())
             {
@@ -244,7 +244,7 @@ namespace Mirror.SimpleWeb
             server.KickClient(connectionId);
         }
 
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             if (!ServerActive())
             {
@@ -265,7 +265,6 @@ namespace Mirror.SimpleWeb
             }
 
             server.SendOne(connectionId, segment);
-            return;
         }
 
         public override string ServerGetClientAddress(int connectionId)

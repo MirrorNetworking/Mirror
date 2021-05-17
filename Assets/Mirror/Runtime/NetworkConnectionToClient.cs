@@ -91,7 +91,7 @@ namespace Mirror
                         writer.Position + segment.Count >= max)
                     {
                         // flush & reset writer
-                        Transport.activeTransport.ServerSend(connectionId, channelId, writer.ToArraySegment());
+                        Transport.activeTransport.ServerSend(connectionId, writer.ToArraySegment(), channelId);
                         writer.SetLength(0);
                     }
 
@@ -113,7 +113,7 @@ namespace Mirror
                 // send it.
                 if (writer.Position > 0)
                 {
-                    Transport.activeTransport.ServerSend(connectionId, channelId, writer.ToArraySegment());
+                    Transport.activeTransport.ServerSend(connectionId, writer.ToArraySegment(), channelId);
                     writer.SetLength(0);
                 }
             }
@@ -144,7 +144,7 @@ namespace Mirror
                     batch.messages.Enqueue(writer);
                 }
                 // otherwise send directly to minimize latency
-                else Transport.activeTransport.ServerSend(connectionId, channelId, segment);
+                else Transport.activeTransport.ServerSend(connectionId, segment, channelId);
             }
         }
 

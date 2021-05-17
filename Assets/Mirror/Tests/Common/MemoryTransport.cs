@@ -52,7 +52,7 @@ namespace Mirror.Tests
                 clientConnected = true;
             }
         }
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
             // only  if client connected
             if (clientConnected)
@@ -115,7 +115,7 @@ namespace Mirror.Tests
         public override bool ServerActive() => serverActive;
         public override Uri ServerUri() => throw new NotImplementedException();
         public override void ServerStart() { serverActive = true; }
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             // only if server is running and client is connected
             if (serverActive && clientConnected)

@@ -93,9 +93,9 @@ namespace Mirror
             available.ClientDisconnect();
         }
 
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
-            available.ClientSend(channelId, segment);
+            available.ClientSend(segment, channelId);
         }
 
         // right now this just returns the first available uri,
@@ -117,9 +117,9 @@ namespace Mirror
             available.ServerDisconnect(connectionId);
         }
 
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
-            available.ServerSend(connectionId, channelId, segment);
+            available.ServerSend(connectionId, segment, channelId);
         }
 
         public override void ServerStart()
