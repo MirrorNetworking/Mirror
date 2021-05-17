@@ -30,6 +30,7 @@ namespace Mirror
         int length;
 
         /// <summary>Number of bytes writen to the buffer</summary>
+        [Obsolete("Remember .Position instead of using .Length. It's too weird and too costly.")]
         public int Length => length;
 
         /// <summary>Next position to write to the buffer</summary>
@@ -54,6 +55,7 @@ namespace Mirror
 
         /// <summary>Sets length, moves position if it is greater than new length</summary>
         /// Zeros out any extra length created by setlength
+        [Obsolete("Set .Position instead of using .Length. It's too weird and too costly.")]
         public void SetLength(int newLength)
         {
             int oldLength = length;
@@ -71,6 +73,7 @@ namespace Mirror
             position = Mathf.Min(position, length);
         }
 
+        // TODO remove after removing obsolete .Length and .SetLength.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnsureLength(int value)
         {
