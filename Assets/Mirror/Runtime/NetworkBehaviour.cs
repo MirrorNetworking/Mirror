@@ -535,6 +535,7 @@ namespace Mirror
             return false;
         }
 
+        // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         public bool IsDirty()
         {
             if (Time.time - lastSyncTime >= syncInterval)
