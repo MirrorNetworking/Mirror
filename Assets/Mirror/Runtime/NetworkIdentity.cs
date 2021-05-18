@@ -126,28 +126,7 @@ namespace Mirror
             new Dictionary<uint, NetworkIdentity>();
 
         // get all NetworkBehaviour components
-        // => currently lazily initialized so tests can add components after
-        //    creating a NetworkIdentity.
-        // TODO initialize them from NetworkIdentity.Awake() later, see
-        // 'componentindex' branch (still breaks tests)
-        NetworkBehaviour[] _NetworkBehaviours;
-        public NetworkBehaviour[] NetworkBehaviours
-        {
-            get
-            {
-                if (_NetworkBehaviours == null)
-                {
-                    _NetworkBehaviours = GetComponents<NetworkBehaviour>();
-                    if (_NetworkBehaviours.Length > byte.MaxValue)
-                    {
-                        Debug.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
-                        // Log error once then resize array so that NetworkIdentity does not throw exceptions later
-                        Array.Resize(ref _NetworkBehaviours, byte.MaxValue);
-                    }
-                }
-                return _NetworkBehaviours;
-            }
-        }
+        public NetworkBehaviour[] NetworkBehaviours { get; private set; }
 
 #pragma warning disable 618
         NetworkVisibility visibilityCache;
@@ -278,10 +257,36 @@ namespace Mirror
         [SerializeField, HideInInspector] bool hasSpawned;
         public bool SpawnedFromInstantiate { get; private set; }
 
+        // NetworkBehaviour components are initialized in Awake once.
+        // Changing them at runtime would get client & server out of sync.
+        // BUT internal so tests can add them after creating the NetworkIdentity
+        internal void InitializeNetworkBehaviours()
+        {
+            // Get all NetworkBehaviours
+            // (never null. GetComponents returns [] if none found)
+            NetworkBehaviours = GetComponents<NetworkBehaviour>();
+            if (NetworkBehaviours.Length > byte.MaxValue)
+                Debug.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
+
+            // initialize each one
+            for (int i = 0; i < NetworkBehaviours.Length; ++i)
+            {
+                NetworkBehaviour component = NetworkBehaviours[i];
+                component.netIdentity = this;
+                component.ComponentIndex = i;
+            }
+        }
+
         // Awake is only called in Play mode.
         // internal so we can call it during unit tests too.
         internal void Awake()
         {
+            // initialize NetworkBehaviour components.
+            // Awake() is called immediately after initialization.
+            // no one can overwrite it because NetworkIdentity is sealed.
+            // => doing it here is the fastest and easiest solution.
+            InitializeNetworkBehaviours();
+
             if (hasSpawned)
             {
                 Debug.LogError($"{name} has already spawned. Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects).  Otherwise the client won't know which object to use for a SpawnSceneObject message.");
@@ -1144,7 +1149,6 @@ namespace Mirror
             netId = 0;
             connectionToServer = null;
             connectionToClient = null;
-            _NetworkBehaviours = null;
 
             ClearObservers();
 
@@ -1185,6 +1189,13 @@ namespace Mirror
 
         void ResetSyncObjects()
         {
+            // ResetSyncObjects is called by Reset, which is called by Unity.
+            // AddComponent() calls Reset().
+            // AddComponent() is called before Awake().
+            // so NetworkBehaviours may not be initialized yet.
+            if (NetworkBehaviours == null)
+                return;
+
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 comp.ResetSyncObjects();
