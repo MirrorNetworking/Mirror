@@ -80,6 +80,7 @@ namespace Mirror
 
         NetworkIdentity netIdentityCache;
         /// <summary>Returns the NetworkIdentity of this object</summary>
+        // TODO cache, or let NetworkIdentity.Awake or OnValidate set it
         public NetworkIdentity netIdentity
         {
             get
