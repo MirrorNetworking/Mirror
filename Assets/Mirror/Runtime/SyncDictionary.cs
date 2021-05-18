@@ -84,8 +84,8 @@ namespace Mirror
 
         public void OnSerializeAll(NetworkWriter writer)
         {
-            // if init,  write the full list content
-            writer.WriteUInt32((uint)objects.Count);
+            // if init, write the full list content
+            writer.WriteUInt((uint)objects.Count);
 
             foreach (KeyValuePair<TKey, TValue> syncItem in objects)
             {
@@ -97,13 +97,13 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WriteUInt32((uint)changes.Count);
+            writer.WriteUInt((uint)changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WriteUInt32((uint)changes.Count);
+            writer.WriteUInt((uint)changes.Count);
 
             for (int i = 0; i < changes.Count; i++)
             {

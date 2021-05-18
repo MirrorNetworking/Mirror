@@ -9,7 +9,7 @@ namespace Mirror.Weaver.Tests.Extra
     {
         public static void WriteSomeData(this NetworkWriter writer, SomeDataWithWriter itemData)
         {
-            writer.WriteInt32(itemData.usefulNumber);
+            writer.WriteInt(itemData.usefulNumber);
         }
         public static SomeDataWithWriter ReadSomeData(this NetworkReader reader)
         {

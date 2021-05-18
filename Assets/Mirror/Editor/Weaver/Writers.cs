@@ -19,7 +19,10 @@ namespace Mirror.Weaver
         {
             if (writeFuncs.ContainsKey(dataType))
             {
-                Weaver.Warning($"Registering a Write method for {dataType.FullName} when one already exists", methodReference);
+                // TODO enable this again later.
+                // Writer has some obsolete functions that were renamed.
+                // Don't want weaver warnings for all of them.
+                //Weaver.Warning($"Registering a Write method for {dataType.FullName} when one already exists", methodReference);
             }
 
             // we need to import type when we Initialize Writers so import here in case it is used anywhere else

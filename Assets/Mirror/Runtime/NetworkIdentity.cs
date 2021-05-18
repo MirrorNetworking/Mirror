@@ -816,7 +816,7 @@ namespace Mirror
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
             int headerPosition = writer.Position;
-            writer.WriteInt32(0);
+            writer.WriteInt(0);
             int contentPosition = writer.Position;
 
             // write payload
@@ -834,7 +834,7 @@ namespace Mirror
 
             // fill in length now
             writer.Position = headerPosition;
-            writer.WriteInt32(endPosition - contentPosition);
+            writer.WriteInt(endPosition - contentPosition);
             writer.Position = endPosition;
 
             // Debug.Log("OnSerializeSafely written for object=" + comp.name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "header@" + headerPosition + " content@" + contentPosition + " end@" + endPosition + " contentSize=" + (endPosition - contentPosition));

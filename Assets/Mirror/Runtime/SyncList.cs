@@ -108,7 +108,7 @@ namespace Mirror
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
-            writer.WriteUInt32((uint)objects.Count);
+            writer.WriteUInt((uint)objects.Count);
 
             for (int i = 0; i < objects.Count; i++)
             {
@@ -120,13 +120,13 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WriteUInt32((uint)changes.Count);
+            writer.WriteUInt((uint)changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WriteUInt32((uint)changes.Count);
+            writer.WriteUInt((uint)changes.Count);
 
             for (int i = 0; i < changes.Count; i++)
             {
@@ -143,12 +143,12 @@ namespace Mirror
                         break;
 
                     case Operation.OP_REMOVEAT:
-                        writer.WriteUInt32((uint)change.index);
+                        writer.WriteUInt((uint)change.index);
                         break;
 
                     case Operation.OP_INSERT:
                     case Operation.OP_SET:
-                        writer.WriteUInt32((uint)change.index);
+                        writer.WriteUInt((uint)change.index);
                         writer.Write(change.item);
                         break;
                 }

@@ -9,11 +9,11 @@ namespace Mirror.Tests
             // if O write N
             if (customEnum == EnumReadWriteTests.MyCustomEnum.O)
             {
-                networkWriter.WriteInt32((int)EnumReadWriteTests.MyCustomEnum.N);
+                networkWriter.WriteInt((int)EnumReadWriteTests.MyCustomEnum.N);
             }
             else
             {
-                networkWriter.WriteInt32((int)customEnum);
+                networkWriter.WriteInt((int)customEnum);
             }
         }
         public static EnumReadWriteTests.MyCustomEnum ReadMyCustomEnum(this NetworkReader networkReader)

@@ -30,11 +30,11 @@ namespace Mirror.Discovery
         [SerializeField]
         [Tooltip("The UDP port the server will listen for multi-cast messages")]
         protected int serverBroadcastListenPort = 47777;
-        
+
         [SerializeField]
         [Tooltip("If true, broadcasts a discovery request every ActiveDiscoveryInterval seconds")]
         public bool enableActiveDiscovery = true;
-        
+
         [SerializeField]
         [Tooltip("Time in seconds between multi-cast messages")]
         [Range(1, 60)]
@@ -195,7 +195,7 @@ namespace Mirror.Discovery
             {
                 try
                 {
-                    writer.WriteInt64(secretHandshake);
+                    writer.WriteLong(secretHandshake);
 
                     writer.Write(info);
 
@@ -302,7 +302,7 @@ namespace Mirror.Discovery
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                writer.WriteInt64(secretHandshake);
+                writer.WriteLong(secretHandshake);
 
                 try
                 {

@@ -100,7 +100,7 @@ namespace Mirror
             if (compressRotation)
             {
                 // smalles three compression for 3D
-                writer.WriteUInt32(Compression.CompressQuaternion(rotation));
+                writer.WriteUInt(Compression.CompressQuaternion(rotation));
             }
             else
             {
@@ -146,7 +146,7 @@ namespace Mirror
                 localScale = targetComponent.localScale,
                 timeStamp = Time.time
             };
-            
+
             if (syncScale)
             {
                 // Reader length is checked here, 12 is used as thats the current Vector3 (3 floats) amount.

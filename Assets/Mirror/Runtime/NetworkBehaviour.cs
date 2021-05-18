@@ -640,7 +640,7 @@ namespace Mirror
         {
             bool dirty = false;
             // write the mask
-            writer.WriteUInt64(DirtyObjectBits());
+            writer.WriteULong(DirtyObjectBits());
             // serializable objects, such as synclists
             for (int i = 0; i < syncObjects.Count; i++)
             {

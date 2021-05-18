@@ -34,7 +34,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             ushort msgType = GetId<T>();
-            writer.WriteUInt16(msgType);
+            writer.WriteUShort(msgType);
 
             // serialize message into writer
             writer.Write(message);

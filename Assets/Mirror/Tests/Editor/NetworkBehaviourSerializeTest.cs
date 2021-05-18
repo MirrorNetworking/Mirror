@@ -78,7 +78,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            writer.WriteSingle(customSerializeField);
+            writer.WriteFloat(customSerializeField);
             return base.OnSerialize(writer, initialState);
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
@@ -94,7 +94,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            writer.WriteSingle(customSerializeField);
+            writer.WriteFloat(customSerializeField);
             return base.OnSerialize(writer, initialState);
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
@@ -115,7 +115,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            writer.WriteSingle(customSerializeField);
+            writer.WriteFloat(customSerializeField);
             return base.OnSerialize(writer, initialState);
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)

@@ -311,7 +311,7 @@ namespace Mirror
         bool WriteParameters(NetworkWriter writer, bool forceAll = false)
         {
             ulong dirtyBits = forceAll ? (~0ul) : NextDirtyBits();
-            writer.WriteUInt64(dirtyBits);
+            writer.WriteULong(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
@@ -321,17 +321,17 @@ namespace Mirror
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = animator.GetInteger(par.nameHash);
-                    writer.WriteInt32(newIntValue);
+                    writer.WriteInt(newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
-                    writer.WriteSingle(newFloatValue);
+                    writer.WriteFloat(newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = animator.GetBool(par.nameHash);
-                    writer.WriteBoolean(newBoolValue);
+                    writer.WriteBool(newBoolValue);
                 }
             }
             return dirtyBits != 0;
@@ -386,16 +386,16 @@ namespace Mirror
                     if (animator.IsInTransition(i))
                     {
                         AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
+                        writer.WriteInt(st.fullPathHash);
+                        writer.WriteFloat(st.normalizedTime);
                     }
                     else
                     {
                         AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
+                        writer.WriteInt(st.fullPathHash);
+                        writer.WriteFloat(st.normalizedTime);
                     }
-                    writer.WriteSingle(animator.GetLayerWeight(i));
+                    writer.WriteFloat(animator.GetLayerWeight(i));
                 }
                 WriteParameters(writer, initialState);
                 return true;

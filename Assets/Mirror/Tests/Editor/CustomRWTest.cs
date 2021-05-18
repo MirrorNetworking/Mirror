@@ -21,7 +21,7 @@ namespace Mirror.Tests
     {
         public static void WriteQuest(this NetworkWriter writer, MockQuest quest)
         {
-            writer.WriteInt32(quest.Id);
+            writer.WriteInt(quest.Id);
         }
         public static MockQuest WriteQuest(this NetworkReader reader)
         {
