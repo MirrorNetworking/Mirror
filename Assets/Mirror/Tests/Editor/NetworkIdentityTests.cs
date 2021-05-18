@@ -821,6 +821,12 @@ namespace Mirror.Tests
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }
+
+            // CreateNetworked already initializes the components.
+            // let's reset and initialize again with the added ones.
+            identity.Reset();
+            identity.Awake();
+
             // ignore error from creating cache (has its own test)
             LogAssert.ignoreFailingMessages = true;
             _ = identity.NetworkBehaviours;
@@ -850,6 +856,11 @@ namespace Mirror.Tests
             {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
             }
+
+            // CreateNetworked already initializes the components.
+            // let's reset and initialize again with the added ones.
+            identity.Reset();
+            identity.Awake();
 
             // call NetworkBehaviours property to create the cache
             LogAssert.Expect(LogType.Error, new Regex($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity.+"));

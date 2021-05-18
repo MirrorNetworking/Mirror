@@ -78,55 +78,15 @@ namespace Mirror
         // SyncLists, SyncSets, etc.
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
-        NetworkIdentity netIdentityCache;
+        // NetworkIdentity based values set from NetworkIdentity.Awake(),
+        // which is way more simple and way faster than trying to figure out
+        // component index from in here by searching all NetworkComponents.
+
         /// <summary>Returns the NetworkIdentity of this object</summary>
-        // TODO cache, or let NetworkIdentity.Awake or OnValidate set it
-        public NetworkIdentity netIdentity
-        {
-            get
-            {
-                if (netIdentityCache is null)
-                {
-                    netIdentityCache = GetComponent<NetworkIdentity>();
-                    // do this 2nd check inside first if so that we are not checking == twice on unity Object
-                    if (netIdentityCache is null)
-                    {
-                        Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
-                    }
-                }
-                return netIdentityCache;
-            }
-        }
+        public NetworkIdentity netIdentity { get; internal set; }
 
         /// <summary>Returns the index of the component on this object</summary>
-        // TODO initialize from NetworkIdentity.Awake() later, see
-        // 'componentindex' branch (still breaks tests)
-        int? _ComponentIndex;
-        public int ComponentIndex
-        {
-            get
-            {
-                // use cache if available
-                if (_ComponentIndex.HasValue)
-                    return _ComponentIndex.Value;
-
-                // note: FindIndex causes allocations, we search manually instead
-                // TODO this is not fast at runtime uhh
-                for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
-                {
-                    NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
-                    if (component == this)
-                    {
-                        _ComponentIndex = i;
-                        return i;
-                    }
-                }
-
-                // this should never happen
-                Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
-                return -1;
-            }
-        }
+        public int ComponentIndex { get; internal set; }
 
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).
