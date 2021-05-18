@@ -497,8 +497,8 @@ namespace Mirror.Tests
             // set position back by one
             writer.Position = 1;
 
-            // Changing the position should not alter the size of the data
-            Assert.That(writer.ToArray().Length, Is.EqualTo(2));
+            // Changing the position alter the size of the data
+            Assert.That(writer.ToArray().Length, Is.EqualTo(1));
         }
 
         [Test]
