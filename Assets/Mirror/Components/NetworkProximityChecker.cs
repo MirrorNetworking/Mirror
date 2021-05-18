@@ -30,6 +30,7 @@ namespace Mirror
         /// Flag to force this object to be hidden for players.
         /// <para>If this object is a player object, it will not be hidden for that player.</para>
         /// </summary>
+        // Deprecated 02/17/2021
         [Obsolete("Use NetworkIdentity.visible mode instead of forceHidden!")]
         public bool forceHidden
         {

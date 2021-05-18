@@ -6,6 +6,8 @@ using Guid = System.Guid;
 
 namespace Mirror
 {
+    // Deprecated 03/07/2021
+    [Obsolete("Use NetworkClient instead")]
     public static class ClientScene
     {
         [Obsolete("ClientScene.localPlayer was moved to NetworkClient.localPlayer")]
