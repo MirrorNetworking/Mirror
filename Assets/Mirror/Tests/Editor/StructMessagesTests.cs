@@ -28,7 +28,7 @@ namespace Mirror.Tests.StructMessages
 
             Assert.AreEqual(someValue, received.someValue);
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }

@@ -58,7 +58,7 @@ namespace Mirror.Tests.MessageTests
             Assert.AreEqual(3, received.parentValue);
             Assert.AreEqual(4, received.childValue);
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }
@@ -87,7 +87,7 @@ namespace Mirror.Tests.MessageTests
             Assert.AreEqual(message, received.message);
             Assert.AreEqual(responseId, received.responseId);
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }
@@ -116,7 +116,7 @@ namespace Mirror.Tests.MessageTests
             Assert.AreEqual(message, received.message);
             Assert.AreEqual(responseId, received.responseId);
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }

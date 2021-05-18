@@ -105,36 +105,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void TestSetLengthZeroes()
-        {
-            NetworkWriter writer = new NetworkWriter();
-            writer.WriteString("I saw");
-            writer.WriteInt64(0xA_FADED_DEAD_EEL);
-            writer.WriteString("and ate it");
-            int position = writer.Position;
-
-            writer.SetLength(10);
-            Assert.That(writer.Position, Is.EqualTo(10), "Decreasing length should move position");
-
-            // lets grow it back and check there's zeroes now.
-            writer.SetLength(position);
-            byte[] data = writer.ToArray();
-            for (int i = 10; i < data.Length; i++)
-            {
-                Assert.That(data[i], Is.EqualTo(0), $"index {i} should have value 0");
-            }
-        }
-
-        [Test]
-        public void TestSetLengthInitialization()
-        {
-            NetworkWriter writer = new NetworkWriter();
-
-            writer.SetLength(10);
-            Assert.That(writer.Position, Is.EqualTo(0), "Increasing length should not move position");
-        }
-
-        [Test]
         public void TestResetSetsPotionAndLength()
         {
             NetworkWriter writer = new NetworkWriter();
@@ -144,7 +114,6 @@ namespace Mirror.Tests
             writer.Reset();
 
             Assert.That(writer.Position, Is.EqualTo(0));
-            Assert.That(writer.Length, Is.EqualTo(0));
 
             byte[] data = writer.ToArray();
             Assert.That(data, Is.Empty);

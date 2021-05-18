@@ -52,7 +52,7 @@ namespace Mirror.Tests
             writer.Write(msg);
 
             // should be 1 byte for data
-            Assert.That(writer.Length, Is.EqualTo(1));
+            Assert.That(writer.Position, Is.EqualTo(1));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace Mirror.Tests
             writer.Write(msg);
 
             // should be 2 bytes for data
-            Assert.That(writer.Length, Is.EqualTo(2));
+            Assert.That(writer.Position, Is.EqualTo(2));
         }
 
         [Test]

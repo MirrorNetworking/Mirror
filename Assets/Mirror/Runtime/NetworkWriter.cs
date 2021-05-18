@@ -24,61 +24,15 @@ namespace Mirror
         // => 1500 bytes by default because on average, most packets will be <= MTU
         byte[] buffer = new byte[1500];
 
-        // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
-        // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
-        int position;
-        int length;
-
-        /// <summary>Number of bytes writen to the buffer</summary>
-        public int Length => length;
-
         /// <summary>Next position to write to the buffer</summary>
-        public int Position
-        {
-            get => position;
-            set
-            {
-                position = value;
-                EnsureLength(value);
-            }
-        }
+        public int Position;
 
         /// <summary>Reset both the position and length of the stream</summary>
         // Leaves the capacity the same so that we can reuse this writer without
         // extra allocations
         public void Reset()
         {
-            position = 0;
-            length = 0;
-        }
-
-        /// <summary>Sets length, moves position if it is greater than new length</summary>
-        /// Zeros out any extra length created by setlength
-        public void SetLength(int newLength)
-        {
-            int oldLength = length;
-
-            // ensure length & capacity
-            EnsureLength(newLength);
-
-            // zero out new length
-            if (oldLength < newLength)
-            {
-                Array.Clear(buffer, oldLength, newLength - oldLength);
-            }
-
-            length = newLength;
-            position = Mathf.Min(position, length);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void EnsureLength(int value)
-        {
-            if (length < value)
-            {
-                length = value;
-                EnsureCapacity(value);
-            }
+            Position = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,33 +45,33 @@ namespace Mirror
             }
         }
 
-        /// <summary>Copies buffer to new array of size 'Length'. Ignores 'Position'.</summary>
+        /// <summary>Copies buffer until 'Position' to a new array.</summary>
         public byte[] ToArray()
         {
-            byte[] data = new byte[length];
-            Array.ConstrainedCopy(buffer, 0, data, 0, length);
+            byte[] data = new byte[Position];
+            Array.ConstrainedCopy(buffer, 0, data, 0, Position);
             return data;
         }
 
-        /// <summary>Returns allocatin-free ArraySegment which points to buffer up to 'Length' (ignores 'Position').</summary>
+        /// <summary>Returns allocation-free ArraySegment until 'Position'.</summary>
         public ArraySegment<byte> ToArraySegment()
         {
-            return new ArraySegment<byte>(buffer, 0, length);
+            return new ArraySegment<byte>(buffer, 0, Position);
         }
 
         public void WriteByte(byte value)
         {
-            EnsureLength(position + 1);
-            buffer[position++] = value;
+            EnsureCapacity(Position + 1);
+            buffer[Position++] = value;
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
         public void WriteBytes(byte[] buffer, int offset, int count)
         {
-            EnsureLength(position + count);
-            Array.ConstrainedCopy(buffer, offset, this.buffer, position, count);
-            position += count;
+            EnsureCapacity(Position + count);
+            Array.ConstrainedCopy(buffer, offset, this.buffer, Position, count);
+            Position += count;
         }
 
         /// <summary>Writes any type that mirror supports. Uses weaver populated Writer(T).write.</summary>

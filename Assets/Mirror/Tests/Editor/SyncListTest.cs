@@ -17,7 +17,7 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeAll(reader);
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeAll and OnDeserializeAll calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
 
@@ -31,7 +31,7 @@ namespace Mirror.Tests
             toList.OnDeserializeDelta(reader);
             fromList.Flush();
 
-            int writeLength = writer.Length;
+            int writeLength = writer.Position;
             int readLength = reader.Position;
             Assert.That(writeLength == readLength, $"OnSerializeDelta and OnDeserializeDelta calls write the same amount of data\n    writeLength={writeLength}\n    readLength={readLength}");
         }
