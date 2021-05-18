@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests.Extra
         }
         public static SomeDataWithWriter ReadSomeData(this NetworkReader reader)
         {
-            return new SomeDataWithWriter { usefulNumber = reader.ReadInt32() };
+            return new SomeDataWithWriter { usefulNumber = reader.ReadInt() };
         }
     }
 }

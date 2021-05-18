@@ -399,7 +399,7 @@ namespace Mirror.Tests
 
                 using (PooledNetworkReader reader = NetworkReaderPool.GetReader(writer.ToArraySegment()))
                 {
-                    return reader.ReadUInt32();
+                    return reader.ReadUInt();
                 }
             }
         }

@@ -23,7 +23,7 @@ namespace Mirror.Tests
 
         public void Deserialize(NetworkReader reader)
         {
-            IntValue = reader.ReadInt32();
+            IntValue = reader.ReadInt();
             StringValue = reader.ReadString();
             DoubleValue = reader.ReadDouble();
         }

@@ -665,7 +665,7 @@ namespace Mirror
 
         internal void DeSerializeObjectsDelta(NetworkReader reader)
         {
-            ulong dirty = reader.ReadUInt64();
+            ulong dirty = reader.ReadULong();
             for (int i = 0; i < syncObjects.Count; i++)
             {
                 SyncObject syncObject = syncObjects[i];

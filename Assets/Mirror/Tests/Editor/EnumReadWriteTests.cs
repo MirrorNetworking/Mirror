@@ -18,7 +18,7 @@ namespace Mirror.Tests
         }
         public static EnumReadWriteTests.MyCustomEnum ReadMyCustomEnum(this NetworkReader networkReader)
         {
-            return (EnumReadWriteTests.MyCustomEnum)networkReader.ReadInt32();
+            return (EnumReadWriteTests.MyCustomEnum)networkReader.ReadInt();
         }
     }
     public class EnumReadWriteTests

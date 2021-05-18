@@ -130,7 +130,7 @@ namespace Mirror
             IsReadOnly = true;
 
             // if init,  write the full list content
-            int count = (int)reader.ReadUInt32();
+            int count = (int)reader.ReadUInt();
 
             objects.Clear();
             changes.Clear();
@@ -145,7 +145,7 @@ namespace Mirror
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
-            changesAhead = (int)reader.ReadUInt32();
+            changesAhead = (int)reader.ReadUInt();
         }
 
         public void OnDeserializeDelta(NetworkReader reader)
@@ -153,7 +153,7 @@ namespace Mirror
             // This list can now only be modified by synchronization
             IsReadOnly = true;
 
-            int changesCount = (int)reader.ReadUInt32();
+            int changesCount = (int)reader.ReadUInt();
 
             for (int i = 0; i < changesCount; i++)
             {

@@ -157,15 +157,15 @@ namespace Mirror.Tests
             EnsureThrows(r => r.ReadByte());
             EnsureThrows(r => r.ReadSByte());
             EnsureThrows(r => r.ReadChar());
-            EnsureThrows(r => r.ReadBoolean());
-            EnsureThrows(r => r.ReadInt16());
-            EnsureThrows(r => r.ReadUInt16());
-            EnsureThrows(r => r.ReadInt32());
-            EnsureThrows(r => r.ReadUInt32());
-            EnsureThrows(r => r.ReadInt64());
-            EnsureThrows(r => r.ReadUInt64());
+            EnsureThrows(r => r.ReadBool());
+            EnsureThrows(r => r.ReadShort());
+            EnsureThrows(r => r.ReadUShort());
+            EnsureThrows(r => r.ReadInt());
+            EnsureThrows(r => r.ReadUInt());
+            EnsureThrows(r => r.ReadLong());
+            EnsureThrows(r => r.ReadULong());
             EnsureThrows(r => r.ReadDecimal());
-            EnsureThrows(r => r.ReadSingle());
+            EnsureThrows(r => r.ReadFloat());
             EnsureThrows(r => r.ReadDouble());
             EnsureThrows(r => r.ReadString());
             EnsureThrows(r => r.ReadBytes(1));
@@ -618,7 +618,7 @@ namespace Mirror.Tests
                 NetworkWriter writer = new NetworkWriter();
                 writer.WriteFloat(weird);
                 NetworkReader reader = new NetworkReader(writer.ToArray());
-                float readFloat = reader.ReadSingle();
+                float readFloat = reader.ReadFloat();
                 Assert.That(readFloat, Is.EqualTo(weird));
             }
         }
@@ -877,14 +877,14 @@ namespace Mirror.Tests
             Assert.That(reader.ReadChar(), Is.EqualTo(1));
             Assert.That(reader.ReadByte(), Is.EqualTo(2));
             Assert.That(reader.ReadSByte(), Is.EqualTo(3));
-            Assert.That(reader.ReadBoolean(), Is.True);
-            Assert.That(reader.ReadInt16(), Is.EqualTo(4));
-            Assert.That(reader.ReadUInt16(), Is.EqualTo(5));
-            Assert.That(reader.ReadInt32(), Is.EqualTo(6));
-            Assert.That(reader.ReadUInt32(), Is.EqualTo(7));
-            Assert.That(reader.ReadInt64(), Is.EqualTo(8));
-            Assert.That(reader.ReadUInt64(), Is.EqualTo(9));
-            Assert.That(reader.ReadSingle(), Is.EqualTo(10));
+            Assert.That(reader.ReadBool(), Is.True);
+            Assert.That(reader.ReadShort(), Is.EqualTo(4));
+            Assert.That(reader.ReadUShort(), Is.EqualTo(5));
+            Assert.That(reader.ReadInt(), Is.EqualTo(6));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(7));
+            Assert.That(reader.ReadLong(), Is.EqualTo(8));
+            Assert.That(reader.ReadULong(), Is.EqualTo(9));
+            Assert.That(reader.ReadFloat(), Is.EqualTo(10));
             Assert.That(reader.ReadDouble(), Is.EqualTo(11));
             Assert.That(reader.ReadDecimal(), Is.EqualTo(12));
             // writing null string should write null in Mirror ("" in original HLAPI)

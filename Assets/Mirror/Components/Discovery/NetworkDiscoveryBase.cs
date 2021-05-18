@@ -162,7 +162,7 @@ namespace Mirror.Discovery
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
             {
-                long handshake = networkReader.ReadInt64();
+                long handshake = networkReader.ReadLong();
                 if (handshake != secretHandshake)
                 {
                     // message is not for us
@@ -339,7 +339,7 @@ namespace Mirror.Discovery
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
             {
-                if (networkReader.ReadInt64() != secretHandshake)
+                if (networkReader.ReadLong() != secretHandshake)
                     return;
 
                 Response response = networkReader.Read<Response>();

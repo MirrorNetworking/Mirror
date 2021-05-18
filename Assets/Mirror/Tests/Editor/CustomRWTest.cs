@@ -25,7 +25,7 @@ namespace Mirror.Tests
         }
         public static MockQuest WriteQuest(this NetworkReader reader)
         {
-            return new MockQuest(reader.ReadInt32());
+            return new MockQuest(reader.ReadInt());
         }
     }
 

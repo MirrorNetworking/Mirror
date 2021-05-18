@@ -83,7 +83,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            customSerializeField = reader.ReadSingle();
+            customSerializeField = reader.ReadFloat();
             base.OnDeserialize(reader, initialState);
         }
     }
@@ -99,7 +99,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            customSerializeField = reader.ReadSingle();
+            customSerializeField = reader.ReadFloat();
             base.OnDeserialize(reader, initialState);
         }
     }
@@ -120,7 +120,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            customSerializeField = reader.ReadSingle();
+            customSerializeField = reader.ReadFloat();
             base.OnDeserialize(reader, initialState);
         }
     }

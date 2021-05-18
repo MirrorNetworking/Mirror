@@ -131,7 +131,7 @@ namespace Mirror.Tests
             }
             public override void OnDeserialize(NetworkReader reader, bool initialState)
             {
-                value = reader.ReadInt32();
+                value = reader.ReadInt();
             }
         }
 
@@ -173,7 +173,7 @@ namespace Mirror.Tests
             }
             public override void OnDeserialize(NetworkReader reader, bool initialState)
             {
-                value = reader.ReadInt32();
+                value = reader.ReadInt();
             }
         }
 

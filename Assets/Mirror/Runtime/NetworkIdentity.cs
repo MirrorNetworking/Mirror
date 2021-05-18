@@ -903,7 +903,7 @@ namespace Mirror
         void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
             // read header as 4 bytes and calculate this chunk's start+end
-            int contentSize = reader.ReadInt32();
+            int contentSize = reader.ReadInt();
             int chunkStart = reader.Position;
             int chunkEnd = reader.Position + contentSize;
 

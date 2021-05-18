@@ -342,7 +342,7 @@ namespace Mirror
             bool animatorEnabled = animator.enabled;
             // need to read values from NetworkReader even if animator is disabled
 
-            ulong dirtyBits = reader.ReadUInt64();
+            ulong dirtyBits = reader.ReadULong();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
@@ -351,19 +351,19 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newIntValue = reader.ReadInt32();
+                    int newIntValue = reader.ReadInt();
                     if (animatorEnabled)
                         animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
-                    float newFloatValue = reader.ReadSingle();
+                    float newFloatValue = reader.ReadFloat();
                     if (animatorEnabled)
                         animator.SetFloat(par.nameHash, newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
-                    bool newBoolValue = reader.ReadBoolean();
+                    bool newBoolValue = reader.ReadBool();
                     if (animatorEnabled)
                         animator.SetBool(par.nameHash, newBoolValue);
                 }
@@ -415,9 +415,9 @@ namespace Mirror
             {
                 for (int i = 0; i < animator.layerCount; i++)
                 {
-                    int stateHash = reader.ReadInt32();
-                    float normalizedTime = reader.ReadSingle();
-                    animator.SetLayerWeight(i, reader.ReadSingle());
+                    int stateHash = reader.ReadInt();
+                    float normalizedTime = reader.ReadFloat();
+                    animator.SetLayerWeight(i, reader.ReadFloat());
                     animator.Play(stateHash, i, normalizedTime);
                 }
 

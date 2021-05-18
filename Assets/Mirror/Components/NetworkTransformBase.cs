@@ -140,7 +140,7 @@ namespace Mirror
                 // (rotation is optionally compressed)
                 localPosition = reader.ReadVector3(),
                 localRotation = compressRotation
-                                ? Compression.DecompressQuaternion(reader.ReadUInt32())
+                                ? Compression.DecompressQuaternion(reader.ReadUInt())
                                 : reader.ReadQuaternion(),
                 // use current target scale, so we can check boolean and reader later, to see if the data is actually sent.
                 localScale = targetComponent.localScale,

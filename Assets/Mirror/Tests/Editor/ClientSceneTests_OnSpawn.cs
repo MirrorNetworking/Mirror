@@ -29,7 +29,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             base.OnDeserialize(reader, initialState);
 
-            value = reader.ReadInt32();
+            value = reader.ReadInt();
             direction = reader.ReadVector3();
 
             OnDeserializeCalled?.Invoke();

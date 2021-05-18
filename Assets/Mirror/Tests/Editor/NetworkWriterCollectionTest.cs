@@ -20,7 +20,7 @@ namespace Mirror.Tests
         {
             Assert.That(Reader<int>.read, Is.Not.Null, "int read function was not found");
 
-            Func<NetworkReader, int> action = NetworkReaderExtensions.ReadInt32;
+            Func<NetworkReader, int> action = NetworkReaderExtensions.ReadInt;
             Assert.That(Reader<int>.read, Is.EqualTo(action), "int read function was incorrect value");
         }
 

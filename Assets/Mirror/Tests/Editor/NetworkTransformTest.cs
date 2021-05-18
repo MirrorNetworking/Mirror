@@ -17,7 +17,7 @@ namespace Mirror.Tests
             NetworkTransformBase.SerializeIntoWriter(writer, position, rotation, scale, true, true);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             Assert.That(reader.ReadVector3(), Is.EqualTo(position));
-            Assert.That(reader.ReadUInt32(), Is.EqualTo(Compression.CompressQuaternion(rotation)));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(Compression.CompressQuaternion(rotation)));
             Assert.That(reader.ReadVector3(), Is.EqualTo(scale));
         }
     }
