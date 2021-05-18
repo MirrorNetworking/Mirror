@@ -34,15 +34,17 @@ Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirro
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
 ## Low Level Transports
-* (built in) [KCP](https://github.com/skywind3000/kcp): reliable UDP
-* (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
-* (built in) [Ninja.Websockets](https://github.com/ninjasource/Ninja.WebSockets): Websockets
+* (built in) [KCP](https://app.gitbook.com/@mirror-networking/s/docs/transports/kcp-transport): reliable UDP
+* (built in) [Telepathy](https://app.gitbook.com/@mirror-networking/s/docs/transports/telepathy-transport): TCP
+* (built in) [Websockets](https://app.gitbook.com/@mirror-networking/s/docs/transports/websockets-transport): Websockets
 * Libuv: TCP powered by Node.js' native C networking
 * [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
 * [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
-* [UNET LLAPI](https://github.com/SoftwareGuy/Mirror-UnityLLAPI): UDP
-* [FizzySteam](https://github.com/Raystorms/FizzySteamyMirror/): SteamNetwork
-* [Epic](https://github.com/FakeByte/EpicOnlineTransport): Epic Online Services
+* [FizzySteam](https://github.com/Chykary/FizzySteamworks/): SteamNetwork
+* [FizzyFacepunch](https://github.com/Chykary/FizzyFacepunch/): SteamNetwork
+* [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport): Epic Online Services
+* [Light Reflective Mirror](https://github.com/Derek-R-S/Light-Reflective-Mirror): Self-Hosted Relay
+* [Oculus P2P](https://github.com/hyferg/MirrorOculusP2P): Oculus Platform Service
 
 ## Getting Started
 Get **Unity 2019 LTS**, download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
