@@ -159,8 +159,8 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsGameobject(bool initialState)
         {
-            SyncVarGameObject serverObject = CreateObject<SyncVarGameObject>();
-            SyncVarGameObject clientObject = CreateObject<SyncVarGameObject>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarGameObject serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarGameObject clientObject);
 
             GameObject serverValue = CreateNetworkIdentity(2044).gameObject;
 
@@ -177,8 +177,8 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncIdentity(bool initialState)
         {
-            SyncVarNetworkIdentity serverObject = CreateObject<SyncVarNetworkIdentity>();
-            SyncVarNetworkIdentity clientObject = CreateObject<SyncVarNetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity clientObject);
 
             NetworkIdentity serverValue = CreateNetworkIdentity(2045);
 
@@ -195,8 +195,8 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncTransform(bool initialState)
         {
-            SyncVarTransform serverObject = CreateObject<SyncVarTransform>();
-            SyncVarTransform clientObject = CreateObject<SyncVarTransform>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarTransform serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarTransform clientObject);
 
             Transform serverValue = CreateNetworkIdentity(2045).transform;
 
@@ -213,8 +213,8 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsBehaviour(bool initialState)
         {
-            SyncVarNetworkBehaviour serverObject = CreateObject<SyncVarNetworkBehaviour>();
-            SyncVarNetworkBehaviour clientObject = CreateObject<SyncVarNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour clientObject);
 
             SyncVarNetworkBehaviour serverValue = CreateNetworkIdentity(2046).gameObject.AddComponent<SyncVarNetworkBehaviour>();
 
@@ -231,8 +231,8 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsMultipleBehaviour(bool initialState)
         {
-            SyncVarNetworkBehaviour serverObject = CreateObject<SyncVarNetworkBehaviour>();
-            SyncVarNetworkBehaviour clientObject = CreateObject<SyncVarNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour clientObject);
 
             NetworkIdentity identity = CreateNetworkIdentity(2046);
             SyncVarNetworkBehaviour behaviour1 = identity.gameObject.AddComponent<SyncVarNetworkBehaviour>();
@@ -323,8 +323,8 @@ namespace Mirror.Tests.SyncVarTests
             where TValue : UnityEngine.Object
             where TBehaviour : NetworkBehaviour
         {
-            TBehaviour serverObject = CreateObject<TBehaviour>();
-            TBehaviour clientObject = CreateObject<TBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out TBehaviour serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out TBehaviour clientObject);
 
             NetworkIdentity identity = CreateNetworkIdentity(2047);
             TValue serverValue = getCreatedValue(identity);
