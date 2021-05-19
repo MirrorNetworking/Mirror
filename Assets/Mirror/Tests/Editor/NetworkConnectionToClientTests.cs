@@ -2,24 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkConnectionToClientTests
+    public class NetworkConnectionToClientTests : MirrorTest
     {
-        GameObject transportGO;
-        MemoryTransport transport;
         List<byte[]> clientReceived = new List<byte[]>();
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            // transport is needed by server and client.
-            // it needs to be on a gameobject because client.connect enables it,
-            // which throws a NRE if not on a gameobject
-            transportGO = new GameObject();
-            Transport.activeTransport = transport = transportGO.AddComponent<MemoryTransport>();
+            base.SetUp();
             transport.OnClientDataReceived = (message, channelId) => {
                 byte[] array = new byte[message.Count];
                 Buffer.BlockCopy(message.Array, message.Offset, array, 0, message.Count);
@@ -32,16 +25,10 @@ namespace Mirror.Tests
         }
 
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
             clientReceived.Clear();
-            GameObject.DestroyImmediate(transportGO);
-        }
-
-        void UpdateTransport()
-        {
-            transport.ServerEarlyUpdate();
-            transport.ClientEarlyUpdate();
+            base.TearDown();
         }
 
         [Test]
