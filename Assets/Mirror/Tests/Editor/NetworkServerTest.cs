@@ -539,16 +539,13 @@ namespace Mirror.Tests
             connection.isAuthenticated = true;
 
             // add an identity with two networkbehaviour components
-            GameObject go = new GameObject();
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
             identity.netId = 42;
             // for authority check
             identity.connectionToClient = connection;
-            CommandTestNetworkBehaviour comp0 = go.AddComponent<CommandTestNetworkBehaviour>();
-            Assert.That(comp0.called, Is.EqualTo(0));
-            CommandTestNetworkBehaviour comp1 = go.AddComponent<CommandTestNetworkBehaviour>();
-            Assert.That(comp1.called, Is.EqualTo(0));
             connection.identity = identity;
+            Assert.That(comp0.called, Is.EqualTo(0));
+            Assert.That(comp1.called, Is.EqualTo(0));
 
             // register the command delegate, otherwise it's not found
             int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
@@ -623,11 +620,6 @@ namespace Mirror.Tests
             NetworkIdentity.spawned.Clear();
             RemoteCallHelper.RemoveDelegate(registeredHash);
             NetworkServer.Shutdown();
-            // destroy the test gameobject AFTER server was stopped.
-            // otherwise isServer is true in OnDestroy, which means it would try
-            // to call Destroy(go). but we need to use DestroyImmediate in
-            // Editor
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
@@ -647,11 +639,6 @@ namespace Mirror.Tests
             // clean up
             NetworkIdentity.spawned.Clear();
             NetworkServer.Shutdown();
-            // destroy the test gameobject AFTER server was stopped.
-            // otherwise isServer is true in OnDestroy, which means it would try
-            // to call Destroy(go). but we need to use DestroyImmediate in
-            // Editor
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
@@ -733,7 +720,6 @@ namespace Mirror.Tests
         [Test]
         public void SendToClientOfPlayer()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -753,7 +739,7 @@ namespace Mirror.Tests
             TestMessage1 message = new TestMessage1 { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // create a gameobject and networkidentity
-            NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
             identity.connectionToClient = connection;
 
             // send it to that player
@@ -767,25 +753,18 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            // destroy GO after shutdown, otherwise isServer is true in OnDestroy and it tries to call
-            // GameObject.Destroy (but we need DestroyImmediate in Editor)
-            GameObject.DestroyImmediate(identity.gameObject);
         }
 
         [Test]
         public void GetNetworkIdentityShouldFindNetworkIdentity()
         {
             // create a GameObject with NetworkIdentity
-            GameObject go = new GameObject();
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
 
             // GetNetworkIdentity
             bool result = NetworkServer.GetNetworkIdentity(go, out NetworkIdentity value);
             Assert.That(result, Is.True);
             Assert.That(value, Is.EqualTo(identity));
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
@@ -807,7 +786,6 @@ namespace Mirror.Tests
         [Test]
         public void ShowForConnection()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
@@ -826,7 +804,7 @@ namespace Mirror.Tests
             NetworkServer.AddConnection(connection);
 
             // create a gameobject and networkidentity and some unique values
-            NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
             identity.connectionToClient = connection;
 
             // call ShowForConnection
@@ -847,9 +825,6 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            // destroy GO after shutdown, otherwise isServer is true in OnDestroy and it tries to call
-            // GameObject.Destroy (but we need DestroyImmediate in Editor)
-            GameObject.DestroyImmediate(identity.gameObject);
         }
 
         [Test]
@@ -873,7 +848,7 @@ namespace Mirror.Tests
             NetworkServer.AddConnection(connection);
 
             // create a gameobject and networkidentity
-            NetworkIdentity identity = new GameObject().AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
             identity.connectionToClient = connection;
 
             // call HideForConnection
@@ -887,17 +862,13 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.Shutdown();
-            // destroy GO after shutdown, otherwise isServer is true in OnDestroy and it tries to call
-            // GameObject.Destroy (but we need DestroyImmediate in Editor)
-            GameObject.DestroyImmediate(identity.gameObject);
         }
 
         [Test]
         public void ValidateSceneObject()
         {
             // create a gameobject and networkidentity
-            GameObject go = new GameObject();
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
             identity.sceneId = 42;
 
             // should be valid as long as it has a sceneId
@@ -913,25 +884,20 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.ValidateSceneObject(identity), Is.False);
             go.hideFlags = HideFlags.HideAndDontSave;
             Assert.That(NetworkServer.ValidateSceneObject(identity), Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void SpawnObjects()
         {
             // create a gameobject and networkidentity that lives in the scene(=has sceneid)
-            GameObject go = new GameObject("Test");
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
             // lives in the scene from the start
             identity.sceneId = 42;
             // unspawned scene objects are set to inactive before spawning
             go.SetActive(false);
 
             // create a gameobject that looks like it was instantiated and doesn't live in the scene
-            GameObject go2 = new GameObject("Test2");
-            NetworkIdentity identity2 = go2.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go2, out NetworkIdentity identity2);
             // not a scene object
             identity2.sceneId = 0;
             // unspawned scene objects are set to inactive before spawning
@@ -956,8 +922,6 @@ namespace Mirror.Tests
             identity.isServer = false;
             identity2.isServer = false;
             NetworkServer.Shutdown();
-            GameObject.DestroyImmediate(go);
-            GameObject.DestroyImmediate(go2);
             // need to clear spawned list as SpawnObjects adds items to that list
             NetworkIdentity.spawned.Clear();
         }
@@ -966,9 +930,7 @@ namespace Mirror.Tests
         public void UnSpawn()
         {
             // create a gameobject and networkidentity that lives in the scene(=has sceneid)
-            GameObject go = new GameObject("Test");
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            OnStopClientTestNetworkBehaviour comp = go.AddComponent<OnStopClientTestNetworkBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out OnStopClientTestNetworkBehaviour comp);
             // lives in the scene from the start
             identity.sceneId = 42;
             // spawned objects are active
@@ -980,15 +942,11 @@ namespace Mirror.Tests
 
             // it should have been reset now
             Assert.That(identity.netId, Is.Zero);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void ShutdownCleanup()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
@@ -1032,7 +990,6 @@ namespace Mirror.Tests
                     break;
             }
         }
-
 
         [Test]
         public void NoExternalConnectionsTest_WithNoConnection()
@@ -1122,8 +1079,7 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // add a connection that is observed by a destroyed entity
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
             NetworkServer.connections[42].observing.Add(ni);
             GameObject.DestroyImmediate(go);
