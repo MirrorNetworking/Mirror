@@ -8,7 +8,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    public class NetworkIdentityTests
+    public class NetworkIdentityTests : MirrorTest
     {
         class MyTestComponent : NetworkBehaviour
         {
@@ -265,16 +265,14 @@ namespace Mirror.Tests
         NetworkIdentity identity;
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            gameObject = new GameObject();
-            identity = gameObject.AddComponent<NetworkIdentity>();
-
-            Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
+            base.SetUp();
+            CreateNetworked(out gameObject, out identity);
         }
 
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
             // set isServer is false. otherwise Destroy instead of
             // DestroyImmediate is called internally, giving an error in Editor
@@ -282,9 +280,7 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(gameObject);
             // clean so that null entries are not in dictionary
             NetworkIdentity.spawned.Clear();
-
-            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
-            Transport.activeTransport = null;
+            base.TearDown();
         }
 
         // A Test behaves as an ordinary method
