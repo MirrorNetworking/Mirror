@@ -86,18 +86,19 @@ namespace Mirror.Tests
     }
 
     [TestFixture]
-    public class NetworkServerTest
+    public class NetworkServerTest : MirrorTest
     {
         MemoryTransport transport;
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
+            base.SetUp();
             Transport.activeTransport = transport = new GameObject().AddComponent<MemoryTransport>();
         }
 
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
             // reset all state
             // shutdown should be called before setting activeTransport to null
@@ -105,6 +106,8 @@ namespace Mirror.Tests
 
             GameObject.DestroyImmediate(transport.gameObject);
             Transport.activeTransport = null;
+
+            base.TearDown();
         }
 
         // helper function to update the transport and process all messages
@@ -651,7 +654,7 @@ namespace Mirror.Tests
         public void ActivateHostSceneCallsOnStartClient()
         {
             // add an identity with a networkbehaviour to .spawned
-            TestUtils.CreateNetworked(out GameObject go, out NetworkIdentity identity, out OnStartClientTestNetworkBehaviour comp);
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out OnStartClientTestNetworkBehaviour comp);
             identity.netId = 42;
             NetworkIdentity.spawned[identity.netId] = identity;
 

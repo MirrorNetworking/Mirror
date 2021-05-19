@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -35,11 +34,11 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         public int SyncFieldInOverride;
     }
 
-
     class MiddleClass : AbstractBehaviour
     {
         // class with no sync var
     }
+
     class SubClass : MiddleClass
     {
         // class with sync var
@@ -48,13 +47,13 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         public Vector3 anotherSyncField;
     }
 
-
     class MiddleClassWithSyncVar : AbstractBehaviour
     {
         // class with sync var
         [SyncVar]
         public string syncFieldInMiddle;
     }
+
     class SubClassFromSyncVar : MiddleClassWithSyncVar
     {
         // class with sync var
@@ -65,7 +64,6 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     #endregion
 
     #region OnSerialize/OnDeserialize override
-
 
     class BehaviourWithSyncVarWithOnSerialize : NetworkBehaviour
     {
@@ -126,20 +124,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     }
     #endregion
 
-    public class NetworkBehaviourSerializeTest
+    public class NetworkBehaviourSerializeTest : MirrorTest
     {
-        readonly List<GameObject> createdObjects = new List<GameObject>();
-        [TearDown]
-        public void TearDown()
-        {
-            // Clean up all created objects
-            foreach (GameObject item in createdObjects)
-            {
-                Object.DestroyImmediate(item);
-            }
-            createdObjects.Clear();
-        }
-
         static void SyncNetworkBehaviour(NetworkBehaviour source, NetworkBehaviour target, bool initialState)
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -158,8 +144,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void BehaviourWithSyncVarTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar target);
 
             source.SyncField = 10;
             source.syncList.Add(true);
@@ -176,8 +162,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourFromSyncVarTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar target);
 
             source.SyncFieldInAbstract = 12;
             source.syncListInAbstract.Add(true);
@@ -196,8 +182,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourWithSyncVarFromSyncVarTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -225,8 +211,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void SubClassTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClass source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClass target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClass source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClass target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -247,8 +233,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void SubClassFromSyncVarTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -266,15 +252,13 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
             Assert.That(target.syncFieldInSub, Is.EqualTo(new Vector3(40, 20, 10)));
         }
 
-
-
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public void BehaviourWithSyncVarWithOnSerializeTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize target);
 
             source.SyncField = 10;
             source.syncList.Add(true);
@@ -296,8 +280,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourFromSyncVarWithOnSerializeTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize target);
 
             source.SyncFieldInAbstract = 12;
             source.syncListInAbstract.Add(true);
@@ -321,8 +305,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourWithSyncVarFromSyncVarWithOnSerializeTest(bool initialState)
         {
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize source, createdObjects);
-            TestUtils.CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize target, createdObjects);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize source);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
