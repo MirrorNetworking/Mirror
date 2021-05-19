@@ -88,24 +88,12 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkServerTest : MirrorTest
     {
-        MemoryTransport transport;
-
-        [SetUp]
-        public override void SetUp()
-        {
-            base.SetUp();
-            Transport.activeTransport = transport = new GameObject().AddComponent<MemoryTransport>();
-        }
-
         [TearDown]
         public override void TearDown()
         {
             // reset all state
             // shutdown should be called before setting activeTransport to null
             NetworkServer.Shutdown();
-
-            GameObject.DestroyImmediate(transport.gameObject);
-            Transport.activeTransport = null;
 
             base.TearDown();
         }

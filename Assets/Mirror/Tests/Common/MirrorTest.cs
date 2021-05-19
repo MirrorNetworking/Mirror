@@ -12,10 +12,16 @@ namespace Mirror.Tests
         // CreateNetworked() adds to the list automatically.
         public List<GameObject> instantiated;
 
+        // we usually need the memory transport
+        public MemoryTransport transport;
+
         [SetUp]
         public virtual void SetUp()
         {
             instantiated = new List<GameObject>();
+
+            // need a transport to send & receive
+            Transport.activeTransport = transport = new GameObject().AddComponent<MemoryTransport>();
         }
 
         [TearDown]
@@ -23,6 +29,9 @@ namespace Mirror.Tests
         {
             foreach (GameObject go in instantiated)
                 GameObject.DestroyImmediate(go);
+
+            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
+            Transport.activeTransport = null;
         }
 
         // create GameObject + NetworkIdentity
