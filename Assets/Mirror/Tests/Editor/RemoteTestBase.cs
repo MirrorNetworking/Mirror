@@ -4,15 +4,13 @@ using UnityEngine;
 
 namespace Mirror.Tests.RemoteAttrributeTest
 {
-    public class RemoteTestBase
+    public class RemoteTestBase : MirrorTest
     {
         protected List<GameObject> spawned = new List<GameObject>();
 
         [SetUp]
         public void Setup()
         {
-            Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
-
             // start server/client
             NetworkServer.Listen(1);
             NetworkClient.ConnectHost();
@@ -27,7 +25,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
 
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
             // stop server/client
             NetworkClient.Disconnect();
@@ -48,7 +46,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
             NetworkIdentity.spawned.Clear();
 
-            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
+            base.TearDown();
         }
 
         protected T CreateHostObject<T>(bool spawnWithAuthority) where T : NetworkBehaviour
