@@ -81,6 +81,12 @@ namespace Mirror.Tests
                 Debug.Assert(component.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
         }
 
+        protected void UpdateTransport()
+        {
+            transport.ClientEarlyUpdate();
+            transport.ServerEarlyUpdate();
+        }
+
         protected static void ProcessMessages()
         {
             // server & client need to be active

@@ -94,15 +94,7 @@ namespace Mirror.Tests
             // reset all state
             // shutdown should be called before setting activeTransport to null
             NetworkServer.Shutdown();
-
             base.TearDown();
-        }
-
-        // helper function to update the transport and process all messages
-        public void UpdateTransport()
-        {
-            transport.ClientEarlyUpdate();
-            transport.ServerEarlyUpdate();
         }
 
         [Test]
