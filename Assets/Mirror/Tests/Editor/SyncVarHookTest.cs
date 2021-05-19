@@ -56,7 +56,6 @@ namespace Mirror.Tests.SyncVarTests
         }
     }
 
-
     class StaticHookBehaviour : NetworkBehaviour
     {
         [SyncVar(hook = nameof(OnValueChanged))]
