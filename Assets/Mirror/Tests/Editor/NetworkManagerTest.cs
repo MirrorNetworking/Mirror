@@ -5,23 +5,17 @@ using UnityEngine;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class NetworkManagerTest
+    public class NetworkManagerTest : MirrorTest
     {
         GameObject gameObject;
         NetworkManager manager;
 
         [SetUp]
-        public void SetupNetworkManager()
+        public override void SetUp()
         {
-            gameObject = new GameObject();
-            gameObject.AddComponent<MemoryTransport>();
+            base.SetUp();
+            gameObject = transport.gameObject;
             manager = gameObject.AddComponent<NetworkManager>();
-        }
-
-        [TearDown]
-        public void TearDownNetworkManager()
-        {
-            GameObject.DestroyImmediate(gameObject);
         }
 
         [Test]
@@ -141,7 +135,7 @@ namespace Mirror.Tests
         [Test]
         public void StartClientUriTest()
         {
-            UriBuilder uriBuilder = new UriBuilder()
+            UriBuilder uriBuilder = new UriBuilder
             {
                 Host = "localhost",
                 Scheme = "local"
