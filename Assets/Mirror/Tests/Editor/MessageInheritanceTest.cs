@@ -1,3 +1,4 @@
+// TODO Send only supports structs. Consider removing those tests.
 using NUnit.Framework;
 
 namespace Mirror.Tests.MessageTests
