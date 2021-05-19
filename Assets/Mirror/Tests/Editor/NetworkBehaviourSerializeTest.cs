@@ -140,13 +140,6 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
             createdObjects.Clear();
         }
 
-        T CreateBehaviour<T>() where T : NetworkBehaviour
-        {
-            GameObject go1 = new GameObject();
-            go1.AddComponent<NetworkIdentity>();
-            createdObjects.Add(go1);
-            return go1.AddComponent<T>();
-        }
         static void SyncNetworkBehaviour(NetworkBehaviour source, NetworkBehaviour target, bool initialState)
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
@@ -165,8 +158,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void BehaviourWithSyncVarTest(bool initialState)
         {
-            BehaviourWithSyncVar source = CreateBehaviour<BehaviourWithSyncVar>();
-            BehaviourWithSyncVar target = CreateBehaviour<BehaviourWithSyncVar>();
+            BehaviourWithSyncVar source = TestUtils.CreateBehaviour<BehaviourWithSyncVar>(createdObjects);
+            BehaviourWithSyncVar target = TestUtils.CreateBehaviour<BehaviourWithSyncVar>(createdObjects);
 
             source.SyncField = 10;
             source.syncList.Add(true);
@@ -183,8 +176,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourFromSyncVarTest(bool initialState)
         {
-            OverrideBehaviourFromSyncVar source = CreateBehaviour<OverrideBehaviourFromSyncVar>();
-            OverrideBehaviourFromSyncVar target = CreateBehaviour<OverrideBehaviourFromSyncVar>();
+            OverrideBehaviourFromSyncVar source = TestUtils.CreateBehaviour<OverrideBehaviourFromSyncVar>(createdObjects);
+            OverrideBehaviourFromSyncVar target = TestUtils.CreateBehaviour<OverrideBehaviourFromSyncVar>(createdObjects);
 
             source.SyncFieldInAbstract = 12;
             source.syncListInAbstract.Add(true);
@@ -203,8 +196,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourWithSyncVarFromSyncVarTest(bool initialState)
         {
-            OverrideBehaviourWithSyncVarFromSyncVar source = CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVar>();
-            OverrideBehaviourWithSyncVarFromSyncVar target = CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVar>();
+            OverrideBehaviourWithSyncVarFromSyncVar source = TestUtils.CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVar>(createdObjects);
+            OverrideBehaviourWithSyncVarFromSyncVar target = TestUtils.CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVar>(createdObjects);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -232,8 +225,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void SubClassTest(bool initialState)
         {
-            SubClass source = CreateBehaviour<SubClass>();
-            SubClass target = CreateBehaviour<SubClass>();
+            SubClass source = TestUtils.CreateBehaviour<SubClass>(createdObjects);
+            SubClass target = TestUtils.CreateBehaviour<SubClass>(createdObjects);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -254,8 +247,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void SubClassFromSyncVarTest(bool initialState)
         {
-            SubClassFromSyncVar source = CreateBehaviour<SubClassFromSyncVar>();
-            SubClassFromSyncVar target = CreateBehaviour<SubClassFromSyncVar>();
+            SubClassFromSyncVar source = TestUtils.CreateBehaviour<SubClassFromSyncVar>(createdObjects);
+            SubClassFromSyncVar target = TestUtils.CreateBehaviour<SubClassFromSyncVar>(createdObjects);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -280,8 +273,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void BehaviourWithSyncVarWithOnSerializeTest(bool initialState)
         {
-            BehaviourWithSyncVarWithOnSerialize source = CreateBehaviour<BehaviourWithSyncVarWithOnSerialize>();
-            BehaviourWithSyncVarWithOnSerialize target = CreateBehaviour<BehaviourWithSyncVarWithOnSerialize>();
+            BehaviourWithSyncVarWithOnSerialize source = TestUtils.CreateBehaviour<BehaviourWithSyncVarWithOnSerialize>(createdObjects);
+            BehaviourWithSyncVarWithOnSerialize target = TestUtils.CreateBehaviour<BehaviourWithSyncVarWithOnSerialize>(createdObjects);
 
             source.SyncField = 10;
             source.syncList.Add(true);
@@ -303,8 +296,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourFromSyncVarWithOnSerializeTest(bool initialState)
         {
-            OverrideBehaviourFromSyncVarWithOnSerialize source = CreateBehaviour<OverrideBehaviourFromSyncVarWithOnSerialize>();
-            OverrideBehaviourFromSyncVarWithOnSerialize target = CreateBehaviour<OverrideBehaviourFromSyncVarWithOnSerialize>();
+            OverrideBehaviourFromSyncVarWithOnSerialize source = TestUtils.CreateBehaviour<OverrideBehaviourFromSyncVarWithOnSerialize>(createdObjects);
+            OverrideBehaviourFromSyncVarWithOnSerialize target = TestUtils.CreateBehaviour<OverrideBehaviourFromSyncVarWithOnSerialize>(createdObjects);
 
             source.SyncFieldInAbstract = 12;
             source.syncListInAbstract.Add(true);
@@ -328,8 +321,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourWithSyncVarFromSyncVarWithOnSerializeTest(bool initialState)
         {
-            OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize source = CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize>();
-            OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize target = CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize>();
+            OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize source = TestUtils.CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize>(createdObjects);
+            OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize target = TestUtils.CreateBehaviour<OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize>(createdObjects);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
