@@ -10,7 +10,6 @@ namespace Mirror.Tests
         // create GameObject + NetworkIdentity
         // add to tracker list if needed (useful for cleanups afterwards)
         public static void CreateNetworked(out GameObject go, out NetworkIdentity identity, List<GameObject> tracker = null)
-            where T : NetworkBehaviour
         {
             go = new GameObject();
             identity = go.AddComponent<NetworkIdentity>();
