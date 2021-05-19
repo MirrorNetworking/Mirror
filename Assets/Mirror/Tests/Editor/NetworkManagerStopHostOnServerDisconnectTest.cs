@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -10,24 +9,15 @@ namespace Mirror.Tests
     }
 
     [TestFixture]
-    public class NetworkManagerStopHostOnServerDisconnectTest
+    public class NetworkManagerStopHostOnServerDisconnectTest : MirrorTest
     {
-        GameObject gameObject;
         NetworkManagerOnServerDisconnect manager;
-        MemoryTransport transport;
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            gameObject = new GameObject();
-            transport = gameObject.AddComponent<MemoryTransport>();
-            manager = gameObject.AddComponent<NetworkManagerOnServerDisconnect>();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            GameObject.DestroyImmediate(gameObject);
+            base.SetUp();
+            manager = transport.gameObject.AddComponent<NetworkManagerOnServerDisconnect>();
         }
 
         // test to prevent https://github.com/vis2k/Mirror/issues/1515
