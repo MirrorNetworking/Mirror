@@ -128,6 +128,8 @@ namespace Mirror
         // get all NetworkBehaviour components
         // => currently lazily initialized so tests can add components after
         //    creating a NetworkIdentity.
+        // TODO initialize them from NetworkIdentity.Awake() later, see
+        // 'componentindex' branch (still breaks tests)
         NetworkBehaviour[] _NetworkBehaviours;
         public NetworkBehaviour[] NetworkBehaviours
         {
