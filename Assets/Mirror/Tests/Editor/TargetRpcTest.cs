@@ -130,10 +130,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void ErrorForTargetRpcWhenObjetNotSpawned()
         {
-            GameObject gameObject = new GameObject();
-            spawned.Add(gameObject);
-            gameObject.AddComponent<NetworkIdentity>();
-            TargetRpcBehaviour hostBehaviour = gameObject.AddComponent<TargetRpcBehaviour>();
+            // create without spawning
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
 
             const int someInt = 20;
 
