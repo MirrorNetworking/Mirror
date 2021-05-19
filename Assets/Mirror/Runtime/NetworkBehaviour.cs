@@ -99,6 +99,8 @@ namespace Mirror
         }
 
         /// <summary>Returns the index of the component on this object</summary>
+        // TODO initialize from NetworkIdentity.Awake() later, see
+        // 'componentindex' branch (still breaks tests)
         public int ComponentIndex
         {
             get
