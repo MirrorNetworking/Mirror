@@ -13,14 +13,6 @@ namespace Mirror.Tests
             base.TearDown();
         }
 
-        // TODO remove some day. it only adds syncInterval setting.
-        protected T CreateObject<T>() where T : NetworkBehaviour
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out T behaviour);
-            behaviour.syncInterval = 0f;
-            return behaviour;
-        }
-
         protected NetworkIdentity CreateNetworkIdentity(uint netId)
         {
             CreateNetworked(out GameObject gameObject, out NetworkIdentity networkIdentity);
