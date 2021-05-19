@@ -37,7 +37,7 @@ namespace Mirror.Tests
 
         // create GameObject + NetworkIdentity
         // add to tracker list if needed (useful for cleanups afterwards)
-        public void CreateNetworked(out GameObject go, out NetworkIdentity identity)
+        protected void CreateNetworked(out GameObject go, out NetworkIdentity identity)
         {
             go = new GameObject();
             identity = go.AddComponent<NetworkIdentity>();
@@ -46,7 +46,7 @@ namespace Mirror.Tests
 
         // create GameObject + NetworkIdentity + NetworkBehaviour<T>
         // add to tracker list if needed (useful for cleanups afterwards)
-        public void CreateNetworked<T>(out GameObject go, out NetworkIdentity identity, out T component)
+        protected void CreateNetworked<T>(out GameObject go, out NetworkIdentity identity, out T component)
             where T : NetworkBehaviour
         {
             go = new GameObject();
