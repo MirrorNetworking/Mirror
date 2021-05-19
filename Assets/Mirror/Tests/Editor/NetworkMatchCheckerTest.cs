@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkMatchCheckerTest
+    public class NetworkMatchCheckerTest : MirrorTest
     {
         GameObject player1;
         GameObject player2;
@@ -17,32 +17,26 @@ namespace Mirror.Tests
         NetworkConnection player1Connection;
         NetworkConnection player2Connection;
         NetworkConnection player3Connection;
-        GameObject transportGO;
         static int nextConnectionId;
         Dictionary<Guid, HashSet<NetworkIdentity>> matchPlayers;
 
         [SetUp]
-        public void Setup()
+        public override void SetUp()
         {
-            transportGO = new GameObject("transportGO");
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+            base.SetUp();
 
 #pragma warning disable 618
-            player1 = new GameObject("TestPlayer1", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
-            player2 = new GameObject("TestPlayer2", typeof(NetworkIdentity), typeof(NetworkMatchChecker));
-#pragma warning restore 618
+            CreateNetworked(out player1, out NetworkIdentity _, out player1MatchChecker);
+            player1.name = "TestPlayer1";
+
+            CreateNetworked(out player2, out NetworkIdentity _, out player2MatchChecker);
+            player2.name = "TestPlayer2";
+
             player3 = new GameObject("TestPlayer3", typeof(NetworkIdentity));
-
-#pragma warning disable 618
-            player1MatchChecker = player1.GetComponent<NetworkMatchChecker>();
-            player2MatchChecker = player2.GetComponent<NetworkMatchChecker>();
-#pragma warning restore 618
-
 
             player1Connection = CreateNetworkConnection(player1);
             player2Connection = CreateNetworkConnection(player2);
             player3Connection = CreateNetworkConnection(player3);
-#pragma warning disable 618
             matchPlayers = NetworkMatchChecker.matchPlayers;
 #pragma warning restore 618
         }
@@ -58,15 +52,14 @@ namespace Mirror.Tests
         }
 
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
-            UnityEngine.Object.DestroyImmediate(player1);
-            UnityEngine.Object.DestroyImmediate(player2);
             UnityEngine.Object.DestroyImmediate(player3);
-            UnityEngine.Object.DestroyImmediate(transportGO);
 
             matchPlayers.Clear();
             matchPlayers = null;
+
+            base.TearDown();
         }
 
         [Test]
@@ -74,8 +67,8 @@ namespace Mirror.Tests
         {
             string guid = Guid.NewGuid().ToString();
 
-            player1MatchChecker.currentMatch =  new Guid(guid);
-            player2MatchChecker.currentMatch =  new Guid(guid);
+            player1MatchChecker.currentMatch = new Guid(guid);
+            player2MatchChecker.currentMatch = new Guid(guid);
 
             bool player1Visable = player1MatchChecker.OnCheckObserver(player1Connection);
             Assert.IsTrue(player1Visable);
@@ -123,8 +116,8 @@ namespace Mirror.Tests
         {
             string guid = Guid.Empty.ToString();
 
-            player1MatchChecker.currentMatch =  new Guid(guid);
-            player2MatchChecker.currentMatch =  new Guid(guid);
+            player1MatchChecker.currentMatch = new Guid(guid);
+            player2MatchChecker.currentMatch = new Guid(guid);
 
             bool player1Visable = player1MatchChecker.OnCheckObserver(player1Connection);
             Assert.IsFalse(player1Visable);
