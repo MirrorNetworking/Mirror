@@ -101,17 +101,25 @@ namespace Mirror
         /// <summary>Returns the index of the component on this object</summary>
         // TODO initialize from NetworkIdentity.Awake() later, see
         // 'componentindex' branch (still breaks tests)
+        int? _ComponentIndex;
         public int ComponentIndex
         {
             get
             {
+                // use cache if available
+                if (_ComponentIndex.HasValue)
+                    return _ComponentIndex.Value;
+
                 // note: FindIndex causes allocations, we search manually instead
                 // TODO this is not fast at runtime uhh
                 for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
                 {
                     NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
                     if (component == this)
+                    {
+                        _ComponentIndex = i;
                         return i;
+                    }
                 }
 
                 // this should never happen
