@@ -7,15 +7,15 @@ namespace Mirror.Tests
 {
     public static class TestUtils
     {
-        // create GameObject + NetworkIdentity + T
+        // create GameObject + NetworkIdentity + NetworkBehaviour<T>
         // add to tracker list if needed (useful for cleanups afterwards)
-        public static T CreateBehaviour<T>(List<GameObject> tracker = null)
+        public static void CreateNetworked<T>(out GameObject go, out NetworkIdentity identity, out T component, List<GameObject> tracker = null)
             where T : NetworkBehaviour
         {
-            GameObject go = new GameObject();
-            go.AddComponent<NetworkIdentity>();
+            go = new GameObject();
+            identity = go.AddComponent<NetworkIdentity>();
+            component = go.AddComponent<T>();
             tracker?.Add(go);
-            return go.AddComponent<T>();
         }
     }
 }
