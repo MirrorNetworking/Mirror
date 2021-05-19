@@ -28,9 +28,10 @@ namespace Mirror.Tests
         public virtual void TearDown()
         {
             foreach (GameObject go in instantiated)
-                GameObject.DestroyImmediate(go);
+                if (go != null)
+                    GameObject.DestroyImmediate(go);
 
-            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
+            GameObject.DestroyImmediate(transport.gameObject);
             Transport.activeTransport = null;
         }
 
