@@ -52,6 +52,9 @@ namespace Mirror.Tests
             go = new GameObject();
             identity = go.AddComponent<NetworkIdentity>();
             component = go.AddComponent<T>();
+            // always set syncinterval = 0 for immediate testing
+            component.syncInterval = 0;
+            // track
             instantiated.Add(go);
         }
 
@@ -65,6 +68,10 @@ namespace Mirror.Tests
             identity = go.AddComponent<NetworkIdentity>();
             componentA = go.AddComponent<T>();
             componentB = go.AddComponent<U>();
+            // always set syncinterval = 0 for immediate testing
+            componentA.syncInterval = 0;
+            componentB.syncInterval = 0;
+            // track
             instantiated.Add(go);
         }
 
