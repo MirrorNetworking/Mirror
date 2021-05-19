@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -43,17 +42,9 @@ namespace Mirror.Tests
             player1Connection = CreateNetworkConnection(player1);
             player2Connection = CreateNetworkConnection(player2);
             player3Connection = CreateNetworkConnection(player3);
-            Dictionary<Guid, HashSet<NetworkIdentity>> g = GetMatchPlayersDictionary();
-            matchPlayers = g;
-        }
-
-        static Dictionary<Guid, HashSet<NetworkIdentity>> GetMatchPlayersDictionary()
-        {
 #pragma warning disable 618
-            Type type = typeof(NetworkMatchChecker);
+            matchPlayers = NetworkMatchChecker.matchPlayers;
 #pragma warning restore 618
-            FieldInfo fieldInfo = type.GetField("matchPlayers", BindingFlags.Static | BindingFlags.NonPublic);
-            return (Dictionary<Guid, HashSet<NetworkIdentity>>)fieldInfo.GetValue(null);
         }
 
         static NetworkConnection CreateNetworkConnection(GameObject player)
@@ -78,22 +69,13 @@ namespace Mirror.Tests
             matchPlayers = null;
         }
 
-#pragma warning disable 618
-        static void SetMatchId(NetworkMatchChecker target, Guid guid)
-        {
-            // set using reflection so bypass property
-            FieldInfo field = typeof(NetworkMatchChecker).GetField("currentMatch", BindingFlags.Instance | BindingFlags.NonPublic);
-            field.SetValue(target, guid);
-        }
-#pragma warning restore 618
-
         [Test]
         public void OnCheckObserverShouldBeTrueForSameMatchId()
         {
             string guid = Guid.NewGuid().ToString();
 
-            SetMatchId(player1MatchChecker, new Guid(guid));
-            SetMatchId(player2MatchChecker, new Guid(guid));
+            player1MatchChecker.currentMatch =  new Guid(guid);
+            player2MatchChecker.currentMatch =  new Guid(guid);
 
             bool player1Visable = player1MatchChecker.OnCheckObserver(player1Connection);
             Assert.IsTrue(player1Visable);
@@ -108,8 +90,8 @@ namespace Mirror.Tests
             string guid1 = Guid.NewGuid().ToString();
             string guid2 = Guid.NewGuid().ToString();
 
-            SetMatchId(player1MatchChecker, new Guid(guid1));
-            SetMatchId(player2MatchChecker, new Guid(guid2));
+            player1MatchChecker.currentMatch = new Guid(guid1);
+            player2MatchChecker.currentMatch = new Guid(guid2);
 
             bool player1VisableToPlayer1 = player1MatchChecker.OnCheckObserver(player1Connection);
             Assert.IsTrue(player1VisableToPlayer1);
@@ -130,7 +112,7 @@ namespace Mirror.Tests
         {
             string guid = Guid.NewGuid().ToString();
 
-            SetMatchId(player1MatchChecker, new Guid(guid));
+            player1MatchChecker.currentMatch =  new Guid(guid);
 
             bool player3Visable = player1MatchChecker.OnCheckObserver(player3Connection);
             Assert.IsFalse(player3Visable);
@@ -141,8 +123,8 @@ namespace Mirror.Tests
         {
             string guid = Guid.Empty.ToString();
 
-            SetMatchId(player1MatchChecker, new Guid(guid));
-            SetMatchId(player2MatchChecker, new Guid(guid));
+            player1MatchChecker.currentMatch =  new Guid(guid);
+            player2MatchChecker.currentMatch =  new Guid(guid);
 
             bool player1Visable = player1MatchChecker.OnCheckObserver(player1Connection);
             Assert.IsFalse(player1Visable);
