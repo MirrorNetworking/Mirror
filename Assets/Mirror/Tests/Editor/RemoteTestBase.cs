@@ -48,41 +48,5 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
             base.TearDown();
         }
-
-        protected T CreateHostObject<T>(bool spawnWithAuthority) where T : NetworkBehaviour
-        {
-            GameObject gameObject = new GameObject();
-            spawned.Add(gameObject);
-
-            NetworkIdentity netIdentity = gameObject.AddComponent<NetworkIdentity>();
-
-            // host mode object needs a connection to server for commands to work
-            netIdentity.connectionToServer = NetworkClient.connection;
-
-            T behaviour = gameObject.AddComponent<T>();
-
-            // spawn outwith authority
-            if (spawnWithAuthority)
-            {
-                NetworkServer.Spawn(gameObject, NetworkServer.localConnection);
-                Debug.Assert(behaviour.connectionToClient != null, $"Behaviour did not have connection to client, This means that the test is broken and will give the wrong results");
-            }
-            else
-            {
-                NetworkServer.Spawn(gameObject);
-            }
-            ProcessMessages();
-
-            Debug.Assert(behaviour.hasAuthority == spawnWithAuthority, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
-
-            return behaviour;
-        }
-
-        protected static void ProcessMessages()
-        {
-            // run update so message are processed
-            NetworkServer.NetworkLateUpdate();
-            NetworkClient.NetworkLateUpdate();
-        }
     }
 }

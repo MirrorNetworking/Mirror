@@ -54,5 +54,42 @@ namespace Mirror.Tests
             component = go.AddComponent<T>();
             instantiated.Add(go);
         }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
+        protected void CreateNetworkedAndSpawn<T>(out GameObject go, out NetworkIdentity identity, out T component, NetworkConnection ownerConnection = null)
+            where T : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            go = new GameObject();
+            identity = go.AddComponent<NetworkIdentity>();
+            component = go.AddComponent<T>();
+            instantiated.Add(go);
+
+            // host mode object needs a connection to server for commands to work
+            identity.connectionToServer = NetworkClient.connection;
+
+            // spawn
+            NetworkServer.Spawn(go, ownerConnection);
+            ProcessMessages();
+
+            // double check that we have authority if we passed an owner connection
+            if (ownerConnection != null)
+                Debug.Assert(component.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+        }
+
+        protected static void ProcessMessages()
+        {
+            // server & client need to be active
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            // run update so message are processed
+            NetworkServer.NetworkLateUpdate();
+            NetworkClient.NetworkLateUpdate();
+        }
     }
 }
