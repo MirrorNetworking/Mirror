@@ -1,49 +1,35 @@
 ﻿using System;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkClientTests
+    public class NetworkClientTests : MirrorTest
     {
-        GameObject transportGO;
-
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            // client.connect sets transport.enabled, which only works if
-            // Transport is on a GameObject
-            transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
-
+            base.SetUp();
             // we need a server to connect to
             NetworkServer.Listen(10);
         }
 
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
             NetworkServer.Shutdown();
             NetworkClient.Shutdown();
-            GameObject.DestroyImmediate(transportGO);
-            Transport.activeTransport = null;
-        }
-
-        void UpdateTransport()
-        {
-            Transport.activeTransport.ClientEarlyUpdate();
-            Transport.activeTransport.ServerEarlyUpdate();
+            base.TearDown();
         }
 
         [Test]
-        public void serverIp()
+        public void ServerIp()
         {
             NetworkClient.ConnectHost();
             Assert.That(NetworkClient.serverIp, Is.EqualTo("localhost"));
         }
 
         [Test]
-        public void isConnected()
+        public void IsConnected()
         {
             Assert.That(NetworkClient.isConnected, Is.False);
             NetworkClient.ConnectHost();
