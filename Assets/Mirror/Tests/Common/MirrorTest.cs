@@ -84,10 +84,7 @@ namespace Mirror.Tests
             Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
             Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
 
-            go = new GameObject();
-            identity = go.AddComponent<NetworkIdentity>();
-            component = go.AddComponent<T>();
-            instantiated.Add(go);
+            CreateNetworked(out go, out identity, out component);
 
             // host mode object needs a connection to server for commands to work
             identity.connectionToServer = NetworkClient.connection;
