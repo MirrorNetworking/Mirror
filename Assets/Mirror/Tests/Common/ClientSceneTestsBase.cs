@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -26,12 +25,6 @@ namespace Mirror.Tests
         protected GameObject invalidPrefab;
         protected Guid validPrefabGuid;
         protected Guid anotherGuid;
-
-        protected Dictionary<Guid, GameObject> prefabs => NetworkClient.prefabs;
-        protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => NetworkClient.spawnHandlers;
-        protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
-        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => NetworkClient.spawnableObjects;
-
 
         static GameObject LoadPrefab(string guid)
         {

@@ -120,7 +120,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             };
 
-            prefabs.Add(validPrefabGuid, validPrefab);
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
 
             bool success = NetworkClient.FindOrSpawnObject(msg, out NetworkIdentity networkIdentity);
 
@@ -143,7 +143,7 @@ namespace Mirror.Tests.ClientSceneTests
             };
 
             // could happen if the prefab is destroyed or unloaded
-            prefabs.Add(validPrefabGuid, null);
+            NetworkClient.prefabs.Add(validPrefabGuid, null);
 
             LogAssert.Expect(LogType.Error, $"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={msg.assetId} netId={msg.netId}");
             LogAssert.Expect(LogType.Error, $"Could not spawn assetId={msg.assetId} scene={msg.sceneId:X} netId={msg.netId}");
@@ -165,8 +165,8 @@ namespace Mirror.Tests.ClientSceneTests
                 assetId = validPrefabGuid
             };
 
-            prefabs.Add(validPrefabGuid, validPrefab);
-            spawnHandlers.Add(validPrefabGuid, (x) =>
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
+            NetworkClient.spawnHandlers.Add(validPrefabGuid, (x) =>
             {
                 handlerCalled++;
                 CreateNetworked(out GameObject go, out NetworkIdentity _);
@@ -195,7 +195,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             GameObject createdInhandler = null;
 
-            spawnHandlers.Add(validPrefabGuid, (x) =>
+            NetworkClient.spawnHandlers.Add(validPrefabGuid, (x) =>
             {
                 handlerCalled++;
                 Assert.That(x, Is.EqualTo(msg));
@@ -221,7 +221,7 @@ namespace Mirror.Tests.ClientSceneTests
                 assetId = validPrefabGuid
             };
 
-            spawnHandlers.Add(validPrefabGuid, (x) =>
+            NetworkClient.spawnHandlers.Add(validPrefabGuid, (x) =>
             {
                 return null;
             });
@@ -243,7 +243,7 @@ namespace Mirror.Tests.ClientSceneTests
                 assetId = validPrefabGuid
             };
 
-            spawnHandlers.Add(validPrefabGuid, (x) =>
+            NetworkClient.spawnHandlers.Add(validPrefabGuid, (x) =>
             {
                 CreateGameObject(out GameObject go);
                 return go;
@@ -262,7 +262,7 @@ namespace Mirror.Tests.ClientSceneTests
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
             // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
             identity.sceneId = sceneId;
-            spawnableObjects.Add(sceneId, identity);
+            NetworkClient.spawnableObjects.Add(sceneId, identity);
             return identity;
         }
 
@@ -299,7 +299,7 @@ namespace Mirror.Tests.ClientSceneTests
                 assetId = validPrefabGuid
             };
 
-            prefabs.Add(validPrefabGuid, validPrefab);
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
             NetworkIdentity sceneObject = CreateSceneObject(sceneId);
 
             bool success = NetworkClient.FindOrSpawnObject(msg, out NetworkIdentity networkIdentity);
@@ -711,7 +711,7 @@ namespace Mirror.Tests.ClientSceneTests
                 position = position,
                 rotation = rotation
             };
-            prefabs.Add(validPrefabGuid, validPrefab);
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
 
             NetworkClient.OnSpawn(msg);
 
