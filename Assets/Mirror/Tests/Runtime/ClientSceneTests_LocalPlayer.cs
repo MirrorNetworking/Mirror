@@ -15,14 +15,12 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             NetworkClient.connection = new FakeNetworkConnection();
         }
 
+        // TODO reuse MirrorTest.CreateNetworkedAndSpawn?
         NetworkIdentity SpawnObject(bool localPlayer)
         {
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
 
             SpawnMessage msg = new SpawnMessage
             {
