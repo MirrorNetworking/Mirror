@@ -200,7 +200,9 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out GameObjectHookBehaviour clientObject);
 
             GameObject clientValue = null;
-            GameObject serverValue = CreateNetworkIdentity(2032).gameObject;
+            CreateNetworked(out GameObject serverValue, out NetworkIdentity serverIdentity);
+            serverIdentity.netId = 2032;
+            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
 
             serverObject.value = serverValue;
             clientObject.value = clientValue;
@@ -227,7 +229,9 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkIdentityHookBehaviour clientObject);
 
             NetworkIdentity clientValue = null;
-            NetworkIdentity serverValue = CreateNetworkIdentity(2033);
+            CreateNetworked(out GameObject _, out NetworkIdentity serverValue);
+            serverValue.netId = 2033;
+            NetworkIdentity.spawned[serverValue.netId] = serverValue;
 
             serverObject.value = serverValue;
             clientObject.value = clientValue;
