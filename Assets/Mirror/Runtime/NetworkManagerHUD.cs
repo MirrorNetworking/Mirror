@@ -108,11 +108,11 @@ namespace Mirror
             // server / client status message
             if (NetworkServer.active)
             {
-                GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
+                GUILayout.Label("<b>Server</b>: running via " + Transport.activeTransport);
             }
             if (NetworkClient.isConnected)
             {
-                GUILayout.Label("Client: address=" + manager.networkAddress);
+                GUILayout.Label("<b>Client</b>: connected to " + manager.networkAddress);
             }
         }
 
