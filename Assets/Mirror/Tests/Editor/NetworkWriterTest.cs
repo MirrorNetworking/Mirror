@@ -1069,14 +1069,10 @@ namespace Mirror.Tests
         [Description("Uses Generic read function to check weaver correctly creates it")]
         public void TestNetworkBehaviourWeaverGenerated()
         {
-            //setup
-            GameObject gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            RpcNetworkIdentityBehaviour behaviour = gameObject.AddComponent<RpcNetworkIdentityBehaviour>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out RpcNetworkIdentityBehaviour behaviour);
 
             const uint netId = 100;
             identity.netId = netId;
-
             NetworkIdentity.spawned[netId] = identity;
 
             try
