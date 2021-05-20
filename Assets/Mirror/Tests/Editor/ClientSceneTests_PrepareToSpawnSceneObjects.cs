@@ -7,16 +7,12 @@ namespace Mirror.Tests.ClientSceneTests
     {
         NetworkIdentity CreateSceneObject(ulong sceneId)
         {
-            GameObject runtimeObject = new GameObject("Runtime GameObject");
-            NetworkIdentity networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity);
+            gameObject.name = "Runtime GameObject";
             // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
-            networkIdentity.sceneId = sceneId;
-
-            _createdObjects.Add(runtimeObject);
-
-            return networkIdentity;
+            identity.sceneId = sceneId;
+            return identity;
         }
-
 
         [Test]
         public void AddsAllInactiveIdentitiesInSceneWithSceneIdToDictionary()
