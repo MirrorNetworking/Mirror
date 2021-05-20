@@ -13,15 +13,6 @@ namespace Mirror.Tests
             base.TearDown();
         }
 
-        // TODO remove
-        protected NetworkIdentity CreateNetworkIdentity(uint netId)
-        {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity networkIdentity);
-            networkIdentity.netId = netId;
-            NetworkIdentity.spawned[netId] = networkIdentity;
-            return networkIdentity;
-        }
-
         /// <returns>If data was written by OnSerialize</returns>
         public static bool SyncToClient<T>(T serverObject, T clientObject, bool initialState) where T : NetworkBehaviour
         {
