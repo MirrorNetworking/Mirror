@@ -85,7 +85,7 @@ namespace Mirror.Discovery
 
         void StopButtons()
         {
-            GUILayout.BeginArea(new Rect(10, 10, 100, 25));
+            GUILayout.BeginArea(new Rect(10, 40, 100, 25));
 
             // stop host if host mode
             if (NetworkServer.active && NetworkClient.isConnected)
