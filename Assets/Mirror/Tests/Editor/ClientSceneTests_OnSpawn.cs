@@ -245,8 +245,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             spawnHandlers.Add(validPrefabGuid, (x) =>
             {
-                GameObject go = new GameObject("testObj");
-                _createdObjects.Add(go);
+                CreateGameObject(out GameObject go);
                 return go;
             });
 
@@ -368,15 +367,13 @@ namespace Mirror.Tests.ClientSceneTests
         public void ApplyPayload_AppliesLocalValuesToTransform()
         {
             const uint netId = 1000;
-            GameObject parent = new GameObject();
-            _createdObjects.Add(parent);
+            CreateGameObject(out GameObject parent);
             parent.transform.position = new Vector3(100, 20, 0);
             parent.transform.rotation = Quaternion.LookRotation(Vector3.left);
             parent.transform.localScale = Vector3.one * 2;
 
-            GameObject go = new GameObject();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
             go.transform.parent = parent.transform;
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
 
             Vector3 position = new Vector3(10, 0, 20);
             Quaternion rotation = Quaternion.Euler(0, 45, 0);
@@ -412,10 +409,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
 
             SpawnMessage msg = new SpawnMessage
             {
@@ -429,7 +423,7 @@ namespace Mirror.Tests.ClientSceneTests
                 rotation = Quaternion.identity,
                 scale = Vector3.one,
 
-                payload = default,
+                payload = default
             };
 
             // set to opposite to make sure it is changed
