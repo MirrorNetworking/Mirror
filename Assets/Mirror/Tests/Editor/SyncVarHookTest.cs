@@ -258,7 +258,9 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourHookBehaviour clientObject);
 
             NetworkBehaviourHookBehaviour clientValue = null;
-            NetworkBehaviourHookBehaviour serverValue = CreateNetworkIdentity(2033).gameObject.AddComponent<NetworkBehaviourHookBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity serverIdentity, out NetworkBehaviourHookBehaviour serverValue);
+            serverIdentity.netId = 2033;
+            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
 
             serverObject.value = serverValue;
             clientObject.value = clientValue;
