@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class NetworkWriterTest
+    public class NetworkWriterTest : MirrorTest
     {
         /* uncomment if needed. commented for faster test workflow. this takes >3s.
         [Test]
@@ -1020,14 +1020,10 @@ namespace Mirror.Tests
         [Test]
         public void TestNetworkBehaviour()
         {
-            //setup
-            GameObject gameObject = new GameObject();
-            NetworkIdentity identity = gameObject.AddComponent<NetworkIdentity>();
-            RpcNetworkIdentityBehaviour behaviour = gameObject.AddComponent<RpcNetworkIdentityBehaviour>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out RpcNetworkIdentityBehaviour behaviour);
 
             const uint netId = 100;
             identity.netId = netId;
-
             NetworkIdentity.spawned[netId] = identity;
 
             try
