@@ -41,9 +41,7 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSettingStruct()
         {
-            GameObject gameObject = new GameObject();
-
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
 
             // synchronize immediately
             player.syncInterval = 0f;
@@ -69,9 +67,7 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSyncIntervalAndClearDirtyComponents()
         {
-            GameObject gameObject = new GameObject();
-
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
             player.lastSyncTime = Time.time;
             // synchronize immediately
             player.syncInterval = 1f;
@@ -97,9 +93,7 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSyncIntervalAndClearAllComponents()
         {
-            GameObject gameObject = new GameObject();
-
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
             player.lastSyncTime = Time.time;
             // synchronize immediately
             player.syncInterval = 1f;
@@ -126,9 +120,7 @@ namespace Mirror.Tests.SyncVarTests
         public void TestSynchronizingObjects()
         {
             // set up a "server" object
-            GameObject gameObject1 = new GameObject();
-            NetworkIdentity identity1 = gameObject1.AddComponent<NetworkIdentity>();
-            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject1, out NetworkIdentity identity1, out MockPlayer player1);
             MockPlayer.Guild myGuild = new MockPlayer.Guild
             {
                 name = "Back street boys"
@@ -142,9 +134,7 @@ namespace Mirror.Tests.SyncVarTests
             identity1.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object
-            GameObject gameObject2 = new GameObject();
-            NetworkIdentity identity2 = gameObject2.AddComponent<NetworkIdentity>();
-            MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject2, out NetworkIdentity identity2, out MockPlayer player2);
 
             // apply all the data from the server object
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
