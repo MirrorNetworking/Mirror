@@ -169,8 +169,7 @@ namespace Mirror.Tests.ClientSceneTests
             spawnHandlers.Add(validPrefabGuid, (x) =>
             {
                 handlerCalled++;
-                GameObject go = new GameObject("testObj", typeof(NetworkIdentity));
-                _createdObjects.Add(go);
+                CreateNetworked(out GameObject go, out NetworkIdentity _);
                 return go;
             });
 
@@ -200,11 +199,9 @@ namespace Mirror.Tests.ClientSceneTests
             {
                 handlerCalled++;
                 Assert.That(x, Is.EqualTo(msg));
-                createdInhandler = new GameObject("testObj", typeof(NetworkIdentity));
-                _createdObjects.Add(createdInhandler);
+                CreateNetworked(out createdInhandler, out NetworkIdentity _);
                 return createdInhandler;
             });
-
 
             bool success = NetworkClient.FindOrSpawnObject(msg, out NetworkIdentity networkIdentity);
 
@@ -263,15 +260,11 @@ namespace Mirror.Tests.ClientSceneTests
 
         NetworkIdentity CreateSceneObject(ulong sceneId)
         {
-            GameObject runtimeObject = new GameObject("Runtime GameObject");
-            NetworkIdentity networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
             // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
-            networkIdentity.sceneId = sceneId;
-
-            _createdObjects.Add(runtimeObject);
-            spawnableObjects.Add(sceneId, networkIdentity);
-
-            return networkIdentity;
+            identity.sceneId = sceneId;
+            spawnableObjects.Add(sceneId, identity);
+            return identity;
         }
 
         [Test]
@@ -342,10 +335,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             Vector3 position = new Vector3(10, 0, 20);
             Quaternion rotation = Quaternion.Euler(0, 45, 0);
@@ -457,10 +447,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
             go.SetActive(startActive);
 
             SpawnMessage msg = new SpawnMessage
@@ -488,10 +475,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
 
             Guid guid = Guid.NewGuid();
             SpawnMessage msg = new SpawnMessage
@@ -521,10 +505,7 @@ namespace Mirror.Tests.ClientSceneTests
         {
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
             Guid guid = Guid.NewGuid();
             identity.assetId = guid;
 
@@ -557,16 +538,10 @@ namespace Mirror.Tests.ClientSceneTests
             const uint netId = 1000;
 
             // server object
-            GameObject serverObject = new GameObject();
-            _createdObjects.Add(serverObject);
-            NetworkIdentity serverIdentity = serverObject.AddComponent<NetworkIdentity>();
-            PayloadTestBehaviour serverPayloadBehaviour = serverObject.AddComponent<PayloadTestBehaviour>();
+            CreateNetworked(out GameObject serverObject, out NetworkIdentity serverIdentity, out PayloadTestBehaviour serverPayloadBehaviour);
 
             // client object
-            GameObject clientObject = new GameObject();
-            _createdObjects.Add(clientObject);
-            NetworkIdentity clientIdentity = clientObject.AddComponent<NetworkIdentity>();
-            PayloadTestBehaviour clientPayloadBehaviour = clientObject.AddComponent<PayloadTestBehaviour>();
+            CreateNetworked(out GameObject clientObject, out NetworkIdentity clientIdentity, out PayloadTestBehaviour clientPayloadBehaviour);
 
             int onSerializeCalled = 0;
             serverPayloadBehaviour.OnSerializeCalled += () => { onSerializeCalled++; };
@@ -610,10 +585,7 @@ namespace Mirror.Tests.ClientSceneTests
             Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
 
             SpawnMessage msg = new SpawnMessage
             {
@@ -644,10 +616,7 @@ namespace Mirror.Tests.ClientSceneTests
             Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
             const uint netId = 1000;
 
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
 
             SpawnMessage msg = new SpawnMessage
             {
@@ -699,11 +668,7 @@ namespace Mirror.Tests.ClientSceneTests
             }
 
             const uint netId = 1000;
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
-            BehaviourWithEvents events = go.AddComponent<BehaviourWithEvents>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out BehaviourWithEvents events);
 
             int onStartAuthorityCalled = 0;
             int onStartClientCalled = 0;
