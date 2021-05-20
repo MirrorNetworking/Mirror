@@ -35,6 +35,14 @@ namespace Mirror.Tests
             Transport.activeTransport = null;
         }
 
+        // create a tracked GameObject for tests without Networkidentity
+        protected void CreateGameObject(out GameObject go)
+        {
+            go = new GameObject();
+            // track
+            instantiated.Add(go);
+        }
+
         // create GameObject + NetworkIdentity
         // add to tracker list if needed (useful for cleanups afterwards)
         protected void CreateNetworked(out GameObject go, out NetworkIdentity identity)
