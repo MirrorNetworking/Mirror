@@ -41,6 +41,10 @@ namespace Mirror.Tests
         {
             go = new GameObject();
             identity = go.AddComponent<NetworkIdentity>();
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
+            // track
             instantiated.Add(go);
         }
 
@@ -54,6 +58,9 @@ namespace Mirror.Tests
             component = go.AddComponent<T>();
             // always set syncinterval = 0 for immediate testing
             component.syncInterval = 0;
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
             // track
             instantiated.Add(go);
         }
@@ -71,6 +78,9 @@ namespace Mirror.Tests
             // always set syncinterval = 0 for immediate testing
             componentA.syncInterval = 0;
             componentB.syncInterval = 0;
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
             // track
             instantiated.Add(go);
         }

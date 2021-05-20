@@ -278,7 +278,9 @@ namespace Mirror
         [SerializeField, HideInInspector] bool hasSpawned;
         public bool SpawnedFromInstantiate { get; private set; }
 
-        void Awake()
+        // Awake is only called in Play mode.
+        // internal so we can call it during unit tests too.
+        internal void Awake()
         {
             if (hasSpawned)
             {
