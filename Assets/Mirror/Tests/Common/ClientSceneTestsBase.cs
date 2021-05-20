@@ -11,7 +11,7 @@ namespace Mirror.Tests
     /// Used by both runtime and edit time tests
     /// </summary>
     [TestFixture]
-    public abstract class ClientSceneTestsBase
+    public abstract class ClientSceneTestsBase : MirrorTest
     {
         // use guid to find asset so that the path does not matter
         protected const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
@@ -52,7 +52,7 @@ namespace Mirror.Tests
         }
 
         [TearDown]
-        public virtual void TearDown()
+        public override void TearDown()
         {
             NetworkClient.Shutdown();
             // reset asset id in case they are changed by tests
@@ -66,6 +66,7 @@ namespace Mirror.Tests
                 }
             }
             _createdObjects.Clear();
+            base.TearDown();
         }
 
         [OneTimeTearDown]
