@@ -314,12 +314,35 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncVarCacheNetidForIdentity(bool initialState)
         {
-            SyncVarCacheNetidForGeneric<SyncVarNetworkIdentity, NetworkIdentity>(
-                (obj) => obj.value,
-                (obj, value) => obj.value = value,
-                (identity) => identity,
-                initialState
-            );
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity clientObject);
+
+            NetworkIdentity identity = CreateNetworkIdentity(2047);
+            NetworkIdentity serverValue = identity;
+
+            Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
+
+            serverObject.value = serverValue;
+            clientObject.value = null;
+
+            // write server data
+            bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
+            Assert.IsTrue(written, "did not write");
+
+            // remove identity from collection
+            NetworkIdentity.spawned.Remove(identity.netId);
+
+            // read client data, this should be cached in field
+            ClientRead(clientObject, initialState, data, writeLength);
+
+            // check field shows as null
+            Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
+
+            // add identity back to collection
+            NetworkIdentity.spawned.Add(identity.netId, identity);
+
+            // check field finds value
+            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
         }
 
         [Test]
