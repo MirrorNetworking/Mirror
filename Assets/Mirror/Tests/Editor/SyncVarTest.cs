@@ -380,44 +380,5 @@ namespace Mirror.Tests.SyncVarTests
             // check field finds value
             Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
         }
-
-        void SyncVarCacheNetidForGeneric<TBehaviour, TValue>(
-            Func<TBehaviour, TValue> getField,
-            Action<TBehaviour, TValue> setField,
-            Func<NetworkIdentity, TValue> getCreatedValue,
-            bool initialState)
-            where TValue : UnityEngine.Object
-            where TBehaviour : NetworkBehaviour
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out TBehaviour serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out TBehaviour clientObject);
-
-            NetworkIdentity identity = CreateNetworkIdentity(2047);
-            TValue serverValue = getCreatedValue(identity);
-
-            Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
-
-            setField(serverObject, serverValue);
-            setField(clientObject, null);
-
-            // write server data
-            bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
-            Assert.IsTrue(written, "did not write");
-
-            // remove identity from collection
-            NetworkIdentity.spawned.Remove(identity.netId);
-
-            // read client data, this should be cached in field
-            ClientRead(clientObject, initialState, data, writeLength);
-
-            // check field shows as null
-            Assert.That(getField(clientObject), Is.EqualTo(null), "field should return null");
-
-            // add identity back to collection
-            NetworkIdentity.spawned.Add(identity.netId, identity);
-
-            // check field finds value
-            Assert.That(getField(clientObject), Is.EqualTo(serverValue), "fields should return serverValue");
-        }
     }
 }
