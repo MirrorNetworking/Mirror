@@ -13,6 +13,7 @@ namespace Mirror.Tests
             base.TearDown();
         }
 
+        // TODO remove
         protected NetworkIdentity CreateNetworkIdentity(uint netId)
         {
             CreateNetworked(out GameObject gameObject, out NetworkIdentity networkIdentity);
