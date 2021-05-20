@@ -22,7 +22,7 @@ Mirror is optimized for **ease of use** & **probability of success**.
 
 We needed a networking library that allows us to **[launch our games](https://mirror-networking.com/showcase/)** and **survive the next decade**.
 
-Mirror is [stable](https://mirror-networking.gitbook.io/docs/general/tests) & production ready.
+Mirror is [stable](https://mirror-networking.gitbook.io/docs/general/tests) & [production](https://www.oculus.com/experiences/quest/2564158073609422/) ready.
 
 ## Architecture
 The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
