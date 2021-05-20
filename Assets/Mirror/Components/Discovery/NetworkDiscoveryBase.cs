@@ -75,6 +75,19 @@ namespace Mirror.Discovery
         // Ensure the ports are cleared no matter when Game/Unity UI exits
         void OnApplicationQuit()
         {
+            //Debug.Log("NetworkDiscoveryBase OnApplicationQuit");
+            Shutdown();
+        }
+
+        void OnDisable()
+        {
+            //Debug.Log("NetworkDiscoveryBase OnDisable");
+            Shutdown();
+        }
+
+        void OnDestroy()
+        {
+            //Debug.Log("NetworkDiscoveryBase OnDestroy");
             Shutdown();
         }
 
@@ -249,6 +262,7 @@ namespace Mirror.Discovery
             catch (Exception)
             {
                 // Free the port if we took it
+                //Debug.LogError("NetworkDiscoveryBase StartDiscovery Exception");
                 Shutdown();
                 throw;
             }
@@ -263,6 +277,7 @@ namespace Mirror.Discovery
         /// </summary>
         public void StopDiscovery()
         {
+            //Debug.Log("NetworkDiscoveryBase StopDiscovery");
             Shutdown();
         }
 
