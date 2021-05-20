@@ -1117,6 +1117,10 @@ namespace Mirror
             }
         }
 
+        // Reset is called when the user hits the Reset button in the
+        // Inspector's context menu or when adding the component the first time.
+        // This function is only called in editor mode.
+        //
         // Reset() seems to be called only for Scene objects.
         // we can't destroy them (they are always in the scene).
         // instead we disable them and call Reset().
