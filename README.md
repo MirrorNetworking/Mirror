@@ -47,18 +47,6 @@ Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirro
 
 _Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
 
-## Low Level Transports
-* (built in) [KCP](https://app.gitbook.com/@mirror-networking/s/docs/transports/kcp-transport): reliable UDP
-* (built in) [Telepathy](https://app.gitbook.com/@mirror-networking/s/docs/transports/telepathy-transport): TCP
-* (built in) [Websockets](https://app.gitbook.com/@mirror-networking/s/docs/transports/websockets-transport): Websockets
-* [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
-* [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
-* [FizzySteam](https://github.com/Chykary/FizzySteamworks/): SteamNetwork
-* [FizzyFacepunch](https://github.com/Chykary/FizzyFacepunch/): SteamNetwork
-* [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport): Epic Online Services
-* [Light Reflective Mirror](https://github.com/Derek-R-S/Light-Reflective-Mirror): Self-Hosted Relay
-* [Oculus P2P](https://github.com/hyferg/MirrorOculusP2P): Oculus Platform Service
-
 ## Getting Started
 Get **Unity 2019 LTS**, download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
@@ -107,6 +95,18 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 </table>
 
 And [many more](https://mirror-networking.com/showcase/)...
+
+## Low Level Transports
+* (built in) [KCP](https://app.gitbook.com/@mirror-networking/s/docs/transports/kcp-transport): reliable UDP
+* (built in) [Telepathy](https://app.gitbook.com/@mirror-networking/s/docs/transports/telepathy-transport): TCP
+* (built in) [Websockets](https://app.gitbook.com/@mirror-networking/s/docs/transports/websockets-transport): Websockets
+* [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
+* [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
+* [FizzySteam](https://github.com/Chykary/FizzySteamworks/): SteamNetwork
+* [FizzyFacepunch](https://github.com/Chykary/FizzyFacepunch/): SteamNetwork
+* [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport): Epic Online Services
+* [Light Reflective Mirror](https://github.com/Derek-R-S/Light-Reflective-Mirror): Self-Hosted Relay
+* [Oculus P2P](https://github.com/hyferg/MirrorOculusP2P): Oculus Platform Service
 
 ## Benchmarks
 * [uMMORPG 480 CCU](https://youtu.be/mDCNff1S9ZU) (worst case)
