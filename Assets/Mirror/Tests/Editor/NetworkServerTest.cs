@@ -1067,6 +1067,33 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
         }
 
+        // NetworkServer.Update iterates all connections.
+        // a timed out connection may call Disconnect, trying to modify the
+        // collection during the loop.
+        // -> test to prevent https://github.com/vis2k/Mirror/pull/2718
+        [Test]
+        public void UpdateWithTimedOutConnection()
+        {
+            // configure to disconnect with '0' timeout (= immediately)
+#pragma warning disable 618
+            NetworkServer.disconnectInactiveConnections = true;
+            NetworkServer.disconnectInactiveTimeout = 0;
+
+            // start
+            NetworkServer.Listen(1);
+
+            // add a connection
+            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+
+            // update
+            NetworkServer.NetworkLateUpdate();
+
+            // clean up
+            NetworkServer.disconnectInactiveConnections = false;
+            NetworkServer.Shutdown();
+#pragma warning restore 618
+        }
+
         // updating NetworkServer with a null entry in connection.observing
         // should log a warning. someone probably used GameObject.Destroy
         // instead of NetworkServer.Destroy.
