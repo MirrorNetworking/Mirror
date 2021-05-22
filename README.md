@@ -45,8 +45,6 @@ Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirro
 * **[ClientRpc]** / **[TargetRpc]** for Server->Client function calls (e.g. AddChatMessage)
 * **[SyncVar]** / SyncList to automatically synchronize variables from Server->Client
 
-_Note: Mirror is based on Unity's abandoned UNET Networking system. We fixed it up and pushed it to MMO Scale._
-
 ## Getting Started
 Get **Unity 2019 LTS**, download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
