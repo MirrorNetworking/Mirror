@@ -70,9 +70,8 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void FindOrSpawnObject_FindExistingObject()
         {
+            CreateNetworked(out GameObject go, out NetworkIdentity existing);
             const uint netId = 1000;
-            GameObject go = new GameObject();
-            NetworkIdentity existing = go.AddComponent<NetworkIdentity>();
             existing.netId = netId;
             spawned.Add(netId, existing);
 
@@ -84,10 +83,6 @@ namespace Mirror.Tests.ClientSceneTests
 
             Assert.IsTrue(success);
             Assert.That(found, Is.EqualTo(existing));
-
-
-            // cleanup
-            GameObject.DestroyImmediate(found.gameObject);
         }
 
         [Test]
@@ -699,7 +694,6 @@ namespace Mirror.Tests.ClientSceneTests
         {
             const int netId = 1;
             Debug.Assert(spawned.Count == 0, "There should be no spawned objects before test");
-
 
             Vector3 position = new Vector3(30, 20, 10);
             Quaternion rotation = Quaternion.Euler(0, 0, 90);
