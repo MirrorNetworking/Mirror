@@ -278,8 +278,12 @@ namespace Mirror.Tests
             // DestroyImmediate is called internally, giving an error in Editor
             identity.isServer = false;
             GameObject.DestroyImmediate(gameObject);
-            // clean so that null entries are not in dictionary
+
+            // cleanup
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
             NetworkIdentity.spawned.Clear();
+
             base.TearDown();
         }
 
@@ -314,12 +318,6 @@ namespace Mirror.Tests
             Assert.That(component.OnStartServer_isClient, Is.EqualTo(false));
             Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(false));
             Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
-
-            // stop the server
-            NetworkServer.Shutdown();
-
-            // clean up
-            NetworkIdentity.spawned.Clear();
         }
 
         // check isClient/isServer/isLocalPlayer in host mode
@@ -349,12 +347,6 @@ namespace Mirror.Tests
             // stop the client
             NetworkClient.Shutdown();
             NetworkServer.RemoveLocalConnection();
-
-            // stop the server
-            NetworkServer.Shutdown();
-
-            // clean up
-            NetworkIdentity.spawned.Clear();
         }
 
         [Test]
@@ -690,9 +682,6 @@ namespace Mirror.Tests
             Assert.That(callbackConnection, Is.EqualTo(owner));
             Assert.That(callbackIdentity, Is.EqualTo(identity));
             Assert.That(callbackState, Is.EqualTo(false));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -765,10 +754,6 @@ namespace Mirror.Tests
             Assert.That(identity.isClient, Is.False);
             identity.OnStartServer();
             Assert.That(identity.isClient, Is.True);
-
-            // clean up
-            NetworkClient.Disconnect();
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -1174,7 +1159,6 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
-            NetworkIdentity.spawned.Clear();
             RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
@@ -1216,7 +1200,6 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(1));
 
             // clean up
-            NetworkIdentity.spawned.Clear();
             RemoteCallHelper.RemoveDelegate(registeredHash);
         }
     }
