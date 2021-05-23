@@ -345,7 +345,6 @@ namespace Mirror.Tests
             Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
 
             // stop the client
-            NetworkClient.Shutdown();
             NetworkServer.RemoveLocalConnection();
         }
 
