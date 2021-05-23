@@ -1,19 +1,18 @@
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class BatchingTests
+    public class BatchingTests : MirrorTest
     {
-        MemoryTransport transport;
         NetworkConnectionToClient connection;
         NetworkConnectionToClient.Batch batch;
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            // need a transport to send & receive
-            Transport.activeTransport = transport = new GameObject().AddComponent<MemoryTransport>();
+            base.SetUp();
+
+            // connect transport
             transport.ServerStart();
             transport.ClientConnect("localhost");
 
@@ -26,13 +25,6 @@ namespace Mirror.Tests
 
             // need a batch too
             batch = new NetworkConnectionToClient.Batch();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            GameObject.DestroyImmediate(Transport.activeTransport.gameObject);
-            Transport.activeTransport = null;
         }
 
         [Test]
