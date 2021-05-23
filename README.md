@@ -82,7 +82,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
     <th><a href="https://nestables.co/">Nestables</a></th>
     <th><a href="https://www.glimpse-luna.com/">A Glimpse of Luna</a></th>
     <th><a href="https://store.steampowered.com/app/535630/One_More_Night/">One More Night</a></th>
-    <th><a href="https://www.cubica.net/">Cubica</a></th>
+    <th><a href="">Cubica</a></th>
   </tr>
   <tr>
     <td><img src="https://user-images.githubusercontent.com/16416509/119001349-7a32b380-b9be-11eb-86fd-a116920842d1.png" height="100"/></td>
