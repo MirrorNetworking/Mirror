@@ -93,6 +93,7 @@ namespace Mirror.Tests
         {
             // reset all state
             // shutdown should be called before setting activeTransport to null
+            NetworkIdentity.spawned.Clear();
             NetworkServer.Shutdown();
             base.TearDown();
         }
@@ -619,7 +620,6 @@ namespace Mirror.Tests
             // clean up
             NetworkIdentity.spawned.Clear();
             RemoteCallHelper.RemoveDelegate(registeredHash);
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -638,7 +638,6 @@ namespace Mirror.Tests
 
             // clean up
             NetworkIdentity.spawned.Clear();
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -822,9 +821,6 @@ namespace Mirror.Tests
             connection.connectionToServer.Update();
             // not 2 but 1 like before?
             Assert.That(called, Is.EqualTo(1));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -859,9 +855,6 @@ namespace Mirror.Tests
 
             // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -921,9 +914,6 @@ namespace Mirror.Tests
             // called
             identity.isServer = false;
             identity2.isServer = false;
-            NetworkServer.Shutdown();
-            // need to clear spawned list as SpawnObjects adds items to that list
-            NetworkIdentity.spawned.Clear();
         }
 
         [Test]
@@ -1062,9 +1052,6 @@ namespace Mirror.Tests
             // update
             LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         // NetworkServer.Update iterates all connections.
@@ -1090,7 +1077,6 @@ namespace Mirror.Tests
 
             // clean up
             NetworkServer.disconnectInactiveConnections = false;
-            NetworkServer.Shutdown();
 #pragma warning restore 618
         }
 
@@ -1114,9 +1100,6 @@ namespace Mirror.Tests
             // update
             LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
-
-            // clean up
-            NetworkServer.Shutdown();
         }
     }
 }
