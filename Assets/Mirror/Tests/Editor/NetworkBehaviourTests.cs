@@ -210,7 +210,10 @@ namespace Mirror.Tests
             // DestroyImmediate is called internally, giving an error in Editor
             identity.isServer = false;
             GameObject.DestroyImmediate(gameObject);
+
             NetworkServer.RemoveLocalConnection();
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
 
             NetworkIdentity.spawned.Clear();
             base.TearDown();
@@ -371,9 +374,6 @@ namespace Mirror.Tests
 
             // clean up
             RemoteCallHelper.RemoveDelegate(registeredHash);
-            // clear clientscene.readyconnection
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
         }
 
         // test to prevent https://github.com/vis2k/Mirror/issues/2629
@@ -445,9 +445,6 @@ namespace Mirror.Tests
 
             // clean up
             RemoteCallHelper.RemoveDelegate(registeredHash);
-            // clear clientscene.readyconnection
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -520,8 +517,6 @@ namespace Mirror.Tests
             RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             NetworkServer.RemoveLocalConnection();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -600,8 +595,6 @@ namespace Mirror.Tests
             RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             NetworkServer.RemoveLocalConnection();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -1055,9 +1048,6 @@ namespace Mirror.Tests
             // get it on the client. should look up netId in spawned
             GameObject result = comp.GetSyncVarGameObjectExposed();
             Assert.That(result, Is.EqualTo(go));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -1073,9 +1063,6 @@ namespace Mirror.Tests
             // get it on the client. null should be supported.
             GameObject result = comp.GetSyncVarGameObjectExposed();
             Assert.That(result, Is.Null);
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -1224,9 +1211,6 @@ namespace Mirror.Tests
             // get it on the client. should look up netId in spawned
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
             Assert.That(result, Is.EqualTo(ni));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
@@ -1244,9 +1228,6 @@ namespace Mirror.Tests
             // get it on the client. null should be supported.
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
             Assert.That(result, Is.Null);
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]
