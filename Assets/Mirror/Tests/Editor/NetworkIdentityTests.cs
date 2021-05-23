@@ -261,24 +261,9 @@ namespace Mirror.Tests
             }
         }
 
-        GameObject gameObject;
-        NetworkIdentity identity;
-
-        [SetUp]
-        public override void SetUp()
-        {
-            base.SetUp();
-            CreateNetworked(out gameObject, out identity);
-        }
-
         [TearDown]
         public override void TearDown()
         {
-            // set isServer is false. otherwise Destroy instead of
-            // DestroyImmediate is called internally, giving an error in Editor
-            identity.isServer = false;
-            GameObject.DestroyImmediate(gameObject);
-
             // cleanup
             NetworkClient.Shutdown();
             NetworkServer.Shutdown();
@@ -291,10 +276,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStartServerTest()
         {
-            // lets add a component to check OnStartserver
-            MyTestComponent component1 = gameObject.AddComponent<MyTestComponent>();
-            MyTestComponent component2 = gameObject.AddComponent<MyTestComponent>();
-
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out MyTestComponent component1, out MyTestComponent component2);
             identity.OnStartServer();
 
             Assert.That(component1.onStartServerInvoked);
@@ -305,11 +287,10 @@ namespace Mirror.Tests
         [Test]
         public void ServerMode_IsFlags_Test()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity _, out IsClientServerCheckComponent component);
+
             // start the server
             NetworkServer.Listen(1000);
-
-            // add component
-            IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
 
             // spawn it
             NetworkServer.Spawn(gameObject);
@@ -324,14 +305,13 @@ namespace Mirror.Tests
         [Test]
         public void HostMode_IsFlags_Test()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out IsClientServerCheckComponent component);
+
             // start the server
             NetworkServer.Listen(1000);
 
             // start the client
             NetworkClient.ConnectHost();
-
-            // add component
-            IsClientServerCheckComponent component = gameObject.AddComponent<IsClientServerCheckComponent>();
 
             // set is as local player
             NetworkClient.InternalAddPlayer(identity);
@@ -351,6 +331,8 @@ namespace Mirror.Tests
         [Test]
         public void GetSetAssetId()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // assign a guid
             Guid guid = new Guid(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B);
             identity.assetId = guid;
@@ -362,6 +344,8 @@ namespace Mirror.Tests
         [Test]
         public void SetAssetId_GivesErrorIfOneExists()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             if (identity.assetId == Guid.Empty)
             {
                 identity.assetId = Guid.NewGuid();
@@ -381,6 +365,8 @@ namespace Mirror.Tests
         [Test]
         public void SetAssetId_GivesErrorForEmptyGuid()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             if (identity.assetId == Guid.Empty)
             {
                 identity.assetId = Guid.NewGuid();
@@ -399,6 +385,8 @@ namespace Mirror.Tests
         [Test]
         public void SetAssetId_DoesNotGiveErrorIfBothOldAndNewAreEmpty()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             Debug.Assert(identity.assetId == Guid.Empty, "assetId needs to be empty at the start of this test");
             // assign a guid
             Guid guid2 = new Guid();
@@ -412,6 +400,8 @@ namespace Mirror.Tests
         [Test]
         public void SetClientOwner()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // SetClientOwner
             LocalConnectionToClient original = new LocalConnectionToClient();
             identity.SetClientOwner(original);
@@ -429,6 +419,8 @@ namespace Mirror.Tests
         [Test]
         public void RemoveObserverInternal()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // call OnStartServer so that observers dict is created
             identity.OnStartServer();
 
@@ -448,6 +440,8 @@ namespace Mirror.Tests
         [Test]
         public void AssignSceneID()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // Awake will have assigned a random sceneId of format 0x00000000FFFFFFFF
             // -> make sure that one was assigned, and that the left part was
             //    left empty for scene hash
@@ -461,6 +455,8 @@ namespace Mirror.Tests
         [Test]
         public void SetSceneIdSceneHashPartInternal()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // Awake will have assigned a random sceneId of format 0x00000000FFFFFFFF
             // -> make sure that one was assigned, and that the left part was
             //    left empty for scene hash
@@ -486,6 +482,8 @@ namespace Mirror.Tests
         [Test]
         public void OnValidateSetupIDsSetsEmptyAssetIDForSceneObject()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // OnValidate will have been called. make sure that assetId was set
             // to 0 empty and not anything else, because this is a scene object
             Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
@@ -494,8 +492,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStartServerCallsComponentsAndCatchesExceptions()
         {
-            // add component
-            StartServerExceptionNetworkBehaviour comp = gameObject.AddComponent<StartServerExceptionNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartServerExceptionNetworkBehaviour comp);
 
             // make sure that comp.OnStartServer was called and make sure that
             // the exception was caught and not thrown in here.
@@ -513,8 +510,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStartClientCallsComponentsAndCatchesExceptions()
         {
-            // add component
-            StartClientExceptionNetworkBehaviour comp = gameObject.AddComponent<StartClientExceptionNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartClientExceptionNetworkBehaviour comp);
 
             // make sure that comp.OnStartClient was called and make sure that
             // the exception was caught and not thrown in here.
@@ -538,8 +534,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStartAuthorityCallsComponentsAndCatchesExceptions()
         {
-            // add component
-            StartAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StartAuthorityExceptionNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartAuthorityExceptionNetworkBehaviour comp);
 
             // make sure that comp.OnStartAuthority was called and make sure that
             // the exception was caught and not thrown in here.
@@ -557,8 +552,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStopAuthorityCallsComponentsAndCatchesExceptions()
         {
-            // add component
-            StopAuthorityExceptionNetworkBehaviour comp = gameObject.AddComponent<StopAuthorityExceptionNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StopAuthorityExceptionNetworkBehaviour comp);
 
             // make sure that comp.OnStopAuthority was called and make sure that
             // the exception was caught and not thrown in here.
@@ -576,6 +570,8 @@ namespace Mirror.Tests
         [Test]
         public void AssignAndRemoveClientAuthority()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // test the callback too
             int callbackCalled = 0;
             NetworkConnection callbackConnection = null;
@@ -686,9 +682,7 @@ namespace Mirror.Tests
         [Test]
         public void NotifyAuthorityCallsOnStartStopAuthority()
         {
-            // add components
-            StartAuthorityCalledNetworkBehaviour compStart = gameObject.AddComponent<StartAuthorityCalledNetworkBehaviour>();
-            StopAuthorityCalledNetworkBehaviour compStop = gameObject.AddComponent<StopAuthorityCalledNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartAuthorityCalledNetworkBehaviour compStart, out StopAuthorityCalledNetworkBehaviour compStop);
 
             // set authority from false to true, which should call OnStartAuthority
             identity.hasAuthority = true;
@@ -735,6 +729,8 @@ namespace Mirror.Tests
         [Test]
         public void OnStartServerInHostModeSetsIsClientTrue()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // call client connect so that internals are set up
             // (it won't actually successfully connect)
             NetworkClient.Connect("localhost");
@@ -758,10 +754,10 @@ namespace Mirror.Tests
         [Test]
         public void OnSerializeAndDeserializeAllSafely()
         {
-            // create a networkidentity with our test components
-            SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            SerializeExceptionNetworkBehaviour compExc = gameObject.AddComponent<SerializeExceptionNetworkBehaviour>();
-            SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SerializeTest1NetworkBehaviour comp1,
+                out SerializeExceptionNetworkBehaviour compExc,
+                out SerializeTest2NetworkBehaviour comp2);
 
             // set some unique values to serialize
             comp1.value = 12345;
@@ -818,6 +814,8 @@ namespace Mirror.Tests
         [Test]
         public void OnSerializeAllSafelyShouldNotLogErrorsForTooManyComponents()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity);
+
             // add 65 components
             for (int i = 0; i < 65; ++i)
             {
@@ -845,6 +843,8 @@ namespace Mirror.Tests
         [Test]
         public void CreatingNetworkBehavioursCacheShouldLogErrorForTooComponents()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity);
+
             // add byte.MaxValue+1 components
             for (int i = 0; i < byte.MaxValue + 1; ++i)
             {
@@ -864,10 +864,10 @@ namespace Mirror.Tests
         [Test]
         public void OnDeserializeSafelyShouldDetectAndHandleDeSerializationMismatch()
         {
-            // add components
-            SerializeTest1NetworkBehaviour comp1 = gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            SerializeMismatchNetworkBehaviour compMiss = gameObject.AddComponent<SerializeMismatchNetworkBehaviour>();
-            SerializeTest2NetworkBehaviour comp2 = gameObject.AddComponent<SerializeTest2NetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SerializeTest1NetworkBehaviour comp1,
+                out SerializeMismatchNetworkBehaviour compMiss,
+                out SerializeTest2NetworkBehaviour comp2);
 
             // set some unique values to serialize
             comp1.value = 12345;
@@ -898,9 +898,9 @@ namespace Mirror.Tests
         [Test]
         public void OnStartLocalPlayer()
         {
-            // add components
-            StartLocalPlayerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StartLocalPlayerExceptionNetworkBehaviour>();
-            StartLocalPlayerCalledNetworkBehaviour comp = gameObject.AddComponent<StartLocalPlayerCalledNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out StartLocalPlayerExceptionNetworkBehaviour compEx,
+                out StartLocalPlayerCalledNetworkBehaviour comp);
 
             // make sure our test values are set to 0
             Assert.That(compEx.called, Is.EqualTo(0));
@@ -928,9 +928,9 @@ namespace Mirror.Tests
         [Test]
         public void OnStopClient()
         {
-            // add components
-            NetworkDestroyExceptionNetworkBehaviour compEx = gameObject.AddComponent<NetworkDestroyExceptionNetworkBehaviour>();
-            NetworkDestroyCalledNetworkBehaviour comp = gameObject.AddComponent<NetworkDestroyCalledNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out NetworkDestroyExceptionNetworkBehaviour compEx,
+                out NetworkDestroyCalledNetworkBehaviour comp);
 
             // make sure our test values are set to 0
             Assert.That(compEx.called, Is.EqualTo(0));
@@ -950,8 +950,8 @@ namespace Mirror.Tests
         [Test]
         public void OnStopServer()
         {
-            // add components
-            StopServerCalledNetworkBehaviour comp = gameObject.AddComponent<StopServerCalledNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out StopServerCalledNetworkBehaviour comp);
 
             // make sure our test values are set to 0
             Assert.That(comp.called, Is.EqualTo(0));
@@ -963,8 +963,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStopServerEx()
         {
-            // add components
-            StopServerExceptionNetworkBehaviour compEx = gameObject.AddComponent<StopServerExceptionNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StopServerExceptionNetworkBehaviour compEx);
 
             // make sure our test values are set to 0
             Assert.That(compEx.called, Is.EqualTo(0));
@@ -982,6 +981,8 @@ namespace Mirror.Tests
         [Test]
         public void AddObserver()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // create some connections
             NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42, false, 0);
             NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43, false, 0);
@@ -1020,6 +1021,8 @@ namespace Mirror.Tests
         [Test]
         public void ClearObservers()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // call OnStartServer so that observers dict is created
             identity.OnStartServer();
 
@@ -1035,9 +1038,9 @@ namespace Mirror.Tests
         [Test]
         public void ClearDirtyComponentsDirtyBits()
         {
-            // add components
-            OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
-            OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out OnStartClientTestNetworkBehaviour compA,
+                out OnStartClientTestNetworkBehaviour compB);
 
             // set syncintervals so one is always dirty, one is never dirty
             compA.syncInterval = 0;
@@ -1067,9 +1070,9 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllComponentsDirtyBits()
         {
-            // add components
-            OnStartClientTestNetworkBehaviour compA = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
-            OnStartClientTestNetworkBehaviour compB = gameObject.AddComponent<OnStartClientTestNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out OnStartClientTestNetworkBehaviour compA,
+                out OnStartClientTestNetworkBehaviour compB);
 
             // set syncintervals so one is always dirty, one is never dirty
             compA.syncInterval = 0;
@@ -1099,6 +1102,8 @@ namespace Mirror.Tests
         [Test]
         public void Reset()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // modify it a bit
             identity.isClient = true;
             // creates .observers and generates a netId
@@ -1118,8 +1123,8 @@ namespace Mirror.Tests
         [Test]
         public void HandleCommand()
         {
-            // add component
-            CommandTestNetworkBehaviour comp0 = gameObject.AddComponent<CommandTestNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0);
+
             NetworkConnectionToClient connection = new NetworkConnectionToClient(1, false, 0);
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp0.senderConnectionInCall, Is.Null);
@@ -1164,9 +1169,7 @@ namespace Mirror.Tests
         [Test]
         public void HandleRpc()
         {
-            // add rpc component
-            RpcTestNetworkBehaviour comp0 = gameObject.AddComponent<RpcTestNetworkBehaviour>();
-            Assert.That(comp0.called, Is.EqualTo(0));
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out RpcTestNetworkBehaviour comp0);
 
             // register the command delegate, otherwise it's not found
             int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(RpcTestNetworkBehaviour),
