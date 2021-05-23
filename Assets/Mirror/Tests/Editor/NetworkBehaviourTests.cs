@@ -270,14 +270,10 @@ namespace Mirror.Tests
         [Test]
         public void ComponentIndex()
         {
-            // add one extra component
-            EmptyBehaviour extra = gameObject.AddComponent<EmptyBehaviour>();
-
-            // original one is first networkbehaviour, so index is 0
-            Assert.That(emptyBehaviour.ComponentIndex, Is.EqualTo(0));
-
-            // extra one is second networkbehaviour, so index is 1
-            Assert.That(extra.ComponentIndex, Is.EqualTo(1));
+            // create a NetworkIdentity with two components
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out EmptyBehaviour first, out EmptyBehaviour second);
+            Assert.That(first.ComponentIndex, Is.EqualTo(0));
+            Assert.That(second.ComponentIndex, Is.EqualTo(1));
         }
 
         [Test]
