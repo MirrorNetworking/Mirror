@@ -93,6 +93,29 @@ namespace Mirror.Tests
             instantiated.Add(go);
         }
 
+        // create GameObject + NetworkIdentity + 2x NetworkBehaviour<T>
+        // add to tracker list if needed (useful for cleanups afterwards)
+        protected void CreateNetworked<T, U, V>(out GameObject go, out NetworkIdentity identity, out T componentA, out U componentB, out V componentC)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+            where V : NetworkBehaviour
+        {
+            go = new GameObject();
+            identity = go.AddComponent<NetworkIdentity>();
+            componentA = go.AddComponent<T>();
+            componentB = go.AddComponent<U>();
+            componentC = go.AddComponent<V>();
+            // always set syncinterval = 0 for immediate testing
+            componentA.syncInterval = 0;
+            componentB.syncInterval = 0;
+            componentC.syncInterval = 0;
+            // Awake is only called in play mode.
+            // call manually for initialization.
+            identity.Awake();
+            // track
+            instantiated.Add(go);
+        }
+
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
         // => ownerConnection can be NetworkServer.localConnection if needed.
         protected void CreateNetworkedAndSpawn<T>(out GameObject go, out NetworkIdentity identity, out T component, NetworkConnection ownerConnection = null)
