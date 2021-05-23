@@ -1411,13 +1411,26 @@ namespace Mirror
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
+        static List<NetworkConnectionToClient> connectionsCopy =
+            new List<NetworkConnectionToClient>();
         internal static void NetworkLateUpdate()
         {
             // only process spawned & connections if active
             if (active)
             {
+                // copy all connections into a helper collection so that
+                // OnTransportDisconnected can be called while iterating.
+                // -> OnTransportDisconnected removes from the collection
+                // -> which would throw 'can't modify while iterating' errors
+                // => see also: https://github.com/vis2k/Mirror/issues/2739
+                // (copy nonalloc)
+                // TODO remove this when we move to 'lite' transports with only
+                //      socket send/recv later.
+                connectionsCopy.Clear();
+                connections.Values.CopyTo(connectionsCopy);
+
                 // go through all connections
-                foreach (NetworkConnectionToClient connection in connections.Values)
+                foreach (NetworkConnectionToClient connection in connectionsCopy)
                 {
                     // check for inactivity
 #pragma warning disable 618
