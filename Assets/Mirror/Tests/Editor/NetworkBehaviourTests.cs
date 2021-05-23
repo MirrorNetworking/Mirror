@@ -1034,10 +1034,8 @@ namespace Mirror.Tests
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
 
-            // add test component
-            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
             // create a syncable GameObject
             CreateNetworked(out GameObject go, out NetworkIdentity ni);
@@ -1069,10 +1067,8 @@ namespace Mirror.Tests
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
 
-            // add test component
-            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
             // get it on the client. null should be supported.
             GameObject result = comp.GetSyncVarGameObjectExposed();
@@ -1085,10 +1081,8 @@ namespace Mirror.Tests
         [Test]
         public void SetSyncVarNetworkIdentityWithValidObject()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
 
             // create a valid GameObject with networkidentity and netid
             CreateNetworked(out GameObject go, out NetworkIdentity ni);
@@ -1105,10 +1099,8 @@ namespace Mirror.Tests
         [Test]
         public void SetSyncVarNetworkIdentityNull()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
 
             // set some existing NI+netId first to check if it is going to be
             // overwritten
