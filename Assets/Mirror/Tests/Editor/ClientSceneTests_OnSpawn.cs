@@ -67,7 +67,6 @@ namespace Mirror.Tests.ClientSceneTests
             base.TearDown();
         }
 
-
         [Test]
         public void FindOrSpawnObject_FindExistingObject()
         {
