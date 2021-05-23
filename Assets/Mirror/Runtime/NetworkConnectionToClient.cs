@@ -51,16 +51,6 @@ namespace Mirror
             this.batchInterval = batchInterval;
         }
 
-        protected override bool InvokeHandler(ushort msgType, NetworkReader reader, int channelId)
-        {
-            if (NetworkServer.handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
-            {
-                handler.Invoke(this, reader, channelId);
-                return true;
-            }
-            return false;
-        }
-
         Batch GetBatchForChannelId(int channelId)
         {
             // get existing or create new writer for the channelId

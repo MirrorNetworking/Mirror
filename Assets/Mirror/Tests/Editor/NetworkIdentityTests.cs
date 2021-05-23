@@ -585,11 +585,17 @@ namespace Mirror.Tests
                 callbackState = state;
             };
 
-            // create a connection
+            // create connections
             LocalConnectionToClient owner = new LocalConnectionToClient();
+            LocalConnectionToServer clientConnection = new LocalConnectionToServer();
             owner.isReady = true;
+            owner.connectionToServer = clientConnection;
+
+            // setup NetworkServer/Client connections so messages are handled
+            NetworkClient.connection = clientConnection;
+            NetworkServer.connections[owner.connectionId] = owner;
+
             // add client handlers
-            owner.connectionToServer = new LocalConnectionToServer();
             int spawnCalled = 0;
             void Handler(SpawnMessage _) => ++spawnCalled;
             NetworkClient.RegisterHandler<SpawnMessage>(Handler, false);

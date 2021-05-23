@@ -17,12 +17,18 @@ namespace Mirror.Tests
 
             connectionToClient.connectionToServer = connectionToServer;
             connectionToServer.connectionToClient = connectionToClient;
+
+            // set up server/client connections so message handling works
+            NetworkClient.connection = connectionToServer;
+            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
         }
 
         [TearDown]
         public void TearDown()
         {
             connectionToServer.Disconnect();
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
         }
 
         [Test]

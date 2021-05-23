@@ -403,17 +403,47 @@ namespace Mirror
             OnConnectedEvent?.Invoke(conn);
         }
 
-        // called by transport
-        static void OnTransportData(int connectionId, ArraySegment<byte> data, int channelId)
+        static void UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
         {
-            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
+            if (MessagePacking.Unpack(reader, out ushort msgType))
             {
-                conn.OnTransportData(data, channelId);
+                // try to invoke the handler for that message
+                if (handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
+                {
+                    handler.Invoke(connection, reader, channelId);
+                    connection.lastMessageTime = Time.time;
+                }
+                else
+                {
+                    // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                }
             }
             else
             {
-                Debug.LogError("HandleData Unknown connectionId:" + connectionId);
+                Debug.LogError("Closed connection: " + connection + ". Invalid message header.");
+                connection.Disconnect();
             }
+        }
+
+        // called by transport
+        internal static void OnTransportData(int connectionId, ArraySegment<byte> data, int channelId)
+        {
+            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient connection))
+            {
+                if (data.Count < MessagePacking.HeaderSize)
+                {
+                    Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id)");
+                    connection.Disconnect();
+                    return;
+                }
+
+                // unpack message
+                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                {
+                    UnpackAndInvoke(connection, reader, channelId);
+                }
+            }
+            else Debug.LogError("HandleData Unknown connectionId:" + connectionId);
         }
 
         // called by transport

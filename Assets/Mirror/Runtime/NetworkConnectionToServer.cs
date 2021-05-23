@@ -6,16 +6,6 @@ namespace Mirror
     {
         public override string address => "";
 
-        protected override bool InvokeHandler(ushort msgType, NetworkReader reader, int channelId)
-        {
-            if (NetworkClient.handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
-            {
-                handler.Invoke(this, reader, channelId);
-                return true;
-            }
-            return false;
-        }
-
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             // Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
