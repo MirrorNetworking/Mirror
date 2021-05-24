@@ -11,7 +11,7 @@ namespace Mirror.Tests
         LocalConnectionToServer connectionToServer;
 
         [SetUp]
-        public void SetUpConnections()
+        public void SetUp()
         {
             connectionToServer = new LocalConnectionToServer();
             connectionToClient = new LocalConnectionToClient();
@@ -21,7 +21,7 @@ namespace Mirror.Tests
         }
 
         [TearDown]
-        public void Disconnect()
+        public void TearDown()
         {
             connectionToServer.Disconnect();
         }
