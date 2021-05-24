@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Mirror.RemoteCalls;
 using NUnit.Framework;
@@ -654,10 +653,8 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
-            });
+            void Handler(TestMessage1 _) => ++called;
+            NetworkClient.RegisterHandler<TestMessage1>(Handler, false);
             NetworkServer.AddConnection(connection);
 
             // create a message
@@ -729,10 +726,8 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
-            });
+            void Handler(TestMessage1 _) => ++called;
+            NetworkClient.RegisterHandler<TestMessage1>(Handler, false);
             NetworkServer.AddConnection(connection);
 
             // create a message
@@ -797,10 +792,8 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++called) }
-            });
+            void Handler(SpawnMessage _) => ++called;
+            NetworkClient.RegisterHandler<SpawnMessage>(Handler, false);
             NetworkServer.AddConnection(connection);
 
             // create a gameobject and networkidentity and some unique values
@@ -838,10 +831,8 @@ namespace Mirror.Tests
             connection.connectionToServer = new LocalConnectionToServer();
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<ObjectHideMessage>(), ((conn, reader, channelId) => ++called) }
-            });
+            void Handler(ObjectHideMessage _) => ++called;
+            NetworkClient.RegisterHandler<ObjectHideMessage>(Handler, false);
             NetworkServer.AddConnection(connection);
 
             // create a gameobject and networkidentity

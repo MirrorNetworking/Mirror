@@ -17,7 +17,7 @@ namespace Mirror
     public static class NetworkClient
     {
         // message handlers by messageId
-        static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
+        internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
         /// <summary>Client's NetworkConnection to server.</summary>
@@ -138,9 +138,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(address);
 
-            // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
@@ -156,9 +154,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(uri);
 
-            // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
         }
 
         // TODO why are there two connect host methods?
@@ -178,7 +174,6 @@ namespace Mirror
             connectionToClient.connectionToServer = connectionToServer;
 
             connection = connectionToServer;
-            connection.SetHandlers(handlers);
 
             // create server connection to local client
             NetworkServer.SetLocalConnection(connectionToClient);

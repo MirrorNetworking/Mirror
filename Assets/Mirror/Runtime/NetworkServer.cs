@@ -23,7 +23,7 @@ namespace Mirror
             new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>Message Handlers dictionary, with mesageId as key</summary>
-        static Dictionary<ushort, NetworkMessageDelegate> handlers =
+        internal static Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
@@ -182,7 +182,6 @@ namespace Mirror
                 // connection cannot be null here or conn.connectionId
                 // would throw NRE
                 connections[conn.connectionId] = conn;
-                conn.SetHandlers(handlers);
                 return true;
             }
             // already a connection with this id

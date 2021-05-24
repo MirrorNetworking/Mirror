@@ -13,10 +13,6 @@ namespace Mirror
         // TODO move to server's NetworkConnectionToClient?
         internal readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
-        // TODO this is NetworkServer.handlers on server and NetworkClient.handlers on client.
-        //      maybe use them directly. avoid extra state.
-        Dictionary<ushort, NetworkMessageDelegate> messageHandlers;
-
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
         // assigned by transport, this id is unique for every connection on server.
         // clients don't know their own id and they don't know other client's ids.
@@ -82,11 +78,6 @@ namespace Mirror
         // it simply asks the transport to disconnect.
         // then later the transport events will do the clean up.
         public abstract void Disconnect();
-
-        internal void SetHandlers(Dictionary<ushort, NetworkMessageDelegate> handlers)
-        {
-            messageHandlers = handlers;
-        }
 
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
         public void Send<T>(T msg, int channelId = Channels.Reliable)
@@ -162,15 +153,17 @@ namespace Mirror
             observing.Clear();
         }
 
+        // invoke handler for a message
+        protected abstract bool InvokeHandler(ushort msgType, NetworkReader reader, int channelId);
+
         // helper function
         protected bool UnpackAndInvoke(NetworkReader reader, int channelId)
         {
             if (MessagePacking.Unpack(reader, out ushort msgType))
             {
                 // try to invoke the handler for that message
-                if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
+                if (InvokeHandler(msgType, reader, channelId))
                 {
-                    msgDelegate.Invoke(this, reader, channelId);
                     lastMessageTime = Time.time;
                     return true;
                 }

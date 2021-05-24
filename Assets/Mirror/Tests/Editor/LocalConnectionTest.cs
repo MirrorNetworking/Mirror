@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -32,15 +31,13 @@ namespace Mirror.Tests
             Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
 
             bool invoked = false;
-            void Handler(NetworkConnection conn, NetworkReader reader, int channelId)
+            void Handler(NetworkConnection conn, TestMessage message)
             {
                 invoked = true;
             }
 
             // set up handler on the server connection
-            Dictionary<ushort, NetworkMessageDelegate> handlers = new Dictionary<ushort, NetworkMessageDelegate>();
-            handlers.Add(MessagePacking.GetId<TestMessage>(), Handler);
-            connectionToClient.SetHandlers(handlers);
+            NetworkServer.RegisterHandler<TestMessage>(Handler, false);
 
             connectionToServer.Send(new TestMessage());
             connectionToServer.Update();
@@ -54,15 +51,13 @@ namespace Mirror.Tests
             Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
 
             bool invoked = false;
-            void Handler(NetworkConnection conn, NetworkReader reader, int channelId)
+            void Handler(TestMessage message)
             {
                 invoked = true;
             }
 
             // set up handler on the client connection
-            Dictionary<ushort, NetworkMessageDelegate> handlers = new Dictionary<ushort, NetworkMessageDelegate>();
-            handlers.Add(MessagePacking.GetId<TestMessage>(), Handler);
-            connectionToServer.SetHandlers(handlers);
+            NetworkClient.RegisterHandler<TestMessage>(Handler, false);
 
             connectionToClient.Send(new TestMessage());
             connectionToServer.Update();
