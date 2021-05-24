@@ -39,10 +39,9 @@ namespace Mirror.Tests
 
             Dictionary<ushort, NetworkMessageDelegate> handlers = new Dictionary<ushort, NetworkMessageDelegate>();
             handlers.Add(MessagePacking.GetId<TestMessage>(), Handler);
-
             connectionToClient.SetHandlers(handlers);
-            connectionToServer.Send(new TestMessage());
 
+            connectionToServer.Send(new TestMessage());
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
@@ -61,10 +60,9 @@ namespace Mirror.Tests
 
             Dictionary<ushort, NetworkMessageDelegate> handlers = new Dictionary<ushort, NetworkMessageDelegate>();
             handlers.Add(MessagePacking.GetId<TestMessage>(), Handler);
-
             connectionToServer.SetHandlers(handlers);
-            connectionToClient.Send(new TestMessage());
 
+            connectionToClient.Send(new TestMessage());
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
