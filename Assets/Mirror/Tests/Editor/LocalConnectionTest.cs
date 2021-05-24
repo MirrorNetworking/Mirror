@@ -27,7 +27,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ServerToClient()
+        public void ClientToServerTest()
         {
             Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
 
@@ -49,7 +49,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ClientToServerTest()
+        public void ServerToClient()
         {
             Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
 
