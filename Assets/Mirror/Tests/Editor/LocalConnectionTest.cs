@@ -37,6 +37,7 @@ namespace Mirror.Tests
                 invoked = true;
             }
 
+            // set up handler on the server connection
             Dictionary<ushort, NetworkMessageDelegate> handlers = new Dictionary<ushort, NetworkMessageDelegate>();
             handlers.Add(MessagePacking.GetId<TestMessage>(), Handler);
             connectionToClient.SetHandlers(handlers);
@@ -58,6 +59,7 @@ namespace Mirror.Tests
                 invoked = true;
             }
 
+            // set up handler on the client connection
             Dictionary<ushort, NetworkMessageDelegate> handlers = new Dictionary<ushort, NetworkMessageDelegate>();
             handlers.Add(MessagePacking.GetId<TestMessage>(), Handler);
             connectionToServer.SetHandlers(handlers);
