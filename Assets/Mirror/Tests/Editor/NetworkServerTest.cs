@@ -94,6 +94,7 @@ namespace Mirror.Tests
             // reset all state
             // shutdown should be called before setting activeTransport to null
             NetworkIdentity.spawned.Clear();
+            NetworkClient.Shutdown();
             NetworkServer.Shutdown();
             base.TearDown();
         }
