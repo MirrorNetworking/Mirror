@@ -113,7 +113,7 @@ namespace Mirror
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(!requiresAuthority || isLocalPlayer || hasAuthority))
             {
-                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
+                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass}.{cmdName}");
                 return;
             }
 
