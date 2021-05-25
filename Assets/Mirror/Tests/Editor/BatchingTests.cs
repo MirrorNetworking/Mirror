@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -44,8 +45,7 @@ namespace Mirror.Tests
 
             // add to batch queue
             PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
-            writer.WriteBytes(message, 0, message.Length);
-            batch.messages.Enqueue(writer);
+            batch.writer.WriteBytes(message, 0, message.Length);
 
             // send batch - client should receive that exact message
             connection.SendBatch(Channels.Reliable, batch);
@@ -61,9 +61,7 @@ namespace Mirror.Tests
             byte[] message = new byte[max];
 
             // add to batch queue
-            PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
-            writer.WriteBytes(message, 0, message.Length);
-            batch.messages.Enqueue(writer);
+            connection.AddMessageToBatch(batch, new ArraySegment<byte>(message), Channels.Reliable);
 
             // send batch - client should receive that exact message
             connection.SendBatch(Channels.Reliable, batch);
@@ -78,15 +76,11 @@ namespace Mirror.Tests
             byte[] A = {0x01, 0x02};
             byte[] B = {0x03, 0x04};
 
-            // add A to batch queue
-            PooledNetworkWriter writerA = NetworkWriterPool.GetWriter();
-            writerA.WriteBytes(A, 0, A.Length);
-            batch.messages.Enqueue(writerA);
+            // add A to batch
+            connection.AddMessageToBatch(batch, new ArraySegment<byte>(A), Channels.Reliable);
 
-            // add B to batch queue
-            PooledNetworkWriter writerB = NetworkWriterPool.GetWriter();
-            writerB.WriteBytes(B, 0, A.Length);
-            batch.messages.Enqueue(writerB);
+            // add B to batch
+            connection.AddMessageToBatch(batch, new ArraySegment<byte>(B), Channels.Reliable);
 
             // send batch - client should receive one message that contains A, B
             connection.SendBatch(Channels.Reliable, batch);
@@ -110,14 +104,10 @@ namespace Mirror.Tests
             byte[] small = {0x01, 0x02};
 
             // add first to batch queue
-            PooledNetworkWriter writerAlmost = NetworkWriterPool.GetWriter();
-            writerAlmost.WriteBytes(almost, 0, almost.Length);
-            batch.messages.Enqueue(writerAlmost);
+            connection.AddMessageToBatch(batch, new ArraySegment<byte>(almost), Channels.Reliable);
 
             // add second to batch queue
-            PooledNetworkWriter writerSmall = NetworkWriterPool.GetWriter();
-            writerSmall.WriteBytes(small, 0, small.Length);
-            batch.messages.Enqueue(writerSmall);
+            connection.AddMessageToBatch(batch, new ArraySegment<byte>(small), Channels.Reliable);
 
             // send batch - should send the first one and then the second one
             // because both together would've been > max
@@ -144,9 +134,7 @@ namespace Mirror.Tests
             byte[] message = new byte[maxPacket];
 
             // add to batch queue
-            PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
-            writer.WriteBytes(message, 0, message.Length);
-            batch.messages.Enqueue(writer);
+            connection.AddMessageToBatch(batch, new ArraySegment<byte>(message), Channels.Reliable);
 
             // send batch - client should receive that exact message
             connection.SendBatch(Channels.Reliable, batch);
