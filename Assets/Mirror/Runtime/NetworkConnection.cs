@@ -50,6 +50,18 @@ namespace Mirror
         //            Works fine with NetworkIdentity pointers though.
         public readonly HashSet<NetworkIdentity> clientOwnedObjects = new HashSet<NetworkIdentity>();
 
+        internal bool isMessageProcessingPaused;
+
+        // class so we can update it inside the queue
+        // message queuing already has to allocate the byte array, so the extra class overhead is neglectable
+        class Message
+        {
+            public int channelId;
+            public byte[] data;
+        }
+
+        private Queue<Message> queuedMessages = new Queue<Message>();
+
         internal NetworkConnection()
         {
             // set lastTime to current time when creating connection to make
@@ -198,6 +210,12 @@ namespace Mirror
                 return;
             }
 
+            if (isMessageProcessingPaused)
+            {
+                MessageProcessingEnqueue(buffer, channelId);
+                return;
+            }
+
             // unpack message
             using (PooledNetworkReader reader = NetworkReaderPool.GetReader(buffer))
             {
@@ -205,6 +223,12 @@ namespace Mirror
                 // we need to try to unpack multiple times.
                 while (reader.Position < reader.Length)
                 {
+                    if (isMessageProcessingPaused)
+                    {
+                        MessageProcessingEnqueue(new ArraySegment<byte>(buffer.Array, reader.Position, reader.Length - reader.Position), channelId);
+                        break;
+                    }
+
                     if (!UnpackAndInvoke(reader, channelId))
                         break;
                 }
@@ -238,6 +262,49 @@ namespace Mirror
 
             // clear the hashset because we destroyed them all
             clientOwnedObjects.Clear();
+        }
+
+        public void PauseMessageProcessing()
+        {
+            isMessageProcessingPaused = true;
+        }
+
+        public void ResumeMessageProcessing()
+        {
+            isMessageProcessingPaused = false;
+            while (!isMessageProcessingPaused && queuedMessages.Count > 0)
+            {
+                Message message = queuedMessages.Peek();
+                // unpack message
+                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(message.data))
+                {
+                    // the other end might batch multiple messages into one packet.
+                    // we need to try to unpack multiple times.
+                    while (reader.Position < reader.Length && !isMessageProcessingPaused)
+                    {
+                        if (!UnpackAndInvoke(reader, message.channelId))
+                            break;
+                    }
+
+                    if (isMessageProcessingPaused && reader.Position < reader.Length)
+                    {
+                        byte[] newData = new byte[message.data.Length - reader.Position];
+                        Array.Copy(message.data, reader.Position, newData, 0, newData.Length);
+                        message.data = newData;
+                    }
+                    else
+                    {
+                        queuedMessages.Dequeue();
+                    }
+                }
+            }
+        }
+
+        private void MessageProcessingEnqueue(ArraySegment<byte> buffer, int channelId)
+        {
+            byte[] copy = new byte[buffer.Count];
+            Array.Copy(buffer.Array, buffer.Offset, copy, 0, buffer.Count);
+            queuedMessages.Enqueue(new Message {channelId = channelId, data = copy,});
         }
     }
 }
