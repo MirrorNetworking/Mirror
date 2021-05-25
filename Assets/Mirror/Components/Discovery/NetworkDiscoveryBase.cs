@@ -313,6 +313,12 @@ namespace Mirror.Discovery
             if (clientUdpClient == null)
                 return;
 
+            if (NetworkClient.isConnected)
+            {
+                StopDiscovery();
+                return;
+            }
+
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
