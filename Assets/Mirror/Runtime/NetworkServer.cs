@@ -1438,6 +1438,62 @@ namespace Mirror
             return serializations[identity];
         }
 
+        // helper function to broadcast the world to a connection
+        static void BroadcastToConnection(NetworkConnectionToClient connection)
+        {
+            // for each entity that this connection is seeing
+            foreach (NetworkIdentity identity in connection.observing)
+            {
+                // make sure it's not null or destroyed.
+                // (which can happen if someone uses
+                //  GameObject.Destroy instead of
+                //  NetworkServer.Destroy)
+                if (identity != null)
+                {
+                    // get serialization for this entity (cached)
+                    Serialization serialization = GetEntitySerialization(identity);
+
+                    // is this entity owned by this connection?
+                    bool owned = identity.connectionToClient == connection;
+
+                    // send serialized data
+                    // owner writer if owned
+                    if (owned)
+                    {
+                        // was it dirty / did we actually serialize anything?
+                        if (serialization.ownerWritten > 0)
+                        {
+                            UpdateVarsMessage message = new UpdateVarsMessage
+                            {
+                                netId = identity.netId,
+                                payload = serialization.ownerWriter.ToArraySegment()
+                            };
+                            connection.Send(message);
+                        }
+                    }
+                    // observers writer if not owned
+                    else
+                    {
+                        // was it dirty / did we actually serialize anything?
+                        if (serialization.observersWritten > 0)
+                        {
+                            UpdateVarsMessage message = new UpdateVarsMessage
+                            {
+                                netId = identity.netId,
+                                payload = serialization.observersWriter.ToArraySegment()
+                            };
+                            connection.Send(message);
+                        }
+                    }
+                }
+                // spawned list should have no null entries because we
+                // always call Remove in OnObjectDestroy everywhere.
+                // if it does have null then someone used
+                // GameObject.Destroy instead of NetworkServer.Destroy.
+                else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + connection.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+            }
+        }
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         static readonly List<NetworkConnectionToClient> connectionsCopy =
@@ -1478,57 +1534,8 @@ namespace Mirror
                     //   pull in UpdateVarsMessage for each entity it observes
                     if (connection.isReady)
                     {
-                        // for each entity that this connection is seeing
-                        foreach (NetworkIdentity identity in connection.observing)
-                        {
-                            // make sure it's not null or destroyed.
-                            // (which can happen if someone uses
-                            //  GameObject.Destroy instead of
-                            //  NetworkServer.Destroy)
-                            if (identity != null)
-                            {
-                                // get serialization for this entity (cached)
-                                Serialization serialization = GetEntitySerialization(identity);
-
-                                // is this entity owned by this connection?
-                                bool owned = identity.connectionToClient == connection;
-
-                                // send serialized data
-                                // owner writer if owned
-                                if (owned)
-                                {
-                                    // was it dirty / did we actually serialize anything?
-                                    if (serialization.ownerWritten > 0)
-                                    {
-                                        UpdateVarsMessage message = new UpdateVarsMessage
-                                        {
-                                            netId = identity.netId,
-                                            payload = serialization.ownerWriter.ToArraySegment()
-                                        };
-                                        connection.Send(message);
-                                    }
-                                }
-                                // observers writer if not owned
-                                else
-                                {
-                                    // was it dirty / did we actually serialize anything?
-                                    if (serialization.observersWritten > 0)
-                                    {
-                                        UpdateVarsMessage message = new UpdateVarsMessage
-                                        {
-                                            netId = identity.netId,
-                                            payload = serialization.observersWriter.ToArraySegment()
-                                        };
-                                        connection.Send(message);
-                                    }
-                                }
-                            }
-                            // spawned list should have no null entries because we
-                            // always call Remove in OnObjectDestroy everywhere.
-                            // if it does have null then someone used
-                            // GameObject.Destroy instead of NetworkServer.Destroy.
-                            else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + connection.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
-                        }
+                        // broadcast world state to this connection
+                        BroadcastToConnection(connection);
                     }
 
                     // update connection to flush out batched messages
