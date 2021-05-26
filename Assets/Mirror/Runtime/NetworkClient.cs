@@ -103,7 +103,6 @@ namespace Mirror
             // 'message id not found' errors.
             if (hostMode)
             {
-                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
@@ -115,13 +114,13 @@ namespace Mirror
             }
             else
             {
-                RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
                 RegisterHandler<SpawnMessage>(OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
             }
+            RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
             RegisterHandler<ObjectHideMessage>(OnObjectHide);
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
@@ -1109,17 +1108,6 @@ namespace Mirror
         }
 
         // host mode callbacks /////////////////////////////////////////////////
-        static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
-        {
-            // Debug.Log("NetworkClient.OnLocalObjectObjDestroy netId:" + msg.netId);
-
-            // TODO why do we do this?
-            // in host mode, .spawned is shared between server and client.
-            // removing it on client would remove it on server.
-            // huh.
-            NetworkIdentity.spawned.Remove(message.netId);
-        }
-
         internal static void OnHostClientSpawn(SpawnMessage message)
         {
             if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
@@ -1178,7 +1166,25 @@ namespace Mirror
             }
         }
 
-        internal static void OnObjectDestroy(ObjectDestroyMessage message) => DestroyObject(message.netId);
+        internal static void OnObjectDestroy(ObjectDestroyMessage message)
+        {
+            // Debug.Log("NetworkClient.OnObjectDestroy netId:" + msg.netId);
+
+            // host mode
+            if (isHostClient)
+            {
+                // TODO why do we do this?
+                // in host mode, .spawned is shared between server and client.
+                // removing it on client would remove it on server.
+                // huh.
+                NetworkIdentity.spawned.Remove(message.netId);
+            }
+            // client only
+            else
+            {
+                DestroyObject(message.netId);
+            }
+        }
 
         internal static void OnSpawn(SpawnMessage message)
         {
