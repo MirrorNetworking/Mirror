@@ -6,6 +6,8 @@ namespace Mirror.Tests
 {
     public abstract class MirrorPlayModeTest : MirrorTest
     {
+        // when overwriting, call it like this:
+        //   yield return base.UnitySetUp();
         [UnitySetUp]
         public virtual IEnumerator UnitySetUp()
         {
