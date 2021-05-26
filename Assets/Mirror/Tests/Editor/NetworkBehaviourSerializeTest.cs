@@ -124,7 +124,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     }
     #endregion
 
-    public class NetworkBehaviourSerializeTest : MirrorTest
+    public class NetworkBehaviourSerializeTest : MirrorEditModeTest
     {
         static void SyncNetworkBehaviour(NetworkBehaviour source, NetworkBehaviour target, bool initialState)
         {

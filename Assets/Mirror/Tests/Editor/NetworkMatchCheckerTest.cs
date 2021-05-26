@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkMatchCheckerTest : MirrorTest
+    public class NetworkMatchCheckerTest : MirrorEditModeTest
     {
         GameObject player1;
         GameObject player2;

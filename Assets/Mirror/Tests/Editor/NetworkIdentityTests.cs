@@ -8,7 +8,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    public class NetworkIdentityTests : MirrorTest
+    public class NetworkIdentityTests : MirrorEditModeTest
     {
         class MyTestComponent : NetworkBehaviour
         {

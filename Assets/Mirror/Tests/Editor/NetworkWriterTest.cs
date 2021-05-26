@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class NetworkWriterTest : MirrorTest
+    public class NetworkWriterTest : MirrorEditModeTest
     {
         /* uncomment if needed. commented for faster test workflow. this takes >3s.
         [Test]

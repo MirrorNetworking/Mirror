@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class BatchingTests : MirrorTest
+    public class BatchingTests : MirrorEditModeTest
     {
         NetworkConnectionToClient connection;
         NetworkConnectionToClient.Batch batch;

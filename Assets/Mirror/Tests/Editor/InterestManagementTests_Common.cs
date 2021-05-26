@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public abstract class InterestManagementTests_Common : MirrorTest
+    public abstract class InterestManagementTests_Common : MirrorEditModeTest
     {
         protected GameObject gameObjectA;
         protected NetworkIdentity identityA;

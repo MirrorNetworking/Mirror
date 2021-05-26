@@ -189,7 +189,7 @@ namespace Mirror.Tests
         }
     }
 
-    public class NetworkBehaviourTests : MirrorTest
+    public class NetworkBehaviourTests : MirrorEditModeTest
     {
         [TearDown]
         public override void TearDown()

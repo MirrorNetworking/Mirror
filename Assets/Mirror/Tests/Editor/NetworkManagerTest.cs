@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class NetworkManagerTest : MirrorTest
+    public class NetworkManagerTest : MirrorEditModeTest
     {
         GameObject gameObject;
         NetworkManager manager;

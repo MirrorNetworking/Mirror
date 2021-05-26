@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public abstract class MirrorTest
+    public abstract class MirrorEditModeTest
     {
         // keep track of networked GameObjects so we don't have to clean them
         // up manually each time.

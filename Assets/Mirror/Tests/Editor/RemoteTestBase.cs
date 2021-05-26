@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests.RemoteAttrributeTest
 {
-    public class RemoteTestBase : MirrorTest
+    public class RemoteTestBase : MirrorEditModeTest
     {
         [SetUp]
         public void Setup()

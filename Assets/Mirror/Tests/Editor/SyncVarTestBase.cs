@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class SyncVarTestBase : MirrorTest
+    public class SyncVarTestBase : MirrorEditModeTest
     {
         [TearDown]
         public override void TearDown()

@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class NetworkClientTests : MirrorTest
+    public class NetworkClientTests : MirrorEditModeTest
     {
         [SetUp]
         public override void SetUp()

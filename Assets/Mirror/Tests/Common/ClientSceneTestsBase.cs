@@ -10,7 +10,7 @@ namespace Mirror.Tests
     /// Used by both runtime and edit time tests
     /// </summary>
     [TestFixture]
-    public abstract class ClientSceneTestsBase : MirrorTest
+    public abstract class ClientSceneTestsBase : MirrorEditModeTest
     {
         // use guid to find asset so that the path does not matter
         protected const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";

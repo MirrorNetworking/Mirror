@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class NetworkConnectionToClientTests : MirrorTest
+    public class NetworkConnectionToClientTests : MirrorEditModeTest
     {
         List<byte[]> clientReceived = new List<byte[]>();
 
