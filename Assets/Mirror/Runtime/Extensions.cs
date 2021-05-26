@@ -33,8 +33,8 @@ namespace Mirror
         // C# only provides CopyTo(T[])
         public static void CopyTo<T>(this IEnumerable<T> source, List<T> destination)
         {
-            foreach (T element in source)
-                destination.Add(element);
+            // foreach allocates. use AddRange.
+            destination.AddRange(source);
         }
     }
 }
