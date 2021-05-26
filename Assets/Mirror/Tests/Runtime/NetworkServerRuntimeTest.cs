@@ -7,29 +7,26 @@ using UnityEngine.TestTools;
 namespace Mirror.Tests.Runtime
 {
     [TestFixture]
-    public class NetworkServerRuntimeTest
+    public class NetworkServerRuntimeTest : MirrorPlayModeTest
     {
         [UnitySetUp]
-        public IEnumerator UnitySetUp()
+        public override IEnumerator UnitySetUp()
         {
-            Transport.activeTransport = new GameObject().AddComponent<MemoryTransport>();
+            yield return base.UnitySetUp();
+
             // start server and wait 1 frame
             NetworkServer.Listen(1);
             yield return null;
         }
 
-        [TearDown]
-        public void TearDown()
+        [UnityTearDown]
+        public override IEnumerator UnityTearDown()
         {
-            if (Transport.activeTransport != null)
-            {
-                GameObject.Destroy(Transport.activeTransport.gameObject);
-            }
-
             if (NetworkServer.active)
             {
                 NetworkServer.Shutdown();
             }
+            yield return base.UnityTearDown();
         }
 
         [UnityTest]
