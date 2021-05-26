@@ -104,7 +104,6 @@ namespace Mirror
             if (hostMode)
             {
                 RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
@@ -117,13 +116,13 @@ namespace Mirror
             else
             {
                 RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
                 RegisterHandler<SpawnMessage>(OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
             }
+            RegisterHandler<ObjectHideMessage>(OnObjectHide);
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
 
@@ -1121,16 +1120,6 @@ namespace Mirror
             NetworkIdentity.spawned.Remove(message.netId);
         }
 
-        static void OnHostClientObjectHide(ObjectHideMessage message)
-        {
-            // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
-                localObject != null)
-            {
-                localObject.OnSetHostVisibility(false);
-            }
-        }
-
         internal static void OnHostClientSpawn(SpawnMessage message)
         {
             if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
@@ -1169,7 +1158,25 @@ namespace Mirror
             }
         }
 
-        static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
+        static void OnObjectHide(ObjectHideMessage message)
+        {
+            // Debug.Log("ClientScene::OnObjectHide netId:" + msg.netId);
+
+            // host mode
+            if (isHostClient)
+            {
+                if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
+                    localObject != null)
+                {
+                    localObject.OnSetHostVisibility(false);
+                }
+            }
+            // client only
+            else
+            {
+                DestroyObject(message.netId);
+            }
+        }
 
         internal static void OnObjectDestroy(ObjectDestroyMessage message) => DestroyObject(message.netId);
 
