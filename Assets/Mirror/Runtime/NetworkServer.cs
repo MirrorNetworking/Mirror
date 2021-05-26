@@ -1379,6 +1379,24 @@ namespace Mirror
                 Transport.activeTransport.ServerEarlyUpdate();
         }
 
+        // helper function to check a connection for inactivity
+        // and disconnect if necessary
+        // => returns true if disconnected
+        static bool DisconnectInactive(NetworkConnectionToClient connection)
+        {
+            // check for inactivity
+#pragma warning disable 618
+            if (disconnectInactiveConnections &&
+                !connection.IsAlive(disconnectInactiveTimeout))
+            {
+                Debug.LogWarning($"Disconnecting {connection} for inactivity!");
+                connection.Disconnect();
+                return true;
+            }
+#pragma warning restore 618
+            return false;
+        }
+
         // cache NetworkIdentity serializations
         // Update() shouldn't serialize multiple times for multiple connections
         struct Serialization
@@ -1553,16 +1571,9 @@ namespace Mirror
                 // go through all connections
                 foreach (NetworkConnectionToClient connection in connectionsCopy)
                 {
-                    // check for inactivity
-#pragma warning disable 618
-                    if (disconnectInactiveConnections &&
-                        !connection.IsAlive(disconnectInactiveTimeout))
-                    {
-                        Debug.LogWarning($"Disconnecting {connection} for inactivity!");
-                        connection.Disconnect();
+                    // check for inactivity. disconnects if necessary.
+                    if (DisconnectInactive(connection))
                         continue;
-                    }
-#pragma warning restore 618
 
                     // has this connection joined the world yet?
                     // for each READY connection:
