@@ -57,7 +57,7 @@ namespace Mirror
         /// <summary>Check if client is connected (after connecting).</summary>
         public static bool isConnected => connectState == ConnectState.Connected;
 
-        /// <summary>NetworkClient can connect to local server in host mode too</summary>
+        /// <summary>True if client is running in host mode.</summary>
         public static bool isLocalClient => connection is LocalConnectionToServer;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
