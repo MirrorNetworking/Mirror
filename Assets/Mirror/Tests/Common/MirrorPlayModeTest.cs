@@ -15,6 +15,8 @@ namespace Mirror.Tests
             yield return null;
         }
 
+        // when overwriting, call it like this:
+        //   yield return base.UnityTearDown();
         [UnityTearDown]
         public virtual IEnumerator UnityTearDown()
         {
