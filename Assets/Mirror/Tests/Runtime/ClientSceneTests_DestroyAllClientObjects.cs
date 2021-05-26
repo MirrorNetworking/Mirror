@@ -29,9 +29,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             onDestroyCalled?.Invoke();
         }
     }
-    /// <summary>
-    /// A network Behaviour that changes NetworkIdentity.spawned in OnDisable
-    /// </summary>
+
+    // A network Behaviour that changes NetworkIdentity.spawned in OnDisable
     public class BadBehaviour : MonoBehaviour
     {
         public void OnDisable()
@@ -45,6 +44,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             NetworkIdentity.spawned.Add(id, netId);
         }
     }
+
     public class ClientSceneTests_DestroyAllClientObjects
     {
         public static readonly List<GameObject> _createdObjects = new List<GameObject>();
