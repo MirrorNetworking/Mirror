@@ -36,7 +36,8 @@ namespace Mirror.Tests.Runtime
             manager = networkManagerGo.AddComponent<NetworkManager>();
             Transport.activeTransport = transport;
 
-            playerGO = new GameObject();
+            // create a tracked prefab (not spawned)
+            CreateGameObject(out playerGO);
             identity = playerGO.AddComponent<NetworkIdentity>();
             identity.assetId = System.Guid.NewGuid();
 
@@ -65,8 +66,6 @@ namespace Mirror.Tests.Runtime
             beforeStopHost();
 
             yield return null;
-
-            Object.DestroyImmediate(playerGO);
 
             // needed for stophost
             Transport.activeTransport = transport;
