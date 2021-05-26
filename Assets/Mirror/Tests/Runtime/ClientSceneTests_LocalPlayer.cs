@@ -127,10 +127,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public IEnumerator LocalPlayerIsSetToNullAfterNetworkUnspawn()
         {
             const uint netId = 1000;
-
-            GameObject go = new GameObject();
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
 
             SpawnMessage msg = new SpawnMessage
             {
@@ -138,7 +135,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
                 isLocalPlayer = true,
                 isOwner = true,
             };
-
 
             NetworkIdentity.spawned[msg.netId] = identity;
             NetworkClient.OnHostClientSpawn(msg);
