@@ -59,7 +59,6 @@ namespace Mirror.Tests.Runtime
             afterStartHost();
         }
 
-
         [UnityTearDown]
         public override IEnumerator UnityTearDown()
         {
