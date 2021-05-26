@@ -1552,54 +1552,57 @@ namespace Mirror
         static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
-        internal static void NetworkLateUpdate()
+        static void Broadcast()
         {
-            // only process spawned & connections if active
-            if (active)
+            // copy all connections into a helper collection so that
+            // OnTransportDisconnected can be called while iterating.
+            // -> OnTransportDisconnected removes from the collection
+            // -> which would throw 'can't modify while iterating' errors
+            // => see also: https://github.com/vis2k/Mirror/issues/2739
+            // (copy nonalloc)
+            // TODO remove this when we move to 'lite' transports with only
+            //      socket send/recv later.
+            connectionsCopy.Clear();
+            connections.Values.CopyTo(connectionsCopy);
+
+            // go through all connections
+            foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
-                // copy all connections into a helper collection so that
-                // OnTransportDisconnected can be called while iterating.
-                // -> OnTransportDisconnected removes from the collection
-                // -> which would throw 'can't modify while iterating' errors
-                // => see also: https://github.com/vis2k/Mirror/issues/2739
-                // (copy nonalloc)
-                // TODO remove this when we move to 'lite' transports with only
-                //      socket send/recv later.
-                connectionsCopy.Clear();
-                connections.Values.CopyTo(connectionsCopy);
+                // check for inactivity. disconnects if necessary.
+                if (DisconnectInactive(connection))
+                    continue;
 
-                // go through all connections
-                foreach (NetworkConnectionToClient connection in connectionsCopy)
+                // has this connection joined the world yet?
+                // for each READY connection:
+                //   pull in UpdateVarsMessage for each entity it observes
+                if (connection.isReady)
                 {
-                    // check for inactivity. disconnects if necessary.
-                    if (DisconnectInactive(connection))
-                        continue;
-
-                    // has this connection joined the world yet?
-                    // for each READY connection:
-                    //   pull in UpdateVarsMessage for each entity it observes
-                    if (connection.isReady)
-                    {
-                        // broadcast world state to this connection
-                        BroadcastToConnection(connection);
-                    }
-
-                    // update connection to flush out batched messages
-                    connection.Update();
+                    // broadcast world state to this connection
+                    BroadcastToConnection(connection);
                 }
 
-                // return serialized writers to pool
-                CleanupSerializations();
-
-                // TODO this unfortunately means we still need to iterate ALL
-                //      spawned and not just the ones with observers. figure
-                //      out a way to get rid of this.
-                //
-                // TODO clear dirty bits when removing the last observer instead!
-                //      no need to do it for ALL entities ALL the time.
-                //
-                ClearSpawnedDirtyBits();
+                // update connection to flush out batched messages
+                connection.Update();
             }
+
+            // return serialized writers to pool
+            CleanupSerializations();
+
+            // TODO this unfortunately means we still need to iterate ALL
+            //      spawned and not just the ones with observers. figure
+            //      out a way to get rid of this.
+            //
+            // TODO clear dirty bits when removing the last observer instead!
+            //      no need to do it for ALL entities ALL the time.
+            //
+            ClearSpawnedDirtyBits();
+        }
+
+        internal static void NetworkLateUpdate()
+        {
+            // only broadcast world if active
+            if (active)
+                Broadcast();
 
             // process all incoming messages after updating the world
             // (even if not active. still want to process disconnects etc.)
