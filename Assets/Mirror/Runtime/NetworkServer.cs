@@ -1438,6 +1438,20 @@ namespace Mirror
             return serializations[identity];
         }
 
+        // helper function to clean up cached serializations
+        static void CleanupSerializations()
+        {
+            // return serialized writers to pool, clear set
+            // TODO this is for feature parity before push->pull change.
+            //      make this more simple / unnecessary later.
+            foreach (Serialization entry in serializations.Values)
+            {
+                NetworkWriterPool.Recycle(entry.ownerWriter);
+                NetworkWriterPool.Recycle(entry.observersWriter);
+            }
+            serializations.Clear();
+        }
+
         // helper function to broadcast the world to a connection
         static void BroadcastToConnection(NetworkConnectionToClient connection)
         {
@@ -1542,15 +1556,8 @@ namespace Mirror
                     connection.Update();
                 }
 
-                // return serialized writers to pool, clear set
-                // TODO this is for feature parity before push->pull change.
-                //      make this more simple / unnecessary later.
-                foreach (Serialization entry in serializations.Values)
-                {
-                    NetworkWriterPool.Recycle(entry.ownerWriter);
-                    NetworkWriterPool.Recycle(entry.observersWriter);
-                }
-                serializations.Clear();
+                // return serialized writers to pool
+                CleanupSerializations();
 
                 // TODO this unfortunately means we still need to iterate ALL
                 //      spawned and not just the ones with observers. figure
