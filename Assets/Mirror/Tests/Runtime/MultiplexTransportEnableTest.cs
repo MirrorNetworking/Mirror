@@ -1,15 +1,13 @@
-using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests.Runtime
 {
-    public class FallbackTransportEnableTest
+    public class MultiplexTransportEnableTest
     {
-        Transport transport1;
+        MemoryTransport transport1;
         MemoryTransport transport2;
-#pragma warning disable 618
-        FallbackTransport transport;
+        MultiplexTransport transport;
 
         [SetUp]
         public void Setup()
@@ -18,15 +16,14 @@ namespace Mirror.Tests.Runtime
             // set inactive so that awake isn't called
             gameObject.SetActive(false);
 
-            transport1 = Substitute.For<Transport>();
+            transport1 = gameObject.AddComponent<MemoryTransport>();
             transport2 = gameObject.AddComponent<MemoryTransport>();
 
-            transport = gameObject.AddComponent<FallbackTransport>();
+            transport = gameObject.AddComponent<MultiplexTransport>();
             transport.transports = new[] { transport1, transport2 };
 
             gameObject.SetActive(true);
         }
-#pragma warning restore 618
 
         [TearDown]
         public void TearDown()
@@ -35,21 +32,22 @@ namespace Mirror.Tests.Runtime
         }
 
         [Test]
-        public void DisableShouldDisableAvailableTransport()
+        public void DisableShouldDisableAllTransports()
         {
-            // make transport2 the active transport
-            transport1.Available().Returns(false);
             transport.Awake();
 
             // starts enabled
+            Assert.That(transport1.enabled, Is.True);
             Assert.That(transport2.enabled, Is.True);
 
-            // disabling FallbackTransport
+            // disabling MultiplexTransport
             transport.enabled = false;
+            Assert.That(transport1.enabled, Is.False);
             Assert.That(transport2.enabled, Is.False);
 
-            // enabling FallbackTransport
+            // enabling MultiplexTransport
             transport.enabled = true;
+            Assert.That(transport1.enabled, Is.True);
             Assert.That(transport2.enabled, Is.True);
         }
     }
