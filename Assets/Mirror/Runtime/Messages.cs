@@ -87,7 +87,7 @@ namespace Mirror
         public uint netId;
     }
 
-    public struct UpdateVarsMessage : NetworkMessage
+    public struct EntityStateMessage : NetworkMessage
     {
         public uint netId;
         // the serialized component data

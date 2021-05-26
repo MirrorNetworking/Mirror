@@ -182,13 +182,13 @@ namespace Mirror.Tests.MessageTests
         public void UpdateVarsMessage()
         {
             // try setting value with constructor
-            UpdateVarsMessage message = new UpdateVarsMessage
+            EntityStateMessage message = new EntityStateMessage
             {
                 netId = 42,
                 payload = new ArraySegment<byte>(new byte[] { 0x01, 0x02 })
             };
             byte[] arr = MessagePackingTest.PackToByteArray(message);
-            UpdateVarsMessage fresh = MessagePackingTest.UnpackFromByteArray<UpdateVarsMessage>(arr);
+            EntityStateMessage fresh = MessagePackingTest.UnpackFromByteArray<EntityStateMessage>(arr);
             Assert.That(fresh.netId, Is.EqualTo(message.netId));
             Assert.That(fresh.payload.Count, Is.EqualTo(message.payload.Count));
             for (int i = 0; i < fresh.payload.Count; ++i)

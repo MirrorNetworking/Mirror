@@ -1510,7 +1510,7 @@ namespace Mirror
                     NetworkWriter serialization = GetEntitySerializationForConnection(identity, connection);
                     if (serialization != null)
                     {
-                        UpdateVarsMessage message = new UpdateVarsMessage
+                        EntityStateMessage message = new EntityStateMessage
                         {
                             netId = identity.netId,
                             payload = serialization.ToArraySegment()
