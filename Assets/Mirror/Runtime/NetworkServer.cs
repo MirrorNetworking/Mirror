@@ -1523,7 +1523,7 @@ namespace Mirror
         // helper function to check a connection for inactivity
         // and disconnect if necessary
         // => returns true if disconnected
-        static bool DisconnectInactive(NetworkConnectionToClient connection)
+        static bool DisconnectIfInactive(NetworkConnectionToClient connection)
         {
             // check for inactivity
 #pragma warning disable 618
@@ -1560,7 +1560,7 @@ namespace Mirror
             foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
                 // check for inactivity. disconnects if necessary.
-                if (DisconnectInactive(connection))
+                if (DisconnectIfInactive(connection))
                     continue;
 
                 // has this connection joined the world yet?
