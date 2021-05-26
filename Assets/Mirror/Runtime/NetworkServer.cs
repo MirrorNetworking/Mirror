@@ -1369,34 +1369,7 @@ namespace Mirror
             }
         }
 
-        // update //////////////////////////////////////////////////////////////
-        // NetworkEarlyUpdate called before any Update/FixedUpdate
-        // (we add this to the UnityEngine in NetworkLoop)
-        internal static void NetworkEarlyUpdate()
-        {
-            // process all incoming messages first before updating the world
-            if (Transport.activeTransport != null)
-                Transport.activeTransport.ServerEarlyUpdate();
-        }
-
-        // helper function to check a connection for inactivity
-        // and disconnect if necessary
-        // => returns true if disconnected
-        static bool DisconnectInactive(NetworkConnectionToClient connection)
-        {
-            // check for inactivity
-#pragma warning disable 618
-            if (disconnectInactiveConnections &&
-                !connection.IsAlive(disconnectInactiveTimeout))
-            {
-                Debug.LogWarning($"Disconnecting {connection} for inactivity!");
-                connection.Disconnect();
-                return true;
-            }
-#pragma warning restore 618
-            return false;
-        }
-
+        // broadcasting ////////////////////////////////////////////////////////
         // cache NetworkIdentity serializations
         // Update() shouldn't serialize multiple times for multiple connections
         struct Serialization
@@ -1547,6 +1520,24 @@ namespace Mirror
             }
         }
 
+        // helper function to check a connection for inactivity
+        // and disconnect if necessary
+        // => returns true if disconnected
+        static bool DisconnectInactive(NetworkConnectionToClient connection)
+        {
+            // check for inactivity
+#pragma warning disable 618
+            if (disconnectInactiveConnections &&
+                !connection.IsAlive(disconnectInactiveTimeout))
+            {
+                Debug.LogWarning($"Disconnecting {connection} for inactivity!");
+                connection.Disconnect();
+                return true;
+            }
+#pragma warning restore 618
+            return false;
+        }
+
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         static readonly List<NetworkConnectionToClient> connectionsCopy =
@@ -1596,6 +1587,16 @@ namespace Mirror
             //      no need to do it for ALL entities ALL the time.
             //
             ClearSpawnedDirtyBits();
+        }
+
+        // update //////////////////////////////////////////////////////////////
+        // NetworkEarlyUpdate called before any Update/FixedUpdate
+        // (we add this to the UnityEngine in NetworkLoop)
+        internal static void NetworkEarlyUpdate()
+        {
+            // process all incoming messages first before updating the world
+            if (Transport.activeTransport != null)
+                Transport.activeTransport.ServerEarlyUpdate();
         }
 
         internal static void NetworkLateUpdate()
