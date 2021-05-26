@@ -36,7 +36,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public void OnDisable()
         {
             GameObject go = new GameObject();
-            ClientSceneTests_DestroyAllClientObjects._createdObjects.Add(go);
             NetworkIdentity netId = go.AddComponent<NetworkIdentity>();
             const int id = 32032;
             netId.netId = id;
@@ -45,31 +44,23 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         }
     }
 
-    public class ClientSceneTests_DestroyAllClientObjects
+    public class ClientSceneTests_DestroyAllClientObjects : MirrorPlayModeTest
     {
-        public static readonly List<GameObject> _createdObjects = new List<GameObject>();
         Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
         Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
 
-        [TearDown]
-        public void TearDown()
+        [UnityTearDown]
+        public override IEnumerator UnityTearDown()
         {
-            foreach (GameObject item in _createdObjects)
-            {
-                GameObject.DestroyImmediate(item.gameObject);
-            }
-            _createdObjects.Clear();
-
             spawned.Clear();
             unspawnHandlers.Clear();
+            base.TearDown();
+            yield return null;
         }
 
         TestListenerBehaviour CreateAndAddObject(uint netId, ulong sceneId)
         {
-            GameObject go = new GameObject();
-            _createdObjects.Add(go);
-
-            NetworkIdentity identity = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
             identity.netId = netId;
             identity.sceneId = sceneId;
             TestListenerBehaviour listener = go.AddComponent<TestListenerBehaviour>();
