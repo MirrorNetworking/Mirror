@@ -129,19 +129,8 @@ namespace Mirror
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
 
 #pragma warning disable 618
-        NetworkVisibility visibilityCache;
         [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
-        public NetworkVisibility visibility
-        {
-            get
-            {
-                if (visibilityCache == null)
-                {
-                    visibilityCache = GetComponent<NetworkVisibility>();
-                }
-                return visibilityCache;
-            }
-        }
+        public NetworkVisibility visibility { get; private set; }
 #pragma warning restore 618
 
         // current visibility
@@ -286,6 +275,11 @@ namespace Mirror
             // no one can overwrite it because NetworkIdentity is sealed.
             // => doing it here is the fastest and easiest solution.
             InitializeNetworkBehaviours();
+
+            // initialize visibility component. only call GetComponent once.
+#pragma warning disable 618
+            visibility = GetComponent<NetworkVisibility>();
+#pragma warning restore 618
 
             if (hasSpawned)
             {
