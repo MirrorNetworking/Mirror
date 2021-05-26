@@ -1429,6 +1429,39 @@ namespace Mirror
             return serializations[identity];
         }
 
+        // helper function to get the right serialization for a connection
+        static NetworkWriter GetEntitySerializationForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
+        {
+            // get serialization for this entity (cached)
+            Serialization serialization = GetEntitySerialization(identity);
+
+            // is this entity owned by this connection?
+            bool owned = identity.connectionToClient == connection;
+
+            // send serialized data
+            // owner writer if owned
+            if (owned)
+            {
+                // was it dirty / did we actually serialize anything?
+                if (serialization.ownerWritten > 0)
+                {
+                    return serialization.ownerWriter;
+                }
+            }
+            // observers writer if not owned
+            else
+            {
+                // was it dirty / did we actually serialize anything?
+                if (serialization.observersWritten > 0)
+                {
+                    return serialization.observersWriter;
+                }
+            }
+
+            // nothing was serialized
+            return null;
+        }
+
         // helper function to clean up cached serializations
         static void CleanupSerializations()
         {
@@ -1476,40 +1509,17 @@ namespace Mirror
                 //  NetworkServer.Destroy)
                 if (identity != null)
                 {
-                    // get serialization for this entity (cached)
-                    Serialization serialization = GetEntitySerialization(identity);
-
-                    // is this entity owned by this connection?
-                    bool owned = identity.connectionToClient == connection;
-
-                    // send serialized data
-                    // owner writer if owned
-                    if (owned)
+                    // get serialization for this entity viewed by this connection
+                    // (if anything was serialized this time)
+                    NetworkWriter serialization = GetEntitySerializationForConnection(identity, connection);
+                    if (serialization != null)
                     {
-                        // was it dirty / did we actually serialize anything?
-                        if (serialization.ownerWritten > 0)
+                        UpdateVarsMessage message = new UpdateVarsMessage
                         {
-                            UpdateVarsMessage message = new UpdateVarsMessage
-                            {
-                                netId = identity.netId,
-                                payload = serialization.ownerWriter.ToArraySegment()
-                            };
-                            connection.Send(message);
-                        }
-                    }
-                    // observers writer if not owned
-                    else
-                    {
-                        // was it dirty / did we actually serialize anything?
-                        if (serialization.observersWritten > 0)
-                        {
-                            UpdateVarsMessage message = new UpdateVarsMessage
-                            {
-                                netId = identity.netId,
-                                payload = serialization.observersWriter.ToArraySegment()
-                            };
-                            connection.Send(message);
-                        }
+                            netId = identity.netId,
+                            payload = serialization.ToArraySegment()
+                        };
+                        connection.Send(message);
                     }
                 }
                 // spawned list should have no null entries because we
