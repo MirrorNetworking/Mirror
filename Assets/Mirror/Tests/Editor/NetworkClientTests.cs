@@ -57,6 +57,8 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
+        // TODO flaky
+        // TODO running play mode tests, then edit mode tests, makes this fail
         [Test]
         public void Send()
         {
