@@ -17,7 +17,7 @@ namespace Mirror
     public static class NetworkClient
     {
         // message handlers by messageId
-        static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
+        internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
         /// <summary>Client's NetworkConnection to server.</summary>
@@ -138,9 +138,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(address);
 
-            // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
@@ -156,9 +154,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(uri);
 
-            // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
         }
 
         // TODO why are there two connect host methods?
@@ -178,7 +174,6 @@ namespace Mirror
             connectionToClient.connectionToServer = connectionToServer;
 
             connection = connectionToServer;
-            connection.SetHandlers(handlers);
 
             // create server connection to local client
             NetworkServer.SetLocalConnection(connectionToClient);
@@ -256,12 +251,55 @@ namespace Mirror
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
+        // helper function
+        static bool UnpackAndInvoke(NetworkReader reader, int channelId)
+        {
+            if (MessagePacking.Unpack(reader, out ushort msgType))
+            {
+                // try to invoke the handler for that message
+                if (handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
+                {
+                    handler.Invoke(connection, reader, channelId);
+                    connection.lastMessageTime = Time.time;
+                    return true;
+                }
+                else
+                {
+                    // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    return false;
+                }
+            }
+            else
+            {
+                Debug.LogError("Closed connection: " + connection + ". Invalid message header.");
+                connection.Disconnect();
+                return false;
+            }
+        }
+
         // called by Transport
         internal static void OnTransportData(ArraySegment<byte> data, int channelId)
         {
             if (connection != null)
             {
-                connection.OnTransportData(data, channelId);
+                if (data.Count < MessagePacking.HeaderSize)
+                {
+                    Debug.LogError($"NetworkClient: received Message was too short (messages should start with message id)");
+                    connection.Disconnect();
+                    return;
+                }
+
+                // unpack message
+                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                {
+                    // server might batch multiple messages into one packet.
+                    // we need to try to unpack multiple times.
+                    while (reader.Position < reader.Length)
+                    {
+                        if (!UnpackAndInvoke(reader, channelId))
+                            break;
+                    }
+                }
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }

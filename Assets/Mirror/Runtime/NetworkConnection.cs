@@ -13,10 +13,6 @@ namespace Mirror
         // TODO move to server's NetworkConnectionToClient?
         internal readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
-        // TODO this is NetworkServer.handlers on server and NetworkClient.handlers on client.
-        //      maybe use them directly. avoid extra state.
-        Dictionary<ushort, NetworkMessageDelegate> messageHandlers;
-
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
         // assigned by transport, this id is unique for every connection on server.
         // clients don't know their own id and they don't know other client's ids.
@@ -82,11 +78,6 @@ namespace Mirror
         // it simply asks the transport to disconnect.
         // then later the transport events will do the clean up.
         public abstract void Disconnect();
-
-        internal void SetHandlers(Dictionary<ushort, NetworkMessageDelegate> handlers)
-        {
-            messageHandlers = handlers;
-        }
 
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
         public void Send<T>(T msg, int channelId = Channels.Reliable)
@@ -160,55 +151,6 @@ namespace Mirror
                 netIdentity.RemoveObserverInternal(this);
             }
             observing.Clear();
-        }
-
-        // helper function
-        protected bool UnpackAndInvoke(NetworkReader reader, int channelId)
-        {
-            if (MessagePacking.Unpack(reader, out ushort msgType))
-            {
-                // try to invoke the handler for that message
-                if (messageHandlers.TryGetValue(msgType, out NetworkMessageDelegate msgDelegate))
-                {
-                    msgDelegate.Invoke(this, reader, channelId);
-                    lastMessageTime = Time.time;
-                    return true;
-                }
-                else
-                {
-                    // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
-                    return false;
-                }
-            }
-            else
-            {
-                Debug.LogError("Closed connection: " + this + ". Invalid message header.");
-                Disconnect();
-                return false;
-            }
-        }
-
-        // called by NetworkServer/NetworkClient OnTransportData
-        internal void OnTransportData(ArraySegment<byte> buffer, int channelId)
-        {
-            if (buffer.Count < MessagePacking.HeaderSize)
-            {
-                Debug.LogError($"ConnectionRecv {this} Message was too short (messages should start with message id)");
-                Disconnect();
-                return;
-            }
-
-            // unpack message
-            using (PooledNetworkReader reader = NetworkReaderPool.GetReader(buffer))
-            {
-                // the other end might batch multiple messages into one packet.
-                // we need to try to unpack multiple times.
-                while (reader.Position < reader.Length)
-                {
-                    if (!UnpackAndInvoke(reader, channelId))
-                        break;
-                }
-            }
         }
 
         /// <summary>Check if we received a message within the last 'timeout' seconds.</summary>

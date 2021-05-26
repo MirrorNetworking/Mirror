@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Mirror.RemoteCalls;
 using NUnit.Framework;
@@ -644,21 +643,24 @@ namespace Mirror.Tests
         [Test]
         public void SendToAll()
         {
-
             // listen
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
-            // add connection
-            LocalConnectionToClient connection = new LocalConnectionToClient();
-            connection.connectionToServer = new LocalConnectionToServer();
+            // setup connections
+            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
+            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
+            connectionToClient.connectionToServer = new LocalConnectionToServer();
+
+            // setup NetworkServer/Client connections so messages are handled
+            NetworkClient.connection = connectionToServer;
+            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
+
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
-            });
-            NetworkServer.AddConnection(connection);
+            void Handler(TestMessage1 _) => ++called;
+            NetworkClient.RegisterHandler<TestMessage1>(Handler, false);
+            NetworkServer.AddConnection(connectionToClient);
 
             // create a message
             TestMessage1 message = new TestMessage1 { IntValue = 1, DoubleValue = 2, StringValue = "3" };
@@ -667,7 +669,7 @@ namespace Mirror.Tests
             NetworkServer.SendToAll(message);
 
             // update local connection once so that the incoming queue is processed
-            connection.connectionToServer.Update();
+            connectionToClient.connectionToServer.Update();
 
             // was it send to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
@@ -724,29 +726,33 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
-            // add connection
-            LocalConnectionToClient connection = new LocalConnectionToClient();
-            connection.connectionToServer = new LocalConnectionToServer();
+            // setup connections
+            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
+            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
+            connectionToClient.connectionToServer = new LocalConnectionToServer();
+
+            // setup NetworkServer/Client connections so messages are handled
+            NetworkClient.connection = connectionToServer;
+            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
+
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<TestMessage1>(), ((conn, reader, channelId) => ++called) }
-            });
-            NetworkServer.AddConnection(connection);
+            void Handler(TestMessage1 _) => ++called;
+            NetworkClient.RegisterHandler<TestMessage1>(Handler, false);
+            NetworkServer.AddConnection(connectionToClient);
 
             // create a message
             TestMessage1 message = new TestMessage1 { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // create a gameobject and networkidentity
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
-            identity.connectionToClient = connection;
+            identity.connectionToClient = connectionToClient;
 
             // send it to that player
             identity.connectionToClient.Send(message);
 
             // update local connection once so that the incoming queue is processed
-            connection.connectionToServer.Update();
+            connectionToClient.connectionToServer.Update();
 
             // was it send to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
@@ -790,36 +796,42 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
-            // add connection
-            LocalConnectionToClient connection = new LocalConnectionToClient();
+            // setup connections
+            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
+            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
+            connectionToClient.connectionToServer = new LocalConnectionToServer();
+
+            // setup NetworkServer/Client connections so messages are handled
+            NetworkClient.connection = connectionToServer;
+            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
+
             // required for ShowForConnection
-            connection.isReady = true;
-            connection.connectionToServer = new LocalConnectionToServer();
+            connectionToClient.isReady = true;
+            connectionToClient.connectionToServer = new LocalConnectionToServer();
+
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<SpawnMessage>(), ((conn, reader, channelId) => ++called) }
-            });
-            NetworkServer.AddConnection(connection);
+            void Handler(SpawnMessage _) => ++called;
+            NetworkClient.RegisterHandler<SpawnMessage>(Handler, false);
+            NetworkServer.AddConnection(connectionToClient);
 
             // create a gameobject and networkidentity and some unique values
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
-            identity.connectionToClient = connection;
+            identity.connectionToClient = connectionToClient;
 
             // call ShowForConnection
-            NetworkServer.ShowForConnection(identity, connection);
+            NetworkServer.ShowForConnection(identity, connectionToClient);
 
             // update local connection once so that the incoming queue is processed
-            connection.connectionToServer.Update();
+            connectionToClient.connectionToServer.Update();
 
             // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
 
             // it shouldn't send it if connection isn't ready, so try that too
-            connection.isReady = false;
-            NetworkServer.ShowForConnection(identity, connection);
-            connection.connectionToServer.Update();
+            connectionToClient.isReady = false;
+            NetworkServer.ShowForConnection(identity, connectionToClient);
+            connectionToClient.connectionToServer.Update();
             // not 2 but 1 like before?
             Assert.That(called, Is.EqualTo(1));
         }
@@ -831,28 +843,34 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
-            // add connection
-            LocalConnectionToClient connection = new LocalConnectionToClient();
+            // setup connections
+            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
+            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
+            connectionToClient.connectionToServer = new LocalConnectionToServer();
+
+            // setup NetworkServer/Client connections so messages are handled
+            NetworkClient.connection = connectionToServer;
+            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
+
             // required for ShowForConnection
-            connection.isReady = true;
-            connection.connectionToServer = new LocalConnectionToServer();
+            connectionToClient.isReady = true;
+            connectionToClient.connectionToServer = new LocalConnectionToServer();
+
             // set a client handler
             int called = 0;
-            connection.connectionToServer.SetHandlers(new Dictionary<ushort, NetworkMessageDelegate>()
-            {
-                { MessagePacking.GetId<ObjectHideMessage>(), ((conn, reader, channelId) => ++called) }
-            });
-            NetworkServer.AddConnection(connection);
+            void Handler(ObjectHideMessage _) => ++called;
+            NetworkClient.RegisterHandler<ObjectHideMessage>(Handler, false);
+            NetworkServer.AddConnection(connectionToClient);
 
             // create a gameobject and networkidentity
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
-            identity.connectionToClient = connection;
+            identity.connectionToClient = connectionToClient;
 
             // call HideForConnection
-            NetworkServer.HideForConnection(identity, connection);
+            NetworkServer.HideForConnection(identity, connectionToClient);
 
             // update local connection once so that the incoming queue is processed
-            connection.connectionToServer.Update();
+            connectionToClient.connectionToServer.Update();
 
             // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
