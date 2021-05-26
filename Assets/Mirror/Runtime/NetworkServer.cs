@@ -1452,6 +1452,27 @@ namespace Mirror
             serializations.Clear();
         }
 
+        // helper function to clear dirty bits of all spawned entities
+        static void ClearSpawnedDirtyBits()
+        {
+            // TODO clear dirty bits when removing the last observer instead!
+            //      no need to do it for ALL entities ALL the time.
+            //
+            // for each spawned:
+            //   clear dirty bits if it has no observers.
+            //   we did this before push->pull broadcasting so let's keep
+            //   doing this for now.
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            {
+                if (identity.observers == null || identity.observers.Count == 0)
+                {
+                    // clear all component's dirty bits.
+                    // it would be spawned on new observers anyway.
+                    identity.ClearAllComponentsDirtyBits();
+                }
+            }
+        }
+
         // helper function to broadcast the world to a connection
         static void BroadcastToConnection(NetworkConnectionToClient connection)
         {
@@ -1566,19 +1587,7 @@ namespace Mirror
                 // TODO clear dirty bits when removing the last observer instead!
                 //      no need to do it for ALL entities ALL the time.
                 //
-                // for each spawned:
-                //   clear dirty bits if it has no observers.
-                //   we did this before push->pull broadcasting so let's keep
-                //   doing this for now.
-                foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-                {
-                    if (identity.observers == null || identity.observers.Count == 0)
-                    {
-                        // clear all component's dirty bits.
-                        // it would be spawned on new observers anyway.
-                        identity.ClearAllComponentsDirtyBits();
-                    }
-                }
+                ClearSpawnedDirtyBits();
             }
 
             // process all incoming messages after updating the world
