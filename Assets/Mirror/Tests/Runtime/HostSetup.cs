@@ -29,7 +29,7 @@ namespace Mirror.Tests.Runtime
         }
 
         [UnitySetUp]
-        public IEnumerator SetupHost()
+        public IEnumerator UnitySetUp()
         {
             networkManagerGo = new GameObject();
             transport = networkManagerGo.AddComponent<MemoryTransport>();
@@ -60,7 +60,7 @@ namespace Mirror.Tests.Runtime
 
 
         [UnityTearDown]
-        public IEnumerator ShutdownHost()
+        public IEnumerator UnityTearDown()
         {
             beforeStopHost();
 
