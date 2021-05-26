@@ -58,7 +58,10 @@ namespace Mirror
         public static bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>True if client is running in host mode.</summary>
-        public static bool isLocalClient => connection is LocalConnectionToServer;
+        public static bool isHostClient => connection is LocalConnectionToServer;
+        // DEPRECATED 2021-05-26
+        [Obsolete("isLocalClient was renamed to isHostClient because that's what it actually means.")]
+        public static bool isLocalClient => isHostClient;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
