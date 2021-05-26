@@ -104,7 +104,6 @@ namespace Mirror
             if (hostMode)
             {
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
-                RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
                 RegisterHandler<ObjectSpawnStartedMessage>(msg => {});
                 // host mode doesn't need spawning
@@ -115,11 +114,11 @@ namespace Mirror
             else
             {
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
-                RegisterHandler<SpawnMessage>(OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
             }
+            RegisterHandler<SpawnMessage>(OnSpawn);
             RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
             RegisterHandler<ObjectHideMessage>(OnObjectHide);
             RegisterHandler<RpcMessage>(OnRPCMessage);
@@ -1107,24 +1106,7 @@ namespace Mirror
             removeFromSpawned.Clear();
         }
 
-        // host mode callbacks /////////////////////////////////////////////////
-        internal static void OnHostClientSpawn(SpawnMessage message)
-        {
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
-                localObject != null)
-            {
-                if (message.isLocalPlayer)
-                    InternalAddPlayer(localObject);
-
-                localObject.hasAuthority = message.isOwner;
-                localObject.NotifyAuthority();
-                localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
-                CheckForLocalPlayer(localObject);
-            }
-        }
-
-        // client-only mode callbacks //////////////////////////////////////////
+        // callbacks ///////////////////////////////////////////////////////////
         static void OnEntityStateMessage(EntityStateMessage message)
         {
             // Debug.Log("NetworkClient.OnUpdateVarsMessage " + msg.netId);
@@ -1188,10 +1170,30 @@ namespace Mirror
 
         internal static void OnSpawn(SpawnMessage message)
         {
-            // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
-            if (FindOrSpawnObject(message, out NetworkIdentity identity))
+            // host mode
+            if (isHostClient)
             {
-                ApplySpawnPayload(identity, message);
+                if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
+                    localObject != null)
+                {
+                    if (message.isLocalPlayer)
+                        InternalAddPlayer(localObject);
+
+                    localObject.hasAuthority = message.isOwner;
+                    localObject.NotifyAuthority();
+                    localObject.OnStartClient();
+                    localObject.OnSetHostVisibility(true);
+                    CheckForLocalPlayer(localObject);
+                }
+            }
+            // client only
+            else
+            {
+                // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
+                if (FindOrSpawnObject(message, out NetworkIdentity identity))
+                {
+                    ApplySpawnPayload(identity, message);
+                }
             }
         }
 

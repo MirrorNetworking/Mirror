@@ -22,7 +22,7 @@ namespace Mirror.Tests.Runtime
 
 
             NetworkIdentity.spawned[msg.netId] = identity;
-            NetworkClient.OnHostClientSpawn(msg);
+            NetworkClient.OnSpawn(msg);
 
             NetworkServer.Destroy(identity.gameObject);
 
@@ -47,7 +47,7 @@ namespace Mirror.Tests.Runtime
             };
 
             NetworkIdentity.spawned[msg.netId] = identity;
-            NetworkClient.OnHostClientSpawn(msg);
+            NetworkClient.OnSpawn(msg);
 
             NetworkServer.UnSpawn(identity.gameObject);
 
