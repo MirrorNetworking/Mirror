@@ -1444,18 +1444,14 @@ namespace Mirror
             {
                 // was it dirty / did we actually serialize anything?
                 if (serialization.ownerWritten > 0)
-                {
                     return serialization.ownerWriter;
-                }
             }
             // observers writer if not owned
             else
             {
                 // was it dirty / did we actually serialize anything?
                 if (serialization.observersWritten > 0)
-                {
                     return serialization.observersWriter;
-                }
             }
 
             // nothing was serialized
