@@ -60,7 +60,7 @@ namespace Mirror
 
         /// <summary>Connects the client to the server at the Uri.</summary>
         // DEPRECATED 2021-05-27
-        public const string ConnectUriObsoleteMessage = "We are considering to remove Uri support, unless someone has a good reason to keep it.";
+        public const string ConnectUriObsoleteMessage = "Uri support will be removed. Use Connect('IP:Port') instead of Connect(Uri).";
         [Obsolete(ConnectUriObsoleteMessage)]
         public virtual void ClientConnect(Uri uri)
         {
@@ -88,7 +88,7 @@ namespace Mirror
         /// <summary>Returns server address as Uri.</summary>
         // Useful for NetworkDiscovery.
         // DEPRECATED 2021-05-27
-        public const string ServerUriObsoleteMessage = "We are considering to remove Uri support, unless someone has a good reason to keep it.";
+        public const string ServerUriObsoleteMessage = "Uri support will be removed. Use ServerAddress() instead, which can be 'IP:Port' too.";
         [Obsolete(ServerUriObsoleteMessage)]
         public abstract Uri ServerUri();
 
