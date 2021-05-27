@@ -59,7 +59,7 @@ namespace Mirror.Discovery
                 return new ServerResponse
                 {
                     serverId = ServerId,
-                    uri = transport.ServerUri()
+                    address = transport.ServerAddress()
                 };
             }
             catch (NotImplementedException)
@@ -98,13 +98,19 @@ namespace Mirror.Discovery
 
             // although we got a supposedly valid url, we may not be able to resolve
             // the provided host
+            // TODO Y THO???????
             // However we know the real ip address of the server because we just
             // received a packet from it,  so use that as host.
-            UriBuilder realUri = new UriBuilder(response.uri)
+            //   UriBuilder realUri = new UriBuilder(response.uri)
+            //   {
+            //       Host = response.EndPoint.Address.ToString()
+            //   };
+            //   response.uri = realUri.Uri;
+
+            if (Utils.ParseHostAndPort(response.address, out string _, out ushort port))
             {
-                Host = response.EndPoint.Address.ToString()
-            };
-            response.uri = realUri.Uri;
+                response.address = $"{response.EndPoint.Address}:{port}";
+            }
 
             OnServerFound.Invoke(response);
         }

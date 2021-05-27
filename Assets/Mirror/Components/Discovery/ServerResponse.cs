@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 
 namespace Mirror.Discovery
 {
@@ -10,7 +9,8 @@ namespace Mirror.Discovery
         // client fills this up after we receive it
         public IPEndPoint EndPoint { get; set; }
 
-        public Uri uri;
+        // Transport.ServerAddress(). can be "IP:Port".
+        public string address;
 
         // Prevent duplicate server appearance when a connection can be made via LAN on multiple NICs
         public long serverId;
