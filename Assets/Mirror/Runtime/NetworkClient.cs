@@ -213,7 +213,7 @@ namespace Mirror
             ready = false;
 
             // call Disconnect on the NetworkConnection
-            connection.Disconnect();
+            connection?.Disconnect();
 
             // clean up
             // (previously only for remote connection, not for local)
