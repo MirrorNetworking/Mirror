@@ -51,7 +51,10 @@ namespace Mirror
         /// <summary>True if the client is currently connected to the server.</summary>
         public abstract bool ClientConnected();
 
-        /// <summary>Connects the client to the server at the address.</summary>
+        /// <summary>Connects the client to the server at address. Can be "IP" or "IP:Port" etc. depending on the Transport.</summary>
+        // IMPORTANT: Transports should support both "IP" and "IP:Port" for
+        //            NetworkDiscovery, list servers, etc.
+        //            (easier than supporting Uris)
         public abstract void ClientConnect(string address);
 
         /// <summary>Connects the client to the server at the Uri.</summary>
