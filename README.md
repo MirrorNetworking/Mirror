@@ -91,7 +91,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
     <td><img src="https://i.ytimg.com/vi/D_f_MntrLVE/maxresdefault.jpg" height="100"/></td>
   </tr>
   <tr>
-    <th><a href="https://inferna.net/">Inferna</a></th>
+    <th><a href="https://store.steampowered.com/app/1191330/Inferna/">Inferna</a></th>
     <th><a href=""></a></th>
     <th><a href=""></a></th>
     <th><a href=""></a></th>
