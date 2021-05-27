@@ -122,7 +122,19 @@ namespace Mirror
 
         // client
         public override bool ClientConnected() => client.Connected;
-        public override void ClientConnect(string address) => client.Connect(address, port);
+        public override void ClientConnect(string address)
+        {
+            // "IP:Port"
+            if (Utils.ParseHostAndPort(address, out string parsedHost, out ushort parsedPort))
+            {
+                client.Connect(parsedHost, parsedPort);
+            }
+            // "IP" and default port
+            else
+            {
+                client.Connect(address, port);
+            }
+        }
         [Obsolete(ConnectUriObsoleteMessage)]
         public override void ClientConnect(Uri uri)
         {
