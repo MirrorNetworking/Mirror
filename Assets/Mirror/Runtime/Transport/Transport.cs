@@ -55,6 +55,7 @@ namespace Mirror
         // IMPORTANT: Transports should support both "IP" and "IP:Port" for
         //            NetworkDiscovery, list servers, etc.
         //            (easier than supporting Uris)
+        //            => use Utils.SplitNetworkAddress() to split "IP:Port"!
         public abstract void ClientConnect(string address);
 
         /// <summary>Connects the client to the server at the Uri.</summary>

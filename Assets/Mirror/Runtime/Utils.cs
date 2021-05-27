@@ -122,5 +122,23 @@ namespace Mirror
             }
             return true;
         }
+
+        // split network address of "IP:Port" or "Hostname:Port".
+        // can be used by several Transport's ClientConnect() for convenience.
+        // => returns true if of "IP:Port".
+        //            false if of "IP" only.
+        public static bool ParseHostAndPort(string address, out string host, out ushort port)
+        {
+            string[] parts = address.Split(':');
+            if (parts.Length == 2)
+            {
+                host = parts[0];
+                port = Convert.ToUInt16(parts[1]);
+                return true;
+            }
+            host = "";
+            port = 0;
+            return false;
+        }
     }
 }
