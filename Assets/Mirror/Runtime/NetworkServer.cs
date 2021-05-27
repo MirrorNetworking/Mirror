@@ -1585,6 +1585,9 @@ namespace Mirror
             // return serialized writers to pool
             CleanupSerializations();
 
+            // TODO we already clear the serialized component's dirty bits above
+            //      might as well clear everything???
+            //
             // TODO this unfortunately means we still need to iterate ALL
             //      spawned and not just the ones with observers. figure
             //      out a way to get rid of this.
