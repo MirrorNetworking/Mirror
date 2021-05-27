@@ -87,6 +87,16 @@ namespace Mirror
         [Obsolete(UriObsoleteMessage)]
         public abstract Uri ServerUri();
 
+        /// <summary>Returns full server address like "IP:Port". Useful for clients to connect.</summary>
+        // => reuse obsolete ServerUri() by default. Give transports time to upgrade.
+        public virtual string ServerAddress()
+        {
+#pragma warning disable 618
+            Uri uri = ServerUri();
+#pragma warning restore 618
+            return $"{uri.Host}:{uri.Port}";
+        }
+
         /// <summary>Called by Transport when a new client connected to the server.</summary>
         public Action<int> OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
 
