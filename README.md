@@ -97,7 +97,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
     <th><a href=""></a></th>
   </tr>
   <tr>
-    <td><img src="https://user-images.githubusercontent.com/16416509/119759280-8cd74c00-beda-11eb-84a5-22aceb47e96b.png" height="100"/></td>
+    <td><img src="https://user-images.githubusercontent.com/16416509/119759363-b1cbbf00-beda-11eb-9163-623083536713.png" height="100"/></td>
     <td></td>
     <td></td>
     <td></td>
