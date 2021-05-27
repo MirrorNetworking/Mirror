@@ -122,7 +122,7 @@ namespace Mirror.SimpleWeb
             return client != null && client.ConnectionState != ClientState.NotConnected;
         }
 
-        public override void ClientConnect(string hostname)
+        public override void ClientConnect(string address)
         {
             // connecting or connected
             if (ClientConnected())
@@ -131,13 +131,28 @@ namespace Mirror.SimpleWeb
                 return;
             }
 
-            UriBuilder builder = new UriBuilder
-            {
-                Scheme = GetClientScheme(),
-                Host = hostname,
-                Port = port
-            };
+            UriBuilder builder;
 
+            // "Host:Port"
+            if (Mirror.Utils.ParseHostAndPort(address, out string parsedHost, out ushort parsedPort))
+            {
+                builder = new UriBuilder
+                {
+                    Scheme = GetClientScheme(),
+                    Host = parsedHost,
+                    Port = parsedPort
+                };
+            }
+            // "Host" and default port
+            else
+            {
+                builder = new UriBuilder
+                {
+                    Scheme = GetClientScheme(),
+                    Host = address,
+                    Port = port
+                };
+            }
 
             client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
             if (client == null) { return; }
