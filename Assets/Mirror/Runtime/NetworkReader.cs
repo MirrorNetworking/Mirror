@@ -394,7 +394,7 @@ namespace Mirror
             return result;
         }
 
-        [Obsolete(Transport.UriObsoleteMessage)]
+        [Obsolete("ReadUri is obsolete because Transport URI support is obsolete.")]
         public static Uri ReadUri(this NetworkReader reader)
         {
             return new Uri(reader.ReadString());

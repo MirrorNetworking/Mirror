@@ -145,7 +145,7 @@ namespace Mirror
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
-        [Obsolete(Transport.UriObsoleteMessage)]
+        [Obsolete(Transport.ConnectUriObsoleteMessage)]
         public static void Connect(Uri uri)
         {
             // Debug.Log("Client Connect: " + uri);

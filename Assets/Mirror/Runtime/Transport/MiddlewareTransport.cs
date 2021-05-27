@@ -48,7 +48,7 @@ namespace Mirror
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId) => inner.ServerSend(connectionId, segment, channelId);
         public override void ServerDisconnect(int connectionId) => inner.ServerDisconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => inner.ServerGetClientAddress(connectionId);
-        [Obsolete(UriObsoleteMessage)]
+        [Obsolete(ServerUriObsoleteMessage)]
         public override Uri ServerUri() => inner.ServerUri();
         #endregion
     }

@@ -413,7 +413,7 @@ namespace Mirror
             }
         }
 
-        [Obsolete(Transport.UriObsoleteMessage)]
+        [Obsolete("WriteUri is obsolete because Transport URI support is obsolete.")]
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
             writer.WriteString(uri.ToString());

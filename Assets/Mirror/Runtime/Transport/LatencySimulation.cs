@@ -143,7 +143,7 @@ namespace Mirror
             wrap.ClientConnect(address);
         }
 
-        [Obsolete(UriObsoleteMessage)]
+        [Obsolete(ConnectUriObsoleteMessage)]
         public override void ClientConnect(Uri uri)
         {
             wrap.OnClientConnected = OnClientConnected;
@@ -168,7 +168,7 @@ namespace Mirror
             SimulateSend(0, segment, channelId, latency, reliableClientToServer, unreliableClientToServer);
         }
 
-        [Obsolete(UriObsoleteMessage)]
+        [Obsolete(ServerUriObsoleteMessage)]
         public override Uri ServerUri() => wrap.ServerUri();
 
         public override bool ServerActive() => wrap.ServerActive();

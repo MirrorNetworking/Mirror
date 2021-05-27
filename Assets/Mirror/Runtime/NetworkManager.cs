@@ -362,7 +362,7 @@ namespace Mirror
         }
 
         /// <summary>Starts the client, connects it to the server via Uri</summary>
-        [Obsolete(Transport.UriObsoleteMessage)]
+        [Obsolete(Transport.ConnectUriObsoleteMessage)]
         public void StartClient(Uri uri)
         {
             if (NetworkClient.active)

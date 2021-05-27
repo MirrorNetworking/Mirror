@@ -113,7 +113,7 @@ namespace Mirror.Tests
         }
 
         public override bool ServerActive() => serverActive;
-        [Obsolete(UriObsoleteMessage)]
+        [Obsolete(ServerUriObsoleteMessage)]
         public override Uri ServerUri() => throw new NotImplementedException();
         public override void ServerStart() { serverActive = true; }
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)

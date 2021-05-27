@@ -139,7 +139,7 @@ namespace kcp2k
         }
 
         // server
-        [Obsolete(UriObsoleteMessage)]
+        [Obsolete(ServerUriObsoleteMessage)]
         public override Uri ServerUri()
         {
             UriBuilder builder = new UriBuilder();
