@@ -73,7 +73,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
     <th><a href="https://store.steampowered.com/app/719200/The_Wall/">The Wall</a></th>
   </tr>
   <tr>
-    <td><img src="https://camo.githubusercontent.com/6d50af6cbe0fcfc465f444f75475a356c6c14b4a3a9534156cfdd578e7d45a9f/68747470733a2f2f692e696d6775722e636f6d2f324938776e784f2e706e67" height="100"/></td>
+    <td><img src="https://user-images.githubusercontent.com/16416509/119760000-d2e0df80-bedb-11eb-80a5-e29a0f6a6479.png" height="100"/></td>
     <td><img src="https://user-images.githubusercontent.com/16416509/119759544-07a06700-bedb-11eb-9754-97c3e8f50b0e.jpg" height="100"/></td>
     <td><img src="https://cdn.akamai.steamstatic.com/steam/apps/1313210/header.jpg?t=1616227358" height="100"/></td>
     <td><img src="https://cdn.akamai.steamstatic.com/steam/apps/719200/header.jpg?t=1588105839" height="100"/></td>
