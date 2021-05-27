@@ -88,7 +88,16 @@ namespace kcp2k
         public override bool ClientConnected() => client.connected;
         public override void ClientConnect(string address)
         {
-            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize);
+            // "IP:Port"
+            if (Mirror.Utils.ParseHostAndPort(address, out string parsedHost, out ushort parsedPort))
+            {
+                client.Connect(parsedHost, parsedPort, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize);
+            }
+            // "IP" and default port
+            else
+            {
+                client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize);
+            }
         }
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
