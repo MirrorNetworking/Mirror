@@ -30,6 +30,9 @@ namespace Mirror
     /// <summary>Abstract transport layer component</summary>
     public abstract class Transport : MonoBehaviour
     {
+        // DEPRECATED 2021-05-27
+        public const string UriObsoleteMessage = "We are considering to remove Uri support, unless someone has a good reason to keep it.";
+
         /// <summary>The current transport used by Mirror.</summary>
         public static Transport activeTransport;
 
@@ -55,7 +58,7 @@ namespace Mirror
         public abstract void ClientConnect(string address);
 
         /// <summary>Connects the client to the server at the Uri.</summary>
-        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
+        [Obsolete(UriObsoleteMessage)]
         public virtual void ClientConnect(Uri uri)
         {
             // By default, to keep backwards compatibility, just connect to the host
@@ -81,6 +84,7 @@ namespace Mirror
 
         /// <summary>Returns server address as Uri.</summary>
         // Useful for NetworkDiscovery.
+        [Obsolete(UriObsoleteMessage)]
         public abstract Uri ServerUri();
 
         /// <summary>Called by Transport when a new client connected to the server.</summary>

@@ -272,7 +272,7 @@ namespace Mirror.SimpleWeb
             return server.GetClientAddress(connectionId);
         }
 
-        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
+        [Obsolete(UriObsoleteMessage)]
         public override Uri ServerUri()
         {
             UriBuilder builder = new UriBuilder

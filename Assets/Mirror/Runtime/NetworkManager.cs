@@ -362,7 +362,7 @@ namespace Mirror
         }
 
         /// <summary>Starts the client, connects it to the server via Uri</summary>
-        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
+        [Obsolete(Transport.UriObsoleteMessage)]
         public void StartClient(Uri uri)
         {
             if (NetworkClient.active)

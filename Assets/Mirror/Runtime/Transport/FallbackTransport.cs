@@ -63,7 +63,7 @@ namespace Mirror
             available.ClientConnect(address);
         }
 
-        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
+        [Obsolete(UriObsoleteMessage)]
         public override void ClientConnect(Uri uri)
         {
             foreach (Transport transport in transports)
@@ -101,7 +101,7 @@ namespace Mirror
 
         // right now this just returns the first available uri,
         // should we return the list of all available uri?
-        [Obsolete("We are considering to remove Uri support, unless someone has a good reason to keep it.")]
+        [Obsolete(UriObsoleteMessage)]
         public override Uri ServerUri() => available.ServerUri();
 
         public override bool ServerActive()
