@@ -19,6 +19,16 @@ namespace Mirror
     //              to everyone etc.
     public enum Visibility { Default, ForceHidden, ForceShown }
 
+    public struct NetworkIdentitySerialization
+    {
+        public float tickTimeStamp;
+        public NetworkWriter ownerWriter;
+        public NetworkWriter observersWriter;
+        // TODO there is probably a more simple way later
+        public int ownerWritten;
+        public int observersWritten;
+    }
+
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkIdentity")]
@@ -143,6 +153,19 @@ namespace Mirror
         // TODO rename to 'visibility' after removing .visibility some day!
         [Tooltip("Visibility can overwrite interest management. ForceHidden can be useful to hide monsters while they respawn. ForceShown can be useful for score NetworkIdentities that should always broadcast to everyone in the world.")]
         public Visibility visible = Visibility.Default;
+
+        // broadcasting serializes all entities around a player for each player.
+        // we don't want to serialize one entity twice in the same tick.
+        // so we cache the last serialization and remember the timestamp so we
+        // know which Update it was serialized.
+        // (timestamp is the same while inside Update)
+        // => this way we don't need to pool thousands of writers either.
+        // => way easier to store them per object
+        NetworkIdentitySerialization lastSerialization = new NetworkIdentitySerialization
+        {
+            ownerWriter = new NetworkWriter(),
+            observersWriter = new NetworkWriter()
+        };
 
         /// <summary>Prefab GUID used to spawn prefabs across the network.</summary>
         //
@@ -901,6 +924,32 @@ namespace Mirror
                     }
                 }
             }
+        }
+
+        // get cached serialization for this tick (or serialize if none yet)
+        internal NetworkIdentitySerialization GetSerializationAtTick(float tickTimeStamp)
+        {
+            // serialize fresh if tick is newer than last one
+            if (lastSerialization.tickTimeStamp < tickTimeStamp)
+            {
+                // reset
+                lastSerialization.ownerWriter.Position = 0;
+                lastSerialization.observersWriter.Position = 0;
+
+                // serialize
+                OnSerializeAllSafely(false,
+                                     lastSerialization.ownerWriter,
+                                     out lastSerialization.ownerWritten,
+                                     lastSerialization.observersWriter,
+                                     out lastSerialization.observersWritten);
+
+                // set timestamp
+                lastSerialization.tickTimeStamp = tickTimeStamp;
+                //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
+            }
+
+            // return it
+            return lastSerialization;
         }
 
         void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
