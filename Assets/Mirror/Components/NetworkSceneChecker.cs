@@ -50,7 +50,7 @@ namespace Mirror
                 RebuildSceneObservers();
         }
 
-        // Deprecated 2021/05/28 - Remove Update in September 2021
+        // Deprecated 2021-05-28 - Remove Update in September 2021
         // Eliminating the Update loop will improve performance of the component.
         [ServerCallback]
         void Update()
