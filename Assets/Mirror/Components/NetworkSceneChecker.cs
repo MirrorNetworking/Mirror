@@ -50,17 +50,39 @@ namespace Mirror
                 RebuildSceneObservers();
         }
 
+        // Deprecated 2021/05/28 - Remove Update in September 2021
+        // Eliminating the Update loop will improve performance of the component.
         [ServerCallback]
         void Update()
         {
             if (currentScene == gameObject.scene)
                 return;
 
-            // This object is in a new scene so observers in the prior scene
-            // and the new scene need to rebuild their respective observers lists.
+            Debug.LogWarning($"Scene change detected for {gameObject.name} from {currentScene.name} to {gameObject.scene.name}\n" +
+                $"Use NetworkSceneChecker's MoveGameObjectToScene method instead of SceneManager's.\n" +
+                $"NetworkSceneChecker's Update method will be removed in a later version of Mirror.");
 
+            HandleSceneChange();
+        }
+
+        [Server]
+        public void MoveGameObjectToScene(Scene newScene)
+        {
+            if (currentScene != newScene)
+            {
+                SceneManager.MoveGameObjectToScene(gameObject, newScene);
+                HandleSceneChange();
+            }
+        }
+
+        // This object is in a new scene so observers in the prior scene
+        // and the new scene need to rebuild their respective observers lists.
+        [ServerCallback]
+        void HandleSceneChange()
+        {
             // Remove this object from the hashset of the scene it just left
-            sceneCheckerObjects[currentScene].Remove(netIdentity);
+            if (sceneCheckerObjects.ContainsKey(currentScene))
+                sceneCheckerObjects[currentScene].Remove(netIdentity);
 
             // RebuildObservers of all NetworkIdentity's in the scene this object just left
             RebuildSceneObservers();
@@ -81,9 +103,10 @@ namespace Mirror
 
         void RebuildSceneObservers()
         {
-            foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
-                if (networkIdentity != null)
-                    networkIdentity.RebuildObservers(false);
+            if (sceneCheckerObjects.ContainsKey(currentScene))
+                foreach (NetworkIdentity networkIdentity in sceneCheckerObjects[currentScene])
+                    if (networkIdentity != null)
+                        networkIdentity.RebuildObservers(false);
         }
 
         /// <summary>

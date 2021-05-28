@@ -66,7 +66,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             // This is what allows the NetworkSceneChecker on player and scene objects
             // to isolate matches per scene instance on server.
             if (subScenes.Count > 0)
-                SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[clientIndex % subScenes.Count]);
+                conn.identity.GetComponent<NetworkSceneChecker>().MoveGameObjectToScene(subScenes[clientIndex % subScenes.Count]);
         }
 
         #endregion

@@ -19,7 +19,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
 
             Vector3 spawnPosition = new Vector3(Random.Range(-19, 20), 1, Random.Range(-19, 20));
             GameObject reward = Object.Instantiate(((MultiSceneNetManager)NetworkManager.singleton).rewardPrefab, spawnPosition, Quaternion.identity);
-            SceneManager.MoveGameObjectToScene(reward, scene);
+            reward.GetComponent<NetworkSceneChecker>().MoveGameObjectToScene(scene);
             NetworkServer.Spawn(reward);
         }
     }
