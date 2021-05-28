@@ -36,6 +36,8 @@ namespace kcp2k
         //  8192, 8192 for 20k monsters
         public uint SendWindowSize;
         public uint ReceiveWindowSize;
+        // timeout in milliseconds
+        public int Timeout;
 
         // state
         Socket socket;
@@ -63,7 +65,8 @@ namespace kcp2k
                          int FastResend = 0,
                          bool CongestionWindow = true,
                          uint SendWindowSize = Kcp.WND_SND,
-                         uint ReceiveWindowSize = Kcp.WND_RCV)
+                         uint ReceiveWindowSize = Kcp.WND_RCV,
+                         int Timeout = KcpConnection.DEFAULT_TIMEOUT)
         {
             this.OnConnected = OnConnected;
             this.OnData = OnData;
@@ -74,6 +77,7 @@ namespace kcp2k
             this.CongestionWindow = CongestionWindow;
             this.SendWindowSize = SendWindowSize;
             this.ReceiveWindowSize = ReceiveWindowSize;
+            this.Timeout = Timeout;
         }
 
         public bool IsActive() => socket != null;
@@ -131,10 +135,23 @@ namespace kcp2k
             {
                 try
                 {
+                    // NOTE: ReceiveFrom allocates.
+                    //   we pass our IPEndPoint to ReceiveFrom.
+                    //   receive from calls newClientEP.Create(socketAddr).
+                    //   IPEndPoint.Create always returns a new IPEndPoint.
+                    //   https://github.com/mono/mono/blob/f74eed4b09790a0929889ad7fc2cf96c9b6e3757/mcs/class/System/System.Net.Sockets/Socket.cs#L1761
                     int msgLength = socket.ReceiveFrom(rawReceiveBuffer, 0, rawReceiveBuffer.Length, SocketFlags.None, ref newClientEP);
                     //Log.Info($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
 
                     // calculate connectionId from endpoint
+                    // NOTE: IPEndPoint.GetHashCode() allocates.
+                    //  it calls m_Address.GetHashCode().
+                    //  m_Address is an IPAddress.
+                    //  GetHashCode() allocates for IPv6:
+                    //  https://github.com/mono/mono/blob/bdd772531d379b4e78593587d15113c37edd4a64/mcs/class/referencesource/System/net/System/Net/IPAddress.cs#L699
+                    //
+                    // => using only newClientEP.Port wouldn't work, because
+                    //    different connections can have the same port.
                     int connectionId = newClientEP.GetHashCode();
 
                     // IMPORTANT: detect if buffer was too small for the received
@@ -147,7 +164,7 @@ namespace kcp2k
                         if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
                         {
                             // create a new KcpConnection
-                            connection = new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize);
+                            connection = new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
 
                             // DO NOT add to connections yet. only if the first message
                             // is actually the kcp handshake. otherwise it's either:

@@ -20,6 +20,9 @@ namespace kcp2k
         public bool NoDelay = true;
         [Tooltip("KCP internal update interval. 100ms is KCP default, but a lower interval is recommended to minimize latency and to scale to more networked entities.")]
         public uint Interval = 10;
+        [Tooltip("KCP timeout in milliseconds. Note that KCP sends a ping automatically.")]
+        public int Timeout = 10000;
+
         [Header("Advanced")]
         [Tooltip("KCP fastresend parameter. Faster resend for the cost of higher bandwidth. 0 in normal mode, 2 in turbo mode.")]
         public int FastResend = 2;
@@ -71,7 +74,8 @@ namespace kcp2k
                 FastResend,
                 CongestionWindow,
                 SendWindowSize,
-                ReceiveWindowSize
+                ReceiveWindowSize,
+                Timeout
             );
 
             if (statisticsLog)
@@ -88,7 +92,7 @@ namespace kcp2k
         public override bool ClientConnected() => client.connected;
         public override void ClientConnect(string address)
         {
-            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize);
+            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
         }
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {

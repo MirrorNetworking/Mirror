@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 
 namespace kcp2k
@@ -21,26 +20,6 @@ namespace kcp2k
         // MemoryStream does that perfectly, no need to reinvent the wheel.
         // note: no need to pool it, because Segment is already pooled.
         internal MemoryStream data = new MemoryStream();
-
-        // pool ////////////////////////////////////////////////////////////////
-        internal static readonly Stack<Segment> Pool = new Stack<Segment>(32);
-
-        public static Segment Take()
-        {
-            if (Pool.Count > 0)
-            {
-                Segment seg = Pool.Pop();
-                return seg;
-            }
-            return new Segment();
-        }
-
-        public static void Return(Segment seg)
-        {
-            seg.Reset();
-            Pool.Push(seg);
-        }
-        ////////////////////////////////////////////////////////////////////////
 
         // ikcp_encode_seg
         // encode a segment into buffer

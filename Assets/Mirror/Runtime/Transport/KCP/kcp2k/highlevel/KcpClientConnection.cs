@@ -12,7 +12,7 @@ namespace kcp2k
         //            => we need the MTU to fit channel + message!
         readonly byte[] rawReceiveBuffer = new byte[Kcp.MTU_DEF];
 
-        public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV)
+        public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT)
         {
             Log.Info($"KcpClient: connect to {host}:{port}");
             IPAddress[] ipAddress = Dns.GetHostAddresses(host);
@@ -22,7 +22,7 @@ namespace kcp2k
             remoteEndpoint = new IPEndPoint(ipAddress[0], port);
             socket = new Socket(remoteEndpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             socket.Connect(remoteEndpoint);
-            SetupKcp(noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize);
+            SetupKcp(noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout);
 
             // client should send handshake to server as very first message
             SendHandshake();

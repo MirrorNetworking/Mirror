@@ -87,6 +87,17 @@ namespace kcp2k
         // get how many packet is waiting to be sent
         public int WaitSnd => snd_buf.Count + snd_queue.Count;
 
+        // segment pool to avoid allocations in C#.
+        // this is not part of the original C code.
+        readonly Pool<Segment> SegmentPool = new Pool<Segment>(
+            // create new segment
+            () => new Segment(),
+            // reset segment before reuse
+            (segment) => segment.Reset(),
+            // initial capacity
+            32
+        );
+
         // ikcp_create
         // create a new kcp control object, 'conv' must equal in two endpoint
         // from the same connection.
@@ -112,18 +123,12 @@ namespace kcp2k
         // ikcp_segment_new
         // we keep the original function and add our pooling to it.
         // this way we'll never miss it anywhere.
-        static Segment SegmentNew()
-        {
-            return Segment.Take();
-        }
+        Segment SegmentNew() => SegmentPool.Take();
 
         // ikcp_segment_delete
         // we keep the original function and add our pooling to it.
         // this way we'll never miss it anywhere.
-        static void SegmentDelete(Segment seg)
-        {
-            Segment.Return(seg);
-        }
+        void SegmentDelete(Segment seg) => SegmentPool.Return(seg);
 
         // ikcp_recv
         // receive data from kcp state machine
