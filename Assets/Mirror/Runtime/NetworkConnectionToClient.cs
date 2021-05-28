@@ -20,6 +20,8 @@ namespace Mirror
         internal class Batch
         {
             // batched messages
+            // IMPORTANT: we queue the serialized messages!
+            //            queueing NetworkMessage would box and allocate!
             internal Queue<PooledNetworkWriter> messages = new Queue<PooledNetworkWriter>();
 
             // each channel's batch has its own lastSendTime.
