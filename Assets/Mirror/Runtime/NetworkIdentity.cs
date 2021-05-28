@@ -33,6 +33,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkIdentity")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-identity")]
+    [DefaultExecutionOrder(-1)]
     public sealed class NetworkIdentity : MonoBehaviour
     {
         /// <summary>Returns true if running as a client and this object was spawned by a server.</summary>
