@@ -59,7 +59,7 @@ namespace Mirror
 
         /// <summary>True if client is running in host mode.</summary>
         public static bool isHostClient => connection is LocalConnectionToServer;
-        // DEPRECATED 2021-05-26
+        // Deprecated 2021-05-26
         [Obsolete("isLocalClient was renamed to isHostClient because that's what it actually means.")]
         public static bool isLocalClient => isHostClient;
 

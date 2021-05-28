@@ -4,23 +4,23 @@ using System.Collections.Generic;
 
 namespace Mirror
 {
-    // Deprecated 10/02/2020
+    // Deprecated 2020-10-02
     [Obsolete("Use SyncList<string> instead")]
     public class SyncListString : SyncList<string> {}
 
-    // Deprecated 10/02/2020
+    // Deprecated 2020-10-02
     [Obsolete("Use SyncList<float> instead")]
     public class SyncListFloat : SyncList<float> {}
 
-    // Deprecated 10/02/2020
+    // Deprecated 2020-10-02
     [Obsolete("Use SyncList<int> instead")]
     public class SyncListInt : SyncList<int> {}
 
-    // Deprecated 10/02/2020
+    // Deprecated 2020-10-02
     [Obsolete("Use SyncList<uint> instead")]
     public class SyncListUInt : SyncList<uint> {}
 
-    // Deprecated 10/02/2020
+    // Deprecated 2020-10-02
     [Obsolete("Use SyncList<bool> instead")]
     public class SyncListBool : SyncList<bool> {}
 
