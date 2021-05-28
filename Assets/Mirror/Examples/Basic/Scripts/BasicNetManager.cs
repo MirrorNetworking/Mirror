@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -11,9 +11,6 @@ namespace Mirror.Examples.Basic
     [AddComponentMenu("")]
     public class BasicNetManager : NetworkManager
     {
-        public int connCount;
-        int lastConnCount;
-
         [Header("Canvas UI")]
 
         [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
@@ -21,21 +18,6 @@ namespace Mirror.Examples.Basic
 
         [Tooltip("Assign Players Panel for instantiating PlayerUI as child")]
         public RectTransform playersPanel;
-
-        void Update()
-        {
-            if (lastConnCount != connCount)
-            {
-                Console.WriteLine($"connCount {connCount}");
-                lastConnCount = connCount;
-            }
-        }
-
-        public override void OnServerConnect(NetworkConnection conn)
-        {
-            base.OnServerConnect(conn);
-            connCount = NetworkServer.connections.Count;
-        }
 
         /// <summary>
         /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.
@@ -57,7 +39,6 @@ namespace Mirror.Examples.Basic
         {
             base.OnServerDisconnect(conn);
             Player.ResetPlayerNumbers();
-            connCount = NetworkServer.connections.Count;
         }
 
     }
