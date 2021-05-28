@@ -64,6 +64,9 @@ namespace Mirror.Examples.Basic
             OnPlayerColorChanged?.Invoke(newPlayerColor);
         }
 
+        public int observersCount;
+        int lastObserversCount;
+
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.
         /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
@@ -97,6 +100,12 @@ namespace Mirror.Examples.Basic
         [ServerCallback]
         void UpdateData()
         {
+            observersCount = netIdentity.observers.Values.Count;
+            if (lastObserversCount != observersCount)
+            {
+                System.Console.WriteLine($"{connectionToClient.connectionId} observersCount {observersCount}");
+                lastObserversCount = observersCount;
+            }
             playerData = Random.Range(100, 1000);
         }
 
