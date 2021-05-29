@@ -109,7 +109,7 @@ namespace Mirror.Tests
         {
             NetworkWriter writer = new NetworkWriter();
             writer.WriteString("I saw");
-            writer.WriteInt64(0xA_FADED_DEAD_EEL);
+            writer.WriteLong(0xA_FADED_DEAD_EEL);
             writer.WriteString("and ate it");
             int position = writer.Position;
 
