@@ -128,7 +128,7 @@ namespace Mirror
         // Special case for Scene Messages and batching, so virtual instead of abstract.
         // This is only overridden in NetworkConnectionToClient
         // No override needed in NetworkConnectionToServer or LocalConnection
-        internal virtual void Send(ArraySegment<byte> segment, bool isSceneMessag, int channelId = Channels.Reliable) => Send(segment, channelId);
+        internal virtual void Send(ArraySegment<byte> segment, bool isSceneMessage, int channelId = Channels.Reliable) => Send(segment, channelId);
 
         public override string ToString() => $"connection({connectionId})";
 
