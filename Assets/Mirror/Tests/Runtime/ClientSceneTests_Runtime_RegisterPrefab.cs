@@ -33,7 +33,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             //test
             CallRegisterPrefab(runtimeObject, overload);
 
-            Assert.IsTrue(spawnHandlers.ContainsKey(anotherGuid));
+            Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(anotherGuid));
 
             // teardown
             GameObject.DestroyImmediate(runtimeObject);
@@ -70,8 +70,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             //test
             CallRegisterPrefab(runtimeObject, overload);
 
-            Assert.IsTrue(prefabs.ContainsKey(anotherGuid));
-            Assert.AreEqual(prefabs[anotherGuid], runtimeObject);
+            Assert.IsTrue(NetworkClient.prefabs.ContainsKey(anotherGuid));
+            Assert.AreEqual(NetworkClient.prefabs[anotherGuid], runtimeObject);
 
             Assert.AreEqual(networkIdentity.assetId, anotherGuid);
 
@@ -90,7 +90,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             //test
             CallRegisterPrefab(runtimeObject, overload);
 
-            Assert.IsTrue(unspawnHandlers.ContainsKey(anotherGuid));
+            Assert.IsTrue(NetworkClient.unspawnHandlers.ContainsKey(anotherGuid));
 
             // teardown
             GameObject.DestroyImmediate(runtimeObject);

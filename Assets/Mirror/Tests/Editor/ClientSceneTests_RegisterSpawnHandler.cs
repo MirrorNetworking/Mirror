@@ -22,10 +22,10 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
-            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
+            Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(guid));
 
             // check spawnHandler above is called
-            SpawnHandlerDelegate handler = spawnHandlers[guid];
+            SpawnHandlerDelegate handler = NetworkClient.spawnHandlers[guid];
             handler.Invoke(default);
             Assert.That(handlerCalled, Is.EqualTo(1));
         }
@@ -48,10 +48,10 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
-            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
+            Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(guid));
 
             // check spawnHandler above is called
-            SpawnHandlerDelegate handler = spawnHandlers[guid];
+            SpawnHandlerDelegate handler = NetworkClient.spawnHandlers[guid];
             handler.Invoke(new SpawnMessage { position = somePosition, assetId = guid });
             Assert.That(handlerCalled, Is.EqualTo(1));
         }
@@ -65,8 +65,8 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
-            Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
-            Assert.AreEqual(unspawnHandlers[guid], unspawnHandler);
+            Assert.IsTrue(NetworkClient.unspawnHandlers.ContainsKey(guid));
+            Assert.AreEqual(NetworkClient.unspawnHandlers[guid], unspawnHandler);
         }
 
         [Test]
@@ -122,7 +122,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void SpawnDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
         {
             Guid guid = Guid.NewGuid();
-            prefabs.Add(guid, validPrefab);
+            NetworkClient.prefabs.Add(guid, validPrefab);
 
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
@@ -141,8 +141,8 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
-            Assert.IsTrue(spawnHandlers.ContainsKey(guid));
-            Assert.AreEqual(spawnHandlers[guid], spawnHandler);
+            Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(guid));
+            Assert.AreEqual(NetworkClient.spawnHandlers[guid], spawnHandler);
         }
 
         [Test]
@@ -154,8 +154,8 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkClient.RegisterSpawnHandler(guid, spawnHandler, unspawnHandler);
 
-            Assert.IsTrue(unspawnHandlers.ContainsKey(guid));
-            Assert.AreEqual(unspawnHandlers[guid], unspawnHandler);
+            Assert.IsTrue(NetworkClient.unspawnHandlers.ContainsKey(guid));
+            Assert.AreEqual(NetworkClient.unspawnHandlers[guid], unspawnHandler);
         }
 
         [Test]
@@ -211,7 +211,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void SpawnHandlerDelegate_ErrorWhenHandlerForGuidAlreadyExistsInPrefabDictionary()
         {
             Guid guid = Guid.NewGuid();
-            prefabs.Add(guid, validPrefab);
+            NetworkClient.prefabs.Add(guid, validPrefab);
 
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => new GameObject());
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));

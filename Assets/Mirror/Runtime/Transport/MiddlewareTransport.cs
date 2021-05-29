@@ -30,7 +30,7 @@ namespace Mirror
 
         public override bool ClientConnected() => inner.ClientConnected();
         public override void ClientDisconnect() => inner.ClientDisconnect();
-        public override void ClientSend(int channelId, ArraySegment<byte> segment) => inner.ClientSend(channelId, segment);
+        public override void ClientSend(ArraySegment<byte> segment, int channelId) => inner.ClientSend(segment, channelId);
         #endregion
 
         #region Server
@@ -45,8 +45,8 @@ namespace Mirror
         }
 
         public override void ServerStop() => inner.ServerStop();
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment) => inner.ServerSend(connectionId, channelId, segment);
-        public override bool ServerDisconnect(int connectionId) => inner.ServerDisconnect(connectionId);
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId) => inner.ServerSend(connectionId, segment, channelId);
+        public override void ServerDisconnect(int connectionId) => inner.ServerDisconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => inner.ServerGetClientAddress(connectionId);
         public override Uri ServerUri() => inner.ServerUri();
         #endregion

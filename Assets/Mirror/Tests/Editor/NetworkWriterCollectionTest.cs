@@ -11,7 +11,7 @@ namespace Mirror.Tests
         {
             Assert.That(Writer<int>.write, Is.Not.Null, "int write function was not found");
 
-            Action<NetworkWriter, int> action = NetworkWriterExtensions.WriteInt32;
+            Action<NetworkWriter, int> action = NetworkWriterExtensions.WriteInt;
             Assert.That(Writer<int>.write, Is.EqualTo(action), "int write function was incorrect value");
         }
 
@@ -20,7 +20,7 @@ namespace Mirror.Tests
         {
             Assert.That(Reader<int>.read, Is.Not.Null, "int read function was not found");
 
-            Func<NetworkReader, int> action = NetworkReaderExtensions.ReadInt32;
+            Func<NetworkReader, int> action = NetworkReaderExtensions.ReadInt;
             Assert.That(Reader<int>.read, Is.EqualTo(action), "int read function was incorrect value");
         }
 

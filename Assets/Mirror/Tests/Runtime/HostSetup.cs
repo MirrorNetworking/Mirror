@@ -4,11 +4,10 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
-    public class HostSetup
+    public class HostSetup : MirrorPlayModeTest
     {
         protected GameObject networkManagerGo;
         protected NetworkManager manager;
-        protected MemoryTransport transport;
 
         protected GameObject playerGO;
         protected NetworkIdentity identity;
@@ -29,14 +28,16 @@ namespace Mirror.Tests.Runtime
         }
 
         [UnitySetUp]
-        public IEnumerator SetupHost()
+        public override IEnumerator UnitySetUp()
         {
-            networkManagerGo = new GameObject();
-            transport = networkManagerGo.AddComponent<MemoryTransport>();
+            base.SetUp();
+
+            networkManagerGo = transport.gameObject;
             manager = networkManagerGo.AddComponent<NetworkManager>();
             Transport.activeTransport = transport;
 
-            playerGO = new GameObject();
+            // create a tracked prefab (not spawned)
+            CreateGameObject(out playerGO);
             identity = playerGO.AddComponent<NetworkIdentity>();
             identity.assetId = System.Guid.NewGuid();
 
@@ -58,17 +59,18 @@ namespace Mirror.Tests.Runtime
             afterStartHost();
         }
 
-
         [UnityTearDown]
-        public IEnumerator ShutdownHost()
+        public override IEnumerator UnityTearDown()
         {
             beforeStopHost();
 
             yield return null;
 
-            Object.DestroyImmediate(playerGO);
+            // needed for stophost
+            Transport.activeTransport = transport;
             manager.StopHost();
-            Object.DestroyImmediate(networkManagerGo);
+
+            base.TearDown();
         }
     }
 }

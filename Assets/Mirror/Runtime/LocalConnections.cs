@@ -35,7 +35,7 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            RemoveObservers();
+            RemoveFromObservingsObservers();
         }
 
         /// <summary>Disconnects this connection.</summary>
@@ -72,7 +72,7 @@ namespace Mirror
             }
 
             // handle the server's message directly
-            connectionToClient.TransportReceive(segment, channelId);
+            NetworkServer.OnTransportData(connectionId, segment, channelId);
         }
 
         internal void Update()
@@ -91,7 +91,7 @@ namespace Mirror
                 PooledNetworkWriter writer = queue.Dequeue();
                 ArraySegment<byte> segment = writer.ToArraySegment();
                 //Debug.Log("Dequeue " + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-                TransportReceive(segment, Channels.Reliable);
+                NetworkClient.OnTransportData(segment, Channels.Reliable);
                 NetworkWriterPool.Recycle(writer);
             }
 
@@ -118,6 +118,12 @@ namespace Mirror
         {
             connectionToClient.DisconnectInternal();
             DisconnectInternal();
+
+            // this was in NetworkClient.Disconnect 'if isLocalConnection' before
+            // but it's clearly local connection related, so put it in here.
+            // TODO should probably be in connectionToClient.DisconnectInternal
+            //      because that's the NetworkServer's connection!
+            NetworkServer.RemoveLocalConnection();
         }
 
         // true because local connections never timeout

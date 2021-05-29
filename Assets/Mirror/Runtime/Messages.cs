@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // Deprecated 10/06/2020
+    // Deprecated 2020-10-06
     [Obsolete("Implement NetworkMessage instead. Use extension methods instead of Serialize/Deserialize, see https://github.com/vis2k/Mirror/pull/2317", true)]
     public interface IMessageBase {}
 
-    // Deprecated 10/06/2020
+    // Deprecated 2020-10-06
     [Obsolete("Implement NetworkMessage instead. Use extension methods instead of Serialize/Deserialize, see https://github.com/vis2k/Mirror/pull/2317", true)]
     public class MessageBase : IMessageBase {}
 
@@ -87,7 +87,7 @@ namespace Mirror
         public uint netId;
     }
 
-    public struct UpdateVarsMessage : NetworkMessage
+    public struct EntityStateMessage : NetworkMessage
     {
         public uint netId;
         // the serialized component data

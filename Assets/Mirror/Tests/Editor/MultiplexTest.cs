@@ -128,9 +128,9 @@ namespace Mirror.Tests
             byte[] data = { 1, 2, 3 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data);
 
-            transport.ClientSend(3, segment);
+            transport.ClientSend(segment, 3);
 
-            transport1.Received().ClientSend(3, segment);
+            transport1.Received().ClientSend(segment, 3);
         }
 
         [Test]
@@ -175,11 +175,10 @@ namespace Mirror.Tests
             byte[] data = { 1, 2, 3 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data);
 
-
             // on connect, send a message back
             void SendMessage(int connectionId)
             {
-                transport.ServerSend(connectionId, 5, segment);
+                transport.ServerSend(connectionId, segment, 5);
             }
 
             // set event and Start to give event to inner
@@ -188,7 +187,7 @@ namespace Mirror.Tests
 
             transport1.OnServerConnected.Invoke(1);
 
-            transport1.Received().ServerSend(1, 5, segment);
+            transport1.Received().ServerSend(1, segment, 5);
         }
 
 

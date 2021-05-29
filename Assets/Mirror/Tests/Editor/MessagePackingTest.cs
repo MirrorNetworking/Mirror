@@ -26,7 +26,7 @@ namespace Mirror.Tests
             {
                 int msgType = MessagePacking.GetId<T>();
 
-                int id = networkReader.ReadUInt16();
+                int id = networkReader.ReadUShort();
                 if (id != msgType)
                     throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
 
@@ -60,7 +60,7 @@ namespace Mirror.Tests
 
             Assert.Throws<FormatException>(() =>
             {
-                UpdateVarsMessage unpacked = UnpackFromByteArray<UpdateVarsMessage>(data);
+                ReadyMessage unpacked = UnpackFromByteArray<ReadyMessage>(data);
             });
         }
 

@@ -5,22 +5,17 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
 {
-    public class NetworkIdentityTests
+    public class NetworkIdentityTests : MirrorPlayModeTest
     {
         GameObject gameObject;
         NetworkIdentity identity;
 
-        [SetUp]
-        public void SetUp()
+        [UnitySetUp]
+        public override IEnumerator UnitySetUp()
         {
-            gameObject = new GameObject();
-            identity = gameObject.AddComponent<NetworkIdentity>();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            GameObject.Destroy(gameObject);
+            yield return base.UnitySetUp();
+            CreateNetworked(out gameObject, out identity);
+            yield return null;
         }
 
         // prevents https://github.com/vis2k/Mirror/issues/1484

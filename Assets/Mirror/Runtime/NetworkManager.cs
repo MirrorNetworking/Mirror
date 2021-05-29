@@ -23,7 +23,7 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
-        // Deprecated 3/10/2021
+        // Deprecated 2021-03-10
         // Temporary bool to allow Network Manager to persist to offline scene
         // Based on Discord convo, BigBox is invoking StopHost in startup sequence, bouncing the server and clients back to offline scene, which resets Network Manager.
         // Request is for a checkbox to persist Network Manager to offline scene, despite the collision and warning.
@@ -82,12 +82,10 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
-        /// <summary>Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout</summary>
-        [Tooltip("Server Only - Disconnects remote connections that have been silent for more than Server Idle Timeout")]
+        [Obsolete("Transport is responsible for timeouts.")]
         public bool disconnectInactiveConnections;
 
-        /// <summary>Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.</summary>
-        [Tooltip("Timeout in seconds since last message from a client after which server will auto-disconnect if Disconnect Inactive Connections is enabled.")]
+        [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
         public float disconnectInactiveTimeout = 60f;
 
         [Header("Authentication")]
@@ -130,6 +128,7 @@ namespace Mirror
         [NonSerialized]
         public bool isNetworkActive;
 
+        // TODO remove this
         static NetworkConnection clientReadyConnection;
 
         /// <summary>True if the client loaded a new scene when connecting to the server.</summary>
@@ -256,8 +255,10 @@ namespace Mirror
             NetworkServer.batchInterval = serverBatchInterval;
 
             // Copy auto-disconnect settings to NetworkServer
+#pragma warning disable 618
             NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
             NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
+#pragma warning restore 618
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);
@@ -527,13 +528,12 @@ namespace Mirror
         {
             OnStopHost();
 
-            // TODO try to move DisconnectLocalServer into StopClient(), and
-            // then call StopClient() before StopServer(). needs testing!.
-
-            // DisconnectLocalServer needs to be called so that the host client
-            // receives a DisconnectMessage too.
-            // fixes: https://github.com/vis2k/Mirror/issues/1515
-            NetworkClient.DisconnectLocalServer();
+            // calling OnTransportDisconnected was needed to fix
+            // https://github.com/vis2k/Mirror/issues/1515
+            // so that the host client receives a DisconnectMessage
+            // TODO reevaluate if this is still needed after all the disconnect
+            //      fixes, and try to put this into LocalConnection.Disconnect!
+            NetworkServer.OnTransportDisconnected(NetworkConnection.LocalConnectionId);
 
             StopClient();
             StopServer();
@@ -694,7 +694,7 @@ namespace Mirror
         void RegisterServerMessages()
         {
             NetworkServer.OnConnectedEvent = OnServerConnectInternal;
-            NetworkServer.OnDisconnectedEvent = OnServerDisconnectInternal;
+            NetworkServer.OnDisconnectedEvent = OnServerDisconnect;
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
 
             // Network Server initially registers its own handler for this, so we replace it here.
@@ -1096,12 +1096,6 @@ namespace Mirror
             OnServerConnect(conn);
         }
 
-        void OnServerDisconnectInternal(NetworkConnection conn)
-        {
-            //Debug.Log("NetworkManager.OnServerDisconnectInternal");
-            OnServerDisconnect(conn);
-        }
-
         void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
         {
             //Debug.Log("NetworkManager.OnServerReadyMessageInternal");
@@ -1171,6 +1165,7 @@ namespace Mirror
             }
         }
 
+        // TODO call OnClientDisconnect directly, don't pass the connection
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
@@ -1198,10 +1193,14 @@ namespace Mirror
         public virtual void OnServerConnect(NetworkConnection conn) {}
 
         /// <summary>Called on the server when a client disconnects.</summary>
+        // Called by NetworkServer.OnTransportDisconnect!
         public virtual void OnServerDisconnect(NetworkConnection conn)
         {
+            // by default, this function destroys the connection's player.
+            // can be overwritten for cases like delayed logouts in MMOs to
+            // avoid players escaping from PvP situations by logging out.
             NetworkServer.DestroyPlayerForConnection(conn);
-            Debug.Log("OnServerDisconnect: Client disconnected.");
+            //Debug.Log("OnServerDisconnect: Client disconnected.");
         }
 
         /// <summary>Called on the server when a client is ready (= loaded the scene)</summary>

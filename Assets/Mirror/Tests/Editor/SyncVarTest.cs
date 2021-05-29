@@ -13,7 +13,6 @@ namespace Mirror.Tests.SyncVarTests
 
         [SyncVar]
         public Guild guild;
-
     }
 
     class SyncVarGameObject : NetworkBehaviour
@@ -42,10 +41,7 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSettingStruct()
         {
-
-            GameObject gameObject = new GameObject();
-
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
 
             // synchronize immediately
             player.syncInterval = 0f;
@@ -71,10 +67,7 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSyncIntervalAndClearDirtyComponents()
         {
-
-            GameObject gameObject = new GameObject();
-
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
             player.lastSyncTime = Time.time;
             // synchronize immediately
             player.syncInterval = 1f;
@@ -100,10 +93,7 @@ namespace Mirror.Tests.SyncVarTests
         [Test]
         public void TestSyncIntervalAndClearAllComponents()
         {
-
-            GameObject gameObject = new GameObject();
-
-            MockPlayer player = gameObject.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
             player.lastSyncTime = Time.time;
             // synchronize immediately
             player.syncInterval = 1f;
@@ -130,9 +120,7 @@ namespace Mirror.Tests.SyncVarTests
         public void TestSynchronizingObjects()
         {
             // set up a "server" object
-            GameObject gameObject1 = new GameObject();
-            NetworkIdentity identity1 = gameObject1.AddComponent<NetworkIdentity>();
-            MockPlayer player1 = gameObject1.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject1, out NetworkIdentity identity1, out MockPlayer player1);
             MockPlayer.Guild myGuild = new MockPlayer.Guild
             {
                 name = "Back street boys"
@@ -146,9 +134,7 @@ namespace Mirror.Tests.SyncVarTests
             identity1.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
 
             // set up a "client" object
-            GameObject gameObject2 = new GameObject();
-            NetworkIdentity identity2 = gameObject2.AddComponent<NetworkIdentity>();
-            MockPlayer player2 = gameObject2.AddComponent<MockPlayer>();
+            CreateNetworked(out GameObject gameObject2, out NetworkIdentity identity2, out MockPlayer player2);
 
             // apply all the data from the server object
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
@@ -158,16 +144,17 @@ namespace Mirror.Tests.SyncVarTests
             Assert.That(player2.guild.name, Is.EqualTo("Back street boys"), "Data should be synchronized");
         }
 
-
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public void SyncsGameobject(bool initialState)
         {
-            SyncVarGameObject serverObject = CreateObject<SyncVarGameObject>();
-            SyncVarGameObject clientObject = CreateObject<SyncVarGameObject>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarGameObject serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarGameObject clientObject);
 
-            GameObject serverValue = CreateNetworkIdentity(2044).gameObject;
+            CreateNetworked(out GameObject serverValue, out NetworkIdentity serverIdentity);
+            serverIdentity.netId = 2044;
+            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
 
             serverObject.value = serverValue;
             clientObject.value = null;
@@ -182,10 +169,12 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncIdentity(bool initialState)
         {
-            SyncVarNetworkIdentity serverObject = CreateObject<SyncVarNetworkIdentity>();
-            SyncVarNetworkIdentity clientObject = CreateObject<SyncVarNetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity clientObject);
 
-            NetworkIdentity serverValue = CreateNetworkIdentity(2045);
+            CreateNetworked(out GameObject _, out NetworkIdentity serverValue);
+            serverValue.netId = 2045;
+            NetworkIdentity.spawned[serverValue.netId] = serverValue;
 
             serverObject.value = serverValue;
             clientObject.value = null;
@@ -200,10 +189,13 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncTransform(bool initialState)
         {
-            SyncVarTransform serverObject = CreateObject<SyncVarTransform>();
-            SyncVarTransform clientObject = CreateObject<SyncVarTransform>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarTransform serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarTransform clientObject);
 
-            Transform serverValue = CreateNetworkIdentity(2045).transform;
+            CreateNetworked(out GameObject _, out NetworkIdentity serverIdentity);
+            serverIdentity.netId = 2045;
+            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            Transform serverValue = serverIdentity.transform;
 
             serverObject.value = serverValue;
             clientObject.value = null;
@@ -218,10 +210,12 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsBehaviour(bool initialState)
         {
-            SyncVarNetworkBehaviour serverObject = CreateObject<SyncVarNetworkBehaviour>();
-            SyncVarNetworkBehaviour clientObject = CreateObject<SyncVarNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour clientObject);
 
-            SyncVarNetworkBehaviour serverValue = CreateNetworkIdentity(2046).gameObject.AddComponent<SyncVarNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverValue);
+            serverIdentity.netId = 2046;
+            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
 
             serverObject.value = serverValue;
             clientObject.value = null;
@@ -236,12 +230,13 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsMultipleBehaviour(bool initialState)
         {
-            SyncVarNetworkBehaviour serverObject = CreateObject<SyncVarNetworkBehaviour>();
-            SyncVarNetworkBehaviour clientObject = CreateObject<SyncVarNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour clientObject);
 
-            NetworkIdentity identity = CreateNetworkIdentity(2046);
-            SyncVarNetworkBehaviour behaviour1 = identity.gameObject.AddComponent<SyncVarNetworkBehaviour>();
-            SyncVarNetworkBehaviour behaviour2 = identity.gameObject.AddComponent<SyncVarNetworkBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarNetworkBehaviour behaviour1, out SyncVarNetworkBehaviour behaviour2);
+            identity.netId = 2046;
+            NetworkIdentity.spawned[identity.netId] = identity;
+
             // create array/set indices
             _ = identity.NetworkBehaviours;
 
@@ -273,71 +268,17 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncVarCacheNetidForGameObject(bool initialState)
         {
-            SyncVarCacheNetidForGeneric<SyncVarGameObject, GameObject>(
-                (obj) => obj.value,
-                (obj, value) => obj.value = value,
-                (identity) => identity.gameObject,
-                initialState
-            );
-        }
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarGameObject serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarGameObject clientObject);
 
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncVarCacheNetidForIdentity(bool initialState)
-        {
-            SyncVarCacheNetidForGeneric<SyncVarNetworkIdentity, NetworkIdentity>(
-                (obj) => obj.value,
-                (obj, value) => obj.value = value,
-                (identity) => identity,
-                initialState
-            );
-        }
-
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        [Ignore("Transform backing field has not been implemented yet")]
-        public void SyncVarCacheNetidForTransform(bool initialState)
-        {
-            SyncVarCacheNetidForGeneric<SyncVarTransform, Transform>(
-                (obj) => obj.value,
-                (obj, value) => obj.value = value,
-                (identity) => identity.transform,
-                initialState
-            );
-        }
-        [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncVarCacheNetidForBehaviour(bool initialState)
-        {
-            SyncVarCacheNetidForGeneric<SyncVarNetworkBehaviour, SyncVarNetworkBehaviour>(
-                (obj) => obj.value,
-                (obj, value) => obj.value = value,
-                (identity) => identity.gameObject.AddComponent<SyncVarNetworkBehaviour>(),
-                initialState
-            );
-        }
-
-        void SyncVarCacheNetidForGeneric<TBehaviour, TValue>(
-            Func<TBehaviour, TValue> getField,
-            Action<TBehaviour, TValue> setField,
-            Func<NetworkIdentity, TValue> getCreatedValue,
-            bool initialState)
-            where TValue : UnityEngine.Object
-            where TBehaviour : NetworkBehaviour
-        {
-            TBehaviour serverObject = CreateObject<TBehaviour>();
-            TBehaviour clientObject = CreateObject<TBehaviour>();
-
-            NetworkIdentity identity = CreateNetworkIdentity(2047);
-            TValue serverValue = getCreatedValue(identity);
+            CreateNetworked(out GameObject serverValue, out NetworkIdentity identity);
+            identity.netId = 2047;
+            NetworkIdentity.spawned[identity.netId] = identity;
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
-            setField(serverObject, serverValue);
-            setField(clientObject, null);
+            serverObject.value = serverValue;
+            clientObject.value = null;
 
             // write server data
             bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
@@ -350,13 +291,87 @@ namespace Mirror.Tests.SyncVarTests
             ClientRead(clientObject, initialState, data, writeLength);
 
             // check field shows as null
-            Assert.That(getField(clientObject), Is.EqualTo(null), "field should return null");
+            Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
 
             // add identity back to collection
             NetworkIdentity.spawned.Add(identity.netId, identity);
 
             // check field finds value
-            Assert.That(getField(clientObject), Is.EqualTo(serverValue), "fields should return serverValue");
+            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void SyncVarCacheNetidForIdentity(bool initialState)
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkIdentity clientObject);
+
+            CreateNetworked(out GameObject _, out NetworkIdentity serverValue);
+            serverValue.netId = 2047;
+            NetworkIdentity.spawned[serverValue.netId] = serverValue;
+
+            Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
+
+            serverObject.value = serverValue;
+            clientObject.value = null;
+
+            // write server data
+            bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
+            Assert.IsTrue(written, "did not write");
+
+            // remove identity from collection
+            NetworkIdentity.spawned.Remove(serverValue.netId);
+
+            // read client data, this should be cached in field
+            ClientRead(clientObject, initialState, data, writeLength);
+
+            // check field shows as null
+            Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
+
+            // add identity back to collection
+            NetworkIdentity.spawned.Add(serverValue.netId, serverValue);
+
+            // check field finds value
+            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void SyncVarCacheNetidForBehaviour(bool initialState)
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverObject);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out SyncVarNetworkBehaviour clientObject);
+
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarNetworkBehaviour serverValue);
+            identity.netId = 2047;
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
+
+            serverObject.value = serverValue;
+            clientObject.value = null;
+
+            // write server data
+            bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
+            Assert.IsTrue(written, "did not write");
+
+            // remove identity from collection
+            NetworkIdentity.spawned.Remove(identity.netId);
+
+            // read client data, this should be cached in field
+            ClientRead(clientObject, initialState, data, writeLength);
+
+            // check field shows as null
+            Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
+
+            // add identity back to collection
+            NetworkIdentity.spawned.Add(identity.netId, identity);
+
+            // check field finds value
+            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
         }
     }
 }

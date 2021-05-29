@@ -9,31 +9,25 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void RemovesPrefabFromDictionary()
         {
-            prefabs.Add(validPrefabGuid, validPrefab);
-
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
             NetworkClient.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(prefabs.ContainsKey(validPrefabGuid));
+            Assert.IsFalse(NetworkClient.prefabs.ContainsKey(validPrefabGuid));
         }
 
         [Test]
         public void RemovesSpawnHandlerFromDictionary()
         {
-            spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
-
+            NetworkClient.spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
             NetworkClient.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(spawnHandlers.ContainsKey(validPrefabGuid));
+            Assert.IsFalse(NetworkClient.spawnHandlers.ContainsKey(validPrefabGuid));
         }
 
         [Test]
         public void RemovesUnSpawnHandlerFromDictionary()
         {
-            unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => {}));
-
+            NetworkClient.unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => {}));
             NetworkClient.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
+            Assert.IsFalse(NetworkClient.unspawnHandlers.ContainsKey(validPrefabGuid));
         }
 
         [Test]

@@ -149,7 +149,6 @@ namespace Mirror.Authenticators
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
-        /// <param name="conn">Connection of the client.</param>
         public override void OnClientAuthenticate()
         {
             AuthRequestMessage authRequestMessage = new AuthRequestMessage

@@ -105,14 +105,23 @@ namespace Mirror
 
         void StatusLabels()
         {
-            // server / client status message
-            if (NetworkServer.active)
+            // host mode
+            // display separately because this always confused people:
+            //   Server: ...
+            //   Client: ...
+            if (NetworkServer.active && NetworkClient.active)
             {
-                GUILayout.Label("Server: active. Transport: " + Transport.activeTransport);
+                GUILayout.Label($"<b>Host</b>: running via {Transport.activeTransport}");
             }
-            if (NetworkClient.isConnected)
+            // server only
+            else if (NetworkServer.active)
             {
-                GUILayout.Label("Client: address=" + manager.networkAddress);
+                GUILayout.Label($"<b>Server</b>: running via {Transport.activeTransport}");
+            }
+            // client only
+            else if (NetworkClient.isConnected)
+            {
+                GUILayout.Label($"<b>Client</b>: connected to {manager.networkAddress} via {Transport.activeTransport}");
             }
         }
 
