@@ -88,7 +88,11 @@ namespace Mirror
                 // pack message and send allocation free
                 MessagePacking.Pack(msg, writer);
                 NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
-                Send(writer.ToArraySegment(), channelId);
+
+                if (msg is SceneMessage)
+                    Send(writer.ToArraySegment(), true, channelId);
+                else
+                    Send(writer.ToArraySegment(), channelId);
             }
         }
 
@@ -119,6 +123,12 @@ namespace Mirror
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         internal abstract void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable);
+
+       
+        // Special case for Scene Messages and batching, so virtual instead of abstract.
+        // This is only overridden in NetworkConnectionToClient
+        // No override needed in NetworkConnectionToServer or LocalConnection
+        internal virtual void Send(ArraySegment<byte> segment, bool isSceneMessag, int channelId = Channels.Reliable) => Send(segment, channelId);
 
         public override string ToString() => $"connection({connectionId})";
 

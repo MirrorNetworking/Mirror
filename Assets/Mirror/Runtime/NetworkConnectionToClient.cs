@@ -124,7 +124,15 @@ namespace Mirror
             batch.lastSendTime = NetworkTime.time;
         }
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
+        // Default behaviour for normal sending of all messages EXCEPT SceneMessage
+        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable) => Send(segment, false, channelId);
+
+        // Special case when sending a SceneMessage for batching:
+        // See NetworkConnection.Send<T>(T msg, int channelId = Channels.Reliable)
+        // If isSceneMessage is true, we include the SceneMessage and immediately
+        // close and send the batch so client doesn't have any more msgs to process
+        // while transport is suspended during scene change.
+        internal override void Send(ArraySegment<byte> segment, bool isSceneMessage, int channelId = Channels.Reliable)
         {
             //Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
 
@@ -144,6 +152,13 @@ namespace Mirror
                     // add to batch queue
                     Batch batch = GetBatchForChannelId(channelId);
                     batch.messages.Enqueue(writer);
+
+                    // SceneMessage needs to suspend the transport on the client while
+                    // the scene is loaded, so there cannot be any more messages in the
+                    // batch after the scene message. Subsequent messages in the next
+                    // batch will be processed by client after it unsuspends the transport.
+                    if (isSceneMessage)
+                        SendBatch(channelId, batch);
                 }
                 // otherwise send directly to minimize latency
                 else Transport.activeTransport.ServerSend(connectionId, segment, channelId);
