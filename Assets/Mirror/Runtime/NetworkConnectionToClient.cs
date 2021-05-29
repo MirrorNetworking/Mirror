@@ -94,7 +94,7 @@ namespace Mirror
                     {
                         // flush & reset writer
                         Transport.activeTransport.ServerSend(connectionId, writer.ToArraySegment(), channelId);
-                        writer.Position = 0;
+                        writer.SetLength(0);
                     }
 
                     // now add to writer in any case
@@ -116,7 +116,7 @@ namespace Mirror
                 if (writer.Position > 0)
                 {
                     Transport.activeTransport.ServerSend(connectionId, writer.ToArraySegment(), channelId);
-                    writer.Position = 0;
+                    writer.SetLength(0);
                 }
             }
 
