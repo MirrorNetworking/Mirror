@@ -311,11 +311,6 @@ namespace Mirror
             // => doing it here is the fastest and easiest solution.
             InitializeNetworkBehaviours();
 
-            // initialize visibility component. only call GetComponent once.
-#pragma warning disable 618
-            visibility = GetComponent<NetworkVisibility>();
-#pragma warning restore 618
-
             if (hasSpawned)
             {
                 Debug.LogError($"{name} has already spawned. Don't call Instantiate for NetworkIdentities that were in the scene since the beginning (aka scene objects).  Otherwise the client won't know which object to use for a SpawnSceneObject message.");
