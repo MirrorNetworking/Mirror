@@ -1117,6 +1117,7 @@ namespace Mirror
         {
             // destroy all objects owned by this connection, including the player object
             conn.DestroyOwnedObjects();
+            conn.RemoveFromObservingsObservers();
             conn.identity = null;
         }
 
