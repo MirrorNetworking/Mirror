@@ -77,5 +77,15 @@ namespace Mirror
             foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
                 rend.enabled = visible;
         }
+
+        /// <summary>
+        /// This is called on the server when a new networked object is spawned
+        /// </summary>
+        public virtual void OnSpawned(NetworkIdentity identity) {}
+
+        /// <summary>
+        /// This is called on the server when a networked object is destroyed
+        /// </summary>
+        public virtual void OnDestroyed(NetworkIdentity identity) {}
     }
 }
