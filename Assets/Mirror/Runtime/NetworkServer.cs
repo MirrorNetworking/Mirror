@@ -886,7 +886,7 @@ namespace Mirror
             // verify if we an spawn this
             if (Utils.IsPrefab(obj))
             {
-                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
+                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. Instantiate it first.");
                 return;
             }
 
