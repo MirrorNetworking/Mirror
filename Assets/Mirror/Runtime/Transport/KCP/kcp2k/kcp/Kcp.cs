@@ -747,10 +747,15 @@ namespace kcp2k
 
             // calculate window size
             uint cwnd_ = Math.Min(snd_wnd, rmt_wnd);
+            // if congestion window:
             if (!nocwnd) cwnd_ = Math.Min(cwnd, cwnd_);
 
             // move data from snd_queue to snd_buf
             // sliding window, controlled by snd_nxt && sna_una+cwnd
+            //
+            // ELI5: 'snd_nxt' is what we want to send.
+            //       'snd_una' is what hasn't been acked yet.
+            //       copy up to 'cwnd_' difference between them (sliding window)
             while (Utils.TimeDiff(snd_nxt, snd_una + cwnd_) < 0)
             {
                 if (snd_queue.Count == 0) break;

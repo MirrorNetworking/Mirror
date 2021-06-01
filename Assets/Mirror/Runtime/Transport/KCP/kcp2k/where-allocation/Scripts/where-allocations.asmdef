@@ -1,11 +1,9 @@
 {
-    "name": "kcp2k",
-    "references": [
-        "GUID:63c380d6dae6946209ed0832388a657c"
-    ],
+    "name": "where-allocations",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
