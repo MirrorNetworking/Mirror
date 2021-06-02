@@ -57,5 +57,11 @@ namespace Mirror
                 NetworkServer.RebuildObservers(identity, false);
             }
         }
+
+        /// <summary>Callback used by the visibility system for objects on a host.</summary>
+        public virtual void OnSetHostVisibility(NetworkIdentity identity, bool visible)
+        {
+            identity.OnSetHostVisibility(visible);
+        }
     }
 }

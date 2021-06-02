@@ -1316,6 +1316,8 @@ namespace Mirror
                     if (identity.visibility != null)
                         identity.visibility.OnSetHostVisibility(false);
 #pragma warning restore 618
+                    else if (aoi != null)
+                        aoi.OnSetHostVisibility(identity, false);
                     else
                         identity.OnSetHostVisibility(false);
                 }

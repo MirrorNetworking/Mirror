@@ -1127,7 +1127,10 @@ namespace Mirror
             if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
                 localObject != null)
             {
-                localObject.OnSetHostVisibility(false);
+                if (NetworkServer.aoi != null)
+                    NetworkServer.aoi.OnSetHostVisibility(localObject, false);
+                else
+                    localObject.OnSetHostVisibility(false);
             }
         }
 
@@ -1142,7 +1145,10 @@ namespace Mirror
                 localObject.hasAuthority = message.isOwner;
                 localObject.NotifyAuthority();
                 localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
+                if (NetworkServer.aoi != null)
+                    NetworkServer.aoi.OnSetHostVisibility(localObject, true);
+                else
+                    localObject.OnSetHostVisibility(true);
                 CheckForLocalPlayer(localObject);
             }
         }
