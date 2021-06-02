@@ -8,6 +8,7 @@ namespace Mirror
 {
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/fallback-transport")]
     [DisallowMultipleComponent]
+    [Obsolete("Fallback Transport will be retired. It was only needed for Apathy/Libuv. Use kcp or Telepathy instead, those run everywhere.")]
     public class FallbackTransport : Transport
     {
         public Transport[] transports;
@@ -92,9 +93,9 @@ namespace Mirror
             available.ClientDisconnect();
         }
 
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
-            available.ClientSend(channelId, segment);
+            available.ClientSend(segment, channelId);
         }
 
         // right now this just returns the first available uri,
@@ -111,14 +112,14 @@ namespace Mirror
             return available.ServerGetClientAddress(connectionId);
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public override void ServerDisconnect(int connectionId)
         {
-            return available.ServerDisconnect(connectionId);
+            available.ServerDisconnect(connectionId);
         }
 
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
-            available.ServerSend(connectionId, channelId, segment);
+            available.ServerSend(connectionId, segment, channelId);
         }
 
         public override void ServerStart()

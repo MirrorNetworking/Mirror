@@ -9,7 +9,7 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            pool = new Pool<string>(() => "new string");
+            pool = new Pool<string>(() => "new string", 0);
         }
 
         [TearDown]

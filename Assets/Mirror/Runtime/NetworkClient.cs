@@ -17,8 +17,8 @@ namespace Mirror
     public static class NetworkClient
     {
         // message handlers by messageId
-        static readonly Dictionary<int, NetworkMessageDelegate> handlers =
-            new Dictionary<int, NetworkMessageDelegate>();
+        internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
+            new Dictionary<ushort, NetworkMessageDelegate>();
 
         /// <summary>Client's NetworkConnection to server.</summary>
         public static NetworkConnection connection { get; internal set; }
@@ -57,8 +57,11 @@ namespace Mirror
         /// <summary>Check if client is connected (after connecting).</summary>
         public static bool isConnected => connectState == ConnectState.Connected;
 
-        /// <summary>NetworkClient can connect to local server in host mode too</summary>
-        public static bool isLocalClient => connection is LocalConnectionToServer;
+        /// <summary>True if client is running in host mode.</summary>
+        public static bool isHostClient => connection is LocalConnectionToServer;
+        // Deprecated 2021-05-26
+        [Obsolete("isLocalClient was renamed to isHostClient because that's what it actually means.")]
+        public static bool isLocalClient => isHostClient;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
@@ -87,9 +90,9 @@ namespace Mirror
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnClientConnected = OnConnected;
-            Transport.activeTransport.OnClientDataReceived = OnDataReceived;
-            Transport.activeTransport.OnClientDisconnected = OnDisconnected;
+            Transport.activeTransport.OnClientConnected = OnTransportConnected;
+            Transport.activeTransport.OnClientDataReceived = OnTransportData;
+            Transport.activeTransport.OnClientDisconnected = OnTransportDisconnected;
             Transport.activeTransport.OnClientError = OnError;
         }
 
@@ -109,7 +112,7 @@ namespace Mirror
                 // host mode doesn't need spawning
                 RegisterHandler<ObjectSpawnFinishedMessage>(msg => {});
                 // host mode doesn't need state updates
-                RegisterHandler<UpdateVarsMessage>(msg => {});
+                RegisterHandler<EntityStateMessage>(msg => {});
             }
             else
             {
@@ -119,7 +122,7 @@ namespace Mirror
                 RegisterHandler<SpawnMessage>(OnSpawn);
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
-                RegisterHandler<UpdateVarsMessage>(OnUpdateVarsMessage);
+                RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
             }
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
@@ -138,9 +141,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(address);
 
-            // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
@@ -156,9 +157,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(uri);
 
-            // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
         }
 
         // TODO why are there two connect host methods?
@@ -178,7 +177,6 @@ namespace Mirror
             connectionToClient.connectionToServer = connectionToServer;
 
             connection = connectionToServer;
-            connection.SetHandlers(handlers);
 
             // create server connection to local client
             NetworkServer.SetLocalConnection(connectionToClient);
@@ -207,38 +205,24 @@ namespace Mirror
         /// <summary>Disconnect from server.</summary>
         public static void Disconnect()
         {
+            // only if connected or connecting
+            if (connectState == ConnectState.Disconnected) return;
+
+            // TODO move to 'cleanup' code below if safe
             connectState = ConnectState.Disconnected;
             ready = false;
 
-            // local or remote connection?
-            if (isLocalClient)
-            {
-                if (isConnected)
-                {
-                    // call client OnDisconnected with connection to server
-                    // => previously we used to send a DisconnectMessage to
-                    //    NetworkServer.localConnection. this would queue the
-                    //    message until NetworkClient.Update processes it.
-                    // => invoking the client's OnDisconnected event directly
-                    //    here makes tests fail. so let's do it exactly the same
-                    //    order as before by queueing the event for next Update!
-                    //OnDisconnectedEvent?.Invoke(connection);
-                    ((LocalConnectionToServer)connection).QueueDisconnectedEvent();
-                }
-                NetworkServer.RemoveLocalConnection();
-            }
-            else
-            {
-                if (connection != null)
-                {
-                    connection.Disconnect();
-                    connection = null;
-                }
-            }
+            // call Disconnect on the NetworkConnection
+            connection?.Disconnect();
+
+            // clean up
+            // (previously only for remote connection, not for local)
+            connection = null;
         }
 
         /// <summary>Disconnect host mode.</summary>
         // this is needed to call DisconnectMessage for the host client too.
+        [Obsolete("Call NetworkClient.Disconnect() instead. Nobody should use DisconnectLocalServer.")]
         public static void DisconnectLocalServer()
         {
             // only if host connection is running
@@ -248,12 +232,13 @@ namespace Mirror
                 // local connection. should we send a DisconnectMessage here too?
                 // (if we do then we get an Unknown Message ID log)
                 //NetworkServer.localConnection.Send(new DisconnectMessage());
-                NetworkServer.OnDisconnected(NetworkServer.localConnection.connectionId);
+                NetworkServer.OnTransportDisconnected(NetworkServer.localConnection.connectionId);
             }
         }
 
         // transport events ////////////////////////////////////////////////////
-        static void OnConnected()
+        // called by Transport
+        static void OnTransportConnected()
         {
             if (connection != null)
             {
@@ -269,16 +254,66 @@ namespace Mirror
             else Debug.LogError("Skipped Connect message handling because connection is null.");
         }
 
-        internal static void OnDataReceived(ArraySegment<byte> data, int channelId)
+        // helper function
+        static bool UnpackAndInvoke(NetworkReader reader, int channelId)
+        {
+            if (MessagePacking.Unpack(reader, out ushort msgType))
+            {
+                // try to invoke the handler for that message
+                if (handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
+                {
+                    handler.Invoke(connection, reader, channelId);
+                    connection.lastMessageTime = Time.time;
+                    return true;
+                }
+                else
+                {
+                    // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    return false;
+                }
+            }
+            else
+            {
+                Debug.LogError("Closed connection: " + connection + ". Invalid message header.");
+                connection.Disconnect();
+                return false;
+            }
+        }
+
+        // called by Transport
+        internal static void OnTransportData(ArraySegment<byte> data, int channelId)
         {
             if (connection != null)
             {
-                connection.TransportReceive(data, channelId);
+                if (data.Count < MessagePacking.HeaderSize)
+                {
+                    Debug.LogError($"NetworkClient: received Message was too short (messages should start with message id)");
+                    connection.Disconnect();
+                    return;
+                }
+
+                // unpack message
+                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                {
+                    // server might batch multiple messages into one packet.
+                    // we need to try to unpack multiple times.
+                    while (reader.Position < reader.Length)
+                    {
+                        if (!UnpackAndInvoke(reader, channelId))
+                            break;
+                    }
+                }
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
 
-        static void OnDisconnected()
+        // called by Transport
+        // IMPORTANT: often times when disconnecting, we call this from Mirror
+        //            too because we want to remove the connection and handle
+        //            the disconnect immediately.
+        //            => which is fine as long as we guarantee it only runs once
+        //            => which we do by setting the state to Disconnected!
+        static void OnTransportDisconnected()
         {
             // StopClient called from user code triggers Disconnected event
             // from transport which calls StopClient again, so check here
@@ -315,7 +350,7 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacking.GetId<T>();
+            ushort msgType = MessagePacking.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
@@ -327,7 +362,7 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacking.GetId<T>();
+            ushort msgType = MessagePacking.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
@@ -335,8 +370,8 @@ namespace Mirror
             // we use the same WrapHandler function for server and client.
             // so let's wrap it to ignore the NetworkConnection parameter.
             // it's not needed on client. it's always NetworkClient.connection.
-            Action<NetworkConnection, T> handlerWrapped = (_, value) => { handler(value); };
-            handlers[msgType] = MessagePacking.WrapHandler(handlerWrapped, requireAuthentication);
+            void HandlerWrapped(NetworkConnection _, T value) => handler(value);
+            handlers[msgType] = MessagePacking.WrapHandler((Action<NetworkConnection, T>) HandlerWrapped, requireAuthentication);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -344,7 +379,7 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            int msgType = MessagePacking.GetId<T>();
+            ushort msgType = MessagePacking.GetId<T>();
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
@@ -361,7 +396,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // use int to minimize collisions
-            int msgType = MessagePacking.GetId<T>();
+            ushort msgType = MessagePacking.GetId<T>();
             return handlers.Remove(msgType);
         }
 
@@ -978,7 +1013,7 @@ namespace Mirror
             NetworkIdentity identity = GetAndRemoveSceneObject(message.sceneId);
             if (identity == null)
             {
-                Debug.LogError($"Spawn scene object not found for {message.sceneId:X} SpawnableObjects.Count={spawnableObjects.Count}");
+                Debug.LogError($"Spawn scene object not found for {message.sceneId:X}. Make sure that client and server use exactly the same project. This only happens if the hierarchy gets out of sync.");
 
                 // dump the whole spawnable objects dict for easier debugging
                 //foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
@@ -1113,7 +1148,7 @@ namespace Mirror
         }
 
         // client-only mode callbacks //////////////////////////////////////////
-        static void OnUpdateVarsMessage(UpdateVarsMessage message)
+        static void OnEntityStateMessage(EntityStateMessage message)
         {
             // Debug.Log("NetworkClient.OnUpdateVarsMessage " + msg.netId);
             if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
@@ -1291,6 +1326,7 @@ namespace Mirror
             // supposed to be shut down too!
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ClientDisconnect();
+            connection = null;
         }
     }
 }

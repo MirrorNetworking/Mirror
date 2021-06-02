@@ -20,6 +20,9 @@ namespace kcp2k
         public bool NoDelay = true;
         [Tooltip("KCP internal update interval. 100ms is KCP default, but a lower interval is recommended to minimize latency and to scale to more networked entities.")]
         public uint Interval = 10;
+        [Tooltip("KCP timeout in milliseconds. Note that KCP sends a ping automatically.")]
+        public int Timeout = 10000;
+
         [Header("Advanced")]
         [Tooltip("KCP fastresend parameter. Faster resend for the cost of higher bandwidth. 0 in normal mode, 2 in turbo mode.")]
         public int FastResend = 2;
@@ -71,7 +74,8 @@ namespace kcp2k
                 FastResend,
                 CongestionWindow,
                 SendWindowSize,
-                ReceiveWindowSize
+                ReceiveWindowSize,
+                Timeout
             );
 
             if (statisticsLog)
@@ -88,9 +92,9 @@ namespace kcp2k
         public override bool ClientConnected() => client.connected;
         public override void ClientConnect(string address)
         {
-            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize);
+            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
         }
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
             // switch to kcp channel.
             // unreliable or reliable.
@@ -149,7 +153,7 @@ namespace kcp2k
         }
         public override bool ServerActive() => server.IsActive();
         public override void ServerStart() => server.Start(Port);
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             // switch to kcp channel.
             // unreliable or reliable.
@@ -164,11 +168,7 @@ namespace kcp2k
                     break;
             }
         }
-        public override bool ServerDisconnect(int connectionId)
-        {
-            server.Disconnect(connectionId);
-            return true;
-        }
+        public override void ServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()

@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests.RemoteAttrributeTest
 {
@@ -62,7 +63,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void VirtualCommandIsCalled()
         {
-            VirtualCommand hostBehaviour = CreateHostObject<VirtualCommand>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualCommand hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -81,7 +83,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void VirtualCommandWithNoOverrideIsCalled()
         {
-            VirtualNoOverrideCommand hostBehaviour = CreateHostObject<VirtualNoOverrideCommand>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualNoOverrideCommand hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -100,7 +103,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void OverrideVirtualCommandIsCalled()
         {
-            VirtualOverrideCommand hostBehaviour = CreateHostObject<VirtualOverrideCommand>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideCommand hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -125,7 +129,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void OverrideVirtualWithBaseCallsBothVirtualAndBase()
         {
-            VirtualOverrideCommandWithBase hostBehaviour = CreateHostObject<VirtualOverrideCommandWithBase>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideCommandWithBase hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -151,7 +156,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void OverrideVirtualWithBaseCallsAllMethodsThatCallBase()
         {
-            VirtualOverrideCommandWithBase2 hostBehaviour = CreateHostObject<VirtualOverrideCommandWithBase2>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideCommandWithBase2 hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 

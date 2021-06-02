@@ -42,9 +42,9 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void RpcCanSendNetworkIdentity()
         {
-            RpcNetworkIdentityBehaviour hostBehaviour = CreateHostObject<RpcNetworkIdentityBehaviour>(true);
-
-            NetworkIdentity expected = CreateHostObject<RpcNetworkIdentityBehaviour>(true).netIdentity;
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity expected, out RpcNetworkIdentityBehaviour _, NetworkServer.localConnection);
 
             int callCount = 0;
             hostBehaviour.onSendNetworkIdentityCalled += actual =>
@@ -60,9 +60,9 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void RpcCanSendGameObject()
         {
-            RpcNetworkIdentityBehaviour hostBehaviour = CreateHostObject<RpcNetworkIdentityBehaviour>(true);
-
-            GameObject expected = CreateHostObject<RpcNetworkIdentityBehaviour>(true).gameObject;
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out GameObject expected, out NetworkIdentity _, out RpcNetworkIdentityBehaviour _, NetworkServer.localConnection);
 
             int callCount = 0;
             hostBehaviour.onSendGameObjectCalled += actual =>
@@ -78,9 +78,9 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void RpcCanSendNetworkBehaviour()
         {
-            RpcNetworkIdentityBehaviour hostBehaviour = CreateHostObject<RpcNetworkIdentityBehaviour>(true);
-
-            RpcNetworkIdentityBehaviour expected = CreateHostObject<RpcNetworkIdentityBehaviour>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour expected, NetworkServer.localConnection);
 
             int callCount = 0;
             hostBehaviour.onSendNetworkBehaviourCalled += actual =>
@@ -96,9 +96,9 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void RpcCanSendNetworkBehaviourDerived()
         {
-            RpcNetworkIdentityBehaviour hostBehaviour = CreateHostObject<RpcNetworkIdentityBehaviour>(true);
-
-            RpcNetworkIdentityBehaviour expected = CreateHostObject<RpcNetworkIdentityBehaviour>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour expected, NetworkServer.localConnection);
 
             int callCount = 0;
             hostBehaviour.onSendNetworkBehaviourDerivedCalled += actual =>

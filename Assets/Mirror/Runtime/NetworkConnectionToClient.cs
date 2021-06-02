@@ -20,6 +20,8 @@ namespace Mirror
         internal class Batch
         {
             // batched messages
+            // IMPORTANT: we queue the serialized messages!
+            //            queueing NetworkMessage would box and allocate!
             internal Queue<PooledNetworkWriter> messages = new Queue<PooledNetworkWriter>();
 
             // each channel's batch has its own lastSendTime.
@@ -91,8 +93,8 @@ namespace Mirror
                         writer.Position + segment.Count >= max)
                     {
                         // flush & reset writer
-                        Transport.activeTransport.ServerSend(connectionId, channelId, writer.ToArraySegment());
-                        writer.SetLength(0);
+                        Transport.activeTransport.ServerSend(connectionId, writer.ToArraySegment(), channelId);
+                        writer.Position = 0;
                     }
 
                     // now add to writer in any case
@@ -113,8 +115,8 @@ namespace Mirror
                 // send it.
                 if (writer.Position > 0)
                 {
-                    Transport.activeTransport.ServerSend(connectionId, channelId, writer.ToArraySegment());
-                    writer.SetLength(0);
+                    Transport.activeTransport.ServerSend(connectionId, writer.ToArraySegment(), channelId);
+                    writer.Position = 0;
                 }
             }
 
@@ -144,7 +146,7 @@ namespace Mirror
                     batch.messages.Enqueue(writer);
                 }
                 // otherwise send directly to minimize latency
-                else Transport.activeTransport.ServerSend(connectionId, channelId, segment);
+                else Transport.activeTransport.ServerSend(connectionId, segment, channelId);
             }
         }
 
@@ -179,7 +181,13 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             Transport.activeTransport.ServerDisconnect(connectionId);
-            RemoveObservers();
+
+            // IMPORTANT: NetworkConnection.Disconnect() is NOT called for
+            // voluntary disconnects from the other end.
+            // -> so all 'on disconnect' cleanup code needs to be in
+            //    OnTransportDisconnect, where it's called for both voluntary
+            //    and involuntary disconnects!
+            RemoveFromObservingsObservers();
         }
     }
 }

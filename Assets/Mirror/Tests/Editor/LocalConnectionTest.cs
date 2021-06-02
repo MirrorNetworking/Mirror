@@ -4,94 +4,71 @@ namespace Mirror.Tests
 {
     public class LocalConnectionTest
     {
-
-        /*class MyMessage : MessageBase
-        {
-            public int id;
-            public string name;
-        }*/
+        struct TestMessage : NetworkMessage {}
 
         LocalConnectionToClient connectionToClient;
         LocalConnectionToServer connectionToServer;
 
         [SetUp]
-        public void SetUpConnections()
+        public void SetUp()
         {
             connectionToServer = new LocalConnectionToServer();
             connectionToClient = new LocalConnectionToClient();
 
             connectionToClient.connectionToServer = connectionToServer;
             connectionToServer.connectionToClient = connectionToClient;
+
+            // set up server/client connections so message handling works
+            NetworkClient.connection = connectionToServer;
+            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
         }
 
         [TearDown]
-        public void Disconnect()
+        public void TearDown()
         {
             connectionToServer.Disconnect();
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
         }
 
-        /*[Test]
-        public void ServerToClientTest()
+        [Test]
+        public void ClientToServerTest()
         {
             Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
 
-            MyMessage myMessage = new MyMessage()
-            {
-                id = 3,
-                name = "hello"
-            };
-
             bool invoked = false;
-
-            void handler(NetworkConnection conn, NetworkReader reader, int channelId)
+            void Handler(NetworkConnection conn, TestMessage message)
             {
-                MyMessage received = msg.ReadMessage<MyMessage>();
-                Assert.That(received.id, Is.EqualTo(3));
-                Assert.That(received.name, Is.EqualTo("hello"));
                 invoked = true;
             }
 
-            Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-            handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
+            // set up handler on the server connection
+            NetworkServer.RegisterHandler<TestMessage>(Handler, false);
 
-            connectionToClient.SetHandlers(handlers);
-            connectionToServer.Send(myMessage);
-
+            connectionToServer.Send(new TestMessage());
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
-        }*/
+        }
 
-        /*[Test]
-        public void ClientToServerTest()
+        [Test]
+        public void ServerToClient()
         {
             Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
 
-            MyMessage myMessage = new MyMessage()
-            {
-                id = 3,
-                name = "hello"
-            };
-
             bool invoked = false;
-
-            void handler(NetworkConnection conn, NetworkReader reader, int channelId)
+            void Handler(TestMessage message)
             {
-                MyMessage received = msg.ReadMessage<MyMessage>();
-                Assert.That(received.id, Is.EqualTo(3));
-                Assert.That(received.name, Is.EqualTo("hello"));
                 invoked = true;
             }
 
-            Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-            handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
+            // set up handler on the client connection
+            NetworkClient.RegisterHandler<TestMessage>(Handler, false);
 
-            connectionToServer.SetHandlers(handlers);
-            connectionToClient.Send(myMessage);
-
+            connectionToClient.Send(new TestMessage());
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
-        }*/
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests.RemoteAttrributeTest
 {
@@ -30,7 +31,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void RpcIsCalled()
         {
-            ClientRpcBehaviour hostBehaviour = CreateHostObject<ClientRpcBehaviour>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out ClientRpcBehaviour hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -46,10 +48,10 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
 
         [Test]
-        public void RpcIsCalledForNotOwnerd()
+        public void RpcIsCalledForNotOwner()
         {
-            bool owner = false;
-            ExcludeOwnerBehaviour hostBehaviour = CreateHostObject<ExcludeOwnerBehaviour>(owner);
+            // spawn without owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out ExcludeOwnerBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -65,10 +67,10 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
 
         [Test]
-        public void RpcNotCalledForOwnerd()
+        public void RpcNotCalledForOwner()
         {
-            bool owner = true;
-            ExcludeOwnerBehaviour hostBehaviour = CreateHostObject<ExcludeOwnerBehaviour>(owner);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out ExcludeOwnerBehaviour hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
