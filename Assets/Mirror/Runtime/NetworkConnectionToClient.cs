@@ -181,6 +181,12 @@ namespace Mirror
             // (might be client or host mode here)
             isReady = false;
             Transport.activeTransport.ServerDisconnect(connectionId);
+
+            // IMPORTANT: NetworkConnection.Disconnect() is NOT called for
+            // voluntary disconnects from the other end.
+            // -> so all 'on disconnect' cleanup code needs to be in
+            //    OnTransportDisconnect, where it's called for both voluntary
+            //    and involuntary disconnects!
             RemoveFromObservingsObservers();
         }
     }

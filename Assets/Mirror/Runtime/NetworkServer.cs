@@ -886,7 +886,7 @@ namespace Mirror
             // verify if we an spawn this
             if (Utils.IsPrefab(obj))
             {
-                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
+                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. Instantiate it first.");
                 return;
             }
 
@@ -1117,6 +1117,12 @@ namespace Mirror
         {
             // destroy all objects owned by this connection, including the player object
             conn.DestroyOwnedObjects();
+            // remove connection from all of its observing entities observers
+            // fixes https://github.com/vis2k/Mirror/issues/2737
+            // -> cleaning those up in NetworkConnection.Disconnect is NOT enough
+            //    because voluntary disconnects from the other end don't call
+            //    NetworkConnectionn.Disconnect()
+            conn.RemoveFromObservingsObservers();
             conn.identity = null;
         }
 
