@@ -183,21 +183,28 @@ namespace Mirror
                     //   and we miss out on some smooth movement
                     if (interpolationTime >= delta)
                     {
-                        // subtract exactly delta from interpolation time
-                        // instead of setting to '0', where we would lose the
-                        // overshoot part and see jitter again.
-                        interpolationTime -= delta;
-                        Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
+                        // we can only interpolate between the next two, if
+                        // there are actually two remaining after removing one
+                        if (buffer.Count >= 3)
+                        {
+                            // subtract exactly delta from interpolation time
+                            // instead of setting to '0', where we would lose the
+                            // overshoot part and see jitter again.
+                            interpolationTime -= delta;
+                            Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
 
-                        // remove first one from buffer
-                        buffer.RemoveAt(0);
+                            // remove first one from buffer
+                            buffer.RemoveAt(0);
 
-                        // reassign first, second
-                        first = buffer.Values[0];
-                        // TODO indexoutofrange exception in builds
-                        second = buffer.Values[1];
+                            // reassign first, second
+                            first = buffer.Values[0];
+                            second = buffer.Values[1];
 
-                        // TODO what if we overshoot more than one? handle that too.
+                            // TODO what if we overshoot more than one? handle that too.
+                        }
+                        // TODO otherwise what?
+                        //      extrapolate and hope for the best?
+                        //      don't interpolate anymore because it would overshoot?
                     }
 
                     // first, second, interpolationTime are all absolute values.
