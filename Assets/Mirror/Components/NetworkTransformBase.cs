@@ -194,6 +194,7 @@ namespace Mirror
 
                         // reassign first, second
                         first = buffer.Values[0];
+                        // TODO indexoutofrange exception in builds
                         second = buffer.Values[1];
 
                         // TODO what if we overshoot more than one? handle that too.
