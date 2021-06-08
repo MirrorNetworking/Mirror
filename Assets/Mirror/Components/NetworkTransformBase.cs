@@ -11,6 +11,7 @@ namespace Mirror
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
+
         [Header("Authority")]
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
@@ -22,7 +23,9 @@ namespace Mirror
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
-        // send interval: send frequently (unreliable, no interpolation)
+        [Header("Sync")]
+        [Tooltip("Reliable(=0) by default, along with the rest of Mirror. Feel free to use Unreliable (=1).")]
+        public int channelId = Channels.Reliable;
         [Range(0, 1)] public float sendInterval = 0.050f;
         float lastClientSendTime;
         float lastServerSendTime;
@@ -231,9 +234,14 @@ namespace Mirror
         }
 
         // remote calls ////////////////////////////////////////////////////////
-        // local authority client sends sync message to server for broadcasting
+        // Cmds for both channels depending on configuration
+        [Command(channel = Channels.Reliable)]
+        void CmdClientToServerSync_Reliable(Snapshot snapshot) => OnClientToServerSync(snapshot);
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Snapshot snapshot)
+        void CmdClientToServerSync_Unreliable(Snapshot snapshot) => OnClientToServerSync(snapshot);
+
+        // local authority client sends sync message to server for broadcasting
+        void OnClientToServerSync(Snapshot snapshot)
         {
             // apply if in client authority mode
             if (clientAuthority)
@@ -243,9 +251,14 @@ namespace Mirror
             }
         }
 
-        // server broadcasts sync message to all clients
+        // Rpcs for both channels depending on configuration
+        [ClientRpc(channel = Channels.Reliable)]
+        void RpcServerToClientSync_Reliable(Snapshot snapshot) => OnServerToClientSync(snapshot);
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(Snapshot snapshot)
+        void RpcServerToClientSync_Unreliable(Snapshot snapshot) => OnServerToClientSync(snapshot);
+
+        // server broadcasts sync message to all clients
+        void OnServerToClientSync(Snapshot snapshot)
         {
             // apply for all objects except local player with authority
             if (!IsClientWithAuthority)
@@ -266,7 +279,12 @@ namespace Mirror
                 if (Time.time >= lastServerSendTime + sendInterval)
                 {
                     Snapshot snapshot = ConstructSnapshot();
-                    RpcServerToClientSync(snapshot);
+
+                    if (channelId == Channels.Reliable)
+                        RpcServerToClientSync_Reliable(snapshot);
+                    else
+                        RpcServerToClientSync_Unreliable(snapshot);
+
                     lastServerSendTime = Time.time;
                 }
 
@@ -293,7 +311,12 @@ namespace Mirror
                     if (Time.time >= lastClientSendTime + sendInterval)
                     {
                         Snapshot snapshot = ConstructSnapshot();
-                        CmdClientToServerSync(snapshot);
+
+                        if (channelId == Channels.Reliable)
+                            CmdClientToServerSync_Reliable(snapshot);
+                        else
+                            CmdClientToServerSync_Unreliable(snapshot);
+
                         lastClientSendTime = Time.time;
                     }
                 }
