@@ -3,7 +3,7 @@
 // position, rotation, scale for compatibility for now.
 using UnityEngine;
 
-namespace Mirror.Experimental
+namespace Mirror
 {
     public struct Snapshot
     {
