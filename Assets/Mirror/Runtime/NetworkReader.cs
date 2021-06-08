@@ -175,7 +175,7 @@ namespace Mirror
         }
 
         // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadSingle instead.")]
+        [Obsolete("We've cleaned up the API. Use ReadFloat instead.")]
         public static float ReadSingle(this NetworkReader reader) => reader.ReadFloat();
         public static float ReadFloat(this NetworkReader reader)
         {
