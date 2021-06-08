@@ -145,7 +145,7 @@ namespace Mirror.Weaver
                     }
                 }
                 watch.Stop();
-                Console.WriteLine("Weave behaviours and messages took" + watch.ElapsedMilliseconds + " milliseconds");
+                Console.WriteLine("Weave behaviours and messages took " + watch.ElapsedMilliseconds + " milliseconds");
 
                 return modified;
             }
