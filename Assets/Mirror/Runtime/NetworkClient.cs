@@ -1258,7 +1258,7 @@ namespace Mirror
                 }
             }
 
-            // process all incoming messages after updating the world
+            // process all outgoing messages after updating the world
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ClientLateUpdate();
         }

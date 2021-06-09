@@ -1558,7 +1558,7 @@ namespace Mirror
             if (active)
                 Broadcast();
 
-            // process all incoming messages after updating the world
+            // process all outgoing messages after updating the world
             // (even if not active. still want to process disconnects etc.)
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ServerLateUpdate();
