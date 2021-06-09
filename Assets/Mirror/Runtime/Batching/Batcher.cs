@@ -26,10 +26,10 @@ namespace Mirror
         // -> false if too big for max.
         // => true/false instead of exception because the user might try to send
         //    a gigantic message once. which is fine. but we won't batch it.
-        public bool AddMessage(ArraySegment<byte> segment)
+        public bool AddMessage(ArraySegment<byte> message)
         {
             // make sure the message can fit into max batch size
-            if (segment.Count > MaxBatchSize)
+            if (message.Count > MaxBatchSize)
                 return false;
 
             // put into a (pooled) writer
@@ -37,7 +37,7 @@ namespace Mirror
             //    would add a size header. we want to write directly.
             // -> will be returned to pool when making the batch!
             PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
-            writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+            writer.WriteBytes(message.Array, message.Offset, message.Count);
             messages.Enqueue(writer);
             return true;
         }
