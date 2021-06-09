@@ -129,9 +129,7 @@ namespace Mirror
             }
         }
 
-        // flush batched messages every batchInterval to make sure that they are
-        // sent out every now and then, even if the batch isn't full yet.
-        // (avoids 30s latency if batches would only get full every 30s)
+        // flush batched messages at the end of every Update.
         internal void Update()
         {
             // batching?
