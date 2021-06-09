@@ -21,7 +21,7 @@ namespace Mirror.Tests
 
             // A with connectionId = 0x0A, netId = 0xAA
             CreateNetworked(out gameObjectA, out identityA);
-            connectionA = new NetworkConnectionToClient(0x0A, false, 0);
+            connectionA = new NetworkConnectionToClient(0x0A, false);
             connectionA.isAuthenticated = true;
             connectionA.isReady = true;
             connectionA.identity = identityA;
@@ -29,7 +29,7 @@ namespace Mirror.Tests
 
             // B
             CreateNetworked(out gameObjectB, out identityB);
-            connectionB = new NetworkConnectionToClient(0x0B, false, 0);
+            connectionB = new NetworkConnectionToClient(0x0B, false);
             connectionB.isAuthenticated = true;
             connectionB.isReady = true;
             connectionB.identity = identityB;

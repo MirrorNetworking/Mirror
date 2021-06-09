@@ -49,10 +49,6 @@ namespace Mirror
         [Tooltip("Batch message and send them out in LateUpdate (or after batchInterval). This is pretty much always a good idea.")]
         public bool serverBatching = true;
 
-        /// <summary>Server can batch messages to significantly reduce transport calls and improve performance/scale.</summary>
-        [Tooltip("Server can batch messages up to Transport.GetMaxPacketSize to significantly reduce transport calls and improve performance/scale.\nIf batch interval is 0, then we only batch until the Update() call. Otherwise we batch until interval elapsed (note that this increases latency).")]
-        public float serverBatchInterval = 0;
-
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
         [Scene]
@@ -252,7 +248,6 @@ namespace Mirror
 
             // batching
             NetworkServer.batching = serverBatching;
-            NetworkServer.batchInterval = serverBatchInterval;
 
             // Copy auto-disconnect settings to NetworkServer
 #pragma warning disable 618

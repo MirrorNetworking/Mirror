@@ -21,7 +21,7 @@ namespace Mirror.Tests
             transport.serverIncoming.Clear();
 
             // need a connection to client with batching enabled
-            connection = new NetworkConnectionToClient(42, true, 0);
+            connection = new NetworkConnectionToClient(42, true);
 
             // need a batch too
             batch = new NetworkConnectionToClient.Batch();

@@ -33,7 +33,7 @@ namespace Mirror.Tests.Runtime
         public IEnumerator DestroyPlayerForConnectionTest()
         {
             GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
-            NetworkConnectionToClient conn = new NetworkConnectionToClient(1, false, 0);
+            NetworkConnectionToClient conn = new NetworkConnectionToClient(1, false);
 
             NetworkServer.AddPlayerForConnection(conn, player);
 
@@ -52,7 +52,7 @@ namespace Mirror.Tests.Runtime
         public IEnumerator RemovePlayerForConnectionTest()
         {
             GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
-            NetworkConnectionToClient conn = new NetworkConnectionToClient(1, false, 0);
+            NetworkConnectionToClient conn = new NetworkConnectionToClient(1, false);
 
             NetworkServer.AddPlayerForConnection(conn, player);
 
