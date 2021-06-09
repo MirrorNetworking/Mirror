@@ -35,7 +35,7 @@ namespace Mirror
             // put into a (pooled) writer
             // -> WriteBytes instead of WriteSegment because the latter
             //    would add a size header. we want to write directly.
-            // -> will be returned to pool when sending!
+            // -> will be returned to pool when making the batch!
             PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
             writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
             messages.Enqueue(writer);
