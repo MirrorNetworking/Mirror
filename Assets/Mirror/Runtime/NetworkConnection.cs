@@ -46,17 +46,51 @@ namespace Mirror
         //            Works fine with NetworkIdentity pointers though.
         public readonly HashSet<NetworkIdentity> clientOwnedObjects = new HashSet<NetworkIdentity>();
 
-        internal NetworkConnection()
+        // batching from server to client & client to server.
+        // fewer transport calls give us significantly better performance/scale.
+        //
+        // for a 64KB max message transport and 64 bytes/message on average, we
+        // reduce transport calls by a factor of 1000.
+        //
+        // depending on the transport, this can give 10x performance.
+        //
+        // Dictionary<channelId, batch> because we have multiple channels.
+        protected Dictionary<int, Batcher> batches = new Dictionary<int, Batcher>();
+
+        // batch messages and send them out in LateUpdate (or after batchInterval)
+        protected bool batching;
+
+        internal NetworkConnection(bool batching)
         {
+            this.batching = batching;
+
             // set lastTime to current time when creating connection to make
             // sure it isn't instantly kicked for inactivity
             lastMessageTime = Time.time;
         }
 
-        internal NetworkConnection(int networkConnectionId) : this()
+        internal NetworkConnection(int networkConnectionId, bool batching) : this(batching)
         {
             connectionId = networkConnectionId;
             // TODO why isn't lastMessageTime set in here like in the other ctor?
+        }
+
+        // TODO if we only have Reliable/Unreliable, then we could initialize
+        // two batches and avoid this code
+        protected Batcher GetBatchForChannelId(int channelId)
+        {
+            // get existing or create new writer for the channelId
+            Batcher batch;
+            if (!batches.TryGetValue(channelId, out batch))
+            {
+                // get max batch size for this channel
+                int MaxBatchSize = Transport.activeTransport.GetMaxBatchSize(channelId);
+
+                // create batcher
+                batch = new Batcher(MaxBatchSize);
+                batches[channelId] = batch;
+            }
+            return batch;
         }
 
         /// <summary>Disconnects this connection.</summary>
