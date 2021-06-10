@@ -87,6 +87,9 @@ namespace Mirror
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
 
+        // batching
+        static Unbatcher unbatcher = new Unbatcher();
+
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
@@ -245,6 +248,9 @@ namespace Mirror
                 // reset network time stats
                 NetworkTime.Reset();
 
+                // reset unbatcher in case any batches from last session remain.
+                unbatcher = new Unbatcher();
+
                 // the handler may want to send messages to the client
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
@@ -292,16 +298,17 @@ namespace Mirror
                     return;
                 }
 
-                // unpack message
-                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                // server might batch multiple messages into one packet.
+                // feed it to the Unbatcher.
+                // NOTE: we don't need to associate a channelId because we
+                //       always process all messages in the batch.
+                unbatcher.AddBatch(data);
+
+                // process all messages in the batch
+                while (unbatcher.GetNextMessage(out NetworkReader reader))
                 {
-                    // server might batch multiple messages into one packet.
-                    // we need to try to unpack multiple times.
-                    while (reader.Position < reader.Length)
-                    {
-                        if (!UnpackAndInvoke(reader, channelId))
-                            break;
-                    }
+                    if (!UnpackAndInvoke(reader, channelId))
+                        break;
                 }
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
