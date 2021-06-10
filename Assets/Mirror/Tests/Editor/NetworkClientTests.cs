@@ -59,6 +59,24 @@ namespace Mirror.Tests
 
         // TODO flaky
         // TODO running play mode tests, then edit mode tests, makes this fail
+        // TODO when running the multi scene example first, we get this error
+        //      when running this test afterwards:
+        //    Send (0.020s)
+        //    ---
+        //    UnityEngine.MissingReferenceException : The object of type 'MultiSceneNetManager' has been destroyed but you are still trying to access it.
+        //    Your script should either check if it is null or you should not destroy the object.
+        //    ---
+        //    at (wrapper managed-to-native) UnityEngine.Component.get_gameObject(UnityEngine.Component)
+        //      at Mirror.NetworkManager.StopClient () [0x0003c] in /Users/qwerty/x/dev/project_Mirror/Repository/Assets/Mirror/Runtime/NetworkManager.cs:595
+        //      at Mirror.NetworkManager.OnClientDisconnect (Mirror.NetworkConnection conn) [0x00001] in /Users/qwerty/x/dev/project_Mirror/Repository/Assets/Mirror/Runtime/NetworkManager.cs:1260
+        //      at Mirror.NetworkManager.OnClientDisconnectInternal () [0x00001] in /Users/qwerty/x/dev/project_Mirror/Repository/Assets/Mirror/Runtime/NetworkManager.cs:1167
+        //      at Mirror.NetworkClient.OnTransportDisconnected () [0x00027] in /Users/qwerty/x/dev/project_Mirror/Repository/Assets/Mirror/Runtime/NetworkClient.cs:326
+        //      at Mirror.Tests.MemoryTransport.ClientEarlyUpdate () [0x00087] in /Users/qwerty/x/dev/project_Mirror/Repository/Assets/Mirror/Tests/Common/MemoryTransport.cs:109
+        //      at Mirror.Tests.MirrorTest.UpdateTransport () [0x00001] in /Users/qwerty/x/dev/project_Mirror/Repository/Assets/Mirror/Tests/Common/MirrorTest.cs:143
+        //      at Mirror.Tests.NetworkClientTests.Send () [0x00043] in /Users/qwerty/x/dev/project_Mirror/Repository/Assets/Mirror/Tests/Editor/NetworkClientTests.cs:80
+        //      at (wrapper managed-to-native) System.Reflection.MonoMethod.InternalInvoke(System.Reflection.MonoMethod,object,object[],System.Exception&)
+        //      at System.Reflection.MonoMethod.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00032] in <eae584ce26bc40229c1b1aa476bfa589>:0
+        //    ---
         [Test]
         public void Send()
         {
