@@ -87,7 +87,10 @@ namespace Mirror
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
 
-        // batching
+        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
+        // (this is pretty much always a good idea)
+        public static bool batching = true;
+
         static Unbatcher unbatcher = new Unbatcher();
 
         // initialization //////////////////////////////////////////////////////
@@ -144,7 +147,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(address);
 
-            connection = new NetworkConnectionToServer();
+            connection = new NetworkConnectionToServer(batching);
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
@@ -160,7 +163,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(uri);
 
-            connection = new NetworkConnectionToServer();
+            connection = new NetworkConnectionToServer(batching);
         }
 
         // TODO why are there two connect host methods?
@@ -1256,12 +1259,16 @@ namespace Mirror
                 localConnection.Update();
             }
             // remote connection?
-            else
+            else if (connection is NetworkConnectionToServer remoteConnection)
             {
                 // only update things while connected
                 if (active && connectState == ConnectState.Connected)
                 {
+                    // update NetworkTime
                     NetworkTime.UpdateClient();
+
+                    // update connection to flush out batched messages
+                    remoteConnection.Update();
                 }
             }
 

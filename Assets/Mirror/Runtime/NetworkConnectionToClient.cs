@@ -22,6 +22,9 @@ namespace Mirror
         // batch messages and send them out in LateUpdate (or after batchInterval)
         bool batching;
 
+        // unbatcher
+        public Unbatcher unbatcher = new Unbatcher();
+
         public NetworkConnectionToClient(int networkConnectionId, bool batching)
             : base(networkConnectionId)
         {

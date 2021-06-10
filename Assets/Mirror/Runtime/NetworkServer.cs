@@ -400,7 +400,7 @@ namespace Mirror
             OnConnectedEvent?.Invoke(conn);
         }
 
-        static void UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
+        static bool UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
         {
             if (MessagePacking.Unpack(reader, out ushort msgType))
             {
@@ -409,16 +409,19 @@ namespace Mirror
                 {
                     handler.Invoke(connection, reader, channelId);
                     connection.lastMessageTime = Time.time;
+                    return true;
                 }
                 else
                 {
                     // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    return false;
                 }
             }
             else
             {
                 Debug.LogError("Closed connection: " + connection + ". Invalid message header.");
                 connection.Disconnect();
+                return false;
             }
         }
 
@@ -434,10 +437,17 @@ namespace Mirror
                     return;
                 }
 
-                // unpack message
-                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                // client might batch multiple messages into one packet.
+                // feed it to the Unbatcher.
+                // NOTE: we don't need to associate a channelId because we
+                //       always process all messages in the batch.
+                connection.unbatcher.AddBatch(data);
+
+                // process all messages in the batch
+                while (connection.unbatcher.GetNextMessage(out NetworkReader reader))
                 {
-                    UnpackAndInvoke(connection, reader, channelId);
+                    if (!UnpackAndInvoke(connection, reader, channelId))
+                        break;
                 }
             }
             else Debug.LogError("HandleData Unknown connectionId:" + connectionId);

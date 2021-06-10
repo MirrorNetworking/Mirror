@@ -548,7 +548,7 @@ namespace Mirror.Tests
 
             // calling rpc on connectionToServer shouldn't work
             LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} requires a NetworkConnectionToClient but was given {typeof(NetworkConnectionToServer).Name}");
-            comp.CallSendTargetRPCInternal(new NetworkConnectionToServer());
+            comp.CallSendTargetRPCInternal(new NetworkConnectionToServer(false));
             Assert.That(comp.called, Is.EqualTo(0));
 
             // set proper connection to client
