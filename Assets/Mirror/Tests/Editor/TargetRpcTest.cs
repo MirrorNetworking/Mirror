@@ -112,6 +112,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         class FakeConnection : NetworkConnection
         {
             public override string address => throw new NotImplementedException();
+            public FakeConnection() : base(false) {}
             public override void Disconnect() => throw new NotImplementedException();
             internal override void Send(ArraySegment<byte> segment, int channelId = 0) => throw new NotImplementedException();
         }

@@ -8,42 +8,12 @@ namespace Mirror
         public override string address =>
             Transport.activeTransport.ServerGetClientAddress(connectionId);
 
-        // batching from server to client.
-        // fewer transport calls give us significantly better performance/scale.
-        //
-        // for a 64KB max message transport and 64 bytes/message on average, we
-        // reduce transport calls by a factor of 1000.
-        //
-        // depending on the transport, this can give 10x performance.
-        //
-        // Dictionary<channelId, batch> because we have multiple channels.
-        Dictionary<int, Batcher> batches = new Dictionary<int, Batcher>();
-
-        // batch messages and send them out in LateUpdate (or after batchInterval)
-        bool batching;
+        // unbatcher
+        public Unbatcher unbatcher = new Unbatcher();
 
         public NetworkConnectionToClient(int networkConnectionId, bool batching)
-            : base(networkConnectionId)
+            : base(networkConnectionId, batching)
         {
-            this.batching = batching;
-        }
-
-        // TODO if we only have Reliable/Unreliable, then we could initialize
-        // two batches and avoid this code
-        Batcher GetBatchForChannelId(int channelId)
-        {
-            // get existing or create new writer for the channelId
-            Batcher batch;
-            if (!batches.TryGetValue(channelId, out batch))
-            {
-                // get max batch size for this channel
-                int MaxBatchSize = Transport.activeTransport.GetMaxBatchSize(channelId);
-
-                // create batcher
-                batch = new Batcher(MaxBatchSize);
-                batches[channelId] = batch;
-            }
-            return batch;
         }
 
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)

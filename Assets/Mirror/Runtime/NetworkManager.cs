@@ -47,7 +47,7 @@ namespace Mirror
 
         /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
         [Tooltip("Batch message and send them out in LateUpdate (or after batchInterval). This is pretty much always a good idea.")]
-        public bool serverBatching = true;
+        [FormerlySerializedAs("serverBatching")] public bool batching = true;
 
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
@@ -247,7 +247,7 @@ namespace Mirror
             ConfigureServerFrameRate();
 
             // batching
-            NetworkServer.batching = serverBatching;
+            NetworkServer.batching = batching;
 
             // Copy auto-disconnect settings to NetworkServer
 #pragma warning disable 618
@@ -325,6 +325,9 @@ namespace Mirror
             }
 
             mode = NetworkManagerMode.ClientOnly;
+
+            // batching
+            NetworkClient.batching = batching;
 
             InitializeSingleton();
 

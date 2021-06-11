@@ -63,6 +63,9 @@ namespace Mirror
         internal void QueueConnectedEvent() => connectedEventPending = true;
         internal void QueueDisconnectedEvent() => disconnectedEventPending = true;
 
+        // parameterless constructor that disables batching for local connections
+        public LocalConnectionToServer() : base(false) {}
+
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             if (segment.Count == 0)
@@ -75,8 +78,10 @@ namespace Mirror
             NetworkServer.OnTransportData(connectionId, segment, channelId);
         }
 
-        internal void Update()
+        internal override void Update()
         {
+            base.Update();
+
             // should we still process a connected event?
             if (connectedEventPending)
             {

@@ -1125,7 +1125,7 @@ namespace Mirror.Tests
             // creates .observers and generates a netId
             identity.OnStartServer();
             identity.connectionToClient = new NetworkConnectionToClient(1, false);
-            identity.connectionToServer = new NetworkConnectionToServer();
+            identity.connectionToServer = new NetworkConnectionToServer(false);
             identity.observers[43] = new NetworkConnectionToClient(2, false);
 
             // mark for reset and reset
