@@ -37,6 +37,9 @@ namespace Mirror
         // (this is pretty much always a good idea)
         public static bool batching = true;
 
+        // scene loading
+        public static bool isLoadingScene;
+
         // interest management component (optional)
         // by default, everyone observes everyone
         public static InterestManagement aoi;
@@ -443,8 +446,13 @@ namespace Mirror
                 //       always process all messages in the batch.
                 connection.unbatcher.AddBatch(data);
 
-                // process all messages in the batch
-                while (connection.unbatcher.GetNextMessage(out NetworkReader reader))
+                // process all messages in the batch.
+                // only while NOT loading a scene.
+                // if we get a scene change message, then we need to stop
+                // processing. otherwise we might apply them to the old scene.
+                // => fixes https://github.com/vis2k/Mirror/issues/2651
+                while (!isLoadingScene &&
+                       connection.unbatcher.GetNextMessage(out NetworkReader reader))
                 {
                     if (!UnpackAndInvoke(connection, reader, channelId))
                         break;

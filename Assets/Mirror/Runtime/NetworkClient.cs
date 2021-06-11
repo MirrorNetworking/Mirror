@@ -93,6 +93,9 @@ namespace Mirror
 
         static Unbatcher unbatcher = new Unbatcher();
 
+        // scene loading
+        public static bool isLoadingScene;
+
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
@@ -307,8 +310,13 @@ namespace Mirror
                 //       always process all messages in the batch.
                 unbatcher.AddBatch(data);
 
-                // process all messages in the batch
-                while (unbatcher.GetNextMessage(out NetworkReader reader))
+                // process all messages in the batch.
+                // only while NOT loading a scene.
+                // if we get a scene change message, then we need to stop
+                // processing. otherwise we might apply them to the old scene.
+                // => fixes https://github.com/vis2k/Mirror/issues/2651
+                while (!isLoadingScene &&
+                       unbatcher.GetNextMessage(out NetworkReader reader))
                 {
                     if (!UnpackAndInvoke(reader, channelId))
                         break;
