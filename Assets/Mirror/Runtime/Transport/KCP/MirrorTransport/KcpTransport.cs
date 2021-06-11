@@ -215,11 +215,11 @@ namespace kcp2k
         // server statistics
         public int GetAverageMaxSendRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (int)conn.MaxSendRate) / server.connections.Count
+                ? (int)(server.connections.Values.Sum(conn => conn.MaxSendRate) / server.connections.Count)
                 : 0;
         public int GetAverageMaxReceiveRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (int)conn.MaxReceiveRate) / server.connections.Count
+                ? (int)(server.connections.Values.Sum(conn => conn.MaxReceiveRate) / server.connections.Count)
                 : 0;
         int GetTotalSendQueue() =>
             server.connections.Values.Sum(conn => conn.SendQueueCount);
