@@ -761,9 +761,9 @@ namespace Mirror
             // Let server prepare for scene change
             OnServerChangeScene(newSceneName);
 
-            // Suspend the server's transport while changing scenes
-            // It will be re-enabled in FinishLoadScene.
-            Transport.activeTransport.enabled = false;
+            // set server flag to stop processing messages while changing scenes
+            // it will be re-enabled in FinishLoadScene.
+            NetworkServer.isLoadingScene = true;
 
             loadingSceneAsync = SceneManager.LoadSceneAsync(newSceneName);
 
@@ -794,11 +794,13 @@ namespace Mirror
 
             // Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
 
-            // vis2k: pause message handling while loading scene. otherwise we will process messages and then lose all
-            // the state as soon as the load is finishing, causing all kinds of bugs because of missing state.
+            // set client flag to stop processing messages while loading scenes.
+            // otherwise we would process messages and then lose all the state
+            // as soon as the load is finishing, causing all kinds of bugs
+            // because of missing state.
             // (client may be null after StopClient etc.)
             // Debug.Log("ClientChangeScene: pausing handlers while scene is loading to avoid data loss after scene was loaded.");
-            Transport.activeTransport.enabled = false;
+            NetworkClient.isLoadingScene = true;
 
             // Cache sceneOperation so we know what was requested by the
             // Scene message in OnClientChangeScene and OnClientSceneChanged
@@ -828,8 +830,8 @@ namespace Mirror
                     {
                         Debug.LogWarning($"Scene {newSceneName} is already loaded");
 
-                        // Re-enable the transport that we disabled before entering this switch
-                        Transport.activeTransport.enabled = true;
+                        // Reset the flag that we disabled before entering this switch
+                        NetworkClient.isLoadingScene = false;
                     }
                     break;
                 case SceneOperation.UnloadAdditive:
@@ -841,8 +843,8 @@ namespace Mirror
                     {
                         Debug.LogWarning($"Cannot unload {newSceneName} with UnloadAdditive operation");
 
-                        // Re-enable the transport that we disabled before entering this switch
-                        Transport.activeTransport.enabled = true;
+                        // Reset the flag that we disabled before entering this switch
+                        NetworkClient.isLoadingScene = false;
                     }
                     break;
             }
@@ -907,7 +909,8 @@ namespace Mirror
 
             // process queued messages that we received while loading the scene
             Debug.Log("FinishLoadScene: resuming handlers after scene was loading.");
-            Transport.activeTransport.enabled = true;
+            NetworkServer.isLoadingScene = false;
+            NetworkClient.isLoadingScene = false;
 
             // host mode?
             if (mode == NetworkManagerMode.Host)
