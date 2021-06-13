@@ -315,6 +315,11 @@ namespace Mirror
                 // if we get a scene change message, then we need to stop
                 // processing. otherwise we might apply them to the old scene.
                 // => fixes https://github.com/vis2k/Mirror/issues/2651
+                //
+                // NOTE: is scene starts loading, then the rest of the batch
+                //       would only be processed when OnTransportData is called
+                //       the next time.
+                //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
                        unbatcher.GetNextMessage(out NetworkReader reader))
                 {
