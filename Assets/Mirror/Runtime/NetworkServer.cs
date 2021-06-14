@@ -33,11 +33,6 @@ namespace Mirror
         /// <summary>active checks if the server has been started</summary>
         public static bool active { get; internal set; }
 
-        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        // => always enabled so we can do TickBatching
-        // => can still be disabled internally for tests atm
-        internal static bool batching = true;
-
         // scene loading
         public static bool isLoadingScene;
 
@@ -384,7 +379,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, batching);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, true);
                 OnConnected(conn);
             }
             else

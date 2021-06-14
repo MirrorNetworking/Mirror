@@ -87,11 +87,6 @@ namespace Mirror
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
 
-        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        // => always enabled so we can do TickBatching
-        // => can still be disabled internally for tests atm
-        internal static bool batching = true;
-
         static Unbatcher unbatcher = new Unbatcher();
 
         // scene loading
@@ -151,7 +146,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(address);
 
-            connection = new NetworkConnectionToServer(batching);
+            connection = new NetworkConnectionToServer(true);
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
@@ -167,7 +162,7 @@ namespace Mirror
             connectState = ConnectState.Connecting;
             Transport.activeTransport.ClientConnect(uri);
 
-            connection = new NetworkConnectionToServer(batching);
+            connection = new NetworkConnectionToServer(true);
         }
 
         // TODO why are there two connect host methods?
