@@ -66,14 +66,6 @@ namespace Mirror.Tests.Batching
             Assert.That(writer.ToArray().SequenceEqual(message));
         }
 
-        static List<byte> GenerateByteSequence(int count)
-        {
-            List<byte> sequence = new List<byte>();
-            for (int i = 0; i < count; ++i)
-                sequence.Add((byte)i);
-            return sequence;
-        }
-
         [Test]
         public void MakeNextBatch_MultipleMessages_AlmostMaxBatchSize()
         {
