@@ -429,13 +429,6 @@ namespace Mirror
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient connection))
             {
-                if (data.Count < MessagePacking.HeaderSize)
-                {
-                    Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id)");
-                    connection.Disconnect();
-                    return;
-                }
-
                 // client might batch multiple messages into one packet.
                 // feed it to the Unbatcher.
                 // NOTE: we don't need to associate a channelId because we
@@ -455,8 +448,19 @@ namespace Mirror
                 while (!isLoadingScene &&
                        connection.unbatcher.GetNextMessage(out NetworkReader reader))
                 {
-                    if (!UnpackAndInvoke(connection, reader, channelId))
-                        break;
+                    // enough to read at least header size?
+                    if (reader.Remaining >= MessagePacking.HeaderSize)
+                    {
+                        if (!UnpackAndInvoke(connection, reader, channelId))
+                            break;
+                    }
+                    // otherwise disconnect
+                    else
+                    {
+                        Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
+                        connection.Disconnect();
+                        return;
+                    }
                 }
             }
             else Debug.LogError("HandleData Unknown connectionId:" + connectionId);
