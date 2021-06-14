@@ -16,6 +16,13 @@ namespace Mirror
         // then pointed to the first batch.
         NetworkReader reader = new NetworkReader(new byte[0]);
 
+        // helper function to start reading a batch.
+        void StartReadingBatch(PooledNetworkWriter batch)
+        {
+            // point reader to it
+            reader.SetBuffer(batch.ToArraySegment());
+        }
+
         // add a new batch
         public void AddBatch(ArraySegment<byte> batch)
         {
@@ -33,7 +40,7 @@ namespace Mirror
 
             // first batch? then point reader there
             if (batches.Count == 0)
-                reader.SetBuffer(writer.ToArraySegment());
+                StartReadingBatch(writer);
 
             // add batch
             batches.Enqueue(writer);
@@ -79,7 +86,7 @@ namespace Mirror
                     // point reader to the next batch.
                     // we'll return the reader below.
                     PooledNetworkWriter next = batches.Peek();
-                    reader.SetBuffer(next.ToArraySegment());
+                    StartReadingBatch(next);
                 }
                 // otherwise there's nothing more to read
                 else return false;
