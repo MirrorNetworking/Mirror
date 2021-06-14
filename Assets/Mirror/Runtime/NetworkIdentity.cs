@@ -493,12 +493,18 @@ namespace Mirror
                     // force 0 for prefabs
                     sceneId = 0;
                     //Debug.Log(name + " @ scene: " + gameObject.scene.name + " sceneid reset to 0 because CurrentPrefabStage=" + PrefabStageUtility.GetCurrentPrefabStage() + " PrefabStage=" + PrefabStageUtility.GetPrefabStage(gameObject));
-                    // NOTE: might make sense to use GetPrefabStage for asset
-                    //       path, but let's not touch it while it works.
 #if UNITY_2020_1_OR_NEWER
                     string path = PrefabStageUtility.GetCurrentPrefabStage().assetPath;
+
+                    // Try GetPrefabStage if empty path
+                    if (string.IsNullOrEmpty(path))
+                        path = PrefabStageUtility.GetPrefabStage(gameObject).assetPath;
 #else
                     string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
+
+                    // Try GetPrefabStage if empty path
+                    if (string.IsNullOrEmpty(path))
+                        path = PrefabStageUtility.GetPrefabStage(gameObject).prefabAssetPath;
 #endif
 
                     AssignAssetID(path);
