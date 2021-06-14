@@ -330,15 +330,8 @@ namespace Mirror
 #if UNITY_EDITOR
         void AssignAssetID(string path)
         {
-            if (string.IsNullOrEmpty(path))
-            {
-                //Debug.LogWarning($"AssignAssetID path is empty!");
-            }
-            else
-            {
-                //Debug.Log($"AssignAssetID {path}");
+            if (!string.IsNullOrEmpty(path))
                 m_AssetId = AssetDatabase.AssetPathToGUID(path);
-            }
         }
 
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
@@ -507,16 +500,8 @@ namespace Mirror
                     //Debug.Log(name + " @ scene: " + gameObject.scene.name + " sceneid reset to 0 because CurrentPrefabStage=" + PrefabStageUtility.GetCurrentPrefabStage() + " PrefabStage=" + PrefabStageUtility.GetPrefabStage(gameObject));
 #if UNITY_2020_1_OR_NEWER
                     string path = PrefabStageUtility.GetCurrentPrefabStage().assetPath;
-
-                    // Try GetPrefabStage if empty path
-                    if (string.IsNullOrEmpty(path))
-                        path = PrefabStageUtility.GetPrefabStage(gameObject).assetPath;
 #else
                     string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
-
-                    // Try GetPrefabStage if empty path
-                    if (string.IsNullOrEmpty(path))
-                        path = PrefabStageUtility.GetPrefabStage(gameObject).prefabAssetPath;
 #endif
 
                     AssignAssetID(path);
