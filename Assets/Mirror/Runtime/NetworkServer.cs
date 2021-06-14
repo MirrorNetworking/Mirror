@@ -33,12 +33,8 @@ namespace Mirror
         /// <summary>active checks if the server has been started</summary>
         public static bool active { get; internal set; }
 
-        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        // (this is pretty much always a good idea)
-        public static bool batching = true;
-
-        /// <summary>interval in seconds used for batching. 0 means send in every LateUpdate.</summary>
-        public static float batchInterval = 0;
+        // scene loading
+        public static bool isLoadingScene;
 
         // interest management component (optional)
         // by default, everyone observes everyone
@@ -383,7 +379,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, batching, batchInterval);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, true);
                 OnConnected(conn);
             }
             else
@@ -403,7 +399,7 @@ namespace Mirror
             OnConnectedEvent?.Invoke(conn);
         }
 
-        static void UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
+        static bool UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
         {
             if (MessagePacking.Unpack(reader, out ushort msgType))
             {
@@ -412,16 +408,19 @@ namespace Mirror
                 {
                     handler.Invoke(connection, reader, channelId);
                     connection.lastMessageTime = Time.time;
+                    return true;
                 }
                 else
                 {
                     // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    return false;
                 }
             }
             else
             {
                 Debug.LogError("Closed connection: " + connection + ". Invalid message header.");
                 connection.Disconnect();
+                return false;
             }
         }
 
@@ -430,17 +429,38 @@ namespace Mirror
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient connection))
             {
-                if (data.Count < MessagePacking.HeaderSize)
-                {
-                    Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id)");
-                    connection.Disconnect();
-                    return;
-                }
+                // client might batch multiple messages into one packet.
+                // feed it to the Unbatcher.
+                // NOTE: we don't need to associate a channelId because we
+                //       always process all messages in the batch.
+                connection.unbatcher.AddBatch(data);
 
-                // unpack message
-                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                // process all messages in the batch.
+                // only while NOT loading a scene.
+                // if we get a scene change message, then we need to stop
+                // processing. otherwise we might apply them to the old scene.
+                // => fixes https://github.com/vis2k/Mirror/issues/2651
+                //
+                // NOTE: is scene starts loading, then the rest of the batch
+                //       would only be processed when OnTransportData is called
+                //       the next time.
+                //       => consider moving processing to NetworkEarlyUpdate.
+                while (!isLoadingScene &&
+                       connection.unbatcher.GetNextMessage(out NetworkReader reader))
                 {
-                    UnpackAndInvoke(connection, reader, channelId);
+                    // enough to read at least header size?
+                    if (reader.Remaining >= MessagePacking.HeaderSize)
+                    {
+                        if (!UnpackAndInvoke(connection, reader, channelId))
+                            break;
+                    }
+                    // otherwise disconnect
+                    else
+                    {
+                        Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
+                        connection.Disconnect();
+                        return;
+                    }
                 }
             }
             else Debug.LogError("HandleData Unknown connectionId:" + connectionId);
@@ -997,6 +1017,16 @@ namespace Mirror
                 {
                     // Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
                     identity.gameObject.SetActive(true);
+
+                    // fix https://github.com/vis2k/Mirror/issues/2778:
+                    // -> SetActive(true) does NOT call Awake() if the parent
+                    //    is inactive
+                    // -> we need Awake() to initialize NetworkBehaviours[] etc.
+                    //    because our second pass below spawns and works with it
+                    // => detect this situation and manually call Awake for
+                    //    proper initialization
+                    if (!identity.gameObject.activeInHierarchy)
+                        identity.Awake();
                 }
             }
 
@@ -1558,7 +1588,7 @@ namespace Mirror
             if (active)
                 Broadcast();
 
-            // process all incoming messages after updating the world
+            // process all outgoing messages after updating the world
             // (even if not active. still want to process disconnects etc.)
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ServerLateUpdate();

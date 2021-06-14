@@ -213,21 +213,23 @@ namespace kcp2k
             KcpConnection.UnreliableMaxMessageSize;
 
         // server statistics
-        public int GetAverageMaxSendRate() =>
+        // LONG to avoid int overflows with connections.Sum.
+        // see also: https://github.com/vis2k/Mirror/pull/2777
+        public long GetAverageMaxSendRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (int)conn.MaxSendRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => (long)conn.MaxSendRate) / server.connections.Count
                 : 0;
-        public int GetAverageMaxReceiveRate() =>
+        public long GetAverageMaxReceiveRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (int)conn.MaxReceiveRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => (long)conn.MaxReceiveRate) / server.connections.Count
                 : 0;
-        int GetTotalSendQueue() =>
+        long GetTotalSendQueue() =>
             server.connections.Values.Sum(conn => conn.SendQueueCount);
-        int GetTotalReceiveQueue() =>
+        long GetTotalReceiveQueue() =>
             server.connections.Values.Sum(conn => conn.ReceiveQueueCount);
-        int GetTotalSendBuffer() =>
+        long GetTotalSendBuffer() =>
             server.connections.Values.Sum(conn => conn.SendBufferCount);
-        int GetTotalReceiveBuffer() =>
+        long GetTotalReceiveBuffer() =>
             server.connections.Values.Sum(conn => conn.ReceiveBufferCount);
 
         // PrettyBytes function from DOTSNET

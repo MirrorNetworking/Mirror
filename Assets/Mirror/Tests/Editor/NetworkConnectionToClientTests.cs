@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -35,7 +34,7 @@ namespace Mirror.Tests
         public void Send_WithoutBatching_SendsImmediately()
         {
             // create connection and send
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false, 0);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false);
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
 
@@ -48,7 +47,7 @@ namespace Mirror.Tests
         public void Send_BatchesUntilUpdate()
         {
             // create connection and send
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, 0);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true);
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
 
@@ -57,30 +56,6 @@ namespace Mirror.Tests
             Assert.That(clientReceived.Count, Is.EqualTo(0));
 
             // updating the connection should now send
-            connection.Update();
-            UpdateTransport();
-            Assert.That(clientReceived.Count, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void Send_BatchesUntilInterval()
-        {
-            // create connection and send
-            int intervalMilliseconds = 10;
-            float intervalSeconds = intervalMilliseconds / 1000f;
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, intervalSeconds);
-            byte[] message = {0x01, 0x02};
-            connection.Send(new ArraySegment<byte>(message));
-
-            // Send() and update shouldn't send yet until interval elapsed
-            connection.Update();
-            UpdateTransport();
-            Assert.That(clientReceived.Count, Is.EqualTo(0));
-
-            // wait 'interval'
-            Thread.Sleep(intervalMilliseconds);
-
-            // updating again should flush out the batch
             connection.Update();
             UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
@@ -97,7 +72,7 @@ namespace Mirror.Tests
         public void SendBatchingResetsPreviousWriter()
         {
             // create connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, 0);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true);
 
             // send and update big message
             byte[] message = {0x01, 0x02};

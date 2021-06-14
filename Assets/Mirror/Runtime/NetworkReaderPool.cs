@@ -28,8 +28,7 @@ namespace Mirror
         {
             // grab from pool & set buffer
             PooledNetworkReader reader = Pool.Take();
-            reader.buffer = new ArraySegment<byte>(bytes);
-            reader.Position = 0;
+            reader.SetBuffer(bytes);
             return reader;
         }
 
@@ -38,8 +37,7 @@ namespace Mirror
         {
             // grab from pool & set buffer
             PooledNetworkReader reader = Pool.Take();
-            reader.buffer = segment;
-            reader.Position = 0;
+            reader.SetBuffer(segment);
             return reader;
         }
 
