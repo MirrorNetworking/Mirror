@@ -997,7 +997,7 @@ namespace Mirror
         {
             // deserialize all components that were received
             NetworkBehaviour[] components = NetworkBehaviours;
-            while (reader.Position < reader.Length)
+            while (reader.Remaining > 0)
             {
                 // read & check index [0..255]
                 byte index = reader.ReadByte();
