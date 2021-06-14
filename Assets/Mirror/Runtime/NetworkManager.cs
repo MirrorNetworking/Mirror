@@ -45,10 +45,6 @@ namespace Mirror
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
 
-        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        [Tooltip("Batch message and send them out in LateUpdate (or after batchInterval). This is pretty much always a good idea.")]
-        [FormerlySerializedAs("serverBatching")] public bool batching = true;
-
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
         [Scene]
@@ -246,9 +242,6 @@ namespace Mirror
 
             ConfigureServerFrameRate();
 
-            // batching
-            NetworkServer.batching = batching;
-
             // Copy auto-disconnect settings to NetworkServer
 #pragma warning disable 618
             NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
@@ -325,9 +318,6 @@ namespace Mirror
             }
 
             mode = NetworkManagerMode.ClientOnly;
-
-            // batching
-            NetworkClient.batching = batching;
 
             InitializeSingleton();
 

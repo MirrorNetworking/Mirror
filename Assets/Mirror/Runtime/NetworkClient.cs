@@ -88,8 +88,9 @@ namespace Mirror
             new Dictionary<ulong, NetworkIdentity>();
 
         /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        // (this is pretty much always a good idea)
-        public static bool batching = true;
+        // => always enabled so we can do TickBatching
+        // => can still be disabled internally for tests atm
+        internal static bool batching = true;
 
         static Unbatcher unbatcher = new Unbatcher();
 
