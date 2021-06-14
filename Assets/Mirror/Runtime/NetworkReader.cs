@@ -33,6 +33,9 @@ namespace Mirror
         /// <summary>Total number of bytes to read from buffer</summary>
         public int Length => buffer.Count;
 
+        /// <summary>Remaining bytes that can be read, for convenience.</summary>
+        public int Remaining => Length - Position;
+
         public NetworkReader(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);

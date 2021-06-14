@@ -46,6 +46,20 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void Remaining()
+        {
+            byte[] bytes = {0x00, 0x01};
+            NetworkReader reader = new NetworkReader(bytes);
+            Assert.That(reader.Remaining, Is.EqualTo(2));
+
+            reader.ReadByte();
+            Assert.That(reader.Remaining, Is.EqualTo(1));
+
+            reader.ReadByte();
+            Assert.That(reader.Remaining, Is.EqualTo(0));
+        }
+
+        [Test]
         public void ReadBytesCountTooBigTest()
         {
             // calling ReadBytes with a count bigger than what is in Reader
