@@ -496,13 +496,13 @@ namespace Mirror
 #if UNITY_2020_1_OR_NEWER
                     string path = PrefabStageUtility.GetCurrentPrefabStage().assetPath;
 
-                    // Try GetPrefabStage if empty path
+                    // Try GetPrefabStage if empty path, when GetCurrentPrefabStage doesn't work (Unity wierdness?)
                     if (string.IsNullOrEmpty(path))
                         path = PrefabStageUtility.GetPrefabStage(gameObject).assetPath;
 #else
                     string path = PrefabStageUtility.GetCurrentPrefabStage().prefabAssetPath;
 
-                    // Try GetPrefabStage if empty path
+                    // Try GetPrefabStage if empty path, when GetCurrentPrefabStage doesn't work (Unity wierdness?)
                     if (string.IsNullOrEmpty(path))
                         path = PrefabStageUtility.GetPrefabStage(gameObject).prefabAssetPath;
 #endif
