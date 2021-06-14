@@ -74,7 +74,7 @@ namespace Mirror
                 return false;
 
             // no more data to read?
-            if (reader.Position >= reader.Length)
+            if (reader.Remaining == 0)
             {
                 // retire the batch
                 PooledNetworkWriter writer = batches.Dequeue();
