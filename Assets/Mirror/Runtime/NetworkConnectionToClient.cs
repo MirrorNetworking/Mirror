@@ -80,7 +80,6 @@ namespace Mirror
             // -> so all 'on disconnect' cleanup code needs to be in
             //    OnTransportDisconnect, where it's called for both voluntary
             //    and involuntary disconnects!
-            RemoveFromObservingsObservers();
         }
     }
 }
