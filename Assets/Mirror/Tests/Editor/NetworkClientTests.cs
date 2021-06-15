@@ -94,6 +94,10 @@ namespace Mirror.Tests
             AddPlayerMessage message = new AddPlayerMessage();
             NetworkClient.Send(message);
 
+            // update client & server so batches are flushed
+            NetworkClient.NetworkLateUpdate();
+            NetworkServer.NetworkLateUpdate();
+
             // update transport so data event is processed
             UpdateTransport();
 
