@@ -90,9 +90,6 @@ namespace Mirror.Tests
         [TearDown]
         public override void TearDown()
         {
-            // reset all state
-            // shutdown should be called before setting activeTransport to null
-            NetworkIdentity.spawned.Clear();
             base.TearDown();
         }
 
@@ -616,7 +613,6 @@ namespace Mirror.Tests
             Assert.That(comp1.called, Is.EqualTo(0));
 
             // clean up
-            NetworkIdentity.spawned.Clear();
             RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
@@ -633,9 +629,6 @@ namespace Mirror.Tests
 
             // was OnStartClient called for all .spawned networkidentities?
             Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            NetworkIdentity.spawned.Clear();
         }
 
         [Test]

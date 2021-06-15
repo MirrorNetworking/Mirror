@@ -65,9 +65,6 @@ namespace Mirror.Tests
             // DestroyImmediate is called internally, giving an error in Editor
             identityB.isServer = false;
 
-            // clean so that null entries are not in dictionary
-            NetworkIdentity.spawned.Clear();
-
             // clear connections first. calling OnDisconnect wouldn't work since
             // we have no real clients.
             NetworkServer.connections.Clear();

@@ -8,7 +8,6 @@ namespace Mirror.Tests
         [TearDown]
         public override void TearDown()
         {
-            NetworkIdentity.spawned.Clear();
             base.TearDown();
         }
 
