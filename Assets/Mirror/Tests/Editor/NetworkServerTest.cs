@@ -620,7 +620,6 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // setup connections
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
@@ -632,19 +631,15 @@ namespace Mirror.Tests
 
             // set a client handler
             int called = 0;
-            void Handler(TestMessage1 _) => ++called;
-            NetworkClient.RegisterHandler<TestMessage1>(Handler, false);
+            NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
             NetworkServer.AddConnection(connectionToClient);
-
-            // create a message
-            TestMessage1 message = new TestMessage1 { IntValue = 1, DoubleValue = 2, StringValue = "3" };
 
             // create a gameobject and networkidentity
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
             identity.connectionToClient = connectionToClient;
 
             // send it to that player
-            identity.connectionToClient.Send(message);
+            identity.connectionToClient.Send(new TestMessage1());
 
             // update local connection once so that the incoming queue is processed
             connectionToClient.connectionToServer.Update();
