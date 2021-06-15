@@ -261,12 +261,6 @@ namespace Mirror.Tests
             }
         }
 
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-        }
-
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()

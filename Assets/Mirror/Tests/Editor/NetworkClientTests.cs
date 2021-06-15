@@ -13,12 +13,6 @@ namespace Mirror.Tests
             NetworkServer.Listen(10);
         }
 
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-        }
-
         [Test]
         public void ServerIp()
         {

@@ -17,11 +17,5 @@ namespace Mirror.Tests.RemoteAttrributeTest
             NetworkClient.connection.isAuthenticated = true;
             NetworkClient.Ready();
         }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-        }
     }
 }

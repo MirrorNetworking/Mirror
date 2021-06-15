@@ -87,12 +87,6 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkServerTest : MirrorEditModeTest
     {
-        [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-        }
-
         [Test]
         public void IsActive()
         {
