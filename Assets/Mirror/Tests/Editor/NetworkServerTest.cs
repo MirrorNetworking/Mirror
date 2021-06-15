@@ -192,7 +192,6 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(2);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first
             transport.OnServerConnected.Invoke(42);
@@ -215,12 +214,22 @@ namespace Mirror.Tests
             LocalConnectionToClient localConnection = new LocalConnectionToClient();
             NetworkServer.SetLocalConnection(localConnection);
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
+        }
+
+        [Test]
+        public void SetLocalConnection_PreventsOverwrite()
+        {
+            // listen
+            NetworkServer.Listen(1);
+
+            // set local connection
+            LocalConnectionToClient localConnection = new LocalConnectionToClient();
+            NetworkServer.SetLocalConnection(localConnection);
 
             // try to overwrite it, which should not work
             // (it will show an error message, which is expected)
             LogAssert.ignoreFailingMessages = true;
-            LocalConnectionToClient overwrite = new LocalConnectionToClient();
-            NetworkServer.SetLocalConnection(overwrite);
+            NetworkServer.SetLocalConnection(new LocalConnectionToClient());
             Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
             LogAssert.ignoreFailingMessages = false;
         }
