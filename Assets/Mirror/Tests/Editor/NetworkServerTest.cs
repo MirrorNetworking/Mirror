@@ -616,39 +616,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SendToClientOfPlayer()
-        {
-            // listen
-            NetworkServer.Listen(1);
-
-            // setup connections
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
-                                      out LocalConnectionToServer connectionToServer);
-
-            // setup NetworkServer/Client connections so messages are handled
-            NetworkClient.connection = connectionToServer;
-            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
-
-            // set a client handler
-            int called = 0;
-            NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
-            NetworkServer.AddConnection(connectionToClient);
-
-            // create a gameobject and networkidentity
-            CreateNetworked(out GameObject _, out NetworkIdentity identity);
-            identity.connectionToClient = connectionToClient;
-
-            // send it to that player
-            identity.connectionToClient.Send(new TestMessage1());
-
-            // update local connection once so that the incoming queue is processed
-            connectionToClient.connectionToServer.Update();
-
-            // was it send to and handled by the connection?
-            Assert.That(called, Is.EqualTo(1));
-        }
-
-        [Test]
         public void GetNetworkIdentityShouldFindNetworkIdentity()
         {
             // create a GameObject with NetworkIdentity
