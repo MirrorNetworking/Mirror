@@ -553,32 +553,17 @@ namespace Mirror.Tests
         [Test]
         public void SendToAll()
         {
-            // listen
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-
-            // setup connections
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
-                                      out LocalConnectionToServer connectionToServer);
-
-            // setup NetworkServer/Client connections so messages are handled
-            NetworkClient.connection = connectionToServer;
-            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
-
-            // set a client handler
+            // message handler
             int called = 0;
-            void Handler(TestMessage1 _) => ++called;
-            NetworkClient.RegisterHandler<TestMessage1>(Handler, false);
-            NetworkServer.AddConnection(connectionToClient);
+            NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
 
-            // create a message
-            TestMessage1 message = new TestMessage1 { IntValue = 1, DoubleValue = 2, StringValue = "3" };
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking();
 
-            // send it to all
-            NetworkServer.SendToAll(message);
-
-            // update local connection once so that the incoming queue is processed
-            connectionToClient.connectionToServer.Update();
+            // send & process
+            NetworkServer.SendToAll(new TestMessage1());
+            ProcessMessages();
 
             // was it send to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
