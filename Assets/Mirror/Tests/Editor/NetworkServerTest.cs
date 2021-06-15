@@ -120,11 +120,8 @@ namespace Mirror.Tests
             bool connectCalled = false;
             NetworkServer.OnConnectedEvent = conn => connectCalled = true;
 
-            // listen
+            // listen & connect
             NetworkServer.Listen(1);
-            Assert.That(connectCalled, Is.False);
-
-            // connect
             transport.OnServerConnected.Invoke(42);
             Assert.That(connectCalled, Is.True);
         }
