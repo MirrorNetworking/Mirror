@@ -781,18 +781,14 @@ namespace Mirror.Tests
         [Test]
         public void UnSpawn()
         {
-            // create a gameobject and networkidentity that lives in the scene(=has sceneid)
-            CreateNetworked(out GameObject go, out NetworkIdentity identity, out OnStopClientTestNetworkBehaviour comp);
-            // lives in the scene from the start
+            // create scene object with valid netid and set active
+            CreateNetworked(out GameObject go, out NetworkIdentity identity);
             identity.sceneId = 42;
-            // spawned objects are active
-            go.SetActive(true);
             identity.netId = 123;
+            go.SetActive(true);
 
-            // unspawn
+            // unspawn should reset netid
             NetworkServer.UnSpawn(go);
-
-            // it should have been reset now
             Assert.That(identity.netId, Is.Zero);
         }
 
