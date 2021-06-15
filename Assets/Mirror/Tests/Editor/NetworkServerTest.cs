@@ -133,13 +133,9 @@ namespace Mirror.Tests
             bool disconnectCalled = false;
             NetworkServer.OnDisconnectedEvent = conn => disconnectCalled = true;
 
-            // listen
+            // listen & connect
             NetworkServer.Listen(1);
-            Assert.That(disconnectCalled, Is.False);
-
-            // connect
             transport.OnServerConnected.Invoke(42);
-            Assert.That(disconnectCalled, Is.False);
 
             // disconnect
             transport.OnServerDisconnected.Invoke(42);
