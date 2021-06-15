@@ -407,14 +407,12 @@ namespace Mirror.Tests
         public void SetAllClientsNotReady()
         {
             // add first ready client
-            LocalConnectionToClient first = new LocalConnectionToClient();
-            first.connectionToServer = new LocalConnectionToServer();
+            CreateLocalConnectionPair(out LocalConnectionToClient first, out _);
             first.isReady = true;
             NetworkServer.connections[42] = first;
 
             // add second ready client
-            LocalConnectionToClient second = new LocalConnectionToClient();
-            second.connectionToServer = new LocalConnectionToServer();
+            CreateLocalConnectionPair(out LocalConnectionToClient second, out _);
             second.isReady = true;
             NetworkServer.connections[43] = second;
 
