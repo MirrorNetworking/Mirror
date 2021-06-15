@@ -430,12 +430,11 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            LocalConnectionToClient connection = new LocalConnectionToClient();
-            connection.connectionToServer = new LocalConnectionToServer();
-            NetworkServer.AddConnection(connection);
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            NetworkServer.AddConnection(connectionToClient);
 
             // set as authenticated, otherwise readymessage is rejected
-            connection.isAuthenticated = true;
+            connectionToClient.isAuthenticated = true;
 
             // serialize a ready message into an arraysegment
             ReadyMessage message = new ReadyMessage();
@@ -449,7 +448,7 @@ namespace Mirror.Tests
             transport.OnServerDataReceived.Invoke(0, segment, 0);
 
             // ready?
-            Assert.That(connection.isReady, Is.True);
+            Assert.That(connectionToClient.isReady, Is.True);
         }
 
         // this runs a command all the way:
@@ -462,19 +461,18 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
-            LocalConnectionToClient connection = new LocalConnectionToClient();
-            connection.connectionToServer = new LocalConnectionToServer();
-            NetworkServer.AddConnection(connection);
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            NetworkServer.AddConnection(connectionToClient);
 
             // set as authenticated, otherwise removeplayer is rejected
-            connection.isAuthenticated = true;
+            connectionToClient.isAuthenticated = true;
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
             identity.netId = 42;
             // for authority check
-            identity.connectionToClient = connection;
-            connection.identity = identity;
+            identity.connectionToClient = connectionToClient;
+            connectionToClient.identity = identity;
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(0));
 
@@ -532,7 +530,7 @@ namespace Mirror.Tests
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(0));
             // restore authority
-            identity.connectionToClient = connection;
+            identity.connectionToClient = connectionToClient;
 
             // sending a component with wrong netId should fail
             // wrong netid
