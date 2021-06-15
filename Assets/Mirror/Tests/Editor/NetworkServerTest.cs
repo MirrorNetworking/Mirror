@@ -660,8 +660,7 @@ namespace Mirror.Tests
 
             // set a client handler
             int called = 0;
-            void Handler(SpawnMessage _) => ++called;
-            NetworkClient.RegisterHandler<SpawnMessage>(Handler, false);
+            NetworkClient.RegisterHandler<SpawnMessage>(msg => ++called, false);
             NetworkServer.AddConnection(connectionToClient);
 
             // create a gameobject and networkidentity and some unique values
@@ -705,8 +704,7 @@ namespace Mirror.Tests
 
             // set a client handler
             int called = 0;
-            void Handler(ObjectHideMessage _) => ++called;
-            NetworkClient.RegisterHandler<ObjectHideMessage>(Handler, false);
+            NetworkClient.RegisterHandler<ObjectHideMessage>(msg => ++called, false);
             NetworkServer.AddConnection(connectionToClient);
 
             // create a gameobject and networkidentity
