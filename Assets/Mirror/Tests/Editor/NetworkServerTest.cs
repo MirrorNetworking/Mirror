@@ -340,21 +340,13 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // set local connection
             LocalConnectionToClient localConnection = new LocalConnectionToClient();
             NetworkServer.SetLocalConnection(localConnection);
-            Assert.That(NetworkServer.localConnection, Is.EqualTo(localConnection));
 
-            // add connection
-            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
-            NetworkServer.AddConnection(conn42);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
-
-            // disconnect all connections and local connection
+            // disconnect all connections should remove local connection
             NetworkServer.DisconnectAll();
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
