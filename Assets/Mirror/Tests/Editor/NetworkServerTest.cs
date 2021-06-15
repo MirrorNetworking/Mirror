@@ -565,7 +565,7 @@ namespace Mirror.Tests
             NetworkServer.SendToAll(new TestMessage1());
             ProcessMessages();
 
-            // was it send to and handled by the connection?
+            // called?
             Assert.That(called, Is.EqualTo(1));
         }
 
@@ -574,11 +574,10 @@ namespace Mirror.Tests
         {
             // RegisterHandler(conn, msg) variant
             int variant1Called = 0;
-            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => { ++variant1Called; }, false);
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++variant1Called, false);
 
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add a connection
             NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false);
