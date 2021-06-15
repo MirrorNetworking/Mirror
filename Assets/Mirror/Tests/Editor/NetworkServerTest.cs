@@ -375,47 +375,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnDataReceived()
-        {
-            // add one custom message handler
-            bool wasReceived = false;
-            NetworkConnection connectionReceived = null;
-            TestMessage1 messageReceived = new TestMessage1();
-            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) =>
-            {
-                wasReceived = true;
-                connectionReceived = conn;
-                messageReceived = msg;
-            }, false);
-
-            // listen
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-
-            // add a connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false);
-            NetworkServer.AddConnection(connection);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
-
-            // serialize a test message into an arraysegment
-            TestMessage1 testMessage = new TestMessage1 { IntValue = 13, DoubleValue = 14, StringValue = "15" };
-            NetworkWriter writer = new NetworkWriter();
-            MessagePacking.Pack(testMessage, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
-
-            // call transport.OnDataReceived
-            // -> should call NetworkServer.OnDataReceived
-            //    -> conn.TransportReceive
-            //       -> Handler(CommandMessage)
-            transport.OnServerDataReceived.Invoke(42, segment, 0);
-
-            // was our message handler called now?
-            Assert.That(wasReceived, Is.True);
-            Assert.That(connectionReceived, Is.EqualTo(connection));
-            Assert.That(messageReceived, Is.EqualTo(testMessage));
-        }
-
-        [Test]
         public void OnDataReceivedInvalidConnectionId()
         {
             // add one custom message handler
