@@ -847,8 +847,8 @@ namespace Mirror.Tests
         [Test]
         public void NoExternalConnectionsTest_WithNoConnection()
         {
-            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
         }
 
         [Test]
