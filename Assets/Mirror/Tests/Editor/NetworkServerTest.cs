@@ -570,46 +570,49 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RegisterUnregisterClearHandler()
+        public void UnregisterHandler()
         {
             // RegisterHandler(conn, msg) variant
             int variant1Called = 0;
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++variant1Called, false);
 
-            // listen
+            // listen & connect
             NetworkServer.Listen(1);
+            ConnectClientBlocking();
 
-            // add a connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false);
-            NetworkServer.AddConnection(connection);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
-
-            // serialize first message, send it to server, check if it was handled
-            NetworkWriter writer = new NetworkWriter();
-            MessagePacking.Pack(new TestMessage1(), writer);
-            transport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
+            // send a message, check if it was handled
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
             Assert.That(variant1Called, Is.EqualTo(1));
 
-            // unregister first handler, send, should fail
+            // unregister, send again, should not be called again
             NetworkServer.UnregisterHandler<TestMessage1>();
-            writer = new NetworkWriter();
-            MessagePacking.Pack(new TestMessage1(), writer);
-            // log error messages are expected
-            LogAssert.ignoreFailingMessages = true;
-            transport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
-            LogAssert.ignoreFailingMessages = false;
-            // still 1, not 2
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
+            Assert.That(variant1Called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ClearHandler()
+        {
+            // RegisterHandler(conn, msg) variant
+            int variant1Called = 0;
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++variant1Called, false);
+
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking();
+
+            // send a message, check if it was handled
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
             Assert.That(variant1Called, Is.EqualTo(1));
 
-            // unregister second handler via ClearHandlers to test that one too. send, should fail
+            // clear handlers, send again, should not be called again
             NetworkServer.ClearHandlers();
-            // (only add this one to avoid disconnect error)
-            writer = new NetworkWriter();
-            MessagePacking.Pack(new TestMessage1(), writer);
-            // log error messages are expected
-            LogAssert.ignoreFailingMessages = true;
-            transport.OnServerDataReceived.Invoke(42, writer.ToArraySegment(), 0);
-            LogAssert.ignoreFailingMessages = false;
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
+            Assert.That(variant1Called, Is.EqualTo(1));
         }
 
         [Test]
