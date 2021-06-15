@@ -269,35 +269,38 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add first connection
             NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
-            bool result42 = NetworkServer.AddConnection(conn42);
-            Assert.That(result42, Is.True);
+            Assert.That(NetworkServer.AddConnection(conn42), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
-            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
 
             // add second connection
             NetworkConnectionToClient conn43 = new NetworkConnectionToClient(43, false);
-            bool result43 = NetworkServer.AddConnection(conn43);
-            Assert.That(result43, Is.True);
+            Assert.That(NetworkServer.AddConnection(conn43), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
-            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
-            Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
             Assert.That(NetworkServer.connections[43], Is.EqualTo(conn43));
+        }
+
+        [Test]
+        public void AddConnection_PreventsDuplicates()
+        {
+            // listen
+            NetworkServer.Listen(1);
+
+            // add a connection
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
+            Assert.That(NetworkServer.AddConnection(conn42), Is.True);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
 
             // add duplicate connectionId
             NetworkConnectionToClient connDup = new NetworkConnectionToClient(42, false);
-            bool resultDup = NetworkServer.AddConnection(connDup);
-            Assert.That(resultDup, Is.False);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
-            Assert.That(NetworkServer.connections.ContainsKey(42), Is.True);
+            Assert.That(NetworkServer.AddConnection(connDup), Is.False);
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
-            Assert.That(NetworkServer.connections.ContainsKey(43), Is.True);
-            Assert.That(NetworkServer.connections[43], Is.EqualTo(conn43));
         }
 
         [Test]
