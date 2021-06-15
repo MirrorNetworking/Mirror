@@ -650,9 +650,8 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // setup connections
-            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
-            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
-            connectionToClient.connectionToServer = new LocalConnectionToServer();
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
+                                      out LocalConnectionToServer connectionToServer);
 
             // setup NetworkServer/Client connections so messages are handled
             NetworkClient.connection = connectionToServer;
