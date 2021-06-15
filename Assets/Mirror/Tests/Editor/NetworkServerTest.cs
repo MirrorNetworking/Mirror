@@ -797,7 +797,6 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
 
             // add some test event hooks to make sure they are cleaned up.
             // there used to be a bug where they wouldn't be cleaned up.
@@ -806,7 +805,6 @@ namespace Mirror.Tests
 
             // set local connection
             NetworkServer.SetLocalConnection(new LocalConnectionToClient());
-            Assert.That(NetworkServer.localClientActive, Is.True);
 
             // connect a client
             transport.ClientConnect("localhost");
