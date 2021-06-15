@@ -467,19 +467,18 @@ namespace Mirror.Tests
             // for authority check
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
-            Assert.That(comp0.called, Is.EqualTo(0));
-            Assert.That(comp1.called, Is.EqualTo(0));
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
-                nameof(CommandTestNetworkBehaviour.CommandGenerated),
-                MirrorInvokeType.Command,
-                CommandTestNetworkBehaviour.CommandGenerated,
-                true);
 
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
+
+            // register the command delegate, otherwise it's not found
+            int registeredHash = RemoteCallHelper.RegisterDelegate(
+                typeof(CommandTestNetworkBehaviour),
+                nameof(CommandTestNetworkBehaviour.CommandGenerated),
+                MirrorInvokeType.Command,
+                CommandTestNetworkBehaviour.CommandGenerated,
+                true);
 
             // serialize a removeplayer message into an arraysegment
             CommandMessage message = new CommandMessage
@@ -489,14 +488,12 @@ namespace Mirror.Tests
                 netId = identity.netId,
                 payload = new ArraySegment<byte>(new byte[0])
             };
-            NetworkWriter writer = new NetworkWriter();
-            MessagePacking.Pack(message, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
+            byte[] bytes = MessagePackingTest.PackToByteArray(message);
 
             // call transport.OnDataReceived with the message
             // -> calls NetworkServer.OnRemovePlayerMessage
             //    -> destroys conn.identity and sets it to null
-            transport.OnServerDataReceived.Invoke(0, segment, 0);
+            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
 
             // was the command called in the first component, not in the second one?
             Assert.That(comp0.called, Is.EqualTo(1));
@@ -505,10 +502,8 @@ namespace Mirror.Tests
             //  send another command for the second component
             comp0.called = 0;
             message.componentIndex = 1;
-            writer = new NetworkWriter();
-            MessagePacking.Pack(message, writer);
-            segment = writer.ToArraySegment();
-            transport.OnServerDataReceived.Invoke(0, segment, 0);
+            bytes = MessagePackingTest.PackToByteArray(message);
+            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
 
             // was the command called in the second component, not in the first one?
             Assert.That(comp0.called, Is.EqualTo(0));
@@ -520,7 +515,7 @@ namespace Mirror.Tests
             identity.connectionToClient = new LocalConnectionToClient();
             comp0.called = 0;
             comp1.called = 0;
-            transport.OnServerDataReceived.Invoke(0, segment, 0);
+            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(0));
             // restore authority
@@ -529,13 +524,10 @@ namespace Mirror.Tests
             // sending a component with wrong netId should fail
             // wrong netid
             message.netId += 1;
-            writer = new NetworkWriter();
-            // need to serialize the message again with wrong netid
-            MessagePacking.Pack(message, writer);
-            ArraySegment<byte> segmentWrongNetId = writer.ToArraySegment();
+            bytes = MessagePackingTest.PackToByteArray(message);
             comp0.called = 0;
             comp1.called = 0;
-            transport.OnServerDataReceived.Invoke(0, segmentWrongNetId, 0);
+            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(0));
 
