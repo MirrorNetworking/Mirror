@@ -959,10 +959,7 @@ namespace Mirror.Tests
         [Test]
         public void NoExternalConnectionsTest_WithHostAndConnection()
         {
-            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
-            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
-            connectionToServer.connectionToClient = connectionToClient;
-            connectionToClient.connectionToServer = connectionToServer;
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
 
             NetworkServer.SetLocalConnection(connectionToClient);
             NetworkServer.connections.Add(0, connectionToClient);
