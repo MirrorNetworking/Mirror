@@ -470,7 +470,7 @@ namespace Mirror.Tests
             connection.isAuthenticated = true;
 
             // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject go, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
             identity.netId = 42;
             // for authority check
             identity.connectionToClient = connection;
@@ -555,7 +555,7 @@ namespace Mirror.Tests
         public void ActivateHostSceneCallsOnStartClient()
         {
             // add an identity with a networkbehaviour to .spawned
-            CreateNetworked(out GameObject go, out NetworkIdentity identity, out OnStartClientTestNetworkBehaviour comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStartClientTestNetworkBehaviour comp);
             identity.netId = 42;
             NetworkIdentity.spawned[identity.netId] = identity;
 
