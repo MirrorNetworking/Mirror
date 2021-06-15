@@ -241,11 +241,8 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // set local connection
-            // local connection needs a server connection because
-            // RemoveLocalConnection calls localConnection.Disconnect
-            LocalConnectionToClient localConnection = new LocalConnectionToClient();
-            localConnection.connectionToServer = new LocalConnectionToServer();
-            NetworkServer.SetLocalConnection(localConnection);
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            NetworkServer.SetLocalConnection(connectionToClient);
 
             // remove local connection
             NetworkServer.RemoveLocalConnection();
