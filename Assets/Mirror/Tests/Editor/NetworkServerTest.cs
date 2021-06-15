@@ -427,7 +427,6 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
@@ -437,17 +436,12 @@ namespace Mirror.Tests
             connectionToClient.isAuthenticated = true;
 
             // serialize a ready message into an arraysegment
-            ReadyMessage message = new ReadyMessage();
-            NetworkWriter writer = new NetworkWriter();
-            MessagePacking.Pack(message, writer);
-            ArraySegment<byte> segment = writer.ToArraySegment();
+            byte[] message = MessagePackingTest.PackToByteArray(new ReadyMessage());
 
             // call transport.OnDataReceived with the message
             // -> calls NetworkServer.OnClientReadyMessage
             //    -> calls SetClientReady(conn)
-            transport.OnServerDataReceived.Invoke(0, segment, 0);
-
-            // ready?
+            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(message), 0);
             Assert.That(connectionToClient.isReady, Is.True);
         }
 
