@@ -760,9 +760,6 @@ namespace Mirror.Tests
             // unspawned scene objects are set to inactive before spawning
             go2.SetActive(false);
 
-            // calling SpawnObjects while server isn't active should do nothing
-            Assert.That(NetworkServer.SpawnObjects(), Is.False);
-
             // start server
             NetworkServer.Listen(1);
 
@@ -778,6 +775,13 @@ namespace Mirror.Tests
             // called
             identity.isServer = false;
             identity2.isServer = false;
+        }
+
+        [Test]
+        public void SpawnObjects_OnlyIfServerActive()
+        {
+            // calling SpawnObjects while server isn't active should do nothing
+            Assert.That(NetworkServer.SpawnObjects(), Is.False);
         }
 
         [Test]
