@@ -96,5 +96,19 @@ namespace Mirror.Tests
             // received it on server?
             Assert.That(called, Is.EqualTo(1));
         }
+
+        [Test]
+        public void ShutdownCleanup()
+        {
+            // add some test event hooks to make sure they are cleaned up.
+            // there used to be a bug where they wouldn't be cleaned up.
+            NetworkClient.OnConnectedEvent = () => {};
+            NetworkClient.OnDisconnectedEvent = () => {};
+
+            NetworkClient.Shutdown();
+
+            Assert.That(NetworkClient.OnConnectedEvent, Is.Null);
+            Assert.That(NetworkClient.OnDisconnectedEvent, Is.Null);
+        }
     }
 }
