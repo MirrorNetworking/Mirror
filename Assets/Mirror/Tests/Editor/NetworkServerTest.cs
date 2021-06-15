@@ -324,7 +324,6 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // add connection
             NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
@@ -333,10 +332,6 @@ namespace Mirror.Tests
 
             // disconnect all connections
             NetworkServer.DisconnectAll();
-
-            // update transports. OnTransportDisconnected should be fired and
-            // clear all connections.
-
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
         }
 
