@@ -352,7 +352,7 @@ namespace Mirror.Tests
 
         // send a message all the way from client to server
         [Test]
-        public void ClientToServerMessage()
+        public void SendClientToServerMessage()
         {
             // register a message handler
             int called = 0;
