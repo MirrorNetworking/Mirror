@@ -21,8 +21,6 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [TearDown]
         public override void TearDown()
         {
-            // stop server/client
-            NetworkClient.Disconnect();
             base.TearDown();
         }
     }
