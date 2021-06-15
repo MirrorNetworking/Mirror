@@ -279,23 +279,16 @@ namespace Mirror.Tests
             CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
 
             // create a connection from client to server and from server to client
-            LocalConnectionToClient connection = new LocalConnectionToClient
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer = new LocalConnectionToServer
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer.connectionToClient = connection;
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
+                                      out LocalConnectionToServer connectionToServer);
+            connectionToClient.isReady = true;
+            connectionToClient.isAuthenticated = true;
+            connectionToServer.isReady = true;
+            connectionToServer.isAuthenticated = true;
 
             // host needs connection to both directions
-            identity.connectionToClient = connection;
-            identity.connectionToServer = connection.connectionToServer;
+            identity.connectionToClient = connectionToClient;
+            identity.connectionToServer = connectionToServer;
 
             // calling command before client is connected shouldn't work
             // error log is expected
@@ -325,7 +318,7 @@ namespace Mirror.Tests
 
             // register our connection at the server so that it sets up the
             // connection's handlers
-            NetworkServer.AddConnection(connection);
+            NetworkServer.AddConnection(connectionToClient);
 
             // register the command delegate, otherwise it's not found
             int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
@@ -350,7 +343,7 @@ namespace Mirror.Tests
             identity.connectionToServer.isReady = true;
 
             // clientscene.connection needs to be set for commands
-            NetworkClient.connection = connection.connectionToServer;
+            NetworkClient.connection = connectionToServer;
             NetworkClient.Ready();
 
             // call command
