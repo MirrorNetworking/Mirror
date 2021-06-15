@@ -330,6 +330,7 @@ namespace Mirror
 #if UNITY_EDITOR
         void AssignAssetID(string path)
         {
+            // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
             if (!string.IsNullOrEmpty(path))
                 m_AssetId = AssetDatabase.AssetPathToGUID(path);
         }
