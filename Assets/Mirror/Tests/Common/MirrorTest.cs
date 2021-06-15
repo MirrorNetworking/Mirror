@@ -165,8 +165,8 @@ namespace Mirror.Tests
             Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
 
             // run update so message are processed
-            NetworkServer.NetworkLateUpdate();
             NetworkClient.NetworkLateUpdate();
+            NetworkServer.NetworkLateUpdate();
         }
     }
 }
