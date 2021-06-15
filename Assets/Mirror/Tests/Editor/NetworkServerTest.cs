@@ -178,15 +178,10 @@ namespace Mirror.Tests
 
             // listen
             NetworkServer.Listen(2);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
-            // connect 0
+            // connect with connectionId == 0 should fail
             // (it will show an error message, which is expected)
             LogAssert.ignoreFailingMessages = true;
-            transport.OnServerConnected.Invoke(0);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-
-            // connect == 0 should fail
             transport.OnServerConnected.Invoke(0);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             LogAssert.ignoreFailingMessages = false;
