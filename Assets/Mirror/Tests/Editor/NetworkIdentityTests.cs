@@ -575,10 +575,8 @@ namespace Mirror.Tests
             };
 
             // create connections
-            LocalConnectionToClient owner = new LocalConnectionToClient();
-            LocalConnectionToServer clientConnection = new LocalConnectionToServer();
+            CreateLocalConnectionPair(out LocalConnectionToClient owner, out LocalConnectionToServer clientConnection);
             owner.isReady = true;
-            owner.connectionToServer = clientConnection;
 
             // setup NetworkServer/Client connections so messages are handled
             NetworkClient.connection = clientConnection;
