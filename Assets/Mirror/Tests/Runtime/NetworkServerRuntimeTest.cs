@@ -22,10 +22,6 @@ namespace Mirror.Tests.Runtime
         [UnityTearDown]
         public override IEnumerator UnityTearDown()
         {
-            if (NetworkServer.active)
-            {
-                NetworkServer.Shutdown();
-            }
             yield return base.UnityTearDown();
         }
 

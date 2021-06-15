@@ -747,9 +747,6 @@ namespace Mirror.Tests
 
             // was it send to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
-
-            // clean up
-            NetworkServer.Shutdown();
         }
 
         [Test]

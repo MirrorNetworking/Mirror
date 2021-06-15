@@ -69,9 +69,6 @@ namespace Mirror.Tests
             // we have no real clients.
             NetworkServer.connections.Clear();
 
-            // stop server
-            NetworkServer.Shutdown();
-
             base.TearDown();
         }
 
