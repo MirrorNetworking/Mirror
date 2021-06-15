@@ -378,26 +378,19 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.True);
 
             // create a connection from client to server and from server to client
-            LocalConnectionToClient connection = new LocalConnectionToClient
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer = new LocalConnectionToServer
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer.connectionToClient = connection;
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
+                                      out LocalConnectionToServer connectionToServer);
+            connectionToClient.isReady = true;
+            connectionToClient.isAuthenticated = true;
+            connectionToServer.isReady = true;
+            connectionToServer.isAuthenticated = true;
 
             // connect client
             NetworkClient.Connect("localhost");
             Assert.That(NetworkClient.active, Is.True);
 
             // add command component
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
 
             // DO NOT ASSIGN connectionToServer for the identity
 
@@ -406,7 +399,7 @@ namespace Mirror.Tests
 
             // register our connection at the server so that it sets up the
             // connection's handlers
-            NetworkServer.AddConnection(connection);
+            NetworkServer.AddConnection(connectionToClient);
 
             // register the command delegate, otherwise it's not found
             int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
@@ -420,7 +413,7 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // clientscene.readyconnection needs to be set for commands
-            NetworkClient.connection = connection.connectionToServer;
+            NetworkClient.connection = connectionToServer;
             NetworkClient.Ready();
 
             // call command. don't require authority.
