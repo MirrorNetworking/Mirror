@@ -26,6 +26,9 @@ namespace Mirror.Tests
 
         public virtual void TearDown()
         {
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
+
             foreach (GameObject go in instantiated)
                 if (go != null)
                     GameObject.DestroyImmediate(go);

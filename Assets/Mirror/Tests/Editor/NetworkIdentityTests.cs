@@ -265,8 +265,6 @@ namespace Mirror.Tests
         public override void TearDown()
         {
             // cleanup
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
             NetworkIdentity.spawned.Clear();
 
             base.TearDown();

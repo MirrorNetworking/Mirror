@@ -195,9 +195,6 @@ namespace Mirror.Tests
         public override void TearDown()
         {
             NetworkServer.RemoveLocalConnection();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-
             NetworkIdentity.spawned.Clear();
             base.TearDown();
         }

@@ -29,9 +29,6 @@ namespace Mirror.Tests
         public override void TearDown()
         {
             connectionToServer.Disconnect();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-
             base.TearDown();
         }
 

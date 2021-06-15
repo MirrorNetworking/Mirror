@@ -23,8 +23,6 @@ namespace Mirror.Tests.RemoteAttrributeTest
         {
             // stop server/client
             NetworkClient.Disconnect();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
             NetworkIdentity.spawned.Clear();
             base.TearDown();
         }
