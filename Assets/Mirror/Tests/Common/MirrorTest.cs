@@ -1,5 +1,6 @@
 // base class for networking tests to make things easier.
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -141,6 +142,14 @@ namespace Mirror.Tests
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
                 Debug.Assert(component.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+        }
+
+        // fully connect client to local server
+        protected void ConnectClientBlocking()
+        {
+            NetworkClient.Connect("127.0.0.1");
+            UpdateTransport();
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
         }
 
         protected void UpdateTransport()
