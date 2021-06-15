@@ -911,6 +911,28 @@ namespace Mirror.Tests
             NetworkServer.NetworkLateUpdate();
         }
 
+        // updating NetworkServer with a null entry in connection.observing
+        // should log a warning. someone probably used GameObject.Destroy
+        // instead of NetworkServer.Destroy.
+        //
+        // => need extra test because of Unity's custom null check
+        [Test]
+        public void UpdateDetectsDestroyedEntryInObserving()
+        {
+            // start
+            NetworkServer.Listen(1);
+
+            // add a connection that is observed by a destroyed entity
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
+            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            NetworkServer.connections[42].observing.Add(ni);
+            GameObject.DestroyImmediate(go);
+
+            // update
+            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
+            NetworkServer.NetworkLateUpdate();
+        }
+
         // NetworkServer.Update iterates all connections.
         // a timed out connection may call Disconnect, trying to modify the
         // collection during the loop.
@@ -935,28 +957,6 @@ namespace Mirror.Tests
             // clean up
             NetworkServer.disconnectInactiveConnections = false;
 #pragma warning restore 618
-        }
-
-        // updating NetworkServer with a null entry in connection.observing
-        // should log a warning. someone probably used GameObject.Destroy
-        // instead of NetworkServer.Destroy.
-        //
-        // => need extra test because of Unity's custom null check
-        [Test]
-        public void UpdateDetectsDestroyedEntryInObserving()
-        {
-            // start
-            NetworkServer.Listen(1);
-
-            // add a connection that is observed by a destroyed entity
-            CreateNetworked(out GameObject go, out NetworkIdentity ni);
-            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
-            NetworkServer.connections[42].observing.Add(ni);
-            GameObject.DestroyImmediate(go);
-
-            // update
-            LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
-            NetworkServer.NetworkLateUpdate();
         }
     }
 }
