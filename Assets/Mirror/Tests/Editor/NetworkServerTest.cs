@@ -901,6 +901,11 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             Assert.That(NetworkServer.active, Is.True);
 
+            // add some test event hooks to make sure they are cleaned up.
+            // there used to be a bug where they wouldn't be cleaned up.
+            NetworkServer.OnConnectedEvent = connection => {};
+            NetworkServer.OnDisconnectedEvent = connection => {};
+
             // set local connection
             NetworkServer.SetLocalConnection(new LocalConnectionToClient());
             Assert.That(NetworkServer.localClientActive, Is.True);
@@ -918,6 +923,8 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.False);
             Assert.That(NetworkServer.localConnection, Is.Null);
             Assert.That(NetworkServer.localClientActive, Is.False);
+            Assert.That(NetworkServer.OnConnectedEvent, Is.Null);
+            Assert.That(NetworkServer.OnDisconnectedEvent, Is.Null);
         }
 
         [Test]
