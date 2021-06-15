@@ -396,15 +396,14 @@ namespace Mirror.Tests
         [Test]
         public void SetClientReadyAndNotReady()
         {
-            LocalConnectionToClient connection = new LocalConnectionToClient();
-            connection.connectionToServer = new LocalConnectionToServer();
-            Assert.That(connection.isReady, Is.False);
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            Assert.That(connectionToClient.isReady, Is.False);
 
-            NetworkServer.SetClientReady(connection);
-            Assert.That(connection.isReady, Is.True);
+            NetworkServer.SetClientReady(connectionToClient);
+            Assert.That(connectionToClient.isReady, Is.True);
 
-            NetworkServer.SetClientNotReady(connection);
-            Assert.That(connection.isReady, Is.False);
+            NetworkServer.SetClientNotReady(connectionToClient);
+            Assert.That(connectionToClient.isReady, Is.False);
         }
 
         [Test]
