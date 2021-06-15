@@ -362,13 +362,9 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking();
 
-            // send the message
+            // send message & process
             NetworkClient.Send(new TestMessage1());
-
-            // update so it gets through
-            NetworkClient.NetworkLateUpdate();
-            NetworkServer.NetworkLateUpdate();
-            UpdateTransport();
+            ProcessMessages();
 
             // did it get through?
             Assert.That(called, Is.EqualTo(1));
