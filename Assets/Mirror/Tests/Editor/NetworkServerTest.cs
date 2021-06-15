@@ -845,14 +845,14 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NoExternalConnectionsTest_WithNoConnection()
+        public void NoExternalConnections_WithNoConnection()
         {
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.NoExternalConnections(), Is.True);
         }
 
         [Test]
-        public void NoExternalConnectionsTest_WithConnections()
+        public void NoExternalConnections_WithConnections()
         {
             NetworkServer.connections.Add(1, null);
             NetworkServer.connections.Add(2, null);
@@ -863,7 +863,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NoExternalConnectionsTest_WithHostOnly()
+        public void NoExternalConnections_WithHostOnly()
         {
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
 
@@ -878,7 +878,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NoExternalConnectionsTest_WithHostAndConnection()
+        public void NoExternalConnections_WithHostAndConnection()
         {
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
 
