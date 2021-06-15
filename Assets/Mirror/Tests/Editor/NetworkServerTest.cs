@@ -350,6 +350,30 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
+        // send a message all the way from client to server
+        [Test]
+        public void ClientToServerMessage()
+        {
+            // register a message handler
+            int called = 0;
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++called, false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking();
+
+            // send the message
+            NetworkClient.Send(new TestMessage1());
+
+            // update so it gets through
+            NetworkClient.NetworkLateUpdate();
+            NetworkServer.NetworkLateUpdate();
+            UpdateTransport();
+
+            // did it get through?
+            Assert.That(called, Is.EqualTo(1));
+        }
+
         [Test]
         public void OnDataReceived()
         {
