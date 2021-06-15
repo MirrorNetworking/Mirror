@@ -158,15 +158,18 @@ namespace Mirror.Tests
             transport.ServerEarlyUpdate();
         }
 
-        protected static void ProcessMessages()
+        protected void ProcessMessages()
         {
             // server & client need to be active
             Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
             Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
 
-            // run update so message are processed
+            // update server & client so batched messages are flushed
             NetworkClient.NetworkLateUpdate();
             NetworkServer.NetworkLateUpdate();
+
+            // update transport so sent messages are received
+            UpdateTransport();
         }
     }
 }
