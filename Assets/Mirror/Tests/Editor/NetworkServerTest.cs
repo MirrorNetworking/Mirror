@@ -445,7 +445,7 @@ namespace Mirror.Tests
                 CommandTestNetworkBehaviour.CommandGenerated,
                 true);
 
-            // serialize a removeplayer message into an arraysegment
+            // serialize message into an arraysegment
             CommandMessage message = new CommandMessage
             {
                 componentIndex = 0,
