@@ -385,23 +385,14 @@ namespace Mirror.Tests
         [Test]
         public void ReadyMessageSetsClientReady()
         {
-            // listen
+            // listen & connect
             NetworkServer.Listen(1);
+            ConnectClientBlockingAndAuthenticate();
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
 
-            // add connection
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
-            NetworkServer.AddConnection(connectionToClient);
-
-            // set as authenticated, otherwise readymessage is rejected
-            connectionToClient.isAuthenticated = true;
-
-            // serialize a ready message into an arraysegment
-            byte[] message = MessagePackingTest.PackToByteArray(new ReadyMessage());
-
-            // call transport.OnDataReceived with the message
-            // -> calls NetworkServer.OnClientReadyMessage
-            //    -> calls SetClientReady(conn)
-            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(message), 0);
+            // send ready message
+            NetworkClient.Ready();
+            ProcessMessages();
             Assert.That(connectionToClient.isReady, Is.True);
         }
 
