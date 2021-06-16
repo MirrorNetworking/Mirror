@@ -291,7 +291,7 @@ namespace kcp2k
         {
             if (ServerActive())
             {
-                string log = "kcp SERVER @ time: " + NetworkTime.time + "\n";
+                string log = "kcp SERVER @ time: " + NetworkTime.localTime + "\n";
                 log += $"  connections: {server.connections.Count}\n";
                 log += $"  MaxSendRate (avg): {PrettyBytes(GetAverageMaxSendRate())}/s\n";
                 log += $"  MaxRecvRate (avg): {PrettyBytes(GetAverageMaxReceiveRate())}/s\n";
@@ -304,7 +304,7 @@ namespace kcp2k
 
             if (ClientConnected())
             {
-                string log = "kcp CLIENT @ time: " + NetworkTime.time + "\n";
+                string log = "kcp CLIENT @ time: " + NetworkTime.localTime + "\n";
                 log += $"  MaxSendRate: {PrettyBytes(client.connection.MaxSendRate)}/s\n";
                 log += $"  MaxRecvRate: {PrettyBytes(client.connection.MaxReceiveRate)}/s\n";
                 log += $"  SendQueue: {client.connection.SendQueueCount}\n";
