@@ -610,7 +610,6 @@ namespace Mirror.Tests
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // setup connections
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
