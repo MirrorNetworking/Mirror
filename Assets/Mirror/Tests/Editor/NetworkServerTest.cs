@@ -633,8 +633,6 @@ namespace Mirror.Tests
             // call ShowForConnection
             NetworkServer.ShowForConnection(identity, connectionToClient);
             ProcessMessages();
-
-            // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
 
             // destroy manually to avoid 'Destroy can't be called in edit mode'
@@ -665,8 +663,6 @@ namespace Mirror.Tests
             // call ShowForConnection - should not work if not ready
             NetworkServer.ShowForConnection(identity, connectionToClient);
             ProcessMessages();
-
-            // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(0));
 
             // destroy manually to avoid 'Destroy can't be called in edit mode'
@@ -700,8 +696,6 @@ namespace Mirror.Tests
             // call HideForConnection
             NetworkServer.HideForConnection(identity, connectionToClient);
             ProcessMessages();
-
-            // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
 
             // destroy manually to avoid 'Destroy can't be called in edit mode'
