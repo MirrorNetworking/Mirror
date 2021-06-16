@@ -6,14 +6,8 @@ namespace Mirror
     // message packing all in one place, instead of constructing headers in all
     // kinds of different places
     //
-    //   MsgType     (1-n bytes)
+    //   MsgType     (2 bytes)
     //   Content     (ContentSize bytes)
-    //
-    // -> we use varint for headers because most messages will result in 1 byte
-    //    type/size headers then instead of always
-    //    using 2 bytes for shorts.
-    // -> this reduces bandwidth by 10% if average message size is 20 bytes
-    //    (probably even shorter)
     public static class MessagePacking
     {
         // message header size
@@ -46,7 +40,7 @@ namespace Mirror
         // -> NetworkReader will point at content afterwards!
         public static bool Unpack(NetworkReader messageReader, out ushort msgType)
         {
-            // read message type (varint)
+            // read message type
             try
             {
                 msgType = messageReader.ReadUShort();
