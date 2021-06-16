@@ -824,24 +824,17 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(nameof(NetworkServer.SendToAll))]
-        [TestCase(nameof(NetworkServer.SendToReady))]
-        public void SendCalledWhileNotActive_ShouldGiveWarning(string functionName)
+        public void SendToAll_CalledWhileNotActive_ShouldGiveWarning()
         {
-            LogAssert.Expect(LogType.Warning, $"Can not send using NetworkServer.{functionName}<T>(T msg) because NetworkServer is not active");
+            LogAssert.Expect(LogType.Warning, $"Can not send using NetworkServer.SendToAll<T>(T msg) because NetworkServer is not active");
+            NetworkServer.SendToAll(new NetworkPingMessage {});
+        }
 
-            switch (functionName)
-            {
-                case nameof(NetworkServer.SendToAll):
-                    NetworkServer.SendToAll(new NetworkPingMessage {});
-                    break;
-                case nameof(NetworkServer.SendToReady):
-                    NetworkServer.SendToReady(new NetworkPingMessage {});
-                    break;
-                default:
-                    Debug.LogError("Could not find function name");
-                    break;
-            }
+        [Test]
+        public void SendToReady_CalledWhileNotActive_ShouldGiveWarning()
+        {
+            LogAssert.Expect(LogType.Warning, $"Can not send using NetworkServer.SendToReady<T>(T msg) because NetworkServer is not active");
+            NetworkServer.SendToReady(new NetworkPingMessage {});
         }
 
         [Test]
