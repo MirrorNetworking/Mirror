@@ -558,23 +558,19 @@ namespace Mirror.Tests
             RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
-        // this runs a command all the way:
-        //   byte[]->transport->server->identity->component
         [Test]
-        public void CommandMessageCallsCommand()
+        public void SendCommand_WrongNetId()
         {
-            // listen
+            // listen & connect
             NetworkServer.Listen(1);
+            ConnectClientBlocking();
 
-            // add connection
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
-            NetworkServer.AddConnection(connectionToClient);
-
-            // set as authenticated, otherwise removeplayer is rejected
+            // set authenticated (required for message)
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             connectionToClient.isAuthenticated = true;
 
             // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
             identity.netId = 42;
             // for authority check
             identity.connectionToClient = connectionToClient;
@@ -597,51 +593,16 @@ namespace Mirror.Tests
             {
                 componentIndex = 0,
                 functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
-                netId = identity.netId,
+                netId = identity.netId + 1, // WRONG NET ID
                 payload = new ArraySegment<byte>(new byte[0])
             };
-            byte[] bytes = MessagePackingTest.PackToByteArray(message);
 
-            // call transport.OnDataReceived with the message
-            // -> calls NetworkServer.OnRemovePlayerMessage
-            //    -> destroys conn.identity and sets it to null
-            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
+            // send message to server
+            NetworkClient.Send(message);
+            ProcessMessages();
 
             // was the command called in the first component, not in the second one?
-            Assert.That(comp0.called, Is.EqualTo(1));
-            Assert.That(comp1.called, Is.EqualTo(0));
-
-            //  send another command for the second component
-            comp0.called = 0;
-            message.componentIndex = 1;
-            bytes = MessagePackingTest.PackToByteArray(message);
-            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
-
-            // was the command called in the second component, not in the first one?
-            Assert.That(comp0.called, Is.EqualTo(0));
-            Assert.That(comp1.called, Is.EqualTo(1));
-
-            // sending a command without authority should fail
-            // (= if connectionToClient is not what we received the data on)
-            // set wrong authority
-            identity.connectionToClient = new LocalConnectionToClient();
-            comp0.called = 0;
-            comp1.called = 0;
-            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
-            Assert.That(comp0.called, Is.EqualTo(0));
-            Assert.That(comp1.called, Is.EqualTo(0));
-            // restore authority
-            identity.connectionToClient = connectionToClient;
-
-            // sending a component with wrong netId should fail
-            // wrong netid
-            message.netId += 1;
-            bytes = MessagePackingTest.PackToByteArray(message);
-            comp0.called = 0;
-            comp1.called = 0;
-            transport.OnServerDataReceived.Invoke(0, new ArraySegment<byte>(bytes), 0);
-            Assert.That(comp0.called, Is.EqualTo(0));
-            Assert.That(comp1.called, Is.EqualTo(0));
+            Assert.That(comp.called, Is.EqualTo(0));
 
             // clean up
             RemoteCallHelper.RemoveDelegate(registeredHash);
