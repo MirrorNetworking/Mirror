@@ -31,9 +31,9 @@ namespace Mirror
         static double offsetMin = double.MinValue;
         static double offsetMax = double.MaxValue;
 
-        // returns the clock time _in this system_
+        /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
         // => useful until we have Unity's 'double' Time.time
-        static double localTime => stopwatch.Elapsed.TotalSeconds;
+        public static double localTime => stopwatch.Elapsed.TotalSeconds;
 
         /// <summary>The time in seconds since the server started.</summary>
         //
