@@ -1123,51 +1123,8 @@ namespace Mirror.Tests
             Assert.That(identity.connectionToServer, Is.Null);
         }
 
-        [Test]
-        public void HandleCommand()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0);
-
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(1, false);
-            Assert.That(comp0.called, Is.EqualTo(0));
-            Assert.That(comp0.senderConnectionInCall, Is.Null);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
-                nameof(CommandTestNetworkBehaviour.CommandGenerated),
-                MirrorInvokeType.Command,
-                CommandTestNetworkBehaviour.CommandGenerated,
-                false);
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call HandleCommand and check if the command was called in the component
-            int functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
-            NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleRemoteCall(0, functionHash, MirrorInvokeType.Command, payload, connection);
-            Assert.That(comp0.called, Is.EqualTo(1));
-            Assert.That(comp0.senderConnectionInCall, Is.EqualTo(connection));
-
-
-            // try wrong component index. command shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleRemoteCall(1, functionHash, MirrorInvokeType.Command, payload, connection);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // try wrong function hash. command shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleRemoteCall(0, functionHash + 1, MirrorInvokeType.Command, payload, connection);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
+        [Test, Ignore("NetworkServerTest.SendCommand does it already")]
+        public void HandleCommand() {}
 
         [Test]
         public void HandleRpc()
