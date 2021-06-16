@@ -172,6 +172,21 @@ namespace Mirror.Tests
             NetworkClient.connection.isAuthenticated = true;
         }
 
+        // fully connect client to local server & authenticate & set read
+        protected void ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient)
+        {
+            ConnectClientBlocking(out connectionToClient);
+
+            // authenticate server & client connections
+            connectionToClient.isAuthenticated = true;
+            NetworkClient.connection.isAuthenticated = true;
+
+            // set ready
+            NetworkClient.Ready();
+            ProcessMessages();
+            Assert.That(connectionToClient.isReady, Is.True);
+        }
+
         protected void UpdateTransport()
         {
             transport.ClientEarlyUpdate();

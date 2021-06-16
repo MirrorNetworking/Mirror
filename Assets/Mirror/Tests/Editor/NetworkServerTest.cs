@@ -386,11 +386,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
-
-            // send ready message
-            NetworkClient.Ready();
-            ProcessMessages();
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
             Assert.That(connectionToClient.isReady, Is.True);
         }
 
@@ -400,11 +396,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
-
-            // need to be ready for commands
-            NetworkClient.Ready();
-            ProcessMessages();
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
@@ -431,11 +423,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
-
-            // need to be ready for commands
-            NetworkClient.Ready();
-            ProcessMessages();
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
@@ -461,11 +449,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
-
-            // need to be ready for commands
-            NetworkClient.Ready();
-            ProcessMessages();
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
@@ -493,11 +477,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
-
-            // need to be ready for commands
-            NetworkClient.Ready();
-            ProcessMessages();
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
@@ -627,16 +607,11 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
             NetworkClient.ReplaceHandler<SpawnMessage>(msg => ++called, false);
-
-            // ready is required for ShowForConnection
-            NetworkClient.Ready();
-            ProcessMessages();
-            Assert.That(connectionToClient.isReady, Is.True);
 
             // create a gameobject and networkidentity and some unique values
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
@@ -655,14 +630,13 @@ namespace Mirror.Tests
         public void ShowForConnection_OnlyWorksIfReady()
         {
             // listen & connect
+            // DO NOT set ready this time
             NetworkServer.Listen(1);
             ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
             NetworkClient.ReplaceHandler<SpawnMessage>(msg => ++called, false);
-
-            // DO NOT set ready this time
 
             // create a gameobject and networkidentity and some unique values
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
@@ -682,16 +656,11 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
             NetworkClient.ReplaceHandler<ObjectHideMessage>(msg => ++called, false);
-
-            // ready is required for ShowForConnection
-            NetworkClient.Ready();
-            ProcessMessages();
-            Assert.That(connectionToClient.isReady, Is.True);
 
             // create a gameobject and networkidentity and some unique values
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
