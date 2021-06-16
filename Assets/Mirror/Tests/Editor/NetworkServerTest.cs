@@ -600,8 +600,6 @@ namespace Mirror.Tests
             // send message to server
             NetworkClient.Send(message);
             ProcessMessages();
-
-            // was the command called in the first component, not in the second one?
             Assert.That(comp.called, Is.EqualTo(0));
 
             // clean up
