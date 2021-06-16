@@ -7,42 +7,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    struct TestMessage1 : NetworkMessage
-    {
-        public int IntValue;
-        public string StringValue;
-        public double DoubleValue;
-
-        public TestMessage1(int i, string s, double d)
-        {
-            IntValue = i;
-            StringValue = s;
-            DoubleValue = d;
-        }
-
-        public void Deserialize(NetworkReader reader)
-        {
-            IntValue = reader.ReadInt();
-            StringValue = reader.ReadString();
-            DoubleValue = reader.ReadDouble();
-        }
-
-        public void Serialize(NetworkWriter writer)
-        {
-            writer.WriteInt(IntValue);
-            writer.WriteString(StringValue);
-            writer.WriteDouble(DoubleValue);
-        }
-    }
-
-    struct TestMessage2 : NetworkMessage
-    {
-#pragma warning disable CS0649 // Field is never assigned to
-        public int IntValue;
-        public string StringValue;
-        public double DoubleValue;
-#pragma warning restore CS0649 // Field is never assigned to
-    }
+    struct TestMessage1 : NetworkMessage {}
 
     public class CommandTestNetworkBehaviour : NetworkBehaviour
     {
