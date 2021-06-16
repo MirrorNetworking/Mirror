@@ -30,6 +30,12 @@ namespace Mirror.Tests
             NetworkClient.Shutdown();
             NetworkServer.Shutdown();
 
+            // some tests might modify NetworkServer.connections without ever
+            // starting the server.
+            // NetworkServer.Shutdown() only clears connections if it was started.
+            // so let's do it manually for proper test cleanup here.
+            NetworkServer.connections.Clear();
+
             foreach (GameObject go in instantiated)
                 if (go != null)
                     GameObject.DestroyImmediate(go);

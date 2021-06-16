@@ -858,8 +858,6 @@ namespace Mirror.Tests
             NetworkServer.connections.Add(2, null);
             Assert.That(NetworkServer.NoExternalConnections(), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
-
-            NetworkServer.connections.Clear();
         }
 
         [Test]
@@ -873,7 +871,6 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.NoExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
-            NetworkServer.connections.Clear();
             NetworkServer.RemoveLocalConnection();
         }
 
@@ -889,7 +886,6 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.NoExternalConnections(), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
 
-            NetworkServer.connections.Clear();
             NetworkServer.RemoveLocalConnection();
         }
 
