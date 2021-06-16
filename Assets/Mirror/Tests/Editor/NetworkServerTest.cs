@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Mirror.RemoteCalls;
 using NUnit.Framework;
@@ -608,24 +609,22 @@ namespace Mirror.Tests
         [Test]
         public void ShowForConnection()
         {
-            // listen
+            // listen & connect
             NetworkServer.Listen(1);
+            ConnectClientBlocking();
 
-            // setup connections
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
-                                      out LocalConnectionToServer connectionToServer);
-
-            // setup NetworkServer/Client connections so messages are handled
-            NetworkClient.connection = connectionToServer;
-            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
-
-            // required for ShowForConnection
-            connectionToClient.isReady = true;
-
-            // set a client handler
+            // overwrite spawn message handler
             int called = 0;
-            NetworkClient.RegisterHandler<SpawnMessage>(msg => ++called, false);
-            NetworkServer.AddConnection(connectionToClient);
+            NetworkClient.ReplaceHandler<SpawnMessage>(msg => ++called, false);
+
+            // set authenticated (required for ready message)
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
+            connectionToClient.isAuthenticated = true;
+
+            // ready is required for ShowForConnection
+            NetworkClient.Ready();
+            ProcessMessages();
+            Assert.That(connectionToClient.isReady, Is.True);
 
             // create a gameobject and networkidentity and some unique values
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
@@ -633,19 +632,45 @@ namespace Mirror.Tests
 
             // call ShowForConnection
             NetworkServer.ShowForConnection(identity, connectionToClient);
-
-            // update local connection once so that the incoming queue is processed
-            connectionToClient.connectionToServer.Update();
+            ProcessMessages();
 
             // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
 
-            // it shouldn't send it if connection isn't ready, so try that too
-            connectionToClient.isReady = false;
+            // destroy manually to avoid 'Destroy can't be called in edit mode'
+            GameObject.DestroyImmediate(identity.gameObject);
+        }
+
+        [Test]
+        public void ShowForConnection_OnlyWorksIfReady()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking();
+
+            // overwrite spawn message handler
+            int called = 0;
+            NetworkClient.ReplaceHandler<SpawnMessage>(msg => ++called, false);
+
+            // set authenticated (required for ready message)
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
+            connectionToClient.isAuthenticated = true;
+
+            // DO NOT set ready this time
+
+            // create a gameobject and networkidentity and some unique values
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+            identity.connectionToClient = connectionToClient;
+
+            // call ShowForConnection - should not work if not ready
             NetworkServer.ShowForConnection(identity, connectionToClient);
-            connectionToClient.connectionToServer.Update();
-            // not 2 but 1 like before?
-            Assert.That(called, Is.EqualTo(1));
+            ProcessMessages();
+
+            // was it sent to and handled by the connection?
+            Assert.That(called, Is.EqualTo(0));
+
+            // destroy manually to avoid 'Destroy can't be called in edit mode'
+            GameObject.DestroyImmediate(identity.gameObject);
         }
 
         [Test]
