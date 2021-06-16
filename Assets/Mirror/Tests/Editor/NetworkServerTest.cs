@@ -14,14 +14,9 @@ namespace Mirror.Tests
     {
         // counter to make sure that it's called exactly once
         public int called;
-        public NetworkConnection senderConnectionInCall;
-        // weaver generates this from [Command]
-        // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
-        {
-            ++((CommandTestNetworkBehaviour)comp).called;
-            ((CommandTestNetworkBehaviour)comp).senderConnectionInCall = senderConnection;
-        }
+
+        [Command]
+        public void TestCommand() => ++called;
     }
 
     public class RpcTestNetworkBehaviour : NetworkBehaviour
@@ -419,13 +414,18 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking();
 
-            // set authenticated (required for message)
+            // need to be authenticated for ready message
             NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             connectionToClient.isAuthenticated = true;
+
+            // need to be ready for commands
+            NetworkClient.Ready();
+            ProcessMessages();
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
             identity.netId = 42;
+            identity.isLocalPlayer = true;
             // for authority check
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
@@ -434,28 +434,10 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(
-                typeof(CommandTestNetworkBehaviour),
-                nameof(CommandTestNetworkBehaviour.CommandGenerated),
-                MirrorInvokeType.Command,
-                CommandTestNetworkBehaviour.CommandGenerated,
-                true);
-
-            // send message to server
-            CommandMessage message = new CommandMessage
-            {
-                componentIndex = 0,
-                functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
-                netId = identity.netId,
-                payload = new ArraySegment<byte>(new byte[0])
-            };
-            NetworkClient.Send(message);
+            // call the command
+            comp.TestCommand();
             ProcessMessages();
             Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         // send a [Command] to an entity with TWO command components.
@@ -467,13 +449,18 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking();
 
-            // set authenticated (required for message)
+            // need to be authenticated for ready message
             NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             connectionToClient.isAuthenticated = true;
+
+            // need to be ready for commands
+            NetworkClient.Ready();
+            ProcessMessages();
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
             identity.netId = 42;
+            identity.isLocalPlayer = true;
             // for authority check
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
@@ -482,29 +469,11 @@ namespace Mirror.Tests
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
 
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(
-                typeof(CommandTestNetworkBehaviour),
-                nameof(CommandTestNetworkBehaviour.CommandGenerated),
-                MirrorInvokeType.Command,
-                CommandTestNetworkBehaviour.CommandGenerated,
-                true);
-
-            // send message to server
-            CommandMessage message = new CommandMessage
-            {
-                componentIndex = 1,
-                functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
-                netId = identity.netId,
-                payload = new ArraySegment<byte>(new byte[0])
-            };
-            NetworkClient.Send(message);
+            // call the command
+            comp1.TestCommand();
             ProcessMessages();
             Assert.That(comp0.called, Is.EqualTo(0));
             Assert.That(comp1.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
@@ -514,13 +483,18 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking();
 
-            // set authenticated (required for message)
+            // need to be authenticated for ready message
             NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             connectionToClient.isAuthenticated = true;
+
+            // need to be ready for commands
+            NetworkClient.Ready();
+            ProcessMessages();
 
             // add an identity with two networkbehaviour components
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
             identity.netId = 42;
+            identity.isLocalPlayer = true;
             // for authority check
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
@@ -528,82 +502,14 @@ namespace Mirror.Tests
             // identity needs to be in spawned dict, otherwise command handler
             // won't find it
             NetworkIdentity.spawned[identity.netId] = identity;
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(
-                typeof(CommandTestNetworkBehaviour),
-                nameof(CommandTestNetworkBehaviour.CommandGenerated),
-                MirrorInvokeType.Command,
-                CommandTestNetworkBehaviour.CommandGenerated,
-                true);
-
-            // serialize message into an arraysegment
-            CommandMessage message = new CommandMessage
-            {
-                componentIndex = 0,
-                functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
-                netId = identity.netId,
-                payload = new ArraySegment<byte>(new byte[0])
-            };
 
             // change identity's owner connection so we can't call [Commands] on it
             identity.connectionToClient = new LocalConnectionToClient();
 
-            // send message to server
-            NetworkClient.Send(message);
+            // call the command
+            comp.TestCommand();
             ProcessMessages();
             Assert.That(comp.called, Is.EqualTo(0));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
-
-        [Test]
-        public void SendCommand_WrongNetId()
-        {
-            // listen & connect
-            NetworkServer.Listen(1);
-            ConnectClientBlocking();
-
-            // set authenticated (required for message)
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
-            connectionToClient.isAuthenticated = true;
-
-            // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
-            identity.netId = 42;
-            // for authority check
-            identity.connectionToClient = connectionToClient;
-            connectionToClient.identity = identity;
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(
-                typeof(CommandTestNetworkBehaviour),
-                nameof(CommandTestNetworkBehaviour.CommandGenerated),
-                MirrorInvokeType.Command,
-                CommandTestNetworkBehaviour.CommandGenerated,
-                true);
-
-            // serialize message into an arraysegment
-            CommandMessage message = new CommandMessage
-            {
-                componentIndex = 0,
-                functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
-                netId = identity.netId + 1, // WRONG NET ID
-                payload = new ArraySegment<byte>(new byte[0])
-            };
-
-            // send message to server
-            NetworkClient.Send(message);
-            ProcessMessages();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
         [Test]
