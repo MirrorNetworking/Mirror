@@ -69,33 +69,8 @@ namespace Mirror.Tests
         //      at (wrapper managed-to-native) System.Reflection.MonoMethod.InternalInvoke(System.Reflection.MonoMethod,object,object[],System.Exception&)
         //      at System.Reflection.MonoMethod.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x00032] in <eae584ce26bc40229c1b1aa476bfa589>:0
         //    ---
-        [Test]
-        public void Send()
-        {
-            // register server handler
-            int called = 0;
-            NetworkServer.RegisterHandler<AddPlayerMessage>((conn, msg) => { ++called; }, false);
-
-            // connect a regular connection. not host, because host would use
-            // connId=0 but memorytransport uses connId=1
-            NetworkClient.Connect("localhost");
-            // update transport so connect event is processed
-            UpdateTransport();
-
-            // send it
-            AddPlayerMessage message = new AddPlayerMessage();
-            NetworkClient.Send(message);
-
-            // update client & server so batches are flushed
-            NetworkClient.NetworkLateUpdate();
-            NetworkServer.NetworkLateUpdate();
-
-            // update transport so data event is processed
-            UpdateTransport();
-
-            // received it on server?
-            Assert.That(called, Is.EqualTo(1));
-        }
+        [Test, Ignore("NetworkServerTest.SendClientToServerMessage does it already")]
+        public void Send() {}
 
         [Test]
         public void ShutdownCleanup()
