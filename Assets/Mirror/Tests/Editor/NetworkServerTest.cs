@@ -327,6 +327,25 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void Send_ServerToClientMessage()
+        {
+            // register a message handler
+            int called = 0;
+            NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send message & process
+            connectionToClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            // did it get through?
+            Assert.That(called, Is.EqualTo(1));
+        }
+
+        [Test]
         public void OnDataReceivedInvalidConnectionId()
         {
             // register a message handler
