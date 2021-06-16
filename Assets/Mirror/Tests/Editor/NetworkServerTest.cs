@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Mirror.RemoteCalls;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -412,11 +411,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
-
-            // need to be authenticated for ready message
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
-            connectionToClient.isAuthenticated = true;
+            ConnectClientBlockingAndAuthenticate();
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -427,6 +422,7 @@ namespace Mirror.Tests
             identity.netId = 42;
             identity.isLocalPlayer = true;
             // for authority check
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
 
@@ -447,11 +443,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
-
-            // need to be authenticated for ready message
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
-            connectionToClient.isAuthenticated = true;
+            ConnectClientBlockingAndAuthenticate();
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -462,6 +454,7 @@ namespace Mirror.Tests
             identity.netId = 42;
             identity.isLocalPlayer = true;
             // for authority check
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
 
@@ -481,11 +474,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
-
-            // need to be authenticated for ready message
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
-            connectionToClient.isAuthenticated = true;
+            ConnectClientBlockingAndAuthenticate();
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -496,6 +485,7 @@ namespace Mirror.Tests
             identity.netId = 42;
             identity.isLocalPlayer = true;
             // for authority check
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
 

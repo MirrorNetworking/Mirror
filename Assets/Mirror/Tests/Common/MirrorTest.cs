@@ -1,5 +1,6 @@
 // base class for networking tests to make things easier.
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -156,6 +157,19 @@ namespace Mirror.Tests
             NetworkClient.Connect("127.0.0.1");
             UpdateTransport();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+        }
+
+        // fully connect client to local server & authenticated
+        protected void ConnectClientBlockingAndAuthenticate()
+        {
+            ConnectClientBlocking();
+
+            // authenticate server connection
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
+            connectionToClient.isAuthenticated = true;
+
+            // authenticate client connection
+            NetworkClient.connection.isAuthenticated = true;
         }
 
         protected void UpdateTransport()
