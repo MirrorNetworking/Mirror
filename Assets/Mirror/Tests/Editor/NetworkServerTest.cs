@@ -489,6 +489,35 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SendCommand_RequiresAuthority()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+
+            // need to be ready for commands
+            NetworkClient.Ready();
+            ProcessMessages();
+
+            // add an identity with two networkbehaviour components
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
+            identity.netId = 42;
+            identity.isLocalPlayer = false; // NO AUTHORITY
+            // for authority check
+            identity.connectionToClient = connectionToClient;
+            connectionToClient.identity = identity;
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // call the command
+            comp.TestCommand();
+            ProcessMessages();
+            Assert.That(comp.called, Is.EqualTo(0));
+        }
+
+        [Test]
         public void ActivateHostSceneCallsOnStartClient()
         {
             // add an identity with a networkbehaviour to .spawned
