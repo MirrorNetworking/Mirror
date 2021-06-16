@@ -163,7 +163,7 @@ namespace Mirror.Tests
         }
 
         // fully connect client to local server & authenticate
-        protected void ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient)
+        protected void ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient)
         {
             ConnectClientBlocking(out connectionToClient);
 

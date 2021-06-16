@@ -386,7 +386,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // send ready message
             NetworkClient.Ready();
@@ -400,7 +400,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -431,7 +431,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -461,7 +461,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -493,7 +493,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -627,7 +627,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
@@ -656,7 +656,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
@@ -682,7 +682,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
