@@ -162,7 +162,7 @@ namespace Mirror.Tests
             connectionToClient = NetworkServer.connections.Values.First();
         }
 
-        // fully connect client to local server & authenticated
+        // fully connect client to local server & authenticate
         protected void ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient)
         {
             ConnectClientBlocking(out connectionToClient);
