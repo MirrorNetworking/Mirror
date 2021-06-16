@@ -152,23 +152,23 @@ namespace Mirror.Tests
         }
 
         // fully connect client to local server
-        protected void ConnectClientBlocking()
+        // gives out the server's connection to client for convenience if needed
+        protected void ConnectClientBlocking(out NetworkConnectionToClient connectionToClient)
         {
             NetworkClient.Connect("127.0.0.1");
             UpdateTransport();
+
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            connectionToClient = NetworkServer.connections.Values.First();
         }
 
         // fully connect client to local server & authenticated
-        protected void ConnectClientBlockingAndAuthenticate()
+        protected void ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient)
         {
-            ConnectClientBlocking();
+            ConnectClientBlocking(out connectionToClient);
 
-            // authenticate server connection
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
+            // authenticate server & client connections
             connectionToClient.isAuthenticated = true;
-
-            // authenticate client connection
             NetworkClient.connection.isAuthenticated = true;
         }
 

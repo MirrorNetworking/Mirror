@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -317,7 +316,7 @@ namespace Mirror.Tests
 
             // listen & connect a client
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
+            ConnectClientBlocking(out _);
 
             // send message & process
             NetworkClient.Send(new TestMessage1());
@@ -387,8 +386,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate();
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
 
             // send ready message
             NetworkClient.Ready();
@@ -402,7 +400,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate();
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -413,7 +411,6 @@ namespace Mirror.Tests
             identity.netId = 42;
             identity.isLocalPlayer = true;
             // for authority check
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
 
@@ -434,7 +431,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate();
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -445,7 +442,6 @@ namespace Mirror.Tests
             identity.netId = 42;
             identity.isLocalPlayer = true;
             // for authority check
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
 
@@ -465,7 +461,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAndAuthenticate();
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
 
             // need to be ready for commands
             NetworkClient.Ready();
@@ -476,7 +472,6 @@ namespace Mirror.Tests
             identity.netId = 42;
             identity.isLocalPlayer = true;
             // for authority check
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
             identity.connectionToClient = connectionToClient;
             connectionToClient.identity = identity;
 
@@ -517,7 +512,7 @@ namespace Mirror.Tests
 
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
+            ConnectClientBlocking(out _);
 
             // send & process
             NetworkServer.SendToAll(new TestMessage1());
@@ -536,7 +531,7 @@ namespace Mirror.Tests
 
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
+            ConnectClientBlocking(out _);
 
             // send a message, check if it was handled
             NetworkClient.Send(new TestMessage1());
@@ -559,7 +554,7 @@ namespace Mirror.Tests
 
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
+            ConnectClientBlocking(out _);
 
             // send a message, check if it was handled
             NetworkClient.Send(new TestMessage1());
@@ -603,15 +598,11 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
             NetworkClient.ReplaceHandler<SpawnMessage>(msg => ++called, false);
-
-            // set authenticated (required for ready message)
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
-            connectionToClient.isAuthenticated = true;
 
             // ready is required for ShowForConnection
             NetworkClient.Ready();
@@ -636,15 +627,11 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
             NetworkClient.ReplaceHandler<SpawnMessage>(msg => ++called, false);
-
-            // set authenticated (required for ready message)
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
-            connectionToClient.isAuthenticated = true;
 
             // DO NOT set ready this time
 
@@ -666,15 +653,11 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlocking();
+            ConnectClientBlockingAndAuthenticate(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
             int called = 0;
             NetworkClient.ReplaceHandler<ObjectHideMessage>(msg => ++called, false);
-
-            // set authenticated (required for ready message)
-            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
-            connectionToClient.isAuthenticated = true;
 
             // ready is required for ShowForConnection
             NetworkClient.Ready();
