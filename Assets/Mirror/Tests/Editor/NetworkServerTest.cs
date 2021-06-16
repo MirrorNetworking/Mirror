@@ -458,6 +458,55 @@ namespace Mirror.Tests
             RemoteCallHelper.RemoveDelegate(registeredHash);
         }
 
+        // send a [Command] to an entity with TWO command components.
+        // make sure the correct one is called.
+        [Test]
+        public void SendCommand_CalledOnCorrectComponent()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking();
+
+            // set authenticated (required for message)
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
+            connectionToClient.isAuthenticated = true;
+
+            // add an identity with two networkbehaviour components
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
+            identity.netId = 42;
+            // for authority check
+            identity.connectionToClient = connectionToClient;
+            connectionToClient.identity = identity;
+
+            // identity needs to be in spawned dict, otherwise command handler
+            // won't find it
+            NetworkIdentity.spawned[identity.netId] = identity;
+
+            // register the command delegate, otherwise it's not found
+            int registeredHash = RemoteCallHelper.RegisterDelegate(
+                typeof(CommandTestNetworkBehaviour),
+                nameof(CommandTestNetworkBehaviour.CommandGenerated),
+                MirrorInvokeType.Command,
+                CommandTestNetworkBehaviour.CommandGenerated,
+                true);
+
+            // send message to server
+            CommandMessage message = new CommandMessage
+            {
+                componentIndex = 1,
+                functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated)),
+                netId = identity.netId,
+                payload = new ArraySegment<byte>(new byte[0])
+            };
+            NetworkClient.Send(message);
+            ProcessMessages();
+            Assert.That(comp0.called, Is.EqualTo(0));
+            Assert.That(comp1.called, Is.EqualTo(1));
+
+            // clean up
+            RemoteCallHelper.RemoveDelegate(registeredHash);
+        }
+
         // this runs a command all the way:
         //   byte[]->transport->server->identity->component
         [Test]
