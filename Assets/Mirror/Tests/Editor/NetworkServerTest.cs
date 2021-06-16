@@ -745,9 +745,7 @@ namespace Mirror.Tests
             Assert.That(go.activeSelf, Is.True);
             Assert.That(go2.activeSelf, Is.False);
 
-            // clean up
-            // reset isServer otherwise Destroy instead of DestroyImmediate is
-            // called
+            // reset isServer to avoid Destroy instead of DestroyImmediate
             identity.isServer = false;
             identity2.isServer = false;
         }
