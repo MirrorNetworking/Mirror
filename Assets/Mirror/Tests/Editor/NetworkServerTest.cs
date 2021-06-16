@@ -676,38 +676,36 @@ namespace Mirror.Tests
         [Test]
         public void HideForConnection()
         {
-            // listen
+            // listen & connect
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            ConnectClientBlocking();
 
-            // setup connections
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
-                                      out LocalConnectionToServer connectionToServer);
-
-            // setup NetworkServer/Client connections so messages are handled
-            NetworkClient.connection = connectionToServer;
-            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
-
-            // required for ShowForConnection
-            connectionToClient.isReady = true;
-
-            // set a client handler
+            // overwrite spawn message handler
             int called = 0;
-            NetworkClient.RegisterHandler<ObjectHideMessage>(msg => ++called, false);
-            NetworkServer.AddConnection(connectionToClient);
+            NetworkClient.ReplaceHandler<ObjectHideMessage>(msg => ++called, false);
 
-            // create a gameobject and networkidentity
+            // set authenticated (required for ready message)
+            NetworkConnectionToClient connectionToClient = NetworkServer.connections.Values.First();
+            connectionToClient.isAuthenticated = true;
+
+            // ready is required for ShowForConnection
+            NetworkClient.Ready();
+            ProcessMessages();
+            Assert.That(connectionToClient.isReady, Is.True);
+
+            // create a gameobject and networkidentity and some unique values
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
             identity.connectionToClient = connectionToClient;
 
             // call HideForConnection
             NetworkServer.HideForConnection(identity, connectionToClient);
-
-            // update local connection once so that the incoming queue is processed
-            connectionToClient.connectionToServer.Update();
+            ProcessMessages();
 
             // was it sent to and handled by the connection?
             Assert.That(called, Is.EqualTo(1));
+
+            // destroy manually to avoid 'Destroy can't be called in edit mode'
+            GameObject.DestroyImmediate(identity.gameObject);
         }
 
         [Test]
