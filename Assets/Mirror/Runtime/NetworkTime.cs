@@ -32,7 +32,8 @@ namespace Mirror
         static double offsetMax = double.MaxValue;
 
         // returns the clock time _in this system_
-        static double LocalTime() => stopwatch.Elapsed.TotalSeconds;
+        // => useful until we have Unity's 'double' Time.time
+        static double localTime => stopwatch.Elapsed.TotalSeconds;
 
         public static void Reset()
         {
@@ -47,7 +48,7 @@ namespace Mirror
         {
             if (Time.time - lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = new NetworkPingMessage(LocalTime());
+                NetworkPingMessage pingMessage = new NetworkPingMessage(localTime);
                 NetworkClient.Send(pingMessage, Channels.Unreliable);
                 lastPingTime = Time.time;
             }
@@ -62,7 +63,7 @@ namespace Mirror
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
                 clientTime = message.clientTime,
-                serverTime = LocalTime()
+                serverTime = localTime
             };
             conn.Send(pongMessage, Channels.Unreliable);
         }
@@ -72,7 +73,7 @@ namespace Mirror
         // and update time offset
         internal static void OnClientPong(NetworkPongMessage message)
         {
-            double now = LocalTime();
+            double now = localTime;
 
             // how long did this message take to come back
             double newRtt = now - message.clientTime;
@@ -111,7 +112,7 @@ namespace Mirror
         // after 60 days, accuracy is 454 ms
         // in other words,  if the server is running for 2 months,
         // and you cast down to float,  then the time will jump in 0.4s intervals.
-        public static double time => LocalTime() - _offset.Value;
+        public static double time => localTime - _offset.Value;
 
         /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
