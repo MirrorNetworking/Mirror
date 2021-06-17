@@ -11,23 +11,12 @@ namespace Mirror
 {
     public class Batcher
     {
-        // batching threshold aka cutoff point.
-        //   do {
-        //     add message
-        //   } while batch.size <= threshold
+        // batching threshold instead of max size.
+        // -> small messages are fit into threshold sized batches
+        // -> messages larger than threshold are single batches
         //
-        // which means that:
-        // * small messages are put into the batch up to 'threshold' bytes
-        // * large messages > 'threshold' are alone in the batch
-        //
-        // IMPORTANT: this is not a 'MAX BATCH SIZE'
-        // threshold is simply the cutoff line.
-        // we do allow > threshold messages.
-        // for example, kcp max size is 144 KB while batch threshold is MTU
-        // * we try to pack as many as possible into MTU sized batches
-        // * but we still have to allow larger messages
-        //
-        // larger messages need to be batches too for two reasons:
+        // in other words, we fit up to 'threshold' but still allow larger ones
+        // for two reasons:
         // 1.) data races: skipping batching for larger messages would send a
         //     large spawn message immediately, while others are batched and
         //     only flushed at the end of the frame
