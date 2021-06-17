@@ -1,6 +1,9 @@
 ﻿// batching functionality encapsulated into one class.
 // -> less complexity
 // -> easy to test
+//
+// IMPORTANT: we use THRESHOLD batching, not MAXED SIZE batching.
+// see threshold comments below.
 using System;
 using System.Collections.Generic;
 
