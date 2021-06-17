@@ -7,30 +7,21 @@ namespace Mirror.Tests.Batching
     public class BatcherTests
     {
         Batcher batcher;
-        const int MaxBatchSize = 4;
+        const int Threshold = 4;
         NetworkWriter writer;
 
         [SetUp]
         public void SetUp()
         {
-            batcher = new Batcher(MaxBatchSize);
+            batcher = new Batcher(Threshold);
             writer = new NetworkWriter();
         }
 
         [Test]
-        public void AddMessage_AddsToQueue()
+        public void AddMessage()
         {
             byte[] message = {0x01, 0x02};
-            bool result = batcher.AddMessage(new ArraySegment<byte>(message));
-            Assert.That(result, Is.True);
-        }
-
-        [Test]
-        public void AddMessage_DetectsTooBig()
-        {
-            byte[] message = new byte[MaxBatchSize + 1];
-            bool result = batcher.AddMessage(new ArraySegment<byte>(message));
-            Assert.That(result, Is.False);
+            batcher.AddMessage(new ArraySegment<byte>(message));
         }
 
         [Test]
@@ -66,7 +57,7 @@ namespace Mirror.Tests.Batching
         }
 
         [Test]
-        public void MakeNextBatch_MultipleMessages_AlmostMaxBatchSize()
+        public void MakeNextBatch_MultipleMessages_AlmostFullBatch()
         {
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x01, 0x02}));
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03}));
@@ -81,7 +72,7 @@ namespace Mirror.Tests.Batching
         }
 
         [Test]
-        public void MakeNextBatch_MultipleMessages_ExactlyMaxBatchSize()
+        public void MakeNextBatch_MultipleMessages_ExactlyFullBatch()
         {
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x01, 0x02}));
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03, 0x04}));
@@ -96,7 +87,7 @@ namespace Mirror.Tests.Batching
         }
 
         [Test]
-        public void MakeNextBatch_MultipleMessages_LargerMaxBatchSize()
+        public void MakeNextBatch_MultipleMessages_MoreThanOneBatch()
         {
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x01, 0x02}));
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03, 0x04}));
@@ -144,6 +135,68 @@ namespace Mirror.Tests.Batching
             result = batcher.MakeNextBatch(writer);
             Assert.That(result, Is.EqualTo(true));
             Assert.That(writer.ToArray().SequenceEqual(new byte[]{0x06, 0x07}));
+        }
+
+        // messages > threshold should simply be single batches.
+        // those need to be supported too, for example:
+        //   kcp prefers MTU sized batches
+        //   but we still allow up to 144 KB max message size
+        [Test]
+        public void MakeNextBatch_LargerThanThreshold()
+        {
+            // make a larger than threshold message
+            byte[] large = new byte[Threshold + 1];
+            for (int i = 0; i < Threshold + 1; ++i)
+                large[i] = (byte)i;
+            batcher.AddMessage(new ArraySegment<byte>(large));
+
+            // result should be only the large message
+            bool result = batcher.MakeNextBatch(writer);
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(writer.ToArray().SequenceEqual(large));
+        }
+
+        // messages > threshold should simply be single batches.
+        // those need to be supported too, for example:
+        //   kcp prefers MTU sized batches
+        //   but we still allow up to 144 KB max message size
+        [Test]
+        public void MakeNextBatch_LargerThanThreshold_BetweenSmallerMessages()
+        {
+            // make a larger than threshold message
+            byte[] large = new byte[Threshold + 1];
+            for (int i = 0; i < Threshold + 1; ++i)
+                large[i] = (byte)i;
+
+            // add two small, one large, two small messages.
+            // to make sure everything around it is still batched,
+            // and the large one is a separate batch.
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x01}));
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x02}));
+            batcher.AddMessage(new ArraySegment<byte>(large));
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03}));
+            batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x04}));
+
+            // first batch should be the two small messages
+            bool result = batcher.MakeNextBatch(writer);
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(writer.ToArray().SequenceEqual(new byte[]{0x01, 0x02}));
+
+            // reset writer
+            writer.Position = 0;
+
+            // second batch should be only the large message
+            result = batcher.MakeNextBatch(writer);
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(writer.ToArray().SequenceEqual(large));
+
+            // reset writer
+            writer.Position = 0;
+
+            // third batch be the two small messages
+            result = batcher.MakeNextBatch(writer);
+            Assert.That(result, Is.EqualTo(true));
+            Assert.That(writer.ToArray().SequenceEqual(new byte[]{0x03, 0x04}));
         }
     }
 }

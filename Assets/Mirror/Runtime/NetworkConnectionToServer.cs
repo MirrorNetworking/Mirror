@@ -21,13 +21,17 @@ namespace Mirror
                 // batching enabled?
                 if (batching)
                 {
-                    // try to batch, or send directly if too big.
-                    // (user might try to send a max message sized message,
-                    //  where max message size is larger than max batch size.
-                    //  for example, kcp2k max message size is 144 KB but we
-                    //  only want to batch MTU each time)
-                    if (!GetBatchForChannelId(channelId).AddMessage(segment))
-                        Transport.activeTransport.ClientSend(segment, channelId);
+                    // add to batch no matter what.
+                    // batching will try to fit as many as possible into MTU.
+                    // but we still allow > MTU, e.g. kcp max packet size 144kb.
+                    // those are simply sent as single batches.
+                    //
+                    // IMPORTANT: do NOT send > batch sized messages directly:
+                    // - data race: large messages would be sent directly. small
+                    //   messages would be sent in the batch at the end of frame
+                    // - timestamps: if batching assumes a timestamp, then large
+                    //   messages need that too.
+                    GetBatchForChannelId(channelId).AddMessage(segment);
                 }
                 // otherwise send directly to minimize latency
                 else Transport.activeTransport.ClientSend(segment, channelId);
