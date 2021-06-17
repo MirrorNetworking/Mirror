@@ -74,8 +74,8 @@ namespace Mirror
                 // return the writer to pool
                 NetworkWriterPool.Recycle(message);
             }
-            // stop if we have no more messages.
-            // stop if adding next message would exceed threshold.
+            // keep going as long as we have more messages,
+            // AND the next one would fit into threshold.
             while (messages.Count > 0 &&
                    writer.Position + messages.Peek().Position <= threshold);
 
