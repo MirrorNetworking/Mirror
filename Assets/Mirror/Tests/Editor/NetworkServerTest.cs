@@ -374,6 +374,35 @@ namespace Mirror.Tests
             Assert.That(called, Is.EqualTo(1));
         }
 
+        // transport recommends a max batch size.
+        // but we support up to max packet size.
+        // for example, with KCP it makes sense to always send MTU sized batches.
+        // but we can send up to 144 KB messages.
+        // => make sure this works. it's a special path in the code and used to
+        //    cause a bug in uMMORPG where SpawnMessage would be > MTU, the
+        //    timestamp would not be included because > max batch, hence client
+        //    couldn't parse it properly.
+        [Test]
+        public void Send_ServerToClientMessage_LargerThanMaxBatchSize()
+        {
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // replace a message handler AFTER connecting
+            int called = 0;
+            NetworkClient.RegisterHandler<SpawnMessage>(msg => ++called, false);
+
+            // send large message & process
+            int maxBatch = transport.GetMaxBatchSize(Channels.Reliable);
+            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[maxBatch + 1]);
+            connectionToClient.Send(new SpawnMessage{payload = bigPayload});
+            ProcessMessages();
+
+            // did it get through?
+            Assert.That(called, Is.EqualTo(1));
+        }
+
         [Test]
         public void OnDataReceivedInvalidConnectionId()
         {
