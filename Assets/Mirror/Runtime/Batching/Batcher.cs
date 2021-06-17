@@ -62,8 +62,8 @@ namespace Mirror
             if (writer.Position != 0)
                 throw new ArgumentException($"MakeNextBatch needs a fresh writer!");
 
-            // as long as we have messages...
-            while (messages.Count > 0)
+            // do start no matter what
+            do
             {
                 // add next message no matter what. even if > threshold.
                 // (we do allow > threshold sized messages as single batch)
@@ -73,13 +73,11 @@ namespace Mirror
 
                 // return the writer to pool
                 NetworkWriterPool.Recycle(message);
-
-                // if we have more messages and the next one doesn't fit anymore
-                // then the batch is finished.
-                if (messages.Count > 0 &&
-                    writer.Position + messages.Peek().Position > threshold)
-                    break;
             }
+            // stop if we have no more messages.
+            // stop if adding next message would exceed threshold.
+            while (messages.Count > 0 &&
+                   writer.Position + messages.Peek().Position <= threshold);
 
             // we had messages, so a batch was made
             return true;
