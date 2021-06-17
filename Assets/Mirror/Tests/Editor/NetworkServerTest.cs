@@ -354,7 +354,7 @@ namespace Mirror.Tests
         //    timestamp would not be included because > max batch, hence client
         //    couldn't parse it properly.
         [Test]
-        public void Send_ClientToServerMessage_LargerThanMaxBatchSize()
+        public void Send_ClientToServerMessage_LargerThanBatchThreshold()
         {
             // register a message handler
             int called = 0;
@@ -365,8 +365,8 @@ namespace Mirror.Tests
             ConnectClientBlocking(out _);
 
             // send message & process
-            int maxBatch = transport.GetMaxBatchSize(Channels.Reliable);
-            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[maxBatch + 1]);
+            int threshold = transport.GetBatchThreshold(Channels.Reliable);
+            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
             NetworkClient.Send(new SpawnMessage{payload = bigPayload});
             ProcessMessages();
 
@@ -383,7 +383,7 @@ namespace Mirror.Tests
         //    timestamp would not be included because > max batch, hence client
         //    couldn't parse it properly.
         [Test]
-        public void Send_ServerToClientMessage_LargerThanMaxBatchSize()
+        public void Send_ServerToClientMessage_LargerThanBatchThreshold()
         {
             // listen & connect a client
             NetworkServer.Listen(1);
@@ -394,8 +394,8 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<SpawnMessage>(msg => ++called, false);
 
             // send large message & process
-            int maxBatch = transport.GetMaxBatchSize(Channels.Reliable);
-            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[maxBatch + 1]);
+            int threshold = transport.GetBatchThreshold(Channels.Reliable);
+            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
             connectionToClient.Send(new SpawnMessage{payload = bigPayload});
             ProcessMessages();
 

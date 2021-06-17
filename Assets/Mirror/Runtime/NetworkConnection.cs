@@ -84,10 +84,10 @@ namespace Mirror
             if (!batches.TryGetValue(channelId, out batch))
             {
                 // get max batch size for this channel
-                int MaxBatchSize = Transport.activeTransport.GetMaxBatchSize(channelId);
+                int threshold = Transport.activeTransport.GetBatchThreshold(channelId);
 
                 // create batcher
-                batch = new Batcher(MaxBatchSize);
+                batch = new Batcher(threshold);
                 batches[channelId] = batch;
             }
             return batch;

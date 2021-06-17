@@ -35,7 +35,7 @@ namespace Mirror.Tests
         // 1400 max batch size
         // -> need something != GetMaxPacketSize for testing
         // -> MTU aka 1400 is used a lot anyway
-        public override int GetMaxBatchSize(int channelId) => 1400;
+        public override int GetBatchThreshold(int channelId) => 1400;
         public override void Shutdown() {}
         public override bool ClientConnected() => clientConnected;
         public override void ClientConnect(string address)

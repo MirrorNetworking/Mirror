@@ -209,7 +209,7 @@ namespace kcp2k
         // network.
         // => instead we always use MTU sized batches.
         // => people can still send maxed size if needed.
-        public override int GetMaxBatchSize(int channelId) =>
+        public override int GetBatchThreshold(int channelId) =>
             KcpConnection.UnreliableMaxMessageSize;
 
         // server statistics
