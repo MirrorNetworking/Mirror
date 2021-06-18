@@ -411,14 +411,14 @@ namespace Mirror.Tests
         [Test]
         public void Send_ClientToServerMessage_LargerThanBatchThreshold_SentInOrder()
         {
-            // listen & connect a client
-            NetworkServer.Listen(1);
-            ConnectClientBlocking(out _);
-
             // register two message handlers
             List<string> received = new List<string>();
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => received.Add("smol"), false);
             NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => received.Add("big"), false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out _);
 
             // send small message first
             NetworkClient.Send(new TestMessage1());
