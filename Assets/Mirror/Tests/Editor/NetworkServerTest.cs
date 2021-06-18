@@ -11,8 +11,11 @@ namespace Mirror.Tests
 
     struct VariableSizedMessage : NetworkMessage
     {
+        // weaver serializes byte[] wit WriteBytesAndSize
         public byte[] payload;
-        public VariableSizedMessage(int size) => payload = new byte[size];
+        // so payload := size - 4
+        // then the message is exactly maxed size.
+        public VariableSizedMessage(int size) => payload = new byte[size - 4];
     }
 
     public class CommandTestNetworkBehaviour : NetworkBehaviour
