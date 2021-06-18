@@ -14,6 +14,7 @@ namespace Mirror
 
         public override string address => "localhost";
 
+        // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             // get a writer to copy the message into since the segment is only
@@ -66,6 +67,7 @@ namespace Mirror
         // parameterless constructor that disables batching for local connections
         public LocalConnectionToServer() : base(false) {}
 
+        // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             if (segment.Count == 0)
