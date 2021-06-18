@@ -12,9 +12,7 @@ namespace Mirror
         public Unbatcher unbatcher = new Unbatcher();
 
         public NetworkConnectionToClient(int networkConnectionId, bool batching)
-            : base(networkConnectionId, batching)
-        {
-        }
+            : base(networkConnectionId, batching) {}
 
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
