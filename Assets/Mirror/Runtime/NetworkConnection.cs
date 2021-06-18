@@ -135,7 +135,35 @@ namespace Mirror
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
-        internal abstract void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable);
+        internal virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
+        {
+            //Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+
+            // validate packet size first.
+            if (ValidatePacketSize(segment, channelId))
+            {
+                // batching enabled?
+                if (batching)
+                {
+                    // add to batch no matter what.
+                    // batching will try to fit as many as possible into MTU.
+                    // but we still allow > MTU, e.g. kcp max packet size 144kb.
+                    // those are simply sent as single batches.
+                    //
+                    // IMPORTANT: do NOT send > batch sized messages directly:
+                    // - data race: large messages would be sent directly. small
+                    //   messages would be sent in the batch at the end of frame
+                    // - timestamps: if batching assumes a timestamp, then large
+                    //   messages need that too.
+                    GetBatchForChannelId(channelId).AddMessage(segment);
+                }
+                // otherwise send directly to minimize latency
+                else SendToTransport(segment, channelId);
+            }
+        }
+
+        // Send stage three: hand off to transport
+        protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         /// <summary>Disconnects this connection.</summary>
         // for future reference, here is how Disconnects work in Mirror.
