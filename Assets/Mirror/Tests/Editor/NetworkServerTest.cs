@@ -380,6 +380,28 @@ namespace Mirror.Tests
             Assert.That(called, Is.EqualTo(1));
         }
 
+        // guarantee that exactly max packet size messages work
+        [Test]
+        public void Send_ServerToClientMessage_MaxMessageSize()
+        {
+            // register a message handler
+            int called = 0;
+            NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send message & process
+            int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
+            int messageMax = transportMax - MessagePacking.HeaderSize;
+            connectionToClient.Send(new VariableSizedMessage(messageMax));
+            ProcessMessages();
+
+            // did it get through?
+            Assert.That(called, Is.EqualTo(1));
+        }
+
         // guarantee that exactly max message size + 1 doesn't work anymore
         [Test]
         public void Send_ClientToServerMessage_LargerThanMaxMessageSize()
