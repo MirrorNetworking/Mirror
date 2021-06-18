@@ -113,19 +113,6 @@ namespace Mirror
         // then later the transport events will do the clean up.
         public abstract void Disconnect();
 
-        /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
-        public void Send<T>(T msg, int channelId = Channels.Reliable)
-            where T : struct, NetworkMessage
-        {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                // pack message and send allocation free
-                MessagePacking.Pack(msg, writer);
-                NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
-                Send(writer.ToArraySegment(), channelId);
-            }
-        }
-
         // validate packet size before sending. show errors if too big/small.
         // => it's best to check this here, we can't assume that all transports
         //    would check max size and show errors internally. best to do it
@@ -149,6 +136,19 @@ namespace Mirror
 
             // good size
             return true;
+        }
+
+        /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
+        public void Send<T>(T msg, int channelId = Channels.Reliable)
+            where T : struct, NetworkMessage
+        {
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // pack message and send allocation free
+                MessagePacking.Pack(msg, writer);
+                NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
+                Send(writer.ToArraySegment(), channelId);
+            }
         }
 
         // internal because no one except Mirror should send bytes directly to
