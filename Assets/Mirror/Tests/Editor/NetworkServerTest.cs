@@ -470,7 +470,6 @@ namespace Mirror.Tests
             Assert.That(received[1], Is.EqualTo("big"));
         }
 
-
         [Test]
         public void OnDataReceivedInvalidConnectionId()
         {
