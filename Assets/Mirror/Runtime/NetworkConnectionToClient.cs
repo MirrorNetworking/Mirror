@@ -59,12 +59,21 @@ namespace Mirror
                     {
                         while (batcher.MakeNextBatch(writer))
                         {
-                            // send
-                            Transport.activeTransport.ServerSend(connectionId, writer.ToArraySegment(), kvp.Key);
-                            //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+                            // validate packet before handing the batch to the
+                            // transport. this guarantees that we always stay
+                            // within transport's max message size limit.
+                            // => just in case transport forgets to check it
+                            // => just in case mirror miscalulated it etc.
+                            ArraySegment<byte> segment = writer.ToArraySegment();
+                            if (ValidatePacketSize(segment, kvp.Key))
+                            {
+                                // send
+                                Transport.activeTransport.ServerSend(connectionId, segment, kvp.Key);
+                                //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
-                            // reset writer for each new batch
-                            writer.Position = 0;
+                                // reset writer for each new batch
+                                writer.Position = 0;
+                            }
                         }
                     }
                 }
