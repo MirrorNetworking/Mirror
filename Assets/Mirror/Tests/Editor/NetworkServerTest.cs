@@ -371,7 +371,7 @@ namespace Mirror.Tests
             ConnectClientBlocking(out _);
 
             // send message & process
-            int max = MessagePacking.MaxMessageSize;
+            int max = MessagePacking.MaxContentSize;
             NetworkClient.Send(new VariableSizedMessage(max));
             ProcessMessages();
 
@@ -392,7 +392,7 @@ namespace Mirror.Tests
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message & process
-            int max = MessagePacking.MaxMessageSize;
+            int max = MessagePacking.MaxContentSize;
             connectionToClient.Send(new VariableSizedMessage(max));
             ProcessMessages();
 
@@ -416,7 +416,7 @@ namespace Mirror.Tests
 
             // send message & process
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
-            int messageMax = MessagePacking.MaxMessageSize;
+            int messageMax = MessagePacking.MaxContentSize;
             LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
             NetworkClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
@@ -439,7 +439,7 @@ namespace Mirror.Tests
 
             // send message & process
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
-            int messageMax = MessagePacking.MaxMessageSize;
+            int messageMax = MessagePacking.MaxContentSize;
             LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
             connectionToClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
