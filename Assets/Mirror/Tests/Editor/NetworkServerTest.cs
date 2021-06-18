@@ -437,6 +437,40 @@ namespace Mirror.Tests
             Assert.That(received[1], Is.EqualTo("big"));
         }
 
+        // there used to be a data race where messages > batch threshold would
+        // be sent directly, instead of being flushed at the end of the frame
+        // like all the smaller messages.
+        // make sure this never happens again.
+        [Test]
+        public void Send_ServerToClientMessage_LargerThanBatchThreshold_SentInOrder()
+        {
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // replace a message handler AFTER connecting
+            List<string> received = new List<string>();
+            NetworkClient.RegisterHandler<TestMessage1>(msg => received.Add("smol"), false);
+            NetworkClient.RegisterHandler<SpawnMessage>(msg => received.Add("big"), false);
+
+            // send small message first
+            connectionToClient.Send(new TestMessage1());
+
+            // send large message
+            int threshold = transport.GetBatchThreshold(Channels.Reliable);
+            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
+            connectionToClient.Send(new SpawnMessage{payload = bigPayload});
+
+            // process everything
+            ProcessMessages();
+
+            // both arrived, and small arrived before large?
+            Assert.That(received.Count, Is.EqualTo(2));
+            Assert.That(received[0], Is.EqualTo("smol"));
+            Assert.That(received[1], Is.EqualTo("big"));
+        }
+
+
         [Test]
         public void OnDataReceivedInvalidConnectionId()
         {
