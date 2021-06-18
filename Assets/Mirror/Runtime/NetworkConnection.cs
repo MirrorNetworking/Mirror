@@ -129,7 +129,7 @@ namespace Mirror
         // validate packet size before sending. show errors if too big/small.
         // => it's best to check this here, we can't assume that all transports
         //    would check max size and show errors internally. best to do it
-        //    in one place in hlapi.
+        //    in one place in Mirror.
         // => it's important to log errors, so the user knows what went wrong.
         protected static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
         {
