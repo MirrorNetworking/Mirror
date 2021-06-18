@@ -370,9 +370,11 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking(out _);
 
-            // send message & process
+            // calculate max := transport.max - message header
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
             int messageMax = transportMax - MessagePacking.HeaderSize;
+
+            // send message & process
             NetworkClient.Send(new VariableSizedMessage(messageMax));
             ProcessMessages();
 
@@ -392,9 +394,11 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
-            // send message & process
+            // calculate max := transport.max - message header
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
             int messageMax = transportMax - MessagePacking.HeaderSize;
+
+            // send message & process
             connectionToClient.Send(new VariableSizedMessage(messageMax));
             ProcessMessages();
 
@@ -414,9 +418,11 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking(out _);
 
-            // send message & process
+            // calculate max := transport.max - message header
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
             int messageMax = transportMax - MessagePacking.HeaderSize;
+
+            // send message & process
             LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
             NetworkClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
@@ -437,9 +443,11 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
-            // send message & process
+            // calculate max := transport.max - message header
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
             int messageMax = transportMax - MessagePacking.HeaderSize;
+
+            // send message & process
             LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
             connectionToClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
