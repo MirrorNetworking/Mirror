@@ -165,6 +165,43 @@ namespace Mirror
         // Send stage three: hand off to transport
         protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
+        // flush batched messages at the end of every Update.
+        internal virtual void Update()
+        {
+            // batching?
+            if (batching)
+            {
+                // go through batches for all channels
+                foreach (KeyValuePair<int, Batcher> kvp in batches)
+                {
+                    // make and send as many batches as necessary from the stored
+                    // messages.
+                    Batcher batcher = kvp.Value;
+                    using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+                    {
+                        while (batcher.MakeNextBatch(writer))
+                        {
+                            // validate packet before handing the batch to the
+                            // transport. this guarantees that we always stay
+                            // within transport's max message size limit.
+                            // => just in case transport forgets to check it
+                            // => just in case mirror miscalulated it etc.
+                            ArraySegment<byte> segment = writer.ToArraySegment();
+                            if (ValidatePacketSize(segment, kvp.Key))
+                            {
+                                // send to transport
+                                SendToTransport(segment, kvp.Key);
+                                //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+
+                                // reset writer for each new batch
+                                writer.Position = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         /// <summary>Disconnects this connection.</summary>
         // for future reference, here is how Disconnects work in Mirror.
         //
