@@ -355,6 +355,28 @@ namespace Mirror.Tests
             Assert.That(called, Is.EqualTo(1));
         }
 
+        // guarantee that exactly max packet size messages work
+        [Test]
+        public void Send_ClientToServerMessage_MaxMessageSize()
+        {
+            // register a message handler
+            int called = 0;
+            NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => ++called, false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out _);
+
+            // send message & process
+            int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
+            int messageMax = transportMax - MessagePacking.HeaderSize;
+            NetworkClient.Send(new VariableSizedMessage(messageMax));
+            ProcessMessages();
+
+            // did it get through?
+            Assert.That(called, Is.EqualTo(1));
+        }
+
         // transport recommends a max batch size.
         // but we support up to max packet size.
         // for example, with KCP it makes sense to always send MTU sized batches.
