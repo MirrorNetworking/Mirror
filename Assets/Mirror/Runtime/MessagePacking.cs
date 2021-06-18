@@ -28,14 +28,32 @@ namespace Mirror
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
-        public static void Pack<T>(T message, NetworkWriter writer)
+        // -> true if message is of valid size, false if too big
+        public static bool Pack<T>(T message, NetworkWriter writer)
             where T : struct, NetworkMessage
         {
+            // remember writer position
+            int backup = writer.Position;
+
+            // writer header
             ushort msgType = GetId<T>();
             writer.WriteUShort(msgType);
 
-            // serialize message into writer
+            // writer content and calculate the size
+            int before = writer.Position;
             writer.Write(message);
+            int contentSize = writer.Position - before;
+
+            // we only allow up to MaxContentSize.
+            // anything else can't be sent over transport.
+            if (contentSize > MaxContentSize)
+            {
+                // roll back writer (atomic), show useful message to the user
+                writer.Position = backup;
+                Debug.LogWarning($"Failed to Pack {typeof(T)} because it serialized into {contentSize} bytes, which exceeds the limit of {MaxContentSize} bytes.");
+                return false;
+            }
+            return true;
         }
 
         // unpack message after receiving
