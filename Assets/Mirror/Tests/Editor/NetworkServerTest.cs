@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -401,6 +402,39 @@ namespace Mirror.Tests
 
             // did it get through?
             Assert.That(called, Is.EqualTo(1));
+        }
+
+        // there used to be a data race where messages > batch threshold would
+        // be sent directly, instead of being flushed at the end of the frame
+        // like all the smaller messages.
+        // make sure this never happens again.
+        [Test]
+        public void Send_ClientToServerMessage_LargerThanBatchThreshold_SentInOrder()
+        {
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out _);
+
+            // register two message handlers
+            List<string> received = new List<string>();
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => received.Add("smol"), false);
+            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => received.Add("big"), false);
+
+            // send small message first
+            NetworkClient.Send(new TestMessage1());
+
+            // send large message
+            int threshold = transport.GetBatchThreshold(Channels.Reliable);
+            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
+            NetworkClient.Send(new SpawnMessage{payload = bigPayload});
+
+            // process everything
+            ProcessMessages();
+
+            // both arrived, and small arrived before large?
+            Assert.That(received.Count, Is.EqualTo(2));
+            Assert.That(received[0], Is.EqualTo("smol"));
+            Assert.That(received[1], Is.EqualTo("big"));
         }
 
         [Test]
