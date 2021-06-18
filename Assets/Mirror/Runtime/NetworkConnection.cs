@@ -139,14 +139,14 @@ namespace Mirror
         }
 
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
-        public void Send<T>(T msg, int channelId = Channels.Reliable)
+        public void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
                 // pack message and send allocation free
-                MessagePacking.Pack(msg, writer);
-                NetworkDiagnostics.OnSend(msg, channelId, writer.Position, 1);
+                MessagePacking.Pack(message, writer);
+                NetworkDiagnostics.OnSend(message, channelId, writer.Position, 1);
                 Send(writer.ToArraySegment(), channelId);
             }
         }
