@@ -138,6 +138,7 @@ namespace Mirror
             return true;
         }
 
+        // Send stage one: NetworkMessage<T>
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
         public void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
@@ -151,6 +152,7 @@ namespace Mirror
             }
         }
 
+        // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
         internal abstract void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable);
