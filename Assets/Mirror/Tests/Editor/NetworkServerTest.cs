@@ -391,13 +391,13 @@ namespace Mirror.Tests
         [Test]
         public void Send_ServerToClientMessage_LargerThanBatchThreshold()
         {
+            // register handler
+            int called = 0;
+            NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
+
             // listen & connect a client
             NetworkServer.Listen(1);
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
-
-            // replace a message handler AFTER connecting
-            int called = 0;
-            NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
 
             // send large message & process
             int threshold = transport.GetBatchThreshold(Channels.Reliable);
@@ -447,14 +447,14 @@ namespace Mirror.Tests
         [Test]
         public void Send_ServerToClientMessage_LargerThanBatchThreshold_SentInOrder()
         {
-            // listen & connect a client
-            NetworkServer.Listen(1);
-            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
-
-            // replace a message handler AFTER connecting
+            // register two message handlers
             List<string> received = new List<string>();
             NetworkClient.RegisterHandler<TestMessage1>(msg => received.Add("smol"), false);
             NetworkClient.RegisterHandler<VariableSizedMessage>(msg => received.Add("big"), false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send small message first
             connectionToClient.Send(new TestMessage1());
