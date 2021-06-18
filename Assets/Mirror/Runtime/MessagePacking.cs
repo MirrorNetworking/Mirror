@@ -13,6 +13,10 @@ namespace Mirror
         // message header size
         public const int HeaderSize = sizeof(ushort);
 
+        // max message size calculation for convenience
+        public static int MaxMessageSize =>
+            Transport.activeTransport.GetMaxPacketSize() - HeaderSize;
+
         public static ushort GetId<T>() where T : struct, NetworkMessage
         {
             // paul: 16 bits is enough to avoid collisions
