@@ -15,6 +15,9 @@ namespace Mirror.Tests
         public byte[] payload;
         // so payload := size - 4
         // then the message is exactly maxed size.
+        //
+        // NOTE: we have a LargerMaxMessageSize test which guarantees that
+        //       variablesized + 1 is exactly transport.max + 1
         public VariableSizedMessage(int size) => payload = new byte[size - 4];
     }
 
@@ -375,6 +378,29 @@ namespace Mirror.Tests
 
             // did it get through?
             Assert.That(called, Is.EqualTo(1));
+        }
+
+        // guarantee that exactly max message size + 1 doesn't work anymore
+        [Test]
+        public void Send_ClientToServerMessage_LargerThanMaxMessageSize()
+        {
+            // register a message handler
+            int called = 0;
+            NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => ++called, false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out _);
+
+            // send message & process
+            int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
+            int messageMax = transportMax - MessagePacking.HeaderSize;
+            LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
+            NetworkClient.Send(new VariableSizedMessage(messageMax + 1));
+            ProcessMessages();
+
+            // should be too big to send
+            Assert.That(called, Is.EqualTo(0));
         }
 
         // transport recommends a max batch size.
