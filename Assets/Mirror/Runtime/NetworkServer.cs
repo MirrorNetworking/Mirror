@@ -385,7 +385,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, true);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
             }
             else
@@ -439,7 +439,12 @@ namespace Mirror
                 // feed it to the Unbatcher.
                 // NOTE: we don't need to associate a channelId because we
                 //       always process all messages in the batch.
-                connection.unbatcher.AddBatch(data);
+                if (!connection.unbatcher.AddBatch(data))
+                {
+                    Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id)");
+                    connection.Disconnect();
+                    return;
+                }
 
                 // process all messages in the batch.
                 // only while NOT loading a scene.
@@ -452,11 +457,15 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out NetworkReader reader))
+                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
                     // enough to read at least header size?
                     if (reader.Remaining >= MessagePacking.HeaderSize)
                     {
+                        // make remoteTimeStamp available to the user
+                        connection.remoteTimeStamp = remoteTimestamp;
+
+                        // handle message
                         if (!UnpackAndInvoke(connection, reader, channelId))
                             break;
                     }

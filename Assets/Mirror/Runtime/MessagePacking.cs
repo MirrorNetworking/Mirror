@@ -14,8 +14,13 @@ namespace Mirror
         public const int HeaderSize = sizeof(ushort);
 
         // max message content size (without header) calculation for convenience
+        // -> Transport.GetMaxPacketSize is the raw maximum
+        // -> Every message gets serialized into <<id, content>>
+        // -> Every serialized message get put into a batch with a header
         public static int MaxContentSize =>
-            Transport.activeTransport.GetMaxPacketSize() - HeaderSize;
+            Transport.activeTransport.GetMaxPacketSize()
+            - HeaderSize
+            - Batcher.HeaderSize;
 
         public static ushort GetId<T>() where T : struct, NetworkMessage
         {

@@ -4,6 +4,10 @@
 //
 // IMPORTANT: we use THRESHOLD batching, not MAXED SIZE batching.
 // see threshold comments below.
+//
+// includes timestamp for tick batching.
+// -> allows NetworkTransform etc. to use timestamp without including it in
+//    every single message
 using System;
 using System.Collections.Generic;
 
@@ -24,6 +28,9 @@ namespace Mirror
         //    timestamp, then large messages have to be a batch too. otherwise
         //    they would not contain a timestamp
         readonly int threshold;
+
+        // TimeStamp header size for those who need it
+        public const int HeaderSize = sizeof(double);
 
         // batched messages
         // IMPORTANT: we queue the serialized messages!
@@ -52,7 +59,7 @@ namespace Mirror
 
         // batch as many messages as possible into writer
         // returns true if any batch was made.
-        public bool MakeNextBatch(NetworkWriter writer)
+        public bool MakeNextBatch(NetworkWriter writer, double timeStamp)
         {
             // if we have no messages then there's nothing to do
             if (messages.Count == 0)
@@ -61,6 +68,10 @@ namespace Mirror
             // make sure the writer is fresh to avoid uncertain situations
             if (writer.Position != 0)
                 throw new ArgumentException($"MakeNextBatch needs a fresh writer!");
+
+            // write timestamp first
+            // -> double precision for accuracy over long periods of time
+            writer.WriteDouble(timeStamp);
 
             // do start no matter what
             do

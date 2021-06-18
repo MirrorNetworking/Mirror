@@ -6,8 +6,6 @@ namespace Mirror
     {
         public override string address => "";
 
-        public NetworkConnectionToServer(bool batching) : base(batching) {}
-
         // Send stage three: hand off to transport
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
             Transport.activeTransport.ClientSend(segment, channelId);

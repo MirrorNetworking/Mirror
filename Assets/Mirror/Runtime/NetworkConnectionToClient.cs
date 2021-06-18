@@ -10,8 +10,8 @@ namespace Mirror
         // unbatcher
         public Unbatcher unbatcher = new Unbatcher();
 
-        public NetworkConnectionToClient(int networkConnectionId, bool batching)
-            : base(networkConnectionId, batching) {}
+        public NetworkConnectionToClient(int networkConnectionId)
+            : base(networkConnectionId) {}
 
         // Send stage three: hand off to transport
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>

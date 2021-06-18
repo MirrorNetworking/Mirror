@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -240,13 +241,13 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // add first connection
-            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
             Assert.That(NetworkServer.AddConnection(conn42), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
 
             // add second connection
-            NetworkConnectionToClient conn43 = new NetworkConnectionToClient(43, false);
+            NetworkConnectionToClient conn43 = new NetworkConnectionToClient(43);
             Assert.That(NetworkServer.AddConnection(conn43), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
@@ -260,13 +261,13 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // add a connection
-            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
             Assert.That(NetworkServer.AddConnection(conn42), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
 
             // add duplicate connectionId
-            NetworkConnectionToClient connDup = new NetworkConnectionToClient(42, false);
+            NetworkConnectionToClient connDup = new NetworkConnectionToClient(42);
             Assert.That(NetworkServer.AddConnection(connDup), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             Assert.That(NetworkServer.connections[42], Is.EqualTo(conn42));
@@ -279,7 +280,7 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // add connection
-            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
             Assert.That(NetworkServer.AddConnection(conn42), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
@@ -295,7 +296,7 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // add connection
-            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42, false);
+            NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
             NetworkServer.AddConnection(conn42);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
@@ -566,6 +567,74 @@ namespace Mirror.Tests
             Assert.That(received.Count, Is.EqualTo(2));
             Assert.That(received[0], Is.EqualTo("smol"));
             Assert.That(received[1], Is.EqualTo("big"));
+        }
+
+        // make sure NetworkConnection.remoteTimeStamp is always the time on the
+        // remote end when the message was sent
+        [Test]
+        public void Send_ClientToServerMessage_SetsRemoteTimeStamp()
+        {
+            // register a message handler
+            int called = 0;
+            NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++called, false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send message
+            NetworkClient.Send(new TestMessage1());
+
+            // remember current time & update NetworkClient IMMEDIATELY so the
+            // batch is finished with timestamp.
+            double sendTime = NetworkTime.localTime;
+            NetworkClient.NetworkLateUpdate();
+
+            // let some time pass before processing
+            const int waitTime = 100;
+            Thread.Sleep(waitTime);
+            ProcessMessages();
+
+            // is the remote timestamp set to when we sent it?
+            // remember the time when we sent the message
+            // (within 1/10th of the time we waited. we need some tolerance
+            //  because we don't capture NetworkTime.localTime exactly when we
+            //  finish the batch. but the difference should not be > 'waitTime')
+            Assert.That(called, Is.EqualTo(1));
+            Assert.That(connectionToClient.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
+        }
+
+        [Test]
+        public void Send_ServerToClientMessage_SetsRemoteTimeStamp()
+        {
+            // register a message handler
+            int called = 0;
+            NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
+
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send message
+            connectionToClient.Send(new TestMessage1());
+
+            // remember current time & update NetworkClient IMMEDIATELY so the
+            // batch is finished with timestamp.
+            double sendTime = NetworkTime.localTime;
+            NetworkServer.NetworkLateUpdate();
+
+            // let some time pass before processing
+            const int waitTime = 100;
+            Thread.Sleep(waitTime);
+            ProcessMessages();
+
+            // is the remote timestamp set to when we sent it?
+            // remember the time when we sent the message
+            // (within 1/10th of the time we waited. we need some tolerance
+            //  because we don't capture NetworkTime.localTime exactly when we
+            //  finish the batch. but the difference should not be > 'waitTime')
+            Assert.That(called, Is.EqualTo(1));
+            Assert.That(NetworkClient.connection.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
         }
 
         [Test]
