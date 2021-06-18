@@ -133,9 +133,10 @@ namespace Mirror
         // => it's important to log errors, so the user knows what went wrong.
         protected static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
         {
-            if (segment.Count > Transport.activeTransport.GetMaxPacketSize(channelId))
+            int max = Transport.activeTransport.GetMaxPacketSize(channelId);
+            if (segment.Count > max)
             {
-                Debug.LogError($"NetworkConnection.ValidatePacketSize: cannot send packet larger than {Transport.activeTransport.GetMaxPacketSize(channelId)} bytes, was {segment.Count} bytes");
+                Debug.LogError($"NetworkConnection.ValidatePacketSize: cannot send packet larger than {max} bytes, was {segment.Count} bytes");
                 return false;
             }
 
