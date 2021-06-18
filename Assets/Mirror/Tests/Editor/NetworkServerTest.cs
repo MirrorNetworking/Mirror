@@ -9,6 +9,12 @@ namespace Mirror.Tests
 {
     struct TestMessage1 : NetworkMessage {}
 
+    struct VariableSizedMessage : NetworkMessage
+    {
+        public byte[] payload;
+        public VariableSizedMessage(int size) => payload = new byte[size];
+    }
+
     public class CommandTestNetworkBehaviour : NetworkBehaviour
     {
         // counter to make sure that it's called exactly once
@@ -359,7 +365,7 @@ namespace Mirror.Tests
         {
             // register a message handler
             int called = 0;
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => ++called, false);
+            NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => ++called, false);
 
             // listen & connect a client
             NetworkServer.Listen(1);
@@ -367,8 +373,7 @@ namespace Mirror.Tests
 
             // send message & process
             int threshold = transport.GetBatchThreshold(Channels.Reliable);
-            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
-            NetworkClient.Send(new SpawnMessage{payload = bigPayload});
+            NetworkClient.Send(new VariableSizedMessage(threshold + 1));
             ProcessMessages();
 
             // did it get through?
@@ -392,12 +397,11 @@ namespace Mirror.Tests
 
             // replace a message handler AFTER connecting
             int called = 0;
-            NetworkClient.RegisterHandler<SpawnMessage>(msg => ++called, false);
+            NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
 
             // send large message & process
             int threshold = transport.GetBatchThreshold(Channels.Reliable);
-            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
-            connectionToClient.Send(new SpawnMessage{payload = bigPayload});
+            connectionToClient.Send(new VariableSizedMessage(threshold + 1));
             ProcessMessages();
 
             // did it get through?
@@ -414,7 +418,7 @@ namespace Mirror.Tests
             // register two message handlers
             List<string> received = new List<string>();
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => received.Add("smol"), false);
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => received.Add("big"), false);
+            NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => received.Add("big"), false);
 
             // listen & connect a client
             NetworkServer.Listen(1);
@@ -425,8 +429,7 @@ namespace Mirror.Tests
 
             // send large message
             int threshold = transport.GetBatchThreshold(Channels.Reliable);
-            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
-            NetworkClient.Send(new SpawnMessage{payload = bigPayload});
+            NetworkClient.Send(new VariableSizedMessage(threshold + 1));
 
             // process everything
             ProcessMessages();
@@ -451,15 +454,14 @@ namespace Mirror.Tests
             // replace a message handler AFTER connecting
             List<string> received = new List<string>();
             NetworkClient.RegisterHandler<TestMessage1>(msg => received.Add("smol"), false);
-            NetworkClient.RegisterHandler<SpawnMessage>(msg => received.Add("big"), false);
+            NetworkClient.RegisterHandler<VariableSizedMessage>(msg => received.Add("big"), false);
 
             // send small message first
             connectionToClient.Send(new TestMessage1());
 
             // send large message
             int threshold = transport.GetBatchThreshold(Channels.Reliable);
-            ArraySegment<byte> bigPayload = new ArraySegment<byte>(new byte[threshold + 1]);
-            connectionToClient.Send(new SpawnMessage{payload = bigPayload});
+            connectionToClient.Send(new VariableSizedMessage(threshold + 1));
 
             // process everything
             ProcessMessages();
