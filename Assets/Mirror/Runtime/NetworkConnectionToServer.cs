@@ -7,9 +7,7 @@ namespace Mirror
     {
         public override string address => "";
 
-        public NetworkConnectionToServer(bool batching) : base(batching)
-        {
-        }
+        public NetworkConnectionToServer(bool batching) : base(batching) {}
 
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
