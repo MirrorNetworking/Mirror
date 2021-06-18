@@ -11,7 +11,7 @@ namespace Mirror
     public static class MessagePacking
     {
         // message header size
-        internal const int HeaderSize = sizeof(ushort);
+        public const int HeaderSize = sizeof(ushort);
 
         public static ushort GetId<T>() where T : struct, NetworkMessage
         {
