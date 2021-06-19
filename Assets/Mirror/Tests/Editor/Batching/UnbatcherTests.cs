@@ -6,6 +6,7 @@ namespace Mirror.Tests.Batching
     public class UnbatcherTests
     {
         Unbatcher unbatcher;
+        const double TimeStamp = Math.PI;
 
         [SetUp]
         public void SetUp()
@@ -16,7 +17,7 @@ namespace Mirror.Tests.Batching
         [Test]
         public void GetNextMessage_NoBatches()
         {
-            bool result = unbatcher.GetNextMessage(out NetworkReader _);
+            bool result = unbatcher.GetNextMessage(out _, out _);
             Assert.That(result, Is.False);
         }
 
@@ -24,21 +25,23 @@ namespace Mirror.Tests.Batching
         public void GetNextMessage_OneBatch()
         {
             // add one batch
-            byte[] batch = {0x01, 0x02};
+            byte[] batch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02});
             unbatcher.AddBatch(new ArraySegment<byte>(batch));
 
             // get next message, read first byte
-            bool result = unbatcher.GetNextMessage(out NetworkReader reader);
+            bool result = unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimeStamp);
             Assert.That(result, Is.True);
             Assert.That(reader.ReadByte(), Is.EqualTo(0x01));
+            Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp));
 
             // get next message, read last byte
-            result = unbatcher.GetNextMessage(out reader);
+            result = unbatcher.GetNextMessage(out reader, out remoteTimeStamp);
             Assert.That(result, Is.True);
             Assert.That(reader.ReadByte(), Is.EqualTo(0x02));
+            Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp));
 
             // there should be no more messages
-            result = unbatcher.GetNextMessage(out _);
+            result = unbatcher.GetNextMessage(out _, out _);
             Assert.That(result, Is.False);
         }
 
@@ -46,27 +49,29 @@ namespace Mirror.Tests.Batching
         public void GetNextMessage_MultipleBatches()
         {
             // add first batch
-            byte[] firstBatch = {0x01, 0x02};
+            byte[] firstBatch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02});
             unbatcher.AddBatch(new ArraySegment<byte>(firstBatch));
 
             // add second batch
-            byte[] secondBatch = {0x03, 0x04};
+            byte[] secondBatch = BatcherTests.ConcatTimestamp(TimeStamp + 1, new byte[]{0x03, 0x04});
             unbatcher.AddBatch(new ArraySegment<byte>(secondBatch));
 
             // get next message, read everything
-            bool result = unbatcher.GetNextMessage(out NetworkReader reader);
+            bool result = unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimeStamp);
             Assert.That(result, Is.True);
             Assert.That(reader.ReadByte(), Is.EqualTo(0x01));
             Assert.That(reader.ReadByte(), Is.EqualTo(0x02));
+            Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp));
 
-            // get next message, should point to next batch
-            result = unbatcher.GetNextMessage(out reader);
+            // get next message, should point to next batch at Timestamp + 1
+            result = unbatcher.GetNextMessage(out reader, out remoteTimeStamp);
             Assert.That(result, Is.True);
             Assert.That(reader.ReadByte(), Is.EqualTo(0x03));
             Assert.That(reader.ReadByte(), Is.EqualTo(0x04));
+            Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp + 1));
 
             // there should be no more messages
-            result = unbatcher.GetNextMessage(out _);
+            result = unbatcher.GetNextMessage(out _, out _);
             Assert.That(result, Is.False);
         }
 
@@ -80,29 +85,31 @@ namespace Mirror.Tests.Batching
         public void RetireBatchAndTryNewBatch()
         {
             // add first batch
-            byte[] firstBatch = {0x01, 0x02};
+            byte[] firstBatch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02});
             unbatcher.AddBatch(new ArraySegment<byte>(firstBatch));
 
             // read everything
-            bool result = unbatcher.GetNextMessage(out NetworkReader reader);
+            bool result = unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimeStamp);
             Assert.That(result, Is.True);
             Assert.That(reader.ReadByte(), Is.EqualTo(0x01));
             Assert.That(reader.ReadByte(), Is.EqualTo(0x02));
+            Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp));
 
             // try to read again.
             // reader will be at limit, which should retire the batch.
-            result = unbatcher.GetNextMessage(out reader);
+            result = unbatcher.GetNextMessage(out _, out _);
             Assert.That(result, Is.False);
 
             // add new batch
-            byte[] secondBatch = {0x03, 0x04};
+            byte[] secondBatch = BatcherTests.ConcatTimestamp(TimeStamp + 1, new byte[]{0x03, 0x04});
             unbatcher.AddBatch(new ArraySegment<byte>(secondBatch));
 
             // read everything
-            result = unbatcher.GetNextMessage(out reader);
+            result = unbatcher.GetNextMessage(out reader, out remoteTimeStamp);
             Assert.That(result, Is.True);
             Assert.That(reader.ReadByte(), Is.EqualTo(0x03));
             Assert.That(reader.ReadByte(), Is.EqualTo(0x04));
+            Assert.That(remoteTimeStamp, Is.EqualTo(TimeStamp + 1));
         }
     }
 }

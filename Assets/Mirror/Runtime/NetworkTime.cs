@@ -45,6 +45,8 @@ namespace Mirror
         // after 60 days, accuracy is 454 ms
         // in other words,  if the server is running for 2 months,
         // and you cast down to float,  then the time will jump in 0.4s intervals.
+        //
+        // TODO consider using Unbatcher's remoteTime for NetworkTime
         public static double time => localTime - _offset.Value;
 
         /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
