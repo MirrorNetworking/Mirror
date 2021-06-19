@@ -193,7 +193,7 @@ namespace Mirror
                             // instead of setting to '0', where we would lose the
                             // overshoot part and see jitter again.
                             interpolationTime -= delta;
-                            Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
+                            //Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
 
                             // remove first one from buffer
                             buffer.RemoveAt(0);
@@ -218,7 +218,7 @@ namespace Mirror
 
                     // TODO catchup
 
-                    Debug.Log($"{name} first={first.timestamp:F2} second={second.timestamp:F2} remoteTime={remoteTime:F2} interpolationTime={interpolationTime:F2} t={t:F2} snapshotbuffer={buffer.Count}");
+                    //Debug.Log($"{name} first={first.timestamp:F2} second={second.timestamp:F2} remoteTime={remoteTime:F2} interpolationTime={interpolationTime:F2} t={t:F2} snapshotbuffer={buffer.Count}");
 
                     // interpolate snapshot
                     Snapshot interpolated = InterpolateSnapshot(first, second, t);
