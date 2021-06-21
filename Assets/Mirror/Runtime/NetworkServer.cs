@@ -50,8 +50,9 @@ namespace Mirror
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
-        internal static Action<NetworkConnection> OnConnectedEvent;
-        internal static Action<NetworkConnection> OnDisconnectedEvent;
+        // => public so that custom NetworkManagers can hook into it
+        public static Action<NetworkConnection> OnConnectedEvent;
+        public static Action<NetworkConnection> OnDisconnectedEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
@@ -167,6 +168,11 @@ namespace Mirror
 
             CleanupNetworkIdentities();
             NetworkIdentity.ResetNextNetworkId();
+
+            // clear events. someone might have hooked into them before, but
+            // we don't want to use those hooks after Shutdown anymore.
+            OnConnectedEvent = null;
+            OnDisconnectedEvent = null;
         }
 
         // connections /////////////////////////////////////////////////////////
@@ -379,7 +385,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, true);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
             }
             else
@@ -433,7 +439,12 @@ namespace Mirror
                 // feed it to the Unbatcher.
                 // NOTE: we don't need to associate a channelId because we
                 //       always process all messages in the batch.
-                connection.unbatcher.AddBatch(data);
+                if (!connection.unbatcher.AddBatch(data))
+                {
+                    Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id)");
+                    connection.Disconnect();
+                    return;
+                }
 
                 // process all messages in the batch.
                 // only while NOT loading a scene.
@@ -446,11 +457,15 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out NetworkReader reader))
+                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
                     // enough to read at least header size?
                     if (reader.Remaining >= MessagePacking.HeaderSize)
                     {
+                        // make remoteTimeStamp available to the user
+                        connection.remoteTimeStamp = remoteTimestamp;
+
+                        // handle message
                         if (!UnpackAndInvoke(connection, reader, channelId))
                             break;
                     }

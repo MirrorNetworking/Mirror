@@ -43,7 +43,7 @@ namespace Mirror.Tests
 
         static NetworkConnection CreateNetworkConnection(GameObject player)
         {
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(++nextConnectionId, false);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(++nextConnectionId);
             connection.identity = player.GetComponent<NetworkIdentity>();
             connection.identity.connectionToClient = connection;
             connection.identity.observers = new Dictionary<int, NetworkConnection>();

@@ -261,17 +261,6 @@ namespace Mirror.Tests
             }
         }
 
-        [TearDown]
-        public override void TearDown()
-        {
-            // cleanup
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-            NetworkIdentity.spawned.Clear();
-
-            base.TearDown();
-        }
-
         // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
@@ -425,11 +414,11 @@ namespace Mirror.Tests
             identity.OnStartServer();
 
             // add an observer connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
             identity.observers[connection.connectionId] = connection;
 
             // RemoveObserverInternal with invalid connection should do nothing
-            identity.RemoveObserverInternal(new NetworkConnectionToClient(43, false));
+            identity.RemoveObserverInternal(new NetworkConnectionToClient(43));
             Assert.That(identity.observers.Count, Is.EqualTo(1));
 
             // RemoveObserverInternal with existing connection should remove it
@@ -586,10 +575,8 @@ namespace Mirror.Tests
             };
 
             // create connections
-            LocalConnectionToClient owner = new LocalConnectionToClient();
-            LocalConnectionToServer clientConnection = new LocalConnectionToServer();
+            CreateLocalConnectionPair(out LocalConnectionToClient owner, out LocalConnectionToServer clientConnection);
             owner.isReady = true;
-            owner.connectionToServer = clientConnection;
 
             // setup NetworkServer/Client connections so messages are handled
             NetworkClient.connection = clientConnection;
@@ -635,7 +622,7 @@ namespace Mirror.Tests
             // another connection
             // error log is expected
             LogAssert.ignoreFailingMessages = true;
-            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43, false));
+            result = identity.AssignClientAuthority(new NetworkConnectionToClient(43));
             LogAssert.ignoreFailingMessages = false;
             Assert.That(result, Is.False);
             Assert.That(identity.connectionToClient, Is.EqualTo(owner));
@@ -1000,8 +987,8 @@ namespace Mirror.Tests
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             // create some connections
-            NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42, false);
-            NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43, false);
+            NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42);
+            NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43);
 
             // AddObserver should return early if called before .observers was
             // created
@@ -1025,7 +1012,7 @@ namespace Mirror.Tests
             Assert.That(identity.observers[connection2.connectionId], Is.EqualTo(connection2));
 
             // adding a duplicate connectionId shouldn't overwrite the original
-            NetworkConnectionToClient duplicate = new NetworkConnectionToClient(connection1.connectionId, false);
+            NetworkConnectionToClient duplicate = new NetworkConnectionToClient(connection1.connectionId);
             identity.AddObserver(duplicate);
             Assert.That(identity.observers.Count, Is.EqualTo(2));
             Assert.That(identity.observers.ContainsKey(connection1.connectionId));
@@ -1043,8 +1030,8 @@ namespace Mirror.Tests
             identity.OnStartServer();
 
             // add some observers
-            identity.observers[42] = new NetworkConnectionToClient(42, false);
-            identity.observers[43] = new NetworkConnectionToClient(43, false);
+            identity.observers[42] = new NetworkConnectionToClient(42);
+            identity.observers[43] = new NetworkConnectionToClient(43);
 
             // call ClearObservers
             identity.ClearObservers();
@@ -1124,9 +1111,9 @@ namespace Mirror.Tests
             identity.isClient = true;
             // creates .observers and generates a netId
             identity.OnStartServer();
-            identity.connectionToClient = new NetworkConnectionToClient(1, false);
-            identity.connectionToServer = new NetworkConnectionToServer(false);
-            identity.observers[43] = new NetworkConnectionToClient(2, false);
+            identity.connectionToClient = new NetworkConnectionToClient(1);
+            identity.connectionToServer = new NetworkConnectionToServer();
+            identity.observers[43] = new NetworkConnectionToClient(2);
 
             // mark for reset and reset
             identity.Reset();
@@ -1136,51 +1123,8 @@ namespace Mirror.Tests
             Assert.That(identity.connectionToServer, Is.Null);
         }
 
-        [Test]
-        public void HandleCommand()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0);
-
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(1, false);
-            Assert.That(comp0.called, Is.EqualTo(0));
-            Assert.That(comp0.senderConnectionInCall, Is.Null);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(CommandTestNetworkBehaviour),
-                nameof(CommandTestNetworkBehaviour.CommandGenerated),
-                MirrorInvokeType.Command,
-                CommandTestNetworkBehaviour.CommandGenerated,
-                false);
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call HandleCommand and check if the command was called in the component
-            int functionHash = RemoteCallHelper.GetMethodHash(typeof(CommandTestNetworkBehaviour), nameof(CommandTestNetworkBehaviour.CommandGenerated));
-            NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleRemoteCall(0, functionHash, MirrorInvokeType.Command, payload, connection);
-            Assert.That(comp0.called, Is.EqualTo(1));
-            Assert.That(comp0.senderConnectionInCall, Is.EqualTo(connection));
-
-
-            // try wrong component index. command shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleRemoteCall(1, functionHash, MirrorInvokeType.Command, payload, connection);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // try wrong function hash. command shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleRemoteCall(0, functionHash + 1, MirrorInvokeType.Command, payload, connection);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
+        [Test, Ignore("NetworkServerTest.SendCommand does it already")]
+        public void HandleCommand() {}
 
         [Test]
         public void HandleRpc()

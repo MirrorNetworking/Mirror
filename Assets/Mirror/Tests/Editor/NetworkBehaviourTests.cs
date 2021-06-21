@@ -195,10 +195,6 @@ namespace Mirror.Tests
         public override void TearDown()
         {
             NetworkServer.RemoveLocalConnection();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-
-            NetworkIdentity.spawned.Clear();
             base.TearDown();
         }
 
@@ -270,100 +266,8 @@ namespace Mirror.Tests
             Assert.That(second.ComponentIndex, Is.EqualTo(1));
         }
 
-        [Test]
-        public void SendCommandInternal()
-        {
-            // we need to start a server and connect a client in order to be
-            // able to send commands
-            // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
-
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
-
-            // create a connection from client to server and from server to client
-            LocalConnectionToClient connection = new LocalConnectionToClient
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer = new LocalConnectionToServer
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer.connectionToClient = connection;
-
-            // host needs connection to both directions
-            identity.connectionToClient = connection;
-            identity.connectionToServer = connection.connectionToServer;
-
-            // calling command before client is connected shouldn't work
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            comp.CallSendCommandInternal();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // connect client
-            NetworkClient.Connect("localhost");
-            Assert.That(NetworkClient.active, Is.True);
-
-            // calling command before we have authority should fail
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            comp.CallSendCommandInternal();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // give authority so we can call commands
-            identity.netId = 42;
-            identity.hasAuthority = true;
-            Assert.That(identity.hasAuthority, Is.True);
-
-            // isClient needs to be true, otherwise we can't call commands
-            identity.isClient = true;
-
-            // register our connection at the server so that it sets up the
-            // connection's handlers
-            NetworkServer.AddConnection(connection);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
-                    nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                    MirrorInvokeType.Command,
-                    NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
-                    false);
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // calling command if connection isn't ready should not work
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.connectionToServer.isReady = false;
-            comp.CallSendCommandInternal();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // reset ready
-            identity.connectionToServer.isReady = true;
-
-            // clientscene.connection needs to be set for commands
-            NetworkClient.connection = connection.connectionToServer;
-            NetworkClient.Ready();
-
-            // call command
-            comp.CallSendCommandInternal();
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
+        [Test, Ignore("NetworkServerTest.SendCommand does it already")]
+        public void SendCommandInternal() {}
 
         // test to prevent https://github.com/vis2k/Mirror/issues/2629
         // from happening again in the future
@@ -382,26 +286,19 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.True);
 
             // create a connection from client to server and from server to client
-            LocalConnectionToClient connection = new LocalConnectionToClient
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer = new LocalConnectionToServer
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer.connectionToClient = connection;
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
+                                      out LocalConnectionToServer connectionToServer);
+            connectionToClient.isReady = true;
+            connectionToClient.isAuthenticated = true;
+            connectionToServer.isReady = true;
+            connectionToServer.isAuthenticated = true;
 
             // connect client
             NetworkClient.Connect("localhost");
             Assert.That(NetworkClient.active, Is.True);
 
             // add command component
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
 
             // DO NOT ASSIGN connectionToServer for the identity
 
@@ -410,7 +307,7 @@ namespace Mirror.Tests
 
             // register our connection at the server so that it sets up the
             // connection's handlers
-            NetworkServer.AddConnection(connection);
+            NetworkServer.AddConnection(connectionToClient);
 
             // register the command delegate, otherwise it's not found
             int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
@@ -424,7 +321,7 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // clientscene.readyconnection needs to be set for commands
-            NetworkClient.connection = connection.connectionToServer;
+            NetworkClient.connection = connectionToServer;
             NetworkClient.Ready();
 
             // call command. don't require authority.
@@ -548,7 +445,7 @@ namespace Mirror.Tests
 
             // calling rpc on connectionToServer shouldn't work
             LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} requires a NetworkConnectionToClient but was given {typeof(NetworkConnectionToServer).Name}");
-            comp.CallSendTargetRPCInternal(new NetworkConnectionToServer(false));
+            comp.CallSendTargetRPCInternal(new NetworkConnectionToServer());
             Assert.That(comp.called, Is.EqualTo(0));
 
             // set proper connection to client

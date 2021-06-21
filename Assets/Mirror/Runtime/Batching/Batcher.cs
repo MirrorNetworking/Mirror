@@ -1,6 +1,13 @@
 ﻿// batching functionality encapsulated into one class.
 // -> less complexity
 // -> easy to test
+//
+// IMPORTANT: we use THRESHOLD batching, not MAXED SIZE batching.
+// see threshold comments below.
+//
+// includes timestamp for tick batching.
+// -> allows NetworkTransform etc. to use timestamp without including it in
+//    every single message
 using System;
 using System.Collections.Generic;
 
@@ -8,30 +15,38 @@ namespace Mirror
 {
     public class Batcher
     {
-        // max batch size
-        readonly int MaxBatchSize;
+        // batching threshold instead of max size.
+        // -> small messages are fit into threshold sized batches
+        // -> messages larger than threshold are single batches
+        //
+        // in other words, we fit up to 'threshold' but still allow larger ones
+        // for two reasons:
+        // 1.) data races: skipping batching for larger messages would send a
+        //     large spawn message immediately, while others are batched and
+        //     only flushed at the end of the frame
+        // 2) timestamp batching: if each batch is expected to contain a
+        //    timestamp, then large messages have to be a batch too. otherwise
+        //    they would not contain a timestamp
+        readonly int threshold;
+
+        // TimeStamp header size for those who need it
+        public const int HeaderSize = sizeof(double);
 
         // batched messages
         // IMPORTANT: we queue the serialized messages!
         //            queueing NetworkMessage would box and allocate!
         Queue<PooledNetworkWriter> messages = new Queue<PooledNetworkWriter>();
 
-        public Batcher(int MaxBatchSize)
+        public Batcher(int threshold)
         {
-            this.MaxBatchSize = MaxBatchSize;
+            this.threshold = threshold;
         }
 
         // add a message for batching
-        // -> true if it worked.
-        // -> false if too big for max.
-        // => true/false instead of exception because the user might try to send
-        //    a gigantic message once. which is fine. but we won't batch it.
-        public bool AddMessage(ArraySegment<byte> message)
+        // we allow any sized messages.
+        // caller needs to make sure they are within max packet size.
+        public void AddMessage(ArraySegment<byte> message)
         {
-            // make sure the message can fit into max batch size
-            if (message.Count > MaxBatchSize)
-                return false;
-
             // put into a (pooled) writer
             // -> WriteBytes instead of WriteSegment because the latter
             //    would add a size header. we want to write directly.
@@ -40,12 +55,11 @@ namespace Mirror
             PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
             writer.WriteBytes(message.Array, message.Offset, message.Count);
             messages.Enqueue(writer);
-            return true;
         }
 
         // batch as many messages as possible into writer
         // returns true if any batch was made.
-        public bool MakeNextBatch(NetworkWriter writer)
+        public bool MakeNextBatch(NetworkWriter writer, double timeStamp)
         {
             // if we have no messages then there's nothing to do
             if (messages.Count == 0)
@@ -55,27 +69,26 @@ namespace Mirror
             if (writer.Position != 0)
                 throw new ArgumentException($"MakeNextBatch needs a fresh writer!");
 
-            // for each queued message
-            while (messages.Count > 0)
+            // write timestamp first
+            // -> double precision for accuracy over long periods of time
+            writer.WriteDouble(timeStamp);
+
+            // do start no matter what
+            do
             {
-                // peek and see if it still fits
-                PooledNetworkWriter message = messages.Peek();
+                // add next message no matter what. even if > threshold.
+                // (we do allow > threshold sized messages as single batch)
+                PooledNetworkWriter message = messages.Dequeue();
                 ArraySegment<byte> segment = message.ToArraySegment();
+                writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
 
-                // still fits?
-                if (writer.Position + segment.Count <= MaxBatchSize)
-                {
-                    // add it
-                    // (without any size prefixes. we can fit exactly segment.count!)
-                    writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
-
-                    // eat it & return to pool
-                    messages.Dequeue();
-                    NetworkWriterPool.Recycle(message);
-                }
-                // doesn't fit. this batch is done
-                else break;
+                // return the writer to pool
+                NetworkWriterPool.Recycle(message);
             }
+            // keep going as long as we have more messages,
+            // AND the next one would fit into threshold.
+            while (messages.Count > 0 &&
+                   writer.Position + messages.Peek().Position <= threshold);
 
             // we had messages, so a batch was made
             return true;

@@ -50,10 +50,10 @@ namespace Mirror
             if (!NetworkServer.active) return;
 
             // rebuild all spawned NetworkIdentity's observers every interval
-            if (NetworkTime.time >= lastRebuildTime + rebuildInterval)
+            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
             {
                 RebuildAll();
-                lastRebuildTime = NetworkTime.time;
+                lastRebuildTime = NetworkTime.localTime;
             }
         }
     }
