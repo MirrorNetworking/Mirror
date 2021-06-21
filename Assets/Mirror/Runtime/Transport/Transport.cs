@@ -130,11 +130,21 @@ namespace Mirror
         // running or available because it's needed for initializations.
         public abstract int GetMaxPacketSize(int channelId = Channels.Reliable);
 
-        /// <summary>Maximum batch(!) size for the given c hannel.</summary>
+        /// <summary>Recommended Batching threshold for this transport.</summary>
         // Uses GetMaxPacketSize by default.
         // Some transports like kcp support large max packet sizes which should
         // not be used for batching all the time because they end up being too
         // slow (head of line blocking etc.).
+        public virtual int GetBatchThreshold(int channelId)
+        {
+            // change to GetMaxPacketSize by default after removing obsolete
+#pragma warning disable 618
+            return GetMaxBatchSize(channelId);
+#pragma warning restore 618
+        }
+
+        // DEPRECATED 2021-06-17
+        [Obsolete("GetMaxBatchSize was renamed to GetBatchThreshold.")]
         public virtual int GetMaxBatchSize(int channelId) =>
             GetMaxPacketSize(channelId);
 

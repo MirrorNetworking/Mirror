@@ -328,7 +328,13 @@ namespace Mirror
         }
 
 #if UNITY_EDITOR
-        void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        void AssignAssetID(string path)
+        {
+            // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
+            if (!string.IsNullOrEmpty(path))
+                m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        }
+
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
 
         // persistent sceneId assignment
@@ -997,7 +1003,7 @@ namespace Mirror
         {
             // deserialize all components that were received
             NetworkBehaviour[] components = NetworkBehaviours;
-            while (reader.Position < reader.Length)
+            while (reader.Remaining > 0)
             {
                 // read & check index [0..255]
                 byte index = reader.ReadByte();

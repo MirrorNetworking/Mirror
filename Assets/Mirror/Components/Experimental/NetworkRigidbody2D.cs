@@ -9,7 +9,7 @@ namespace Mirror.Experimental
         [SerializeField] internal Rigidbody2D target = null;
 
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField] bool clientAuthority = false;
+        public  bool clientAuthority = false;
 
         [Header("Velocity")]
 

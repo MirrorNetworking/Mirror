@@ -114,6 +114,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             public override string address => throw new NotImplementedException();
             public override void Disconnect() => throw new NotImplementedException();
             internal override void Send(ArraySegment<byte> segment, int channelId = 0) => throw new NotImplementedException();
+            protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) => throw new NotImplementedException();
         }
 
         [Test]

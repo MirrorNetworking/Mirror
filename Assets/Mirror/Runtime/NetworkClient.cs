@@ -67,8 +67,9 @@ namespace Mirror
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
-        internal static Action OnConnectedEvent;
-        internal static Action OnDisconnectedEvent;
+        // => public so that custom NetworkManagers can hook into it
+        public static Action OnConnectedEvent;
+        public static Action OnDisconnectedEvent;
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>
         public static readonly Dictionary<Guid, GameObject> prefabs =
@@ -86,6 +87,11 @@ namespace Mirror
         // Disabled scene objects that can be spawned again, by sceneId.
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
+
+        static Unbatcher unbatcher = new Unbatcher();
+
+        // scene loading
+        public static bool isLoadingScene;
 
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
@@ -245,6 +251,9 @@ namespace Mirror
                 // reset network time stats
                 NetworkTime.Reset();
 
+                // reset unbatcher in case any batches from last session remain.
+                unbatcher = new Unbatcher();
+
                 // the handler may want to send messages to the client
                 // thus we should set the connected state before calling the handler
                 connectState = ConnectState.Connected;
@@ -285,22 +294,46 @@ namespace Mirror
         {
             if (connection != null)
             {
-                if (data.Count < MessagePacking.HeaderSize)
+                // server might batch multiple messages into one packet.
+                // feed it to the Unbatcher.
+                // NOTE: we don't need to associate a channelId because we
+                //       always process all messages in the batch.
+                if (!unbatcher.AddBatch(data))
                 {
-                    Debug.LogError($"NetworkClient: received Message was too short (messages should start with message id)");
+                    Debug.LogWarning($"NetworkClient: failed to add batch, disconnecting.");
                     connection.Disconnect();
                     return;
                 }
 
-                // unpack message
-                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                // process all messages in the batch.
+                // only while NOT loading a scene.
+                // if we get a scene change message, then we need to stop
+                // processing. otherwise we might apply them to the old scene.
+                // => fixes https://github.com/vis2k/Mirror/issues/2651
+                //
+                // NOTE: is scene starts loading, then the rest of the batch
+                //       would only be processed when OnTransportData is called
+                //       the next time.
+                //       => consider moving processing to NetworkEarlyUpdate.
+                while (!isLoadingScene &&
+                       unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
-                    // server might batch multiple messages into one packet.
-                    // we need to try to unpack multiple times.
-                    while (reader.Position < reader.Length)
+                    // enough to read at least header size?
+                    if (reader.Remaining >= MessagePacking.HeaderSize)
                     {
+                        // make remoteTimeStamp available to the user
+                        connection.remoteTimeStamp = remoteTimestamp;
+
+                        // handle message
                         if (!UnpackAndInvoke(reader, channelId))
                             break;
+                    }
+                    // otherwise disconnect
+                    else
+                    {
+                        Debug.LogError($"NetworkClient: received Message was too short (messages should start with message id)");
+                        connection.Disconnect();
+                        return;
                     }
                 }
             }
@@ -1249,16 +1282,20 @@ namespace Mirror
                 localConnection.Update();
             }
             // remote connection?
-            else
+            else if (connection is NetworkConnectionToServer remoteConnection)
             {
                 // only update things while connected
                 if (active && connectState == ConnectState.Connected)
                 {
+                    // update NetworkTime
                     NetworkTime.UpdateClient();
+
+                    // update connection to flush out batched messages
+                    remoteConnection.Update();
                 }
             }
 
-            // process all incoming messages after updating the world
+            // process all outgoing messages after updating the world
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ClientLateUpdate();
         }
@@ -1327,6 +1364,11 @@ namespace Mirror
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ClientDisconnect();
             connection = null;
+
+            // clear events. someone might have hooked into them before, but
+            // we don't want to use those hooks after Shutdown anymore.
+            OnConnectedEvent = null;
+            OnDisconnectedEvent = null;
         }
     }
 }

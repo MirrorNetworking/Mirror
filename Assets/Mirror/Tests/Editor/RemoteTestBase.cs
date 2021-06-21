@@ -17,16 +17,5 @@ namespace Mirror.Tests.RemoteAttrributeTest
             NetworkClient.connection.isAuthenticated = true;
             NetworkClient.Ready();
         }
-
-        [TearDown]
-        public override void TearDown()
-        {
-            // stop server/client
-            NetworkClient.Disconnect();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-            NetworkIdentity.spawned.Clear();
-            base.TearDown();
-        }
     }
 }

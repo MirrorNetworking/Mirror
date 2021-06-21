@@ -31,75 +31,9 @@ namespace Mirror
         static double offsetMin = double.MinValue;
         static double offsetMax = double.MaxValue;
 
-        // returns the clock time _in this system_
-        static double LocalTime() => stopwatch.Elapsed.TotalSeconds;
-
-        public static void Reset()
-        {
-            stopwatch.Restart();
-            _rtt = new ExponentialMovingAverage(PingWindowSize);
-            _offset = new ExponentialMovingAverage(PingWindowSize);
-            offsetMin = double.MinValue;
-            offsetMax = double.MaxValue;
-        }
-
-        internal static void UpdateClient()
-        {
-            if (Time.time - lastPingTime >= PingFrequency)
-            {
-                NetworkPingMessage pingMessage = new NetworkPingMessage(LocalTime());
-                NetworkClient.Send(pingMessage, Channels.Unreliable);
-                lastPingTime = Time.time;
-            }
-        }
-
-        // executed at the server when we receive a ping message
-        // reply with a pong containing the time from the client
-        // and time from the server
-        internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage message)
-        {
-            // Debug.Log("OnPingServerMessage  conn=" + conn);
-            NetworkPongMessage pongMessage = new NetworkPongMessage
-            {
-                clientTime = message.clientTime,
-                serverTime = LocalTime()
-            };
-            conn.Send(pongMessage, Channels.Unreliable);
-        }
-
-        // Executed at the client when we receive a Pong message
-        // find out how long it took since we sent the Ping
-        // and update time offset
-        internal static void OnClientPong(NetworkPongMessage message)
-        {
-            double now = LocalTime();
-
-            // how long did this message take to come back
-            double newRtt = now - message.clientTime;
-            _rtt.Add(newRtt);
-
-            // the difference in time between the client and the server
-            // but subtract half of the rtt to compensate for latency
-            // half of rtt is the best approximation we have
-            double newOffset = now - newRtt * 0.5f - message.serverTime;
-
-            double newOffsetMin = now - newRtt - message.serverTime;
-            double newOffsetMax = now - message.serverTime;
-            offsetMin = Math.Max(offsetMin, newOffsetMin);
-            offsetMax = Math.Min(offsetMax, newOffsetMax);
-
-            if (_offset.Value < offsetMin || _offset.Value > offsetMax)
-            {
-                // the old offset was offrange,  throw it away and use new one
-                _offset = new ExponentialMovingAverage(PingWindowSize);
-                _offset.Add(newOffset);
-            }
-            else if (newOffset >= offsetMin || newOffset <= offsetMax)
-            {
-                // new offset looks reasonable,  add to the average
-                _offset.Add(newOffset);
-            }
-        }
+        /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
+        // => useful until we have Unity's 'double' Time.time
+        public static double localTime => stopwatch.Elapsed.TotalSeconds;
 
         /// <summary>The time in seconds since the server started.</summary>
         //
@@ -111,7 +45,9 @@ namespace Mirror
         // after 60 days, accuracy is 454 ms
         // in other words,  if the server is running for 2 months,
         // and you cast down to float,  then the time will jump in 0.4s intervals.
-        public static double time => LocalTime() - _offset.Value;
+        //
+        // TODO consider using Unbatcher's remoteTime for NetworkTime
+        public static double time => localTime - _offset.Value;
 
         /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
@@ -142,5 +78,72 @@ namespace Mirror
         public static double rttStandardDeviation => Math.Sqrt(rttVariance);
         [Obsolete("NetworkTime.rttSd was renamed to rttStandardDeviation")]
         public static double rttSd => rttStandardDeviation;
+
+        public static void Reset()
+        {
+            stopwatch.Restart();
+            _rtt = new ExponentialMovingAverage(PingWindowSize);
+            _offset = new ExponentialMovingAverage(PingWindowSize);
+            offsetMin = double.MinValue;
+            offsetMax = double.MaxValue;
+        }
+
+        internal static void UpdateClient()
+        {
+            if (Time.time - lastPingTime >= PingFrequency)
+            {
+                NetworkPingMessage pingMessage = new NetworkPingMessage(localTime);
+                NetworkClient.Send(pingMessage, Channels.Unreliable);
+                lastPingTime = Time.time;
+            }
+        }
+
+        // executed at the server when we receive a ping message
+        // reply with a pong containing the time from the client
+        // and time from the server
+        internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage message)
+        {
+            // Debug.Log("OnPingServerMessage  conn=" + conn);
+            NetworkPongMessage pongMessage = new NetworkPongMessage
+            {
+                clientTime = message.clientTime,
+                serverTime = localTime
+            };
+            conn.Send(pongMessage, Channels.Unreliable);
+        }
+
+        // Executed at the client when we receive a Pong message
+        // find out how long it took since we sent the Ping
+        // and update time offset
+        internal static void OnClientPong(NetworkPongMessage message)
+        {
+            double now = localTime;
+
+            // how long did this message take to come back
+            double newRtt = now - message.clientTime;
+            _rtt.Add(newRtt);
+
+            // the difference in time between the client and the server
+            // but subtract half of the rtt to compensate for latency
+            // half of rtt is the best approximation we have
+            double newOffset = now - newRtt * 0.5f - message.serverTime;
+
+            double newOffsetMin = now - newRtt - message.serverTime;
+            double newOffsetMax = now - message.serverTime;
+            offsetMin = Math.Max(offsetMin, newOffsetMin);
+            offsetMax = Math.Min(offsetMax, newOffsetMax);
+
+            if (_offset.Value < offsetMin || _offset.Value > offsetMax)
+            {
+                // the old offset was offrange,  throw it away and use new one
+                _offset = new ExponentialMovingAverage(PingWindowSize);
+                _offset.Add(newOffset);
+            }
+            else if (newOffset >= offsetMin || newOffset <= offsetMax)
+            {
+                // new offset looks reasonable,  add to the average
+                _offset.Add(newOffset);
+            }
+        }
     }
 }

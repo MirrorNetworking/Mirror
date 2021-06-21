@@ -5,14 +5,7 @@ namespace Mirror.Tests
 {
     public class SyncVarTestBase : MirrorEditModeTest
     {
-        [TearDown]
-        public override void TearDown()
-        {
-            NetworkIdentity.spawned.Clear();
-            base.TearDown();
-        }
-
-        /// <returns>If data was written by OnSerialize</returns>
+        // returns If data was written by OnSerialize
         public static bool SyncToClient<T>(T serverObject, T clientObject, bool initialState) where T : NetworkBehaviour
         {
             bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
