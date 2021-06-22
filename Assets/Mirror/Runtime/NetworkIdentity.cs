@@ -5,12 +5,13 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
-using UnityEditor;
-#if UNITY_2021_2_OR_NEWER
-using UnityEditor.SceneManagement;
-#elif UNITY_2018_3_OR_NEWER
-using UnityEditor.Experimental.SceneManagement;
-#endif
+    using UnityEditor;
+
+    #if UNITY_2021_2_OR_NEWER
+        using UnityEditor.SceneManagement;
+    #elif UNITY_2018_3_OR_NEWER
+        using UnityEditor.Experimental.SceneManagement;
+    #endif
 #endif
 
 namespace Mirror
