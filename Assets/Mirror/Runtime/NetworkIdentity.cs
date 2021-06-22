@@ -5,11 +5,13 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
-using UnityEditor;
-using System.Linq;
-#if UNITY_2018_3_OR_NEWER
-using UnityEditor.Experimental.SceneManagement;
-#endif
+    using UnityEditor;
+
+    #if UNITY_2021_2_OR_NEWER
+        using UnityEditor.SceneManagement;
+    #elif UNITY_2018_3_OR_NEWER
+        using UnityEditor.Experimental.SceneManagement;
+    #endif
 #endif
 
 namespace Mirror
@@ -330,7 +332,13 @@ namespace Mirror
         }
 
 #if UNITY_EDITOR
-        void AssignAssetID(string path) => m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        void AssignAssetID(string path)
+        {
+            // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
+            if (!string.IsNullOrEmpty(path))
+                m_AssetId = AssetDatabase.AssetPathToGUID(path);
+        }
+
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
 
         // persistent sceneId assignment
@@ -999,7 +1007,7 @@ namespace Mirror
         {
             // deserialize all components that were received
             NetworkBehaviour[] components = NetworkBehaviours;
-            while (reader.Position < reader.Length)
+            while (reader.Remaining > 0)
             {
                 // read & check index [0..255]
                 byte index = reader.ReadByte();

@@ -270,7 +270,7 @@ namespace Mirror
             wrap.ServerLateUpdate();
         }
 
-        public override int GetMaxBatchSize(int channelId) => wrap.GetMaxBatchSize(channelId);
+        public override int GetBatchThreshold(int channelId) => wrap.GetBatchThreshold(channelId);
         public override int GetMaxPacketSize(int channelId = 0) => wrap.GetMaxPacketSize(channelId);
 
         public override void Shutdown() => wrap.Shutdown();

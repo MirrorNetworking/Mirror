@@ -13,14 +13,6 @@ namespace Mirror.Tests
             NetworkServer.Listen(10);
         }
 
-        [TearDown]
-        public override void TearDown()
-        {
-            NetworkServer.Shutdown();
-            NetworkClient.Shutdown();
-            base.TearDown();
-        }
-
         [Test]
         public void ServerIp()
         {
@@ -57,30 +49,21 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
-        // TODO flaky
-        // TODO running play mode tests, then edit mode tests, makes this fail
+        [Test, Ignore("NetworkServerTest.SendClientToServerMessage does it already")]
+        public void Send() {}
+
         [Test]
-        public void Send()
+        public void ShutdownCleanup()
         {
-            // register server handler
-            int called = 0;
-            NetworkServer.RegisterHandler<AddPlayerMessage>((conn, msg) => { ++called; }, false);
+            // add some test event hooks to make sure they are cleaned up.
+            // there used to be a bug where they wouldn't be cleaned up.
+            NetworkClient.OnConnectedEvent = () => {};
+            NetworkClient.OnDisconnectedEvent = () => {};
 
-            // connect a regular connection. not host, because host would use
-            // connId=0 but memorytransport uses connId=1
-            NetworkClient.Connect("localhost");
-            // update transport so connect event is processed
-            UpdateTransport();
+            NetworkClient.Shutdown();
 
-            // send it
-            AddPlayerMessage message = new AddPlayerMessage();
-            NetworkClient.Send(message);
-
-            // update transport so data event is processed
-            UpdateTransport();
-
-            // received it on server?
-            Assert.That(called, Is.EqualTo(1));
+            Assert.That(NetworkClient.OnConnectedEvent, Is.Null);
+            Assert.That(NetworkClient.OnDisconnectedEvent, Is.Null);
         }
     }
 }

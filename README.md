@@ -1,6 +1,5 @@
 ![mMirror Logo](https://user-images.githubusercontent.com/16416509/119120944-6db26780-ba5f-11eb-9cdd-fc8500207f4d.png)
 
-
 [![Download](https://img.shields.io/badge/asset_store-brightgreen.svg)](https://assetstore.unity.com/packages/tools/network/mirror-129321)
 [![Documentation](https://img.shields.io/badge/docs-brightgreen.svg)](https://mirror-networking.gitbook.io/)
 [![Showcase](https://img.shields.io/badge/showcase-brightgreen.svg)](https://mirror-networking.com/showcase/)
@@ -9,6 +8,7 @@
 [![Build](https://img.shields.io/appveyor/ci/vis2k73562/hlapi-community-edition/Mirror.svg)](https://ci.appveyor.com/project/vis2k73562/hlapi-community-edition/branch/mirror)
 [![Discord](https://img.shields.io/discord/343440455738064897.svg)](https://discordapp.com/invite/N9QVxbM)
 [![release](https://img.shields.io/github/release/vis2k/Mirror.svg)](https://github.com/vis2k/Mirror/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/vis2k/Mirror/blob/master/LICENSE)
 [![Roadmap](https://img.shields.io/badge/roadmap-blue.svg)](https://trello.com/b/fgAE7Tud)
 
 **It's only the dreamers who ever move mountains.**
@@ -115,6 +115,7 @@ And [many more](https://mirror-networking.com/showcase/)...
 * [FizzySteam](https://github.com/Chykary/FizzySteamworks/): SteamNetwork
 * [FizzyFacepunch](https://github.com/Chykary/FizzyFacepunch/): SteamNetwork
 * [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport): Epic Online Services
+* [Bubble](https://github.com/Squaresweets/BubbleTransport): Apple GameCenter
 * [Light Reflective Mirror](https://github.com/Derek-R-S/Light-Reflective-Mirror): Self-Hosted Relay
 * [Oculus P2P](https://github.com/hyferg/MirrorOculusP2P): Oculus Platform Service
 
