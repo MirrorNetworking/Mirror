@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
+    using System.Linq;
     using UnityEditor;
 
     #if UNITY_2021_2_OR_NEWER
