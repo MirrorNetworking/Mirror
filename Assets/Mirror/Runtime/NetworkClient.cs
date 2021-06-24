@@ -1145,7 +1145,7 @@ namespace Mirror
         // host mode callbacks /////////////////////////////////////////////////
         static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
         {
-            // Debug.Log("NetworkClient.OnLocalObjectObjDestroy netId:" + msg.netId);
+            //Debug.Log($"NetworkClient.OnLocalObjectObjDestroy netId:{message.netId}");
 
             // TODO why do we do this?
             // in host mode, .spawned is shared between server and client.
@@ -1156,7 +1156,7 @@ namespace Mirror
 
         static void OnHostClientObjectHide(ObjectHideMessage message)
         {
-            // Debug.Log("ClientScene::OnLocalObjectObjHide netId:" + msg.netId);
+            //Debug.Log($"ClientScene::OnLocalObjectObjHide netId:{message.netId}");
             if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
                 localObject != null)
             {
@@ -1166,8 +1166,7 @@ namespace Mirror
 
         internal static void OnHostClientSpawn(SpawnMessage message)
         {
-            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
-                localObject != null)
+            if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 if (message.isLocalPlayer)
                     InternalAddPlayer(localObject);
