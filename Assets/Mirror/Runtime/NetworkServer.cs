@@ -1188,6 +1188,8 @@ namespace Mirror
             if (NetworkClient.active && localClientActive)
             {
                 identity.OnStopClient();
+                identity.hasAuthority = false;
+                identity.NotifyAuthority();
             }
 
             identity.OnStopServer();
