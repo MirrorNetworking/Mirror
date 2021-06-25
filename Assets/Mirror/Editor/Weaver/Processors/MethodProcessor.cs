@@ -36,7 +36,8 @@ namespace Mirror.Weaver
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // force new usercode_cmd to be private.
-            // this prevents users from mistakenly calling weaver generated methods in dropdown menus (such as buttons)
+            // otherwise the generated User_Cmd could be assigned to UnityEvents in the Inspector
+            // (User_Cmd() is only called by Invoke_Cmd in this class)
             cmd.IsPublic = false;
             cmd.IsPrivate = true;
 
