@@ -35,6 +35,11 @@ namespace Mirror.Weaver
             string newName = RpcPrefix + md.Name;
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
+            // force new usercode_cmd to be private.
+            // this prevents users from mistakenly calling weaver generated methods in dropdown menus (such as buttons)
+            cmd.IsPublic = false;
+            cmd.IsPrivate = true;
+
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
             {
