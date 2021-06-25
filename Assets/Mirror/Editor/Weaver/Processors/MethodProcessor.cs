@@ -35,6 +35,12 @@ namespace Mirror.Weaver
             string newName = RpcPrefix + md.Name;
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
+            // force new usercode_cmd to be private.
+            // otherwise the generated User_Cmd could be assigned to UnityEvents in the Inspector
+            // (User_Cmd() is only called by Invoke_Cmd in this class)
+            cmd.IsPublic = false;
+            cmd.IsPrivate = true;
+
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
             {
