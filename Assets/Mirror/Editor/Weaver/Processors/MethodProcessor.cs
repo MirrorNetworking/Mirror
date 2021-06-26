@@ -35,11 +35,14 @@ namespace Mirror.Weaver
             string newName = RpcPrefix + md.Name;
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
-            // force new usercode_cmd to be private.
-            // otherwise the generated User_Cmd could be assigned to UnityEvents in the Inspector
-            // (User_Cmd() is only called by Invoke_Cmd in this class)
+            // force the substitute method to be protected.
+            // -> public would show in the Inspector for UnityEvents as
+            //    User_CmdUsePotion() etc. but the user shouldn't use those.
+            // -> private would not allow inheriting classes to call it, see
+            //    OverrideVirtualWithBaseCallsBothVirtualAndBase test.
+            // -> IL has no concept of 'protected', it's called IsFamily there.
             cmd.IsPublic = false;
-            cmd.IsPrivate = true;
+            cmd.IsFamily = true;
 
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
