@@ -40,9 +40,11 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagement aoi;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts.")]
         public static bool disconnectInactiveConnections;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
         public static float disconnectInactiveTimeout = 60f;
 
@@ -224,6 +226,8 @@ namespace Mirror
             return connections.Count == 0 ||
                    (connections.Count == 1 && localConnection != null);
         }
+
+        // Deprecated 2021-03-07
         [Obsolete("NoConnections was renamed to NoExternalConnections because that's what it checks for.")]
         public static bool NoConnections() => NoExternalConnections();
 
@@ -339,6 +343,7 @@ namespace Mirror
         }
 
         /// <summary>Send this message to the player only</summary>
+        // Deprecated 2021-03-04
         [Obsolete("Use identity.connectionToClient.Send() instead! Previously Mirror needed this function internally, but not anymore.")]
         public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
@@ -530,6 +535,7 @@ namespace Mirror
         }
 
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
+        // Deprecated 2021-02-24
         [Obsolete("Use RegisterHandler(Action<NetworkConnection, T), requireAuthentication instead.")]
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
@@ -613,10 +619,11 @@ namespace Mirror
             active = false;
         }
 
-        /// <summary>Disconnect all currently connected clients except the local connection.</summary>
+        // Deprecated 2021-05-11
         [Obsolete("Call NetworkClient.DisconnectAll() instead")]
         public static void DisconnectAllExternalConnections() => DisconnectAll();
 
+        // Deprecated 2021-05-11
         [Obsolete("Call NetworkClient.DisconnectAll() instead")]
         public static void DisconnectAllConnections() => DisconnectAll();
 
@@ -1610,6 +1617,7 @@ namespace Mirror
         }
 
         // obsolete to not break people's projects. Update was public.
+        // Deprecated 2021-03-02
         [Obsolete("NetworkServer.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
         public static void Update() => NetworkLateUpdate();
     }

@@ -160,6 +160,7 @@ namespace Mirror.Authenticators
             NetworkClient.connection.Send(authRequestMessage);
         }
 
+        // Deprecated 2021-04-29
         [Obsolete("Call OnAuthResponseMessage without the NetworkConnection parameter. It always points to NetworkClient.connection anyway.")]
         public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg) => OnAuthResponseMessage(msg);
 

@@ -74,9 +74,11 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts.")]
         public bool disconnectInactiveConnections;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
         public float disconnectInactiveTimeout = 60f;
 
@@ -1220,6 +1222,7 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
+        // Deprecated 2021-02-13
         [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
@@ -1256,6 +1259,7 @@ namespace Mirror
             StopClient();
         }
 
+        // Deprecated 2021-02-13
         [Obsolete("OnClientError was removed because it hasn't been used in a long time.")]
         public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 

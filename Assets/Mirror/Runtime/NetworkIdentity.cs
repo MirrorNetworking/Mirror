@@ -825,6 +825,7 @@ namespace Mirror
         // interest management /////////////////////////////////////////////////
         // obsoletes to still support ProximityChecker while transitioning to
         // global Interest Management
+        // Deprecated 2021-02-17
         [Obsolete("Use NetworkServer.RebuildObservers(identity, initialize) instead.")]
         public void RebuildObservers(bool initialize) => NetworkServer.RebuildObservers(this, initialize);
 

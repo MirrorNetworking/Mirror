@@ -65,6 +65,7 @@ namespace Mirror
         /// <summary>Sends a message to the server over the given channel.</summary>
         // The ArraySegment is only valid until returning. Copy if needed.
         // TODO make second version abstract after removing the obsolete version
+        // Deprecated 2021-05-17
         [Obsolete("Use ClientSend(segment, channelId) instead. channelId is now the last parameter.")]
         public virtual void ClientSend(int channelId, ArraySegment<byte> segment) {}
         public virtual void ClientSend(ArraySegment<byte> segment, int channelId)
@@ -102,6 +103,7 @@ namespace Mirror
 
         /// <summary>Send a message to a client over the given channel.</summary>
         // TODO make second version abstract after removing the obsolete version
+        // Deprecated 2021-05-17
         [Obsolete("Use ServerSend(connectionId, segment, channelId) instead. channelId is now the last parameter.")]
         public virtual void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment) {}
         public virtual void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
@@ -143,7 +145,7 @@ namespace Mirror
 #pragma warning restore 618
         }
 
-        // DEPRECATED 2021-06-17
+        // Deprecated 2021-06-17
         [Obsolete("GetMaxBatchSize was renamed to GetBatchThreshold.")]
         public virtual int GetMaxBatchSize(int channelId) =>
             GetMaxPacketSize(channelId);
