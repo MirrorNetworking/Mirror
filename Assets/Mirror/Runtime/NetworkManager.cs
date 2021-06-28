@@ -804,7 +804,6 @@ namespace Mirror
             // scene handling will happen in overrides of OnClientChangeScene and/or OnClientSceneChanged
             // Do not call FinishLoadScene here. Custom handler will assign loadingSceneAsync and we need
             // to wait for that to finish. UpdateScene already checks for that to be not null and isDone.
-            // (in other words, custom loading needs to call FinishLoadScene when they are done)
             if (customHandling)
                 return;
 
