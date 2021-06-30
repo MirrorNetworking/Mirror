@@ -801,6 +801,11 @@ namespace Mirror
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName, sceneOperation, customHandling);
 
+            // After calling OnClientChangeScene, exit if server since server is already doing
+            // the actual scene change, and we don't need to do it for the host client
+            if (NetworkServer.active)
+                return;
+
             // scene handling will happen in overrides of OnClientChangeScene and/or OnClientSceneChanged
             // Do not call FinishLoadScene here. Custom handler will assign loadingSceneAsync and we need
             // to wait for that to finish. UpdateScene already checks for that to be not null and isDone.
@@ -1175,7 +1180,9 @@ namespace Mirror
         void OnClientSceneInternal(SceneMessage msg)
         {
             //Debug.Log("NetworkManager.OnClientSceneInternal");
-            if (NetworkClient.isConnected && !NetworkServer.active)
+
+            // This needs to run for host client too. NetworkServer.active is checked there
+            if (NetworkClient.isConnected)
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
