@@ -316,7 +316,7 @@ namespace Mirror
             {
                 return goal.localScale;
             }
-            else if (interpolateScale && start != null )
+            else if (interpolateScale && start != null)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Vector3.Lerp(start.localScale, goal.localScale, t);
