@@ -415,7 +415,7 @@ namespace Mirror
 
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
-            writer.WriteString(uri.ToString());
+            writer.WriteString(uri?.ToString());
         }
 
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
