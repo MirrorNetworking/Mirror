@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // Deprecated 2021-05-13
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/fallback-transport")]
     [DisallowMultipleComponent]
     [Obsolete("Fallback Transport will be retired. It was only needed for Apathy/Libuv. Use kcp or Telepathy instead, those run everywhere.")]

@@ -825,6 +825,7 @@ namespace Mirror
         // interest management /////////////////////////////////////////////////
         // obsoletes to still support ProximityChecker while transitioning to
         // global Interest Management
+        // Deprecated 2021-02-17
         [Obsolete("Use NetworkServer.RebuildObservers(identity, initialize) instead.")]
         public void RebuildObservers(bool initialize) => NetworkServer.RebuildObservers(this, initialize);
 
@@ -1004,6 +1005,15 @@ namespace Mirror
 
         internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
         {
+            if (NetworkBehaviours == null)
+            {
+                Debug.LogError($"NetworkBehaviours array is null on {gameObject.name}!\n" +
+                    $"Typically this can happen when a networked object is a child of a " +
+                    $"non-networked parent that's disabled, preventing Awake on the networked object " +
+                    $"from being invoked, where the NetworkBehaviours array is initialized.", gameObject);
+                return;
+            }
+
             // deserialize all components that were received
             NetworkBehaviour[] components = NetworkBehaviours;
             while (reader.Remaining > 0)

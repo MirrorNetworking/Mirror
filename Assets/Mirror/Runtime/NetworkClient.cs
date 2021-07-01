@@ -33,6 +33,7 @@ namespace Mirror
 
         /// <summary>The NetworkConnection object that is currently "ready".</summary>
         // TODO this is from UNET. it's redundant and we should probably obsolete it.
+        // Deprecated 2021-03-10
         [Obsolete("NetworkClient.readyConnection is redundant. Use NetworkClient.connection and use NetworkClient.ready to check if it's ready.")]
         public static NetworkConnection readyConnection => ready ? connection : null;
 
@@ -228,6 +229,7 @@ namespace Mirror
 
         /// <summary>Disconnect host mode.</summary>
         // this is needed to call DisconnectMessage for the host client too.
+        // Deprecated 2021-05-11
         [Obsolete("Call NetworkClient.Disconnect() instead. Nobody should use DisconnectLocalServer.")]
         public static void DisconnectLocalServer()
         {
@@ -272,7 +274,12 @@ namespace Mirror
                 if (handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
                 {
                     handler.Invoke(connection, reader, channelId);
-                    connection.lastMessageTime = Time.time;
+
+                    // message handler may disconnect client, making connection = null
+                    // therefore must check for null to avoid NRE.
+                    if (connection != null)
+                        connection.lastMessageTime = Time.time;
+
                     return true;
                 }
                 else
@@ -379,6 +386,7 @@ namespace Mirror
 
         // message handlers ////////////////////////////////////////////////////
         /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
+        // Deprecated 2021-03-13
         [Obsolete("Use RegisterHandler<T> version without NetworkConnection parameter. It always points to NetworkClient.connection anyway.")]
         public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
@@ -878,6 +886,7 @@ namespace Mirror
             return true;
         }
 
+        // Deprecated 2021-03-13
         [Obsolete("NetworkClient.Ready doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
         public static bool Ready(NetworkConnection conn) => Ready();
 
@@ -933,6 +942,7 @@ namespace Mirror
             return true;
         }
 
+        // Deprecated 2021-03-13
         [Obsolete("NetworkClient.AddPlayer doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
         public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer();
 
@@ -1300,6 +1310,7 @@ namespace Mirror
         }
 
         // obsolete to not break people's projects. Update was public.
+        // Deprecated 2021-03-02
         [Obsolete("NetworkClient.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
         public static void Update() => NetworkLateUpdate();
 

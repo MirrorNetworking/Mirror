@@ -413,7 +413,8 @@ namespace Mirror
 
         public static Uri ReadUri(this NetworkReader reader)
         {
-            return new Uri(reader.ReadString());
+            string uriString = reader.ReadString();
+            return (string.IsNullOrEmpty(uriString) ? null : new Uri(uriString));
         }
     }
 }
