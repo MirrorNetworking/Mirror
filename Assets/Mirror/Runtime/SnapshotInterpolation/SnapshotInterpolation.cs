@@ -148,6 +148,10 @@ namespace Mirror
                 // interpolationTime starts at 0 and we add deltaTime to move
                 // along the interpolation.
                 //
+                // ONLY while we have snapshots to interpolate.
+                // otherwise we might increase it to infinity which would lead
+                // to skipping the next snapshots entirely.
+                //
                 // IMPORTANT: interpolationTime as actual time instead of
                 // t [0,1] allows us to overshoot and subtract easily.
                 // if t was [0,1], and we overshoot by 0.1, that's a
