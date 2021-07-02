@@ -278,6 +278,53 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(computedCasted.value, Is.EqualTo(1.5).Within(Mathf.Epsilon));
         }
 
+        // fourth step: simulate interpolation after a long time of no updates.
+        //              for example, a mobile user might put the app in the
+        //              background for a minute.
+        [Test]
+        public void Compute_Step4_InterpolateAfterLongPause()
+        {
+            // add two immediate, and one that arrives 100s later
+            // (localTime - bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 0, 0);
+            SimpleSnapshot second = new SimpleSnapshot(1, 1, 1);
+            SimpleSnapshot third = new SimpleSnapshot(101, 2, 101);
+            buffer.Add(first.remoteTimestamp, first);
+            buffer.Add(second.remoteTimestamp, second);
+            buffer.Add(third.remoteTimestamp, third);
+
+            // compute where we are half way between first and second,
+            // and now are updated 1 minute later.
+            double localTime = 103; // 1011+bufferTime so third snapshot is old enough
+            double deltaTime = 98.5; // 99s - interpolation time
+            double interpolationTime = 0.5; // half way between first and second
+            float bufferTime = 2;
+            int catchupThreshold = Int32.MaxValue;
+            float catchupMultiplier = 0;
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out Snapshot computed);
+
+            // should spit out the interpolated snapshot
+            Assert.That(result, Is.True);
+            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
+            // interpolation started at 0.5, right between first & second.
+            // we received another snapshot at t=101.
+            // delta = 98.5 seconds
+            // => interpolationTime = 99
+            // => overshoots second goal, so we move to third goal and subtract 1
+            // => so we should be at 98 now
+            Assert.That(interpolationTime, Is.EqualTo(98));
+            // we moved to the next snapshot. so only 2 should be in buffer now.
+            Assert.That(buffer.Count, Is.EqualTo(2));
+            // delta between second and third is 100.
+            // interpolationTime is at 98
+            // interpolationTime is relative to second.time
+            // => InverseLerp(1, 101, 1 + 98) = 0.98
+            // which is at 98% of the value
+            // => Lerp(1, 101, 0.98): 101-1 is 100. 98% are 98. relative to '1'
+            //    makes it 99.
+            Assert.That(computedCasted.value, Is.EqualTo(99).Within(Mathf.Epsilon));
+        }
+
         // fourth step: catchup should be considered if buffer gets too large
         [Test]
         public void Compute_Step4_InterpolateWithCatchup()
