@@ -59,9 +59,9 @@ namespace Mirror.Tests.NetworkTransform2k
             // interpolate
             NTSnapshot between = (NTSnapshot)from.Interpolate(to, 0.5);
 
-            // check time
-            Assert.That(between.remoteTimestamp, Is.EqualTo(1.5).Within(Mathf.Epsilon));
-            Assert.That(between.localTimestamp, Is.EqualTo(1.5).Within(Mathf.Epsilon));
+            // note: timestamp interpolation isn't needed. we don't use it.
+            //Assert.That(between.remoteTimestamp, Is.EqualTo(1.5).Within(Mathf.Epsilon));
+            //Assert.That(between.localTimestamp, Is.EqualTo(1.5).Within(Mathf.Epsilon));
 
             // check position
             Assert.That(between.position.x, Is.EqualTo(1.5).Within(Mathf.Epsilon));
