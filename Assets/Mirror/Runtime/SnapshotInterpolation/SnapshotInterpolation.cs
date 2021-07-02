@@ -236,7 +236,7 @@ namespace Mirror
                 //
                 // SEE TEST: Compute_Step5_OvershootWithoutEnoughSnapshots_NeverExtrapolates()
                 double t = Mathd.InverseLerp(first.remoteTimestamp, second.remoteTimestamp, first.remoteTimestamp + interpolationTime);
-                //Debug.Log($"InverseLerp first={first.timestamp:F2} second={second.timestamp:F2} remoteTime={remoteTime:F2} interpolationTime={interpolationTime:F2} t={t:F2} snapshotbuffer={buffer.Count}");
+                //Debug.Log($"InverseLerp({first.remoteTimestamp:F2}, {second.remoteTimestamp:F2}, {first.remoteTimestamp} + {interpolationTime:F2}) = {t:F2} snapshotbuffer={buffer.Count}");
 
                 // interpolate snapshot, return true to indicate we computed one
                 computed = first.Interpolate(second, t);
