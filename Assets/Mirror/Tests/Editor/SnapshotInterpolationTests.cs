@@ -19,18 +19,14 @@ namespace Mirror.Tests.NetworkTransform2k
             this.value = value;
         }
 
-        public Snapshot Interpolate(Snapshot to, double t)
-        {
-            SimpleSnapshot toCasted = (SimpleSnapshot)to;
-            // only interpolate value.
-            // there is no reason to interpolate time.
-            //
-            // lerp unclamped in case we ever need to extrapolate.
-            // atm SnapshotInterpolation never does.
-            double interpolatedValue = Mathd.LerpUnclamped(value, toCasted.value, t);
-            //Debug.Log($"LerpUnclamped({value}, {toCasted.value}, {t}) = {interpolatedValue}");
-            return new SimpleSnapshot(0, 0, interpolatedValue);
-        }
+        public Snapshot Interpolate(Snapshot to, double t) =>
+            new SimpleSnapshot(
+                // interpolated snapshot is applied directly. don't need timestamps.
+                0, 0,
+                // lerp unclamped in case we ever need to extrapolate.
+                // atm SnapshotInterpolation never does.
+                Mathd.LerpUnclamped(value, ((SimpleSnapshot)to).value, t)
+            );
     }
 
     public class SnapshotInterpolationTests
