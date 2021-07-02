@@ -651,7 +651,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStartServer:" + e.Message + " " + e.StackTrace);
+                    Debug.LogException(e, comp);
                 }
             }
         }
@@ -671,7 +671,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStopServer:" + e.Message + " " + e.StackTrace);
+                    Debug.LogException(e, comp);
                 }
             }
         }
@@ -709,7 +709,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStartClient:" + e.Message + " " + e.StackTrace);
+                    Debug.LogException(e, comp);
                 }
             }
         }
@@ -729,7 +729,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStopClient:" + e.Message + " " + e.StackTrace);
+                    Debug.LogException(e, comp);
                 }
             }
         }
@@ -767,7 +767,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStartLocalPlayer:" + e.Message + " " + e.StackTrace);
+                    Debug.LogException(e, comp);
                 }
             }
         }
@@ -797,7 +797,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStartAuthority:" + e.Message + " " + e.StackTrace);
+                    Debug.LogException(e, comp);
                 }
             }
         }
@@ -817,7 +817,7 @@ namespace Mirror
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError("Exception in OnStopAuthority:" + e.Message + " " + e.StackTrace);
+                    Debug.LogException(e, comp);
                 }
             }
         }
