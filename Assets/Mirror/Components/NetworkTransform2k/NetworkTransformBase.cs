@@ -106,20 +106,20 @@ namespace Mirror
         internal virtual void ApplySnapshot(NTSnapshot snapshot)
         {
             // local position/rotation for VR support
-            targetComponent.localPosition = snapshot.transform.position;
-            targetComponent.localRotation = snapshot.transform.rotation;
-            targetComponent.localScale = snapshot.transform.scale;
+            targetComponent.localPosition = snapshot.position;
+            targetComponent.localRotation = snapshot.rotation;
+            targetComponent.localScale = snapshot.scale;
         }
 
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(NTSnapshotTransform snapshotTransform) =>
-            OnClientToServerSync(snapshotTransform);
+        void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale) =>
+            OnClientToServerSync(position, rotation, scale);
 
         // local authority client sends sync message to server for broadcasting
         // => internal for testing
-        internal virtual void OnClientToServerSync(NTSnapshotTransform snapshotTransform)
+        internal virtual void OnClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // apply if in client authority mode
             if (clientAuthority)
@@ -132,9 +132,9 @@ namespace Mirror
                 NTSnapshot snapshot = new NTSnapshot(
                     timestamp,
                     NetworkTime.localTime,
-                    snapshotTransform.position,
-                    snapshotTransform.rotation,
-                    snapshotTransform.scale
+                    position,
+                    rotation,
+                    scale
                 );
 
                 // add to buffer (or drop if older than first element)
@@ -145,12 +145,12 @@ namespace Mirror
         // rpc /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(NTSnapshotTransform snapshotTransform) =>
-            OnServerToClientSync(snapshotTransform);
+        void RpcServerToClientSync(Vector3 position, Quaternion rotation, Vector3 scale) =>
+            OnServerToClientSync(position, rotation, scale);
 
         // server broadcasts sync message to all clients
         // => internal for testing
-        internal virtual void OnServerToClientSync(NTSnapshotTransform snapshotTransform)
+        internal virtual void OnServerToClientSync(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -173,9 +173,9 @@ namespace Mirror
                 NTSnapshot snapshot = new NTSnapshot(
                     timestamp,
                     NetworkTime.localTime,
-                    snapshotTransform.position,
-                    snapshotTransform.rotation,
-                    snapshotTransform.scale
+                    position,
+                    rotation,
+                    scale
                 );
 
                 // add to buffer (or drop if older than first element)
@@ -195,7 +195,7 @@ namespace Mirror
 
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
-                RpcServerToClientSync(snapshot.transform);
+                RpcServerToClientSync(snapshot.position, snapshot.rotation, snapshot.scale);
 
                 lastServerSendTime = NetworkTime.localTime;
             }
@@ -235,7 +235,7 @@ namespace Mirror
 
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
-                    CmdClientToServerSync(snapshot.transform);
+                    CmdClientToServerSync(snapshot.position, snapshot.rotation, snapshot.scale);
 
                     lastClientSendTime = NetworkTime.localTime;
                 }
@@ -393,18 +393,18 @@ namespace Mirror
                 // start: transparent white
                 NTSnapshot start = buffer.Values[0];
                 Gizmos.color = new Color(1, 1, 1, 0.5f);
-                Gizmos.DrawCube(start.transform.position, Vector3.one);
+                Gizmos.DrawCube(start.position, Vector3.one);
 
                 // line: start to position
-                Gizmos.DrawLine(start.transform.position, transform.position);
+                Gizmos.DrawLine(start.position, transform.position);
 
                 // goal: transparent green
                 NTSnapshot goal = buffer.Values[1];
                 Gizmos.color = new Color(0, 1, 0, 0.5f);
-                Gizmos.DrawCube(goal.transform.position, Vector3.one);
+                Gizmos.DrawCube(goal.position, Vector3.one);
 
                 // line: position to goal
-                Gizmos.DrawLine(transform.position, goal.transform.position);
+                Gizmos.DrawLine(transform.position, goal.position);
 
                 // draw the whole buffer for easier debugging.
                 // it's worth seeing how much we have buffered ahead already
@@ -413,7 +413,7 @@ namespace Mirror
                     // transparent gray
                     NTSnapshot entry = buffer.Values[i];
                     Gizmos.color = new Color(0.5f, 0.5f, 0.5f, 0.3f);
-                    Gizmos.DrawCube(entry.transform.position, Vector3.one);
+                    Gizmos.DrawCube(entry.position, Vector3.one);
                 }
             }
         }

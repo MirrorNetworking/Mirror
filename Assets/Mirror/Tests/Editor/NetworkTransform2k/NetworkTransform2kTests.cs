@@ -64,20 +64,20 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(between.localTimestamp, Is.EqualTo(1.5).Within(Mathf.Epsilon));
 
             // check position
-            Assert.That(between.transform.position.x, Is.EqualTo(1.5).Within(Mathf.Epsilon));
-            Assert.That(between.transform.position.y, Is.EqualTo(1.5).Within(Mathf.Epsilon));
-            Assert.That(between.transform.position.z, Is.EqualTo(1.5).Within(Mathf.Epsilon));
+            Assert.That(between.position.x, Is.EqualTo(1.5).Within(Mathf.Epsilon));
+            Assert.That(between.position.y, Is.EqualTo(1.5).Within(Mathf.Epsilon));
+            Assert.That(between.position.z, Is.EqualTo(1.5).Within(Mathf.Epsilon));
 
             // check rotation
             // (epsilon is slightly too small)
-            Assert.That(between.transform.rotation.eulerAngles.x, Is.EqualTo(0).Within(Mathf.Epsilon));
-            Assert.That(between.transform.rotation.eulerAngles.y, Is.EqualTo(45).Within(0.001));
-            Assert.That(between.transform.rotation.eulerAngles.z, Is.EqualTo(0).Within(Mathf.Epsilon));
+            Assert.That(between.rotation.eulerAngles.x, Is.EqualTo(0).Within(Mathf.Epsilon));
+            Assert.That(between.rotation.eulerAngles.y, Is.EqualTo(45).Within(0.001));
+            Assert.That(between.rotation.eulerAngles.z, Is.EqualTo(0).Within(Mathf.Epsilon));
 
             // check scale
-            Assert.That(between.transform.scale.x, Is.EqualTo(3.5).Within(Mathf.Epsilon));
-            Assert.That(between.transform.scale.y, Is.EqualTo(3.5).Within(Mathf.Epsilon));
-            Assert.That(between.transform.scale.z, Is.EqualTo(3.5).Within(Mathf.Epsilon));
+            Assert.That(between.scale.x, Is.EqualTo(3.5).Within(Mathf.Epsilon));
+            Assert.That(between.scale.y, Is.EqualTo(3.5).Within(Mathf.Epsilon));
+            Assert.That(between.scale.z, Is.EqualTo(3.5).Within(Mathf.Epsilon));
         }
 
         [Test]
@@ -92,9 +92,9 @@ namespace Mirror.Tests.NetworkTransform2k
             double time = NetworkTime.localTime;
             NTSnapshot snapshot = component.ConstructSnapshot();
             Assert.That(snapshot.remoteTimestamp, Is.EqualTo(time).Within(0.01));
-            Assert.That(snapshot.transform.position, Is.EqualTo(new Vector3(1, 2, 3)));
-            Assert.That(snapshot.transform.rotation, Is.EqualTo(Quaternion.identity));
-            Assert.That(snapshot.transform.scale, Is.EqualTo(new Vector3(4, 5, 6)));
+            Assert.That(snapshot.position, Is.EqualTo(new Vector3(1, 2, 3)));
+            Assert.That(snapshot.rotation, Is.EqualTo(Quaternion.identity));
+            Assert.That(snapshot.scale, Is.EqualTo(new Vector3(4, 5, 6)));
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // call OnClientToServerSync without authority
             component.clientAuthority = false;
-            component.OnClientToServerSync(new NTSnapshotTransform());
+            component.OnClientToServerSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.serverBuffer.Count, Is.EqualTo(0));
         }
 
@@ -128,7 +128,7 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // call OnClientToServerSync with authority
             component.clientAuthority = true;
-            component.OnClientToServerSync(new NTSnapshotTransform());
+            component.OnClientToServerSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.serverBuffer.Count, Is.EqualTo(1));
         }
 
@@ -143,7 +143,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // call OnServerToClientSync without authority
             component.clientAuthority = false;
-            component.OnServerToClientSync(new NTSnapshotTransform());
+            component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.clientBuffer.Count, Is.EqualTo(1));
         }
 
@@ -158,7 +158,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // call OnServerToClientSync with authority
             component.clientAuthority = true;
-            component.OnServerToClientSync(new NTSnapshotTransform());
+            component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.clientBuffer.Count, Is.EqualTo(0));
         }
     }

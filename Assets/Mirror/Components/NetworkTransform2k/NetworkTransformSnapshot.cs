@@ -5,22 +5,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    // transform part of the Snapshot so we can send it over the wire without
-    // timestamp.
-    public struct NTSnapshotTransform
-    {
-        public Vector3 position;
-        public Quaternion rotation;
-        public Vector3 scale;
-
-        public NTSnapshotTransform(Vector3 position, Quaternion rotation, Vector3 scale)
-        {
-            this.position = position;
-            this.rotation = rotation;
-            this.scale = scale;
-        }
-    }
-
     // NetworkTransform Snapshot
     public struct NTSnapshot : Snapshot
     {
@@ -42,13 +26,17 @@ namespace Mirror
         public double remoteTimestamp { get; set; }
         public double localTimestamp { get; set; }
 
-        public NTSnapshotTransform transform;
+        public Vector3 position;
+        public Quaternion rotation;
+        public Vector3 scale;
 
         public NTSnapshot(double remoteTimestamp, double localTimestamp, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             this.remoteTimestamp = remoteTimestamp;
             this.localTimestamp = localTimestamp;
-            this.transform = new NTSnapshotTransform(position, rotation, scale);
+            this.position = position;
+            this.rotation = rotation;
+            this.scale = scale;
         }
 
         public Snapshot Interpolate(Snapshot to, double t)
@@ -61,13 +49,13 @@ namespace Mirror
                 // TODO no reason to interpolate time
                 Mathd.LerpUnclamped(remoteTimestamp, toCasted.remoteTimestamp, t),
                 Mathd.LerpUnclamped(localTimestamp, toCasted.localTimestamp, t),
-                Vector3.LerpUnclamped(transform.position, toCasted.transform.position, (float)t),
+                Vector3.LerpUnclamped(position, toCasted.position, (float)t),
                 // IMPORTANT: LerpUnclamped(0, 60, 1.5) extrapolates to ~86.
                 //            SlerpUnclamped(0, 60, 1.5) extrapolates to 90!
                 //            (0, 90, 1.5) is even worse. for Lerp.
                 //            => Slerp works way better for our euler angles.
-                Quaternion.SlerpUnclamped(transform.rotation, toCasted.transform.rotation, (float)t),
-                Vector3.LerpUnclamped(transform.scale, toCasted.transform.scale, (float)t)
+                Quaternion.SlerpUnclamped(rotation, toCasted.rotation, (float)t),
+                Vector3.LerpUnclamped(scale, toCasted.scale, (float)t)
             );
         }
     }
