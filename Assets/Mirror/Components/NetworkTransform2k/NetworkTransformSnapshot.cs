@@ -48,6 +48,8 @@ namespace Mirror
             return new NTSnapshot(
                 // interpolated snapshot is applied directly. don't need timestamps.
                 0, 0,
+                // lerp position/rotation/scale unclamped in case we ever need
+                // to extrapolate. atm SnapshotInterpolation never does.
                 Vector3.LerpUnclamped(position, toCasted.position, (float)t),
                 // IMPORTANT: LerpUnclamped(0, 60, 1.5) extrapolates to ~86.
                 //            SlerpUnclamped(0, 60, 1.5) extrapolates to 90!
