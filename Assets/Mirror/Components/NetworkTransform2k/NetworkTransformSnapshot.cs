@@ -46,9 +46,8 @@ namespace Mirror
             // keep using the functions with 't' as float instead of double.
             NTSnapshot toCasted = (NTSnapshot)to;
             return new NTSnapshot(
-                // TODO no reason to interpolate time
-                Mathd.LerpUnclamped(remoteTimestamp, toCasted.remoteTimestamp, t),
-                Mathd.LerpUnclamped(localTimestamp, toCasted.localTimestamp, t),
+                // interpolated snapshot is applied directly. don't need timestamps.
+                0, 0,
                 Vector3.LerpUnclamped(position, toCasted.position, (float)t),
                 // IMPORTANT: LerpUnclamped(0, 60, 1.5) extrapolates to ~86.
                 //            SlerpUnclamped(0, 60, 1.5) extrapolates to 90!
