@@ -25,6 +25,7 @@ namespace Mirror.Tests.NetworkTransform2k
             // only interpolate value.
             // there is no reason to interpolate time.
             double interpolatedValue = Mathd.LerpUnclamped(value, toCasted.value, t);
+            //Debug.Log($"LerpUnclamped({value}, {toCasted.value}, {t}) = {interpolatedValue}");
             return new SimpleSnapshot(0, 0, interpolatedValue);
         }
     }
