@@ -348,36 +348,35 @@ namespace Mirror
             // show data next to player for easier debugging. this is very useful!
             // IMPORTANT: this is basically an ESP hack for shooter games.
             //            DO NOT make this available with a hotkey in release builds
-            if (Debug.isDebugBuild)
+            if (!Debug.isDebugBuild) return;
+
+            // project position to screen
+            Vector3 point = Camera.main.WorldToScreenPoint(transform.position);
+
+            // enough alpha, in front of camera and in screen?
+            if (point.z >= 0 && Utils.IsPointInScreen(point))
             {
-                // project position to screen
-                Vector3 point = Camera.main.WorldToScreenPoint(transform.position);
+                // catchup is useful to show too
+                int serverBufferExcess = Mathf.Max(serverBuffer.Count - catchupThreshold, 0);
+                int clientBufferExcess = Mathf.Max(clientBuffer.Count - catchupThreshold, 0);
+                float serverCatchup = serverBufferExcess * catchupMultiplier;
+                float clientCatchup = clientBufferExcess * catchupMultiplier;
 
-                // enough alpha, in front of camera and in screen?
-                if (point.z >= 0 && Utils.IsPointInScreen(point))
-                {
-                    // catchup is useful to show too
-                    int serverBufferExcess = Mathf.Max(serverBuffer.Count - catchupThreshold, 0);
-                    int clientBufferExcess = Mathf.Max(clientBuffer.Count - catchupThreshold, 0);
-                    float serverCatchup = serverBufferExcess * catchupMultiplier;
-                    float clientCatchup = clientBufferExcess * catchupMultiplier;
+                GUI.color = overlayColor;
+                GUILayout.BeginArea(new Rect(point.x, Screen.height - point.y, 200, 100));
 
-                    GUI.color = overlayColor;
-                    GUILayout.BeginArea(new Rect(point.x, Screen.height - point.y, 200, 100));
+                // always show both client & server buffers so it's super
+                // obvious if we accidentally populate both.
+                GUILayout.Label($"Server Buffer:{serverBuffer.Count}");
+                if (serverCatchup > 0)
+                    GUILayout.Label($"Server Catchup:{serverCatchup*100:F2}%");
 
-                    // always show both client & server buffers so it's super
-                    // obvious if we accidentally populate both.
-                    GUILayout.Label($"Server Buffer:{serverBuffer.Count}");
-                    if (serverCatchup > 0)
-                        GUILayout.Label($"Server Catchup:{serverCatchup*100:F2}%");
+                GUILayout.Label($"Client Buffer:{clientBuffer.Count}");
+                if (clientCatchup > 0)
+                    GUILayout.Label($"Client Catchup:{clientCatchup*100:F2}%");
 
-                    GUILayout.Label($"Client Buffer:{clientBuffer.Count}");
-                    if (clientCatchup > 0)
-                        GUILayout.Label($"Client Catchup:{clientCatchup*100:F2}%");
-
-                    GUILayout.EndArea();
-                    GUI.color = Color.white;
-                }
+                GUILayout.EndArea();
+                GUI.color = Color.white;
             }
         }
 
