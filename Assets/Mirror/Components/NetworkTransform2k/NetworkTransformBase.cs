@@ -40,6 +40,16 @@ namespace Mirror
         [Range(0, 1)] public float sendInterval = 0.050f;
         double lastClientSendTime;
         double lastServerSendTime;
+        [Tooltip("Only send snapshots if position changed. Should always be enabled.")]
+        public bool onlySendWhenDirty = true;
+
+        Vector3 lastClientSendPosition;
+        Quaternion lastClientSendRotation;
+        Vector3 lastClientSendScale;
+
+        Vector3 lastServerSendPosition;
+        Quaternion lastServerSendRotation;
+        Vector3 lastServerSendScale;
 
         // not all games need to interpolate. a board game might jump to the
         // final position immediately.
@@ -121,6 +131,24 @@ namespace Mirror
             targetComponent.localPosition = interpolatePosition ? interpolated.position : goal.position;
             targetComponent.localRotation = interpolateRotation ? interpolated.rotation : goal.rotation;
             targetComponent.localScale    = interpolateScale    ? interpolated.scale    : goal.scale;
+        }
+
+        // check if changed since last send
+        internal virtual bool HasChanged(Vector3 lastPosition, Quaternion lastRotation, Vector3 lastScale)
+        {
+            // TODO include selective sync bools later.
+            // => if we don't sync position then don't check if changed
+            // => epsilon checks to avoid small unnoticeable changes causing
+            //    resends
+            //
+            // NOTE: simple IsDirty function in NetworkTransform component
+            //       instead of Snapshot:
+            //       * Equals would check timestamp, which always changes
+            //       * HasChanged would be too specific. not every snapshot
+            //         interpolation might want / need that.
+            return Vector3.Distance(transform.localPosition, lastPosition) >= Mathf.Epsilon ||
+                   Quaternion.Angle(transform.localRotation, lastRotation) >= Mathf.Epsilon ||
+                   Vector3.Distance(transform.localScale, lastScale) >= Mathf.Epsilon;
         }
 
         // cmd /////////////////////////////////////////////////////////////////
@@ -236,12 +264,22 @@ namespace Mirror
             //   => would be a super slow move, instead of a wait & move.
             if (NetworkTime.localTime >= lastServerSendTime + sendInterval)
             {
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
+                // get snapshot and send
+                // -> either if onlySendWhenDirty is disabled (= send always)
+                // -> or if enabled, only send if dirty (= changed)
                 NTSnapshot snapshot = ConstructSnapshot();
-                RpcServerToClientSync(snapshot.position, snapshot.rotation, snapshot.scale);
-
-                lastServerSendTime = NetworkTime.localTime;
+                if (!onlySendWhenDirty ||
+                    HasChanged(lastServerSendPosition, lastServerSendRotation, lastServerSendScale))
+                {
+                    // send snapshot without timestamp.
+                    // receiver gets it from batch timestamp to save bandwidth.
+                    RpcServerToClientSync(snapshot.position, snapshot.rotation, snapshot.scale);
+                    Debug.Log($"{name} send rpc @ {NetworkTime.localTime}");
+                    lastServerSendTime = NetworkTime.localTime;
+                    lastServerSendPosition = snapshot.position;
+                    lastServerSendRotation = snapshot.rotation;
+                    lastServerSendScale = snapshot.scale;
+                }
             }
 
             // apply buffered snapshots IF client authority
@@ -290,12 +328,22 @@ namespace Mirror
                 //   => would be a super slow move, instead of a wait & move.
                 if (NetworkTime.localTime >= lastClientSendTime + sendInterval)
                 {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
+                    // get snapshot and send
+                    // -> either if onlySendWhenDirty is disabled (= send always)
+                    // -> or if enabled, only send if dirty (= changed)
                     NTSnapshot snapshot = ConstructSnapshot();
-                    CmdClientToServerSync(snapshot.position, snapshot.rotation, snapshot.scale);
-
-                    lastClientSendTime = NetworkTime.localTime;
+                    if (!onlySendWhenDirty ||
+                        HasChanged(lastClientSendPosition, lastClientSendRotation, lastClientSendScale))
+                    {
+                        // send snapshot without timestamp.
+                        // receiver gets it from batch timestamp to save bandwidth.
+                        CmdClientToServerSync(snapshot.position, snapshot.rotation, snapshot.scale);
+                        Debug.Log($"{name} send cmd @ {NetworkTime.localTime}");
+                        lastClientSendTime = NetworkTime.localTime;
+                        lastClientSendPosition = snapshot.position;
+                        lastClientSendRotation = snapshot.rotation;
+                        lastClientSendScale = snapshot.scale;
+                    }
                 }
             }
             // for all other clients (and for local player if !authority),

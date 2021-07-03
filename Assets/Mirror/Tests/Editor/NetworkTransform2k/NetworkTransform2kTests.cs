@@ -98,6 +98,54 @@ namespace Mirror.Tests.NetworkTransform2k
         }
 
         [Test]
+        public void HasChanged_Same()
+        {
+            // set unique position/rotation/scale
+            transform.position = new Vector3(1, 2, 3);
+            transform.rotation = Quaternion.identity;
+            transform.localScale = new Vector3(4, 5, 6);
+
+            // dirty?
+            Assert.That(component.HasChanged(transform.localPosition, transform.localRotation, transform.localScale), Is.False);
+        }
+
+        [Test]
+        public void HasChanged_DifferentPosition()
+        {
+            // set unique position/rotation/scale
+            transform.position = new Vector3(1, 2, 3);
+            transform.rotation = Quaternion.identity;
+            transform.localScale = new Vector3(4, 5, 6);
+
+            // changed?
+            Assert.That(component.HasChanged(Vector3.zero, transform.localRotation, transform.localScale), Is.True);
+        }
+
+        [Test]
+        public void HasChanged_DifferentRotation()
+        {
+            // set unique position/rotation/scale
+            transform.position = new Vector3(1, 2, 3);
+            transform.rotation = Quaternion.identity;
+            transform.localScale = new Vector3(4, 5, 6);
+
+            // changed?
+            Assert.That(component.HasChanged(transform.localPosition, Quaternion.Euler(1, 2, 3), transform.localScale), Is.True);
+        }
+
+        [Test]
+        public void HasChanged_DifferentScale()
+        {
+            // set unique position/rotation/scale
+            transform.position = new Vector3(1, 2, 3);
+            transform.rotation = Quaternion.identity;
+            transform.localScale = new Vector3(4, 5, 6);
+
+            // changed?
+            Assert.That(component.HasChanged(transform.localPosition, transform.localRotation, Vector3.zero), Is.True);
+        }
+
+        [Test]
         public void ApplySnapshot_Interpolated()
         {
             // construct snapshot with unique position/rotation/scale
