@@ -36,10 +36,17 @@ namespace Mirror
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
-        [Header("Sync")]
+        [Header("Synchronization")]
         [Range(0, 1)] public float sendInterval = 0.050f;
         double lastClientSendTime;
         double lastServerSendTime;
+
+        // not all games need to interpolate. a board game might jump to the
+        // final position immediately.
+        [Header("Interpolation")]
+        public bool interpolatePosition = true;
+        public bool interpolateRotation = true;
+        public bool interpolateScale = true;
 
         // "Experimentally I’ve found that the amount of delay that works best
         //  at 2-5% packet loss is 3X the packet send rate"
@@ -59,13 +66,6 @@ namespace Mirror
 
         [Tooltip("Once buffer is larger catchupThreshold, accelerate by multiplier % per excess entry.")]
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
-
-        // not all games need to interpolate. a board game might jump to the
-        // final position immediately.
-        [Header("Interpolation")]
-        public bool interpolatePosition = true;
-        public bool interpolateRotation = true;
-        public bool interpolateScale = true;
 
         // snapshots sorted by timestamp
         // in the original article, glenn fiedler drops any snapshots older than
