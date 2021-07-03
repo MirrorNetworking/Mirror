@@ -18,8 +18,9 @@ namespace Mirror
             // the snapshots we are already working with.
             double timestamp = snapshot.remoteTimestamp;
 
-            // if size == 1, then we used the first one to initialize remote
-            // time etc. already. so only add snapshots that are newer.
+            // if size == 1, then only add snapshots that are newer.
+            // for example, a snapshot before the first one might have been
+            // lagging.
             if (buffer.Count == 1 &&
                 timestamp <= buffer.Values[0].remoteTimestamp)
                 return;
