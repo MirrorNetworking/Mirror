@@ -101,14 +101,19 @@ namespace Mirror
             );
         }
 
-        // set position carefully depending on the target component
+        // apply a snapshot to the Transform.
+        // -> start, end, interpolated are all passed in caes they are needed
+        // -> a regular game would apply the 'interpolated' snapshot
+        // -> a board game might want to jump to 'goal' directly
+        // (it's easier to always interpolate and then apply selectively,
+        //  instead of manually interpolating x, y, z, ... depending on flags)
         // => internal for testing
-        internal virtual void ApplySnapshot(NTSnapshot snapshot)
+        internal virtual void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
         {
             // local position/rotation for VR support
-            targetComponent.localPosition = snapshot.position;
-            targetComponent.localRotation = snapshot.rotation;
-            targetComponent.localScale = snapshot.scale;
+            targetComponent.localPosition = interpolated.position;
+            targetComponent.localRotation = interpolated.rotation;
+            targetComponent.localScale = interpolated.scale;
         }
 
         // cmd /////////////////////////////////////////////////////////////////
@@ -210,7 +215,9 @@ namespace Mirror
                     catchupThreshold, catchupMultiplier,
                     out Snapshot computed))
                 {
-                    ApplySnapshot((NTSnapshot)computed);
+                    NTSnapshot start = serverBuffer.Values[0];
+                    NTSnapshot goal = serverBuffer.Values[1];
+                    ApplySnapshot(start, goal, (NTSnapshot)computed);
                 }
             }
         }
@@ -245,7 +252,9 @@ namespace Mirror
                     catchupThreshold, catchupMultiplier,
                     out Snapshot computed))
                 {
-                    ApplySnapshot((NTSnapshot)computed);
+                    NTSnapshot start = clientBuffer.Values[0];
+                    NTSnapshot goal = clientBuffer.Values[1];
+                    ApplySnapshot(start, goal, (NTSnapshot)computed);
                 }
             }
         }

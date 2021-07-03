@@ -106,7 +106,7 @@ namespace Mirror.Tests.NetworkTransform2k
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot
-            component.ApplySnapshot(new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
