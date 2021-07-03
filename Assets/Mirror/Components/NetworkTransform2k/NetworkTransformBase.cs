@@ -121,25 +121,24 @@ namespace Mirror
         // => internal for testing
         internal virtual void OnClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
         {
-            // apply if in client authority mode
-            if (clientAuthority)
-            {
-                // only player owned objects (with a connection) can send to
-                // server. we can get the timestamp from the connection.
-                double timestamp = connectionToClient.remoteTimeStamp;
+            // only apply if in client authority mode
+            if (!clientAuthority) return;
 
-                // construct snapshot with batch timestamp to save bandwidth
-                NTSnapshot snapshot = new NTSnapshot(
-                    timestamp,
-                    NetworkTime.localTime,
-                    position,
-                    rotation,
-                    scale
-                );
+            // only player owned objects (with a connection) can send to
+            // server. we can get the timestamp from the connection.
+            double timestamp = connectionToClient.remoteTimeStamp;
 
-                // add to buffer (or drop if older than first element)
-                SnapshotInterpolation.InsertIfNewEnough(snapshot, serverBuffer);
-            }
+            // construct snapshot with batch timestamp to save bandwidth
+            NTSnapshot snapshot = new NTSnapshot(
+                timestamp,
+                NetworkTime.localTime,
+                position,
+                rotation,
+                scale
+            );
+
+            // add to buffer (or drop if older than first element)
+            SnapshotInterpolation.InsertIfNewEnough(snapshot, serverBuffer);
         }
 
         // rpc /////////////////////////////////////////////////////////////////
