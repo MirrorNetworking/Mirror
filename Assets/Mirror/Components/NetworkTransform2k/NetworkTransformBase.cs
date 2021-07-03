@@ -159,27 +159,26 @@ namespace Mirror
             // (rpc goes to clients. if isServer is true too then we are host)
             if (isServer) return;
 
-            // apply for all objects except local player with authority
-            if (!IsClientWithAuthority)
-            {
-                // on the client, we receive rpcs for all entities.
-                // not all of them have a connectionToServer.
-                // but all of them go through NetworkClient.connection.
-                // we can get the timestamp from there.
-                double timestamp = NetworkClient.connection.remoteTimeStamp;
+            // don't apply for local player with authority
+            if (IsClientWithAuthority) return;
 
-                // construct snapshot with batch timestamp to save bandwidth
-                NTSnapshot snapshot = new NTSnapshot(
-                    timestamp,
-                    NetworkTime.localTime,
-                    position,
-                    rotation,
-                    scale
-                );
+            // on the client, we receive rpcs for all entities.
+            // not all of them have a connectionToServer.
+            // but all of them go through NetworkClient.connection.
+            // we can get the timestamp from there.
+            double timestamp = NetworkClient.connection.remoteTimeStamp;
 
-                // add to buffer (or drop if older than first element)
-                SnapshotInterpolation.InsertIfNewEnough(snapshot, clientBuffer);
-            }
+            // construct snapshot with batch timestamp to save bandwidth
+            NTSnapshot snapshot = new NTSnapshot(
+                timestamp,
+                NetworkTime.localTime,
+                position,
+                rotation,
+                scale
+            );
+
+            // add to buffer (or drop if older than first element)
+            SnapshotInterpolation.InsertIfNewEnough(snapshot, clientBuffer);
         }
 
         // update //////////////////////////////////////////////////////////////
