@@ -98,15 +98,38 @@ namespace Mirror.Tests.NetworkTransform2k
         }
 
         [Test]
-        public void ApplySnapshot()
+        public void ApplySnapshot_Interpolated()
         {
             // construct snapshot with unique position/rotation/scale
             Vector3 position = new Vector3(1, 2, 3);
             Quaternion rotation = Quaternion.identity;
             Vector3 scale = new Vector3(4, 5, 6);
 
-            // apply snapshot
+            // apply snapshot with interpolation
+            component.interpolatePosition = true;
+            component.interpolateRotation = true;
+            component.interpolateScale = true;
             component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+
+            // was it applied?
+            Assert.That(transform.position, Is.EqualTo(position));
+            Assert.That(transform.rotation, Is.EqualTo(rotation));
+            Assert.That(transform.localScale, Is.EqualTo(scale));
+        }
+
+        [Test]
+        public void ApplySnapshot_Direct()
+        {
+            // construct snapshot with unique position/rotation/scale
+            Vector3 position = new Vector3(1, 2, 3);
+            Quaternion rotation = Quaternion.identity;
+            Vector3 scale = new Vector3(4, 5, 6);
+
+            // apply snapshot without interpolation
+            component.interpolatePosition = false;
+            component.interpolateRotation = false;
+            component.interpolateScale = false;
+            component.ApplySnapshot(default, new NTSnapshot(0, 0, position, rotation, scale), default);
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));

@@ -60,6 +60,13 @@ namespace Mirror
         [Tooltip("Once buffer is larger catchupThreshold, accelerate by multiplier % per excess entry.")]
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
 
+        // not all games need to interpolate. a board game might jump to the
+        // final position immediately.
+        [Header("Interpolation")]
+        public bool interpolatePosition = true;
+        public bool interpolateRotation = true;
+        public bool interpolateScale = true;
+
         // snapshots sorted by timestamp
         // in the original article, glenn fiedler drops any snapshots older than
         // the last received snapshot.
@@ -111,9 +118,9 @@ namespace Mirror
         internal virtual void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
         {
             // local position/rotation for VR support
-            targetComponent.localPosition = interpolated.position;
-            targetComponent.localRotation = interpolated.rotation;
-            targetComponent.localScale = interpolated.scale;
+            targetComponent.localPosition = interpolatePosition ? interpolated.position : goal.position;
+            targetComponent.localRotation = interpolateRotation ? interpolated.rotation : goal.rotation;
+            targetComponent.localScale    = interpolateScale    ? interpolated.scale    : goal.scale;
         }
 
         // cmd /////////////////////////////////////////////////////////////////
