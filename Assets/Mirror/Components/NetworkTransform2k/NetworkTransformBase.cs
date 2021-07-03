@@ -132,9 +132,7 @@ namespace Mirror
             NTSnapshot snapshot = new NTSnapshot(
                 timestamp,
                 NetworkTime.localTime,
-                position,
-                rotation,
-                scale
+                position, rotation, scale
             );
 
             // add to buffer (or drop if older than first element)
@@ -172,9 +170,7 @@ namespace Mirror
             NTSnapshot snapshot = new NTSnapshot(
                 timestamp,
                 NetworkTime.localTime,
-                position,
-                rotation,
-                scale
+                position, rotation, scale
             );
 
             // add to buffer (or drop if older than first element)
