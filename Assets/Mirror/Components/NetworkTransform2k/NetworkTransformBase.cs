@@ -189,10 +189,9 @@ namespace Mirror
             // NetworkTime.localTime for double precision until Unity has it too
             if (NetworkTime.localTime >= lastServerSendTime + sendInterval)
             {
-                NTSnapshot snapshot = ConstructSnapshot();
-
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
+                NTSnapshot snapshot = ConstructSnapshot();
                 RpcServerToClientSync(snapshot.position, snapshot.rotation, snapshot.scale);
 
                 lastServerSendTime = NetworkTime.localTime;
@@ -229,10 +228,9 @@ namespace Mirror
                 // NetworkTime.localTime for double precision until Unity has it too
                 if (NetworkTime.localTime >= lastClientSendTime + sendInterval)
                 {
-                    NTSnapshot snapshot = ConstructSnapshot();
-
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
+                    NTSnapshot snapshot = ConstructSnapshot();
                     CmdClientToServerSync(snapshot.position, snapshot.rotation, snapshot.scale);
 
                     lastClientSendTime = NetworkTime.localTime;
