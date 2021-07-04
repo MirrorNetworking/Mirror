@@ -195,6 +195,19 @@ namespace Mirror
             // broadcast to all clients each 'sendInterval'
             // (client with authority will drop the rpc)
             // NetworkTime.localTime for double precision until Unity has it too
+            //
+            // IMPORTANT:
+            // snapshot interpolation requires constant sending.
+            // DO NOT only send if position changed. for example:
+            // ---
+            // * client sends first position at t=0
+            // * ... 10s later ...
+            // * client moves again, sends second position at t=10
+            // ---
+            // * server gets first position at t=0
+            // * server gets second position at t=10
+            // * server moves from first to second within a time of 10s
+            //   => would be a super slow move, instead of a wait & move.
             if (NetworkTime.localTime >= lastServerSendTime + sendInterval)
             {
                 // send snapshot without timestamp.
@@ -236,6 +249,19 @@ namespace Mirror
             {
                 // send to server each 'sendInterval'
                 // NetworkTime.localTime for double precision until Unity has it too
+                //
+                // IMPORTANT:
+                // snapshot interpolation requires constant sending.
+                // DO NOT only send if position changed. for example:
+                // ---
+                // * client sends first position at t=0
+                // * ... 10s later ...
+                // * client moves again, sends second position at t=10
+                // ---
+                // * server gets first position at t=0
+                // * server gets second position at t=10
+                // * server moves from first to second within a time of 10s
+                //   => would be a super slow move, instead of a wait & move.
                 if (NetworkTime.localTime >= lastClientSendTime + sendInterval)
                 {
                     // send snapshot without timestamp.
