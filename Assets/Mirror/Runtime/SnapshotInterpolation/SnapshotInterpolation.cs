@@ -141,145 +141,139 @@ namespace Mirror
             double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
             deltaTime *= (1 + catchup);
 
-            // interpolation always requires at least two snapshots,
-            // and both need to be at least 'bufferTime' seconds old!
-            // (because we always buffer for 'bufferTime' seconds first)
-            // => first is always older than second
-            // => only check if second is old enough
-            // => by definition, first is older anyway
+            // we always need two OLD ENOUGH snapshots to interpolate.
+            // otherwise there's nothing to do.
             double threshold = time - bufferTime;
-            if (HasAmountOlderThan(buffer, threshold, 2))
+            if (!HasAmountOlderThan(buffer, threshold, 2))
+                return false;
+
+            // get first & second
+            Snapshot first = buffer.Values[0];
+            Snapshot second = buffer.Values[1];
+
+            // interpolationTime starts at 0 and we add deltaTime to move
+            // along the interpolation.
+            //
+            // ONLY while we have snapshots to interpolate.
+            // otherwise we might increase it to infinity which would lead
+            // to skipping the next snapshots entirely.
+            //
+            // IMPORTANT: interpolationTime as actual time instead of
+            // t [0,1] allows us to overshoot and subtract easily.
+            // if t was [0,1], and we overshoot by 0.1, that's a
+            // RELATIVE overshoot for the delta between B.time - A.time.
+            // => if the next C.time - B.time is not the same delta,
+            //    then the relative overshoot would speed up or slow
+            //    down the interpolation! CAREFUL.
+            //
+            // IMPORTANT: we NEVER add deltaTime to 'time'.
+            //            'time' is already NOW. that's how Unity works.
+            interpolationTime += deltaTime;
+
+            // delta between first & second is needed a lot
+            double delta = second.remoteTimestamp - first.remoteTimestamp;
+
+            // while interpolationTime moved past second snapshot AND we
+            // have more OLD ENOUGH snapshots:
+            // - subtract delta := second - first
+            // - move to next one
+            // - repeat as long as we still overshoot
+            //
+            // for example, if we have snapshots at:
+            //   first:  t = 1
+            //   second: t = 2
+            //   third:  t = 3
+            //   fourth: t = 4
+            // and we currently interpolate between first & second.
+            // after a slow update, interpolation time could be at t=3.5
+            // so we should skip second & third and immediately start
+            // interpolating between third & fourth.
+            //
+            // IMPORTANT: we only ever use old enough snapshots.
+            //            if we wouldn't check for old enough, then we would
+            //            move to the next one, interpolate a little bit,
+            //            and then in next compute() wait again because it
+            //            wasn't old enough yet.
+            while (interpolationTime >= delta &&
+                   HasAmountOlderThan(buffer, threshold, 3))
             {
-                Snapshot first = buffer.Values[0];
-                Snapshot second = buffer.Values[1];
-
-                // interpolationTime starts at 0 and we add deltaTime to move
-                // along the interpolation.
+                // subtract exactly delta from interpolation time
+                // instead of setting to '0', where we would lose the
+                // overshoot part and see jitter again.
                 //
-                // ONLY while we have snapshots to interpolate.
-                // otherwise we might increase it to infinity which would lead
-                // to skipping the next snapshots entirely.
-                //
-                // IMPORTANT: interpolationTime as actual time instead of
-                // t [0,1] allows us to overshoot and subtract easily.
-                // if t was [0,1], and we overshoot by 0.1, that's a
-                // RELATIVE overshoot for the delta between B.time - A.time.
-                // => if the next C.time - B.time is not the same delta,
-                //    then the relative overshoot would speed up or slow
-                //    down the interpolation! CAREFUL.
-                //
-                // IMPORTANT: we NEVER add deltaTime to 'time'.
-                //            'time' is already NOW. that's how Unity works.
-                interpolationTime += deltaTime;
+                // IMPORTANT: subtracting delta TIME works perfectly.
+                //            subtracting '1' from a ratio of t [0,1] would
+                //            leave the overshoot as relative between the
+                //            next delta. if next delta is different, then
+                //            overshoot would be bigger than planned and
+                //            speed up the interpolation.
+                interpolationTime -= delta;
+                //Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
 
-                // delta between first & second is needed a lot
-                double delta = second.remoteTimestamp - first.remoteTimestamp;
+                // remove first from buffer, move first to second & third
+                buffer.RemoveAt(0);
+                first = buffer.Values[0];
+                second = buffer.Values[1];
 
-                // while interpolationTime moved past second snapshot AND we
-                // have more OLD ENOUGH snapshots:
-                // - subtract delta := second - first
-                // - move to next one
-                // - repeat as long as we still overshoot
-                //
-                // for example, if we have snapshots at:
-                //   first:  t = 1
-                //   second: t = 2
-                //   third:  t = 3
-                //   fourth: t = 4
-                // and we currently interpolate between first & second.
-                // after a slow update, interpolation time could be at t=3.5
-                // so we should skip second & third and immediately start
-                // interpolating between third & fourth.
-                //
-                // IMPORTANT: we only ever use old enough snapshots.
-                //            if we wouldn't check for old enough, then we would
-                //            move to the next one, interpolate a little bit,
-                //            and then in next compute() wait again because it
-                //            wasn't old enough yet.
-                while (interpolationTime >= delta &&
-                       HasAmountOlderThan(buffer, threshold, 3))
-                {
-                    // subtract exactly delta from interpolation time
-                    // instead of setting to '0', where we would lose the
-                    // overshoot part and see jitter again.
-                    //
-                    // IMPORTANT: subtracting delta TIME works perfectly.
-                    //            subtracting '1' from a ratio of t [0,1] would
-                    //            leave the overshoot as relative between the
-                    //            next delta. if next delta is different, then
-                    //            overshoot would be bigger than planned and
-                    //            speed up the interpolation.
-                    interpolationTime -= delta;
-                    //Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
+                // 'first' and 'second' changed.
+                // so we need to recaculate 'delta' before the next
+                // check in the while loop.
+                // TODO this is too easy to miss. add a unit test!!!
+                delta = second.remoteTimestamp - first.remoteTimestamp;
 
-                    // remove first from buffer, move first to second & third
-                    buffer.RemoveAt(0);
-                    first = buffer.Values[0];
-                    second = buffer.Values[1];
-
-                    // 'first' and 'second' changed.
-                    // so we need to recaculate 'delta' before the next
-                    // check in the while loop.
-                    // TODO this is too easy to miss. add a unit test!!!
-                    delta = second.remoteTimestamp - first.remoteTimestamp;
-
-                    // NOTE: it's worth consider spitting out all snapshots
-                    // that we skipped, in case someone still wants to move
-                    // along them to avoid physics collisions.
-                    // * for NetworkTransform it's unnecessary as we always
-                    //   set transform.position, which can go anywhere.
-                    // * for CharacterController it's worth considering
-                }
-
-                // interpolationTime is actual time, NOT a 't' ratio [0,1].
-                // we need 't' between [0,1] relative.
-                // InverseLerp calculates just that.
-                // InverseLerp CLAMPS between [0,1] and DOES NOT extrapolate!
-                // => we already skipped ahead as many as possible above.
-                // => we do NOT extrapolate for the reasons below.
-                //
-                // IMPORTANT:
-                //   we should NOT extrapolate & predict while waiting for more
-                //   snapshots as this would introduce a whole range of issues:
-                //   * player might be extrapolated WAY out if we wait for long
-                //   * player might be extrapolated behind walls
-                //   * once we receive a new snapshot, we would interpolate
-                //     not from the last valid position, but from the
-                //     extrapolated position. this could be ANYWHERE. the
-                //     player might get stuck in walls, etc.
-                //   => we are NOT doing client side prediction & rollback here
-                //   => we are simply interpolating with known, valid positions
-                //
-                // SEE TEST: Compute_Step5_OvershootWithoutEnoughSnapshots_NeverExtrapolates()
-                double t = Mathd.InverseLerp(first.remoteTimestamp, second.remoteTimestamp, first.remoteTimestamp + interpolationTime);
-                //Debug.Log($"InverseLerp({first.remoteTimestamp:F2}, {second.remoteTimestamp:F2}, {first.remoteTimestamp} + {interpolationTime:F2}) = {t:F2} snapshotbuffer={buffer.Count}");
-
-                // interpolate snapshot, return true to indicate we computed one
-                computed = first.Interpolate(second, t);
-
-                // interpolationTime:
-                // overshooting is ONLY allowed for smooth transitions when
-                // immediately moving to the NEXT snapshot afterwards.
-                //
-                // if there is ANY break, for example:
-                // * reached second snapshot and waiting for more
-                // * reached second snapshot and next one isn't old enough yet
-                //
-                // then we SHOULD NOT overshoot because:
-                // * increasing interpolationTime by deltaTime while waiting
-                //   would make it grow HUGE to 100+.
-                // * once we have more snapshots, we would skip most of them
-                //   instantly instead of actually interpolating through them.
-                //
-                // in other words, if we DON'T have >= 3 old enough.
-                if (!HasAmountOlderThan(buffer, threshold, 3))
-                    interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
-
-                return true;
+                // NOTE: it's worth consider spitting out all snapshots
+                // that we skipped, in case someone still wants to move
+                // along them to avoid physics collisions.
+                // * for NetworkTransform it's unnecessary as we always
+                //   set transform.position, which can go anywhere.
+                // * for CharacterController it's worth considering
             }
 
-            // no new snapshot was computed
-            return false;
+            // interpolationTime is actual time, NOT a 't' ratio [0,1].
+            // we need 't' between [0,1] relative.
+            // InverseLerp calculates just that.
+            // InverseLerp CLAMPS between [0,1] and DOES NOT extrapolate!
+            // => we already skipped ahead as many as possible above.
+            // => we do NOT extrapolate for the reasons below.
+            //
+            // IMPORTANT:
+            //   we should NOT extrapolate & predict while waiting for more
+            //   snapshots as this would introduce a whole range of issues:
+            //   * player might be extrapolated WAY out if we wait for long
+            //   * player might be extrapolated behind walls
+            //   * once we receive a new snapshot, we would interpolate
+            //     not from the last valid position, but from the
+            //     extrapolated position. this could be ANYWHERE. the
+            //     player might get stuck in walls, etc.
+            //   => we are NOT doing client side prediction & rollback here
+            //   => we are simply interpolating with known, valid positions
+            //
+            // SEE TEST: Compute_Step5_OvershootWithoutEnoughSnapshots_NeverExtrapolates()
+            double t = Mathd.InverseLerp(first.remoteTimestamp, second.remoteTimestamp, first.remoteTimestamp + interpolationTime);
+            //Debug.Log($"InverseLerp({first.remoteTimestamp:F2}, {second.remoteTimestamp:F2}, {first.remoteTimestamp} + {interpolationTime:F2}) = {t:F2} snapshotbuffer={buffer.Count}");
+
+            // interpolate snapshot, return true to indicate we computed one
+            computed = first.Interpolate(second, t);
+
+            // interpolationTime:
+            // overshooting is ONLY allowed for smooth transitions when
+            // immediately moving to the NEXT snapshot afterwards.
+            //
+            // if there is ANY break, for example:
+            // * reached second snapshot and waiting for more
+            // * reached second snapshot and next one isn't old enough yet
+            //
+            // then we SHOULD NOT overshoot because:
+            // * increasing interpolationTime by deltaTime while waiting
+            //   would make it grow HUGE to 100+.
+            // * once we have more snapshots, we would skip most of them
+            //   instantly instead of actually interpolating through them.
+            //
+            // in other words, if we DON'T have >= 3 old enough.
+            if (!HasAmountOlderThan(buffer, threshold, 3))
+                interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
+
+            return true;
         }
     }
 }
