@@ -42,6 +42,11 @@ namespace Mirror
         }
 
         // helper function to check if we have >= n old enough snapshots.
+        // NOTE: we check LOCAL timestamp here.
+        //       not REMOTE timestamp.
+        //       we buffer for 'bufferTime' locally.
+        //       it has nothing to do with remote timestamp.
+        //       and we wouldn't know the current remoteTime either.
         public static bool HasAmountOlderThan<T>(SortedList<double, T> buffer, double threshold, int amount)
             where T : Snapshot =>
                 buffer.Count >= amount &&
