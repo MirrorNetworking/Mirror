@@ -41,9 +41,8 @@ namespace Mirror
             buffer.Add(timestamp, snapshot);
         }
 
-        // helper function to check if we have more old enough snapshots to move
-        // to.
-        static bool HasMoreOldEnough<T>(SortedList<double, T> buffer, double threshold)
+        // helper function to check if we have > 2 old enough snapshots.
+        public static bool HasMoreThanTwoOldEnough<T>(SortedList<double, T> buffer, double threshold)
             where T : Snapshot =>
                 buffer.Count >= 3 &&
                 buffer.Values[2].localTimestamp <= threshold;
@@ -211,7 +210,7 @@ namespace Mirror
                        // in other words: we NEVER move to a snapshot that's not
                        // older than bufferTime. neither when interpolating, nor
                        // when moving to the next one.
-                       HasMoreOldEnough(buffer, threshold))
+                       HasMoreThanTwoOldEnough(buffer, threshold))
                 {
                     // subtract exactly delta from interpolation time
                     // instead of setting to '0', where we would lose the
@@ -284,7 +283,7 @@ namespace Mirror
                 //   would make it grow HUGE to 100+.
                 // * once we have more snapshots, we would skip most of them
                 //   instantly instead of actually interpolating through them.
-                if (!HasMoreOldEnough(buffer, threshold))
+                if (!HasMoreThanTwoOldEnough(buffer, threshold))
                     interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
 
                 return true;

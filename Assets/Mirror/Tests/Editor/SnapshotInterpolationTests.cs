@@ -116,6 +116,50 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(buffer.Values[0], Is.EqualTo(b));
         }
 
+        [Test]
+        public void HasMoreThanTwoOldEnough_NotEnough()
+        {
+            // only add two
+            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+
+            // shouldn't have more old enough than two
+            // because we don't have more than two
+            Assert.That(SnapshotInterpolation.HasMoreThanTwoOldEnough(buffer, 0), Is.False);
+        }
+
+        [Test]
+        public void HasMoreThanTwoOldEnough_EnoughButNotOldEnough()
+        {
+            // add three
+            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+            buffer.Add(c.remoteTimestamp, c);
+
+            // check at time = 1.9, where third one would not be old enough.
+            Assert.That(SnapshotInterpolation.HasMoreThanTwoOldEnough(buffer, 1.9), Is.False);
+        }
+
+        [Test]
+        public void HasMoreThanTwoOldEnough_EnoughAndOldEnough()
+        {
+            // add three
+            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+            buffer.Add(c.remoteTimestamp, c);
+
+            // check at time = 2.1, where third one would be old enough.
+            Assert.That(SnapshotInterpolation.HasMoreThanTwoOldEnough(buffer, 2.1), Is.True);
+        }
+
         // first step: with empty buffer and defaults, nothing should happen
         [Test]
         public void Compute_Step1_DefaultDoesNothing()
