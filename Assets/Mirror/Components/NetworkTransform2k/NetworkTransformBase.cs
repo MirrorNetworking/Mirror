@@ -393,8 +393,8 @@ namespace Mirror
             clientInterpolationTime = 0;
         }
 
-        void OnDisable() => Reset();
-        void OnEnable() => Reset();
+        protected virtual void OnDisable() => Reset();
+        protected virtual void OnEnable() => Reset();
 
         protected virtual void OnValidate()
         {
@@ -405,7 +405,7 @@ namespace Mirror
         }
 
         // debug ///////////////////////////////////////////////////////////////
-        void OnGUI()
+        protected virtual void OnGUI()
         {
             if (!showOverlay) return;
 
@@ -444,7 +444,7 @@ namespace Mirror
             }
         }
 
-        void DrawGizmos(SortedList<double, NTSnapshot> buffer)
+        protected virtual void DrawGizmos(SortedList<double, NTSnapshot> buffer)
         {
             // only draw if we have at least two entries
             if (buffer.Count < 2) return;
@@ -472,7 +472,7 @@ namespace Mirror
             Gizmos.DrawLine(transform.position, buffer.Values[1].position);
         }
 
-        void OnDrawGizmos()
+        protected virtual void OnDrawGizmos()
         {
             if (!showGizmos) return;
 
