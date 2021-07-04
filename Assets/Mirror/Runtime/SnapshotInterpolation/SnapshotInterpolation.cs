@@ -173,21 +173,12 @@ namespace Mirror
             // delta between first & second is needed a lot
             double delta = second.remoteTimestamp - first.remoteTimestamp;
 
-            // while interpolationTime moved past second snapshot AND we
-            // have more OLD ENOUGH snapshots:
-            // - subtract delta := second - first
-            // - move to next one
-            // - repeat as long as we still overshoot
-            //
-            // for example, if we have snapshots at:
-            //   first:  t = 1
-            //   second: t = 2
-            //   third:  t = 3
-            //   fourth: t = 4
-            // and we currently interpolate between first & second.
-            // after a slow update, interpolation time could be at t=3.5
-            // so we should skip second & third and immediately start
-            // interpolating between third & fourth.
+            // reached goal and have more old enough snapshots in buffer?
+            // then skip and move to next.
+            // for example, if we have snapshots at t=1,2,3
+            // and we are at interpolationTime = 2.5, then
+            // we should skip the first one, subtract delta and interpolate
+            // between 2,3 instead.
             //
             // IMPORTANT: we only ever use old enough snapshots.
             //            if we wouldn't check for old enough, then we would
