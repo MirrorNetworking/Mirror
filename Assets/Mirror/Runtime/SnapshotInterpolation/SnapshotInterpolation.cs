@@ -275,7 +275,16 @@ namespace Mirror
             //
             // in other words, if we DON'T have >= 3 old enough.
             if (!HasAmountOlderThan(buffer, threshold, 3))
-                interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
+            {
+                // interpolationTime is always from 0..delta.
+                // so we cap it at delta.
+                // DO NOT cap it at second.remoteTimestamp.
+                // (that's why when interpolating the third parameter is
+                //  first.time + interpolationTime)
+                // => covered with test:
+                //    Compute_Step5_OvershootWithEnoughSnapshots_NextIsntOldEnough()
+                interpolationTime = Math.Min(interpolationTime, delta);
+            }
 
             return true;
         }

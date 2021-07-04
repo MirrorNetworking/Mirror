@@ -534,8 +534,13 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // add two old enough snapshots
             // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
+            //
+            // IMPORTANT: second.time needs to be != second.time-first.time
+            //            to guarantee that we cap interpolationTime (which is
+            //            RELATIVE from 0..delta) at delta, not at second.time.
+            //            this was a bug before.
+            SimpleSnapshot first = new SimpleSnapshot(1, 1, 1);
+            SimpleSnapshot second = new SimpleSnapshot(2, 2, 2);
             // IMPORTANT: third snapshot needs to be:
             // - a different time delta
             //   to test if overflow is correct if deltas are different.
@@ -544,7 +549,7 @@ namespace Mirror.Tests.NetworkTransform2k
             //   that's not the same delta, since t is a ratio.
             // - a different value delta to check if it really _interpolates_,
             //   not just extrapolates further after A,B
-            SimpleSnapshot third = new SimpleSnapshot(3, 3, 4);
+            SimpleSnapshot third = new SimpleSnapshot(4, 4, 4);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
             buffer.Add(third.remoteTimestamp, third);
@@ -556,7 +561,7 @@ namespace Mirror.Tests.NetworkTransform2k
             // -> so we overshoot beyond the second one and move to the next
             //
             // localTime is at 4
-            // third snapshot localTime is at 3.
+            // third snapshot localTime is at 4.
             // bufferTime is 2, so it is NOT old enough and we should wait!
             double localTime = 4;
             double deltaTime = 0.5;
@@ -579,7 +584,8 @@ namespace Mirror.Tests.NetworkTransform2k
             // moving.
             // for example, if we overshoot to 100 while waiting, then we would
             // instantly skip the next 20 snapshots.
-            // => so it should be capped at second.remoteTime
+            // => so it should be capped at max
+            // => which is always 0..delta, NOT first.time .. second.time!!
             Assert.That(interpolationTime, Is.EqualTo(1));
             // buffer should be untouched. shouldn't have moved to third yet.
             Assert.That(buffer.Count, Is.EqualTo(3));
