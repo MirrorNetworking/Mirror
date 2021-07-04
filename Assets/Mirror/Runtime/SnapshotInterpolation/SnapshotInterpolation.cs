@@ -190,16 +190,19 @@ namespace Mirror
                        // we can only interpolate between the next two, if
                        // there are actually two remaining after removing one
                        buffer.Count >= 3 &&
-                       // we will only move from A-B to B-C if C is old enough
-                       // too! for example, if we have finished A-B for a while,
-                       // and C finally comes in. we need to wait for the same
-                       // reason why we wait before we start with A-B initially.
-                       // => we only ever use snapshots older than 'bufferTime'
-                       //    to be sure that there is more afterwards.
-                       // => IF we wouldn't have this check, then A & B would
-                       //    become B & C, and next round it would wait for
-                       //    A & B to be old enough anyway. BUT we would have
-                       //    moved towards C ONE TIME this time already.
+                       // we already check if A & B are old enough before
+                       // interpolating. we should also check if C is old enough
+                       // before going there.
+                       //
+                       // if we wouldn't, then:
+                       //   * B, C are now A, B.
+                       //   * we would move there for one tick.
+                       //   * next compute() does nothing again because A, B
+                       //     aren't old enough.
+                       //
+                       // in other words: we NEVER move to a snapshot that's not
+                       // older than bufferTime. neither when interpolating, nor
+                       // when moving to the next one.
                        buffer.Values[2].localTimestamp <= threshold)
                 {
                     // subtract exactly delta from interpolation time
