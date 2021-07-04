@@ -186,10 +186,6 @@ namespace Mirror
                 // after a slow update, interpolation time could be at t=3.5
                 // so we should skip second & third and immediately start
                 // interpolating between third & fourth.
-                //
-                // IMPORTANT: we don't set interpolationTime = next.time.
-                //            this would cause jitter.
-                //            we always want to subtract exactly delta.
                 while (interpolationTime >= delta &&
                        // we can only move to next if we have >= 3 old enough.
                        //
