@@ -426,6 +426,62 @@ namespace Mirror.Tests.NetworkTransform2k
 
         // fifth step: interpolation time overshoots the end while having more
         //             snapshots available.
+        //             BUT: the next snapshot isn't old enough yet.
+        //                  we shouldn't move there until old enough.
+        //                  for the same reason we don't move to first, second
+        //                  until they are old enough.
+        //                  => always need to be 'bufferTime' old.
+        [Test]
+        public void Compute_Step5_OvershootWithEnoughSnapshots_NextIsntOldEnough()
+        {
+            // add two old enough snapshots
+            // (localTime - bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
+            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
+            // IMPORTANT: third snapshot needs to be:
+            // - a different time delta
+            //   to test if overflow is correct if deltas are different.
+            //   it's not obvious if we ever use t ratio between [0,1] where an
+            //   overflow of 0.1 between A,B could speed up B,C interpolation if
+            //   that's not the same delta, since t is a ratio.
+            // - a different value delta to check if it really _interpolates_,
+            //   not just extrapolates further after A,B
+            SimpleSnapshot third = new SimpleSnapshot(3, 3, 4);
+            buffer.Add(first.remoteTimestamp, first);
+            buffer.Add(second.remoteTimestamp, second);
+            buffer.Add(third.remoteTimestamp, third);
+
+            // compute with initialized remoteTime and buffer time of 2 seconds
+            // and a delta time to be sure that we move along it no matter what.
+            // -> interpolation time is already at '1' at the end.
+            // -> compute will add 0.5 deltaTime
+            // -> so we overshoot beyond the second one and move to the next
+            //
+            // localTime is at 3 + deltaTime = 3.5.
+            // third snapshot localTime is at 3.
+            // bufferTime is 2, so it is NOT old enough and we should wait!
+            double localTime = 3;
+            double deltaTime = 0.5;
+            double interpolationTime = 1;
+            float bufferTime = 2;
+            int catchupThreshold = Int32.MaxValue;
+            float catchupMultiplier = 0;
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out Snapshot computed);
+
+            // should still spit out a result between first & second.
+            Assert.That(result, Is.True);
+            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
+            // interpolation started at the end = 1
+            // and deltaTime is 0.5, so we were at 1.5 internally.
+            Assert.That(interpolationTime, Is.EqualTo(1.5));
+            // buffer should be untouched. shouldn't have moved to third yet.
+            Assert.That(buffer.Count, Is.EqualTo(3));
+            // computed snapshot should be all the way at second snapshot.
+            Assert.That(computedCasted.value, Is.EqualTo(2).Within(Mathf.Epsilon));
+        }
+
+        // fifth step: interpolation time overshoots the end while having more
+        //             snapshots available.
         [Test]
         public void Compute_Step5_OvershootWithEnoughSnapshots_MovesToNextSnapshot()
         {
