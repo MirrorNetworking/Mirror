@@ -126,12 +126,12 @@ namespace Mirror
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale) =>
+        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             OnClientToServerSync(position, rotation, scale);
 
         // local authority client sends sync message to server for broadcasting
         // => internal for testing
-        internal virtual void OnClientToServerSync(Vector3 position, Quaternion rotation, Vector3 scale)
+        internal virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // only apply if in client authority mode
             if (!clientAuthority) return;
@@ -140,11 +140,24 @@ namespace Mirror
             // server. we can get the timestamp from the connection.
             double timestamp = connectionToClient.remoteTimeStamp;
 
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+            if (!position.HasValue) position = transform.localPosition;
+            if (!rotation.HasValue) rotation = transform.localRotation;
+            if (!scale.HasValue) scale = transform.localScale;
+
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
                 timestamp,
                 NetworkTime.localTime,
-                position, rotation, scale
+                position.Value, rotation.Value, scale.Value
             );
 
             // add to buffer (or drop if older than first element)
@@ -159,7 +172,7 @@ namespace Mirror
 
         // server broadcasts sync message to all clients
         // => internal for testing
-        internal virtual void OnServerToClientSync(Vector3 position, Quaternion rotation, Vector3 scale)
+        internal virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -178,11 +191,24 @@ namespace Mirror
             // we can get the timestamp from there.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
 
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+            if (!position.HasValue) position = transform.localPosition;
+            if (!rotation.HasValue) rotation = transform.localRotation;
+            if (!scale.HasValue) scale = transform.localScale;
+
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
                 timestamp,
                 NetworkTime.localTime,
-                position, rotation, scale
+                position.Value, rotation.Value, scale.Value
             );
 
             // add to buffer (or drop if older than first element)
