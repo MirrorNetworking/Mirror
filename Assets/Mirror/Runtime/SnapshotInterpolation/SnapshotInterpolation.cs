@@ -160,14 +160,14 @@ namespace Mirror
                 return false;
 
             // multiply deltaTime by catchup.
-            // if '0' catchup then we multiply by '1', which changes nothing.
-            //
             // for example, assuming a catch up of 50%:
             // - deltaTime = 1s => 1.5s
             // - deltaTime = 0.1s => 0.15s
             // in other words, variations in deltaTime don't matter.
             // simply multiply. that's just how time works.
             // (50% catch up means 0.5, so we multiply by 1.5)
+            //
+            // if '0' catchup then we multiply by '1', which changes nothing.
             double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
             deltaTime *= (1 + catchup);
 
