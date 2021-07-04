@@ -279,11 +279,11 @@ namespace Mirror
                 //   would make it grow HUGE to 100+.
                 // * once we have more snapshots, we would skip most of them
                 //   instantly instead of actually interpolating through them.
-                if (buffer.Count == 2 ||
-                    (buffer.Count >= 3 && buffer.Values[2].localTimestamp > threshold))
-                {
+                bool hasMoreOldEnough = buffer.Count >= 3 &&
+                                        buffer.Values[2].localTimestamp <= threshold;
+
+                if (!hasMoreOldEnough)
                     interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
-                }
 
                 return true;
             }
