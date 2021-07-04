@@ -145,10 +145,7 @@ namespace Mirror
             // => only check if second is old enough
             // => by definition, first is older anyway
             double threshold = time - bufferTime;
-            if (buffer.Count >= 2 &&
-                // compare LOCAL time, not REMOTE time
-                // (covered by Compute_Step3_WaitsUntilBufferTime test)
-                buffer.Values[1].localTimestamp <= threshold)
+            if (HasAmountOfOldEnough(buffer, 2, threshold))
             {
                 Snapshot first = buffer.Values[0];
                 Snapshot second = buffer.Values[1];
