@@ -3,10 +3,8 @@
 // the goal is to remove all the magic from it.
 // => a standalone snapshot interpolation algorithm
 // => that can be simulated with unit tests easily
-
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -42,6 +40,13 @@ namespace Mirror
             // otherwise sort it into the list
             buffer.Add(timestamp, snapshot);
         }
+
+        // helper function to check if we have more old enough snapshots to move
+        // to.
+        static bool HasMoreOldEnough<T>(SortedList<double, T> buffer, double threshold)
+            where T : Snapshot =>
+                buffer.Count >= 3 &&
+                buffer.Values[2].localTimestamp <= threshold;
 
         // the core snapshot interpolation algorithm.
         // for a given remoteTime, interpolationTime and buffer,
@@ -190,9 +195,9 @@ namespace Mirror
                 //            this would cause jitter.
                 //            we always want to subtract exactly delta.
                 while (interpolationTime >= delta &&
-                       // we can only interpolate between the next two, if
-                       // there are actually two remaining after removing one
-                       buffer.Count >= 3 &&
+                       // we can only move to next if we have more old enough
+                       // snapshots.
+                       //
                        // we already check if A & B are old enough before
                        // interpolating. we should also check if C is old enough
                        // before going there.
@@ -206,7 +211,7 @@ namespace Mirror
                        // in other words: we NEVER move to a snapshot that's not
                        // older than bufferTime. neither when interpolating, nor
                        // when moving to the next one.
-                       buffer.Values[2].localTimestamp <= threshold)
+                       HasMoreOldEnough(buffer, threshold))
                 {
                     // subtract exactly delta from interpolation time
                     // instead of setting to '0', where we would lose the
@@ -279,10 +284,7 @@ namespace Mirror
                 //   would make it grow HUGE to 100+.
                 // * once we have more snapshots, we would skip most of them
                 //   instantly instead of actually interpolating through them.
-                bool hasMoreOldEnough = buffer.Count >= 3 &&
-                                        buffer.Values[2].localTimestamp <= threshold;
-
-                if (!hasMoreOldEnough)
+                if (!HasMoreOldEnough(buffer, threshold))
                     interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
 
                 return true;
