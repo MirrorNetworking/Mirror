@@ -165,7 +165,7 @@ namespace Mirror
                 //            'time' is already NOW. that's how Unity works.
                 interpolationTime += deltaTime;
 
-                // delta is needed a lot
+                // delta between first & second is needed a lot
                 double delta = second.remoteTimestamp - first.remoteTimestamp;
 
                 // if interpolation time overshoots 'second' snapshot:
