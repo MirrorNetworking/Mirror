@@ -147,10 +147,6 @@ namespace Mirror
             double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
             deltaTime *= (1 + catchup);
 
-            // get first & second
-            Snapshot first = buffer.Values[0];
-            Snapshot second = buffer.Values[1];
-
             // interpolationTime starts at 0 and we add deltaTime to move
             // along the interpolation.
             //
@@ -169,6 +165,10 @@ namespace Mirror
             // IMPORTANT: we NEVER add deltaTime to 'time'.
             //            'time' is already NOW. that's how Unity works.
             interpolationTime += deltaTime;
+
+            // get first & second
+            Snapshot first = buffer.Values[0];
+            Snapshot second = buffer.Values[1];
 
             // delta between first & second is needed a lot
             double delta = second.remoteTimestamp - first.remoteTimestamp;
