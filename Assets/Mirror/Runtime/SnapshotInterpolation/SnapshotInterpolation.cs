@@ -5,7 +5,6 @@
 // => that can be simulated with unit tests easily
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Mirror
 {
