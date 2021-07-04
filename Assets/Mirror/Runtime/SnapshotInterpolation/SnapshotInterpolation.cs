@@ -69,6 +69,20 @@ namespace Mirror
             return excess > 0 ? excess * catchupMultiplier : 0;
         }
 
+        // get first & second buffer entries and delta between them.
+        // helper function because we use this several times.
+        // => assumes at least two entries in buffer.
+        public static void GetFirstSecondAndDelta<T>(SortedList<double, T> buffer, out Snapshot first, out Snapshot second, out double delta)
+            where T : Snapshot
+        {
+            // get first & second
+            first = buffer.Values[0];
+            second = buffer.Values[1];
+
+            // delta between first & second is needed a lot
+            delta = second.remoteTimestamp - first.remoteTimestamp;
+        }
+
         // the core snapshot interpolation algorithm.
         // for a given remoteTime, interpolationTime and buffer,
         // we tick the snapshot simulation once.
@@ -176,12 +190,8 @@ namespace Mirror
             //            'time' is already NOW. that's how Unity works.
             interpolationTime += deltaTime;
 
-            // get first & second
-            Snapshot first = buffer.Values[0];
-            Snapshot second = buffer.Values[1];
-
-            // delta between first & second is needed a lot
-            double delta = second.remoteTimestamp - first.remoteTimestamp;
+            // get first & second & delta
+            GetFirstSecondAndDelta(buffer, out Snapshot first, out Snapshot second, out double delta);
 
             // reached goal and have more old enough snapshots in buffer?
             // then skip and move to next.
@@ -211,16 +221,9 @@ namespace Mirror
                 interpolationTime -= delta;
                 //Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
 
-                // remove first from buffer, move first to second & third
+                // remove first, get first, second & delta again after change.
                 buffer.RemoveAt(0);
-                first = buffer.Values[0];
-                second = buffer.Values[1];
-
-                // 'first' and 'second' changed.
-                // so we need to recaculate 'delta' before the next
-                // check in the while loop.
-                // TODO this is too easy to miss. add a unit test!!!
-                delta = second.remoteTimestamp - first.remoteTimestamp;
+                GetFirstSecondAndDelta(buffer, out first, out second, out delta);
 
                 // NOTE: it's worth consider spitting out all snapshots
                 // that we skipped, in case someone still wants to move

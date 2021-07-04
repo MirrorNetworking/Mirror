@@ -178,6 +178,23 @@ namespace Mirror.Tests.NetworkTransform2k
         }
 
         [Test]
+        public void GetFirstSecondAndDelta()
+        {
+            // add three
+            SimpleSnapshot a = new SimpleSnapshot(0, 1, 0);
+            SimpleSnapshot b = new SimpleSnapshot(2, 3, 0);
+            SimpleSnapshot c = new SimpleSnapshot(10, 20, 0);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+            buffer.Add(c.remoteTimestamp, c);
+
+            SnapshotInterpolation.GetFirstSecondAndDelta(buffer, out Snapshot first, out Snapshot second, out double delta);
+            Assert.That(first, Is.EqualTo(a));
+            Assert.That(second, Is.EqualTo(b));
+            Assert.That(delta, Is.EqualTo(b.remoteTimestamp - a.remoteTimestamp));
+        }
+
+        [Test]
         public void CalculateCatchup_Multiple()
         {
             // add three
