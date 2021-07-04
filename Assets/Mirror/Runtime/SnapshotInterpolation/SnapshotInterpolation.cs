@@ -172,7 +172,8 @@ namespace Mirror
                 // delta between first & second is needed a lot
                 double delta = second.remoteTimestamp - first.remoteTimestamp;
 
-                // if interpolation time overshoots 'second' snapshot:
+                // while interpolationTime moved past second snapshot AND we
+                // have more OLD ENOUGH snapshots:
                 // - subtract delta := second - first
                 // - move to next one
                 // - repeat as long as we still overshoot
@@ -186,22 +187,13 @@ namespace Mirror
                 // after a slow update, interpolation time could be at t=3.5
                 // so we should skip second & third and immediately start
                 // interpolating between third & fourth.
+                //
+                // IMPORTANT: we only ever use old enough snapshots.
+                //            if we wouldn't check for old enough, then we would
+                //            move to the next one, interpolate a little bit,
+                //            and then in next compute() wait again because it
+                //            wasn't old enough yet.
                 while (interpolationTime >= delta &&
-                       // we can only move to next if we have >= 3 old enough.
-                       //
-                       // we already check if A & B are old enough before
-                       // interpolating. we should also check if C is old enough
-                       // before going there.
-                       //
-                       // if we wouldn't, then:
-                       //   * B, C are now A, B.
-                       //   * we would move there for one tick.
-                       //   * next compute() does nothing again because A, B
-                       //     aren't old enough.
-                       //
-                       // in other words: we NEVER move to a snapshot that's not
-                       // older than bufferTime. neither when interpolating, nor
-                       // when moving to the next one.
                        HasAmountOfOldEnough(buffer, 3, threshold))
                 {
                     // subtract exactly delta from interpolation time
