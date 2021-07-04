@@ -3,6 +3,8 @@
 // the goal is to remove all the magic from it.
 // => a standalone snapshot interpolation algorithm
 // => that can be simulated with unit tests easily
+//
+// BOXING: in C#, uses <T> does not box! passing the interface would box!
 using System;
 using System.Collections.Generic;
 
