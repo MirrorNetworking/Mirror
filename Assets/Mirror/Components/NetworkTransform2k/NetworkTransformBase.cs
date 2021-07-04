@@ -167,7 +167,7 @@ namespace Mirror
         // rpc /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(Vector3 position, Quaternion rotation, Vector3 scale) =>
+        void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             OnServerToClientSync(position, rotation, scale);
 
         // server broadcasts sync message to all clients

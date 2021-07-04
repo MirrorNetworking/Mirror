@@ -203,5 +203,28 @@ namespace Mirror.Tests.NetworkTransform2k
             component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.clientBuffer.Count, Is.EqualTo(0));
         }
+
+        [Test]
+        public void OnServerToClientSync_WithClientAuthority_Nullables_Uses_Last()
+        {
+            // set some defaults
+            transform.position = Vector3.left;
+            transform.rotation = Quaternion.identity;
+            transform.localScale = Vector3.right;
+
+            // pretend to be the client object
+            component.netIdentity.isServer = false;
+            component.netIdentity.isClient = true;
+            component.netIdentity.isLocalPlayer = true;
+
+            // call OnClientToServerSync with authority and nullable types
+            // to make sure it uses the last valid position then.
+            component.OnServerToClientSync(new Vector3?(), new Quaternion?(), new Vector3?());
+            Assert.That(component.clientBuffer.Count, Is.EqualTo(1));
+            NTSnapshot first = component.clientBuffer.Values[0];
+            Assert.That(first.position, Is.EqualTo(Vector3.left));
+            Assert.That(first.rotation, Is.EqualTo(Quaternion.identity));
+            Assert.That(first.scale, Is.EqualTo(Vector3.right));
+        }
     }
 }
