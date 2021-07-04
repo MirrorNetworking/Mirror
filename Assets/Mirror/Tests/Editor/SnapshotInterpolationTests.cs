@@ -161,6 +161,13 @@ namespace Mirror.Tests.NetworkTransform2k
         }
 
         [Test]
+        public void CalculateCatchup_Empty()
+        {
+            // make sure nothing happens with buffer size = 0
+            Assert.That(SnapshotInterpolation.CalculateCatchup(buffer, 0, 10), Is.EqualTo(0));
+        }
+
+        [Test]
         public void CalculateCatchup_None()
         {
             // add one
