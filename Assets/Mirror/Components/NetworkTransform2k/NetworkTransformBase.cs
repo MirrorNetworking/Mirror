@@ -394,35 +394,30 @@ namespace Mirror
 
         void DrawGizmos(SortedList<double, NTSnapshot> buffer)
         {
-            // draw start if we have at least two entries
-            if (buffer.Count >= 2)
+            // only draw if we have at least two entries
+            if (buffer.Count < 2) return;
+
+            // calcluate threshold for 'old enough' snapshots
+            double threshold = NetworkTime.localTime - bufferTime;
+            Color oldEnoughColor = new Color(0, 1, 0, 0.5f);
+            Color notOldEnoughColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
+
+            // draw the whole buffer for easier debugging.
+            // it's worth seeing how much we have buffered ahead already
+            for (int i = 0; i < buffer.Count; ++i)
             {
-                // start: transparent white
-                NTSnapshot start = buffer.Values[0];
-                Gizmos.color = new Color(1, 1, 1, 0.5f);
-                Gizmos.DrawCube(start.position, Vector3.one);
-
-                // line: start to position
-                Gizmos.DrawLine(start.position, transform.position);
-
-                // goal: transparent green
-                NTSnapshot goal = buffer.Values[1];
-                Gizmos.color = new Color(0, 1, 0, 0.5f);
-                Gizmos.DrawCube(goal.position, Vector3.one);
-
-                // line: position to goal
-                Gizmos.DrawLine(transform.position, goal.position);
-
-                // draw the whole buffer for easier debugging.
-                // it's worth seeing how much we have buffered ahead already
-                for (int i = 2; i < buffer.Count; ++i)
-                {
-                    // transparent gray
-                    NTSnapshot entry = buffer.Values[i];
-                    Gizmos.color = new Color(0.5f, 0.5f, 0.5f, 0.3f);
-                    Gizmos.DrawCube(entry.position, Vector3.one);
-                }
+                // color depends on if old enough or not
+                NTSnapshot entry = buffer.Values[i];
+                bool oldEnough = entry.localTimestamp <= threshold;
+                Gizmos.color = oldEnough ? oldEnoughColor : notOldEnoughColor;
+                Gizmos.DrawCube(entry.position, Vector3.one);
             }
+
+            // extra: lines between start<->position<->goal
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(buffer.Values[0].position, transform.position);
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(transform.position, buffer.Values[1].position);
         }
 
         void OnDrawGizmos()
