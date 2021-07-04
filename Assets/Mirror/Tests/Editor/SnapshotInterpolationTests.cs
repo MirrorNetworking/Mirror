@@ -457,10 +457,10 @@ namespace Mirror.Tests.NetworkTransform2k
             // -> compute will add 0.5 deltaTime
             // -> so we overshoot beyond the second one and move to the next
             //
-            // localTime is at 3 + deltaTime = 3.5.
+            // localTime is at 4
             // third snapshot localTime is at 3.
             // bufferTime is 2, so it is NOT old enough and we should wait!
-            double localTime = 3;
+            double localTime = 4;
             double deltaTime = 0.5;
             double interpolationTime = 1;
             float bufferTime = 2;
