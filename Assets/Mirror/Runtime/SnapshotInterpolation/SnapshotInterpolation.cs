@@ -138,9 +138,9 @@ namespace Mirror
             // simply multiply. that's just how time works.
             // (50% catch up means 0.5, so we multiply by 1.5)
             double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
-            // TODO if isn't needed? if 0 then it's the same
-            if (catchup > 0)
-                deltaTime *= (1 + catchup);
+
+            // multiply deltaTime by catchup. if '0' then '* 1' changes nothing.
+            deltaTime *= (1 + catchup);
 
             // interpolation always requires at least two snapshots,
             // and both need to be at least 'bufferTime' seconds old!
