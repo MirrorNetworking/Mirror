@@ -390,7 +390,7 @@ namespace Mirror.Tests.NetworkTransform2k
         // video: https://gyazo.com/8de68f0a821449d7b9a8424e2c9e3ff8
         // (or see Mirror/Docs/Screenshots/NT Snap. Interp./extrapolation issues)
         [Test]
-        public void Compute_Step5_OvershootWithoutEnoughSnapshots_NeverExtrapolates()
+        public void Compute_Step5_OvershootWithoutEnoughSnapshots()
         {
             // add two old enough snapshots
             // (localTime - bufferTime)
