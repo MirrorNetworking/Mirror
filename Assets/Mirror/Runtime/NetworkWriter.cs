@@ -263,6 +263,14 @@ namespace Mirror
             writer.WriteFloat(value.z);
         }
 
+        // TODO add nullable support to weaver instead
+        public static void WriteVector3Nullable(this NetworkWriter writer, Vector3? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteVector3(value.Value);
+        }
+
         public static void WriteVector4(this NetworkWriter writer, Vector4 value)
         {
             writer.WriteFloat(value.x);
@@ -306,6 +314,14 @@ namespace Mirror
             writer.WriteFloat(value.y);
             writer.WriteFloat(value.z);
             writer.WriteFloat(value.w);
+        }
+
+        // TODO add nullable support to weaver instead
+        public static void WriteQuaternionNullable(this NetworkWriter writer, Quaternion? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteQuaternion(value.Value);
         }
 
         public static void WriteRect(this NetworkWriter writer, Rect value)
