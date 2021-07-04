@@ -168,6 +168,7 @@ namespace Mirror
             // (50% catch up means 0.5, so we multiply by 1.5)
             //
             // if '0' catchup then we multiply by '1', which changes nothing.
+            // (faster branch prediction)
             double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
             deltaTime *= (1 + catchup);
 
