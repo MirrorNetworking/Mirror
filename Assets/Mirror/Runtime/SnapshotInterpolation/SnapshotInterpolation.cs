@@ -60,6 +60,9 @@ namespace Mirror
         public static double CalculateCatchup<T>(SortedList<double, T> buffer, int catchupThreshold, double catchupMultiplier)
             where T : Snapshot
         {
+            // NOTE: we count ALL buffer entires > threshold as excess.
+            //       not just the 'old enough' ones.
+            //       if buffer keeps growing, we have to catch up no matter what.
             int excess = buffer.Count - catchupThreshold;
             return excess > 0 ? excess * catchupMultiplier : 0;
         }
