@@ -42,7 +42,7 @@ namespace Mirror
         }
 
         // helper function to check if we have >= n old enough snapshots.
-        public static bool HasAmountOfOldEnough<T>(SortedList<double, T> buffer, int amount, double threshold)
+        public static bool HasEnoughOldEnough<T>(SortedList<double, T> buffer, double threshold, int amount)
             where T : Snapshot =>
                 buffer.Count >= amount &&
                 buffer.Values[amount - 1].localTimestamp <= threshold;
@@ -145,7 +145,7 @@ namespace Mirror
             // => only check if second is old enough
             // => by definition, first is older anyway
             double threshold = time - bufferTime;
-            if (HasAmountOfOldEnough(buffer, 2, threshold))
+            if (HasEnoughOldEnough(buffer, threshold, 2))
             {
                 Snapshot first = buffer.Values[0];
                 Snapshot second = buffer.Values[1];
@@ -194,7 +194,7 @@ namespace Mirror
                 //            and then in next compute() wait again because it
                 //            wasn't old enough yet.
                 while (interpolationTime >= delta &&
-                       HasAmountOfOldEnough(buffer, 3, threshold))
+                       HasEnoughOldEnough(buffer, threshold, 3))
                 {
                     // subtract exactly delta from interpolation time
                     // instead of setting to '0', where we would lose the
@@ -269,7 +269,7 @@ namespace Mirror
                 //   instantly instead of actually interpolating through them.
                 //
                 // in other words, if we DON'T have >= 3 old enough.
-                if (!HasAmountOfOldEnough(buffer, 3, threshold))
+                if (!HasEnoughOldEnough(buffer, threshold, 3))
                     interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
 
                 return true;
