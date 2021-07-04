@@ -160,6 +160,9 @@ namespace Mirror
                 // => if the next C.time - B.time is not the same delta,
                 //    then the relative overshoot would speed up or slow
                 //    down the interpolation! CAREFUL.
+                //
+                // IMPORTANT: we NEVER add deltaTime to 'time'.
+                //            'time' is already NOW. that's how Unity works.
                 interpolationTime += deltaTime;
 
                 // delta is needed a lot
