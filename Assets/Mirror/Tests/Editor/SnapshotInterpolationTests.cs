@@ -117,7 +117,7 @@ namespace Mirror.Tests.NetworkTransform2k
         }
 
         [Test]
-        public void HasMoreThanTwoOldEnough_NotEnough()
+        public void HasAmountOfOldEnough_NotEnough()
         {
             // only add two
             SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
@@ -127,11 +127,11 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // shouldn't have more old enough than two
             // because we don't have more than two
-            Assert.That(SnapshotInterpolation.HasMoreThanTwoOldEnough(buffer, 0), Is.False);
+            Assert.That(SnapshotInterpolation.HasAmountOfOldEnough(buffer, 3, 0), Is.False);
         }
 
         [Test]
-        public void HasMoreThanTwoOldEnough_EnoughButNotOldEnough()
+        public void HasAmountOfOldEnough_EnoughButNotOldEnough()
         {
             // add three
             SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
@@ -142,11 +142,11 @@ namespace Mirror.Tests.NetworkTransform2k
             buffer.Add(c.remoteTimestamp, c);
 
             // check at time = 1.9, where third one would not be old enough.
-            Assert.That(SnapshotInterpolation.HasMoreThanTwoOldEnough(buffer, 1.9), Is.False);
+            Assert.That(SnapshotInterpolation.HasAmountOfOldEnough(buffer, 3, 1.9), Is.False);
         }
 
         [Test]
-        public void HasMoreThanTwoOldEnough_EnoughAndOldEnough()
+        public void HasAmountOfOldEnough_EnoughAndOldEnough()
         {
             // add three
             SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
@@ -157,7 +157,7 @@ namespace Mirror.Tests.NetworkTransform2k
             buffer.Add(c.remoteTimestamp, c);
 
             // check at time = 2.1, where third one would be old enough.
-            Assert.That(SnapshotInterpolation.HasMoreThanTwoOldEnough(buffer, 2.1), Is.True);
+            Assert.That(SnapshotInterpolation.HasAmountOfOldEnough(buffer, 3, 2.1), Is.True);
         }
 
         // first step: with empty buffer and defaults, nothing should happen

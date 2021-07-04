@@ -41,11 +41,11 @@ namespace Mirror
             buffer.Add(timestamp, snapshot);
         }
 
-        // helper function to check if we have > 2 old enough snapshots.
-        public static bool HasMoreThanTwoOldEnough<T>(SortedList<double, T> buffer, double threshold)
+        // helper function to check if we have >= n old enough snapshots.
+        public static bool HasAmountOfOldEnough<T>(SortedList<double, T> buffer, int amount, double threshold)
             where T : Snapshot =>
-                buffer.Count >= 3 &&
-                buffer.Values[2].localTimestamp <= threshold;
+                buffer.Count >= amount &&
+                buffer.Values[amount - 1].localTimestamp <= threshold;
 
         // the core snapshot interpolation algorithm.
         // for a given remoteTime, interpolationTime and buffer,
@@ -194,8 +194,7 @@ namespace Mirror
                 //            this would cause jitter.
                 //            we always want to subtract exactly delta.
                 while (interpolationTime >= delta &&
-                       // we can only move to next if we have more old enough
-                       // snapshots.
+                       // we can only move to next if we have >= 3 old enough.
                        //
                        // we already check if A & B are old enough before
                        // interpolating. we should also check if C is old enough
@@ -210,7 +209,7 @@ namespace Mirror
                        // in other words: we NEVER move to a snapshot that's not
                        // older than bufferTime. neither when interpolating, nor
                        // when moving to the next one.
-                       HasMoreThanTwoOldEnough(buffer, threshold))
+                       HasAmountOfOldEnough(buffer, 3, threshold))
                 {
                     // subtract exactly delta from interpolation time
                     // instead of setting to '0', where we would lose the
@@ -283,7 +282,9 @@ namespace Mirror
                 //   would make it grow HUGE to 100+.
                 // * once we have more snapshots, we would skip most of them
                 //   instantly instead of actually interpolating through them.
-                if (!HasMoreThanTwoOldEnough(buffer, threshold))
+                //
+                // in other words, if we DON'T have >= 3 old enough.
+                if (!HasAmountOfOldEnough(buffer, 3, threshold))
                     interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
 
                 return true;
