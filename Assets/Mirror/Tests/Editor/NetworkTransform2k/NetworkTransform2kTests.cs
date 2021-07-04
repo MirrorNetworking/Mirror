@@ -155,6 +155,25 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(component.serverBuffer.Count, Is.EqualTo(1));
         }
 
+        [Test]
+        public void OnClientToServerSync_WithClientAuthority_Nullables_Uses_Last()
+        {
+            // set some defaults
+            transform.position = Vector3.left;
+            transform.rotation = Quaternion.identity;
+            transform.localScale = Vector3.right;
+
+            // call OnClientToServerSync with authority and nullable types
+            // to make sure it uses the last valid position then.
+            component.clientAuthority = true;
+            component.OnClientToServerSync(new Vector3?(), new Quaternion?(), new Vector3?());
+            Assert.That(component.serverBuffer.Count, Is.EqualTo(1));
+            NTSnapshot first = component.serverBuffer.Values[0];
+            Assert.That(first.position, Is.EqualTo(Vector3.left));
+            Assert.That(first.rotation, Is.EqualTo(Quaternion.identity));
+            Assert.That(first.scale, Is.EqualTo(Vector3.right));
+        }
+
         // server->client sync should only work if client doesn't have authority
         [Test]
         public void OnServerToClientSync_WithoutClientAuthority()
