@@ -129,6 +129,12 @@ namespace Mirror
             computed = default;
             //Debug.Log($"{name} snapshotbuffer={buffer.Count}");
 
+            // we always need two OLD ENOUGH snapshots to interpolate.
+            // otherwise there's nothing to do.
+            double threshold = time - bufferTime;
+            if (!HasAmountOlderThan(buffer, threshold, 2))
+                return false;
+
             // multiply deltaTime by catchup.
             // if '0' catchup then we multiply by '1', which changes nothing.
             //
@@ -140,12 +146,6 @@ namespace Mirror
             // (50% catch up means 0.5, so we multiply by 1.5)
             double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
             deltaTime *= (1 + catchup);
-
-            // we always need two OLD ENOUGH snapshots to interpolate.
-            // otherwise there's nothing to do.
-            double threshold = time - bufferTime;
-            if (!HasAmountOlderThan(buffer, threshold, 2))
-                return false;
 
             // get first & second
             Snapshot first = buffer.Values[0];
