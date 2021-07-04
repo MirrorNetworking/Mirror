@@ -3,7 +3,10 @@
 // the goal is to remove all the magic from it.
 // => a standalone snapshot interpolation algorithm
 // => that can be simulated with unit tests easily
+
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -262,6 +265,26 @@ namespace Mirror
 
                 // interpolate snapshot, return true to indicate we computed one
                 computed = first.Interpolate(second, t);
+
+                // interpolationTime:
+                // overshooting is ONLY allowed for smooth transitions when
+                // immediately moving to the NEXT snapshot afterwards.
+                //
+                // if there is ANY break, for example:
+                // * reached second snapshot and waiting for more
+                // * reached second snapshot and next one isn't old enough yet
+                //
+                // then we SHOULD NOT overshoot because:
+                // * increasing interpolationTime by deltaTime while waiting
+                //   would make it grow HUGE to 100+.
+                // * once we have more snapshots, we would skip most of them
+                //   instantly instead of actually interpolating through them.
+                if (buffer.Count == 2 ||
+                    (buffer.Count >= 3 && buffer.Values[2].localTimestamp > threshold))
+                {
+                    interpolationTime = Math.Min(interpolationTime, second.remoteTimestamp);
+                }
+
                 return true;
             }
 

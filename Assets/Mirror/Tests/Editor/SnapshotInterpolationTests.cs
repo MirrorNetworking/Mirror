@@ -416,8 +416,16 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(result, Is.True);
             SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started at the end = 1
-            // and deltaTime is 0.5, so we should be at 1.5 now.
-            Assert.That(interpolationTime, Is.EqualTo(1.5));
+            // and deltaTime is 0.5, so it's at 1.5 internally.
+            //
+            // BUT there's NO reason to overshoot interpolationTime if there's
+            // no other snapshots to move to.
+            // interpolationTime overshoot is only for smooth transitions WHILE
+            // moving.
+            // for example, if we keep overshooting to 100, then we would
+            // instantly skip the next 20 snapshots.
+            // => so it should be capped at second.remoteTime
+            Assert.That(interpolationTime, Is.EqualTo(1));
             // buffer should be untouched, we are still interpolating between the two
             Assert.That(buffer.Count, Is.EqualTo(2));
             // computed snapshot should NOT extrapolate beyond second snap.
@@ -473,7 +481,16 @@ namespace Mirror.Tests.NetworkTransform2k
             SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started at the end = 1
             // and deltaTime is 0.5, so we were at 1.5 internally.
-            Assert.That(interpolationTime, Is.EqualTo(1.5));
+            //
+            // BUT there's NO reason to overshoot interpolationTime while we
+            // wait for the next snapshot which isn't old enough.
+            // we stopped movement anyway.
+            // interpolationTime overshoot is only for smooth transitions WHILE
+            // moving.
+            // for example, if we overshoot to 100 while waiting, then we would
+            // instantly skip the next 20 snapshots.
+            // => so it should be capped at second.remoteTime
+            Assert.That(interpolationTime, Is.EqualTo(1));
             // buffer should be untouched. shouldn't have moved to third yet.
             Assert.That(buffer.Count, Is.EqualTo(3));
             // computed snapshot should be all the way at second snapshot.
