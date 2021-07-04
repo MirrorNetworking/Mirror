@@ -160,6 +160,28 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 2.1, 3), Is.True);
         }
 
+        [Test]
+        public void CalculateCatchup_None()
+        {
+            // add one
+            buffer.Add(0, default);
+
+            // catch-up starts at threshold = 1. so nothing.
+            Assert.That(SnapshotInterpolation.CalculateCatchup(buffer, 1, 10), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void CalculateCatchup_Multiple()
+        {
+            // add three
+            buffer.Add(0, default);
+            buffer.Add(1, default);
+            buffer.Add(2, default);
+
+            // catch-up starts at threshold = 1. so two are multiplied by 10.
+            Assert.That(SnapshotInterpolation.CalculateCatchup(buffer, 1, 10), Is.EqualTo(20));
+        }
+
         // first step: with empty buffer and defaults, nothing should happen
         [Test]
         public void Compute_Step1_DefaultDoesNothing()

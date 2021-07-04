@@ -5,6 +5,7 @@
 // => that can be simulated with unit tests easily
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -46,6 +47,18 @@ namespace Mirror
             where T : Snapshot =>
                 buffer.Count >= amount &&
                 buffer.Values[amount - 1].localTimestamp <= threshold;
+
+        // calculate catchup.
+        // the goal is to buffer 'bufferTime' snapshots.
+        // for whatever reason, we might see growing buffers.
+        // in which case we should speed up to avoid ever growing delay.
+        // -> everything after 'threshold' is multiplied by 'multiplier'
+        public static double CalculateCatchup<T>(SortedList<double, T> buffer, int catchupThreshold, double catchupMultiplier)
+            where T : Snapshot
+        {
+            int excess = buffer.Count - catchupThreshold;
+            return excess > 0 ? excess * catchupMultiplier : 0;
+        }
 
         // the core snapshot interpolation algorithm.
         // for a given remoteTime, interpolationTime and buffer,
@@ -117,26 +130,17 @@ namespace Mirror
             computed = default;
             //Debug.Log($"{name} snapshotbuffer={buffer.Count}");
 
-            // calculate catchup.
-            // the goal is to buffer 'bufferTime' snapshots.
-            // for whatever reason, we might see growing buffers.
-            // in which case we should speed up to avoid ever growing delay.
-            // -> first, calculate the excess
-            int excess = buffer.Count - catchupThreshold;
-            if (excess > 0)
-            {
-                // -> now calculate the total catch up
-                double ketchup = excess * catchupMultiplier;
-
-                // -> apply the catch up to time.
-                // for example, assuming a catch up of 50%:
-                // - deltaTime = 1s => 1.5s
-                // - deltaTime = 0.1s => 0.15s
-                // in other words, variations in deltaTime don't matter.
-                // simply multiply. that's just how time works.
-                // (50% catch up means 0.5, so we multiply by 1.5)
-                deltaTime *= (1 + ketchup);
-            }
+            // apply the catch up to time.
+            // for example, assuming a catch up of 50%:
+            // - deltaTime = 1s => 1.5s
+            // - deltaTime = 0.1s => 0.15s
+            // in other words, variations in deltaTime don't matter.
+            // simply multiply. that's just how time works.
+            // (50% catch up means 0.5, so we multiply by 1.5)
+            double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
+            // TODO if isn't needed? if 0 then it's the same
+            if (catchup > 0)
+                deltaTime *= (1 + catchup);
 
             // interpolation always requires at least two snapshots,
             // and both need to be at least 'bufferTime' seconds old!
