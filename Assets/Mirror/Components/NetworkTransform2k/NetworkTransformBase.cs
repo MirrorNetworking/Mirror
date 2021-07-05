@@ -1,5 +1,5 @@
-// NetworkTransform V2 by vis2k
-// based on Glenn Fielder https://gafferongames.com/post/snapshot_interpolation/
+// NetworkTransform V2 aka project Oumuamua by vis2k (2021-07)
+// Snapshot Interpolation: https://gafferongames.com/post/snapshot_interpolation/
 //
 // Base class for NetworkTransform and NetworkTransformChild.
 // => simple unreliable sync without any interpolation for now.
