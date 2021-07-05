@@ -102,7 +102,7 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // construct snapshot with unique position/rotation/scale
             Vector3 position = new Vector3(1, 2, 3);
-            Quaternion rotation = Quaternion.identity;
+            Quaternion rotation = Quaternion.Euler(45, 90, 45);
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot with interpolation
@@ -113,7 +113,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
-            Assert.That(transform.rotation, Is.EqualTo(rotation));
+            Assert.That(Quaternion.Angle(transform.rotation, rotation), Is.EqualTo(0).Within(Mathf.Epsilon));
             Assert.That(transform.localScale, Is.EqualTo(scale));
         }
 
@@ -122,7 +122,7 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // construct snapshot with unique position/rotation/scale
             Vector3 position = new Vector3(1, 2, 3);
-            Quaternion rotation = Quaternion.identity;
+            Quaternion rotation = Quaternion.Euler(45, 90, 45);
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without interpolation
@@ -133,7 +133,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
-            Assert.That(transform.rotation, Is.EqualTo(rotation));
+            Assert.That(Quaternion.Angle(transform.rotation, rotation), Is.EqualTo(0).Within(Mathf.Epsilon));
             Assert.That(transform.localScale, Is.EqualTo(scale));
         }
 
@@ -142,7 +142,7 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // construct snapshot with unique position/rotation/scale
             Vector3 position = new Vector3(1, 2, 3);
-            Quaternion rotation = Quaternion.identity;
+            Quaternion rotation = Quaternion.Euler(45, 90, 45);
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without position sync should not apply position
@@ -153,7 +153,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(Vector3.zero));
-            Assert.That(transform.rotation, Is.EqualTo(rotation));
+            Assert.That(Quaternion.Angle(transform.rotation, rotation), Is.EqualTo(0).Within(Mathf.Epsilon));
             Assert.That(transform.localScale, Is.EqualTo(scale));
         }
 
@@ -162,7 +162,7 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // construct snapshot with unique position/rotation/scale
             Vector3 position = new Vector3(1, 2, 3);
-            Quaternion rotation = Quaternion.Euler(1, 2, 3);
+            Quaternion rotation = Quaternion.Euler(45, 90, 45);
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without position sync should not apply position
@@ -182,7 +182,7 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             // construct snapshot with unique position/rotation/scale
             Vector3 position = new Vector3(1, 2, 3);
-            Quaternion rotation = Quaternion.identity;
+            Quaternion rotation = Quaternion.Euler(45, 90, 45);
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without position sync should not apply position
@@ -193,7 +193,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
-            Assert.That(transform.rotation, Is.EqualTo(rotation));
+            Assert.That(Quaternion.Angle(transform.rotation, rotation), Is.EqualTo(0).Within(Mathf.Epsilon));
             Assert.That(transform.localScale, Is.EqualTo(Vector3.one));
         }
 
