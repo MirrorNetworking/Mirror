@@ -138,7 +138,7 @@ namespace Mirror
                 targetComponent.localRotation = interpolateRotation ? interpolated.rotation : goal.rotation;
 
             if (syncScale)
-                targetComponent.localScale    = interpolateScale    ? interpolated.scale    : goal.scale;
+                targetComponent.localScale = interpolateScale ? interpolated.scale : goal.scale;
         }
 
         // cmd /////////////////////////////////////////////////////////////////
