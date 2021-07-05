@@ -119,6 +119,9 @@ namespace Mirror
         // (it's easier to always interpolate and then apply selectively,
         //  instead of manually interpolating x, y, z, ... depending on flags)
         // => internal for testing
+        //
+        // NOTE: stuck detection is unnecessary here.
+        //       we always set transform.position anyway, we can't get stuck.
         internal virtual void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
         {
             // local position/rotation for VR support
