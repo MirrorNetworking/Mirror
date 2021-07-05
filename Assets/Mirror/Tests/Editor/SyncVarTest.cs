@@ -35,6 +35,35 @@ namespace Mirror.Tests.SyncVarTests
         [SyncVar]
         public SyncVarNetworkBehaviour value;
     }
+    class SyncVarAbstractNetworkBehaviour : NetworkBehaviour
+    {
+        public abstract class MockMonsterBase : NetworkBehaviour
+        {
+            public abstract string GetName();
+        }
+
+        public class MockZombie : MockMonsterBase
+        {
+            public override string GetName()
+            {
+                return "Zombie";
+            }
+        }
+
+        public class MockWolf : MockMonsterBase
+        {
+            public override string GetName()
+            {
+                return "Wolf";
+            }
+        }
+
+        [SyncVar]
+        public MockMonsterBase monster1;
+
+        [SyncVar]
+        public MockMonsterBase monster2;
+    }
 
     public class SyncVarTest : SyncVarTestBase
     {
@@ -372,6 +401,40 @@ namespace Mirror.Tests.SyncVarTests
 
             // check field finds value
             Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+        }
+
+        [Test]
+        public void TestSyncingAbstractNetworkBehaviour()
+        {
+            // set up a "server" object
+            CreateNetworked(out GameObject _, out NetworkIdentity serverIdentity, out SyncVarAbstractNetworkBehaviour serverBehaviour);
+
+            // spawn syncvar targets
+            CreateNetworked(out GameObject _, out NetworkIdentity wolfIdentity, out SyncVarAbstractNetworkBehaviour.MockWolf wolf);
+            CreateNetworked(out GameObject _, out NetworkIdentity zombieIdentity, out SyncVarAbstractNetworkBehaviour.MockZombie zombie);
+
+            wolfIdentity.netId = 135;
+            zombieIdentity.netId = 246;
+
+            serverBehaviour.monster1 = wolf;
+            serverBehaviour.monster2 = zombie;
+
+            // serialize all the data as we would for the network
+            NetworkWriter ownerWriter = new NetworkWriter();
+            // not really used in this Test
+            NetworkWriter observersWriter = new NetworkWriter();
+            serverIdentity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+
+            // set up a "client" object
+            CreateNetworked(out GameObject _, out NetworkIdentity clientIdentity, out SyncVarAbstractNetworkBehaviour clientBehaviour);
+
+            // apply all the data from the server object
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            clientIdentity.OnDeserializeAllSafely(reader, true);
+
+            // check that the syncvars got updated
+            Assert.That(clientBehaviour.monster1, Is.EqualTo(serverBehaviour.monster1), "Data should be synchronized");
+            Assert.That(clientBehaviour.monster2, Is.EqualTo(serverBehaviour.monster2), "Data should be synchronized");
         }
     }
 }
