@@ -164,9 +164,9 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (!position.HasValue) position = transform.localPosition;
-            if (!rotation.HasValue) rotation = transform.localRotation;
-            if (!scale.HasValue) scale = transform.localScale;
+            if (!position.HasValue) position = targetComponent.localPosition;
+            if (!rotation.HasValue) rotation = targetComponent.localRotation;
+            if (!scale.HasValue) scale = targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
@@ -215,9 +215,9 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (!position.HasValue) position = transform.localPosition;
-            if (!rotation.HasValue) rotation = transform.localRotation;
-            if (!scale.HasValue) scale = transform.localScale;
+            if (!position.HasValue) position = targetComponent.localPosition;
+            if (!rotation.HasValue) rotation = targetComponent.localRotation;
+            if (!scale.HasValue) scale = targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
@@ -370,7 +370,7 @@ namespace Mirror
 
             // set the new position.
             // interpolation will automatically continue.
-            transform.position = destination;
+            targetComponent.position = destination;
 
             // TODO
             // what if we still receive a snapshot from before the interpolation?
@@ -412,7 +412,7 @@ namespace Mirror
             //      the rpc would come a little bit later and reset it once.
             // TODO or not? if client ONLY calls Teleport(pos), the position
             //      would only be set after the rpc. unless the client calls
-            //      BOTH Teleport(pos) and transform.position=pos
+            //      BOTH Teleport(pos) and targetComponent.position=pos
             RpcTeleport(destination);
         }
 
@@ -450,7 +450,7 @@ namespace Mirror
             if (!Debug.isDebugBuild) return;
 
             // project position to screen
-            Vector3 point = Camera.main.WorldToScreenPoint(transform.position);
+            Vector3 point = Camera.main.WorldToScreenPoint(targetComponent.position);
 
             // enough alpha, in front of camera and in screen?
             if (point.z >= 0 && Utils.IsPointInScreen(point))
@@ -502,9 +502,9 @@ namespace Mirror
 
             // extra: lines between start<->position<->goal
             Gizmos.color = Color.green;
-            Gizmos.DrawLine(buffer.Values[0].position, transform.position);
+            Gizmos.DrawLine(buffer.Values[0].position, targetComponent.position);
             Gizmos.color = Color.white;
-            Gizmos.DrawLine(transform.position, buffer.Values[1].position);
+            Gizmos.DrawLine(targetComponent.position, buffer.Values[1].position);
         }
 
         protected virtual void OnDrawGizmos()
