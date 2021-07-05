@@ -234,6 +234,11 @@ namespace Mirror
             // * server gets second position at t=10
             // * server moves from first to second within a time of 10s
             //   => would be a super slow move, instead of a wait & move.
+            //
+            // IMPORTANT:
+            // DO NOT send nulls if not changed 'since last send' either. we
+            // send unreliable and don't know which 'last send' the other end
+            // received successfully.
             if (NetworkTime.localTime >= lastServerSendTime + sendInterval)
             {
                 // send snapshot without timestamp.
@@ -288,6 +293,11 @@ namespace Mirror
                 // * server gets second position at t=10
                 // * server moves from first to second within a time of 10s
                 //   => would be a super slow move, instead of a wait & move.
+                //
+                // IMPORTANT:
+                // DO NOT send nulls if not changed 'since last send' either. we
+                // send unreliable and don't know which 'last send' the other end
+                // received successfully.
                 if (NetworkTime.localTime >= lastClientSendTime + sendInterval)
                 {
                     // send snapshot without timestamp.
