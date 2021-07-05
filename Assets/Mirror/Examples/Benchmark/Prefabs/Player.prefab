@@ -119,6 +119,12 @@ MonoBehaviour:
   syncInterval: 0.1
   clientAuthority: 1
   sendInterval: 0.05
+  syncPosition: 1
+  syncRotation: 0
+  syncScale: 0
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
   bufferTimeMultiplier: 3
   catchupThreshold: 6
   catchupMultiplier: 0.1
