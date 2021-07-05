@@ -156,6 +156,9 @@ namespace Mirror
             // only apply if in client authority mode
             if (!clientAuthority) return;
 
+            // protect against ever growing buffer size attacks
+            if (serverBuffer.Count >= bufferSizeLimit) return;
+
             // only player owned objects (with a connection) can send to
             // server. we can get the timestamp from the connection.
             double timestamp = connectionToClient.remoteTimeStamp;
@@ -181,8 +184,7 @@ namespace Mirror
             );
 
             // add to buffer (or drop if older than first element)
-            if (serverBuffer.Count < bufferSizeLimit)
-                SnapshotInterpolation.InsertIfNewEnough(snapshot, serverBuffer);
+            SnapshotInterpolation.InsertIfNewEnough(snapshot, serverBuffer);
         }
 
         // rpc /////////////////////////////////////////////////////////////////
@@ -205,6 +207,9 @@ namespace Mirror
 
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
+
+            // protect against ever growing buffer size attacks
+            if (clientBuffer.Count >= bufferSizeLimit) return;
 
             // on the client, we receive rpcs for all entities.
             // not all of them have a connectionToServer.
@@ -233,8 +238,7 @@ namespace Mirror
             );
 
             // add to buffer (or drop if older than first element)
-            if (clientBuffer.Count < bufferSizeLimit)
-                SnapshotInterpolation.InsertIfNewEnough(snapshot, clientBuffer);
+            SnapshotInterpolation.InsertIfNewEnough(snapshot, clientBuffer);
         }
 
         // update //////////////////////////////////////////////////////////////
