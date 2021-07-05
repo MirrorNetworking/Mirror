@@ -216,6 +216,23 @@ namespace Mirror.Tests.NetworkTransform2k
         }
 
         [Test]
+        public void OnClientToServerSync_WithClientAuthority_BufferSizeLimit()
+        {
+            component.bufferSizeLimit = 1;
+
+            // authority is required
+            component.clientAuthority = true;
+
+            // add first should work
+            component.OnClientToServerSync(Vector3.zero, Quaternion.identity, Vector3.zero);
+            Assert.That(component.serverBuffer.Count, Is.EqualTo(1));
+
+            // add second should be too much
+            component.OnClientToServerSync(Vector3.zero, Quaternion.identity, Vector3.zero);
+            Assert.That(component.serverBuffer.Count, Is.EqualTo(1));
+        }
+
+        [Test]
         public void OnClientToServerSync_WithClientAuthority_Nullables_Uses_Last()
         {
             // set some defaults
@@ -245,6 +262,29 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // call OnServerToClientSync without authority
             component.clientAuthority = false;
+            component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
+            Assert.That(component.clientBuffer.Count, Is.EqualTo(1));
+        }
+
+        // server->client sync shouldn't work if client has authority
+        [Test]
+        public void OnServerToClientSync_WithoutClientAuthority_bufferSizeLimit()
+        {
+            component.bufferSizeLimit = 1;
+
+            // pretend to be the client object
+            component.netIdentity.isServer = false;
+            component.netIdentity.isClient = true;
+            component.netIdentity.isLocalPlayer = true;
+
+            // client authority has to be disabled
+            component.clientAuthority = false;
+
+            // add first should work
+            component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
+            Assert.That(component.clientBuffer.Count, Is.EqualTo(1));
+
+            // add second should be too much
             component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.clientBuffer.Count, Is.EqualTo(1));
         }
