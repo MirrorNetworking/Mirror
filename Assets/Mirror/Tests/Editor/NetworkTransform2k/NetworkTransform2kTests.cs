@@ -138,6 +138,66 @@ namespace Mirror.Tests.NetworkTransform2k
         }
 
         [Test]
+        public void ApplySnapshot_DontSyncPosition()
+        {
+            // construct snapshot with unique position/rotation/scale
+            Vector3 position = new Vector3(1, 2, 3);
+            Quaternion rotation = Quaternion.identity;
+            Vector3 scale = new Vector3(4, 5, 6);
+
+            // apply snapshot without position sync should not apply position
+            component.syncPosition = false;
+            component.syncRotation = true;
+            component.syncScale = true;
+            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+
+            // was it applied?
+            Assert.That(transform.position, Is.EqualTo(Vector3.zero));
+            Assert.That(transform.rotation, Is.EqualTo(rotation));
+            Assert.That(transform.localScale, Is.EqualTo(scale));
+        }
+
+        [Test]
+        public void ApplySnapshot_DontSyncRotation()
+        {
+            // construct snapshot with unique position/rotation/scale
+            Vector3 position = new Vector3(1, 2, 3);
+            Quaternion rotation = Quaternion.Euler(1, 2, 3);
+            Vector3 scale = new Vector3(4, 5, 6);
+
+            // apply snapshot without position sync should not apply position
+            component.syncPosition = true;
+            component.syncRotation = false;
+            component.syncScale = true;
+            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+
+            // was it applied?
+            Assert.That(transform.position, Is.EqualTo(position));
+            Assert.That(transform.rotation, Is.EqualTo(Quaternion.identity));
+            Assert.That(transform.localScale, Is.EqualTo(scale));
+        }
+
+        [Test]
+        public void ApplySnapshot_DontSyncScale()
+        {
+            // construct snapshot with unique position/rotation/scale
+            Vector3 position = new Vector3(1, 2, 3);
+            Quaternion rotation = Quaternion.identity;
+            Vector3 scale = new Vector3(4, 5, 6);
+
+            // apply snapshot without position sync should not apply position
+            component.syncPosition = true;
+            component.syncRotation = true;
+            component.syncScale = false;
+            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+
+            // was it applied?
+            Assert.That(transform.position, Is.EqualTo(position));
+            Assert.That(transform.rotation, Is.EqualTo(rotation));
+            Assert.That(transform.localScale, Is.EqualTo(Vector3.one));
+        }
+
+        [Test]
         public void OnClientToServerSync_WithoutClientAuthority()
         {
             // call OnClientToServerSync without authority

@@ -38,6 +38,10 @@ namespace Mirror
 
         [Header("Synchronization")]
         [Range(0, 1)] public float sendInterval = 0.050f;
+        public bool syncPosition = true;
+        public bool syncRotation = true;
+        public bool syncScale = true;
+
         double lastClientSendTime;
         double lastServerSendTime;
 
@@ -118,9 +122,20 @@ namespace Mirror
         internal virtual void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
         {
             // local position/rotation for VR support
-            targetComponent.localPosition = interpolatePosition ? interpolated.position : goal.position;
-            targetComponent.localRotation = interpolateRotation ? interpolated.rotation : goal.rotation;
-            targetComponent.localScale    = interpolateScale    ? interpolated.scale    : goal.scale;
+            //
+            // if syncPosition/Rotation/Scale is disabled then we received nulls
+            // -> current position/rotation/scale would've been added as snapshot
+            // -> we still interpolated
+            // -> but simply don't apply it. if the user doesn't want to sync
+            //    scale, then we should not touch scale etc.
+            if (syncPosition)
+                targetComponent.localPosition = interpolatePosition ? interpolated.position : goal.position;
+
+            if (syncRotation)
+                targetComponent.localRotation = interpolateRotation ? interpolated.rotation : goal.rotation;
+
+            if (syncScale)
+                targetComponent.localScale    = interpolateScale    ? interpolated.scale    : goal.scale;
         }
 
         // cmd /////////////////////////////////////////////////////////////////
@@ -244,7 +259,12 @@ namespace Mirror
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
                 NTSnapshot snapshot = ConstructSnapshot();
-                RpcServerToClientSync(snapshot.position, snapshot.rotation, snapshot.scale);
+                RpcServerToClientSync(
+                    // only sync what the user wants to sync
+                    syncPosition ? snapshot.position : new Vector3?(),
+                    syncRotation? snapshot.rotation : new Quaternion?(),
+                    syncScale ? snapshot.scale : new Vector3?()
+                );
 
                 lastServerSendTime = NetworkTime.localTime;
             }
@@ -303,7 +323,12 @@ namespace Mirror
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     NTSnapshot snapshot = ConstructSnapshot();
-                    CmdClientToServerSync(snapshot.position, snapshot.rotation, snapshot.scale);
+                    CmdClientToServerSync(
+                        // only sync what the user wants to sync
+                        syncPosition ? snapshot.position : new Vector3?(),
+                        syncRotation? snapshot.rotation : new Quaternion?(),
+                        syncScale ? snapshot.scale : new Vector3?()
+                    );
 
                     lastClientSendTime = NetworkTime.localTime;
                 }
