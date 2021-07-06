@@ -204,7 +204,7 @@ namespace Mirror.Experimental
         [Client]
         void SendVelocity()
         {
-            float now = Time.time;
+            double now = NetworkTime.localFrameTime;
             if (now < previousValue.nextSyncTime)
                 return;
 
@@ -349,7 +349,7 @@ namespace Mirror.Experimental
             /// <summary>
             /// Next sync time that velocity will be synced, based on syncInterval.
             /// </summary>
-            public float nextSyncTime;
+            public double nextSyncTime;
             public Vector3 velocity;
             public Vector3 angularVelocity;
             public bool isKinematic;
