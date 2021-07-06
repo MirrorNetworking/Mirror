@@ -13,7 +13,7 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
-        internal float lastSyncTime;
+        internal double lastSyncTime;
 
         /// <summary>sync mode for OnSerialize</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
@@ -478,7 +478,7 @@ namespace Mirror
         // be called manually as well.
         public void ClearAllDirtyBits()
         {
-            lastSyncTime = Time.time;
+            lastSyncTime = NetworkTime.localFrameTime;
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
@@ -509,7 +509,7 @@ namespace Mirror
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         public bool IsDirty()
         {
-            if (Time.time - lastSyncTime >= syncInterval)
+            if (NetworkTime.localFrameTime - lastSyncTime >= syncInterval)
             {
                 return syncVarDirtyBits != 0L || AnySyncObjectDirty();
             }

@@ -68,7 +68,7 @@ namespace Mirror.Tests.SyncVarTests
         public void TestSyncIntervalAndClearDirtyComponents()
         {
             CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
-            player.lastSyncTime = Time.time;
+            player.lastSyncTime = NetworkTime.localFrameTime;
             // synchronize immediately
             player.syncInterval = 1f;
 
@@ -84,7 +84,7 @@ namespace Mirror.Tests.SyncVarTests
             player.netIdentity.ClearDirtyComponentsDirtyBits();
 
             // set lastSyncTime far enough back to be ready for syncing
-            player.lastSyncTime = Time.time - player.syncInterval;
+            player.lastSyncTime = NetworkTime.localFrameTime - player.syncInterval;
 
             // should be dirty now
             Assert.That(player.IsDirty(), Is.True, "Sync interval met, should be dirty");
@@ -94,7 +94,7 @@ namespace Mirror.Tests.SyncVarTests
         public void TestSyncIntervalAndClearAllComponents()
         {
             CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out MockPlayer player);
-            player.lastSyncTime = Time.time;
+            player.lastSyncTime = NetworkTime.localFrameTime;
             // synchronize immediately
             player.syncInterval = 1f;
 
@@ -110,7 +110,7 @@ namespace Mirror.Tests.SyncVarTests
             player.netIdentity.ClearAllComponentsDirtyBits();
 
             // set lastSyncTime far enough back to be ready for syncing
-            player.lastSyncTime = Time.time - player.syncInterval;
+            player.lastSyncTime = NetworkTime.localFrameTime - player.syncInterval;
 
             // should be dirty now
             Assert.That(player.IsDirty(), Is.False, "Sync interval met, should still not be dirty");

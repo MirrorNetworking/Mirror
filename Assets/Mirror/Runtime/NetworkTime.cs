@@ -38,6 +38,9 @@ namespace Mirror
         //          it changes during the frame too.
         public static double localTime => stopwatch.Elapsed.TotalSeconds;
 
+        /// <summary> returns the local time at the start of the frame. This provides a double alternative to Time.time</summary>
+        public static double localFrameTime { get; internal set; }
+
         /// <summary>The time in seconds since the server started.</summary>
         //
         // I measured the accuracy of float and I got this:
@@ -155,6 +158,11 @@ namespace Mirror
                 // new offset looks reasonable,  add to the average
                 _offset.Add(newOffset);
             }
+        }
+
+        public static void EarlyUpdate()
+        {
+            localFrameTime = localTime;
         }
     }
 }
