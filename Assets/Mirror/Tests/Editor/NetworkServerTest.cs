@@ -587,7 +587,7 @@ namespace Mirror.Tests
 
             // remember current time & update NetworkClient IMMEDIATELY so the
             // batch is finished with timestamp.
-            double sendTime = NetworkTime.localTime;
+            double sendTime = NetworkTime.localFrameTime;
             NetworkClient.NetworkLateUpdate();
 
             // let some time pass before processing
@@ -620,7 +620,7 @@ namespace Mirror.Tests
 
             // remember current time & update NetworkClient IMMEDIATELY so the
             // batch is finished with timestamp.
-            double sendTime = NetworkTime.localTime;
+            double sendTime = NetworkTime.localFrameTime;
             NetworkServer.NetworkLateUpdate();
 
             // let some time pass before processing
