@@ -92,7 +92,7 @@ namespace Mirror.Experimental
         [Serializable]
         public struct DataPoint
         {
-            public float timeStamp;
+            public double timeStamp;
             public Vector3 localPosition;
             public Quaternion localRotation;
             public Vector3 localScale;
@@ -204,10 +204,10 @@ namespace Mirror.Experimental
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start.isValid ? start.timeStamp : Time.time - Time.fixedDeltaTime;
-            float goalTime = goal.isValid ? goal.timeStamp : Time.time;
-            float difference = goalTime - startTime;
-            float timeSinceGoalReceived = Time.time - goalTime;
+            double startTime = start.isValid ? start.timeStamp : NetworkTime.localFrameTime - Time.fixedDeltaTime;
+            double goalTime = goal.isValid ? goal.timeStamp : NetworkTime.localFrameTime;
+            double difference = goalTime - startTime;
+            double timeSinceGoalReceived = NetworkTime.localFrameTime - goalTime;
             return timeSinceGoalReceived > difference * 5;
         }
 
@@ -248,7 +248,7 @@ namespace Mirror.Experimental
                 localPosition = position,
                 localRotation = rotation,
                 localScale = scale,
-                timeStamp = Time.time
+                timeStamp = NetworkTime.localFrameTime
             };
 
             // movement speed: based on how far it moved since last time has to be calculated before 'start' is overwritten
@@ -260,7 +260,7 @@ namespace Mirror.Experimental
             {
                 start = new DataPoint
                 {
-                    timeStamp = Time.time - Time.fixedDeltaTime,
+                    timeStamp = NetworkTime.localFrameTime - Time.fixedDeltaTime,
                     // local position/rotation for VR support
                     localPosition = targetTransform.localPosition,
                     localRotation = targetTransform.localRotation,
@@ -325,10 +325,10 @@ namespace Mirror.Experimental
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
             Vector3 delta = to.localPosition - (from.localPosition != transform.localPosition ? from.localPosition : transform.localPosition);
-            float elapsed = from.isValid ? to.timeStamp - from.timeStamp : sendInterval;
+            double elapsed = from.isValid ? to.timeStamp - from.timeStamp : sendInterval;
 
             // avoid NaN
-            return elapsed > 0 ? delta.magnitude / elapsed : 0;
+            return (float)(elapsed > 0 ? delta.magnitude / elapsed : 0);
         }
 
         // set position carefully depending on the target component
@@ -395,13 +395,13 @@ namespace Mirror.Experimental
         {
             if (start.isValid)
             {
-                float difference = goal.timeStamp - start.timeStamp;
+                double difference = goal.timeStamp - start.timeStamp;
 
                 // the moment we get 'goal', 'start' is supposed to start, so elapsed time is based on:
-                float elapsed = Time.time - goal.timeStamp;
+                double elapsed = NetworkTime.localFrameTime - goal.timeStamp;
 
                 // avoid NaN
-                return difference > 0 ? elapsed / difference : 1;
+                return (float)(difference > 0 ? elapsed / difference : 1);
             }
             return 1;
         }
@@ -461,7 +461,7 @@ namespace Mirror.Experimental
         {
             DoTeleport(newPosition, Compression.DecompressQuaternion(newPackedRotation));
 
-            // only send finished if is owner and is ClientAuthority on server 
+            // only send finished if is owner and is ClientAuthority on server
             if (hasAuthority && isClientAuthority)
                 CmdTeleportFinished();
         }
