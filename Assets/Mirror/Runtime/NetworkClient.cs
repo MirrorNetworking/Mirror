@@ -293,7 +293,7 @@ namespace Mirror
                     // message handler may disconnect client, making connection = null
                     // therefore must check for null to avoid NRE.
                     if (connection != null)
-                        connection.lastMessageTime = Time.time;
+                        connection.lastMessageTime = NetworkTime.localFrameTime;
 
                     return true;
                 }

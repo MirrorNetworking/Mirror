@@ -419,7 +419,7 @@ namespace Mirror
                 if (handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
                 {
                     handler.Invoke(connection, reader, channelId);
-                    connection.lastMessageTime = Time.time;
+                    connection.lastMessageTime = NetworkTime.localFrameTime;
                     return true;
                 }
                 else

@@ -104,11 +104,11 @@ namespace Mirror
 
         internal static void UpdateClient()
         {
-            if (Time.time - lastPingTime >= PingFrequency)
+            if (localFrameTime - lastPingTime >= PingFrequency)
             {
                 NetworkPingMessage pingMessage = new NetworkPingMessage(localTime);
                 NetworkClient.Send(pingMessage, Channels.Unreliable);
-                lastPingTime = Time.time;
+                lastPingTime = localFrameTime;
             }
         }
 

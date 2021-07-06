@@ -34,7 +34,7 @@ namespace Mirror
         public abstract string address { get; }
 
         /// <summary>Last time a message was received for this connection. Includes system and user messages.</summary>
-        public float lastMessageTime;
+        public double lastMessageTime;
 
         /// <summary>This connection's main object (usually the player object).</summary>
         public NetworkIdentity identity { get; internal set; }
@@ -70,7 +70,7 @@ namespace Mirror
         {
             // set lastTime to current time when creating connection to make
             // sure it isn't instantly kicked for inactivity
-            lastMessageTime = Time.time;
+            lastMessageTime = NetworkTime.localFrameTime;
         }
 
         internal NetworkConnection(int networkConnectionId) : this()
@@ -253,7 +253,7 @@ namespace Mirror
         }
 
         /// <summary>Check if we received a message within the last 'timeout' seconds.</summary>
-        internal virtual bool IsAlive(float timeout) => Time.time - lastMessageTime < timeout;
+        internal virtual bool IsAlive(float timeout) => NetworkTime.localFrameTime - lastMessageTime < timeout;
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
