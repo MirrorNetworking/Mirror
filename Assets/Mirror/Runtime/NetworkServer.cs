@@ -1432,6 +1432,7 @@ namespace Mirror
         static NetworkWriter GetEntitySerializationForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
         {
             // get serialization for this entity (cached)
+            // IMPORTANT: needs FRAME TIME which doesn't change during THIS FRAME!
             NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(Time.time);
 
             // is this entity owned by this connection?

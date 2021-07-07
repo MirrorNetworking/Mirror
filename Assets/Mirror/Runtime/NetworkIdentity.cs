@@ -940,6 +940,7 @@ namespace Mirror
         }
 
         // get cached serialization for this tick (or serialize if none yet)
+        // IMPORTANT: needs FRAME TIME which doesn't change during THIS FRAME!
         internal NetworkIdentitySerialization GetSerializationAtTick(float tickTimeStamp)
         {
             // serialize fresh if tick is newer than last one
