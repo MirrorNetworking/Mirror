@@ -1429,11 +1429,15 @@ namespace Mirror
 
         // broadcasting ////////////////////////////////////////////////////////
         // helper function to get the right serialization for a connection
-        static NetworkWriter GetEntitySerializationForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
+        // IMPORTANT: needs FRAME TIME which doesn't change during THIS FRAME!
+        // IMPORTANT: DOUBLE PRECISION to avoid inaccuracies after several days.
+        //            see test: TestSerializationWithLargeTimestamps()
+        // TODO replace with Unity 2021 double time later!
+        static NetworkWriter GetEntitySerializationForConnection(double tickTimestamp, NetworkIdentity identity, NetworkConnectionToClient connection)
         {
             // get serialization for this entity (cached)
             // IMPORTANT: needs FRAME TIME which doesn't change during THIS FRAME!
-            NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(Time.time);
+            NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(tickTimestamp);
 
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;
@@ -1480,7 +1484,11 @@ namespace Mirror
         }
 
         // helper function to broadcast the world to a connection
-        static void BroadcastToConnection(NetworkConnectionToClient connection)
+        // IMPORTANT: needs FRAME TIME which doesn't change during THIS FRAME!
+        // IMPORTANT: DOUBLE PRECISION to avoid inaccuracies after several days.
+        //            see test: TestSerializationWithLargeTimestamps()
+        // TODO replace with Unity 2021 double time later!
+        static void BroadcastToConnection(double tickTimestamp, NetworkConnectionToClient connection)
         {
             // for each entity that this connection is seeing
             foreach (NetworkIdentity identity in connection.observing)
@@ -1493,7 +1501,7 @@ namespace Mirror
                 {
                     // get serialization for this entity viewed by this connection
                     // (if anything was serialized this time)
-                    NetworkWriter serialization = GetEntitySerializationForConnection(identity, connection);
+                    NetworkWriter serialization = GetEntitySerializationForConnection(tickTimestamp, identity, connection);
                     if (serialization != null)
                     {
                         EntityStateMessage message = new EntityStateMessage
@@ -1551,6 +1559,16 @@ namespace Mirror
 
         static void Broadcast()
         {
+            // IMPORTANT: serialization caching timestamp needs to be:
+            // * FRAME TIME which doesn't change during THIS FRAME!
+            // * DOUBLE PRECISION to avoid inaccuracies after several days
+            //            see test: TestSerializationWithLargeTimestamps()
+            // => NetworkTime.localTime changes during the frame, which means we
+            //    would never cache and always reserialize because time always
+            //    changes.
+            // TODO replace with Unity 2021 double (frame) time later!
+            double frameTimestamp = NetworkTime.localTime;
+
             // copy all connections into a helper collection so that
             // OnTransportDisconnected can be called while iterating.
             // -> OnTransportDisconnected removes from the collection
@@ -1575,7 +1593,7 @@ namespace Mirror
                 if (connection.isReady)
                 {
                     // broadcast world state to this connection
-                    BroadcastToConnection(connection);
+                    BroadcastToConnection(frameTimestamp, connection);
                 }
 
                 // update connection to flush out batched messages

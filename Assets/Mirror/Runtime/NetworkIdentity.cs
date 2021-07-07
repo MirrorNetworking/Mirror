@@ -24,7 +24,8 @@ namespace Mirror
 
     public struct NetworkIdentitySerialization
     {
-        public float tickTimeStamp;
+        // IMPORTANT: double precision to avoid inaccuracies after several days
+        public double tickTimeStamp;
         public NetworkWriter ownerWriter;
         public NetworkWriter observersWriter;
         // TODO there is probably a more simple way later
@@ -941,7 +942,9 @@ namespace Mirror
 
         // get cached serialization for this tick (or serialize if none yet)
         // IMPORTANT: needs FRAME TIME which doesn't change during THIS FRAME!
-        internal NetworkIdentitySerialization GetSerializationAtTick(float tickTimeStamp)
+        // IMPORTANT: DOUBLE PRECISION to avoid inaccuracies after several days.
+        //            see test: TestSerializationWithLargeTimestamps()
+        internal NetworkIdentitySerialization GetSerializationAtTick(double tickTimeStamp)
         {
             // serialize fresh if tick is newer than last one
             if (lastSerialization.tickTimeStamp < tickTimeStamp)
