@@ -58,8 +58,9 @@ namespace Mirror.Tests.Runtime
             Assert.That(identity == null, Is.True);
         }
 
-        // imer: There's currently an issue with dropped/skipped serializations once a server
-        // has been running for around a week, this test should highlight the potential cause
+        // imer: There's currently an issue with dropped/skipped serializations
+        // once a server has been running for around a week, this test should
+        // highlight the potential cause
         [UnityTest]
         public IEnumerator TestSerializationWithLargeTimestamps()
         {
