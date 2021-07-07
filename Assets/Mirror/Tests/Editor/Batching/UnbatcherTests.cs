@@ -24,7 +24,7 @@ namespace Mirror.Tests.Batching
         // test for nimoyd bug, where calling getnextmessage after the previous
         // call already returned false would cause an InvalidOperationException.
         [Test]
-        public void GetNextMessage_NoBatches_AfterWeHadBatches()
+        public void GetNextMessage_True_False_False_InvalidOperationException()
         {
             // add batch
             byte[] batch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[2]);
