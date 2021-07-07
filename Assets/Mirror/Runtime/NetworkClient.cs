@@ -91,6 +91,10 @@ namespace Mirror
 
         static Unbatcher unbatcher = new Unbatcher();
 
+        // interest management component (optional)
+        // only needed for SetHostVisibility
+        public static InterestManagement aoi;
+
         // scene loading
         public static bool isLoadingScene;
 
@@ -1170,7 +1174,13 @@ namespace Mirror
             if (NetworkIdentity.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
                 localObject != null)
             {
-                localObject.OnSetHostVisibility(false);
+                // obsolete legacy system support (for now)
+#pragma warning disable 618
+                if (localObject.visibility != null)
+                    localObject.visibility.OnSetHostVisibility(false);
+#pragma warning restore 618
+                else if (aoi != null)
+                    aoi.SetHostVisibility(localObject, false);
             }
         }
 
@@ -1184,7 +1194,15 @@ namespace Mirror
                 localObject.hasAuthority = message.isOwner;
                 localObject.NotifyAuthority();
                 localObject.OnStartClient();
-                localObject.OnSetHostVisibility(true);
+
+                // obsolete legacy system support (for now)
+#pragma warning disable 618
+                if (localObject.visibility != null)
+                    localObject.visibility.OnSetHostVisibility(true);
+#pragma warning restore 618
+                else if (aoi != null)
+                    aoi.SetHostVisibility(localObject, true);
+
                 CheckForLocalPlayer(localObject);
             }
         }

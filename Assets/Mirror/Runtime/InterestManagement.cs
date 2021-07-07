@@ -8,7 +8,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     public abstract class InterestManagement : MonoBehaviour
     {
-        // Awake configures InterestManagement in NetworkServer
+        // Awake configures InterestManagement in NetworkServer/Client
         void Awake()
         {
             if (NetworkServer.aoi == null)
@@ -16,6 +16,12 @@ namespace Mirror
                 NetworkServer.aoi = this;
             }
             else Debug.LogError($"Only one InterestManagement component allowed. {NetworkServer.aoi.GetType()} has been set up already.");
+
+            if (NetworkClient.aoi == null)
+            {
+                NetworkClient.aoi = this;
+            }
+            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already.");
         }
 
         // Callback used by the visibility system to determine if an observer
