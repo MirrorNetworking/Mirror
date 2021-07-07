@@ -89,6 +89,15 @@ namespace Mirror
             //
             message = null;
 
+            // do nothing if we don't have any batches.
+            // otherwise the below queue.Dequeue() would throw an
+            // InvalidOperationException if operating on empty queue.
+            if (batches.Count == 0)
+            {
+                remoteTimeStamp = 0;
+                return false;
+            }
+
             // was our reader pointed to anything yet?
             if (reader.Length == 0)
             {
