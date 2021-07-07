@@ -64,7 +64,7 @@ namespace Mirror.Tests.Runtime
         public IEnumerator TestSerializationWithLargeTimestamps()
         {
             // 14 * 24 hours per day * 60 minutes per hour * 60 seconds per minute = 14 days
-            float time = 14 * 24 * 60 * 60 ;
+            float time = 14 * 24 * 60 * 60;
             NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(time);
             // advance time by 50ms (20 fps)
             time += 0.05f;
