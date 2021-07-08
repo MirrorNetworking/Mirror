@@ -124,7 +124,7 @@ namespace Mirror
         //
         // NOTE: stuck detection is unnecessary here.
         //       we always set transform.position anyway, we can't get stuck.
-        internal virtual void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
+        public virtual void ApplySnapshot(NTSnapshot start, NTSnapshot goal, NTSnapshot interpolated)
         {
             // local position/rotation for VR support
             //
@@ -151,7 +151,7 @@ namespace Mirror
 
         // local authority client sends sync message to server for broadcasting
         // => internal for testing
-        internal virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        public virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // only apply if in client authority mode
             if (!clientAuthority) return;
@@ -195,7 +195,7 @@ namespace Mirror
 
         // server broadcasts sync message to all clients
         // => internal for testing
-        internal virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        public virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // in host mode, the server sends rpcs to all clients.
             // the host client itself will receive them too.
@@ -374,7 +374,7 @@ namespace Mirror
         }
 
         // common Teleport code for client->server and server->client
-        void OnTeleport(Vector3 destination)
+        public virtual void OnTeleport(Vector3 destination)
         {
             // reset any in-progress interpolation & buffers
             Reset();
