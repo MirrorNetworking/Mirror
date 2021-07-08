@@ -636,7 +636,6 @@ namespace Mirror
         /// <summary>
         /// This is called on the client when it connects to server.
         /// </summary>
-        /// <param name="conn">The connection that connected.</param>
         public virtual void OnRoomClientConnect() {}
 
         // Deprecated 2021-07-08
@@ -646,7 +645,6 @@ namespace Mirror
         /// <summary>
         /// This is called on the client when disconnected from a server.
         /// </summary>
-        /// <param name="conn">The connection that disconnected.</param>
         public virtual void OnRoomClientDisconnect() {}
 
         // Deprecated 2021-07-08
@@ -667,7 +665,6 @@ namespace Mirror
         /// <summary>
         /// This is called on the client when the client is finished loading a new networked scene.
         /// </summary>
-        /// <param name="conn">The connection that finished loading a new networked scene.</param>
         public virtual void OnRoomClientSceneChanged() {}
 
         // Deprecated 2021-07-08

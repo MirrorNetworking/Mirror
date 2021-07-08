@@ -1260,7 +1260,6 @@ namespace Mirror
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnClientConnect(NetworkConnection conn) => OnClientConnect();
 
-
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect()
         {

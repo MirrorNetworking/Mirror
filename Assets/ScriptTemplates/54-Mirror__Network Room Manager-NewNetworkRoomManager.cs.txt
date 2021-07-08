@@ -147,7 +147,6 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <summary>
     /// This is called on the client when a client is started.
     /// </summary>
-    /// <param name="roomClient">The connection for the room.</param>
     public override void OnRoomStartClient() { }
 
     /// <summary>
