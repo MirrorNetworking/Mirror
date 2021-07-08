@@ -938,7 +938,9 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
+#pragma warning disable 618
+                OnClientConnect(clientReadyConnection);
+#pragma warning restore 618
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
@@ -974,7 +976,9 @@ namespace Mirror
                 if (NetworkClient.isConnected)
                 {
                     // let client know that we changed scene
-                    OnClientSceneChanged();
+#pragma warning disable 618
+                    OnClientSceneChanged(NetworkClient.connection);
+#pragma warning restore 618
                 }
             }
         }
@@ -1001,14 +1005,18 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
+#pragma warning disable 618
+                OnClientConnect(clientReadyConnection);
+#pragma warning restore 618
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
 
             if (NetworkClient.isConnected)
             {
-                OnClientSceneChanged();
+#pragma warning disable 618
+                OnClientSceneChanged(NetworkClient.connection);
+#pragma warning restore 618
             }
         }
 
@@ -1136,12 +1144,12 @@ namespace Mirror
             else
             {
                 // authenticate immediately
-                OnClientAuthenticated();
+                OnClientAuthenticated(NetworkClient.connection);
             }
         }
 
         // called after successful authentication
-        void OnClientAuthenticated()
+        void OnClientAuthenticated(NetworkConnection conn)
         {
             //Debug.Log("NetworkManager.OnClientAuthenticated");
 
@@ -1152,7 +1160,9 @@ namespace Mirror
             if (string.IsNullOrEmpty(onlineScene) || onlineScene == offlineScene || IsSceneActive(onlineScene))
             {
                 clientLoadedScene = false;
-                OnClientConnect();
+#pragma warning disable 618
+                OnClientConnect(NetworkClient.connection);
+#pragma warning restore 618
             }
             else
             {
@@ -1165,14 +1175,18 @@ namespace Mirror
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
-            OnClientDisconnect();
+#pragma warning disable 618
+            OnClientDisconnect(NetworkClient.connection);
+#pragma warning restore 618
         }
 
         void OnClientNotReadyMessageInternal(NotReadyMessage msg)
         {
             //Debug.Log("NetworkManager.OnClientNotReadyMessageInternal");
             NetworkClient.ready = false;
-            OnClientNotReady();
+#pragma warning disable 618
+            OnClientNotReady(NetworkClient.connection);
+#pragma warning restore 618
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
 

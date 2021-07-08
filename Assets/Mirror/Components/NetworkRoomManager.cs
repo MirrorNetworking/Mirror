@@ -471,7 +471,9 @@ namespace Mirror
         /// </summary>
         public override void OnClientConnect()
         {
-            OnRoomClientConnect();
+#pragma warning disable 618
+            OnRoomClientConnect(NetworkClient.connection);
+#pragma warning restore 618
             base.OnClientConnect();
         }
 
@@ -481,7 +483,9 @@ namespace Mirror
         /// </summary>
         public override void OnClientDisconnect()
         {
-            OnRoomClientDisconnect();
+#pragma warning disable 618
+            OnRoomClientDisconnect(NetworkClient.connection);
+#pragma warning restore 618
             base.OnClientDisconnect();
         }
 
