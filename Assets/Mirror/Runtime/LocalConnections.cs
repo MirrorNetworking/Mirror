@@ -150,11 +150,17 @@ namespace Mirror
             connectionToClient.DisconnectInternal();
             DisconnectInternal();
 
-            // this was in NetworkClient.Disconnect 'if isLocalConnection' before
-            // but it's clearly local connection related, so put it in here.
+            // simulate what a true remote connection would do:
+            // first, the server should remove it:
             // TODO should probably be in connectionToClient.DisconnectInternal
             //      because that's the NetworkServer's connection!
             NetworkServer.RemoveLocalConnection();
+
+            // then call OnTransportDisconnected for proper disconnect handling,
+            // callbacks & cleanups.
+            // => otherwise OnClientDisconnected() is never called!
+            // => see NetworkClientTests.DisconnectCallsOnClientDisconnect_HostMode()
+            NetworkClient.OnTransportDisconnected();
         }
 
         // true because local connections never timeout
