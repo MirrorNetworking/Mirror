@@ -217,8 +217,12 @@ namespace Mirror
         /// <summary>Disconnect from server.</summary>
         public static void Disconnect()
         {
-            // only if connected or connecting
-            if (connectState == ConnectState.Disconnected) return;
+            // only if connected or connecting.
+            // don't disconnect() again if already in the process of
+            // disconnecting or fully disconnected.
+            if (connectState != ConnectState.Connecting &&
+                connectState != ConnectState.Connected)
+                return;
 
             // TODO move to 'cleanup' code below if safe
             connectState = ConnectState.Disconnected;
