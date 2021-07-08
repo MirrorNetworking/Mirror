@@ -60,7 +60,7 @@ namespace Mirror.Tests
         // - OnTransportDisconnected() early returns because
         //   state == Disconnected already, so it wouldn't call the event.
         [Test]
-        public void DisconnectCallsOnClientDisconnected()
+        public void DisconnectCallsOnClientDisconnected_Remote()
         {
             // setup hook
             bool called = false;
@@ -68,6 +68,26 @@ namespace Mirror.Tests
 
             // connect
             ConnectClientBlocking(out _);
+
+            // disconnect & process everything
+            NetworkClient.Disconnect();
+            UpdateTransport();
+
+            // was it called?
+            Assert.That(called, Is.True);
+        }
+
+        // same as above, but for host mode
+        // prevents https://github.com/vis2k/Mirror/issues/2818 forever.
+        [Test]
+        public void DisconnectCallsOnClientDisconnected_HostMode()
+        {
+            // setup hook
+            bool called = false;
+            NetworkClient.OnDisconnectedEvent = () => called = true;
+
+            // connect host
+            NetworkClient.ConnectHost();
 
             // disconnect & process everything
             NetworkClient.Disconnect();
