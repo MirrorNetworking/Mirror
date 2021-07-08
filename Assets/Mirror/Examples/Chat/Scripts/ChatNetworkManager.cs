@@ -28,12 +28,12 @@ namespace Mirror.Examples.Chat
             NetworkServer.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
         }
 
-        public override void OnClientConnect(NetworkConnection conn)
+        public override void OnClientConnect()
         {
-            base.OnClientConnect(conn);
+            base.OnClientConnect();
 
             // tell the server to create a player with this name
-            conn.Send(new CreatePlayerMessage { name = PlayerName });
+            NetworkClient.connection.Send(new CreatePlayerMessage { name = PlayerName });
         }
 
         void OnCreatePlayer(NetworkConnection connection, CreatePlayerMessage createPlayerMessage)

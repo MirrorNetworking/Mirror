@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -469,10 +470,10 @@ namespace Mirror
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        public override void OnClientConnect(NetworkConnection conn)
+        public override void OnClientConnect()
         {
-            OnRoomClientConnect(conn);
-            base.OnClientConnect(conn);
+            OnRoomClientConnect();
+            base.OnClientConnect();
         }
 
         /// <summary>
@@ -480,10 +481,10 @@ namespace Mirror
         /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        public override void OnClientDisconnect(NetworkConnection conn)
+        public override void OnClientDisconnect()
         {
-            OnRoomClientDisconnect(conn);
-            base.OnClientDisconnect(conn);
+            OnRoomClientDisconnect();
+            base.OnClientDisconnect();
         }
 
         /// <summary>
@@ -501,7 +502,7 @@ namespace Mirror
         /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
         /// </summary>
         /// <param name="conn">Connection of the client</param>
-        public override void OnClientSceneChanged(NetworkConnection conn)
+        public override void OnClientSceneChanged()
         {
             if (IsSceneActive(RoomScene))
             {
@@ -511,8 +512,8 @@ namespace Mirror
             else
                 CallOnClientExitRoom();
 
-            base.OnClientSceneChanged(conn);
-            OnRoomClientSceneChanged(conn);
+            base.OnClientSceneChanged();
+            OnRoomClientSceneChanged();
         }
 
 #endregion
@@ -639,13 +640,21 @@ namespace Mirror
         /// This is called on the client when it connects to server.
         /// </summary>
         /// <param name="conn">The connection that connected.</param>
-        public virtual void OnRoomClientConnect(NetworkConnection conn) {}
+        public virtual void OnRoomClientConnect() {}
+
+        // Deprecated 2021-07-08
+        [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientConnect(NetworkConnection conn) => OnRoomClientConnect();
 
         /// <summary>
         /// This is called on the client when disconnected from a server.
         /// </summary>
         /// <param name="conn">The connection that disconnected.</param>
-        public virtual void OnRoomClientDisconnect(NetworkConnection conn) {}
+        public virtual void OnRoomClientDisconnect() {}
+
+        // Deprecated 2021-07-08
+        [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientDisconnect(NetworkConnection conn) => OnRoomClientDisconnect();
 
         /// <summary>
         /// This is called on the client when a client is started.
@@ -662,7 +671,11 @@ namespace Mirror
         /// This is called on the client when the client is finished loading a new networked scene.
         /// </summary>
         /// <param name="conn">The connection that finished loading a new networked scene.</param>
-        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) {}
+        public virtual void OnRoomClientSceneChanged() {}
+
+        // Deprecated 2021-07-08
+        [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) => OnRoomClientSceneChanged();
 
         /// <summary>
         /// Called on the client when adding a player to the room fails.

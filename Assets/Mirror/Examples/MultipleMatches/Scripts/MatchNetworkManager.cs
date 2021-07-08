@@ -61,10 +61,10 @@ namespace Mirror.Examples.MultipleMatch
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        public override void OnClientConnect(NetworkConnection conn)
+        public override void OnClientConnect()
         {
-            base.OnClientConnect(conn);
-            canvasController.OnClientConnect(conn);
+            base.OnClientConnect();
+            canvasController.OnClientConnect();
         }
 
         /// <summary>
@@ -72,10 +72,10 @@ namespace Mirror.Examples.MultipleMatch
         /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
         /// </summary>
         /// <param name="conn">Connection to the server.</param>
-        public override void OnClientDisconnect(NetworkConnection conn)
+        public override void OnClientDisconnect()
         {
             canvasController.OnClientDisconnect();
-            base.OnClientDisconnect(conn);
+            base.OnClientDisconnect();
         }
 
         #endregion

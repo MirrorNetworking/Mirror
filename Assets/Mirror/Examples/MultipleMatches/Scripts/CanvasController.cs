@@ -306,9 +306,9 @@ namespace Mirror.Examples.MultipleMatch
             ResetCanvas();
         }
 
-        internal void OnClientConnect(NetworkConnection conn)
+        internal void OnClientConnect()
         {
-            playerInfos.Add(conn, new PlayerInfo { playerIndex = this.playerIndex, ready = false });
+            playerInfos.Add(NetworkClient.connection, new PlayerInfo { playerIndex = this.playerIndex, ready = false });
         }
 
         internal void OnStartClient()

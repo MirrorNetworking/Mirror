@@ -18,7 +18,7 @@ namespace Mirror.Authenticators
         public void Awake()
         {
             authenticator.OnServerAuthenticated.AddListener(connection => OnServerAuthenticated.Invoke(connection));
-            authenticator.OnClientAuthenticated.AddListener(connection => OnClientAuthenticated.Invoke(connection));
+            authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticate);
         }
 
         public override void OnStartServer()
