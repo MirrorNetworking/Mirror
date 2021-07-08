@@ -11,6 +11,8 @@ namespace Mirror
         // connecting between Connect() and OnTransportConnected()
         Connecting,
         Connected,
+        // disconnecting between Disconnect() and OnTransportDisconnected()
+        Disconnecting,
         Disconnected
     }
 
@@ -224,16 +226,20 @@ namespace Mirror
                 connectState != ConnectState.Connected)
                 return;
 
+            // we are disconnecting until OnTransportDisconnected is called.
+            // setting state to Disconnected would stop OnTransportDisconnected
+            // from calling cleanup code because it would think we are already
+            // disconnected fully.
             // TODO move to 'cleanup' code below if safe
-            connectState = ConnectState.Disconnected;
+            connectState = ConnectState.Disconnecting;
             ready = false;
 
             // call Disconnect on the NetworkConnection
             connection?.Disconnect();
 
-            // clean up
-            // (previously only for remote connection, not for local)
-            connection = null;
+            // IMPORTANT: do NOT clear connection here yet.
+            // we still need it in OnTransportDisconnected for callbacks.
+            // connection = null;
         }
 
         /// <summary>Disconnect host mode.</summary>
@@ -373,6 +379,11 @@ namespace Mirror
             ready = false;
 
             if (connection != null) OnDisconnectedEvent?.Invoke();
+
+            // now that everything was handled, clear the connection.
+            // previously this was done in Disconnect() already, but we still
+            // need it for the above OnDisconnectedEvent.
+            connection = null;
         }
 
         static void OnError(Exception exception) => Debug.LogException(exception);
