@@ -24,7 +24,8 @@ namespace Mirror
 
     public struct NetworkIdentitySerialization
     {
-        public float tickTimeStamp;
+        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
+        public int tick;
         public NetworkWriter ownerWriter;
         public NetworkWriter observersWriter;
         // TODO there is probably a more simple way later
@@ -940,10 +941,12 @@ namespace Mirror
         }
 
         // get cached serialization for this tick (or serialize if none yet)
-        internal NetworkIdentitySerialization GetSerializationAtTick(float tickTimeStamp)
+        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
+        internal NetworkIdentitySerialization GetSerializationAtTick(int tick)
         {
-            // serialize fresh if tick is newer than last one
-            if (lastSerialization.tickTimeStamp < tickTimeStamp)
+            // reserialize if tick is different than last changed.
+            // NOTE: != instead of < because int.max+1 overflows at some point.
+            if (lastSerialization.tick != tick)
             {
                 // reset
                 lastSerialization.ownerWriter.Position = 0;
@@ -956,8 +959,8 @@ namespace Mirror
                                      lastSerialization.observersWriter,
                                      out lastSerialization.observersWritten);
 
-                // set timestamp
-                lastSerialization.tickTimeStamp = tickTimeStamp;
+                // set tick
+                lastSerialization.tick = tick;
                 //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
             }
 
