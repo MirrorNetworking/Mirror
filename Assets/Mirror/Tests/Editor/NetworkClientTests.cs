@@ -52,6 +52,31 @@ namespace Mirror.Tests
         [Test, Ignore("NetworkServerTest.SendClientToServerMessage does it already")]
         public void Send() {}
 
+        // test to guarantee Disconnect() eventually calls OnClientDisconnected.
+        // prevents https://github.com/vis2k/Mirror/issues/2818 forever.
+        // previously there was a bug where:
+        // - Disconnect() sets state = Disconnected
+        // - Transport processes it
+        // - OnTransportDisconnected() early returns because
+        //   state == Disconnected already, so it wouldn't call the event.
+        [Test]
+        public void DisconnectCallsOnClientDisconnected()
+        {
+            // setup hook
+            bool called = false;
+            NetworkClient.OnDisconnectedEvent = () => called = true;
+
+            // connect
+            ConnectClientBlocking(out _);
+
+            // disconnect & process everything
+            NetworkClient.Disconnect();
+            UpdateTransport();
+
+            // was it called?
+            Assert.That(called, Is.True);
+        }
+
         [Test]
         public void ShutdownCleanup()
         {
