@@ -137,13 +137,11 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <summary>
     /// This is called on the client when it connects to server.
     /// </summary>
-    /// <param name="conn">The connection that connected.</param>
     public override void OnRoomClientConnect() { }
 
     /// <summary>
     /// This is called on the client when disconnected from a server.
     /// </summary>
-    /// <param name="conn">The connection that disconnected.</param>
     public override void OnRoomClientDisconnect() { }
 
     /// <summary>
@@ -160,7 +158,6 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <summary>
     /// This is called on the client when the client is finished loading a new networked scene.
     /// </summary>
-    /// <param name="conn">The connection that finished loading a new networked scene.</param>
     public override void OnRoomClientSceneChanged() { }
 
     /// <summary>
