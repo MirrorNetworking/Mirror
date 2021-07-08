@@ -147,6 +147,7 @@ namespace Mirror
         /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
+            Debug.LogWarning($"LocalConnToServer.Disco...");
             connectionToClient.DisconnectInternal();
             DisconnectInternal();
 
