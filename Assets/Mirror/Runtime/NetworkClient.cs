@@ -8,6 +8,7 @@ namespace Mirror
     public enum ConnectState
     {
         None,
+        // connecting between Connect() and OnTransportConnected()
         Connecting,
         Connected,
         Disconnected
