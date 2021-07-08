@@ -1290,7 +1290,6 @@ namespace Mirror
         // Scene changes can cause player objects to be destroyed. The default
         // implementation of OnClientSceneChanged in the NetworkManager is to
         // add a player object for the connection if no player object exists.
-        // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
         public virtual void OnClientSceneChanged()
         {
             // always become ready.

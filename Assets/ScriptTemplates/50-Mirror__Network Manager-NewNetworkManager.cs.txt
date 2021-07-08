@@ -111,7 +111,6 @@ public class #SCRIPTNAME# : NetworkManager
     /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
     /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
     /// </summary>
-    /// <param name="conn">The network connection that the scene change message arrived on.</param>
     public override void OnClientSceneChanged()
     {
         base.OnClientSceneChanged();
