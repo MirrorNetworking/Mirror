@@ -28,10 +28,40 @@ namespace Mirror
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
 
+        enum Mode : byte
+        {
+            NetworkIdentity,
+            GameObject,
+            NetworkBehaviour,
+            Normal
+        }
+
+        readonly Mode mode;
+
+        // server always uses this for all operations
         readonly IList<T> objects;
+
         readonly IEqualityComparer<T> comparer;
 
-        public int Count => objects.Count;
+        // used on clients to store netIds if T is NetworkIdentity or GameObject
+        IList<uint> netIds;
+
+        // used on clients to store netIds and componentIndexes tif T is NetworkBehaviour
+        IList<NetworkBehaviourCache> components;
+
+        public int Count
+        {
+            get
+            {
+                if ((netIds == null && components == null) || mode == Mode.Normal)
+                    return objects.Count;
+                if (mode == Mode.NetworkIdentity || mode == Mode.GameObject)
+                    return netIds.Count;
+                if (mode == Mode.NetworkBehaviour)
+                    return components.Count;
+                return 0;
+            }
+        }
         public bool IsReadOnly { get; private set; }
         public event SyncListChanged Callback;
 
@@ -64,12 +94,44 @@ namespace Mirror
         {
             this.comparer = comparer ?? EqualityComparer<T>.Default;
             objects = new List<T>();
+            if (typeof(T) == typeof(NetworkIdentity))
+            {
+                mode = Mode.NetworkIdentity;
+            }
+            else if (typeof(T) == typeof(UnityEngine.GameObject))
+            {
+                mode = Mode.GameObject;
+            }
+            else if (typeof(NetworkBehaviour).IsAssignableFrom(typeof(T)))
+            {
+                mode = Mode.NetworkBehaviour;
+            }
+            else
+            {
+                mode = Mode.Normal;
+            }
         }
 
         public SyncList(IList<T> objects, IEqualityComparer<T> comparer = null)
         {
             this.comparer = comparer ?? EqualityComparer<T>.Default;
             this.objects = objects;
+            if (typeof(T) == typeof(NetworkIdentity))
+            {
+                mode = Mode.NetworkIdentity;
+            }
+            else if (typeof(T) == typeof(UnityEngine.GameObject))
+            {
+                mode = Mode.GameObject;
+            }
+            else if (typeof(NetworkBehaviour).IsAssignableFrom(typeof(T)))
+            {
+                mode = Mode.NetworkBehaviour;
+            }
+            else
+            {
+                mode = Mode.Normal;
+            }
         }
 
         public bool IsDirty => changes.Count > 0;
@@ -105,6 +167,44 @@ namespace Mirror
             Callback?.Invoke(op, itemIndex, oldItem, newItem);
         }
 
+        void WriteObject(NetworkWriter writer, T obj)
+        {
+            switch (mode)
+            {
+                case Mode.NetworkIdentity:
+                    var identity = obj as NetworkIdentity;
+                    if (identity == null)
+                    {
+                        writer.WriteUInt(0);
+                        return;
+                    }
+                    writer.WriteUInt(identity.netId);
+                    break;
+                case Mode.GameObject:
+                    var gobj = obj as UnityEngine.GameObject;
+                    if (gobj == null)
+                    {
+                        writer.WriteUInt(0);
+                        return;
+                    }
+                    if (!gobj.TryGetComponent(out NetworkIdentity gobjIdentity))
+                    {
+                        UnityEngine.Debug.LogWarning("SyncList " + gobj + " has no NetworkIdentity");
+                        writer.WriteUInt(0);
+                        return;
+                    }
+                    writer.WriteUInt(gobjIdentity.netId);
+                    break;
+                case Mode.NetworkBehaviour:
+                    var nb = obj as NetworkBehaviour;
+                    writer.Write(new NetworkBehaviourCache(nb));
+                    break;
+                case Mode.Normal:
+                    writer.Write(obj);
+                    break;
+            }
+        }
+
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
@@ -113,7 +213,7 @@ namespace Mirror
             for (int i = 0; i < objects.Count; i++)
             {
                 T obj = objects[i];
-                writer.Write(obj);
+                WriteObject(writer, obj);
             }
 
             // all changes have been applied already
@@ -136,7 +236,7 @@ namespace Mirror
                 switch (change.operation)
                 {
                     case Operation.OP_ADD:
-                        writer.Write(change.item);
+                        WriteObject(writer, change.item);
                         break;
 
                     case Operation.OP_CLEAR:
@@ -149,9 +249,25 @@ namespace Mirror
                     case Operation.OP_INSERT:
                     case Operation.OP_SET:
                         writer.WriteUInt((uint)change.index);
-                        writer.Write(change.item);
+                        WriteObject(writer, change.item);
                         break;
                 }
+            }
+        }
+
+        void InitCache()
+        {
+            if (mode == Mode.NetworkIdentity ||
+                mode == Mode.GameObject)
+            {
+                if (netIds == null)
+                    netIds = new List<uint>();
+            }
+            else if (mode == Mode.NetworkBehaviour)
+            {
+                // for NetworkBehaviours netId and componentIndex is received
+                if (components == null)
+                    components = new List<NetworkBehaviourCache>();
             }
         }
 
@@ -160,22 +276,182 @@ namespace Mirror
             // This list can now only be modified by synchronization
             IsReadOnly = true;
 
+            // If needed, prepare cache collections
+            InitCache();
+            
             // if init,  write the full list content
             int count = (int)reader.ReadUInt();
 
             objects.Clear();
             changes.Clear();
 
-            for (int i = 0; i < count; i++)
+            if (mode == Mode.NetworkIdentity ||
+                mode == Mode.GameObject)
             {
-                T obj = reader.Read<T>();
-                objects.Add(obj);
+                // for NetworkIdentity and GameObject, netId is received
+                netIds.Clear();
+                for (int i = 0; i < count; i++)
+                {
+                    var netId = reader.ReadUInt();
+                    netIds.Add(netId);
+                }
             }
-
+            else if (mode == Mode.NetworkBehaviour)
+            {
+                components.Clear();
+                for (int i = 0; i < count; i++)
+                {
+                    var comp = reader.Read<NetworkBehaviourCache>();
+                    components.Add(comp);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    T obj = reader.Read<T>();
+                    objects.Add(obj);
+                }
+            }
+            
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadUInt();
+        }
+
+        private enum ReadObjectMode { Add, Insert, Set }
+
+        void ReadObject(NetworkReader reader, ReadObjectMode readMode, bool apply, ref T oldItem, ref T newItem, ref int index)
+        {
+            switch (readMode)
+            {
+                case ReadObjectMode.Add:
+                    index = objects.Count;
+                    break;
+                case ReadObjectMode.Insert:
+                    index = (int)reader.ReadUInt();
+                    break;
+                case ReadObjectMode.Set:
+                    index = (int)reader.ReadUInt();
+                    if (apply)
+                    {
+                        if (mode == Mode.NetworkIdentity)
+                        {
+                            NetworkIdentity.spawned.TryGetValue(netIds[index], out NetworkIdentity identity);
+                            oldItem = (T)(identity as object);
+                        }
+                        else if (mode == Mode.GameObject)
+                        {
+                            if (!NetworkIdentity.spawned.TryGetValue(netIds[index], out NetworkIdentity identity))
+                            {
+                                oldItem = default;
+                            }
+                            else
+                            {
+                                oldItem = (T)(identity.gameObject as object);
+                            }
+                        }
+                        else if (mode == Mode.NetworkBehaviour)
+                        {
+                            oldItem = (T)(components[index].Get() as object);
+                        }
+                        else
+                        {
+                            oldItem = objects[index];
+                        }
+                    }
+                    break;
+            }
+
+            if (mode == Mode.NetworkIdentity)
+            {
+                var netId = reader.ReadUInt();
+                NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity);
+                newItem = (T)(identity as object); // no class constraint workaround
+                if (apply)
+                {
+                    switch (readMode)
+                    {
+                        case ReadObjectMode.Add:
+                            netIds.Add(netId);
+                            break;
+                        case ReadObjectMode.Insert:
+                            netIds.Insert(index, netId);
+                            break;
+                        case ReadObjectMode.Set:
+                            netIds[index] = netId;
+                            break;
+                    }
+                }
+            }
+            else if (mode == Mode.GameObject)
+            {
+                var netId = reader.ReadUInt();
+                if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
+                {
+                    newItem = (T)(identity.gameObject as object);
+                }
+                else
+                {
+                    newItem = default;
+                }
+                if (apply)
+                {
+                    switch (readMode)
+                    {
+                        case ReadObjectMode.Add:
+                            netIds.Add(netId);
+                            break;
+                        case ReadObjectMode.Insert:
+                            netIds.Insert(index, netId);
+                            break;
+                        case ReadObjectMode.Set:
+                            netIds[index] = netId;
+                            break;
+                    }
+                }
+            }
+            else if (mode == Mode.NetworkBehaviour)
+            {
+                var newCache = reader.Read<NetworkBehaviourCache>();
+                newItem = (T)(newCache.Get() as object); // no T class constraint workaround
+
+                if (apply)
+                {
+                    switch (readMode)
+                    {
+                        case ReadObjectMode.Add:
+                            components.Add(newCache);
+                            break;
+                        case ReadObjectMode.Insert:
+                            components.Insert(index, newCache);
+                            break;
+                        case ReadObjectMode.Set:
+                            components[index] = newCache;
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                newItem = reader.Read<T>();
+                if (apply)
+                {
+                    switch (readMode)
+                    {
+                        case ReadObjectMode.Add:
+                            objects.Add(newItem);
+                            break;
+                        case ReadObjectMode.Insert:
+                            objects.Insert(index, newItem);
+                            break;
+                        case ReadObjectMode.Set:
+                            objects[index] = newItem;
+                            break;
+                    }
+                }
+            }
         }
 
         public void OnDeserializeDelta(NetworkReader reader)
@@ -183,8 +459,11 @@ namespace Mirror
             // This list can now only be modified by synchronization
             IsReadOnly = true;
 
-            int changesCount = (int)reader.ReadUInt();
+            // If needed, prepare cache collections
+            InitCache();
 
+            int changesCount = (int)reader.ReadUInt();
+            
             for (int i = 0; i < changesCount; i++)
             {
                 Operation operation = (Operation)reader.ReadByte();
@@ -199,12 +478,7 @@ namespace Mirror
                 switch (operation)
                 {
                     case Operation.OP_ADD:
-                        newItem = reader.Read<T>();
-                        if (apply)
-                        {
-                            index = objects.Count;
-                            objects.Add(newItem);
-                        }
+                        ReadObject(reader, ReadObjectMode.Add, apply, ref oldItem, ref newItem, ref index);
                         break;
 
                     case Operation.OP_CLEAR:
@@ -215,12 +489,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_INSERT:
-                        index = (int)reader.ReadUInt();
-                        newItem = reader.Read<T>();
-                        if (apply)
-                        {
-                            objects.Insert(index, newItem);
-                        }
+                        ReadObject(reader, ReadObjectMode.Insert, apply, ref oldItem, ref newItem, ref index);
                         break;
 
                     case Operation.OP_REMOVEAT:
@@ -233,13 +502,7 @@ namespace Mirror
                         break;
 
                     case Operation.OP_SET:
-                        index = (int)reader.ReadUInt();
-                        newItem = reader.Read<T>();
-                        if (apply)
-                        {
-                            oldItem = objects[index];
-                            objects[index] = newItem;
-                        }
+                        ReadObject(reader, ReadObjectMode.Set, apply, ref oldItem, ref newItem, ref index);
                         break;
                 }
 
@@ -277,20 +540,36 @@ namespace Mirror
 
         public bool Contains(T item) => IndexOf(item) >= 0;
 
-        public void CopyTo(T[] array, int index) => objects.CopyTo(array, index);
+        public void CopyTo(T[] array, int index)
+        {
+            if (mode == Mode.Normal || (netIds == null && components == null))
+            {
+                objects.CopyTo(array, index);
+                return;
+            }
+
+            int i = index;
+
+            foreach (var e in this)
+            {
+                if (i >= array.Length) return;
+                array[i] = e;
+                i++;
+            }
+        }
 
         public int IndexOf(T item)
         {
-            for (int i = 0; i < objects.Count; ++i)
-                if (comparer.Equals(item, objects[i]))
+            for (int i = 0; i < this.Count; ++i)
+                if (comparer.Equals(item, this[i]))
                     return i;
             return -1;
         }
 
         public int FindIndex(Predicate<T> match)
         {
-            for (int i = 0; i < objects.Count; ++i)
-                if (match(objects[i]))
+            for (int i = 0; i < this.Count; ++i)
+                if (match(this[i]))
                     return i;
             return -1;
         }
@@ -298,15 +577,15 @@ namespace Mirror
         public T Find(Predicate<T> match)
         {
             int i = FindIndex(match);
-            return (i != -1) ? objects[i] : default;
+            return (i != -1) ? this[i] : default;
         }
 
         public List<T> FindAll(Predicate<T> match)
         {
             List<T> results = new List<T>();
-            for (int i = 0; i < objects.Count; ++i)
-                if (match(objects[i]))
-                    results.Add(objects[i]);
+            for (int i = 0; i < this.Count; ++i)
+                if (match(this[i]))
+                    results.Add(this[i]);
             return results;
         }
 
@@ -360,12 +639,33 @@ namespace Mirror
 
         public T this[int i]
         {
-            get => objects[i];
+            get
+            {
+                if (netIds == null && components == null) // server only uses objects
+                    return objects[i];
+
+                switch (mode)
+                {
+                    case Mode.NetworkIdentity:
+                        NetworkIdentity.spawned.TryGetValue(netIds[i], out NetworkIdentity identity);
+                        return (T)(identity as object);
+                    case Mode.GameObject:
+                        if (!NetworkIdentity.spawned.TryGetValue(netIds[i], out NetworkIdentity gobjIdentity))
+                        {
+                            return default;
+                        }
+                        return (T)(gobjIdentity.gameObject as object);
+                    case Mode.NetworkBehaviour:
+                        return (T)(components[i].Get() as object);
+                }
+
+                return objects[i];
+            }
             set
             {
-                if (!comparer.Equals(objects[i], value))
+                if (!comparer.Equals(this[i], value))
                 {
-                    T oldItem = objects[i];
+                    T oldItem = this[i];
                     objects[i] = value;
                     AddOperation(Operation.OP_SET, i, oldItem, value);
                 }
