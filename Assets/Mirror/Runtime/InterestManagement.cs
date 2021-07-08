@@ -8,7 +8,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     public abstract class InterestManagement : MonoBehaviour
     {
-        // Awake configures InterestManagement in NetworkServer
+        // Awake configures InterestManagement in NetworkServer/Client
         void Awake()
         {
             if (NetworkServer.aoi == null)
@@ -16,6 +16,12 @@ namespace Mirror
                 NetworkServer.aoi = this;
             }
             else Debug.LogError($"Only one InterestManagement component allowed. {NetworkServer.aoi.GetType()} has been set up already.");
+
+            if (NetworkClient.aoi == null)
+            {
+                NetworkClient.aoi = this;
+            }
+            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already.");
         }
 
         // Callback used by the visibility system to determine if an observer
@@ -56,6 +62,20 @@ namespace Mirror
             {
                 NetworkServer.RebuildObservers(identity, false);
             }
+        }
+
+        // Callback used by the visibility system for objects on a host.
+        // Objects on a host (with a local client) cannot be disabled or
+        // destroyed when they are not visible to the local client. So this
+        // function is called to allow custom code to hide these objects. A
+        // typical implementation will disable renderer components on the
+        // object. This is only called on local clients on a host.
+        // => need the function in here and virtual so people can overwrite!
+        // => not everyone wants to hide renderers!
+        public virtual void SetHostVisibility(NetworkIdentity identity, bool visible)
+        {
+            foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
+                rend.enabled = visible;
         }
     }
 }

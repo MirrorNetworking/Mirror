@@ -830,21 +830,6 @@ namespace Mirror
         [Obsolete("Use NetworkServer.RebuildObservers(identity, initialize) instead.")]
         public void RebuildObservers(bool initialize) => NetworkServer.RebuildObservers(this, initialize);
 
-        // Callback used by the visibility system for objects on a host.
-        // Objects on a host (with a local client) cannot be disabled or
-        // destroyed when they are not visible to the local client. So this
-        // function is called to allow custom code to hide these objects. A
-        // typical implementation will disable renderer components on the
-        // object. This is only called on local clients on a host.
-        // => this used to be in proximitychecker, but since day one everyone
-        //    used the same function without any modifications. so let's keep it
-        //    directly in NetworkIdentity.
-        internal void OnSetHostVisibility(bool visible)
-        {
-            foreach (Renderer rend in GetComponentsInChildren<Renderer>())
-                rend.enabled = visible;
-        }
-
         // vis2k: readstring bug prevention: https://github.com/vis2k/Mirror/issues/2617
         // -> OnSerialize writes length,componentData,length,componentData,...
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
