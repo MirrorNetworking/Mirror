@@ -902,13 +902,23 @@ namespace Mirror
 
                     // we need to consider different sync scenarios:
                     //
-                    // SERVER_TO_CLIENT:
-                    //   always serialize for owner.
-                    //   serialize for observers only if SyncMode == Observers.
+                    // on the server:
+                    //     SERVER_TO_CLIENT:
+                    //       always serialize for owner.
+                    //       serialize for observers only if SyncMode == Observers.
                     //
-                    // CLIENT_TO_SERVER:
-                    //   never serialize for owner. owner client knows state.
-                    //   serialize for observers only if SyncMode == Observers.
+                    //     CLIENT_TO_SERVER:
+                    //       never serialize for owner. owner client knows state.
+                    //       serialize for observers only if SyncMode == Observers.
+                    //
+                    // on the client:
+                    //     SERVER_TO_CLIENT:
+                    //       do nothing.
+                    //     CLIENT_TO_SERVER:
+                    //       serialize only if owned.
+
+                    // TODO what about isClient/isServer check
+                    // this is called both on clients and servers
                     if (comp.syncDirection == SyncDirection.SERVER_TO_CLIENT)
                     {
                         // serialize into owner writer first
