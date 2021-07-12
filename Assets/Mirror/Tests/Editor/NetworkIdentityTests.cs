@@ -10,7 +10,7 @@ namespace Mirror.Tests
 {
     public class NetworkIdentityTests : MirrorEditModeTest
     {
-        class StartServerTestComponent : NetworkBehaviour
+        class StartServerNetworkBehaviour : NetworkBehaviour
         {
             internal bool onStartServerInvoked;
             public override void OnStartServer() => onStartServerInvoked = true;
@@ -260,7 +260,7 @@ namespace Mirror.Tests
         [Test]
         public void OnStartServerTest()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartServerTestComponent component1, out StartServerTestComponent component2);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartServerNetworkBehaviour component1, out StartServerNetworkBehaviour component2);
             identity.OnStartServer();
 
             Assert.That(component1.onStartServerInvoked);
