@@ -13,12 +13,7 @@ namespace Mirror.Tests
         class StartServerTestComponent : NetworkBehaviour
         {
             internal bool onStartServerInvoked;
-
-            public override void OnStartServer()
-            {
-                onStartServerInvoked = true;
-                base.OnStartServer();
-            }
+            public override void OnStartServer() => onStartServerInvoked = true;
         }
 
         class StartServerExceptionNetworkBehaviour : NetworkBehaviour
