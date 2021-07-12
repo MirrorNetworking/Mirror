@@ -902,7 +902,7 @@ namespace Mirror
 
                     // we need to consider different sync scenarios:
                     //
-                    // on the server:
+                    // if server:
                     //     SERVER_TO_CLIENT:
                     //       always serialize for owner.
                     //       serialize for observers only if SyncMode == Observers.
@@ -911,11 +911,13 @@ namespace Mirror
                     //       never serialize for owner. owner client knows state.
                     //       serialize for observers only if SyncMode == Observers.
                     //
-                    // on the client:
+                    // if client:
                     //     SERVER_TO_CLIENT:
                     //       do nothing.
                     //     CLIENT_TO_SERVER:
                     //       serialize only if owned.
+                    //
+                    // if host mode: see 'if server'
 
                     // TODO what about isClient/isServer check
                     // this is called both on clients and servers
