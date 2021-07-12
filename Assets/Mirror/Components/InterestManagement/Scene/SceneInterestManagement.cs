@@ -5,12 +5,10 @@ namespace Mirror
 {
     public class SceneInterestManagement : InterestManagement
     {
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
-        {
-            // the newly spawned 'newObserver' can see the already existing
-            // 'identity' if they both have the same scene.
-            return newObserver.identity.gameObject.scene == identity.gameObject.scene;
-        }
+        // the newly spawned 'newObserver' can see the already existing
+        // 'identity' if they both have the same scene.
+        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver) =>
+            newObserver.identity.gameObject.scene == identity.gameObject.scene;
 
         // for this 'identity', put everyone who sees it into 'newObservers'
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
