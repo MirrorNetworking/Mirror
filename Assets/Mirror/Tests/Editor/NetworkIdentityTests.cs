@@ -49,7 +49,7 @@ namespace Mirror.Tests
         class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnStartAuthority() { ++called; }
+            public override void OnStartAuthority() => ++called;
         }
 
         class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
@@ -65,7 +65,7 @@ namespace Mirror.Tests
         class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnStopAuthority() { ++called; }
+            public override void OnStopAuthority() => ++called;
         }
 
         class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
@@ -81,7 +81,7 @@ namespace Mirror.Tests
         class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnStartLocalPlayer() { ++called; }
+            public override void OnStartLocalPlayer() => ++called;
         }
 
         class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
@@ -97,13 +97,13 @@ namespace Mirror.Tests
         class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnStopClient() { ++called; }
+            public override void OnStopClient() => ++called;
         }
 
         class StopServerCalledNetworkBehaviour : NetworkBehaviour
         {
             public int called;
-            public override void OnStopServer() { ++called; }
+            public override void OnStopServer() => ++called;
         }
 
         class StopServerExceptionNetworkBehaviour : NetworkBehaviour
