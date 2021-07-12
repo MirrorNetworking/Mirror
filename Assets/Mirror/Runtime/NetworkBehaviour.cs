@@ -27,6 +27,11 @@ namespace Mirror
         [HideInInspector] public float syncInterval = 0.1f;
         internal float lastSyncTime;
 
+        /// <summary>sync direction OnSerialize. SERVER_TO_CLIENT by default. CLIENT_TO_SERVER for client authority.</summary>
+        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
+        [HideInInspector] public SyncDirection syncDirection = SyncDirection.SERVER_TO_CLIENT;
+
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
         // server itself is active rather than this object being active.
