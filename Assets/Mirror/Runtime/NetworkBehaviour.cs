@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     public enum SyncMode { Observers, Owner }
+    public enum SyncDirection { SERVER_TO_CLIENT, CLIENT_TO_SERVER }
 
     /// <summary>Base class for networked components.</summary>
     [AddComponentMenu("")]
