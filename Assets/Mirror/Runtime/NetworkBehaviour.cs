@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public enum SyncMode { Observers, Owner }
     public enum SyncDirection { SERVER_TO_CLIENT, CLIENT_TO_SERVER }
+    public enum SyncMode { Observers, Owner }
 
     /// <summary>Base class for networked components.</summary>
     [AddComponentMenu("")]
@@ -14,6 +14,11 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
+        /// <summary>sync direction OnSerialize. SERVER_TO_CLIENT by default. CLIENT_TO_SERVER for client authority.</summary>
+        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
+        [HideInInspector] public SyncDirection syncDirection = SyncDirection.SERVER_TO_CLIENT;
+
         /// <summary>sync mode for OnSerialize</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         [Tooltip("By default synced data is sent from the server to all Observers of the object.\nChange this to Owner to only have the server update the client that has ownership authority for this object")]
@@ -26,11 +31,6 @@ namespace Mirror
         [Range(0, 2)]
         [HideInInspector] public float syncInterval = 0.1f;
         internal float lastSyncTime;
-
-        /// <summary>sync direction OnSerialize. SERVER_TO_CLIENT by default. CLIENT_TO_SERVER for client authority.</summary>
-        // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
-        [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
-        [HideInInspector] public SyncDirection syncDirection = SyncDirection.SERVER_TO_CLIENT;
 
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
