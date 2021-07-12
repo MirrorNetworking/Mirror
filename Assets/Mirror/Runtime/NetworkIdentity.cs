@@ -900,22 +900,15 @@ namespace Mirror
                     // write index as byte [0..255]
                     ownerWriter.WriteByte((byte)i);
 
-                    // when serializing, we have four possible scenarios:
+                    // we need to consider different sync scenarios:
                     //
-                    // SERVER_TO_CLIENT & Owner:
-                    //   serialize into ownerWriter.
-                    //   don't broadcast to anyone via observerWriter.
+                    // SERVER_TO_CLIENT:
+                    //   always serialize for owner.
+                    //   serialize for observers only if SyncMode == Observers.
                     //
-                    // SERVER_TO_CLIENT & Observers
-                    //   serialize into ownerWriter.
-                    //   copy serialization into observerWriter.
-                    //
-                    // CLIENT_TO_SERVER & Owner
-                    //   do nothing. client owner knows the state already.
-                    //
-                    // CLIENT_TO_SERVER & Observers
-                    //   do nothing. client owner knows the state already.
-                    //   serialize into observerWriter for other clients.
+                    // CLIENT_TO_SERVER:
+                    //   never serialize for owner. owner client knows state.
+                    //   serialize for observers only if SyncMode == Observers.
                     //
 
                     // serialize into ownerWriter first
