@@ -900,6 +900,24 @@ namespace Mirror
                     // write index as byte [0..255]
                     ownerWriter.WriteByte((byte)i);
 
+                    // when serializing, we have four possible scenarios:
+                    //
+                    // SERVER_TO_CLIENT & Owner:
+                    //   serialize into ownerWriter.
+                    //   don't broadcast to anyone via observerWriter.
+                    //
+                    // SERVER_TO_CLIENT & Observers
+                    //   serialize into ownerWriter.
+                    //   copy serialization into observerWriter.
+                    //
+                    // CLIENT_TO_SERVER & Owner
+                    //   do nothing. client owner knows the state already.
+                    //
+                    // CLIENT_TO_SERVER & Observers
+                    //   do nothing. client owner knows the state already.
+                    //   serialize into observerWriter for other clients.
+                    //
+
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
                     OnSerializeSafely(comp, ownerWriter, initialState);
