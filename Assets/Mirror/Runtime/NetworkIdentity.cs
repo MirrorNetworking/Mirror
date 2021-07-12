@@ -909,28 +909,37 @@ namespace Mirror
                     // CLIENT_TO_SERVER:
                     //   never serialize for owner. owner client knows state.
                     //   serialize for observers only if SyncMode == Observers.
-                    //
-
-                    // serialize into ownerWriter first
-                    // (owner always gets everything!)
-                    OnSerializeSafely(comp, ownerWriter, initialState);
-                    ++ownerWritten;
-
-                    // copy into observersWriter too if SyncMode.Observers
-                    // -> we copy instead of calling OnSerialize again because
-                    //    we don't know what magic the user does in OnSerialize.
-                    // -> it's not guaranteed that calling it twice gets the
-                    //    same result
-                    // -> it's not guaranteed that calling it twice doesn't mess
-                    //    with the user's OnSerialize timing code etc.
-                    // => so we just copy the result without touching
-                    //    OnSerialize again
-                    if (comp.syncMode == SyncMode.Observers)
+                    if (comp.syncDirection == SyncDirection.SERVER_TO_CLIENT)
                     {
-                        ArraySegment<byte> segment = ownerWriter.ToArraySegment();
-                        int length = ownerWriter.Position - startPosition;
-                        observersWriter.WriteBytes(segment.Array, startPosition, length);
-                        ++observersWritten;
+                        // serialize into owner writer first
+                        OnSerializeSafely(comp, ownerWriter, initialState);
+                        ++ownerWritten;
+
+                        // copy into observersWriter if mode == observers
+                        // -> we copy instead of calling OnSerialize again because
+                        //    we don't know what magic the user does in OnSerialize.
+                        // -> it's not guaranteed that calling it twice gets the
+                        //    same result
+                        // -> it's not guaranteed that calling it twice doesn't mess
+                        //    with the user's OnSerialize timing code etc.
+                        // => so we just copy the result without touching
+                        //    OnSerialize again
+                        if (comp.syncMode == SyncMode.Observers)
+                        {
+                            ArraySegment<byte> segment = ownerWriter.ToArraySegment();
+                            int length = ownerWriter.Position - startPosition;
+                            observersWriter.WriteBytes(segment.Array, startPosition, length);
+                            ++observersWritten;
+                        }
+                    }
+                    else if (comp.syncDirection == SyncDirection.CLIENT_TO_SERVER)
+                    {
+                        // serialize into observers write if mode == observers
+                        if (comp.syncMode == SyncMode.Observers)
+                        {
+                            OnSerializeSafely(comp, observersWriter, initialState);
+                            ++observersWritten;
+                        }
                     }
                 }
             }
