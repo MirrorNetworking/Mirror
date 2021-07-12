@@ -256,7 +256,6 @@ namespace Mirror.Tests
 
     public class NetworkIdentityTests : MirrorEditModeTest
     {
-        // A Test behaves as an ordinary method
         [Test]
         public void OnStartServerTest()
         {
