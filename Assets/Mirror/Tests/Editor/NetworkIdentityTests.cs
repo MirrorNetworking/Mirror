@@ -365,6 +365,7 @@ namespace Mirror.Tests
             // guid was NOT changed
             Assert.That(identity.assetId, Is.EqualTo(guid1));
         }
+
         [Test]
         public void SetAssetId_DoesNotGiveErrorIfBothOldAndNewAreEmpty()
         {
