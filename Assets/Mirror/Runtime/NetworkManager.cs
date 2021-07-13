@@ -190,6 +190,9 @@ namespace Mirror
 
             // setup OnSceneLoaded callback
             SceneManager.sceneLoaded += OnSceneLoaded;
+
+            NetworkLoop.OnEarlyUpdate += NetworkEarlyUpdate;
+            NetworkLoop.OnLateUpdate += NetworkLateUpdate;
         }
 
         // virtual so that inheriting classes' Start() can call base.Start() too
@@ -723,6 +726,9 @@ namespace Mirror
         public virtual void OnDestroy()
         {
             //Debug.Log("NetworkManager destroyed");
+
+            NetworkLoop.OnEarlyUpdate -= NetworkEarlyUpdate;
+            NetworkLoop.OnLateUpdate -= NetworkLateUpdate;
         }
 
         /// <summary>The name of the current network scene.</summary>
@@ -1317,5 +1323,11 @@ namespace Mirror
 
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() {}
+
+        /// <summary> This is called during the early update phase of the network loop. Before unity's Update() </summary>
+        public virtual void NetworkEarlyUpdate() {}
+
+        /// <summary> This is called during the late update phase of the network loop. After unity's LateUpdate() </summary>
+        public virtual void NetworkLateUpdate() {}
     }
 }
