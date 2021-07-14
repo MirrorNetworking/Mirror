@@ -137,6 +137,11 @@ namespace Mirror
             available.ServerStop();
         }
 
+        public override void ClientEarlyUpdate() => available.ClientEarlyUpdate();
+        public override void ServerEarlyUpdate() => available.ServerEarlyUpdate();
+        public override void ClientLateUpdate() => available.ClientLateUpdate();
+        public override void ServerLateUpdate() => available.ServerLateUpdate();
+
         public override void Shutdown()
         {
             available.Shutdown();

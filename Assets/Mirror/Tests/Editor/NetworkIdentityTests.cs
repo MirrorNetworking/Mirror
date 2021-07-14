@@ -8,264 +8,258 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    public class NetworkIdentityTests : MirrorEditModeTest
+    class StartServerNetworkBehaviour : NetworkBehaviour
     {
-        class MyTestComponent : NetworkBehaviour
-        {
-            internal bool onStartServerInvoked;
+        internal bool onStartServerInvoked;
+        public override void OnStartServer() => onStartServerInvoked = true;
+    }
 
-            public override void OnStartServer()
-            {
-                onStartServerInvoked = true;
-                base.OnStartServer();
-            }
-        }
-
-        class StartServerExceptionNetworkBehaviour : NetworkBehaviour
+    class StartServerExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStartServer()
         {
-            public int called;
-            public override void OnStartServer()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
+            ++called;
+            throw new Exception("some exception");
         }
+    }
 
-        class StartClientExceptionNetworkBehaviour : NetworkBehaviour
+    class StartClientExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStartClient()
         {
-            public int called;
-            public override void OnStartClient()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
+            ++called;
+            throw new Exception("some exception");
         }
+    }
 
-        class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+    class StartAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStartAuthority()
         {
-            public int called;
-            public override void OnStartAuthority()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
+            ++called;
+            throw new Exception("some exception");
         }
+    }
 
-        class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public override void OnStartAuthority() { ++called; }
-        }
+    class StartAuthorityCalledNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStartAuthority() => ++called;
+    }
 
-        class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+    class StopAuthorityExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopAuthority()
         {
-            public int called;
-            public override void OnStopAuthority()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
+            ++called;
+            throw new Exception("some exception");
         }
+    }
 
-        class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public override void OnStopAuthority() { ++called; }
-        }
+    class StopAuthorityCalledNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopAuthority() => ++called;
+    }
 
-        class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
+    class StartLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStartLocalPlayer()
         {
-            public int called;
-            public override void OnStartLocalPlayer()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
+            ++called;
+            throw new Exception("some exception");
         }
+    }
 
-        class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public override void OnStartLocalPlayer() { ++called; }
-        }
+    class StartLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStartLocalPlayer() => ++called;
+    }
 
-        class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
+    class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopClient()
         {
-            public int called;
-            public override void OnStopClient()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
+            ++called;
+            throw new Exception("some exception");
         }
+    }
 
-        class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public override void OnStopClient() { ++called; }
-        }
+    class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopClient() => ++called;
+    }
 
-        class StopServerCalledNetworkBehaviour : NetworkBehaviour
-        {
-            public int called;
-            public override void OnStopServer() { ++called; }
-        }
+    class StopServerCalledNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopServer() => ++called;
+    }
 
-        class StopServerExceptionNetworkBehaviour : NetworkBehaviour
+    class StopServerExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopServer()
         {
-            public int called;
-            public override void OnStopServer()
-            {
-                ++called;
-                throw new Exception("some exception");
-            }
+            ++called;
+            throw new Exception("some exception");
         }
+    }
 
-        class SerializeTest1NetworkBehaviour : NetworkBehaviour
+    class SerializeTest1NetworkBehaviour : NetworkBehaviour
+    {
+        public int value;
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            public int value;
-            public override bool OnSerialize(NetworkWriter writer, bool initialState)
-            {
-                writer.WriteInt(value);
-                return true;
-            }
-            public override void OnDeserialize(NetworkReader reader, bool initialState)
-            {
-                value = reader.ReadInt();
-            }
+            writer.WriteInt(value);
+            return true;
         }
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            value = reader.ReadInt();
+        }
+    }
 
-        class SerializeTest2NetworkBehaviour : NetworkBehaviour
+    class SerializeTest2NetworkBehaviour : NetworkBehaviour
+    {
+        public string value;
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            public string value;
-            public override bool OnSerialize(NetworkWriter writer, bool initialState)
-            {
-                writer.WriteString(value);
-                return true;
-            }
-            public override void OnDeserialize(NetworkReader reader, bool initialState)
-            {
-                value = reader.ReadString();
-            }
+            writer.WriteString(value);
+            return true;
         }
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            value = reader.ReadString();
+        }
+    }
 
-        class SerializeExceptionNetworkBehaviour : NetworkBehaviour
+    class SerializeExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            public override bool OnSerialize(NetworkWriter writer, bool initialState)
-            {
-                throw new Exception("some exception");
-            }
-            public override void OnDeserialize(NetworkReader reader, bool initialState)
-            {
-                throw new Exception("some exception");
-            }
+            throw new Exception("some exception");
         }
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            throw new Exception("some exception");
+        }
+    }
 
-        class SerializeMismatchNetworkBehaviour : NetworkBehaviour
+    class SerializeMismatchNetworkBehaviour : NetworkBehaviour
+    {
+        public int value;
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            public int value;
-            public override bool OnSerialize(NetworkWriter writer, bool initialState)
-            {
-                writer.WriteInt(value);
-                // one too many
-                writer.WriteInt(value);
-                return true;
-            }
-            public override void OnDeserialize(NetworkReader reader, bool initialState)
-            {
-                value = reader.ReadInt();
-            }
+            writer.WriteInt(value);
+            // one too many
+            writer.WriteInt(value);
+            return true;
         }
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            value = reader.ReadInt();
+        }
+    }
 
 #pragma warning disable 618
-        class RebuildObserversNetworkBehaviour : NetworkVisibility
+    class RebuildObserversNetworkBehaviour : NetworkVisibility
+    {
+        public NetworkConnection observer;
+        public override bool OnCheckObserver(NetworkConnection conn) { return true; }
+        public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
-            public NetworkConnection observer;
-            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
-            {
-                observers.Add(observer);
-            }
-            public override void OnSetHostVisibility(bool visible) {}
+            observers.Add(observer);
         }
+        public override void OnSetHostVisibility(bool visible) {}
+    }
 
-        class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
+    class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
+    {
+        public override bool OnCheckObserver(NetworkConnection conn) { return true; }
+        public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
+        public int hostVisibilityCalled;
+        public bool hostVisibilityValue;
+        public override void OnSetHostVisibility(bool visible)
         {
-            public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-            public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
-            public int hostVisibilityCalled;
-            public bool hostVisibilityValue;
-            public override void OnSetHostVisibility(bool visible)
-            {
-                ++hostVisibilityCalled;
-                hostVisibilityValue = visible;
-            }
+            ++hostVisibilityCalled;
+            hostVisibilityValue = visible;
         }
+    }
 #pragma warning restore 618
 
-        class IsClientServerCheckComponent : NetworkBehaviour
+    class IsClientServerCheckComponent : NetworkBehaviour
+    {
+        // OnStartClient
+        internal bool OnStartClient_isClient;
+        internal bool OnStartClient_isServer;
+        internal bool OnStartClient_isLocalPlayer;
+        public override void OnStartClient()
         {
-            // OnStartClient
-            internal bool OnStartClient_isClient;
-            internal bool OnStartClient_isServer;
-            internal bool OnStartClient_isLocalPlayer;
-            public override void OnStartClient()
-            {
-                OnStartClient_isClient = isClient;
-                OnStartClient_isServer = isServer;
-                OnStartClient_isLocalPlayer = isLocalPlayer;
-            }
-
-            // OnStartServer
-            internal bool OnStartServer_isClient;
-            internal bool OnStartServer_isServer;
-            internal bool OnStartServer_isLocalPlayer;
-            public override void OnStartServer()
-            {
-                OnStartServer_isClient = isClient;
-                OnStartServer_isServer = isServer;
-                OnStartServer_isLocalPlayer = isLocalPlayer;
-            }
-
-            // OnStartLocalPlayer
-            internal bool OnStartLocalPlayer_isClient;
-            internal bool OnStartLocalPlayer_isServer;
-            internal bool OnStartLocalPlayer_isLocalPlayer;
-            public override void OnStartLocalPlayer()
-            {
-                OnStartLocalPlayer_isClient = isClient;
-                OnStartLocalPlayer_isServer = isServer;
-                OnStartLocalPlayer_isLocalPlayer = isLocalPlayer;
-            }
-
-            // Start
-            internal bool Start_isClient;
-            internal bool Start_isServer;
-            internal bool Start_isLocalPlayer;
-            public void Start()
-            {
-                Start_isClient = isClient;
-                Start_isServer = isServer;
-                Start_isLocalPlayer = isLocalPlayer;
-            }
-
-            // OnDestroy
-            internal bool OnDestroy_isClient;
-            internal bool OnDestroy_isServer;
-            internal bool OnDestroy_isLocalPlayer;
-            public void OnDestroy()
-            {
-                OnDestroy_isClient = isClient;
-                OnDestroy_isServer = isServer;
-                OnDestroy_isLocalPlayer = isLocalPlayer;
-            }
+            OnStartClient_isClient = isClient;
+            OnStartClient_isServer = isServer;
+            OnStartClient_isLocalPlayer = isLocalPlayer;
         }
 
-        // A Test behaves as an ordinary method
+        // OnStartServer
+        internal bool OnStartServer_isClient;
+        internal bool OnStartServer_isServer;
+        internal bool OnStartServer_isLocalPlayer;
+        public override void OnStartServer()
+        {
+            OnStartServer_isClient = isClient;
+            OnStartServer_isServer = isServer;
+            OnStartServer_isLocalPlayer = isLocalPlayer;
+        }
+
+        // OnStartLocalPlayer
+        internal bool OnStartLocalPlayer_isClient;
+        internal bool OnStartLocalPlayer_isServer;
+        internal bool OnStartLocalPlayer_isLocalPlayer;
+        public override void OnStartLocalPlayer()
+        {
+            OnStartLocalPlayer_isClient = isClient;
+            OnStartLocalPlayer_isServer = isServer;
+            OnStartLocalPlayer_isLocalPlayer = isLocalPlayer;
+        }
+
+        // Start
+        internal bool Start_isClient;
+        internal bool Start_isServer;
+        internal bool Start_isLocalPlayer;
+        public void Start()
+        {
+            Start_isClient = isClient;
+            Start_isServer = isServer;
+            Start_isLocalPlayer = isLocalPlayer;
+        }
+
+        // OnDestroy
+        internal bool OnDestroy_isClient;
+        internal bool OnDestroy_isServer;
+        internal bool OnDestroy_isLocalPlayer;
+        public void OnDestroy()
+        {
+            OnDestroy_isClient = isClient;
+            OnDestroy_isServer = isServer;
+            OnDestroy_isLocalPlayer = isLocalPlayer;
+        }
+    }
+
+    public class NetworkIdentityTests : MirrorEditModeTest
+    {
         [Test]
         public void OnStartServerTest()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out MyTestComponent component1, out MyTestComponent component2);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartServerNetworkBehaviour component1, out StartServerNetworkBehaviour component2);
             identity.OnStartServer();
 
             Assert.That(component1.onStartServerInvoked);
@@ -371,6 +365,7 @@ namespace Mirror.Tests
             // guid was NOT changed
             Assert.That(identity.assetId, Is.EqualTo(guid1));
         }
+
         [Test]
         public void SetAssetId_DoesNotGiveErrorIfBothOldAndNewAreEmpty()
         {
