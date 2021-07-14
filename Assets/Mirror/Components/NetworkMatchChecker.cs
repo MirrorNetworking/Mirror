@@ -55,8 +55,7 @@ namespace Mirror
         void RebuildMatchObservers(Guid specificMatch)
         {
             foreach (NetworkIdentity networkIdentity in matchPlayers[specificMatch])
-                if (networkIdentity != null)
-                    networkIdentity.RebuildObservers(false);
+                networkIdentity?.RebuildObservers(false);
         }
 
         #region Observers
@@ -108,7 +107,7 @@ namespace Mirror
             // This object is in a new match so observers in the prior match
             // and the new match need to rebuild their respective observers lists.
 
-            // Remove this object from the hashset of the scene it just left
+            // Remove this object from the hashset of the match it just left
             if (lastMatch != Guid.Empty)
             {
                 matchPlayers[lastMatch].Remove(netIdentity);
@@ -127,7 +126,7 @@ namespace Mirror
                 // Add this object to the hashset of the new match
                 matchPlayers[currentMatch].Add(netIdentity);
 
-                // RebuildObservers of all NetworkIdentity's in the scene this object just entered
+                // RebuildObservers of all NetworkIdentity's in the match this object just entered
                 RebuildMatchObservers(currentMatch);
             }
             else
