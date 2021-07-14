@@ -26,9 +26,23 @@ namespace Mirror
         internal static Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
+        static bool _dontListen;
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
-        public static bool dontListen;
+        public static bool dontListen
+        {
+            get { return _dontListen; }
+            set
+            {
+                bool wasListening = !_dontListen;
+                _dontListen = value;
+
+                // If we were listening, and active, and now setting false -> Shutdown
+                // This would allow servers to close off new connections when full / game started / etc.
+                if (wasListening && active && !value)
+                    Shutdown();
+            }
+        }
 
         /// <summary>active checks if the server has been started</summary>
         public static bool active { get; internal set; }
@@ -111,7 +125,7 @@ namespace Mirror
             maxConnections = maxConns;
 
             // only start server if we want to listen
-            if (!dontListen)
+            if (!_dontListen)
             {
                 Transport.activeTransport.ServerStart();
                 Debug.Log("Server started listening");
@@ -153,7 +167,7 @@ namespace Mirror
             {
                 DisconnectAll();
 
-                if (!dontListen)
+                if (!_dontListen)
                 {
                     // stop the server.
                     // we do NOT call Transport.Shutdown, because someone only
@@ -164,7 +178,7 @@ namespace Mirror
 
                 initialized = false;
             }
-            dontListen = false;
+            _dontListen = false;
             active = false;
             handlers.Clear();
 
