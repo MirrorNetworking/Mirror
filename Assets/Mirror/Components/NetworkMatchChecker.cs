@@ -23,7 +23,11 @@ namespace Mirror
             new Dictionary<Guid, HashSet<NetworkIdentity>>();
 
         // internal for tests
-        internal Guid currentMatch = Guid.Empty;
+        internal Guid currentMatch
+        {
+            get => GetComponent<NetworkMatch>().matchId;
+            set => GetComponent<NetworkMatch>().matchId = value;
+        }
 
         [Header("Diagnostics")]
         [SyncVar]
