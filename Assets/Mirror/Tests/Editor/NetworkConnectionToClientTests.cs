@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -32,23 +31,10 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void Send_WithoutBatching_SendsImmediately()
-        {
-            // create connection and send
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, false, 0);
-            byte[] message = {0x01, 0x02};
-            connection.Send(new ArraySegment<byte>(message));
-
-            // Send() should send immediately, not only in server.update flushing
-            UpdateTransport();
-            Assert.That(clientReceived.Count, Is.EqualTo(1));
-        }
-
-        [Test]
         public void Send_BatchesUntilUpdate()
         {
             // create connection and send
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, 0);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
             byte[] message = {0x01, 0x02};
             connection.Send(new ArraySegment<byte>(message));
 
@@ -57,30 +43,6 @@ namespace Mirror.Tests
             Assert.That(clientReceived.Count, Is.EqualTo(0));
 
             // updating the connection should now send
-            connection.Update();
-            UpdateTransport();
-            Assert.That(clientReceived.Count, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void Send_BatchesUntilInterval()
-        {
-            // create connection and send
-            int intervalMilliseconds = 10;
-            float intervalSeconds = intervalMilliseconds / 1000f;
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, intervalSeconds);
-            byte[] message = {0x01, 0x02};
-            connection.Send(new ArraySegment<byte>(message));
-
-            // Send() and update shouldn't send yet until interval elapsed
-            connection.Update();
-            UpdateTransport();
-            Assert.That(clientReceived.Count, Is.EqualTo(0));
-
-            // wait 'interval'
-            Thread.Sleep(intervalMilliseconds);
-
-            // updating again should flush out the batch
             connection.Update();
             UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
@@ -96,8 +58,11 @@ namespace Mirror.Tests
         [Test]
         public void SendBatchingResetsPreviousWriter()
         {
+            // batching adds 8 byte timestamp header
+            const int BatchHeader = 8;
+
             // create connection
-            NetworkConnectionToClient connection = new NetworkConnectionToClient(42, true, 0);
+            NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
 
             // send and update big message
             byte[] message = {0x01, 0x02};
@@ -105,9 +70,9 @@ namespace Mirror.Tests
             connection.Update();
             UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
-            Assert.That(clientReceived[0].Length, Is.EqualTo(2));
-            Assert.That(clientReceived[0][0], Is.EqualTo(0x01));
-            Assert.That(clientReceived[0][1], Is.EqualTo(0x02));
+            Assert.That(clientReceived[0].Length, Is.EqualTo(BatchHeader + 2));
+            Assert.That(clientReceived[0][BatchHeader + 0], Is.EqualTo(0x01));
+            Assert.That(clientReceived[0][BatchHeader + 1], Is.EqualTo(0x02));
 
             // clear previous
             clientReceived.Clear();
@@ -118,8 +83,8 @@ namespace Mirror.Tests
             connection.Update();
             UpdateTransport();
             Assert.That(clientReceived.Count, Is.EqualTo(1));
-            Assert.That(clientReceived[0].Length, Is.EqualTo(1));
-            Assert.That(clientReceived[0][0], Is.EqualTo(0xFF));
+            Assert.That(clientReceived[0].Length, Is.EqualTo(BatchHeader + 1));
+            Assert.That(clientReceived[0][BatchHeader + 0], Is.EqualTo(0xFF));
         }
     }
 }

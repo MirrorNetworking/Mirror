@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using WhereAllocation;
 
 namespace kcp2k
 {
@@ -43,9 +44,11 @@ namespace kcp2k
         Socket socket;
 #if UNITY_SWITCH
         // switch does not support ipv6
-        EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
+        //EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
+        IPEndPointNonAlloc reusableClientEP = new IPEndPointNonAlloc(IPAddress.Any, 0); // where-allocation
 #else
-        EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
+        //EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
+        IPEndPointNonAlloc reusableClientEP = new IPEndPointNonAlloc(IPAddress.IPv6Any, 0); // where-allocation
 #endif
         // IMPORTANT: raw receive buffer always needs to be of 'MTU' size, even
         //            if MaxMessageSize is larger. kcp always sends in MTU
@@ -140,8 +143,12 @@ namespace kcp2k
                     //   receive from calls newClientEP.Create(socketAddr).
                     //   IPEndPoint.Create always returns a new IPEndPoint.
                     //   https://github.com/mono/mono/blob/f74eed4b09790a0929889ad7fc2cf96c9b6e3757/mcs/class/System/System.Net.Sockets/Socket.cs#L1761
-                    int msgLength = socket.ReceiveFrom(rawReceiveBuffer, 0, rawReceiveBuffer.Length, SocketFlags.None, ref newClientEP);
+                    //int msgLength = socket.ReceiveFrom(rawReceiveBuffer, 0, rawReceiveBuffer.Length, SocketFlags.None, ref newClientEP);
                     //Log.Info($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
+
+                    // where-allocation nonalloc ReceiveFrom.
+                    int msgLength = socket.ReceiveFrom_NonAlloc(rawReceiveBuffer, 0, rawReceiveBuffer.Length, SocketFlags.None, reusableClientEP);
+                    SocketAddress remoteAddress = reusableClientEP.temp;
 
                     // calculate connectionId from endpoint
                     // NOTE: IPEndPoint.GetHashCode() allocates.
@@ -152,7 +159,10 @@ namespace kcp2k
                     //
                     // => using only newClientEP.Port wouldn't work, because
                     //    different connections can have the same port.
-                    int connectionId = newClientEP.GetHashCode();
+                    //int connectionId = newClientEP.GetHashCode();
+
+                    // where-allocation nonalloc GetHashCode
+                    int connectionId = remoteAddress.GetHashCode();
 
                     // IMPORTANT: detect if buffer was too small for the received
                     //            msgLength. otherwise the excess data would be
@@ -163,8 +173,19 @@ namespace kcp2k
                         // is this a new connection?
                         if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
                         {
+                            // IPEndPointNonAlloc is reused all the time.
+                            // we can't store that as the connection's endpoint.
+                            // we need a new copy!
+                            IPEndPoint newClientEP = reusableClientEP.DeepCopyIPEndPoint();
+
+                            // for allocation free sending, we also need another
+                            // IPEndPointNonAlloc...
+                            IPEndPointNonAlloc reusableSendEP = new IPEndPointNonAlloc(newClientEP.Address, newClientEP.Port);
+
                             // create a new KcpConnection
-                            connection = new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
+                            // -> where-allocation IPEndPointNonAlloc is reused.
+                            //    need to create a new one from the temp address.
+                            connection = new KcpServerConnection(socket, newClientEP, reusableSendEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
 
                             // DO NOT add to connections yet. only if the first message
                             // is actually the kcp handshake. otherwise it's either:

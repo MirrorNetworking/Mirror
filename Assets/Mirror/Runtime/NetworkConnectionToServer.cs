@@ -6,16 +6,9 @@ namespace Mirror
     {
         public override string address => "";
 
-        internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
-        {
-            // Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
-
-            // validate packet size first.
-            if (ValidatePacketSize(segment, channelId))
-            {
-                Transport.activeTransport.ClientSend(segment, channelId);
-            }
-        }
+        // Send stage three: hand off to transport
+        protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
+            Transport.activeTransport.ClientSend(segment, channelId);
 
         /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()

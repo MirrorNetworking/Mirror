@@ -1,12 +1,15 @@
 {
     "name": "kcp2k",
-    "references": [],
-    "optionalUnityReferences": [],
+    "references": [
+        "GUID:63c380d6dae6946209ed0832388a657c"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

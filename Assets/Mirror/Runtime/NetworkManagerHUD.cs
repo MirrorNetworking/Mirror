@@ -14,6 +14,7 @@ namespace Mirror
     {
         NetworkManager manager;
 
+        // Deprecated 2021-02-24
         [Obsolete("showGUI will be removed unless someone has a valid use case. Simply use or don't use the HUD component.")]
         public bool showGUI = true;
 

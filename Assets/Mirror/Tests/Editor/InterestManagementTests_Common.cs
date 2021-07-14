@@ -21,7 +21,7 @@ namespace Mirror.Tests
 
             // A with connectionId = 0x0A, netId = 0xAA
             CreateNetworked(out gameObjectA, out identityA);
-            connectionA = new NetworkConnectionToClient(0x0A, false, 0);
+            connectionA = new NetworkConnectionToClient(0x0A);
             connectionA.isAuthenticated = true;
             connectionA.isReady = true;
             connectionA.identity = identityA;
@@ -29,7 +29,7 @@ namespace Mirror.Tests
 
             // B
             CreateNetworked(out gameObjectB, out identityB);
-            connectionB = new NetworkConnectionToClient(0x0B, false, 0);
+            connectionB = new NetworkConnectionToClient(0x0B);
             connectionB.isAuthenticated = true;
             connectionB.isReady = true;
             connectionB.identity = identityB;
@@ -65,15 +65,9 @@ namespace Mirror.Tests
             // DestroyImmediate is called internally, giving an error in Editor
             identityB.isServer = false;
 
-            // clean so that null entries are not in dictionary
-            NetworkIdentity.spawned.Clear();
-
             // clear connections first. calling OnDisconnect wouldn't work since
             // we have no real clients.
             NetworkServer.connections.Clear();
-
-            // stop server
-            NetworkServer.Shutdown();
 
             base.TearDown();
         }

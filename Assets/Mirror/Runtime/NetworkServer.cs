@@ -33,20 +33,18 @@ namespace Mirror
         /// <summary>active checks if the server has been started</summary>
         public static bool active { get; internal set; }
 
-        /// <summary>batch messages and send them out in LateUpdate (or after batchInterval)</summary>
-        // (this is pretty much always a good idea)
-        public static bool batching = true;
-
-        /// <summary>interval in seconds used for batching. 0 means send in every LateUpdate.</summary>
-        public static float batchInterval = 0;
+        // scene loading
+        public static bool isLoadingScene;
 
         // interest management component (optional)
         // by default, everyone observes everyone
         public static InterestManagement aoi;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts.")]
         public static bool disconnectInactiveConnections;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
         public static float disconnectInactiveTimeout = 60f;
 
@@ -54,8 +52,9 @@ namespace Mirror
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
-        internal static Action<NetworkConnection> OnConnectedEvent;
-        internal static Action<NetworkConnection> OnDisconnectedEvent;
+        // => public so that custom NetworkManagers can hook into it
+        public static Action<NetworkConnection> OnConnectedEvent;
+        public static Action<NetworkConnection> OnDisconnectedEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
@@ -171,6 +170,11 @@ namespace Mirror
 
             CleanupNetworkIdentities();
             NetworkIdentity.ResetNextNetworkId();
+
+            // clear events. someone might have hooked into them before, but
+            // we don't want to use those hooks after Shutdown anymore.
+            OnConnectedEvent = null;
+            OnDisconnectedEvent = null;
         }
 
         // connections /////////////////////////////////////////////////////////
@@ -206,6 +210,7 @@ namespace Mirror
             localConnection = conn;
         }
 
+        // removes local connection to client
         internal static void RemoveLocalConnection()
         {
             if (localConnection != null)
@@ -222,6 +227,8 @@ namespace Mirror
             return connections.Count == 0 ||
                    (connections.Count == 1 && localConnection != null);
         }
+
+        // Deprecated 2021-03-07
         [Obsolete("NoConnections was renamed to NoExternalConnections because that's what it checks for.")]
         public static bool NoConnections() => NoExternalConnections();
 
@@ -337,6 +344,7 @@ namespace Mirror
         }
 
         /// <summary>Send this message to the player only</summary>
+        // Deprecated 2021-03-04
         [Obsolete("Use identity.connectionToClient.Send() instead! Previously Mirror needed this function internally, but not anymore.")]
         public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
@@ -383,7 +391,7 @@ namespace Mirror
             if (connections.Count < maxConnections)
             {
                 // add connection
-                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId, batching, batchInterval);
+                NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
             }
             else
@@ -403,7 +411,7 @@ namespace Mirror
             OnConnectedEvent?.Invoke(conn);
         }
 
-        static void UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
+        static bool UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
         {
             if (MessagePacking.Unpack(reader, out ushort msgType))
             {
@@ -412,16 +420,19 @@ namespace Mirror
                 {
                     handler.Invoke(connection, reader, channelId);
                     connection.lastMessageTime = Time.time;
+                    return true;
                 }
                 else
                 {
                     // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    return false;
                 }
             }
             else
             {
                 Debug.LogError("Closed connection: " + connection + ". Invalid message header.");
                 connection.Disconnect();
+                return false;
             }
         }
 
@@ -430,17 +441,47 @@ namespace Mirror
         {
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient connection))
             {
-                if (data.Count < MessagePacking.HeaderSize)
+                // client might batch multiple messages into one packet.
+                // feed it to the Unbatcher.
+                // NOTE: we don't need to associate a channelId because we
+                //       always process all messages in the batch.
+                if (!connection.unbatcher.AddBatch(data))
                 {
-                    Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id)");
+                    Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id)");
                     connection.Disconnect();
                     return;
                 }
 
-                // unpack message
-                using (PooledNetworkReader reader = NetworkReaderPool.GetReader(data))
+                // process all messages in the batch.
+                // only while NOT loading a scene.
+                // if we get a scene change message, then we need to stop
+                // processing. otherwise we might apply them to the old scene.
+                // => fixes https://github.com/vis2k/Mirror/issues/2651
+                //
+                // NOTE: is scene starts loading, then the rest of the batch
+                //       would only be processed when OnTransportData is called
+                //       the next time.
+                //       => consider moving processing to NetworkEarlyUpdate.
+                while (!isLoadingScene &&
+                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
-                    UnpackAndInvoke(connection, reader, channelId);
+                    // enough to read at least header size?
+                    if (reader.Remaining >= MessagePacking.HeaderSize)
+                    {
+                        // make remoteTimeStamp available to the user
+                        connection.remoteTimeStamp = remoteTimestamp;
+
+                        // handle message
+                        if (!UnpackAndInvoke(connection, reader, channelId))
+                            break;
+                    }
+                    // otherwise disconnect
+                    else
+                    {
+                        Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
+                        connection.Disconnect();
+                        return;
+                    }
                 }
             }
             else Debug.LogError("HandleData Unknown connectionId:" + connectionId);
@@ -495,6 +536,7 @@ namespace Mirror
         }
 
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
+        // Deprecated 2021-02-24
         [Obsolete("Use RegisterHandler(Action<NetworkConnection, T), requireAuthentication instead.")]
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
@@ -578,10 +620,11 @@ namespace Mirror
             active = false;
         }
 
-        /// <summary>Disconnect all currently connected clients except the local connection.</summary>
+        // Deprecated 2021-05-11
         [Obsolete("Call NetworkClient.DisconnectAll() instead")]
         public static void DisconnectAllExternalConnections() => DisconnectAll();
 
+        // Deprecated 2021-05-11
         [Obsolete("Call NetworkClient.DisconnectAll() instead")]
         public static void DisconnectAllConnections() => DisconnectAll();
 
@@ -886,7 +929,7 @@ namespace Mirror
             // verify if we an spawn this
             if (Utils.IsPrefab(obj))
             {
-                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. This will cause errors in builds.");
+                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. Instantiate it first.");
                 return;
             }
 
@@ -1011,6 +1054,16 @@ namespace Mirror
                 {
                     // Debug.Log("SpawnObjects sceneId:" + identity.sceneId.ToString("X") + " name:" + identity.gameObject.name);
                     identity.gameObject.SetActive(true);
+
+                    // fix https://github.com/vis2k/Mirror/issues/2778:
+                    // -> SetActive(true) does NOT call Awake() if the parent
+                    //    is inactive
+                    // -> we need Awake() to initialize NetworkBehaviours[] etc.
+                    //    because our second pass below spawns and works with it
+                    // => detect this situation and manually call Awake for
+                    //    proper initialization
+                    if (!identity.gameObject.activeInHierarchy)
+                        identity.Awake();
                 }
             }
 
@@ -1131,6 +1184,12 @@ namespace Mirror
         {
             // destroy all objects owned by this connection, including the player object
             conn.DestroyOwnedObjects();
+            // remove connection from all of its observing entities observers
+            // fixes https://github.com/vis2k/Mirror/issues/2737
+            // -> cleaning those up in NetworkConnection.Disconnect is NOT enough
+            //    because voluntary disconnects from the other end don't call
+            //    NetworkConnectionn.Disconnect()
+            conn.RemoveFromObservingsObservers();
             conn.identity = null;
         }
 
@@ -1343,8 +1402,8 @@ namespace Mirror
                     if (identity.visibility != null)
                         identity.visibility.OnSetHostVisibility(false);
 #pragma warning restore 618
-                    else
-                        identity.OnSetHostVisibility(false);
+                    else if (aoi != null)
+                        aoi.SetHostVisibility(identity, false);
                 }
             }
         }
@@ -1401,7 +1460,8 @@ namespace Mirror
         static NetworkWriter GetEntitySerializationForConnection(NetworkIdentity identity, NetworkConnectionToClient connection)
         {
             // get serialization for this entity (cached)
-            NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(Time.time);
+            // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
+            NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(Time.frameCount);
 
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;
@@ -1579,13 +1639,14 @@ namespace Mirror
             if (active)
                 Broadcast();
 
-            // process all incoming messages after updating the world
+            // process all outgoing messages after updating the world
             // (even if not active. still want to process disconnects etc.)
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ServerLateUpdate();
         }
 
         // obsolete to not break people's projects. Update was public.
+        // Deprecated 2021-03-02
         [Obsolete("NetworkServer.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
         public static void Update() => NetworkLateUpdate();
     }

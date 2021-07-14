@@ -23,7 +23,7 @@ namespace Mirror
         // internal buffer
         // byte[] pointer would work, but we use ArraySegment to also support
         // the ArraySegment constructor
-        internal ArraySegment<byte> buffer;
+        ArraySegment<byte> buffer;
 
         /// <summary>Next position to read from the buffer</summary>
         // 'int' is the best type for .Position. 'short' is too small if we send >32kb which would result in negative .Position
@@ -33,6 +33,9 @@ namespace Mirror
         /// <summary>Total number of bytes to read from buffer</summary>
         public int Length => buffer.Count;
 
+        /// <summary>Remaining bytes that can be read, for convenience.</summary>
+        public int Remaining => Length - Position;
+
         public NetworkReader(byte[] bytes)
         {
             buffer = new ArraySegment<byte>(bytes);
@@ -41,6 +44,20 @@ namespace Mirror
         public NetworkReader(ArraySegment<byte> segment)
         {
             buffer = segment;
+        }
+
+        // sometimes it's useful to point a reader on another buffer instead of
+        // allocating a new reader (e.g. NetworkReaderPool)
+        public void SetBuffer(byte[] bytes)
+        {
+            buffer = new ArraySegment<byte>(bytes);
+            Position = 0;
+        }
+
+        public void SetBuffer(ArraySegment<byte> segment)
+        {
+            buffer = segment;
+            Position = 0;
         }
 
         public byte ReadByte()
@@ -175,7 +192,7 @@ namespace Mirror
         }
 
         // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadSingle instead.")]
+        [Obsolete("We've cleaned up the API. Use ReadFloat instead.")]
         public static float ReadSingle(this NetworkReader reader) => reader.ReadFloat();
         public static float ReadFloat(this NetworkReader reader)
         {
@@ -396,7 +413,8 @@ namespace Mirror
 
         public static Uri ReadUri(this NetworkReader reader)
         {
-            return new Uri(reader.ReadString());
+            string uriString = reader.ReadString();
+            return (string.IsNullOrEmpty(uriString) ? null : new Uri(uriString));
         }
     }
 }
