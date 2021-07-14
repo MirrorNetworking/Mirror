@@ -5,12 +5,15 @@ namespace Mirror
 {
     public class SceneInterestManagement : InterestManagement
     {
-        // Use Scene instead of string scene.name because when additively loading multiples of a subscene the name won't be unique
-        private readonly Dictionary<Scene, HashSet<NetworkIdentity>> sceneObjects =
+        // Use Scene instead of string scene.name because when additively
+        // loading multiples of a subscene the name won't be unique
+        readonly Dictionary<Scene, HashSet<NetworkIdentity>> sceneObjects =
             new Dictionary<Scene, HashSet<NetworkIdentity>>();
-        private readonly Dictionary<NetworkIdentity, Scene> lastObjectScene = new Dictionary<NetworkIdentity, Scene>();
 
-        private HashSet<Scene> dirtyScenes = new HashSet<Scene>();
+        readonly Dictionary<NetworkIdentity, Scene> lastObjectScene =
+            new Dictionary<NetworkIdentity, Scene>();
+
+        HashSet<Scene> dirtyScenes = new HashSet<Scene>();
 
         public override void OnSpawned(NetworkIdentity identity)
         {
@@ -39,9 +42,12 @@ namespace Mirror
             // only on server
             if (!NetworkServer.active) return;
 
-            foreach (var netIdentity in NetworkIdentity.spawned.Values)
+            // for each spawned:
+            //   if scene changed:
+            //     add previous to dirty
+            //     add new to dirty
+            foreach (NetworkIdentity netIdentity in NetworkIdentity.spawned.Values)
             {
-
                 Scene currentScene = lastObjectScene[netIdentity];
                 Scene newScene = netIdentity.gameObject.scene;
                 if (newScene == currentScene) continue;
@@ -67,6 +73,7 @@ namespace Mirror
                 sceneObjects[newScene].Add(netIdentity);
             }
 
+            // rebuild all dirty scenes
             foreach (Scene dirtyScene in dirtyScenes)
             {
                 RebuildSceneObservers(dirtyScene);
@@ -91,9 +98,7 @@ namespace Mirror
             bool initialize)
         {
             if (!sceneObjects.TryGetValue(identity.gameObject.scene, out HashSet<NetworkIdentity> objects))
-            {
                 return;
-            }
 
             // Add everything in the hashset for this object's current scene
             foreach (NetworkIdentity networkIdentity in objects)
