@@ -964,6 +964,20 @@ namespace Mirror
 
             // Debug.Log("SpawnObject instance ID " + identity.netId + " asset ID " + identity.assetId);
 
+            if (aoi)
+            {
+                // This calls user code which might throw exceptions
+                // We don't want this to leave us in bad state
+                try
+                {
+                    aoi.OnSpawned(identity);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            }
+
             RebuildObservers(identity, true);
         }
 
@@ -1181,6 +1195,19 @@ namespace Mirror
 
         static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
         {
+            if (aoi)
+            {
+                // This calls user code which might throw exceptions
+                // We don't want this to leave us in bad state
+                try
+                {
+                    aoi.OnDestroyed(identity);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            }
             // Debug.Log("DestroyObject instance:" + identity.netId);
             NetworkIdentity.spawned.Remove(identity.netId);
 
