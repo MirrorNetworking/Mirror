@@ -916,6 +916,17 @@ namespace Mirror.Tests
             Assert.That(reader.ReadUri(), Is.EqualTo(testUri));
         }
 
+        // URI null support test for https://github.com/vis2k/Mirror/pull/2796/
+        [Test]
+        public void TestWritingNullUri()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteUri(null);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(reader.ReadUri(), Is.EqualTo(null));
+        }
+
         [Test]
         public void TestList()
         {

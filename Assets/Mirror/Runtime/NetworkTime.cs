@@ -32,7 +32,10 @@ namespace Mirror
         static double offsetMax = double.MaxValue;
 
         /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
-        // => useful until we have Unity's 'double' Time.time
+        // useful until we have Unity's 'double' Time.time
+        //
+        // CAREFUL: unlike Time.time, this is not a FRAME time.
+        //          it changes during the frame too.
         public static double localTime => stopwatch.Elapsed.TotalSeconds;
 
         /// <summary>The time in seconds since the server started.</summary>
@@ -52,12 +55,16 @@ namespace Mirror
         /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double timeVariance => _offset.Var;
+
+        // Deprecated 2021-03-10
         [Obsolete("NetworkTime.timeVar was renamed to timeVariance")]
         public static double timeVar => timeVariance;
 
         /// <summary>Time standard deviation. The highe, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double timeStandardDeviation => Math.Sqrt(timeVariance);
+
+        // Deprecated 2021-03-10
         [Obsolete("NetworkTime.timeSd was renamed to timeStandardDeviation")]
         public static double timeSd => timeStandardDeviation;
 
@@ -70,12 +77,16 @@ namespace Mirror
         /// <summary>Round trip time variance. The higher, the less accurate the rtt is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double rttVariance => _rtt.Var;
+
+        // Deprecated 2021-03-02
         [Obsolete("NetworkTime.rttVar was renamed to rttVariance")]
         public static double rttVar => rttVariance;
 
         /// <summary>Round trip time standard deviation. The higher, the less accurate the rtt is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double rttStandardDeviation => Math.Sqrt(rttVariance);
+
+        // Deprecated 2021-03-02
         [Obsolete("NetworkTime.rttSd was renamed to rttStandardDeviation")]
         public static double rttSd => rttStandardDeviation;
 

@@ -74,9 +74,11 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts.")]
         public bool disconnectInactiveConnections;
 
+        // Deprecated 2021-05-10
         [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
         public float disconnectInactiveTimeout = 60f;
 
@@ -784,6 +786,14 @@ namespace Mirror
 
             // Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
 
+            // Let client prepare for scene change
+            OnClientChangeScene(newSceneName, sceneOperation, customHandling);
+
+            // After calling OnClientChangeScene, exit if server since server is already doing
+            // the actual scene change, and we don't need to do it for the host client
+            if (NetworkServer.active)
+                return;
+
             // set client flag to stop processing messages while loading scenes.
             // otherwise we would process messages and then lose all the state
             // as soon as the load is finishing, causing all kinds of bugs
@@ -796,15 +806,11 @@ namespace Mirror
             // Scene message in OnClientChangeScene and OnClientSceneChanged
             clientSceneOperation = sceneOperation;
 
-            // Let client prepare for scene change
-            OnClientChangeScene(newSceneName, sceneOperation, customHandling);
-
             // scene handling will happen in overrides of OnClientChangeScene and/or OnClientSceneChanged
+            // Do not call FinishLoadScene here. Custom handler will assign loadingSceneAsync and we need
+            // to wait for that to finish. UpdateScene already checks for that to be not null and isDone.
             if (customHandling)
-            {
-                FinishLoadScene();
                 return;
-            }
 
             switch (sceneOperation)
             {
@@ -1174,7 +1180,9 @@ namespace Mirror
         void OnClientSceneInternal(SceneMessage msg)
         {
             //Debug.Log("NetworkManager.OnClientSceneInternal");
-            if (NetworkClient.isConnected && !NetworkServer.active)
+
+            // This needs to run for host client too. NetworkServer.active is checked there
+            if (NetworkClient.isConnected)
             {
                 ClientChangeScene(msg.sceneName, msg.sceneOperation, msg.customHandling);
             }
@@ -1220,6 +1228,7 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
+        // Deprecated 2021-02-13
         [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
@@ -1256,6 +1265,7 @@ namespace Mirror
             StopClient();
         }
 
+        // Deprecated 2021-02-13
         [Obsolete("OnClientError was removed because it hasn't been used in a long time.")]
         public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 

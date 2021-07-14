@@ -153,12 +153,11 @@ namespace Mirror.Tests.ClientSceneTests
         [TestCase(RegisterPrefabOverload.Prefab)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
-        public void WarningForNetworkIdentityInChildren(RegisterPrefabOverload overload)
+        public void ErrorForNetworkIdentityInChildren(RegisterPrefabOverload overload)
         {
-            LogAssert.Expect(LogType.Warning, $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
+            LogAssert.Expect(LogType.Error, $"Prefab '{prefabWithChildren.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
             CallRegisterPrefab(prefabWithChildren, overload);
         }
-
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab)]

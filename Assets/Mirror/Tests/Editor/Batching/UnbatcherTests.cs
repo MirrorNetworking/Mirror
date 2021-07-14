@@ -21,6 +21,29 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.False);
         }
 
+        // test for nimoyd bug, where calling getnextmessage after the previous
+        // call already returned false would cause an InvalidOperationException.
+        [Test]
+        public void GetNextMessage_True_False_False_InvalidOperationException()
+        {
+            // add batch
+            byte[] batch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[2]);
+            unbatcher.AddBatch(new ArraySegment<byte>(batch));
+
+            // get next message, pretend we read the whole thing
+            bool result = unbatcher.GetNextMessage(out NetworkReader reader, out _);
+            Assert.That(result, Is.True);
+            reader.Position = reader.Length;
+
+            // shouldn't get another one
+            result = unbatcher.GetNextMessage(out reader, out _);
+            Assert.That(result, Is.False);
+
+            // calling it again was causing "InvalidOperationException: Queue empty"
+            result = unbatcher.GetNextMessage(out reader, out _);
+            Assert.That(result, Is.False);
+        }
+
         [Test]
         public void GetNextMessage_OneBatch()
         {

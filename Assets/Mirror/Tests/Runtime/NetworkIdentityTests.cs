@@ -56,5 +56,24 @@ namespace Mirror.Tests.Runtime
             // Confirm it has been destroyed
             Assert.That(identity == null, Is.True);
         }
+
+        // imer: There's currently an issue with dropped/skipped serializations
+        // once a server has been running for around a week, this test should
+        // highlight the potential cause
+        [UnityTest]
+        public IEnumerator TestSerializationWithLargeTimestamps()
+        {
+            // 14 * 24 hours per day * 60 minutes per hour * 60 seconds per minute = 14 days
+            // NOTE: change this to 'float' to see the tests fail
+            int tick = 14 * 24 * 60 * 60;
+            NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(tick);
+            // advance tick
+            ++tick;
+            NetworkIdentitySerialization serializationNew = identity.GetSerializationAtTick(tick);
+
+            // if the serialization has been changed the tickTimeStamp should have moved
+            Assert.That(serialization.tick == serializationNew.tick, Is.False);
+            yield break;
+        }
     }
 }

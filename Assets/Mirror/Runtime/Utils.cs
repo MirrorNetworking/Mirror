@@ -23,6 +23,7 @@ namespace Mirror
         ClientRpc
     }
 
+    // Deprecated 2021-03-15
     [Obsolete("Version has never been used, neither by UNET nor by Mirror.")]
     public enum Version
     {
@@ -41,8 +42,11 @@ namespace Mirror
         public const int Reliable = 0;      // ordered
         public const int Unreliable = 1;    // unordered
 
+        // Deprecated 2021-03-15
         [Obsolete("Use Channels.Reliable instead")]
         public const int DefaultReliable = Reliable;
+
+        // Deprecated 2021-03-15
         [Obsolete("Use Channels.Unreliable instead")]
         public const int DefaultUnreliable = Unreliable;
     }
