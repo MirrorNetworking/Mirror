@@ -29,6 +29,8 @@ namespace Mirror
             set => GetComponent<NetworkMatch>().matchId = value;
         }
 
+        internal Guid lastMatch;
+
         [Header("Diagnostics")]
         [SyncVar]
         public string currentMatchDebug;
@@ -146,5 +148,47 @@ namespace Mirror
         }
 
         #endregion
+
+        [ServerCallback]
+        void Update()
+        {
+            // only if changed
+            if (currentMatch == lastMatch)
+                return;
+
+            // This object is in a new match so observers in the prior match
+            // and the new match need to rebuild their respective observers lists.
+
+            // Remove this object from the hashset of the scene it just left
+            if (lastMatch != Guid.Empty)
+            {
+                matchPlayers[lastMatch].Remove(netIdentity);
+
+                // RebuildObservers of all NetworkIdentity's in the match this
+                // object just left
+                RebuildMatchObservers(lastMatch);
+            }
+
+            if (currentMatch != Guid.Empty)
+            {
+                // Make sure this new match is in the dictionary
+                if (!matchPlayers.ContainsKey(currentMatch))
+                    matchPlayers.Add(currentMatch, new HashSet<NetworkIdentity>());
+
+                // Add this object to the hashset of the new match
+                matchPlayers[currentMatch].Add(netIdentity);
+
+                // RebuildObservers of all NetworkIdentity's in the scene this object just entered
+                RebuildMatchObservers(currentMatch);
+            }
+            else
+            {
+                // Not in any match now...RebuildObservers will clear and add self
+                netIdentity.RebuildObservers(false);
+            }
+
+            // save last rebuild's match
+            lastMatch = currentMatch;
+        }
     }
 }
