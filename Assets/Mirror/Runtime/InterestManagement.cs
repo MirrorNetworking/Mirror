@@ -78,14 +78,12 @@ namespace Mirror
                 rend.enabled = visible;
         }
 
-        /// <summary>
-        /// This is called on the server when a new networked object is spawned
-        /// </summary>
+        /// <summary>Called on the server when a new networked object is spawned.</summary>
+        // (useful for 'only rebuild if changed' interest management algorithms)
         public virtual void OnSpawned(NetworkIdentity identity) {}
 
-        /// <summary>
-        /// This is called on the server when a networked object is destroyed
-        /// </summary>
+        /// <summary>Called on the server when a networked object is destroyed.</summary>
+        // (useful for 'only rebuild if changed' interest management algorithms)
         public virtual void OnDestroyed(NetworkIdentity identity) {}
     }
 }
