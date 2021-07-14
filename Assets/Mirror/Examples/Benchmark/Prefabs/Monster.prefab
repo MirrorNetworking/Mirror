@@ -118,6 +118,8 @@ MonoBehaviour:
   localRotationSensitivity: 0.01
   localScaleSensitivity: 0.01
   compressRotation: 1
+  interpolateScale: 0
+  syncScale: 0
 --- !u!114 &8309506939003697769
 MonoBehaviour:
   m_ObjectHideFlags: 0

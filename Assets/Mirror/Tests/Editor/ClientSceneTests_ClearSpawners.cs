@@ -8,59 +8,59 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void RemovesAllPrefabsFromDictionary()
         {
-            prefabs.Add(Guid.NewGuid(), null);
-            prefabs.Add(Guid.NewGuid(), null);
-            prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
 
             NetworkClient.ClearSpawners();
 
-            Assert.IsEmpty(prefabs);
+            Assert.IsEmpty(NetworkClient.prefabs);
         }
 
         [Test]
         public void RemovesAllSpawnHandlersFromDictionary()
         {
-            spawnHandlers.Add(Guid.NewGuid(), null);
-            spawnHandlers.Add(Guid.NewGuid(), null);
-            spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
 
             NetworkClient.ClearSpawners();
 
-            Assert.IsEmpty(spawnHandlers);
+            Assert.IsEmpty(NetworkClient.spawnHandlers);
         }
 
         [Test]
         public void RemovesAllUnspawnHandlersFromDictionary()
         {
-            unspawnHandlers.Add(Guid.NewGuid(), null);
-            unspawnHandlers.Add(Guid.NewGuid(), null);
-            unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
 
             NetworkClient.ClearSpawners();
 
-            Assert.IsEmpty(unspawnHandlers);
+            Assert.IsEmpty(NetworkClient.unspawnHandlers);
         }
 
         [Test]
         public void ClearsAllDictionary()
         {
-            prefabs.Add(Guid.NewGuid(), null);
-            prefabs.Add(Guid.NewGuid(), null);
-            prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
 
-            spawnHandlers.Add(Guid.NewGuid(), null);
-            spawnHandlers.Add(Guid.NewGuid(), null);
-            spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
 
-            unspawnHandlers.Add(Guid.NewGuid(), null);
-            unspawnHandlers.Add(Guid.NewGuid(), null);
-            unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
 
             NetworkClient.ClearSpawners();
 
-            Assert.IsEmpty(prefabs);
-            Assert.IsEmpty(spawnHandlers);
-            Assert.IsEmpty(unspawnHandlers);
+            Assert.IsEmpty(NetworkClient.prefabs);
+            Assert.IsEmpty(NetworkClient.spawnHandlers);
+            Assert.IsEmpty(NetworkClient.unspawnHandlers);
         }
     }
 }

@@ -2,96 +2,70 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class LocalConnectionTest
+    public class LocalConnectionTest : MirrorTest
     {
-
-        /*class MyMessage : MessageBase
-        {
-            public int id;
-            public string name;
-        }*/
+        struct TestMessage : NetworkMessage {}
 
         LocalConnectionToClient connectionToClient;
         LocalConnectionToServer connectionToServer;
 
         [SetUp]
-        public void SetUpConnections()
+        public override void SetUp()
         {
-            connectionToServer = new LocalConnectionToServer();
-            connectionToClient = new LocalConnectionToClient();
+            base.SetUp();
 
-            connectionToClient.connectionToServer = connectionToServer;
-            connectionToServer.connectionToClient = connectionToClient;
+            CreateLocalConnectionPair(out connectionToClient, out connectionToServer);
+
+            // set up server/client connections so message handling works
+            NetworkClient.connection = connectionToServer;
+            NetworkServer.connections[connectionToClient.connectionId] = connectionToClient;
         }
 
         [TearDown]
-        public void Disconnect()
+        public override void TearDown()
         {
             connectionToServer.Disconnect();
+            base.TearDown();
         }
 
-        /*[Test]
-        public void ServerToClientTest()
+        [Test]
+        public void ClientToServerTest()
         {
             Assert.That(connectionToClient.address, Is.EqualTo("localhost"));
 
-            MyMessage myMessage = new MyMessage()
-            {
-                id = 3,
-                name = "hello"
-            };
-
             bool invoked = false;
-
-            void handler(NetworkConnection conn, NetworkReader reader, int channelId)
+            void Handler(NetworkConnection conn, TestMessage message)
             {
-                MyMessage received = msg.ReadMessage<MyMessage>();
-                Assert.That(received.id, Is.EqualTo(3));
-                Assert.That(received.name, Is.EqualTo("hello"));
                 invoked = true;
             }
 
-            Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-            handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
+            // set up handler on the server connection
+            NetworkServer.RegisterHandler<TestMessage>(Handler, false);
 
-            connectionToClient.SetHandlers(handlers);
-            connectionToServer.Send(myMessage);
-
+            connectionToServer.Send(new TestMessage());
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
-        }*/
+        }
 
-        /*[Test]
-        public void ClientToServerTest()
+        [Test]
+        public void ServerToClient()
         {
             Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
 
-            MyMessage myMessage = new MyMessage()
-            {
-                id = 3,
-                name = "hello"
-            };
-
             bool invoked = false;
-
-            void handler(NetworkConnection conn, NetworkReader reader, int channelId)
+            void Handler(TestMessage message)
             {
-                MyMessage received = msg.ReadMessage<MyMessage>();
-                Assert.That(received.id, Is.EqualTo(3));
-                Assert.That(received.name, Is.EqualTo("hello"));
                 invoked = true;
             }
 
-            Dictionary<int, NetworkMessageDelegate> handlers = new Dictionary<int, NetworkMessageDelegate>();
-            handlers.Add(MessagePacker.GetId<MyMessage>(), handler);
+            // set up handler on the client connection
+            NetworkClient.RegisterHandler<TestMessage>(Handler, false);
 
-            connectionToServer.SetHandlers(handlers);
-            connectionToClient.Send(myMessage);
-
+            connectionToClient.Send(new TestMessage());
             connectionToServer.Update();
 
             Assert.True(invoked, "handler should have been invoked");
-        }*/
+        }
     }
 }

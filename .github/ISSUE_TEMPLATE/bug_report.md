@@ -10,12 +10,14 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**How to reproduce the issue, step by step**
-Tell us EXACTLY how to reproduce the issue.
-- can we reproduce it with any of our built in examples?
-- if yes, tell us EVERY SINGLE CLICK/KEY PRESS needed to reproduce it
+**[IMPORTANT] How can we reproduce the issue, step by step:**
+Please tell us how to reproduce your issue, STEP BY STEP, with one of our built in examples.
+-> Tell us every single click / key press so we can reproduce it
+-> If it can't be reproduced with our built in examples, tell us what else to do
+-> Explain like we are five
 
-We will 100% look into every bug report. but if you aren't around and we can't figure out how to reproduce your bug then we can't fix your bug.
+Any bug that can be reproduced, can be fixed.
+If we can't reproduce it, we can't fix.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.

@@ -106,5 +106,30 @@ namespace Mirror.Tests
             Quaternion decompressed = Compression.DecompressQuaternion(0xFFFFFFFF);
             Assert.That(decompressed, Is.EqualTo(Quaternion.identity));
         }
+
+        // test for issue https://github.com/vis2k/Mirror/issues/2674
+        [Test, Ignore("TODO")]
+        public void CompressAndDecompressQuaternion_2674()
+        {
+            // we need a normalized value
+            Quaternion value = Quaternion.Euler(338.850037f, 170.609955f, 182.979996f).normalized;
+            Debug.Log("immediate=" + value.eulerAngles);
+
+            // compress
+            uint data = Compression.CompressQuaternion(value);
+
+            // decompress
+            Quaternion decompressed = Compression.DecompressQuaternion(data);
+
+            // compare them. Quaternion.Angle is easiest to get the angle
+            // between them. using .eulerAngles would give 0, 90, 360 which is
+            // hard to compare.
+
+            //  (51.6, 355.5, 348.1)
+            Debug.Log("euler=" + decompressed.eulerAngles);
+            float angle = Quaternion.Angle(value, decompressed);
+            // 1 degree tolerance
+            Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));
+        }
     }
 }

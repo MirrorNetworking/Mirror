@@ -13,6 +13,9 @@ namespace Mirror.Authenticators
         public string username;
         public string password;
 
+        // this is set if authentication fails to prevent garbage AuthRequestMessage spam
+        bool ServerAuthFailed;
+
         #region Messages
 
         public struct AuthRequestMessage : NetworkMessage
@@ -101,7 +104,13 @@ namespace Mirror.Authenticators
                 conn.isAuthenticated = false;
 
                 // disconnect the client after 1 second so that response message gets delivered
-                StartCoroutine(DelayedDisconnect(conn, 1));
+                if (!ServerAuthFailed)
+                {
+                    // set this false so this coroutine can only be started once
+                    ServerAuthFailed = true;
+
+                    StartCoroutine(DelayedDisconnect(conn, 1));
+                }
             }
         }
 
@@ -140,8 +149,7 @@ namespace Mirror.Authenticators
         /// <summary>
         /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
         /// </summary>
-        /// <param name="conn">Connection of the client.</param>
-        public override void OnClientAuthenticate(NetworkConnection conn)
+        public override void OnClientAuthenticate()
         {
             AuthRequestMessage authRequestMessage = new AuthRequestMessage
             {
@@ -149,13 +157,16 @@ namespace Mirror.Authenticators
                 authPassword = password
             };
 
-            conn.Send(authRequestMessage);
+            NetworkClient.connection.Send(authRequestMessage);
         }
+
+        // Deprecated 2021-04-29
+        [Obsolete("Call OnAuthResponseMessage without the NetworkConnection parameter. It always points to NetworkClient.connection anyway.")]
+        public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg) => OnAuthResponseMessage(msg);
 
         /// <summary>
         /// Called on client when the server's AuthResponseMessage arrives
         /// </summary>
-        /// <param name="conn">Connection to client.</param>
         /// <param name="msg">The message payload</param>
         public void OnAuthResponseMessage(AuthResponseMessage msg)
         {
@@ -164,19 +175,16 @@ namespace Mirror.Authenticators
                 // Debug.LogFormat(LogType.Log, "Authentication Response: {0}", msg.message);
 
                 // Authentication has been accepted
-                ClientAccept(NetworkClient.connection);
+                ClientAccept();
             }
             else
             {
                 Debug.LogError($"Authentication Response: {msg.message}");
 
                 // Authentication has been rejected
-                ClientReject(NetworkClient.connection);
+                ClientReject();
             }
         }
-
-        [Obsolete("Call OnAuthResponseMessage without the NetworkConnection parameter. It always points to NetworkClient.connection anyway.")]
-        public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg) => OnAuthResponseMessage(msg);
 
         #endregion
     }

@@ -1,3 +1,7 @@
+V1.8 [2021-06-02]
+- fix: Do not set timeouts on listener (fixes https://github.com/vis2k/Mirror/issues/2695)
+- fix: #104 - ReadSafely now catches ObjectDisposedException too
+
 V1.7 [2021-02-20]
 - ReceiveTimeout: disabled by default for cases where people use Telepathy by
   itself without pings etc.

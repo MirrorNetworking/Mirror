@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests.RemoteAttrributeTest
 {
@@ -47,7 +48,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void VirtualRpcIsCalled()
         {
-            VirtualClientRpc hostBehaviour = CreateHostObject<VirtualClientRpc>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualClientRpc hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -66,7 +68,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void VirtualCommandWithNoOverrideIsCalled()
         {
-            VirtualNoOverrideClientRpc hostBehaviour = CreateHostObject<VirtualNoOverrideClientRpc>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualNoOverrideClientRpc hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -85,7 +88,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void OverrideVirtualRpcIsCalled()
         {
-            VirtualOverrideClientRpc hostBehaviour = CreateHostObject<VirtualOverrideClientRpc>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideClientRpc hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -110,7 +114,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void OverrideVirtualWithBaseCallsBothVirtualAndBase()
         {
-            VirtualOverrideClientRpcWithBase hostBehaviour = CreateHostObject<VirtualOverrideClientRpcWithBase>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideClientRpcWithBase hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 

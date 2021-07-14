@@ -35,6 +35,15 @@ namespace Mirror.Weaver
             string newName = RpcPrefix + md.Name;
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
+            // force the substitute method to be protected.
+            // -> public would show in the Inspector for UnityEvents as
+            //    User_CmdUsePotion() etc. but the user shouldn't use those.
+            // -> private would not allow inheriting classes to call it, see
+            //    OverrideVirtualWithBaseCallsBothVirtualAndBase test.
+            // -> IL has no concept of 'protected', it's called IsFamily there.
+            cmd.IsPublic = false;
+            cmd.IsFamily = true;
+
             // add parameters
             foreach (ParameterDefinition pd in md.Parameters)
             {

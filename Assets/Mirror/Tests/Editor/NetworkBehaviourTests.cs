@@ -189,38 +189,20 @@ namespace Mirror.Tests
         }
     }
 
-    public class NetworkBehaviourTests
+    public class NetworkBehaviourTests : MirrorEditModeTest
     {
-        GameObject gameObject;
-        NetworkIdentity identity;
-        // useful in most tests, but not necessarily all tests
-        EmptyBehaviour emptyBehaviour;
-
-        [SetUp]
-        public void SetUp()
-        {
-            gameObject = new GameObject();
-            identity = gameObject.AddComponent<NetworkIdentity>();
-
-            // add a behaviour for testing
-            emptyBehaviour = gameObject.AddComponent<EmptyBehaviour>();
-        }
-
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
-            // set isServer is false. otherwise Destroy instead of
-            // DestroyImmediate is called internally, giving an error in Editor
-            identity.isServer = false;
-            GameObject.DestroyImmediate(gameObject);
             NetworkServer.RemoveLocalConnection();
-
-            NetworkIdentity.spawned.Clear();
+            base.TearDown();
         }
 
         [Test]
         public void IsServerOnly()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+
             // call OnStartServer so isServer is true
             identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
@@ -234,6 +216,8 @@ namespace Mirror.Tests
         [Test]
         public void IsClientOnly()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+
             // isClientOnly should be true when isServer = false && isClient = true
             identity.isClient = true;
             Assert.That(emptyBehaviour.isServer, Is.False);
@@ -245,12 +229,14 @@ namespace Mirror.Tests
         public void HasNoAuthorityByDefault()
         {
             // no authority by default
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             Assert.That(emptyBehaviour.hasAuthority, Is.False);
         }
 
         [Test]
         public void HasIdentitysNetId()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.netId = 42;
             Assert.That(emptyBehaviour.netId, Is.EqualTo(42));
         }
@@ -258,6 +244,7 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToServer()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.connectionToServer = new LocalConnectionToServer();
             Assert.That(emptyBehaviour.connectionToServer, Is.EqualTo(identity.connectionToServer));
         }
@@ -265,6 +252,7 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToClient()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.connectionToClient = new LocalConnectionToClient();
             Assert.That(emptyBehaviour.connectionToClient, Is.EqualTo(identity.connectionToClient));
         }
@@ -272,123 +260,14 @@ namespace Mirror.Tests
         [Test]
         public void ComponentIndex()
         {
-            // add one extra component
-            EmptyBehaviour extra = gameObject.AddComponent<EmptyBehaviour>();
-
-            // original one is first networkbehaviour, so index is 0
-            Assert.That(emptyBehaviour.ComponentIndex, Is.EqualTo(0));
-
-            // extra one is second networkbehaviour, so index is 1
-            Assert.That(extra.ComponentIndex, Is.EqualTo(1));
+            // create a NetworkIdentity with two components
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out EmptyBehaviour first, out EmptyBehaviour second);
+            Assert.That(first.ComponentIndex, Is.EqualTo(0));
+            Assert.That(second.ComponentIndex, Is.EqualTo(1));
         }
 
-        [Test]
-        public void SendCommandInternal()
-        {
-            // transport is needed by server and client.
-            // it needs to be on a gameobject because client.connect enables it,
-            // which throws a NRE if not on a gameobject
-            GameObject transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
-
-            // we need to start a server and connect a client in order to be
-            // able to send commands
-            // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
-
-            // add command component
-            NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // create a connection from client to server and from server to client
-            LocalConnectionToClient connection = new LocalConnectionToClient
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer = new LocalConnectionToServer
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer.connectionToClient = connection;
-
-            // host needs connection to both directions
-            identity.connectionToClient = connection;
-            identity.connectionToServer = connection.connectionToServer;
-
-            // calling command before client is connected shouldn't work
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            comp.CallSendCommandInternal();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // connect client
-            NetworkClient.Connect("localhost");
-            Assert.That(NetworkClient.active, Is.True);
-
-            // calling command before we have authority should fail
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            comp.CallSendCommandInternal();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // give authority so we can call commands
-            identity.netId = 42;
-            identity.hasAuthority = true;
-            Assert.That(identity.hasAuthority, Is.True);
-
-            // isClient needs to be true, otherwise we can't call commands
-            identity.isClient = true;
-
-            // register our connection at the server so that it sets up the
-            // connection's handlers
-            NetworkServer.AddConnection(connection);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
-                    nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                    MirrorInvokeType.Command,
-                    NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
-                    false);
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // calling command if connection isn't ready should not work
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.connectionToServer.isReady = false;
-            comp.CallSendCommandInternal();
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // reset ready
-            identity.connectionToServer.isReady = true;
-
-            // clientscene.connection needs to be set for commands
-            NetworkClient.connection = connection.connectionToServer;
-            NetworkClient.Ready();
-
-            // call command
-            comp.CallSendCommandInternal();
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-            // clear clientscene.readyconnection
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(transportGO);
-        }
+        [Test, Ignore("NetworkServerTest.SendCommand does it already")]
+        public void SendCommandInternal() {}
 
         // test to prevent https://github.com/vis2k/Mirror/issues/2629
         // from happening again in the future
@@ -399,12 +278,6 @@ namespace Mirror.Tests
         [Test]
         public void SendCommandInternal_RequiresAuthorityFalse_ForOtherObjectWithoutConnectionToServer()
         {
-            // transport is needed by server and client.
-            // it needs to be on a gameobject because client.connect enables it,
-            // which throws a NRE if not on a gameobject
-            GameObject transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
-
             // we need to start a server and connect a client in order to be
             // able to send commands
             // message handlers
@@ -413,26 +286,19 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.active, Is.True);
 
             // create a connection from client to server and from server to client
-            LocalConnectionToClient connection = new LocalConnectionToClient
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer = new LocalConnectionToServer
-            {
-                isReady = true,
-                // commands require authentication
-                isAuthenticated = true
-            };
-            connection.connectionToServer.connectionToClient = connection;
+            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
+                                      out LocalConnectionToServer connectionToServer);
+            connectionToClient.isReady = true;
+            connectionToClient.isAuthenticated = true;
+            connectionToServer.isReady = true;
+            connectionToServer.isAuthenticated = true;
 
             // connect client
             NetworkClient.Connect("localhost");
             Assert.That(NetworkClient.active, Is.True);
 
             // add command component
-            NetworkBehaviourSendCommandInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendCommandInternalComponent>();
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
 
             // DO NOT ASSIGN connectionToServer for the identity
 
@@ -441,7 +307,7 @@ namespace Mirror.Tests
 
             // register our connection at the server so that it sets up the
             // connection's handlers
-            NetworkServer.AddConnection(connection);
+            NetworkServer.AddConnection(connectionToClient);
 
             // register the command delegate, otherwise it's not found
             int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
@@ -455,7 +321,7 @@ namespace Mirror.Tests
             NetworkIdentity.spawned[identity.netId] = identity;
 
             // clientscene.readyconnection needs to be set for commands
-            NetworkClient.connection = connection.connectionToServer;
+            NetworkClient.connection = connectionToServer;
             NetworkClient.Ready();
 
             // call command. don't require authority.
@@ -465,25 +331,12 @@ namespace Mirror.Tests
 
             // clean up
             RemoteCallHelper.RemoveDelegate(registeredHash);
-            // clear clientscene.readyconnection
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(transportGO);
         }
 
         [Test]
         public void SendRPCInternal()
         {
-            // add rpc component
-            NetworkBehaviourSendRPCInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendRPCInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // transport is needed by server and client.
-            // it needs to be on a gameobject because client.connect enables it,
-            // which throws a NRE if not on a gameobject
-            GameObject transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendRPCInternalComponent comp);
 
             // calling rpc before server is active shouldn't work
             LogAssert.Expect(LogType.Error, "RPC Function " + nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated) + " called on Client.");
@@ -548,24 +401,12 @@ namespace Mirror.Tests
             RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             NetworkServer.RemoveLocalConnection();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(transportGO);
         }
 
         [Test]
         public void SendTargetRPCInternal()
         {
-            // add rpc component
-            NetworkBehaviourSendTargetRPCInternalComponent comp = gameObject.AddComponent<NetworkBehaviourSendTargetRPCInternalComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // transport is needed by server and client.
-            // it needs to be on a gameobject because client.connect enables it,
-            // which throws a NRE if not on a gameobject
-            GameObject transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendTargetRPCInternalComponent comp);
 
             // calling rpc before server is active shouldn't work
             LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called when server not active");
@@ -636,10 +477,6 @@ namespace Mirror.Tests
             RemoteCallHelper.RemoveDelegate(registeredHash);
             // clear clientscene.readyconnection
             NetworkServer.RemoveLocalConnection();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(transportGO);
         }
 
         [Test]
@@ -708,13 +545,13 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarGameObjectEqualZeroNetIdNullIsTrue()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarGameObjectEqualExposedBehaviour comp);
             // null and identity.netid==0 returns true (=equal)
             //
             // later we should reevaluate if this is so smart or not. might be
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            SyncVarGameObjectEqualExposedBehaviour comp = gameObject.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
             bool result = comp.SyncVarGameObjectEqualExposed(null, identity.netId);
             Assert.That(result, Is.True);
         }
@@ -723,11 +560,11 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarGameObjectEqualNull()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarGameObjectEqualExposedBehaviour comp);
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // null should return false
-            SyncVarGameObjectEqualExposedBehaviour comp = gameObject.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
             bool result = comp.SyncVarGameObjectEqualExposed(null, identity.netId);
             Assert.That(result, Is.False);
         }
@@ -736,14 +573,15 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarGameObjectEqualZeroNetIdAndGOWithoutIdentityComponentIsTrue()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+            CreateNetworked(out GameObject go, out NetworkIdentity _, out SyncVarGameObjectEqualExposedBehaviour comp);
+
             // null and identity.netid==0 returns true (=equal)
             //
             // later we should reevaluate if this is so smart or not. might be
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            GameObject go = new GameObject();
-            SyncVarGameObjectEqualExposedBehaviour comp = go.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
             bool result = comp.SyncVarGameObjectEqualExposed(go, identity.netId);
             Assert.That(result, Is.True);
         }
@@ -752,103 +590,90 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarGameObjectEqualWithoutIdentityComponent()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // gameobject without networkidentity component should return false
-            GameObject go = new GameObject();
-            SyncVarGameObjectEqualExposedBehaviour comp = go.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity _, out SyncVarGameObjectEqualExposedBehaviour comp);
             bool result = comp.SyncVarGameObjectEqualExposed(go, identity.netId);
             Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
         [Test]
         public void SyncVarGameObjectEqualValidGOWithDifferentNetId()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            SyncVarGameObjectEqualExposedBehaviour comp = go.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarGameObjectEqualExposedBehaviour comp);
             ni.netId = 43;
             bool result = comp.SyncVarGameObjectEqualExposed(go, identity.netId);
             Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
         [Test]
         public void SyncVarGameObjectEqualValidGOWithSameNetId()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            SyncVarGameObjectEqualExposedBehaviour comp = go.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarGameObjectEqualExposedBehaviour comp);
             ni.netId = 42;
             bool result = comp.SyncVarGameObjectEqualExposed(go, identity.netId);
             Assert.That(result, Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
         [Test]
         public void SyncVarGameObjectEqualUnspawnedGO()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // gameobject with valid networkidentity and 0 netid that is unspawned
-            GameObject go = new GameObject();
-            go.AddComponent<NetworkIdentity>();
-            SyncVarGameObjectEqualExposedBehaviour comp = go.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarGameObjectEqualExposedBehaviour comp);
             LogAssert.Expect(LogType.Warning, "SetSyncVarGameObject GameObject " + go + " has a zero netId. Maybe it is not spawned yet?");
             bool result = comp.SyncVarGameObjectEqualExposed(go, identity.netId);
             Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later
         [Test]
         public void SyncVarGameObjectEqualUnspawnedGOZeroNetIdIsTrue()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // unspawned go and identity.netid==0 returns true (=equal)
-            GameObject go = new GameObject();
-            go.AddComponent<NetworkIdentity>();
-            SyncVarGameObjectEqualExposedBehaviour comp = go.AddComponent<SyncVarGameObjectEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarGameObjectEqualExposedBehaviour comp);
             LogAssert.Expect(LogType.Warning, "SetSyncVarGameObject GameObject " + go + " has a zero netId. Maybe it is not spawned yet?");
             bool result = comp.SyncVarGameObjectEqualExposed(go, identity.netId);
             Assert.That(result, Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
         [Test]
         public void SyncVarNetworkIdentityEqualZeroNetIdNullIsTrue()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+
             // null and identity.netid==0 returns true (=equal)
             //
             // later we should reevaluate if this is so smart or not. might be
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            SyncVarNetworkIdentityEqualExposedBehaviour comp = gameObject.AddComponent<SyncVarNetworkIdentityEqualExposedBehaviour>();
             bool result = comp.SyncVarNetworkIdentityEqualExposed(null, identity.netId);
             Assert.That(result, Is.True);
         }
@@ -857,11 +682,12 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarNetworkIdentityEqualNull()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // null should return false
-            SyncVarNetworkIdentityEqualExposedBehaviour comp = gameObject.AddComponent<SyncVarNetworkIdentityEqualExposedBehaviour>();
             bool result = comp.SyncVarNetworkIdentityEqualExposed(null, identity.netId);
             Assert.That(result, Is.False);
         }
@@ -870,86 +696,70 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarNetworkIdentityEqualValidIdentityWithDifferentNetId()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            SyncVarNetworkIdentityEqualExposedBehaviour comp = go.AddComponent<SyncVarNetworkIdentityEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
             ni.netId = 43;
             bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
         [Test]
         public void SyncVarNetworkIdentityEqualValidIdentityWithSameNetId()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            SyncVarNetworkIdentityEqualExposedBehaviour comp = go.AddComponent<SyncVarNetworkIdentityEqualExposedBehaviour>();
+            CreateNetworked(out GameObject _, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
             ni.netId = 42;
             bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
         [Test]
         public void SyncVarNetworkIdentityEqualUnspawnedIdentity()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // gameobject with valid networkidentity and 0 netid that is unspawned
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            SyncVarNetworkIdentityEqualExposedBehaviour comp = go.AddComponent<SyncVarNetworkIdentityEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
             LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
             bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.False);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         // NOTE: SyncVarNetworkIdentityEqual should be static later
         [Test]
         public void SyncVarNetworkIdentityEqualUnspawnedIdentityZeroNetIdIsTrue()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // unspawned go and identity.netid==0 returns true (=equal)
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
-            SyncVarNetworkIdentityEqualExposedBehaviour comp = go.AddComponent<SyncVarNetworkIdentityEqualExposedBehaviour>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
             LogAssert.Expect(LogType.Warning, "SetSyncVarNetworkIdentity NetworkIdentity " + ni + " has a zero netId. Maybe it is not spawned yet?");
             bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void SetSyncVarGameObjectWithValidObject()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSetSyncVarGameObjectComponent comp);
 
             // create a valid GameObject with networkidentity and netid
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             ni.netId = 43;
 
             // set the GameObject SyncVar
@@ -958,22 +768,16 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(go));
             Assert.That(comp.testNetId, Is.EqualTo(ni.netId));
             Assert.That(comp.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void SetSyncVarGameObjectNull()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSetSyncVarGameObjectComponent comp);
 
             // set some existing GO+netId first to check if it is going to be
             // overwritten
-            GameObject go = new GameObject();
+            CreateGameObject(out GameObject go);
             comp.test = go;
             comp.testNetId = 43;
 
@@ -983,27 +787,21 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(null));
             Assert.That(comp.testNetId, Is.EqualTo(0));
             Assert.That(comp.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void SetSyncVarGameObjectWithoutNetworkIdentity()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSetSyncVarGameObjectComponent comp);
 
             // set some existing GO+netId first to check if it is going to be
             // overwritten
-            GameObject go = new GameObject();
+            CreateGameObject(out GameObject go);
             comp.test = go;
             comp.testNetId = 43;
 
             // create test GO with no networkidentity
-            GameObject test = new GameObject();
+            CreateGameObject(out GameObject test);
 
             // set the GameObject SyncVar to 'test' GO without netidentity.
             // -> the way it currently works is that it sets netId to 0, but
@@ -1019,29 +817,21 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(test));
             Assert.That(comp.testNetId, Is.EqualTo(0));
             Assert.That(comp.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(test);
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void SetSyncVarGameObjectZeroNetId()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSetSyncVarGameObjectComponent comp);
 
             // set some existing GO+netId first to check if it is going to be
             // overwritten
-            GameObject go = new GameObject();
+            CreateGameObject(out GameObject go);
             comp.test = go;
             comp.testNetId = 43;
 
             // create test GO with networkidentity and zero netid
-            GameObject test = new GameObject();
-            NetworkIdentity ni = test.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject test, out NetworkIdentity ni);
             Assert.That(ni.netId, Is.EqualTo(0));
 
             // set the GameObject SyncVar to 'test' GO with zero netId.
@@ -1059,27 +849,19 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(test));
             Assert.That(comp.testNetId, Is.EqualTo(0));
             Assert.That(comp.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(test);
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarGameObjectOnServer()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
+
             // call OnStartServer so isServer is true
             identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
-            // add test component
-            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
-
             // create a syncable GameObject
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             ni.netId = identity.netId + 1;
 
             // assign it in the component
@@ -1093,20 +875,16 @@ namespace Mirror.Tests
 
             // clean up: set isServer false first, otherwise Destroy instead of DestroyImmediate is called
             identity.netId = 0;
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarGameObjectOnServerNull()
         {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
+
             // call OnStartServer and assign netId so isServer is true
             identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
-
-            // add test component
-            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
 
             // get it on the server. null should work fine.
             GameObject result = comp.GetSyncVarGameObjectExposed();
@@ -1116,18 +894,17 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarGameObjectOnClient()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // are we on client and not on server?
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
 
-            // add test component
-            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
             // create a syncable GameObject
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             ni.netId = 43;
 
             // register in spawned dict because clients should look it up via
@@ -1144,45 +921,33 @@ namespace Mirror.Tests
             // get it on the client. should look up netId in spawned
             GameObject result = comp.GetSyncVarGameObjectExposed();
             Assert.That(result, Is.EqualTo(go));
-
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarGameObjectOnClientNull()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
+
             // are we on client and not on server?
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
 
-            // add test component
-            NetworkBehaviourGetSyncVarGameObjectComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarGameObjectComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
             // get it on the client. null should be supported.
             GameObject result = comp.GetSyncVarGameObjectExposed();
             Assert.That(result, Is.Null);
-
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
         public void SetSyncVarNetworkIdentityWithValidObject()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
 
             // create a valid GameObject with networkidentity and netid
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity ni);
             ni.netId = 43;
 
             // set the NetworkIdentity SyncVar
@@ -1191,23 +956,17 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(ni));
             Assert.That(comp.testNetId, Is.EqualTo(ni.netId));
             Assert.That(comp.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void SetSyncVarNetworkIdentityNull()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            // create a networked object with test component
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
 
             // set some existing NI+netId first to check if it is going to be
             // overwritten
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity ni);
             comp.test = ni;
             comp.testNetId = 43;
 
@@ -1217,29 +976,21 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(null));
             Assert.That(comp.testNetId, Is.EqualTo(0));
             Assert.That(comp.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void SetSyncVarNetworkIdentityZeroNetId()
         {
-            // add test component
-            NetworkBehaviourSetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourSetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
 
             // set some existing NI+netId first to check if it is going to be
             // overwritten
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity ni);
             comp.test = ni;
             comp.testNetId = 43;
 
             // create test GO with networkidentity and zero netid
-            GameObject test = new GameObject();
-            NetworkIdentity testNi = test.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity testNi);
             Assert.That(testNi.netId, Is.EqualTo(0));
 
             // set the NetworkIdentity SyncVar to 'test' GO with zero netId.
@@ -1257,27 +1008,19 @@ namespace Mirror.Tests
             Assert.That(comp.test, Is.EqualTo(testNi));
             Assert.That(comp.testNetId, Is.EqualTo(0));
             Assert.That(comp.IsDirty(), Is.True);
-
-            // clean up
-            GameObject.DestroyImmediate(test);
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarNetworkIdentityOnServer()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
+
             // call OnStartServer so isServer is true
             identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
 
-            // add test component
-            NetworkBehaviourGetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
-
             // create a syncable GameObject
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             ni.netId = identity.netId + 1;
 
             // assign it in the component
@@ -1288,22 +1031,16 @@ namespace Mirror.Tests
             // doing any netId lookup like on the client
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
             Assert.That(result, Is.EqualTo(ni));
-
-            // clean up
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarNetworkIdentityOnServerNull()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
+
             // call OnStartServer so isServer is true
             identity.OnStartServer();
             Assert.That(identity.isServer, Is.True);
-
-            // add test component
-            NetworkBehaviourGetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
 
             // get it on the server. null should work fine.
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
@@ -1313,18 +1050,14 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarNetworkIdentityOnClient()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
+
             // are we on client and not on server?
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
 
-            // add test component
-            NetworkBehaviourGetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
-
             // create a syncable GameObject
-            GameObject go = new GameObject();
-            NetworkIdentity ni = go.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject _, out NetworkIdentity ni);
             ni.netId = 43;
 
             // register in spawned dict because clients should look it up via
@@ -1341,37 +1074,27 @@ namespace Mirror.Tests
             // get it on the client. should look up netId in spawned
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
             Assert.That(result, Is.EqualTo(ni));
-
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
-            GameObject.DestroyImmediate(go);
         }
 
         [Test]
         public void GetSyncVarNetworkIdentityOnClientNull()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
+
             // are we on client and not on server?
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
 
-            // add test component
-            NetworkBehaviourGetSyncVarNetworkIdentityComponent comp = gameObject.AddComponent<NetworkBehaviourGetSyncVarNetworkIdentityComponent>();
-            // for isDirty check
-            comp.syncInterval = 0;
-
             // get it on the client. null should be supported.
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
             Assert.That(result, Is.Null);
-
-            // clean up
-            NetworkServer.Shutdown();
-            Transport.activeTransport = null;
         }
 
         [Test]
         public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
         {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out EmptyBehaviour emptyBehaviour);
+
             // set syncinterval so dirtybit works fine
             emptyBehaviour.syncInterval = 0;
             Assert.That(emptyBehaviour.IsDirty(), Is.False);
@@ -1388,9 +1111,7 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
         {
-            // we need a component that exposes InitSyncObject so we can set
-            // sync objects dirty
-            NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
 
             // set syncinterval so dirtybit works fine
             comp.syncInterval = 0;
@@ -1414,9 +1135,7 @@ namespace Mirror.Tests
         [Test]
         public void DirtyObjectBits()
         {
-            // we need a component that exposes InitSyncObject so we can set
-            // sync objects dirty
-            NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
 
             // not dirty by default
             Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b0));
@@ -1443,8 +1162,7 @@ namespace Mirror.Tests
         [Test]
         public void SerializeAndDeserializeObjectsAll()
         {
-            // we need a component that exposes InitSyncObject so we can add some
-            NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
 
             // add a synclist
             SyncList<int> list = new SyncList<int>();
@@ -1472,8 +1190,7 @@ namespace Mirror.Tests
         [Test]
         public void SerializeAndDeserializeObjectsDelta()
         {
-            // we need a component that exposes InitSyncObject so we can add some
-            NetworkBehaviourInitSyncObjectExposed comp = gameObject.AddComponent<NetworkBehaviourInitSyncObjectExposed>();
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
 
             // add a synclist
             SyncList<int> list = new SyncList<int>();
@@ -1501,42 +1218,24 @@ namespace Mirror.Tests
         [Test]
         public void OnStopClient()
         {
-            // add test component
-            OnStopClientComponent comp = gameObject.AddComponent<OnStopClientComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // call identity OnStopClient
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStopClientComponent comp);
             identity.OnStopClient();
-
-            // should have been forwarded to behaviours
             Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
         public void OnStartClient()
         {
-            // add test component
-            OnStartClientComponent comp = gameObject.AddComponent<OnStartClientComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // call identity OnStopClient
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStartClientComponent comp);
             identity.OnStartClient();
-
-            // should have been forwarded to behaviours
             Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
         public void OnStartLocalPlayer()
         {
-            // add test component
-            OnStartLocalPlayerComponent comp = gameObject.AddComponent<OnStartLocalPlayerComponent>();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // call identity OnStopClient
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStartLocalPlayerComponent comp);
             identity.OnStartLocalPlayer();
-
-            // should have been forwarded to behaviours
             Assert.That(comp.called, Is.EqualTo(1));
         }
     }

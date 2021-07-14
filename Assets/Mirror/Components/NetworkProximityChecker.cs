@@ -8,10 +8,11 @@ namespace Mirror
     /// Component that controls visibility of networked objects for players.
     /// <para>Any object with this component on it will not be visible to players more than a (configurable) distance away.</para>
     /// </summary>
+    // Deprecated 2021-02-17
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkProximityChecker.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-proximity-checker")]
     public class NetworkProximityChecker : NetworkVisibility
     {
         /// <summary>
@@ -30,6 +31,7 @@ namespace Mirror
         /// Flag to force this object to be hidden for players.
         /// <para>If this object is a player object, it will not be hidden for that player.</para>
         /// </summary>
+        // Deprecated 2021-02-17
         [Obsolete("Use NetworkIdentity.visible mode instead of forceHidden!")]
         public bool forceHidden
         {

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace Mirror.Tests
     /// Used by both runtime and edit time tests
     /// </summary>
     [TestFixture]
-    public abstract class ClientSceneTestsBase
+    public abstract class ClientSceneTestsBase : MirrorEditModeTest
     {
         // use guid to find asset so that the path does not matter
         protected const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
@@ -26,14 +25,6 @@ namespace Mirror.Tests
         protected GameObject invalidPrefab;
         protected Guid validPrefabGuid;
         protected Guid anotherGuid;
-        protected readonly List<GameObject> _createdObjects = new List<GameObject>();
-
-
-        protected Dictionary<Guid, GameObject> prefabs => NetworkClient.prefabs;
-        protected Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers => NetworkClient.spawnHandlers;
-        protected Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
-        protected Dictionary<ulong, NetworkIdentity> spawnableObjects => NetworkClient.spawnableObjects;
-
 
         static GameObject LoadPrefab(string guid)
         {
@@ -52,20 +43,12 @@ namespace Mirror.Tests
         }
 
         [TearDown]
-        public virtual void TearDown()
+        public override void TearDown()
         {
-            NetworkClient.Shutdown();
             // reset asset id in case they are changed by tests
             validPrefabNetworkIdentity.assetId = validPrefabGuid;
 
-            foreach (GameObject item in _createdObjects)
-            {
-                if (item != null)
-                {
-                    GameObject.DestroyImmediate(item);
-                }
-            }
-            _createdObjects.Clear();
+            base.TearDown();
         }
 
         [OneTimeTearDown]

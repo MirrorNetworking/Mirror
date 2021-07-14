@@ -10,13 +10,12 @@ namespace Mirror
     /// <summary>Base class for networked components.</summary>
     [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Guides/NetworkBehaviour.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
-        internal float lastSyncTime;
-
         /// <summary>sync mode for OnSerialize</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
+        [Tooltip("By default synced data is sent from the server to all Observers of the object.\nChange this to Owner to only have the server update the client that has ownership authority for this object")]
         [HideInInspector] public SyncMode syncMode = SyncMode.Observers;
 
         /// <summary>sync interval for OnSerialize (in seconds)</summary>
@@ -25,6 +24,7 @@ namespace Mirror
         [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
         [Range(0, 2)]
         [HideInInspector] public float syncInterval = 0.1f;
+        internal float lastSyncTime;
 
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
@@ -77,44 +77,15 @@ namespace Mirror
         // SyncLists, SyncSets, etc.
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
 
-        NetworkIdentity netIdentityCache;
+        // NetworkIdentity based values set from NetworkIdentity.Awake(),
+        // which is way more simple and way faster than trying to figure out
+        // component index from in here by searching all NetworkComponents.
+
         /// <summary>Returns the NetworkIdentity of this object</summary>
-        public NetworkIdentity netIdentity
-        {
-            get
-            {
-                if (netIdentityCache is null)
-                {
-                    netIdentityCache = GetComponent<NetworkIdentity>();
-                    // do this 2nd check inside first if so that we are not checking == twice on unity Object
-                    if (netIdentityCache is null)
-                    {
-                        Debug.LogError("There is no NetworkIdentity on " + name + ". Please add one.");
-                    }
-                }
-                return netIdentityCache;
-            }
-        }
+        public NetworkIdentity netIdentity { get; internal set; }
 
         /// <summary>Returns the index of the component on this object</summary>
-        public int ComponentIndex
-        {
-            get
-            {
-                // note: FindIndex causes allocations, we search manually instead
-                // TODO this is not fast at runtime uhh
-                for (int i = 0; i < netIdentity.NetworkBehaviours.Length; i++)
-                {
-                    NetworkBehaviour component = netIdentity.NetworkBehaviours[i];
-                    if (component == this)
-                        return i;
-                }
-
-                // this should never happen
-                Debug.LogError("Could not find component in GameObject. You should not add/remove components in networked objects dynamically", this);
-                return -1;
-            }
-        }
+        public int ComponentIndex { get; internal set; }
 
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).
@@ -141,7 +112,7 @@ namespace Mirror
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(!requiresAuthority || isLocalPlayer || hasAuthority))
             {
-                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass.ToString()}.{cmdName}");
+                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass}.{cmdName}");
                 return;
             }
 
@@ -534,6 +505,7 @@ namespace Mirror
             return false;
         }
 
+        // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         public bool IsDirty()
         {
             if (Time.time - lastSyncTime >= syncInterval)
@@ -639,7 +611,7 @@ namespace Mirror
         {
             bool dirty = false;
             // write the mask
-            writer.WriteUInt64(DirtyObjectBits());
+            writer.WriteULong(DirtyObjectBits());
             // serializable objects, such as synclists
             for (int i = 0; i < syncObjects.Count; i++)
             {
@@ -664,7 +636,7 @@ namespace Mirror
 
         internal void DeSerializeObjectsDelta(NetworkReader reader)
         {
-            ulong dirty = reader.ReadUInt64();
+            ulong dirty = reader.ReadULong();
             for (int i = 0; i < syncObjects.Count; i++)
             {
                 SyncObject syncObject = syncObjects[i];

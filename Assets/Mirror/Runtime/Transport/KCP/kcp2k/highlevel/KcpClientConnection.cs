@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using WhereAllocation;
 
 namespace kcp2k
 {
@@ -12,7 +13,10 @@ namespace kcp2k
         //            => we need the MTU to fit channel + message!
         readonly byte[] rawReceiveBuffer = new byte[Kcp.MTU_DEF];
 
-        public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV)
+        // where-allocation
+        IPEndPointNonAlloc reusableEP;
+
+        public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT)
         {
             Log.Info($"KcpClient: connect to {host}:{port}");
             IPAddress[] ipAddress = Dns.GetHostAddresses(host);
@@ -21,8 +25,13 @@ namespace kcp2k
 
             remoteEndpoint = new IPEndPoint(ipAddress[0], port);
             socket = new Socket(remoteEndpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+
+            // create reusableEP with same address family as remoteEndPoint.
+            // otherwise ReceiveFrom_NonAlloc couldn't use it.
+            reusableEP = new IPEndPointNonAlloc(ipAddress[0], port);
+
             socket.Connect(remoteEndpoint);
-            SetupKcp(noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize);
+            SetupKcp(noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout);
 
             // client should send handshake to server as very first message
             SendHandshake();
@@ -39,7 +48,8 @@ namespace kcp2k
                 {
                     while (socket.Poll(0, SelectMode.SelectRead))
                     {
-                        int msgLength = socket.ReceiveFrom(rawReceiveBuffer, ref remoteEndpoint);
+                        // where-allocation: receive nonalloc.
+                        int msgLength = socket.ReceiveFrom_NonAlloc(rawReceiveBuffer, reusableEP);
                         // IMPORTANT: detect if buffer was too small for the
                         //            received msgLength. otherwise the excess
                         //            data would be silently lost.

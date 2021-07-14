@@ -9,16 +9,16 @@ namespace Mirror.Tests
             // if O write N
             if (customEnum == EnumReadWriteTests.MyCustomEnum.O)
             {
-                networkWriter.WriteInt32((int)EnumReadWriteTests.MyCustomEnum.N);
+                networkWriter.WriteInt((int)EnumReadWriteTests.MyCustomEnum.N);
             }
             else
             {
-                networkWriter.WriteInt32((int)customEnum);
+                networkWriter.WriteInt((int)customEnum);
             }
         }
         public static EnumReadWriteTests.MyCustomEnum ReadMyCustomEnum(this NetworkReader networkReader)
         {
-            return (EnumReadWriteTests.MyCustomEnum)networkReader.ReadInt32();
+            return (EnumReadWriteTests.MyCustomEnum)networkReader.ReadInt();
         }
     }
     public class EnumReadWriteTests
@@ -52,7 +52,7 @@ namespace Mirror.Tests
             writer.Write(msg);
 
             // should be 1 byte for data
-            Assert.That(writer.Length, Is.EqualTo(1));
+            Assert.That(writer.Position, Is.EqualTo(1));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace Mirror.Tests
             writer.Write(msg);
 
             // should be 2 bytes for data
-            Assert.That(writer.Length, Is.EqualTo(2));
+            Assert.That(writer.Position, Is.EqualTo(2));
         }
 
         [Test]

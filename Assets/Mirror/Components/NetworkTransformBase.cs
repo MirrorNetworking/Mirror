@@ -51,6 +51,10 @@ namespace Mirror
         public bool compressRotation; // disabled by default to not break 2D projects
 
         [Header("Interpolation")]
+        [Tooltip("Set to true if position should be interpolated, false is ideal for grid bassed movement")]
+        public bool interpolatePosition = true;
+        [Tooltip("Set to true if rotation should be interpolated, false is ideal for instant turning, common in retro 2d style games")]
+        public bool interpolateRotation = true;
         [Tooltip("Set to true if scale should be interpolated, false is ideal for instant sprite flipping.")]
         public bool interpolateScale = true;
 
@@ -96,7 +100,7 @@ namespace Mirror
             if (compressRotation)
             {
                 // smalles three compression for 3D
-                writer.WriteUInt32(Compression.CompressQuaternion(rotation));
+                writer.WriteUInt(Compression.CompressQuaternion(rotation));
             }
             else
             {
@@ -136,19 +140,21 @@ namespace Mirror
                 // (rotation is optionally compressed)
                 localPosition = reader.ReadVector3(),
                 localRotation = compressRotation
-                                ? Compression.DecompressQuaternion(reader.ReadUInt32())
+                                ? Compression.DecompressQuaternion(reader.ReadUInt())
                                 : reader.ReadQuaternion(),
                 // use current target scale, so we can check boolean and reader later, to see if the data is actually sent.
                 localScale = targetComponent.localScale,
                 timeStamp = Time.time
             };
-            
+
             if (syncScale)
             {
                 // Reader length is checked here, 12 is used as thats the current Vector3 (3 floats) amount.
                 // In rare cases people may do mis-matched builds, log useful warning message, and then do not process missing scale data.
-                if (reader.Length >= 12) { temp.localScale = reader.ReadVector3(); }
-                else { Debug.LogWarning("Reader length does not contain enough data for a scale, please check that both server and client builds syncScale booleans match.", this); }
+                if (reader.Length >= 12)
+                    temp.localScale = reader.ReadVector3();
+                else
+                    Debug.LogWarning("Reader length does not contain enough data for a scale, please check that both server and client builds syncScale booleans match.", this);
             }
 
             // movement speed: based on how far it moved since last time
@@ -265,9 +271,13 @@ namespace Mirror
             return 0;
         }
 
-        static Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
+        Vector3 InterpolatePosition(DataPoint start, DataPoint goal, Vector3 currentPosition)
         {
-            if (start != null)
+            if (!interpolatePosition)
+            {
+                return goal.localPosition;
+            }
+            else if (start != null)
             {
                 // Option 1: simply interpolate based on time. but stutter
                 // will happen, it's not that smooth. especially noticeable if
@@ -284,9 +294,13 @@ namespace Mirror
             return currentPosition;
         }
 
-        static Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
+        Quaternion InterpolateRotation(DataPoint start, DataPoint goal, Quaternion defaultRotation)
         {
-            if (start != null)
+            if (!interpolateRotation)
+            {
+                return goal.localRotation;
+            }
+            else if (start != null)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Quaternion.Slerp(start.localRotation, goal.localRotation, t);
@@ -296,7 +310,15 @@ namespace Mirror
 
         Vector3 InterpolateScale(DataPoint start, DataPoint goal, Vector3 currentScale)
         {
-            if (start != null && interpolateScale)
+            if (!syncScale)
+            {
+                return currentScale;
+            }
+            else if (!interpolateScale)
+            {
+                return goal.localScale;
+            }
+            else if (interpolateScale && start != null)
             {
                 float t = CurrentInterpolationFactor(start, goal);
                 return Vector3.Lerp(start.localScale, goal.localScale, t);
@@ -533,11 +555,15 @@ namespace Mirror
         void OnDrawGizmos()
         {
             // draw start and goal points
-            if (start != null) DrawDataPointGizmo(start, Color.gray);
-            if (goal != null) DrawDataPointGizmo(goal, Color.white);
+            if (start != null)
+                DrawDataPointGizmo(start, Color.gray);
+
+            if (goal != null)
+                DrawDataPointGizmo(goal, Color.white);
 
             // draw line between them
-            if (start != null && goal != null) DrawLineBetweenDataPoints(start, goal, Color.cyan);
+            if (start != null && goal != null)
+                DrawLineBetweenDataPoints(start, goal, Color.cyan);
         }
     }
 }

@@ -27,7 +27,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void TargetRpcIsCalled()
         {
-            TargetRpcBehaviour hostBehaviour = CreateHostObject<TargetRpcBehaviour>(true);
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -45,7 +46,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void TargetRpcIsCalledOnTarget()
         {
-            TargetRpcBehaviour hostBehaviour = CreateHostObject<TargetRpcBehaviour>(false);
+            // spawn without owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -63,7 +65,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void ErrorForTargetRpcWithNoOwner()
         {
-            TargetRpcBehaviour hostBehaviour = CreateHostObject<TargetRpcBehaviour>(false);
+            // spawn without owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -78,7 +81,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void ErrorForTargetRpcWithNullArgment()
         {
-            TargetRpcBehaviour hostBehaviour = CreateHostObject<TargetRpcBehaviour>(false);
+            // spawn without owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -93,7 +97,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void ErrorForTargetRpcWhenNotGivenConnectionToClient()
         {
-            TargetRpcBehaviour hostBehaviour = CreateHostObject<TargetRpcBehaviour>(false);
+            // spawn without owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -109,12 +114,14 @@ namespace Mirror.Tests.RemoteAttrributeTest
             public override string address => throw new NotImplementedException();
             public override void Disconnect() => throw new NotImplementedException();
             internal override void Send(ArraySegment<byte> segment, int channelId = 0) => throw new NotImplementedException();
+            protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) => throw new NotImplementedException();
         }
 
         [Test]
         public void ErrorForTargetRpcWhenServerNotActive()
         {
-            TargetRpcBehaviour hostBehaviour = CreateHostObject<TargetRpcBehaviour>(true);
+            // spawn without owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -130,10 +137,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         [Test]
         public void ErrorForTargetRpcWhenObjetNotSpawned()
         {
-            GameObject gameObject = new GameObject();
-            spawned.Add(gameObject);
-            gameObject.AddComponent<NetworkIdentity>();
-            TargetRpcBehaviour hostBehaviour = gameObject.AddComponent<TargetRpcBehaviour>();
+            // create without spawning
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
 
             const int someInt = 20;
 

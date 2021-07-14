@@ -10,11 +10,12 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to other objects in the same scene</para>
     /// <para>This would be used when the server has multiple additive subscenes loaded to isolate players to their respective subscenes</para>
     /// </summary>
+    // Deprecated 2021-02-17
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkSceneChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkSceneChecker.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-scene-checker")]
     public class NetworkSceneChecker : NetworkVisibility
     {
         /// <summary>

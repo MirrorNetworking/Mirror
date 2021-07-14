@@ -29,7 +29,7 @@ namespace Mirror.Tests.ClientSceneTests
         public void ReturnsFalseForPrefabIsNull()
         {
             Guid guid = Guid.NewGuid();
-            prefabs.Add(guid, null);
+            NetworkClient.prefabs.Add(guid, null);
             bool result = NetworkClient.GetPrefab(guid, out GameObject prefab);
 
             Assert.IsFalse(result);
@@ -39,7 +39,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ReturnsTrueWhenPrefabIsFound()
         {
-            prefabs.Add(validPrefabGuid, validPrefab);
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
             bool result = NetworkClient.GetPrefab(validPrefabGuid, out GameObject prefab);
 
             Assert.IsTrue(result);
@@ -49,7 +49,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void HasOutPrefabWithCorrectGuid()
         {
-            prefabs.Add(validPrefabGuid, validPrefab);
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
             NetworkClient.GetPrefab(validPrefabGuid, out GameObject prefab);
 
 

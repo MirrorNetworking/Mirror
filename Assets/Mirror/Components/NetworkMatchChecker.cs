@@ -9,16 +9,20 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to other objects in the same match.</para>
     /// <para>This would be used to isolate players to their respective matches within a single game server instance. </para>
     /// </summary>
+    // Deprecated 2021-02-17
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkMatchChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkMatchChecker.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-match-checker")]
     public class NetworkMatchChecker : NetworkVisibility
     {
-        static readonly Dictionary<Guid, HashSet<NetworkIdentity>> matchPlayers = new Dictionary<Guid, HashSet<NetworkIdentity>>();
+        // internal for tests
+        internal static readonly Dictionary<Guid, HashSet<NetworkIdentity>> matchPlayers =
+            new Dictionary<Guid, HashSet<NetworkIdentity>>();
 
-        Guid currentMatch = Guid.Empty;
+        // internal for tests
+        internal Guid currentMatch = Guid.Empty;
 
         [Header("Diagnostics")]
         [SyncVar]

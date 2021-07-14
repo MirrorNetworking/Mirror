@@ -15,7 +15,7 @@ namespace Mirror
     /// </remarks>
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkAnimator.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-animator")]
     public class NetworkAnimator : NetworkBehaviour
     {
         [Header("Authority")]
@@ -311,7 +311,7 @@ namespace Mirror
         bool WriteParameters(NetworkWriter writer, bool forceAll = false)
         {
             ulong dirtyBits = forceAll ? (~0ul) : NextDirtyBits();
-            writer.WriteUInt64(dirtyBits);
+            writer.WriteULong(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
@@ -321,17 +321,17 @@ namespace Mirror
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = animator.GetInteger(par.nameHash);
-                    writer.WriteInt32(newIntValue);
+                    writer.WriteInt(newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
-                    writer.WriteSingle(newFloatValue);
+                    writer.WriteFloat(newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = animator.GetBool(par.nameHash);
-                    writer.WriteBoolean(newBoolValue);
+                    writer.WriteBool(newBoolValue);
                 }
             }
             return dirtyBits != 0;
@@ -342,7 +342,7 @@ namespace Mirror
             bool animatorEnabled = animator.enabled;
             // need to read values from NetworkReader even if animator is disabled
 
-            ulong dirtyBits = reader.ReadUInt64();
+            ulong dirtyBits = reader.ReadULong();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
@@ -351,19 +351,19 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newIntValue = reader.ReadInt32();
+                    int newIntValue = reader.ReadInt();
                     if (animatorEnabled)
                         animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
-                    float newFloatValue = reader.ReadSingle();
+                    float newFloatValue = reader.ReadFloat();
                     if (animatorEnabled)
                         animator.SetFloat(par.nameHash, newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
-                    bool newBoolValue = reader.ReadBoolean();
+                    bool newBoolValue = reader.ReadBool();
                     if (animatorEnabled)
                         animator.SetBool(par.nameHash, newBoolValue);
                 }
@@ -386,16 +386,16 @@ namespace Mirror
                     if (animator.IsInTransition(i))
                     {
                         AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
+                        writer.WriteInt(st.fullPathHash);
+                        writer.WriteFloat(st.normalizedTime);
                     }
                     else
                     {
                         AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
+                        writer.WriteInt(st.fullPathHash);
+                        writer.WriteFloat(st.normalizedTime);
                     }
-                    writer.WriteSingle(animator.GetLayerWeight(i));
+                    writer.WriteFloat(animator.GetLayerWeight(i));
                 }
                 WriteParameters(writer, initialState);
                 return true;
@@ -415,9 +415,9 @@ namespace Mirror
             {
                 for (int i = 0; i < animator.layerCount; i++)
                 {
-                    int stateHash = reader.ReadInt32();
-                    float normalizedTime = reader.ReadSingle();
-                    animator.SetLayerWeight(i, reader.ReadSingle());
+                    int stateHash = reader.ReadInt();
+                    float normalizedTime = reader.ReadFloat();
+                    animator.SetLayerWeight(i, reader.ReadFloat());
                     animator.Play(stateHash, i, normalizedTime);
                 }
 
