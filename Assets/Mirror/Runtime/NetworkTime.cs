@@ -97,7 +97,7 @@ namespace Mirror
             _offset = new ExponentialMovingAverage(PingWindowSize);
             offsetMin = double.MinValue;
             offsetMax = double.MaxValue;
-            lastPingTime = 0D;
+            lastPingTime = 0;
         }
 
         internal static void UpdateClient()
