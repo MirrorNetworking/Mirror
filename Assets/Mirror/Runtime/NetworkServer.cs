@@ -26,23 +26,9 @@ namespace Mirror
         internal static Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
-        static bool _dontListen;
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
-        public static bool dontListen
-        {
-            get { return _dontListen; }
-            set
-            {
-                bool wasListening = !_dontListen;
-                _dontListen = value;
-
-                // If we were listening, and active, and now setting false -> Shutdown
-                // This would allow servers to close off new connections when full / game started / etc.
-                if (wasListening && active && !value)
-                    Shutdown();
-            }
-        }
+        public static bool dontListen;
 
         /// <summary>active checks if the server has been started</summary>
         public static bool active { get; internal set; }
@@ -69,6 +55,7 @@ namespace Mirror
         // => public so that custom NetworkManagers can hook into it
         public static Action<NetworkConnection> OnConnectedEvent;
         public static Action<NetworkConnection> OnDisconnectedEvent;
+        public static Action<NetworkConnection, Exception> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
@@ -125,7 +112,7 @@ namespace Mirror
             maxConnections = maxConns;
 
             // only start server if we want to listen
-            if (!_dontListen)
+            if (!dontListen)
             {
                 Transport.activeTransport.ServerStart();
                 Debug.Log("Server started listening");
@@ -167,18 +154,19 @@ namespace Mirror
             {
                 DisconnectAll();
 
-                if (!_dontListen)
-                {
-                    // stop the server.
-                    // we do NOT call Transport.Shutdown, because someone only
-                    // called NetworkServer.Shutdown. we can't assume that the
-                    // client is supposed to be shut down too!
-                    Transport.activeTransport.ServerStop();
-                }
-
+                // stop the server.
+                // we do NOT call Transport.Shutdown, because someone only
+                // called NetworkServer.Shutdown. we can't assume that the
+                // client is supposed to be shut down too!
+                //
+                // NOTE: stop no matter what, even if 'dontListen':
+                //       someone might enabled dontListen at runtime.
+                //       but we still need to stop the server.
+                //       fixes https://github.com/vis2k/Mirror/issues/2536
+                Transport.activeTransport.ServerStop();
                 initialized = false;
             }
-            _dontListen = false;
+            dontListen = false;
             active = false;
             handlers.Clear();
 
@@ -532,8 +520,10 @@ namespace Mirror
 
         static void OnError(int connectionId, Exception exception)
         {
-            // TODO Let's discuss how we will handle errors
             Debug.LogException(exception);
+            // try get connection. passes null otherwise.
+            connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
+            OnErrorEvent?.Invoke(conn, exception);
         }
 
         // message handlers ////////////////////////////////////////////////////
