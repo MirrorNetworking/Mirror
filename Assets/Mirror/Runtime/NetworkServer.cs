@@ -520,10 +520,9 @@ namespace Mirror
         static void OnError(int connectionId, Exception exception)
         {
             Debug.LogException(exception);
-            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
-                OnErrorEvent?.Invoke(conn, exception);
-            else
-                OnErrorEvent?.Invoke(null, exception);
+            // try get connection. passes null otherwise.
+            connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
+            OnErrorEvent?.Invoke(conn, exception);
         }
 
         // message handlers ////////////////////////////////////////////////////
