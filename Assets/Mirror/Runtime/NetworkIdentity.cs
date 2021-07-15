@@ -1008,7 +1008,7 @@ namespace Mirror
             {
                 // read & check index [0..255]
                 byte index = reader.ReadByte();
-                if (index < components.Length)
+                if (components != null && index < components.Length)
                 {
                     // deserialize this component
                     OnDeserializeSafely(components[index], reader, initialState);
