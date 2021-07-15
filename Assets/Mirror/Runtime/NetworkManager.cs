@@ -532,7 +532,7 @@ namespace Mirror
         /// <summary>Stops the server from listening and simulating the game.</summary>
         public void StopServer()
         {
-            // Recursion prevention
+            // return if already stopped to avoid recursion deadlock
             if (!isNetworkActive)
                 return;
 
