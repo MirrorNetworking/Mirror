@@ -579,7 +579,7 @@ namespace Mirror
         /// <summary>Stops and disconnects the client.</summary>
         public void StopClient()
         {
-            // Recursion prevention
+            // return if already stopped to avoid recursion deadlock
             if (!isNetworkActive)
                 return;
 
