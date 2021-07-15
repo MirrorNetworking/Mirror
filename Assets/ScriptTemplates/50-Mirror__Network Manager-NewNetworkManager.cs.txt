@@ -159,7 +159,7 @@ public class #SCRIPTNAME# : NetworkManager
     }
 
     /// <summary>Called on server when transport raises an exception.</summary>
-    public virtual void OnServerError(Exception exception) { }
+    public override void OnServerError(Exception exception) { }
 
     #endregion
 
@@ -193,7 +193,7 @@ public class #SCRIPTNAME# : NetworkManager
     public override void OnClientNotReady(NetworkConnection conn) { }
 
     /// <summary>Called on client when transport raises an exception.</summary>
-    public virtual void OnClientError(Exception exception) { }
+    public override void OnClientError(Exception exception) { }
 
     #endregion
 
