@@ -158,6 +158,9 @@ public class #SCRIPTNAME# : NetworkManager
         base.OnServerDisconnect(conn);
     }
 
+    /// <summary>Called on server when transport raises an exception.</summary>
+    public virtual void OnServerError(Exception exception) { }
+
     #endregion
 
     #region Client System Callbacks
@@ -188,6 +191,9 @@ public class #SCRIPTNAME# : NetworkManager
     /// </summary>
     /// <param name="conn">Connection to the server.</param>
     public override void OnClientNotReady(NetworkConnection conn) { }
+
+    /// <summary>Called on client when transport raises an exception.</summary>
+    public virtual void OnClientError(Exception exception) { }
 
     #endregion
 
