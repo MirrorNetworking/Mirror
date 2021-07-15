@@ -693,6 +693,7 @@ namespace Mirror
         {
             NetworkServer.OnConnectedEvent = OnServerConnectInternal;
             NetworkServer.OnDisconnectedEvent = OnServerDisconnect;
+            NetworkServer.OnErrorEvent = OnServerError;
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
 
             // Network Server initially registers its own handler for this, so we replace it here.
@@ -703,6 +704,7 @@ namespace Mirror
         {
             NetworkClient.OnConnectedEvent = OnClientConnectInternal;
             NetworkClient.OnDisconnectedEvent = OnClientDisconnectInternal;
+            NetworkClient.OnErrorEvent = OnClientError;
             NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
@@ -1240,6 +1242,9 @@ namespace Mirror
         [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
+        /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
+        public virtual void OnServerError(NetworkConnection conn, Exception exception) {}
+
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
 
@@ -1276,6 +1281,9 @@ namespace Mirror
         // Deprecated 2021-02-13
         [Obsolete("OnClientError was removed because it hasn't been used in a long time.")]
         public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
+
+        /// <summary>Called on client when transport raises an exception.</summary>
+        public virtual void OnClientError(Exception exception) {}
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
