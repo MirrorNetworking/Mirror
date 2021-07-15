@@ -14,6 +14,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkMatchChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
+    [RequireComponent(typeof(NetworkMatch))]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-match-checker")]
     public class NetworkMatchChecker : NetworkVisibility
     {
@@ -22,58 +23,13 @@ namespace Mirror
             new Dictionary<Guid, HashSet<NetworkIdentity>>();
 
         // internal for tests
-        internal Guid currentMatch = Guid.Empty;
-
-        [Header("Diagnostics")]
-        [SyncVar]
-        public string currentMatchDebug;
-
-        /// <summary>
-        /// Set this to the same value on all networked objects that belong to a given match
-        /// </summary>
-        public Guid matchId
+        internal Guid currentMatch
         {
-            get { return currentMatch; }
-            set
-            {
-                if (currentMatch == value) return;
-
-                // cache previous match so observers in that match can be rebuilt
-                Guid previousMatch = currentMatch;
-
-                // Set this to the new match this object just entered ...
-                currentMatch = value;
-                // ... and copy the string for the inspector because Unity can't show Guid directly
-                currentMatchDebug = currentMatch.ToString();
-
-                if (previousMatch != Guid.Empty)
-                {
-                    // Remove this object from the hashset of the match it just left
-                    matchPlayers[previousMatch].Remove(netIdentity);
-
-                    // RebuildObservers of all NetworkIdentity's in the match this object just left
-                    RebuildMatchObservers(previousMatch);
-                }
-
-                if (currentMatch != Guid.Empty)
-                {
-                    // Make sure this new match is in the dictionary
-                    if (!matchPlayers.ContainsKey(currentMatch))
-                        matchPlayers.Add(currentMatch, new HashSet<NetworkIdentity>());
-
-                    // Add this object to the hashset of the new match
-                    matchPlayers[currentMatch].Add(netIdentity);
-
-                    // RebuildObservers of all NetworkIdentity's in the match this object just entered
-                    RebuildMatchObservers(currentMatch);
-                }
-                else
-                {
-                    // Not in any match now...RebuildObservers will clear and add self
-                    netIdentity.RebuildObservers(false);
-                }
-            }
+            get => GetComponent<NetworkMatch>().matchId;
+            set => GetComponent<NetworkMatch>().matchId = value;
         }
+
+        internal Guid lastMatch;
 
         public override void OnStartServer()
         {
@@ -99,8 +55,7 @@ namespace Mirror
         void RebuildMatchObservers(Guid specificMatch)
         {
             foreach (NetworkIdentity networkIdentity in matchPlayers[specificMatch])
-                if (networkIdentity != null)
-                    networkIdentity.RebuildObservers(false);
+                networkIdentity?.RebuildObservers(false);
         }
 
         #region Observers
@@ -114,7 +69,7 @@ namespace Mirror
         public override bool OnCheckObserver(NetworkConnection conn)
         {
             // Not Visible if not in a match
-            if (matchId == Guid.Empty)
+            if (currentMatch == Guid.Empty)
                 return false;
 
             NetworkMatchChecker networkMatchChecker = conn.identity.GetComponent<NetworkMatchChecker>();
@@ -122,7 +77,7 @@ namespace Mirror
             if (networkMatchChecker == null)
                 return false;
 
-            return networkMatchChecker.matchId == matchId;
+            return networkMatchChecker.currentMatch == currentMatch;
         }
 
         /// <summary>
@@ -141,5 +96,47 @@ namespace Mirror
         }
 
         #endregion
+
+        [ServerCallback]
+        void Update()
+        {
+            // only if changed
+            if (currentMatch == lastMatch)
+                return;
+
+            // This object is in a new match so observers in the prior match
+            // and the new match need to rebuild their respective observers lists.
+
+            // Remove this object from the hashset of the match it just left
+            if (lastMatch != Guid.Empty)
+            {
+                matchPlayers[lastMatch].Remove(netIdentity);
+
+                // RebuildObservers of all NetworkIdentity's in the match this
+                // object just left
+                RebuildMatchObservers(lastMatch);
+            }
+
+            if (currentMatch != Guid.Empty)
+            {
+                // Make sure this new match is in the dictionary
+                if (!matchPlayers.ContainsKey(currentMatch))
+                    matchPlayers.Add(currentMatch, new HashSet<NetworkIdentity>());
+
+                // Add this object to the hashset of the new match
+                matchPlayers[currentMatch].Add(netIdentity);
+
+                // RebuildObservers of all NetworkIdentity's in the match this object just entered
+                RebuildMatchObservers(currentMatch);
+            }
+            else
+            {
+                // Not in any match now...RebuildObservers will clear and add self
+                netIdentity.RebuildObservers(false);
+            }
+
+            // save last rebuild's match
+            lastMatch = currentMatch;
+        }
     }
 }
