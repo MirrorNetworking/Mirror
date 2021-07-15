@@ -158,8 +158,8 @@ public class #SCRIPTNAME# : NetworkManager
         base.OnServerDisconnect(conn);
     }
 
-    /// <summary>Called on server when transport raises an exception.</summary>
-    public override void OnServerError(Exception exception) { }
+    /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
+    public override void OnServerError(NetworkConnection conn, Exception exception) { }
 
     #endregion
 

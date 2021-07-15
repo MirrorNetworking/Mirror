@@ -55,7 +55,7 @@ namespace Mirror
         // => public so that custom NetworkManagers can hook into it
         public static Action<NetworkConnection> OnConnectedEvent;
         public static Action<NetworkConnection> OnDisconnectedEvent;
-        public static Action<Exception> OnErrorEvent;
+        public static Action<NetworkConnection, Exception> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
@@ -520,7 +520,10 @@ namespace Mirror
         static void OnError(int connectionId, Exception exception)
         {
             Debug.LogException(exception);
-            OnErrorEvent?.Invoke(exception);
+            if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
+                OnErrorEvent?.Invoke(conn, exception);
+            else
+                OnErrorEvent?.Invoke(null, exception);
         }
 
         // message handlers ////////////////////////////////////////////////////

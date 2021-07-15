@@ -1234,8 +1234,8 @@ namespace Mirror
         [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
         public virtual void OnServerError(NetworkConnection conn, int errorCode) { }
 
-        /// <summary>Called on server when transport raises an exception.</summary>
-        public virtual void OnServerError(Exception exception) { }
+        /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
+        public virtual void OnServerError(NetworkConnection conn, Exception exception) { }
 
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
