@@ -89,7 +89,10 @@ namespace Mirror
         /// <summary>Called by Transport when the server received a message from a client.</summary>
         public Action<int, ArraySegment<byte>, int> OnServerDataReceived = (connId, data, channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
 
-        /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
+        /// <summary>
+        /// Called by Transport when a server's connection encountered a problem.
+        /// <para>If a Disconnect will also be raised, raise the Error first.</para>
+        /// </summary>
         public Action<int, Exception> OnServerError = (connId, error) => Debug.LogWarning("OnServerError called with no handler");
 
         /// <summary>Called by Transport when a client disconnected from the server.</summary>
