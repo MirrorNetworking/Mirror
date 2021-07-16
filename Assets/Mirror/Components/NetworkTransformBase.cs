@@ -75,7 +75,7 @@ namespace Mirror
         // client
         public class DataPoint
         {
-            public float timeStamp;
+            public double timeStamp;
             // use local position/rotation for VR support
             public Vector3 localPosition;
             public Quaternion localRotation;
@@ -87,7 +87,7 @@ namespace Mirror
         DataPoint goal;
 
         // local authority send time
-        float lastClientSendTime;
+        double lastClientSendTime;
 
         // serialization is needed by OnSerialize and by manual sending from authority
         // public only for tests
@@ -125,9 +125,9 @@ namespace Mirror
         static float EstimateMovementSpeed(DataPoint from, DataPoint to, Transform transform, float sendInterval)
         {
             Vector3 delta = to.localPosition - (from != null ? from.localPosition : transform.localPosition);
-            float elapsed = from != null ? to.timeStamp - from.timeStamp : sendInterval;
+            double elapsed = from != null ? to.timeStamp - from.timeStamp : sendInterval;
             // avoid NaN
-            return elapsed > 0 ? delta.magnitude / elapsed : 0;
+            return (float)(elapsed > 0 ? delta.magnitude / elapsed : 0);
         }
 
         // serialization is needed by OnSerialize and by manual sending from authority
@@ -144,7 +144,7 @@ namespace Mirror
                                 : reader.ReadQuaternion(),
                 // use current target scale, so we can check boolean and reader later, to see if the data is actually sent.
                 localScale = targetComponent.localScale,
-                timeStamp = Time.time
+                timeStamp = NetworkTime.localTime
             };
 
             if (syncScale)
@@ -168,7 +168,7 @@ namespace Mirror
             {
                 start = new DataPoint
                 {
-                    timeStamp = Time.time - syncInterval,
+                    timeStamp = NetworkTime.localTime - syncInterval,
                     // local position/rotation for VR support
                     localPosition = targetComponent.localPosition,
                     localRotation = targetComponent.localRotation,
@@ -260,13 +260,13 @@ namespace Mirror
         {
             if (start != null)
             {
-                float difference = goal.timeStamp - start.timeStamp;
+                double difference = goal.timeStamp - start.timeStamp;
 
                 // the moment we get 'goal', 'start' is supposed to
                 // start, so elapsed time is based on:
-                float elapsed = Time.time - goal.timeStamp;
+                double elapsed = NetworkTime.localTime - goal.timeStamp;
                 // avoid NaN
-                return difference > 0 ? elapsed / difference : 0;
+                return (float)(difference > 0 ? elapsed / difference : 0);
             }
             return 0;
         }
@@ -337,10 +337,10 @@ namespace Mirror
         bool NeedsTeleport()
         {
             // calculate time between the two data points
-            float startTime = start != null ? start.timeStamp : Time.time - syncInterval;
-            float goalTime = goal != null ? goal.timeStamp : Time.time;
-            float difference = goalTime - startTime;
-            float timeSinceGoalReceived = Time.time - goalTime;
+            double startTime = start != null ? start.timeStamp : NetworkTime.localTime - syncInterval;
+            double goalTime = goal != null ? goal.timeStamp : NetworkTime.localTime;
+            double difference = goalTime - startTime;
+            double timeSinceGoalReceived = NetworkTime.localTime - goalTime;
             return timeSinceGoalReceived > difference * 5;
         }
 
@@ -395,7 +395,7 @@ namespace Mirror
                 if (!isServer && IsClientWithAuthority)
                 {
                     // check only each 'syncInterval'
-                    if (Time.time - lastClientSendTime >= syncInterval)
+                    if (NetworkTime.localTime - lastClientSendTime >= syncInterval)
                     {
                         if (HasEitherMovedRotatedScaled())
                         {
@@ -409,7 +409,7 @@ namespace Mirror
                                 CmdClientToServerSync(writer.ToArraySegment());
                             }
                         }
-                        lastClientSendTime = Time.time;
+                        lastClientSendTime = NetworkTime.localTime;
                     }
                 }
 
