@@ -16,6 +16,8 @@ namespace kcp2k
         // common
         [Header("Transport Configuration")]
         public ushort Port = 7777;
+        [Tooltip("DualMode listens to IPv6 and IPv4 simultaneously. Disable if the platform only supports IPv4.")]
+        public bool DualMode = true;
         [Tooltip("NoDelay is recommended to reduce latency. This also scales better without buffers getting full.")]
         public bool NoDelay = true;
         [Tooltip("KCP internal update interval. 100ms is KCP default, but a lower interval is recommended to minimize latency and to scale to more networked entities.")]
@@ -69,6 +71,7 @@ namespace kcp2k
                 (connectionId) => OnServerConnected.Invoke(connectionId),
                 (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
                 (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                DualMode,
                 NoDelay,
                 Interval,
                 FastResend,
