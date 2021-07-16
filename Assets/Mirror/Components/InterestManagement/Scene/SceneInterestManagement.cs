@@ -91,7 +91,7 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
-            return identity.gameObject.scene == gameObject.scene;
+            return identity.gameObject.scene == newObserver.identity.gameObject.scene;
         }
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers,
