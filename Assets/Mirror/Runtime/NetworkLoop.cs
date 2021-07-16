@@ -178,6 +178,7 @@ namespace Mirror
         static void NetworkEarlyUpdate()
         {
             //Debug.Log("NetworkEarlyUpdate @ " + Time.time);
+            NetworkTime.NetworkEarlyUpdate();
             NetworkServer.NetworkEarlyUpdate();
             NetworkClient.NetworkEarlyUpdate();
         }

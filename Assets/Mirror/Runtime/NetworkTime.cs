@@ -31,12 +31,12 @@ namespace Mirror
         static double offsetMin = double.MinValue;
         static double offsetMax = double.MaxValue;
 
-        /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
+        /// <summary>Returns double precision clock time _in this system_, unaffected by the network. Frame time.</summary>
         // useful until we have Unity's 'double' Time.time
-        //
-        // CAREFUL: unlike Time.time, this is not a FRAME time.
-        //          it changes during the frame too.
-        public static double localTime => stopwatch.Elapsed.TotalSeconds;
+        public static double localTime {get; private set; }
+
+        /// <summary>Returns double precision clock time _in this system_, unaffected by the network. "Live" time, value will change during a frame.</summary>
+        public static double localTimeContinuous => stopwatch.Elapsed.TotalSeconds;
 
         /// <summary>The time in seconds since the server started.</summary>
         //
@@ -104,7 +104,7 @@ namespace Mirror
         {
             if (Time.time - lastPingTime >= PingFrequency)
             {
-                NetworkPingMessage pingMessage = new NetworkPingMessage(localTime);
+                NetworkPingMessage pingMessage = new NetworkPingMessage(localTimeContinuous);
                 NetworkClient.Send(pingMessage, Channels.Unreliable);
                 lastPingTime = Time.time;
             }
@@ -119,7 +119,7 @@ namespace Mirror
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
                 clientTime = message.clientTime,
-                serverTime = localTime
+                serverTime = localTimeContinuous
             };
             conn.Send(pongMessage, Channels.Unreliable);
         }
@@ -129,7 +129,7 @@ namespace Mirror
         // and update time offset
         internal static void OnClientPong(NetworkPongMessage message)
         {
-            double now = localTime;
+            double now = localTimeContinuous;
 
             // how long did this message take to come back
             double newRtt = now - message.clientTime;
@@ -156,6 +156,11 @@ namespace Mirror
                 // new offset looks reasonable,  add to the average
                 _offset.Add(newOffset);
             }
+        }
+
+        internal static void NetworkEarlyUpdate()
+        {
+            localTime = localTimeContinuous;
         }
     }
 }
