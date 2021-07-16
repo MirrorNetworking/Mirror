@@ -17,7 +17,7 @@ namespace Mirror
 
         public override void OnSpawned(NetworkIdentity identity)
         {
-            Scene currentScene = gameObject.scene;
+            Scene currentScene = identity.gameObject.scene;
             lastObjectScene[identity] = currentScene;
             // Debug.Log($"SceneInterestManagement.OnSpawned({gameObject.name}) currentScene: {currentScene}");
             if (!sceneObjects.TryGetValue(currentScene, out HashSet<NetworkIdentity> objects))
