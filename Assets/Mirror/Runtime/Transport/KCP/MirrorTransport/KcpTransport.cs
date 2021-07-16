@@ -34,8 +34,10 @@ namespace kcp2k
         public uint SendWindowSize = 4096; //Kcp.WND_SND; 32 by default. Mirror sends a lot, so we need a lot more.
         [Tooltip("KCP window size can be modified to support higher loads.")]
         public uint ReceiveWindowSize = 4096; //Kcp.WND_RCV; 128 by default. Mirror sends a lot, so we need a lot more.
+        [Tooltip("Enable to use where-allocation NonAlloc KcpServer/Client/Connection versions. Highly recommended on all Unity platforms.")]
+        public bool NonAlloc = true;
 
-        // server & client
+        // server & client (where-allocation NonAlloc versions)
         KcpServer server;
         KcpClient client;
 
@@ -60,26 +62,42 @@ namespace kcp2k
             Log.Error = Debug.LogError;
 
             // client
-            client = new KcpClient(
-                () => OnClientConnected.Invoke(),
-                (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
-                () => OnClientDisconnected.Invoke()
-            );
+            client = NonAlloc
+                ? new KcpClientNonAlloc(
+                      () => OnClientConnected.Invoke(),
+                      (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
+                      () => OnClientDisconnected.Invoke())
+                : new KcpClient(
+                      () => OnClientConnected.Invoke(),
+                      (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
+                      () => OnClientDisconnected.Invoke());
 
             // server
-            server = new KcpServer(
-                (connectionId) => OnServerConnected.Invoke(connectionId),
-                (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
-                (connectionId) => OnServerDisconnected.Invoke(connectionId),
-                DualMode,
-                NoDelay,
-                Interval,
-                FastResend,
-                CongestionWindow,
-                SendWindowSize,
-                ReceiveWindowSize,
-                Timeout
-            );
+            server = NonAlloc
+                ? new KcpServerNonAlloc(
+                      (connectionId) => OnServerConnected.Invoke(connectionId),
+                      (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
+                      (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      DualMode,
+                      NoDelay,
+                      Interval,
+                      FastResend,
+                      CongestionWindow,
+                      SendWindowSize,
+                      ReceiveWindowSize,
+                      Timeout)
+                : new KcpServer(
+                      (connectionId) => OnServerConnected.Invoke(connectionId),
+                      (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
+                      (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      DualMode,
+                      NoDelay,
+                      Interval,
+                      FastResend,
+                      CongestionWindow,
+                      SendWindowSize,
+                      ReceiveWindowSize,
+                      Timeout);
 
             if (statisticsLog)
                 InvokeRepeating(nameof(OnLogStatistics), 1, 1);

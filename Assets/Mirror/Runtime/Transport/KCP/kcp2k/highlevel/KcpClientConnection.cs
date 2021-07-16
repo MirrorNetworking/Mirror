@@ -28,6 +28,15 @@ namespace kcp2k
             }
         }
 
+        // EndPoint & Receive functions can be overwritten for where-allocation:
+        // https://github.com/vis2k/where-allocation
+        // NOTE: Client's SendTo doesn't allocate, don't need a virtual.
+        protected virtual void CreateRemoteEndPoint(IPAddress[] addresses, ushort port) =>
+            remoteEndPoint = new IPEndPoint(addresses[0], port);
+
+        protected virtual int ReceiveFrom(byte[] buffer) =>
+            socket.ReceiveFrom(buffer, ref remoteEndPoint);
+
         public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT)
         {
             Log.Info($"KcpClient: connect to {host}:{port}");
@@ -35,9 +44,14 @@ namespace kcp2k
             // try resolve host name
             if (ResolveHostname(host, out IPAddress[] addresses))
             {
-                remoteEndpoint = new IPEndPoint(addresses[0], port);
-                socket = new Socket(remoteEndpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-                socket.Connect(remoteEndpoint);
+                // create remote endpoint
+                CreateRemoteEndPoint(addresses, port);
+
+                // create socket
+                socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+                socket.Connect(remoteEndPoint);
+
+                // set up kcp
                 SetupKcp(noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout);
 
                 // client should send handshake to server as very first message
@@ -49,6 +63,7 @@ namespace kcp2k
             else OnDisconnected();
         }
 
+
         // call from transport update
         public void RawReceive()
         {
@@ -58,7 +73,7 @@ namespace kcp2k
                 {
                     while (socket.Poll(0, SelectMode.SelectRead))
                     {
-                        int msgLength = socket.ReceiveFrom(rawReceiveBuffer, ref remoteEndpoint);
+                        int msgLength = ReceiveFrom(rawReceiveBuffer);
                         // IMPORTANT: detect if buffer was too small for the
                         //            received msgLength. otherwise the excess
                         //            data would be silently lost.
