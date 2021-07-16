@@ -196,7 +196,7 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            float now = Time.time;
+            double now = NetworkTime.localTime;
             if (SendMessagesAllowed && syncInterval >= 0 && now > nextSendTime)
             {
                 nextSendTime = now + syncInterval;
