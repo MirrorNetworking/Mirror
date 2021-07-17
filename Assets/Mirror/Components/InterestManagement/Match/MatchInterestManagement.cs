@@ -17,6 +17,10 @@ namespace Mirror
         {
             Guid currentMatch = identity.GetComponent<NetworkMatch>().matchId;
             lastObjectMatch[identity] = currentMatch;
+            
+            // Guid.Empty is never a valid matchId...do not add to matchObjects collection
+            if (currentMatch == Guid.Empty) return;
+            
             // Debug.Log($"MatchInterestManagement.OnSpawned({identity.name}) currentMatch: {currentMatch}");
             if (!matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects))
             {
