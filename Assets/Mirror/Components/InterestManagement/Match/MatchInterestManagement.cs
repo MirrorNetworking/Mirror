@@ -54,7 +54,7 @@ namespace Mirror
                 dirtyMatches.Add(currentMatch);
                 dirtyMatches.Add(newMatch);
 
-                // This object is in a new match so observers in the prior scene
+                // This object is in a new match so observers in the prior match
                 // and the new scene need to rebuild their respective observers lists.
 
                 // Remove this object from the hashset of the scene it just left
