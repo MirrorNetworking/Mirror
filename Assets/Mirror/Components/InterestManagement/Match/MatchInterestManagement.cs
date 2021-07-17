@@ -51,7 +51,9 @@ namespace Mirror
                 if (newMatch == currentMatch) continue;
 
                 // Mark new/old scenes as dirty so they get rebuilt
-                dirtyMatches.Add(currentMatch);
+                // Guid.Empty is never a valid matchId
+                if (currentMatch != Guid.Empty)
+                    dirtyMatches.Add(currentMatch);
                 dirtyMatches.Add(newMatch);
 
                 // This object is in a new match so observers in the prior match
