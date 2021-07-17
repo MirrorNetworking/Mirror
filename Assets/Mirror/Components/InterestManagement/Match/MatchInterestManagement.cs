@@ -104,7 +104,7 @@ namespace Mirror
             if (!matchObjects.TryGetValue(matchId, out HashSet<NetworkIdentity> objects))
                 return;
 
-            // Add everything in the hashset for this object's current scene
+            // Add everything in the hashset for this object's current match
             foreach (NetworkIdentity networkIdentity in objects)
                 if (networkIdentity != null && networkIdentity.connectionToClient != null)
                     newObservers.Add(networkIdentity.connectionToClient);
