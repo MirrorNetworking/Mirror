@@ -62,6 +62,10 @@ namespace Mirror
 
                 // Set this to the new match this object just entered
                 lastObjectMatch[netIdentity] = newMatch;
+                
+                // Guid.Empty is never a valid matchId...do not add to matchObjects collection
+                if (newMatch == Guid.Empty) continue;
+                
 
                 // Make sure this new match is in the dictionary
                 if (!matchObjects.ContainsKey(newMatch))
