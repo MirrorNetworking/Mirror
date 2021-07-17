@@ -63,7 +63,7 @@ namespace Mirror
                 // This object is in a new match so observers in the prior match
                 // and the new scene need to rebuild their respective observers lists.
 
-                // Remove this object from the hashset of the scene it just left
+                // Remove this object from the hashset of the match it just left
                 // Guid.Empty is never a valid matchId
                 if (currentMatch != Guid.Empty)
                     matchObjects[currentMatch].Remove(netIdentity);
