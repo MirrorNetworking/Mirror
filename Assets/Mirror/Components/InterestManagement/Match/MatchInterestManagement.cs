@@ -58,7 +58,9 @@ namespace Mirror
                 // and the new scene need to rebuild their respective observers lists.
 
                 // Remove this object from the hashset of the scene it just left
-                matchObjects[currentMatch].Remove(netIdentity);
+                // Guid.Empty is never a valid matchId
+                if (currentMatch != Guid.Empty)
+                    matchObjects[currentMatch].Remove(netIdentity);
 
                 // Set this to the new match this object just entered
                 lastObjectMatch[netIdentity] = newMatch;
