@@ -31,7 +31,7 @@ namespace Mirror
         {
             Guid currentMatch = lastObjectMatch[identity];
             lastObjectMatch.Remove(identity);
-            if (matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
+            if (currentMatch != Guid.Empty && matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
                 RebuildMatchObservers(currentMatch);
         }
 
