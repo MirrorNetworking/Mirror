@@ -97,6 +97,10 @@ namespace Mirror
             bool initialize)
         {
             Guid matchId = identity.GetComponent<NetworkMatch>().matchId;
+            
+            // Guid.Empty is never a valid matchId
+            if (matchId == Guid.Empty) return;
+            
             if (!matchObjects.TryGetValue(matchId, out HashSet<NetworkIdentity> objects))
                 return;
 
