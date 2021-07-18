@@ -51,9 +51,10 @@ namespace Mirror.Tests.DeltaCompression
                 // assuming the other end already has 'A'
                 // we need to save instructions to construct 'B' from 'A'.
 
-                // save both indices for now.
-                // TODO don't always need both
-                result.WriteInt(change.StartA);
+                // when applying the patch, we always apply it with VALUES from
+                // 'A' to INDICES from 'B'. in other words, the other end never
+                // needs 'StartA'.
+                // TODO varint
                 result.WriteInt(change.StartB);
 
                 // always need to know if / how many were deleted
@@ -106,9 +107,7 @@ namespace Mirror.Tests.DeltaCompression
             // TODO safety..
             for (int i = 0; i < count; ++i)
             {
-                // both indices
-                // TODO don't always need both
-                int StartA = delta.ReadInt();
+                // we only ever need (and serialize) StartB
                 int StartB = delta.ReadInt();
 
                 // deleted amount
