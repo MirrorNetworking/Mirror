@@ -1,4 +1,5 @@
 // prepare a test entity with some interesting values
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -30,5 +31,29 @@ namespace Mirror.Tests
         [SyncVar] public int intelligence;
         [SyncVar] public int damage;
         [SyncVar] public int defense;
+
+        public CompressionMonster(
+            string monsterName,
+            int health, int mana, int level,
+            Vector3 position, Quaternion rotation,
+            List<InventorySlot> inventory,
+            int strength, int intelligence,
+            int damage, int defense)
+        {
+            this.monsterName = monsterName;
+            this.health = health;
+            this.mana = mana;
+            this.level = level;
+            this.position = position;
+            this.rotation = rotation;
+
+            foreach (InventorySlot slot in inventory)
+                this.inventory.Add(slot);
+
+            this.strength = strength;
+            this.intelligence = intelligence;
+            this.damage = damage;
+            this.defense = defense;
+        }
     }
 }
