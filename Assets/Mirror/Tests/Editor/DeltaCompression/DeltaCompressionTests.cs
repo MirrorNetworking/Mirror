@@ -127,9 +127,9 @@ namespace Mirror.Tests.DeltaCompression
             );
         }
 
+        // tiny: only monster.health (4 bytes) changed
         protected void CreateTinyChange()
         {
-            // change only one field
             tinychange = new GameObject().AddComponent<CompressionMonster>();
             tinychange.Initialize(
                 // name, health, mana, level
@@ -162,6 +162,7 @@ namespace Mirror.Tests.DeltaCompression
             );
         }
 
+        // small: health, mana, position.x, 1 item amount, 2 skill cds (24 bytes)
         protected void CreateSmallChange()
         {
             // change it a little
@@ -238,7 +239,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // tiny: only monster.health (=4 bytes) changed
         [Test]
-        public void Delta_TinyChange()
+        public void Delta_TinyChange_4Bytes()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
@@ -258,7 +259,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // small:
         [Test]
-        public void Delta_SmallChange()
+        public void Delta_SmallChange_24Bytes()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
