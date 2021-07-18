@@ -109,7 +109,7 @@ namespace Mirror.Tests.DeltaCompression
             List<Modified> patch = MakePatch(fromInts, toInts, diffs);
 
             // serialize
-            result.WriteInt(patch.Count);
+            result.WriteInt(patch.Count); // TODO unnecessary? just while .pos>0?
             for (int i = 0; i < patch.Count; ++i)
                 patch[i].Serialize(result);
         }
