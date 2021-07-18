@@ -35,8 +35,8 @@ namespace Mirror.Tests.DeltaCompression
         [Test]
         public void SimpleTest()
         {
-            int[] A = {0, 1,    2, 3, 4};
-            int[] B = {0, 1, 1, 2,    4};
+            int[] A = {0, 1,       2, 3, 4};
+            int[] B = {0, 1, 1, 1, 2,    4};
             Diff.Item[] items = Diff.DiffInt(A, B);
 
             Debug.Log($"A={String.Join(", ", A)}");
