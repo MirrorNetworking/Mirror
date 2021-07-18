@@ -113,16 +113,9 @@ namespace Mirror.Tests.DeltaCompression
                 // deleted amount
                 int deletedA = delta.ReadInt();
 
-                // deletedA means: compared to A, these were deleted in B.
+                // deletedA means: compared to A, 'N' were deleted in B at 'StartB'
                 // TODO we need a linked list or similar data structure for perf
-                for (int n = 0; n < deletedA; ++n)
-                {
-                    // remove at 'StartB'.
-                    // DO NOT remove at 'StartB + n'.
-                    // every removal moves the end of the list to 'StartB' again.
-                    B.RemoveAt(StartB);
-                    //Debug.Log($"->patch: removed from B @ StartB={StartB} + n={n} => {BitConverter.ToString(B.ToArray())}");
-                }
+                B.RemoveRange(StartB, deletedA);
 
                 // inserted amount
                 int insertedB = delta.ReadInt();
