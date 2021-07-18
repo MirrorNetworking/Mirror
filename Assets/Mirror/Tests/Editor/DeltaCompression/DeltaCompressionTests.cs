@@ -89,7 +89,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // the algorithm to use
         public abstract void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result);
-        public abstract void ApplyPatch(NetworkWriter from, NetworkWriter patch, NetworkWriter result);
+        public abstract void ApplyPatch(NetworkWriter from, NetworkWriter delta, NetworkWriter result);
 
         [SetUp]
         public void SetUp()

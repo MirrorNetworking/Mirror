@@ -9,10 +9,10 @@ namespace Mirror.Tests.DeltaCompression
             result.WriteBytes(delta, 0, delta.Length);
         }
 
-        public override void ApplyPatch(NetworkWriter from, NetworkWriter patch, NetworkWriter result)
+        public override void ApplyPatch(NetworkWriter from, NetworkWriter delta, NetworkWriter result)
         {
             // TODO avoid .ToArray() copying for benchmark.
-            byte[] delta = Fossil.Delta.Apply(from.ToArray(), patch.ToArray());
+            byte[] delta = Fossil.Delta.Apply(from.ToArray(), delta.ToArray());
             result.WriteBytes(delta, 0, delta.Length);
         }
     }
