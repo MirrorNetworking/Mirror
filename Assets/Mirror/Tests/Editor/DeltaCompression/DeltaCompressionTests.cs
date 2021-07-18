@@ -232,6 +232,7 @@ namespace Mirror.Tests.DeltaCompression
         [SetUp]
         public void SetUp()
         {
+            CreateOriginal();
             CreateTinyChange();
             CreateSmallChange();
             CreateBigChange();
