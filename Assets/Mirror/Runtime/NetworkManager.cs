@@ -118,7 +118,9 @@ namespace Mirror
         /// <summary>Number of active player objects across all connections on the server.</summary>
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
-        /// <summary>True if the server is running or client is connected/connecting.</summary>
+        // Deprecated 2021-07-18
+        /// <summary>Deprecated: Use NetworkServer.active and/or NetworkClient.active instead.</summary>
+        [Obsolete("Use NetworkServer.active and/or NetworkClient.active instead")]
         [NonSerialized]
         public bool isNetworkActive;
 
@@ -265,8 +267,6 @@ namespace Mirror
 
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
-
-            isNetworkActive = true;
         }
 
         /// <summary>Starts the server, listening for incoming connections.</summary>
@@ -332,8 +332,6 @@ namespace Mirror
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
-            isNetworkActive = true;
-
             // In case this is a headless client...
             ConfigureServerFrameRate();
 
@@ -372,8 +370,6 @@ namespace Mirror
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
-
-            isNetworkActive = true;
 
             RegisterClientMessages();
 
@@ -533,7 +529,7 @@ namespace Mirror
         public void StopServer()
         {
             // return if already stopped to avoid recursion deadlock
-            if (!isNetworkActive)
+            if (!NetworkServer.active)
                 return;
 
             //Debug.Log("NetworkManager StopServer");
@@ -555,8 +551,6 @@ namespace Mirror
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 #pragma warning restore 618
-
-            isNetworkActive = false;
 
             OnStopServer();
 
@@ -580,7 +574,7 @@ namespace Mirror
         public void StopClient()
         {
             // return if already stopped to avoid recursion deadlock
-            if (!isNetworkActive)
+            if (!NetworkClient.active)
                 return;
 
             //Debug.Log("NetworkManager StopClient");
@@ -602,8 +596,6 @@ namespace Mirror
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 #pragma warning restore 618
-
-            isNetworkActive = false;
 
             OnStopClient();
 
@@ -679,7 +671,7 @@ namespace Mirror
             }
             else
             {
-                Debug.Log("NetworkManager created singleton (ForScene)");
+                //Debug.Log("NetworkManager created singleton (ForScene)");
                 singleton = this;
             }
 
@@ -1209,7 +1201,7 @@ namespace Mirror
             // can be overwritten for cases like delayed logouts in MMOs to
             // avoid players escaping from PvP situations by logging out.
             NetworkServer.DestroyPlayerForConnection(conn);
-            //Debug.Log("OnServerDisconnect: Client disconnected.");
+            //Debug.Log("OnServerDisconnect: Server disconnected.");
         }
 
         /// <summary>Called on the server when a client is ready (= loaded the scene)</summary>
@@ -1276,6 +1268,7 @@ namespace Mirror
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
             StopClient();
+            //Debug.Log("OnClientDisconnect: Client disconnected.");
         }
 
         // Deprecated 2021-02-13
