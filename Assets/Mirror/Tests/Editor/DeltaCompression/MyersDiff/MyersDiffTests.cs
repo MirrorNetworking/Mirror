@@ -1,10 +1,7 @@
 // original paper: http://www.xmailserver.org/diff2.pdf
 // used in diff, git!
-using System;
 using System.Collections.Generic;
 using MyersDiff;
-using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests.DeltaCompression
 {
