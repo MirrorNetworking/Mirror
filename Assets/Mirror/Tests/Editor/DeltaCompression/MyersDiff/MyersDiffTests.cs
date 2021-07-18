@@ -114,7 +114,7 @@ namespace Mirror.Tests.DeltaCompression
                 patch[i].Serialize(result);
         }
 
-        public override void ApplyPatch(NetworkWriter from, NetworkWriter patch, NetworkWriter result)
+        public override void ApplyPatch(NetworkWriter from, NetworkWriter delta, NetworkWriter result)
         {
             throw new NotImplementedException();
         }
