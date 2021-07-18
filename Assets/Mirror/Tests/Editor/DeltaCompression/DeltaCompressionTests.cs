@@ -4,10 +4,18 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
+    // inventory is interesting. mostly ints.
     public struct InventorySlot
     {
         public int itemId;
         public int amount;
+    }
+
+    // skills are interesting. ushorts, doubles, etc. are all != 4 byte ints.
+    public struct SkillSlot
+    {
+        public ushort skillId;
+        public double cooldown;
     }
 
     // test monster for compression.
@@ -36,6 +44,9 @@ namespace Mirror.Tests
         [SyncVar] public int damage;
         [SyncVar] public int defense;
 
+        // variable length skills
+        SyncList<SkillSlot> skills = new SyncList<SkillSlot>();
+
         public void Initialize(
             string monsterName,
             int health, int mana,
@@ -43,7 +54,8 @@ namespace Mirror.Tests
             Vector3 position, Quaternion rotation,
             List<InventorySlot> inventory,
             int strength, int intelligence,
-            int damage, int defense)
+            int damage, int defense,
+            List<SkillSlot> skills)
         {
             this.monsterName = monsterName;
             this.health = health;
@@ -59,6 +71,9 @@ namespace Mirror.Tests
             this.intelligence = intelligence;
             this.damage = damage;
             this.defense = defense;
+
+            foreach (SkillSlot slot in skills)
+                this.skills.Add(slot);
         }
     }
 
@@ -97,7 +112,14 @@ namespace Mirror.Tests
                 10,
                 11,
                 1000,
-                500
+                500,
+                // skills
+                new List<SkillSlot>{
+                    new SkillSlot{skillId=4, cooldown=0},
+                    new SkillSlot{skillId=8, cooldown=1},
+                    new SkillSlot{skillId=16, cooldown=2.5},
+                    new SkillSlot{skillId=23, cooldown=60}
+                }
             );
 
             // change it a little for second snapshot
@@ -120,7 +142,14 @@ namespace Mirror.Tests
                 12,
                 13,
                 5000,
-                2000
+                2000,
+                // skills
+                new List<SkillSlot>{
+                    new SkillSlot{skillId=4, cooldown=0},
+                    new SkillSlot{skillId=8, cooldown=0},
+                    new SkillSlot{skillId=16, cooldown=0},
+                    new SkillSlot{skillId=23, cooldown=25}
+                }
             );
         }
 
