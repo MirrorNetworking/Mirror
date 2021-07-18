@@ -19,12 +19,21 @@ namespace Mirror.Tests.DeltaCompression
             // amount of deletions in Data A.
             public int deletedA;
             // actual values inserted into Data B.
-            public List<int> insertedB;
+            public List<byte> insertedB;
 
             // serialize into a writer so we can send it over the network
             public void Serialize(NetworkWriter writer)
             {
+                // TODO consider short indices? depends on max allowed writer size
+                // => or varint!
+                writer.WriteInt(indexA);
+                writer.WriteInt(indexB);
 
+                writer.WriteInt(deletedA);
+                writer.WriteInt(insertedB.Count);
+                // for-int to avoid allocations
+                for (int i = 0; i < insertedB.Count; ++i)
+                    writer.WriteByte(insertedB[i]);
             }
 
             public void Deserialize(NetworkReader reader)
@@ -68,10 +77,11 @@ namespace Mirror.Tests.DeltaCompression
                 modified.indexB = item.StartB;
                 modified.deletedA = item.deletedA;
                 // add the inserted values
-                modified.insertedB = new List<int>();
+                modified.insertedB = new List<byte>();
                 for (int i = 0; i < item.insertedB; ++i)
                 {
-                    modified.insertedB.Add(A[item.StartA]);
+                    // TODO pass byte[] to begin with.
+                    modified.insertedB.Add((byte)A[item.StartA]);
                 }
                 result.Add(modified);
             }
@@ -81,6 +91,7 @@ namespace Mirror.Tests.DeltaCompression
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
         {
             // algorithm needs int[] for now
+            // TODO use byte[]
             byte[] fromBytes = from.ToArray();
             int[] fromInts = new int[fromBytes.Length];
             for (int i = 0; i < fromBytes.Length; ++i)
@@ -91,7 +102,11 @@ namespace Mirror.Tests.DeltaCompression
             for (int i = 0; i < toBytes.Length; ++i)
                 toInts[i] = toBytes[i];
 
-            Diff.Item[] items = Diff.DiffInt(fromInts, toInts);
+            // myers diff
+            Diff.Item[] diffs = Diff.DiffInt(fromInts, toInts);
+
+            // convert to patch
+            List<Modified> patch = MakePatch(fromInts, toInts, diffs);
         }
 
         public override void ApplyPatch(NetworkWriter from, NetworkWriter patch, NetworkWriter result)
