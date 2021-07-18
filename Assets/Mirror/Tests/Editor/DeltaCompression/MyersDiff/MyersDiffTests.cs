@@ -127,15 +127,22 @@ namespace Mirror.Tests.DeltaCompression
 
         public override void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
         {
+            // convert A bytes to list for easier insertion/deletion
+            List<byte> B = new List<byte>(A.ToArray());
+
             // deserialize patch
-            List<Modified> patch = new List<Modified>();
             int count = delta.ReadInt();
             // TODO safety..
             for (int i = 0; i < count; ++i)
             {
+                // deserialize modification
                 Modified modified = new Modified();
                 modified.Deserialize(delta);
-                patch.Add(modified);
+
+                // apply it
+                // -> delete all that need to be deleted
+
+                // -> insert all tha tneed to be inserted
             }
         }
 
