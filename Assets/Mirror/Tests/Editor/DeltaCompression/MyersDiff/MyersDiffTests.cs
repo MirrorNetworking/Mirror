@@ -23,6 +23,17 @@ namespace Mirror.Tests.DeltaCompression
             // actual values inserted into Data B.
             public List<int> insertedB;
 
+            // serialize into a writer so we can send it over the network
+            public void Serialize(NetworkWriter writer)
+            {
+
+            }
+
+            public void Deserialize(NetworkReader reader)
+            {
+                // TODO
+            }
+
             // tostring for easier debugging / understanding
             public override string ToString()
             {
