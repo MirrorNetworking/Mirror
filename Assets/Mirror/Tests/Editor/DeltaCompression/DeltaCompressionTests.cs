@@ -165,7 +165,7 @@ namespace Mirror.Tests.DeltaCompression
             // compute delta
             NetworkWriter result = new NetworkWriter();
             ComputeDelta(writerA, writerB, result);
-            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\n=>Delta={result.Position}bytes");
+            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={result.Position}bytes");
         }
 
         // measure performance. needs to be fast enough.
