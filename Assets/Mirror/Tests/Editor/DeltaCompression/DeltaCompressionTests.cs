@@ -238,6 +238,18 @@ namespace Mirror.Tests.DeltaCompression
             CreateBigChange();
         }
 
+        // helper function for all delta tests
+        protected void DeltaTest(NetworkWriter A, NetworkWriter B)
+        {
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(A, B, delta);
+            Debug.Log($"A={BitConverter.ToString(A.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(B.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
+            Debug.Log($"A={A.Position} bytes\nB={B.Position} bytes\nDelta={delta.Position} bytes");
+        }
+
         // tiny: only monster.health (=4 bytes) changed
         [Test]
         public void Delta_TinyChange_4Bytes()
@@ -250,12 +262,7 @@ namespace Mirror.Tests.DeltaCompression
             tinychange.OnSerialize(writerB, true);
 
             // compute delta
-            NetworkWriter delta = new NetworkWriter();
-            ComputeDelta(writerA, writerB, delta);
-            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
-            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
-            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
-            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position} bytes");
+            DeltaTest(writerA, writerB);
         }
 
         // small:
@@ -270,12 +277,7 @@ namespace Mirror.Tests.DeltaCompression
             smallchange.OnSerialize(writerB, true);
 
             // compute delta
-            NetworkWriter delta = new NetworkWriter();
-            ComputeDelta(writerA, writerB, delta);
-            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
-            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
-            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
-            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position} bytes");
+            DeltaTest(writerA, writerB);
         }
 
         // run the delta encoding
@@ -290,12 +292,7 @@ namespace Mirror.Tests.DeltaCompression
             bigchange.OnSerialize(writerB, true);
 
             // compute delta
-            NetworkWriter delta = new NetworkWriter();
-            ComputeDelta(writerA, writerB, delta);
-            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
-            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
-            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
-            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position} bytes");
+            DeltaTest(writerA, writerB);
         }
 
         // simply patch test for easy debugging
