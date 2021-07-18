@@ -60,11 +60,15 @@ namespace Mirror.Tests
         }
     }
 
-    public class DeltaCompressionTests
+    // all compression approaches should inherit to compare them
+    public abstract class DeltaCompressionTests
     {
         // two snapshots
         protected CompressionMonster A;
         protected CompressionMonster B;
+
+        // the algorithm to use
+        public abstract void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result);
 
         [SetUp]
         public void SetUp()
@@ -132,7 +136,41 @@ namespace Mirror.Tests
             Debug.Log($"B uncompressed size: {writerB.Position} bytes");
         }
 
-        // TODO several compressions
-        // TODO with benchmark each
+        // run the delta encoding
+        [Test]
+        public void Delta()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            A.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            B.OnSerialize(writerB, true);
+
+            // compute delta
+            NetworkWriter result = new NetworkWriter();
+            ComputeDelta(writerA, writerB, result);
+        }
+
+        // measure performance. needs to be fast enough.
+        [Test]
+        public void Benchmark()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            A.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            B.OnSerialize(writerB, true);
+
+            // compute delta several times (assume 100k entities in the world)
+            NetworkWriter result = new NetworkWriter();
+            for (int i = 0; i < 100000; ++i)
+            {
+                // reset write each time. don't want to measure resizing.
+                result.Position = 0;
+                ComputeDelta(writerA, writerB, result);
+            }
+        }
     }
 }
