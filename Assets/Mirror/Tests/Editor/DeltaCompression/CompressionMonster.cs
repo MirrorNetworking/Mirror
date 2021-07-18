@@ -32,7 +32,7 @@ namespace Mirror.Tests
         [SyncVar] public int damage;
         [SyncVar] public int defense;
 
-        public CompressionMonster(
+        public void Initialize(
             string monsterName,
             int health, int mana, int level,
             Vector3 position, Quaternion rotation,
