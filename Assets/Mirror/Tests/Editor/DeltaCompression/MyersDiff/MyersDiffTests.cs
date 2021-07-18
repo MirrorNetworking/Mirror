@@ -34,7 +34,7 @@ namespace Mirror.Tests.DeltaCompression
 
                 // inserted
                 foreach (int value in insertedB)
-                    s += $"StartA={StartA} StartB={StartB}: inserted '{value}'; ";
+                    s += $"StartA={StartA} StartB={StartB}: inserted value='{value}'; ";
 
                 return s;
             }
