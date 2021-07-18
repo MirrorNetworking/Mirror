@@ -187,16 +187,15 @@ namespace Mirror.Tests.DeltaCompression
             );
         }
 
-        // run the delta encoding
         [Test]
-        public void Delta_BigChange()
+        public void Delta_SmallChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
             original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
-            bigchange.OnSerialize(writerB, true);
+            smallchange.OnSerialize(writerB, true);
 
             // compute delta
             NetworkWriter delta = new NetworkWriter();
@@ -207,15 +206,16 @@ namespace Mirror.Tests.DeltaCompression
             Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
         }
 
+        // run the delta encoding
         [Test]
-        public void Delta_SmallChange()
+        public void Delta_BigChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
             original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
-            smallchange.OnSerialize(writerB, true);
+            bigchange.OnSerialize(writerB, true);
 
             // compute delta
             NetworkWriter delta = new NetworkWriter();
