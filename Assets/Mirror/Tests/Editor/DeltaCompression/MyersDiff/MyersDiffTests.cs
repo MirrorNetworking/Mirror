@@ -30,11 +30,11 @@ namespace Mirror.Tests.DeltaCompression
 
                 // deleted
                 if (deletedA > 0)
-                    s += $"deleted {deletedA} entries at StartA={StartA} StartB={StartB}; ";
+                    s += $"StartA={StartA} StartB={StartB}: deleted {deletedA} entries; ";
 
                 // inserted
                 foreach (int value in insertedB)
-                    s += $"inserted '{value}' at StartA={StartA} StartB={StartB}; ";
+                    s += $"StartA={StartA} StartB={StartB}: inserted '{value}'; ";
 
                 return s;
             }
