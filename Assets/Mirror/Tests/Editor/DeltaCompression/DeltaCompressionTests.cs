@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests
+namespace Mirror.Tests.DeltaCompression
 {
     // inventory is interesting. mostly ints.
     public struct InventorySlot
