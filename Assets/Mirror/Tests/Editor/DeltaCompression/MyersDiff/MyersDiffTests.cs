@@ -2,9 +2,9 @@
 // used in diff, git!
 //
 // VARINT before/after:
-//   Delta_Tiny:   17 bytes =>
-//   Delta_Small:  83 bytes =>
-//   Delta_Big:   318 bytes =>
+//   Delta_Tiny:   17 bytes =>  5 bytes
+//   Delta_Small:  83 bytes => 26 bytes
+//   Delta_Big:   318 bytes => 99 bytes
 using System.Collections.Generic;
 using MyersDiff;
 
@@ -18,8 +18,7 @@ namespace Mirror.Tests.DeltaCompression
             // serialize diffs
             //   deletedA means: it was in A, it's deleted in B.
             //   insertedB means: it wasn't in A, it's added to B.
-            // TODO varint
-            result.WriteInt(diffs.Length);
+            VarInt.WriteULong(result, (ulong)diffs.Length);
             foreach (Diff.Item change in diffs)
             {
                 // assuming the other end already has 'A'
@@ -28,14 +27,13 @@ namespace Mirror.Tests.DeltaCompression
                 // when applying the patch, we always apply it with VALUES from
                 // 'A' to INDICES from 'B'. in other words, the other end never
                 // needs 'StartA'.
-                // TODO varint
-                result.WriteInt(change.StartB);
+                VarInt.WriteULong(result, (ulong)change.StartB);
 
                 // always need to know if / how many were deleted
-                result.WriteInt(change.deletedA);
+                VarInt.WriteULong(result, (ulong)change.deletedA);
 
                 // always need to know how many were inserted
-                result.WriteInt(change.insertedB);
+                VarInt.WriteULong(result, (ulong)change.insertedB);
 
                 // need to provide the actual values that were inserted
                 // it means compared to 'A' at 'StartA',
@@ -77,22 +75,22 @@ namespace Mirror.Tests.DeltaCompression
             List<byte> B = new List<byte>(A.ToArray());
 
             // deserialize patch
-            int count = delta.ReadInt();
+            int count = (int)VarInt.ReadULong(delta);
             // TODO safety..
             for (int i = 0; i < count; ++i)
             {
                 // we only ever need (and serialize) StartB
-                int StartB = delta.ReadInt();
+                int StartB = (int)VarInt.ReadULong(delta);
 
                 // deleted amount
-                int deletedA = delta.ReadInt();
+                int deletedA = (int)VarInt.ReadULong(delta);
 
                 // deletedA means: compared to A, 'N' were deleted in B at 'StartB'
                 // TODO we need a linked list or similar data structure for perf
                 B.RemoveRange(StartB, deletedA);
 
                 // inserted amount
-                int insertedB = delta.ReadInt();
+                int insertedB = (int)VarInt.ReadULong(delta);
                 for (int n = 0; n < insertedB; ++n)
                 {
                     byte value = delta.ReadByte();
