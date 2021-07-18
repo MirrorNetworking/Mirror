@@ -230,6 +230,8 @@ namespace Mirror.Tests.DeltaCompression
             // -> this way we can test what 'insertedB' means
             byte[] A = {11, 22, 33, 22, 33,         44, 55};
             byte[] B = {11, 22, 33, 22, 33, 22, 33, 44};
+            Debug.Log($"A={BitConverter.ToString(A)}");
+            Debug.Log($"B={BitConverter.ToString(B)}");
             NetworkWriter writerA = new NetworkWriter();
             writerA.WriteBytes(A, 0, A.Length);
             NetworkWriter writerB = new NetworkWriter();
@@ -244,8 +246,6 @@ namespace Mirror.Tests.DeltaCompression
             ApplyPatch(writerA, new NetworkReader(delta.ToArray()), patched);
 
             // compare
-            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
-            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
             Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
             Debug.Log($"P={BitConverter.ToString(patched.ToArray())}");
             Assert.That(patched.ToArray().SequenceEqual(writerB.ToArray()));
