@@ -92,8 +92,7 @@ namespace Mirror.Tests.DeltaCompression
         public abstract void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result);
         public abstract void ApplyPatch(NetworkWriter from, NetworkReader delta, NetworkWriter result);
 
-        [SetUp]
-        public void SetUp()
+        protected void CreateOriginal()
         {
             // create the monster with unique values
             original = new GameObject().AddComponent<CompressionMonster>();
@@ -126,7 +125,10 @@ namespace Mirror.Tests.DeltaCompression
                     new SkillSlot{skillId=23, cooldown=60}
                 }
             );
+        }
 
+        protected void CreateTinyChange()
+        {
             // change only one field
             tinychange = new GameObject().AddComponent<CompressionMonster>();
             tinychange.Initialize(
@@ -158,7 +160,10 @@ namespace Mirror.Tests.DeltaCompression
                     new SkillSlot{skillId=23, cooldown=60}
                 }
             );
+        }
 
+        protected void CreateSmallChange()
+        {
             // change it a little
             smallchange = new GameObject().AddComponent<CompressionMonster>();
             smallchange.Initialize(
@@ -190,7 +195,10 @@ namespace Mirror.Tests.DeltaCompression
                     new SkillSlot{skillId=23, cooldown=60}
                 }
             );
+        }
 
+        protected void CreateBigChange()
+        {
             // change it a lot
             bigchange = new GameObject().AddComponent<CompressionMonster>();
             bigchange.Initialize(
@@ -220,6 +228,15 @@ namespace Mirror.Tests.DeltaCompression
             );
         }
 
+        [SetUp]
+        public void SetUp()
+        {
+            CreateTinyChange();
+            CreateSmallChange();
+            CreateBigChange();
+        }
+
+        // tiny: only monster.health (=4 bytes) changed
         [Test]
         public void Delta_TinyChange()
         {
@@ -239,6 +256,7 @@ namespace Mirror.Tests.DeltaCompression
             Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
         }
 
+        // small:
         [Test]
         public void Delta_SmallChange()
         {
