@@ -118,9 +118,9 @@ namespace Mirror.Tests.DeltaCompression
                 // TODO we need a linked list or similar data structure for perf
                 for (int n = 0; n < deletedA; ++n)
                 {
-                    Debug.Log($"->patch: removing from B @ {StartA + n} => {BitConverter.ToString(B.ToArray())}");
-                    Debug.Log($"         StartA={StartA} StartB={StartB} n={n}");
                     B.RemoveAt(StartA + n);
+                    Debug.Log($"->patch: removed from B @ {StartA + n} => {BitConverter.ToString(B.ToArray())}");
+                    Debug.Log($"         StartA={StartA} StartB={StartB} n={n}");
                 }
 
                 // inserted amount
@@ -128,8 +128,8 @@ namespace Mirror.Tests.DeltaCompression
                 for (int n = 0; n < insertedB; ++n)
                 {
                     byte value = delta.ReadByte();
-                    Debug.Log($"->patch: inserting '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
                     B.Insert(StartB + n, value);
+                    Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
                 }
             }
 
