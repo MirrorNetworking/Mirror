@@ -21,7 +21,8 @@ namespace Mirror.Tests
         // a couple of fixed length fields
         [SyncVar] public int health;
         [SyncVar] public int mana;
-        [SyncVar] public int level;
+        // something != 4 byte inbetween
+        [SyncVar] public byte level;
         [SyncVar] public Vector3 position;
         [SyncVar] public Quaternion rotation;
 
@@ -37,7 +38,8 @@ namespace Mirror.Tests
 
         public void Initialize(
             string monsterName,
-            int health, int mana, int level,
+            int health, int mana,
+            byte level,
             Vector3 position, Quaternion rotation,
             List<InventorySlot> inventory,
             int strength, int intelligence,
