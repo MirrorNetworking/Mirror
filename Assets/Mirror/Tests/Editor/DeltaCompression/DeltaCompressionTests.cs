@@ -84,6 +84,7 @@ namespace Mirror.Tests.DeltaCompression
     {
         // two snapshots
         protected CompressionMonster original;
+        protected CompressionMonster tinychange;
         protected CompressionMonster smallchange;
         protected CompressionMonster bigchange;
 
@@ -100,6 +101,38 @@ namespace Mirror.Tests.DeltaCompression
                 // name, health, mana, level
                 "Skeleton",
                 100,
+                200,
+                60,
+                // position, rotation
+                new Vector3(10, 20, 30),
+                Quaternion.identity,
+                // inventory
+                new List<InventorySlot>{
+                    new InventorySlot{amount=0, itemId=0},
+                    new InventorySlot{amount=1, itemId=42},
+                    new InventorySlot{amount=50, itemId=43},
+                    new InventorySlot{amount=0, itemId=0}
+                },
+                // strength, intelligence, damage, defense
+                10,
+                11,
+                1000,
+                500,
+                // skills
+                new List<SkillSlot>{
+                    new SkillSlot{skillId=4, cooldown=0},
+                    new SkillSlot{skillId=8, cooldown=1},
+                    new SkillSlot{skillId=16, cooldown=2.5},
+                    new SkillSlot{skillId=23, cooldown=60}
+                }
+            );
+
+            // change only one field
+            tinychange = new GameObject().AddComponent<CompressionMonster>();
+            tinychange.Initialize(
+                // name, health, mana, level
+                "Skeleton",
+                99,
                 200,
                 60,
                 // position, rotation
@@ -185,6 +218,25 @@ namespace Mirror.Tests.DeltaCompression
                     new SkillSlot{skillId=23, cooldown=25}
                 }
             );
+        }
+
+        [Test]
+        public void Delta_TinyChange()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            original.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            tinychange.OnSerialize(writerB, true);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
+            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
         }
 
         [Test]
