@@ -107,6 +107,11 @@ namespace Mirror.Tests.DeltaCompression
 
             // convert to patch
             List<Modified> patch = MakePatch(fromInts, toInts, diffs);
+
+            // serialize
+            result.WriteInt(patch.Count);
+            for (int i = 0; i < patch.Count; ++i)
+                patch[i].Serialize(result);
         }
 
         public override void ApplyPatch(NetworkWriter from, NetworkWriter patch, NetworkWriter result)
