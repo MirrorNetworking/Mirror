@@ -118,7 +118,7 @@ namespace Mirror.Tests.DeltaCompression
                 for (int n = 0; n < deletedA; ++n)
                 {
                     B.RemoveAt(StartB + n);
-                    Debug.Log($"->patch: removing from B @ StartB={StartB} + n={n} => {BitConverter.ToString(B.ToArray())}");
+                    Debug.Log($"->patch: removed from B @ StartB={StartB} + n={n} => {BitConverter.ToString(B.ToArray())}");
                 }
 
                 // inserted amount
