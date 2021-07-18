@@ -38,7 +38,18 @@ namespace Mirror.Tests.DeltaCompression
 
             public void Deserialize(NetworkReader reader)
             {
-                // TODO
+                // TODO consider short indices? depends on max allowed writer size
+                // => or varint!
+                indexA = reader.ReadInt();
+                indexB = reader.ReadInt();
+
+                deletedA = reader.ReadInt();
+
+                insertedB = new List<byte>();
+                int insertedBCount = reader.ReadInt();
+                // for-int to avoid allocations
+                for (int i = 0; i < insertedBCount; ++i)
+                    insertedB.Add(reader.ReadByte());
             }
 
             // tostring for easier debugging / understanding
@@ -114,9 +125,18 @@ namespace Mirror.Tests.DeltaCompression
                 patch[i].Serialize(result);
         }
 
-        public override void ApplyPatch(NetworkWriter from, NetworkWriter delta, NetworkWriter result)
+        public override void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
         {
-            throw new NotImplementedException();
+            // deserialize patch
+            List<Modified> patch = new List<Modified>();
+            int count = delta.ReadInt();
+            // TODO safety..
+            for (int i = 0; i < count; ++i)
+            {
+                Modified modified = new Modified();
+                modified.Deserialize(delta);
+                patch.Add(modified);
+            }
         }
 
         // simple test for understanding
