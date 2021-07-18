@@ -228,7 +228,8 @@ namespace Mirror.Tests.DeltaCompression
             // -> we want soething like ABCBCDE so we have a reptition of
             //    different values in there like BCBC
             // -> this way we can test what 'insertedB' means
-            byte[] A = {11, 22, 33, 22, 33,         44, 55};
+            // -> also want more than one removal at a time (the two '55's)
+            byte[] A = {11, 22, 33, 22, 33,         44, 55, 55};
             byte[] B = {11, 22, 33, 22, 33, 22, 33, 44};
             Debug.Log($"A={BitConverter.ToString(A)}");
             Debug.Log($"B={BitConverter.ToString(B)}");
