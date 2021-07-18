@@ -84,7 +84,8 @@ namespace Mirror.Tests.DeltaCompression
     {
         // two snapshots
         protected CompressionMonster original;
-        protected CompressionMonster B;
+        protected CompressionMonster smallchange;
+        protected CompressionMonster bigchange;
 
         // the algorithm to use
         public abstract void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result);
@@ -125,9 +126,41 @@ namespace Mirror.Tests.DeltaCompression
                 }
             );
 
-            // change it a little for second snapshot
-            B = new GameObject().AddComponent<CompressionMonster>();
-            B.Initialize(
+            // change it a little
+            smallchange = new GameObject().AddComponent<CompressionMonster>();
+            smallchange.Initialize(
+                // name, health, mana, level
+                "Skeleton",
+                95,
+                180,
+                60,
+                // position, rotation
+                new Vector3(9, 20, 30),
+                Quaternion.identity,
+                // inventory
+                new List<InventorySlot>{
+                    new InventorySlot{amount=0, itemId=0},
+                    new InventorySlot{amount=1, itemId=42},
+                    new InventorySlot{amount=49, itemId=43},
+                    new InventorySlot{amount=0, itemId=0}
+                },
+                // strength, intelligence, damage, defense
+                10,
+                11,
+                1000,
+                500,
+                // skills
+                new List<SkillSlot>{
+                    new SkillSlot{skillId=4, cooldown=0},
+                    new SkillSlot{skillId=8, cooldown=0.5},
+                    new SkillSlot{skillId=16, cooldown=0},
+                    new SkillSlot{skillId=23, cooldown=60}
+                }
+            );
+
+            // change it a lot
+            bigchange = new GameObject().AddComponent<CompressionMonster>();
+            bigchange.Initialize(
                 // name, health, mana, level
                 "Skeleton (Dead)",
                 0,
@@ -156,14 +189,30 @@ namespace Mirror.Tests.DeltaCompression
 
         // run the delta encoding
         [Test]
-        public void Delta()
+        public void Delta_BigChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
             original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
-            B.OnSerialize(writerB, true);
+            bigchange.OnSerialize(writerB, true);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
+        }
+
+        [Test]
+        public void Delta_SmallChange()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            original.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            smallchange.OnSerialize(writerB, true);
 
             // compute delta
             NetworkWriter delta = new NetworkWriter();
@@ -180,7 +229,7 @@ namespace Mirror.Tests.DeltaCompression
             original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
-            B.OnSerialize(writerB, true);
+            bigchange.OnSerialize(writerB, true);
 
             // compute delta
             NetworkWriter delta = new NetworkWriter();
@@ -207,7 +256,7 @@ namespace Mirror.Tests.DeltaCompression
             original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
-            B.OnSerialize(writerB, true);
+            bigchange.OnSerialize(writerB, true);
 
             // compute delta several times (assume 100k entities in the world)
             NetworkWriter result = new NetworkWriter();
