@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -86,6 +88,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // the algorithm to use
         public abstract void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result);
+        public abstract void ApplyPatch(NetworkWriter from, NetworkWriter patch, NetworkWriter result);
 
         [SetUp]
         public void SetUp()
@@ -166,6 +169,33 @@ namespace Mirror.Tests.DeltaCompression
             NetworkWriter delta = new NetworkWriter();
             ComputeDelta(writerA, writerB, delta);
             Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
+        }
+
+        // apply the delta
+        [Test]
+        public void Patch()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            A.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            B.OnSerialize(writerB, true);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+
+            // apply patch to A to get B
+            NetworkWriter patched = new NetworkWriter();
+            ApplyPatch(writerA, delta, patched);
+
+            // compare
+            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
+            Debug.Log($"P={BitConverter.ToString(patched.ToArray())}");
+            Assert.That(patched.ToArray().SequenceEqual(writerB.ToArray()));
         }
 
         // measure performance. needs to be fast enough.
