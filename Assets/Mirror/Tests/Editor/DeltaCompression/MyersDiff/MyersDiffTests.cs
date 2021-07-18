@@ -10,67 +10,8 @@ namespace Mirror.Tests.DeltaCompression
 {
     public class MyersDiffTests : DeltaCompressionTests
     {
-        // like Diff.Item, but with the actual deleted/inserted values
-        public struct Modified
-        {
-            public int indexA;
-            public int indexB;
-
-            // amount of deletions in Data A.
-            public int deletedA;
-            // actual values inserted into Data B.
-            public List<byte> insertedB;
-
-            // serialize into a writer so we can send it over the network
-            public void Serialize(NetworkWriter writer)
-            {
-                // TODO consider short indices? depends on max allowed writer size
-                // => or varint!
-                writer.WriteInt(indexA);
-                writer.WriteInt(indexB);
-
-                writer.WriteInt(deletedA);
-                writer.WriteInt(insertedB.Count);
-                // for-int to avoid allocations
-                for (int i = 0; i < insertedB.Count; ++i)
-                    writer.WriteByte(insertedB[i]);
-            }
-
-            public void Deserialize(NetworkReader reader)
-            {
-                // TODO consider short indices? depends on max allowed writer size
-                // => or varint!
-                indexA = reader.ReadInt();
-                indexB = reader.ReadInt();
-
-                deletedA = reader.ReadInt();
-
-                insertedB = new List<byte>();
-                int insertedBCount = reader.ReadInt();
-                // for-int to avoid allocations
-                for (int i = 0; i < insertedBCount; ++i)
-                    insertedB.Add(reader.ReadByte());
-            }
-
-            // tostring for easier debugging / understanding
-            public override string ToString()
-            {
-                string s = "";
-
-                // deleted
-                if (deletedA > 0)
-                    s += $"indexA={indexA} indexB={indexB}: deleted {deletedA} entries; ";
-
-                // inserted
-                foreach (int value in insertedB)
-                    s += $"indexA={indexA} indexB={indexB}: inserted value='{value}'; ";
-
-                return s;
-            }
-        }
-
         // helper function to convert Diff.Item[] to an actual patch
-        public static List<Modified> MakePatch(int[] A, int[] B, Diff.Item[] diffs)
+        public static void MakePatch(int[] A, int[] B, Diff.Item[] diffs, NetworkWriter result)
         {
             // an item has:
             //   StartA
@@ -80,7 +21,7 @@ namespace Mirror.Tests.DeltaCompression
             //
             // to make an actual patch, we need to also included the insered values.
             // (the deleted values are deleted. we don't need to include those.)
-            List<Modified> result = new List<Modified>();
+            /*List<Modified> result = new List<Modified>();
             foreach (Diff.Item item in diffs)
             {
                 Modified modified = new Modified();
@@ -92,11 +33,44 @@ namespace Mirror.Tests.DeltaCompression
                 for (int i = 0; i < item.insertedB; ++i)
                 {
                     // TODO pass byte[] to begin with.
+                    Debug.Log($"->inserting @ A={item.StartA} value={A[item.StartA]}");
                     modified.insertedB.Add((byte)A[item.StartA]);
                 }
                 result.Add(modified);
             }
-            return result;
+            return result;*/
+
+
+            // serialize diffs
+            //   deletedA means: it was in A, it's deleted in B.
+            //   insertedB means: it wasn't in A, it's added to B.
+            // TODO varint
+            result.WriteInt(diffs.Length);
+            foreach (Diff.Item change in diffs)
+            {
+                // assuming the other end already has 'A'
+                // we need to save instructions to construct 'B' from 'A'.
+
+                // save both indices for now.
+                // TODO don't always need both
+                result.WriteInt(change.StartA);
+                result.WriteInt(change.StartB);
+
+                // always need to know if / how many were deleted
+                result.WriteInt(change.deletedA);
+
+                // always need to know how many were inserted
+                result.WriteInt(change.insertedB);
+
+                // need to provide the actual values that were inserted
+                // it means compared to 'A' at 'StartA',
+                // 'B' at 'startB' has 'N' the following new values
+                for (int i = 0; i < change.insertedB; ++i)
+                {
+                    // TODO use byte to begin with instead of int[]. or <T>.
+                    result.WriteByte((byte)B[change.StartB + i]);
+                }
+            }
         }
 
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
@@ -115,14 +89,11 @@ namespace Mirror.Tests.DeltaCompression
 
             // myers diff
             Diff.Item[] diffs = Diff.DiffInt(fromInts, toInts);
+            foreach (Diff.Item item in diffs)
+                Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
 
-            // convert to patch
-            List<Modified> patch = MakePatch(fromInts, toInts, diffs);
-
-            // serialize
-            result.WriteInt(patch.Count); // TODO unnecessary? just while .pos>0?
-            for (int i = 0; i < patch.Count; ++i)
-                patch[i].Serialize(result);
+            // make patch
+            MakePatch(fromInts, toInts, diffs, result);
         }
 
         public override void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
@@ -135,19 +106,39 @@ namespace Mirror.Tests.DeltaCompression
             // TODO safety..
             for (int i = 0; i < count; ++i)
             {
-                // deserialize modification
-                Modified modified = new Modified();
-                modified.Deserialize(delta);
+                // both indices
+                // TODO don't always need both
+                int StartA = delta.ReadInt();
+                int StartB = delta.ReadInt();
 
-                // apply it
-                // -> delete all that need to be deleted
+                // deleted amount
+                int deletedA = delta.ReadInt();
 
-                // -> insert all tha tneed to be inserted
+                // deletedA means: compared to A, these were deleted in B.
+                // TODO we need a linked list or similar data structure for perf
+                for (int n = 0; n < deletedA; ++n)
+                {
+                    Debug.Log($"->patch: removing from B @ {StartA + n}");
+                    Debug.Log($"         StartA={StartA} StartB={StartB} n={n}");
+                    B.RemoveAt(StartA + n);
+                }
+
+                // inserted amount
+                int insertedB = delta.ReadInt();
+                for (int n = 0; n < insertedB; ++n)
+                {
+                    byte value = delta.ReadByte();
+                    Debug.Log($"->patch: inserting '0x{value:X2}' into B @ {StartB + n}");
+                    B.Insert(StartB + n, value);
+                }
             }
+
+            // convert to byte[]
+            result.WriteBytes(B.ToArray(), 0, B.Count);
         }
 
         // simple test for understanding
-        [Test]
+        /*[Test]
         public void SimpleTest()
         {
             // test values larger than indices for easier reading
@@ -162,12 +153,7 @@ namespace Mirror.Tests.DeltaCompression
             // myers diff
             Diff.Item[] items = Diff.DiffInt(A, B);
             foreach (Diff.Item item in items)
-                Debug.Log($"item: startA={item.StartA} startB={item.StartB} deleteA={item.deletedA} insertB={item.insertedB}");
-
-            // make patch
-            List<Modified> patch = MakePatch(A, B, items);
-            foreach (Modified modified in patch)
-                Debug.Log("modified: " + modified);
-        }
+                Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
+        }*/
     }
 }
