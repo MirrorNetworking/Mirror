@@ -131,5 +131,8 @@ namespace Mirror.Tests
             B.OnSerialize(writerB, true);
             Debug.Log($"B uncompressed size: {writerB.Position} bytes");
         }
+
+        // TODO several compressions
+        // TODO with benchmark each
     }
 }
