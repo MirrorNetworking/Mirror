@@ -201,6 +201,9 @@ namespace Mirror.Tests.DeltaCompression
             // compute delta
             NetworkWriter delta = new NetworkWriter();
             ComputeDelta(writerA, writerB, delta);
+            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
             Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
         }
 
@@ -217,6 +220,9 @@ namespace Mirror.Tests.DeltaCompression
             // compute delta
             NetworkWriter delta = new NetworkWriter();
             ComputeDelta(writerA, writerB, delta);
+            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
             Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
         }
 
