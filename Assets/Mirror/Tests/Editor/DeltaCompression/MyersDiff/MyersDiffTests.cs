@@ -118,9 +118,8 @@ namespace Mirror.Tests.DeltaCompression
                 // TODO we need a linked list or similar data structure for perf
                 for (int n = 0; n < deletedA; ++n)
                 {
-                    B.RemoveAt(StartA + n);
-                    Debug.Log($"->patch: removed from B @ {StartA + n} => {BitConverter.ToString(B.ToArray())}");
-                    Debug.Log($"         StartA={StartA} StartB={StartB} n={n}");
+                    B.RemoveAt(StartB + n);
+                    Debug.Log($"->patch: removing StartA={StartA} StartB={StartB} n={n} => {BitConverter.ToString(B.ToArray())}");
                 }
 
                 // inserted amount
