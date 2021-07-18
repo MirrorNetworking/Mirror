@@ -83,7 +83,7 @@ namespace Mirror.Tests.DeltaCompression
     public abstract class DeltaCompressionTests
     {
         // two snapshots
-        protected CompressionMonster A;
+        protected CompressionMonster original;
         protected CompressionMonster B;
 
         // the algorithm to use
@@ -94,8 +94,8 @@ namespace Mirror.Tests.DeltaCompression
         public void SetUp()
         {
             // create the monster with unique values
-            A = new GameObject().AddComponent<CompressionMonster>();
-            A.Initialize(
+            original = new GameObject().AddComponent<CompressionMonster>();
+            original.Initialize(
                 // name, health, mana, level
                 "Skeleton",
                 100,
@@ -160,7 +160,7 @@ namespace Mirror.Tests.DeltaCompression
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
-            A.OnSerialize(writerA, true);
+            original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
             B.OnSerialize(writerB, true);
@@ -177,7 +177,7 @@ namespace Mirror.Tests.DeltaCompression
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
-            A.OnSerialize(writerA, true);
+            original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
             B.OnSerialize(writerB, true);
@@ -204,7 +204,7 @@ namespace Mirror.Tests.DeltaCompression
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
-            A.OnSerialize(writerA, true);
+            original.OnSerialize(writerA, true);
 
             NetworkWriter writerB = new NetworkWriter();
             B.OnSerialize(writerB, true);
