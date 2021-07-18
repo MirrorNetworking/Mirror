@@ -10,34 +10,6 @@ namespace Mirror.Tests.DeltaCompression
         // helper function to convert Diff.Item[] to an actual patch
         public static void MakePatch(int[] A, int[] B, Diff.Item[] diffs, NetworkWriter result)
         {
-            // an item has:
-            //   StartA
-            //   StartB
-            //   DeletedA
-            //   InsertedB
-            //
-            // to make an actual patch, we need to also included the insered values.
-            // (the deleted values are deleted. we don't need to include those.)
-            /*List<Modified> result = new List<Modified>();
-            foreach (Diff.Item item in diffs)
-            {
-                Modified modified = new Modified();
-                modified.indexA = item.StartA;
-                modified.indexB = item.StartB;
-                modified.deletedA = item.deletedA;
-                // add the inserted values
-                modified.insertedB = new List<byte>();
-                for (int i = 0; i < item.insertedB; ++i)
-                {
-                    // TODO pass byte[] to begin with.
-                    Debug.Log($"->inserting @ A={item.StartA} value={A[item.StartA]}");
-                    modified.insertedB.Add((byte)A[item.StartA]);
-                }
-                result.Add(modified);
-            }
-            return result;*/
-
-
             // serialize diffs
             //   deletedA means: it was in A, it's deleted in B.
             //   insertedB means: it wasn't in A, it's added to B.
@@ -127,24 +99,5 @@ namespace Mirror.Tests.DeltaCompression
             // convert to byte[]
             result.WriteBytes(B.ToArray(), 0, B.Count);
         }
-
-        // simple test for understanding
-        /*[Test]
-        public void SimpleTest()
-        {
-            // test values larger than indices for easier reading
-            // -> we want soething like ABCBCDE so we have a reptition of
-            //    different values in there like BCBC
-            // -> this way we can test what 'insertedB' means
-            int[] A = {11, 22, 33, 22, 33,         44, 55};
-            int[] B = {11, 22, 33, 22, 33, 22, 33, 44};
-            Debug.Log($"A={String.Join(", ", A)}");
-            Debug.Log($"B={String.Join(", ", B)}");
-
-            // myers diff
-            Diff.Item[] items = Diff.DiffInt(A, B);
-            foreach (Diff.Item item in items)
-                Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
-        }*/
     }
 }
