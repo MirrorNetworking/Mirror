@@ -72,7 +72,7 @@
 /// 2008.05.31 Adjusted the testing code that failed because of the Optimize method (not a bug in the diff algorithm).
 /// 2008.10.08 Fixing a test case and adding a new test case.
 /// </summary>
-namespace O_ND_Difference
+namespace MyersDiff
 {
   public class Diff
   {
