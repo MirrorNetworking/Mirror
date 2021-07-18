@@ -162,7 +162,7 @@ namespace Mirror.Tests.DeltaCompression
             );
         }
 
-        // small: health, mana, position.x, 1 item amount, 2 skill cds (24 bytes)
+        // small: health, mana, position.x, 1 item amount, 2 skill cds (32 bytes)
         protected void CreateSmallChange()
         {
             // change it a little
@@ -267,7 +267,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // small:
         [Test]
-        public void Delta_SmallChange_24Bytes()
+        public void Delta_SmallChange_32Bytes()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
