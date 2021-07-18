@@ -123,9 +123,13 @@ namespace Mirror.Tests
         [Test]
         public void Uncompressed()
         {
-            NetworkWriter writer = new NetworkWriter();
-            A.OnSerialize(writer, true);
-            Debug.Log($"A uncompressed size: {writer.Position} bytes");
+            NetworkWriter writerA = new NetworkWriter();
+            A.OnSerialize(writerA, true);
+            Debug.Log($"A uncompressed size: {writerA.Position} bytes");
+
+            NetworkWriter writerB = new NetworkWriter();
+            B.OnSerialize(writerB, true);
+            Debug.Log($"B uncompressed size: {writerB.Position} bytes");
         }
     }
 }
