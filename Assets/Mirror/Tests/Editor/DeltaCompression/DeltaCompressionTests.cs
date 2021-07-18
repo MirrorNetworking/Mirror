@@ -143,10 +143,8 @@ namespace Mirror.Tests
                 13,
                 5000,
                 2000,
-                // skills
+                // skills: assume two were buffs and are now gone
                 new List<SkillSlot>{
-                    new SkillSlot{skillId=4, cooldown=0},
-                    new SkillSlot{skillId=8, cooldown=0},
                     new SkillSlot{skillId=16, cooldown=0},
                     new SkillSlot{skillId=23, cooldown=25}
                 }
