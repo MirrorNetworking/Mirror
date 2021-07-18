@@ -151,8 +151,11 @@ namespace Mirror.Tests.DeltaCompression
         public void SimpleTest()
         {
             // test values larger than indices for easier reading
-            int[] A = {11, 22,         33, 44, 44};
-            int[] B = {11, 22, 22, 22, 33,     44};
+            // -> we want soething like ABCBCDE so we have a reptition of
+            //    different values in there like BCBC
+            // -> this way we can test what 'insertedB' means
+            int[] A = {11, 22, 33, 22, 33,         44, 55};
+            int[] B = {11, 22, 33, 22, 33, 22, 33, 44};
             Debug.Log($"A={String.Join(", ", A)}");
             Debug.Log($"B={String.Join(", ", B)}");
 
