@@ -89,7 +89,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // the algorithm to use
         public abstract void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result);
-        public abstract void ApplyPatch(NetworkWriter from, NetworkWriter delta, NetworkWriter result);
+        public abstract void ApplyPatch(NetworkWriter from, NetworkReader delta, NetworkWriter result);
 
         [SetUp]
         public void SetUp()
@@ -237,7 +237,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // apply patch to A to get B
             NetworkWriter patched = new NetworkWriter();
-            ApplyPatch(writerA, delta, patched);
+            ApplyPatch(writerA, new NetworkReader(delta.ToArray()), patched);
 
             // compare
             Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
