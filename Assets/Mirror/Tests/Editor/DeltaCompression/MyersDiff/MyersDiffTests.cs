@@ -59,8 +59,8 @@ namespace Mirror.Tests.DeltaCompression
 
             // myers diff
             Diff.Item[] diffs = Diff.DiffInt(fromInts, toInts);
-            //foreach (Diff.Item item in diffs)
-            //    Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
+            foreach (Diff.Item item in diffs)
+                UnityEngine.Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
 
             // make patch
             MakePatch(fromInts, toInts, diffs, result);
