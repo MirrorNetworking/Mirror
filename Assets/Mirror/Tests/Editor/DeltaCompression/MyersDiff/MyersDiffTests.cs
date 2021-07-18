@@ -2,7 +2,7 @@
 // used in diff, git!
 using MyersDiff;
 
-namespace Mirror.Tests.DeltaCompression.Myers_O_ND_Difference
+namespace Mirror.Tests.DeltaCompression
 {
     public class MyersDiffTests : DeltaCompressionTests
     {
