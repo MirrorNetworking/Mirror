@@ -121,7 +121,7 @@ namespace Mirror.Tests.DeltaCompression
                     // DO NOT remove at 'StartB + n'.
                     // every removal moves the end of the list to 'StartB' again.
                     B.RemoveAt(StartB);
-                    Debug.Log($"->patch: removed from B @ StartB={StartB} + n={n} => {BitConverter.ToString(B.ToArray())}");
+                    //Debug.Log($"->patch: removed from B @ StartB={StartB} + n={n} => {BitConverter.ToString(B.ToArray())}");
                 }
 
                 // inserted amount
@@ -130,7 +130,7 @@ namespace Mirror.Tests.DeltaCompression
                 {
                     byte value = delta.ReadByte();
                     B.Insert(StartB + n, value);
-                    Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
+                    //Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
                 }
             }
 
