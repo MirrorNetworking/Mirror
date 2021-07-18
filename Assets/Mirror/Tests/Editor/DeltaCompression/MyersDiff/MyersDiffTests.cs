@@ -1,5 +1,10 @@
 // original paper: http://www.xmailserver.org/diff2.pdf
 // used in diff, git!
+//
+// VARINT before/after:
+//   Delta_Tiny:   17 bytes =>
+//   Delta_Small:  83 bytes =>
+//   Delta_Big:   318 bytes =>
 using System.Collections.Generic;
 using MyersDiff;
 
