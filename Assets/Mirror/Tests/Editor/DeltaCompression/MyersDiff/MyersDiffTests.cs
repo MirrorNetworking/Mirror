@@ -1,8 +1,10 @@
-using O_ND_Difference;
+// original paper: http://www.xmailserver.org/diff2.pdf
+// used in diff, git!
+using MyersDiff;
 
 namespace Mirror.Tests.DeltaCompression.Myers_O_ND_Difference
 {
-    public class O_ND_DifferenceTests : DeltaCompressionTests
+    public class MyersDiffTests : DeltaCompressionTests
     {
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
         {
