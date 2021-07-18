@@ -41,6 +41,8 @@ namespace Mirror.Tests.DeltaCompression
                 for (int i = 0; i < change.insertedB; ++i)
                 {
                     // TODO use byte to begin with instead of int[]. or <T>.
+                    // DO NOT _VARINT_ the actual value.
+                    // it's just a byte. it could be anything. we don't know.
                     result.WriteByte((byte)B[change.StartB + i]);
                 }
             }
@@ -93,6 +95,8 @@ namespace Mirror.Tests.DeltaCompression
                 int insertedB = (int)VarInt.ReadULong(delta);
                 for (int n = 0; n < insertedB; ++n)
                 {
+                    // DO NOT _VARINT_ the actual value.
+                    // it's just a byte. it could be anything. we don't know.
                     byte value = delta.ReadByte();
                     B.Insert(StartB + n, value);
                     //Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
