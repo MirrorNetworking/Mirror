@@ -220,9 +220,40 @@ namespace Mirror.Tests.DeltaCompression
             Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
         }
 
+        // simply patch test for easy debugging
+        [Test]
+        public void Patch_SimplifiedExample()
+        {
+            // test values larger than indices for easier reading
+            // -> we want soething like ABCBCDE so we have a reptition of
+            //    different values in there like BCBC
+            // -> this way we can test what 'insertedB' means
+            byte[] A = {11, 22, 33, 22, 33,         44, 55};
+            byte[] B = {11, 22, 33, 22, 33, 22, 33, 44};
+            NetworkWriter writerA = new NetworkWriter();
+            writerA.WriteBytes(A, 0, A.Length);
+            NetworkWriter writerB = new NetworkWriter();
+            writerB.WriteBytes(B, 0, B.Length);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+
+            // apply patch to A to get B
+            NetworkWriter patched = new NetworkWriter();
+            ApplyPatch(writerA, new NetworkReader(delta.ToArray()), patched);
+
+            // compare
+            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
+            Debug.Log($"P={BitConverter.ToString(patched.ToArray())}");
+            Assert.That(patched.ToArray().SequenceEqual(writerB.ToArray()));
+        }
+
         // apply the delta
         [Test]
-        public void Patch()
+        public void Patch_RealExample()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
