@@ -13,12 +13,10 @@ namespace Mirror.Tests.DeltaCompression
         // like Diff.Item, but with the actual deleted/inserted values
         public struct Modified
         {
-            // Start Line number in Data A.
-            public int StartA;
-            // Start Line number in Data B.
-            public int StartB;
+            public int indexA;
+            public int indexB;
 
-            // Number of deletions in Data A.
+            // amount of deletions in Data A.
             public int deletedA;
             // actual values inserted into Data B.
             public List<int> insertedB;
@@ -41,11 +39,11 @@ namespace Mirror.Tests.DeltaCompression
 
                 // deleted
                 if (deletedA > 0)
-                    s += $"StartA={StartA} StartB={StartB}: deleted {deletedA} entries; ";
+                    s += $"indexA={indexA} indexB={indexB}: deleted {deletedA} entries; ";
 
                 // inserted
                 foreach (int value in insertedB)
-                    s += $"StartA={StartA} StartB={StartB}: inserted value='{value}'; ";
+                    s += $"indexA={indexA} indexB={indexB}: inserted value='{value}'; ";
 
                 return s;
             }
@@ -66,8 +64,8 @@ namespace Mirror.Tests.DeltaCompression
             foreach (Diff.Item item in diffs)
             {
                 Modified modified = new Modified();
-                modified.StartA = item.StartA;
-                modified.StartB = item.StartB;
+                modified.indexA = item.StartA;
+                modified.indexB = item.StartB;
                 modified.deletedA = item.deletedA;
                 // add the inserted values
                 modified.insertedB = new List<int>();
