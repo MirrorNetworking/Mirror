@@ -151,20 +151,6 @@ namespace Mirror.Tests.DeltaCompression
             );
         }
 
-        // quick test to write the uncompressed component.
-        // to make sure mirror generates serialization etc.
-        [Test]
-        public void Uncompressed()
-        {
-            NetworkWriter writerA = new NetworkWriter();
-            A.OnSerialize(writerA, true);
-            Debug.Log($"A uncompressed size: {writerA.Position} bytes");
-
-            NetworkWriter writerB = new NetworkWriter();
-            B.OnSerialize(writerB, true);
-            Debug.Log($"B uncompressed size: {writerB.Position} bytes");
-        }
-
         // run the delta encoding
         [Test]
         public void Delta()
