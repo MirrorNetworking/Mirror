@@ -73,6 +73,8 @@
   /// 2008.10.08 Fixing a test case and adding a new test case.
   /// </summary>
 
+namespace O_ND_Difference
+{
   public class Diff
   {
 
@@ -492,3 +494,4 @@
     } // DiffData
 
   } // class DiffData
+}
