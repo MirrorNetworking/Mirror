@@ -94,8 +94,9 @@ namespace Mirror.Tests.DeltaCompression
         [Test]
         public void SimpleTest()
         {
-            int[] A = {0, 1,       2, 3, 4};
-            int[] B = {0, 1, 1, 1, 2,    4};
+            // test values larger than indices for easier reading
+            int[] A = {11, 22,         33, 44, 44};
+            int[] B = {11, 22, 22, 22, 33,     44};
             Debug.Log($"A={String.Join(", ", A)}");
             Debug.Log($"B={String.Join(", ", B)}");
 
