@@ -255,7 +255,7 @@ namespace Mirror.Tests.DeltaCompression
             Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
             Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
             Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
-            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
+            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position} bytes");
         }
 
         // small:
@@ -275,7 +275,7 @@ namespace Mirror.Tests.DeltaCompression
             Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
             Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
             Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
-            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
+            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position} bytes");
         }
 
         // run the delta encoding
@@ -295,7 +295,7 @@ namespace Mirror.Tests.DeltaCompression
             Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
             Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
             Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
-            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position}bytes");
+            Debug.Log($"A={writerA.Position} bytes\nB={writerB.Position} bytes\nDelta={delta.Position} bytes");
         }
 
         // simply patch test for easy debugging
