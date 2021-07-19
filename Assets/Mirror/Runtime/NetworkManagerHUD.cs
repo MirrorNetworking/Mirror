@@ -77,6 +77,7 @@ namespace Mirror
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Client"))
                 {
+                    // note: networkAddress should be set before calling StartClient();
                     manager.StartClient();
                 }
                 manager.networkAddress = GUILayout.TextField(manager.networkAddress);
