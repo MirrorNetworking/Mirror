@@ -118,6 +118,9 @@ namespace Mirror.Tests.NetworkTransform2k
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot with interpolation
+            component.syncPosition = true;
+            component.syncRotation = true;
+            component.syncScale = true;
             component.interpolatePosition = true;
             component.interpolateRotation = true;
             component.interpolateScale = true;
@@ -138,6 +141,9 @@ namespace Mirror.Tests.NetworkTransform2k
             Vector3 scale = new Vector3(4, 5, 6);
 
             // apply snapshot without interpolation
+            component.syncPosition = true;
+            component.syncRotation = true;
+            component.syncScale = true;
             component.interpolatePosition = false;
             component.interpolateRotation = false;
             component.interpolateScale = false;
