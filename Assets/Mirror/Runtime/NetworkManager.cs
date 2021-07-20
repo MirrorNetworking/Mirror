@@ -532,11 +532,8 @@ namespace Mirror
         /// <summary>Stops the server from listening and simulating the game.</summary>
         public void StopServer()
         {
-            // return if already stopped to avoid recursion deadlock
-            if (!isNetworkActive)
+            if (!NetworkServer.active)
                 return;
-
-            //Debug.Log("NetworkManager StopServer");
 
             if (authenticator != null)
             {
@@ -556,10 +553,10 @@ namespace Mirror
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 #pragma warning restore 618
 
-            isNetworkActive = false;
-
             OnStopServer();
 
+            //Debug.Log("NetworkManager StopServer");
+            isNetworkActive = false;
             NetworkServer.Shutdown();
 
             // set offline mode BEFORE changing scene so that FinishStartScene
@@ -579,12 +576,6 @@ namespace Mirror
         /// <summary>Stops and disconnects the client.</summary>
         public void StopClient()
         {
-            // return if already stopped to avoid recursion deadlock
-            if (!isNetworkActive)
-                return;
-
-            //Debug.Log("NetworkManager StopClient");
-
             if (authenticator != null)
             {
                 authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
@@ -603,9 +594,10 @@ namespace Mirror
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 #pragma warning restore 618
 
-            isNetworkActive = false;
-
             OnStopClient();
+
+            //Debug.Log("NetworkManager StopClient");
+            isNetworkActive = false;
 
             // shutdown client
             NetworkClient.Disconnect();
