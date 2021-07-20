@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Mirror.Experimental
 {
@@ -8,6 +9,8 @@ namespace Mirror.Experimental
     /// </summary>
     [AddComponentMenu("Network/Experimental/NetworkTransformChildExperimentalExperimental")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-transform-child")]
+    // DEPRECATED 2021-07-20
+    [Obsolete("NetworkTransform now uses Snapshot Interpolation. This component will be removed soon.")]
     public class NetworkTransformChild : NetworkTransformBase
     {
         [Header("Target")]
