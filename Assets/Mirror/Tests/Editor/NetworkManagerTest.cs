@@ -82,6 +82,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void StartHostTest()
+        {
+            manager.StartHost();
+
+            Assert.That(manager.isNetworkActive, Is.True);
+            Assert.That(manager.mode == NetworkManagerMode.Host);
+            Assert.That(NetworkServer.active, Is.True);
+            Assert.That(NetworkClient.active, Is.True);
+        }
+
+        [Test]
         public void ShutdownTest()
         {
             manager.StartClient();
