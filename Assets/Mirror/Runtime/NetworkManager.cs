@@ -242,7 +242,7 @@ namespace Mirror
                 authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
 
-            ConfigureServerFrameRate();
+            ConfigureHeadlessFrameRate();
 
             // Copy auto-disconnect settings to NetworkServer
 #pragma warning disable 618
@@ -335,7 +335,7 @@ namespace Mirror
             isNetworkActive = true;
 
             // In case this is a headless client...
-            ConfigureServerFrameRate();
+            ConfigureHeadlessFrameRate();
 
             RegisterClientMessages();
 
@@ -640,14 +640,24 @@ namespace Mirror
             }
         }
 
-        /// <summary>Set the frame rate for a headless server. Override to disable or modify.</summary>
-        public virtual void ConfigureServerFrameRate()
+        // DEPRECATED 2021-07-21
+        [Obsolete("Renamed to ConfigureHeadlessFrameRate()")]
+        public virtual void ConfigureServerFrameRate() {}
+
+        /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
+        // useful for dedicated servers.
+        // useful for headless benchmark clients.
+        public virtual void ConfigureHeadlessFrameRate()
         {
-            // only set framerate for server build
 #if UNITY_SERVER
             Application.targetFrameRate = serverTickRate;
             // Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
 #endif
+
+            // call the obsolete function in case someone did anything important
+#pragma warning disable 618
+            ConfigureServerFrameRate();
+#pragma warning restore 618
         }
 
         bool InitializeSingleton()
