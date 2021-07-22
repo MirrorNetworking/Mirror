@@ -5,6 +5,10 @@
 //   Delta_Tiny:   17 bytes =>  5 bytes
 //   Delta_Small:  83 bytes => 26 bytes
 //   Delta_Big:   318 bytes => 99 bytes
+//
+// BENCHMARK 100k before/after:
+//   original (int[], allocations):
+//   after (<T>, nonalloc):
 using System.Collections.Generic;
 using MyersDiff;
 
