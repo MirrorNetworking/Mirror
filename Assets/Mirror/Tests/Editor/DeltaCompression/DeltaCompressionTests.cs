@@ -354,9 +354,20 @@ namespace Mirror.Tests.DeltaCompression
             Assert.That(patched.ToArray().SequenceEqual(writerB.ToArray()));
         }
 
+        // actual benchmark execution can be overwritten for caching etc.
+        public virtual void OnBenchmark(NetworkWriter writerA, NetworkWriter writerB, int amount, NetworkWriter result)
+        {
+            for (int i = 0; i < amount; ++i)
+            {
+                // reset write each time. don't want to measure resizing.
+                result.Position = 0;
+                ComputeDelta(writerA, writerB, result);
+            }
+        }
+
         // measure performance. needs to be fast enough.
         [Test]
-        public void Benchmark()
+        public void Benchmark100k()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
@@ -367,12 +378,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // compute delta several times (assume 100k entities in the world)
             NetworkWriter result = new NetworkWriter();
-            for (int i = 0; i < 100000; ++i)
-            {
-                // reset write each time. don't want to measure resizing.
-                result.Position = 0;
-                ComputeDelta(writerA, writerB, result);
-            }
+            OnBenchmark(writerA, writerB, 100000, result);
         }
     }
 }
