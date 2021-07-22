@@ -113,7 +113,7 @@ namespace MyersDiffX
             // vector for the (u,v) to (N,M) search
             List<int> UpVector = new List<int>(2 * MAX + 2);
 
-            DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+            DiffNonAlloc(new ArraySegment<T>(A), new ArraySegment<T>(B), modifiedA, modifiedB, DownVector, UpVector, result);
             return result;
         }
 
@@ -121,7 +121,7 @@ namespace MyersDiffX
         // useful for games etc. that need to avoid runtime allocations.
         // -> A, B are actual parameters
         // -> the lists are to avoid allocations
-        public static void DiffNonAlloc<T>(T[] A, T[] B,
+        public static void DiffNonAlloc<T>(ArraySegment<T> A, ArraySegment<T> B,
                                            List<bool> modifiedA, List<bool> modifiedB,
                                            List<int> DownVector, List<int> UpVector,
                                            List<Item> result)
@@ -138,8 +138,8 @@ namespace MyersDiffX
             modifiedA.Clear();
             modifiedB.Clear();
             // TODO is this necessary, or does the algo set all values anyway?
-            for (int i = 0; i < A.Length + 2; ++i) modifiedA.Add(false);
-            for (int i = 0; i < B.Length + 2; ++i) modifiedB.Add(false);
+            for (int i = 0; i < A.Count + 2; ++i) modifiedA.Add(false);
+            for (int i = 0; i < B.Count + 2; ++i) modifiedB.Add(false);
 
             // initialize the vector arrays.
             // new int[size] initializes them to '0'.
@@ -147,7 +147,7 @@ namespace MyersDiffX
             // that's the price to pay to avoid allocations.
             DownVector.Clear();
             UpVector.Clear();
-            int MAX = A.Length + B.Length + 1;
+            int MAX = A.Count + B.Count + 1;
             // TODO is this necessary, or does the algo set all values anyway?
             for (int i = 0; i < 2 * MAX + 2; ++i)
             {
@@ -155,8 +155,8 @@ namespace MyersDiffX
                 UpVector.Add(0);
             }
 
-            LongestCommonSubsequence(A, modifiedA, 0, A.Length,
-                                     B, modifiedB, 0, B.Length,
+            LongestCommonSubsequence(A, modifiedA, 0, A.Count,
+                                     B, modifiedB, 0, B.Count,
                                      DownVector, UpVector);
 
             CreateDiffs(modifiedA, modifiedB, result);
@@ -172,12 +172,12 @@ namespace MyersDiffX
         //   DownVector: a vector for the (0,0) to (x,y) search. Passed as a parameter for speed reasons.
         //   UpVector: a vector for the (u,v) to (N,M) search. Passed as a parameter for speed reasons.
         // Returns a MiddleSnakeData record containing x,y (u,v aren't needed)
-        internal static (int x, int y) ShortestMiddleSnake<T>(T[] A, int LowerA, int UpperA, T[] B, int LowerB, int UpperB,
+        internal static (int x, int y) ShortestMiddleSnake<T>(ArraySegment<T> A, int LowerA, int UpperA, ArraySegment<T> B, int LowerB, int UpperB,
             List<int> DownVector, List<int> UpVector)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
             where T : struct, IComparable, IEquatable<T>
         {
-            int MAX = A.Length + B.Length + 1;
+            int MAX = A.Count + B.Count + 1;
 
             int DownK = LowerA - LowerB; // the k-line to start the forward search
             int UpK = UpperA - UpperB; // the k-line to start the reverse search
@@ -220,7 +220,7 @@ namespace MyersDiffX
                     y = x - k;
 
                     // find the end of the furthest reaching forward D-path in diagonal k.
-                    while ((x < UpperA) && (y < UpperB) && (A[x].Equals(B[y])))
+                    while ((x < UpperA) && (y < UpperB) && (A.Array[x].Equals(B.Array[y])))
                     {
                         x++; y++;
                     }
@@ -259,7 +259,7 @@ namespace MyersDiffX
                     }
                     y = x - k;
 
-                    while ((x > LowerA) && (y > LowerB) && (A[x - 1].Equals(B[y - 1])))
+                    while ((x > LowerA) && (y > LowerB) && (A.Array[x - 1].Equals(B.Array[y - 1])))
                     {
                       x--; y--; // diagonal
                     }
@@ -297,20 +297,20 @@ namespace MyersDiffX
         //   UpperB: upper bound of the actual range in DataB (exclusive)
         //   DownVector: a vector for the (0,0) to (x,y) search. Passed as a parameter for speed reasons.
         //   UpVector: a vector for the (u,v) to (N,M) search. Passed as a parameter for speed reasons.
-        static void LongestCommonSubsequence<T>(T[] A, List<bool> modifiedA, int LowerA, int UpperA, T[] B, List<bool> modifiedB, int LowerB, int UpperB, List<int> DownVector, List<int> UpVector)
+        static void LongestCommonSubsequence<T>(ArraySegment<T> A, List<bool> modifiedA, int LowerA, int UpperA, ArraySegment<T> B, List<bool> modifiedB, int LowerB, int UpperB, List<int> DownVector, List<int> UpVector)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
             where T : struct, IComparable, IEquatable<T>
         {
             // Debug.Write(2, "LCS", String.Format("Analyse the box: A[{0}-{1}] to B[{2}-{3}]", LowerA, UpperA, LowerB, UpperB));
 
             // Fast walkthrough equal lines at the start
-            while (LowerA < UpperA && LowerB < UpperB && A[LowerA].Equals(B[LowerB]))
+            while (LowerA < UpperA && LowerB < UpperB && A.Array[LowerA].Equals(B.Array[LowerB]))
             {
                 LowerA++; LowerB++;
             }
 
             // Fast walkthrough equal lines at the end
-            while (LowerA < UpperA && LowerB < UpperB && A[UpperA - 1].Equals(B[UpperB - 1]))
+            while (LowerA < UpperA && LowerB < UpperB && A.Array[UpperA - 1].Equals(B.Array[UpperB - 1]))
             {
                 --UpperA; --UpperB;
             }
