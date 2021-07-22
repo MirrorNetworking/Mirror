@@ -6,13 +6,15 @@
 //   Delta_Small:  83 bytes => 26 bytes
 //   Delta_Big:   318 bytes => 99 bytes
 //
-// BENCHMARK 100k before/after:
+// BENCHMARK 100k BIG CHANGE before/after:
 //   original (int[], allocations):   3487ms
 //   MyersDiffX V0.2 (<T>, nonalloc):  343ms
+//
+// BENCHMARK 100k TINY CHANGE:
+//   MyersDiffX V0.2 (<T>, nonalloc):  342ms
 using System;
 using System.Collections.Generic;
 using MyersDiffX;
-using UnityEngine;
 
 namespace Mirror.Tests.DeltaCompression
 {
@@ -133,7 +135,7 @@ namespace Mirror.Tests.DeltaCompression
         // overwrite benchmark functon to use NonAlloc version & caches
         public override void OnBenchmark(NetworkWriter writerA, NetworkWriter writerB, int amount, NetworkWriter result)
         {
-            Debug.Log($"Running NonAlloc benchmark...");
+            //Debug.Log($"Running NonAlloc benchmark...");
 
             // prepare caches
             List<bool> modifiedA = new List<bool>();
