@@ -11,6 +11,7 @@
 //   MyersDiffX V0.1 (<T>, nonalloc):
 using System.Collections.Generic;
 using MyersDiffX;
+using UnityEngine;
 
 namespace Mirror.Tests.DeltaCompression
 {
@@ -67,6 +68,31 @@ namespace Mirror.Tests.DeltaCompression
             MakePatch(fromBytes, toBytes, diffs, result);
         }
 
+        // NonAlloc version for benchmark
+        public void ComputeDeltaNonAlloc(NetworkWriter from, NetworkWriter to, NetworkWriter result,
+            List<bool> modifiedA, List<bool> modifiedB,
+            List<int> DownVector, List<int> UpVector,
+            List<Item> diffs)
+        {
+            // TODO segment
+            byte[] fromBytes = from.ToArray();
+            byte[] toBytes = to.ToArray();
+
+            // myers diff nonalloc
+            MyersDiffX.MyersDiffX.DiffNonAlloc(
+                fromBytes, toBytes,
+                modifiedA, modifiedB,
+                DownVector, UpVector,
+                diffs
+            );
+            //foreach (Diff.Item item in diffs)
+            //    UnityEngine.Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
+
+            // make patch
+            // TODO linked list etc.
+            MakePatch(fromBytes, toBytes, diffs, result);
+        }
+
         public override void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
         {
             // convert A bytes to list for easier insertion/deletion
@@ -101,6 +127,26 @@ namespace Mirror.Tests.DeltaCompression
 
             // convert to byte[]
             result.WriteBytes(B.ToArray(), 0, B.Count);
+        }
+
+        // overwrite benchmark functon to use NonAlloc version & caches
+        public override void OnBenchmark(NetworkWriter writerA, NetworkWriter writerB, int amount, NetworkWriter result)
+        {
+            Debug.Log($"Running NonAlloc benchmark...");
+
+            // prepare caches
+            List<bool> modifiedA = new List<bool>();
+            List<bool> modifiedB = new List<bool>();
+            List<int> DownVector = new List<int>();
+            List<int> UpVector = new List<int>();
+            List<Item> diffs = new List<Item>();
+
+            for (int i = 0; i < amount; ++i)
+            {
+                // reset write each time. don't want to measure resizing.
+                result.Position = 0;
+                ComputeDeltaNonAlloc(writerA, writerB, result, modifiedA, modifiedB, DownVector, UpVector, diffs);
+            }
         }
     }
 }
