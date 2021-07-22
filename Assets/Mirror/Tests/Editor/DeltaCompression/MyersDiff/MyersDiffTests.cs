@@ -8,22 +8,22 @@
 //
 // BENCHMARK 100k before/after:
 //   original (int[], allocations): 3487ms
-//   after (<T>, nonalloc):
+//   MyersDiffX V0.1 (<T>, nonalloc):
 using System.Collections.Generic;
-using MyersDiff;
+using MyersDiffX;
 
 namespace Mirror.Tests.DeltaCompression
 {
     public class MyersDiffTests : DeltaCompressionTests
     {
         // helper function to convert Diff.Item[] to an actual patch
-        public static void MakePatch(int[] A, int[] B, Diff.Item[] diffs, NetworkWriter result)
+        public static void MakePatch(byte[] A, byte[] B, List<Item> diffs, NetworkWriter result)
         {
             // serialize diffs
             //   deletedA means: it was in A, it's deleted in B.
             //   insertedB means: it wasn't in A, it's added to B.
-            VarInt.WriteULong(result, (ulong)diffs.Length);
-            foreach (Diff.Item change in diffs)
+            VarInt.WriteULong(result, (ulong)diffs.Count);
+            foreach (Item change in diffs)
             {
                 // assuming the other end already has 'A'
                 // we need to save instructions to construct 'B' from 'A'.
@@ -47,32 +47,24 @@ namespace Mirror.Tests.DeltaCompression
                     // TODO use byte to begin with instead of int[]. or <T>.
                     // DO NOT _VARINT_ the actual value.
                     // it's just a byte. it could be anything. we don't know.
-                    result.WriteByte((byte)B[change.StartB + i]);
+                    result.WriteByte(B[change.StartB + i]);
                 }
             }
         }
 
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
         {
-            // algorithm needs int[] for now
-            // TODO use byte[]
+            // TODO segment
             byte[] fromBytes = from.ToArray();
-            int[] fromInts = new int[fromBytes.Length];
-            for (int i = 0; i < fromBytes.Length; ++i)
-                fromInts[i] = fromBytes[i];
-
             byte[] toBytes = to.ToArray();
-            int[] toInts = new int[toBytes.Length];
-            for (int i = 0; i < toBytes.Length; ++i)
-                toInts[i] = toBytes[i];
 
             // myers diff
-            Diff.Item[] diffs = Diff.DiffInt(fromInts, toInts);
-            foreach (Diff.Item item in diffs)
-                UnityEngine.Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
+            List<Item> diffs = MyersDiffX.MyersDiffX.Diff(fromBytes, toBytes);
+            //foreach (Diff.Item item in diffs)
+            //    UnityEngine.Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
 
             // make patch
-            MakePatch(fromInts, toInts, diffs, result);
+            MakePatch(fromBytes, toBytes, diffs, result);
         }
 
         public override void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)

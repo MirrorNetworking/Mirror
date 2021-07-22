@@ -1,0 +1,7 @@
+0.1 [2021-07-22]
+- initial release with:
+  - generics
+  - cleanups
+  - test coverage
+  - nonalloc
+  - etc.
