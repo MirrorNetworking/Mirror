@@ -376,7 +376,7 @@ namespace Mirror.Tests.DeltaCompression
             NetworkWriter writerB = new NetworkWriter();
             bigchange.OnSerialize(writerB, true);
 
-            // compute delta several times (assume 100k entities in the world)
+            // compute delta several times
             NetworkWriter result = new NetworkWriter();
             OnBenchmark(writerA, writerB, 100000, result);
         }
