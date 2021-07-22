@@ -7,8 +7,8 @@
 //   Delta_Big:   318 bytes => 99 bytes
 //
 // BENCHMARK 100k before/after:
-//   original (int[], allocations): 3487ms
-//   MyersDiffX V0.1 (<T>, nonalloc):
+//   original (int[], allocations):   3487ms
+//   MyersDiffX V0.2 (<T>, nonalloc):  343ms
 using System;
 using System.Collections.Generic;
 using MyersDiffX;
