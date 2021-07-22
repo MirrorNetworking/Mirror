@@ -9,6 +9,7 @@
 // BENCHMARK 100k before/after:
 //   original (int[], allocations): 3487ms
 //   MyersDiffX V0.1 (<T>, nonalloc):
+using System;
 using System.Collections.Generic;
 using MyersDiffX;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace Mirror.Tests.DeltaCompression
     public class MyersDiffTests : DeltaCompressionTests
     {
         // helper function to convert Diff.Item[] to an actual patch
-        public static void MakePatch(byte[] A, byte[] B, List<Item> diffs, NetworkWriter result)
+        public static void MakePatch(ArraySegment<byte> A, ArraySegment<byte> B, List<Item> diffs, NetworkWriter result)
         {
             // serialize diffs
             //   deletedA means: it was in A, it's deleted in B.
@@ -48,7 +49,7 @@ namespace Mirror.Tests.DeltaCompression
                     // TODO use byte to begin with instead of int[]. or <T>.
                     // DO NOT _VARINT_ the actual value.
                     // it's just a byte. it could be anything. we don't know.
-                    result.WriteByte(B[change.StartB + i]);
+                    result.WriteByte(B.Array[change.StartB + i]);
                 }
             }
         }
@@ -65,7 +66,7 @@ namespace Mirror.Tests.DeltaCompression
             //    UnityEngine.Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
 
             // make patch
-            MakePatch(fromBytes, toBytes, diffs, result);
+            MakePatch(new ArraySegment<byte>(fromBytes), new ArraySegment<byte>(toBytes), diffs, result);
         }
 
         // NonAlloc version for benchmark
@@ -75,12 +76,12 @@ namespace Mirror.Tests.DeltaCompression
             List<Item> diffs)
         {
             // TODO segment
-            byte[] fromBytes = from.ToArray();
-            byte[] toBytes = to.ToArray();
+            ArraySegment<byte> fromSegment = from.ToArraySegment();
+            ArraySegment<byte> toSegment = from.ToArraySegment();
 
             // myers diff nonalloc
             MyersDiffX.MyersDiffX.DiffNonAlloc(
-                fromBytes, toBytes,
+                fromSegment, toSegment,
                 modifiedA, modifiedB,
                 DownVector, UpVector,
                 diffs
@@ -90,7 +91,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // make patch
             // TODO linked list etc.
-            MakePatch(fromBytes, toBytes, diffs, result);
+            MakePatch(fromSegment, toSegment, diffs, result);
         }
 
         public override void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
