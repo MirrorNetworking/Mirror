@@ -7,7 +7,7 @@
 //   Delta_Big:   318 bytes => 99 bytes
 //
 // BENCHMARK 100k before/after:
-//   original (int[], allocations):
+//   original (int[], allocations): 3487ms
 //   after (<T>, nonalloc):
 using System.Collections.Generic;
 using MyersDiff;
