@@ -367,7 +367,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // measure performance. needs to be fast enough.
         [Test]
-        public void Benchmark100k_TinyChange()
+        public void Benchmark_ComputeDelta_100k_TinyChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
@@ -383,7 +383,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // measure performance. needs to be fast enough.
         [Test]
-        public void Benchmark100k_BigChange()
+        public void Benchmark_ComputeDelta_100k_BigChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
