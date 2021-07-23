@@ -131,11 +131,6 @@ namespace Mirror
             //
             // DUPLICATE A needs to always send 'StartB', NOT 'StartA'.
             // FROM SCRATCH always needs to send 'StartA', NOT 'StartB'.
-
-            // convert A bytes to list for easier insertion/deletion
-            // copy byte by byte to avoid new List(A.ToArray()) allocation.
-            // TODO avoid List<byte> allocation
-            // TODO linked list for performance? insert is expensive
             /*
             List<byte> B = new List<byte>();
             ArraySegment<byte> ASegment = A.ToArraySegment();
