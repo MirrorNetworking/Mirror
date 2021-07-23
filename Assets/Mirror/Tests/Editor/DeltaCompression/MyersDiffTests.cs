@@ -8,7 +8,7 @@
 //
 // BENCHMARK 100k BIG CHANGE before/after:
 //   original (int[], allocations):   3487ms
-//   MyersDiffX V0.2 (<T>, nonalloc):  343ms
+//   MyersDiffX V0.2 (<T>, nonalloc): 5000ms ????
 //
 // BENCHMARK 100k TINY CHANGE:
 //   MyersDiffX V0.2 (<T>, nonalloc):  342ms
