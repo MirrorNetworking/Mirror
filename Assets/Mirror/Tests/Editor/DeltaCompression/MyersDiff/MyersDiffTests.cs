@@ -76,7 +76,6 @@ namespace Mirror.Tests.DeltaCompression
             List<int> DownVector, List<int> UpVector,
             List<Item> diffs)
         {
-            // TODO segment
             ArraySegment<byte> fromSegment = from.ToArraySegment();
             ArraySegment<byte> toSegment = from.ToArraySegment();
 
