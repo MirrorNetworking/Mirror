@@ -26,7 +26,7 @@ namespace Mirror.Tests.DeltaCompression
             // serialize diffs
             //   deletedA means: it was in A, it's deleted in B.
             //   insertedB means: it wasn't in A, it's added to B.
-            VarInt.WriteULong(result, (ulong)diffs.Count);
+            Compression.CompressVarInt(result, (ulong)diffs.Count);
             foreach (Item change in diffs)
             {
                 // assuming the other end already has 'A'
@@ -35,13 +35,13 @@ namespace Mirror.Tests.DeltaCompression
                 // when applying the patch, we always apply it with VALUES from
                 // 'A' to INDICES from 'B'. in other words, the other end never
                 // needs 'StartA'.
-                VarInt.WriteULong(result, (ulong)change.StartB);
+                Compression.CompressVarInt(result, (ulong)change.StartB);
 
                 // always need to know if / how many were deleted
-                VarInt.WriteULong(result, (ulong)change.deletedA);
+                Compression.CompressVarInt(result, (ulong)change.deletedA);
 
                 // always need to know how many were inserted
-                VarInt.WriteULong(result, (ulong)change.insertedB);
+                Compression.CompressVarInt(result, (ulong)change.insertedB);
 
                 // need to provide the actual values that were inserted
                 // it means compared to 'A' at 'StartA',
@@ -102,22 +102,22 @@ namespace Mirror.Tests.DeltaCompression
             List<byte> B = new List<byte>(A.ToArray());
 
             // deserialize patch
-            int count = (int)VarInt.ReadULong(delta);
+            int count = (int)Compression.DecompressVarInt(delta);
             // TODO safety..
             for (int i = 0; i < count; ++i)
             {
                 // we only ever need (and serialize) StartB
-                int StartB = (int)VarInt.ReadULong(delta);
+                int StartB = (int)Compression.DecompressVarInt(delta);
 
                 // deleted amount
-                int deletedA = (int)VarInt.ReadULong(delta);
+                int deletedA = (int)Compression.DecompressVarInt(delta);
 
                 // deletedA means: compared to A, 'N' were deleted in B at 'StartB'
                 // TODO we need a linked list or similar data structure for perf
                 B.RemoveRange(StartB, deletedA);
 
                 // inserted amount
-                int insertedB = (int)VarInt.ReadULong(delta);
+                int insertedB = (int)Compression.DecompressVarInt(delta);
                 for (int n = 0; n < insertedB; ++n)
                 {
                     // DO NOT _VARINT_ the actual value.
