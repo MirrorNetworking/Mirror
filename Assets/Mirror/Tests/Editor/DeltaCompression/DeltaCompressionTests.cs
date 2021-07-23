@@ -378,7 +378,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // compute delta several times
             NetworkWriter result = new NetworkWriter();
-            ComputeDeltaBenchmark(writerA, writerB, 100000, result);
+            ComputeDeltaBenchmark(writerA, writerB, 100_000, result);
         }
 
         // measure performance. needs to be fast enough.
@@ -394,7 +394,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // compute delta several times
             NetworkWriter result = new NetworkWriter();
-            ComputeDeltaBenchmark(writerA, writerB, 100000, result);
+            ComputeDeltaBenchmark(writerA, writerB, 100_000, result);
         }
 
         // actual benchmark execution can be overwritten for caching etc.
@@ -427,7 +427,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // apply patch to A to get B
             NetworkWriter patched = new NetworkWriter();
-            ApplyPatchBenchmark(writerA, delta, patched, 100000);
+            ApplyPatchBenchmark(writerA, delta, patched, 100_000);
         }
     }
 }
