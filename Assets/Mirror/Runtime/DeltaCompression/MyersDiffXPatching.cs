@@ -20,16 +20,9 @@ namespace Mirror
             {
                 // assuming the other end already has 'A'
                 // we need to save instructions to construct 'B' from 'A'.
-
-                // when applying the patch, we always apply it with VALUES from
-                // 'A' to INDICES from 'B'. in other words, the other end never
-                // needs 'StartA'.
+                Compression.CompressVarInt(result, (ulong)change.StartA);
                 Compression.CompressVarInt(result, (ulong)change.StartB);
-
-                // always need to know if / how many were deleted
                 Compression.CompressVarInt(result, (ulong)change.deletedA);
-
-                // always need to know how many were inserted
                 Compression.CompressVarInt(result, (ulong)change.insertedB);
 
                 // need to provide the actual values that were inserted
@@ -68,9 +61,21 @@ namespace Mirror
             //     B = aabc
             //     we delete 1 value that was at A[StartA] in B[StartB]:
             //     B = aab
+            //
+            // applying a patch FROM SCRATCH, step by step:
+            //     B = ""
+            //     first change is insert 1 value from A[StartA] at B[StartB]:
+            //       copy A until StartA first:
+            //         B = a
+            //       insert the value from A[StartA] now:
+            //         B = aa
+            //     second change is delete 1 value from A[StartA] at B[StartB]:
+            //       copy A until StartA first, from where we left of
+            //         B = aab
+            //       delete the value from A[StartA] now:
+            //         means simply skip them in A
 
             ArraySegment<byte> ASegment = A.ToArraySegment();
-            int AIndex = 0;
 
             // read amount of changes in any case
             int count = (int)Compression.DecompressVarInt(delta);
@@ -82,7 +87,7 @@ namespace Mirror
                 for (int i = 0; i < count; ++i)
                 {
                     // read the next change
-                    // we only ever need (and serialize) StartB
+                    int StartA = (int)Compression.DecompressVarInt(delta);
                     int StartB = (int)Compression.DecompressVarInt(delta);
                     int deletedA = (int)Compression.DecompressVarInt(delta);
                     int insertedB = (int)Compression.DecompressVarInt(delta);
