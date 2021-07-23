@@ -57,17 +57,13 @@ namespace Mirror.Tests.DeltaCompression
 
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
         {
-            // TODO segment
-            byte[] fromBytes = from.ToArray();
-            byte[] toBytes = to.ToArray();
-
-            // myers diff
-            List<Item> diffs = MyersDiffX.MyersDiffX.Diff(fromBytes, toBytes);
-            //foreach (Diff.Item item in diffs)
-            //    UnityEngine.Debug.Log($"item: startA={item.StartA} startB={item.StartB} deletedA={item.deletedA} insertedB={item.insertedB}");
-
-            // make patch
-            MakePatch(new ArraySegment<byte>(fromBytes), new ArraySegment<byte>(toBytes), diffs, result);
+            // prepare caches
+            List<bool> modifiedA = new List<bool>();
+            List<bool> modifiedB = new List<bool>();
+            List<int> DownVector = new List<int>();
+            List<int> UpVector = new List<int>();
+            List<Item> diffs = new List<Item>();
+            ComputeDeltaNonAlloc(from, to, result, modifiedA, modifiedB, DownVector, UpVector, diffs);
         }
 
         // NonAlloc version for benchmark
