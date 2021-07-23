@@ -18,10 +18,9 @@ namespace Mirror
             Compression.CompressVarInt(result, (ulong)diffs.Count);
             foreach (Item change in diffs)
             {
-                // assuming the other end already has 'A'
-                // we need to save instructions to construct 'B' from 'A'.
+                // ApplyPatch 'from scratch' version needs StartA, NOT StartB.
                 Compression.CompressVarInt(result, (ulong)change.StartA);
-                // StartB is not needed when reconstructing.
+                // ApplyPatch 'copy & apply' verison needs StartB, not StartA.
                 //Compression.CompressVarInt(result, (ulong)change.StartB);
                 Compression.CompressVarInt(result, (ulong)change.deletedA);
                 Compression.CompressVarInt(result, (ulong)change.insertedB);
