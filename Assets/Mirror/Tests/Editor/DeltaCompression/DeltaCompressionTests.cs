@@ -400,12 +400,13 @@ namespace Mirror.Tests.DeltaCompression
         // actual benchmark execution can be overwritten for caching etc.
         public virtual void ApplyPatchBenchmark(NetworkWriter writerA, NetworkWriter delta, NetworkWriter result, int amount)
         {
+            NetworkReader reader = new NetworkReader(delta.ToArraySegment());
             for (int i = 0; i < amount; ++i)
             {
                 // reset write each time. don't want to measure resizing.
                 result.Position = 0;
-                // TODO nonalloc
-                ApplyPatch(writerA, new NetworkReader(delta.ToArray()), result);
+                reader.Position = 0;
+                ApplyPatch(writerA, reader, result);
             }
         }
 
