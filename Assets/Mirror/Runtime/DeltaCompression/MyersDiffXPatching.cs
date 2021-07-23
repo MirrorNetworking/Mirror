@@ -85,41 +85,37 @@ namespace Mirror
 
             int indexA = 0;
 
-            // any changes?
-            if (count > 0)
+            // reconstruct...
+            for (int i = 0; i < count; ++i)
             {
-                // reconstruct...
-                for (int i = 0; i < count; ++i)
+                // read the next change
+                int StartA = (int)Compression.DecompressVarInt(delta);
+                //int StartB = (int)Compression.DecompressVarInt(delta);
+                int deletedA = (int)Compression.DecompressVarInt(delta);
+                int insertedB = (int)Compression.DecompressVarInt(delta);
+
+                // we progressed through 'A' until 'IndexA'.
+                // copy everything until the next change at 'StartB'
+
+                // first of: copy everything from A[indexA] until this change
+                //           EXCLUDING this change/index
+                int copy = StartA - indexA;
+                result.WriteBytes(ASegment.Array, ASegment.Offset + indexA, copy);
+                indexA += copy;
+
+                // deletedA means we don't take those from A.
+                // in other words, skip them.
+                // TODO safety. should be > 0 and within range etc.
+                indexA += deletedA;
+
+                // inserted means we have 'N' new values in delta.
+                for (int n = 0; n < insertedB; ++n)
                 {
-                    // read the next change
-                    int StartA = (int)Compression.DecompressVarInt(delta);
-                    //int StartB = (int)Compression.DecompressVarInt(delta);
-                    int deletedA = (int)Compression.DecompressVarInt(delta);
-                    int insertedB = (int)Compression.DecompressVarInt(delta);
-
-                    // we progressed through 'A' until 'IndexA'.
-                    // copy everything until the next change at 'StartB'
-
-                    // first of: copy everything from A[indexA] until this change
-                    //           EXCLUDING this change/index
-                    int copy = StartA - indexA;
-                    result.WriteBytes(ASegment.Array, ASegment.Offset + indexA, copy);
-                    indexA += copy;
-
-                    // deletedA means we don't take those from A.
-                    // in other words, skip them.
-                    // TODO safety. should be > 0 and within range etc.
-                    indexA += deletedA;
-
-                    // inserted means we have 'N' new values in delta.
-                    for (int n = 0; n < insertedB; ++n)
-                    {
-                        // DO NOT _VARINT_ the actual value.
-                        // it's just a byte. it could be anything. we don't know.
-                        byte value = delta.ReadByte();
-                        result.WriteByte(value);
-                        //Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
-                    }
+                    // DO NOT _VARINT_ the actual value.
+                    // it's just a byte. it could be anything. we don't know.
+                    byte value = delta.ReadByte();
+                    result.WriteByte(value);
+                    //Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
                 }
             }
 
