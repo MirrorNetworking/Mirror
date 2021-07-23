@@ -78,14 +78,10 @@ namespace Mirror
                 indexA += deletedA;
 
                 // inserted means we have 'N' new values in delta.
-                for (int n = 0; n < insertedB; ++n)
-                {
-                    // DO NOT _VARINT_ the actual value.
-                    // it's just a byte. it could be anything. we don't know.
-                    byte value = delta.ReadByte();
-                    result.WriteByte(value);
-                    //Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
-                }
+                // DO NOT _VARINT_ the actual values
+                // it's just a byte. it could be anything. we don't know.
+                ArraySegment<byte> inserted = delta.ReadBytesSegment(insertedB);
+                result.WriteBytes(inserted.Array, inserted.Offset, inserted.Count);
             }
 
             // we may have applied changes until indexA.
