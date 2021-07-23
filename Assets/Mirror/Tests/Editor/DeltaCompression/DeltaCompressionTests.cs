@@ -396,5 +396,21 @@ namespace Mirror.Tests.DeltaCompression
             NetworkWriter result = new NetworkWriter();
             OnBenchmark(writerA, writerB, 100000, result);
         }
+
+        // 100x benchmark for deep profiling
+        [Test]
+        public void Benchmark100_BigChange()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            original.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            bigchange.OnSerialize(writerB, true);
+
+            // compute delta several times
+            NetworkWriter result = new NetworkWriter();
+            OnBenchmark(writerA, writerB, 100, result);
+        }
     }
 }
