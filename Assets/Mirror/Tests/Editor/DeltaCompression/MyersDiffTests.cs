@@ -77,7 +77,7 @@ namespace Mirror.Tests.DeltaCompression
             List<Item> diffs)
         {
             ArraySegment<byte> fromSegment = from.ToArraySegment();
-            ArraySegment<byte> toSegment = from.ToArraySegment();
+            ArraySegment<byte> toSegment = to.ToArraySegment();
 
             // myers diff nonalloc
             MyersDiffX.MyersDiffX.DiffNonAlloc(
