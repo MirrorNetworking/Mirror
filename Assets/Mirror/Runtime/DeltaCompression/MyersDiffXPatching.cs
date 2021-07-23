@@ -48,11 +48,10 @@ namespace Mirror
         //      removing from 'B'. that would avoid LinkedList.
         public static void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
         {
-            // TODO linked list for performance? insert is expensive
-            // TODO avoid ToArray
-
             // convert A bytes to list for easier insertion/deletion
             // copy byte by byte to avoid new List(A.ToArray()) allocation.
+            // TODO avoid List<byte> allocation
+            // TODO linked list for performance? insert is expensive
             List<byte> B = new List<byte>();
             ArraySegment<byte> ASegment = A.ToArraySegment();
             for (int i = 0; i < ASegment.Count; ++i)
