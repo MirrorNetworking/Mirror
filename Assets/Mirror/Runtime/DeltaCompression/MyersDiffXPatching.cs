@@ -44,6 +44,8 @@ namespace Mirror
             }
         }
 
+        // TODO try reverse reconstruction from scratch instead of inserting/
+        //      removing from 'B'. that would avoid LinkedList.
         public static void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
         {
             // TODO linked list for performance? insert is expensive
