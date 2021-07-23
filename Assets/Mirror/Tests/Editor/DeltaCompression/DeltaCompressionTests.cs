@@ -361,7 +361,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // apply the delta
         [Test]
-        public void Patch_RealExample()
+        public void Patch_BigChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
