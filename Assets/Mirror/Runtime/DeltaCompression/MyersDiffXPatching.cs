@@ -48,11 +48,43 @@ namespace Mirror
         //      removing from 'B'. that would avoid LinkedList.
         public static void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
         {
+            // the challenge here is to reconstruct B := A + Delta
+            // AND do that without allocations.
+            //
+            // the easy solution is to duplicate A and apply all changes.
+            // that's too slow though. need RemoveRange/Insert/duplications etc.
+            //
+            // let's try to reconstruct from scratch, directly into the result.
+
+            // read amount of changes in any case
+            int count = (int)Compression.DecompressVarInt(delta);
+
+            // any changes?
+            if (count > 0)
+            {
+                // reconstruct...
+                while (true)
+                {
+                    // read the next change
+                    // we only ever need (and serialize) StartB
+                    int StartB = (int)Compression.DecompressVarInt(delta);
+                    int deletedA = (int)Compression.DecompressVarInt(delta);
+                    int insertedB = (int)Compression.DecompressVarInt(delta);
+
+                }
+            }
+            // no changes. simply copy A into result.
+            else
+            {
+                ArraySegment<byte> segment = A.ToArraySegment();
+                result.WriteBytes(segment.Array, segment.Offset, segment.Count);
+            }
+
             // convert A bytes to list for easier insertion/deletion
             // copy byte by byte to avoid new List(A.ToArray()) allocation.
             // TODO avoid List<byte> allocation
             // TODO linked list for performance? insert is expensive
-            List<byte> B = new List<byte>();
+            /*List<byte> B = new List<byte>();
             ArraySegment<byte> ASegment = A.ToArraySegment();
             for (int i = 0; i < ASegment.Count; ++i)
                 B.Add(ASegment.Array[ASegment.Offset + i]);
@@ -86,7 +118,7 @@ namespace Mirror
 
             // put B into result writer (nonalloc)
             for (int i = 0; i < B.Count; ++i)
-                result.WriteByte(B[i]);
+                result.WriteByte(B[i]);*/
         }
     }
 }
