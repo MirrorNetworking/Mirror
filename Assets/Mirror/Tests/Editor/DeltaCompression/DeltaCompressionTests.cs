@@ -396,5 +396,37 @@ namespace Mirror.Tests.DeltaCompression
             NetworkWriter result = new NetworkWriter();
             ComputeDeltaBenchmark(writerA, writerB, 100000, result);
         }
+
+        // actual benchmark execution can be overwritten for caching etc.
+        public virtual void ApplyPatchBenchmark(NetworkWriter writerA, NetworkWriter delta, NetworkWriter result, int amount)
+        {
+            for (int i = 0; i < amount; ++i)
+            {
+                // reset write each time. don't want to measure resizing.
+                result.Position = 0;
+                // TODO nonalloc
+                ApplyPatch(writerA, new NetworkReader(delta.ToArray()), result);
+            }
+        }
+
+        // measure performance. needs to be fast enough.
+        [Test]
+        public void Benchmark_ApplyPatch_100k_BigChange()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            original.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            bigchange.OnSerialize(writerB, true);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+
+            // apply patch to A to get B
+            NetworkWriter patched = new NetworkWriter();
+            ApplyPatchBenchmark(writerA, delta, patched, 100000);
+        }
     }
 }
