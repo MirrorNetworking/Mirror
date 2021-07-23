@@ -361,6 +361,60 @@ namespace Mirror.Tests.DeltaCompression
 
         // apply the delta
         [Test]
+        public void Patch_TinyChange()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            original.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            tinychange.OnSerialize(writerB, true);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+
+            // apply patch to A to get B
+            NetworkWriter patched = new NetworkWriter();
+            ApplyPatch(writerA, new NetworkReader(delta.ToArray()), patched);
+
+            // compare
+            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
+            Debug.Log($"P={BitConverter.ToString(patched.ToArray())}");
+            Assert.That(patched.ToArray().SequenceEqual(writerB.ToArray()));
+        }
+
+        // apply the delta
+        [Test]
+        public void Patch_SmallChange()
+        {
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            original.OnSerialize(writerA, true);
+
+            NetworkWriter writerB = new NetworkWriter();
+            smallchange.OnSerialize(writerB, true);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+
+            // apply patch to A to get B
+            NetworkWriter patched = new NetworkWriter();
+            ApplyPatch(writerA, new NetworkReader(delta.ToArray()), patched);
+
+            // compare
+            Debug.Log($"A={BitConverter.ToString(writerA.ToArray())}");
+            Debug.Log($"B={BitConverter.ToString(writerB.ToArray())}");
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
+            Debug.Log($"P={BitConverter.ToString(patched.ToArray())}");
+            Assert.That(patched.ToArray().SequenceEqual(writerB.ToArray()));
+        }
+
+        // apply the delta
+        [Test]
         public void Patch_BigChange()
         {
             // serialize both
