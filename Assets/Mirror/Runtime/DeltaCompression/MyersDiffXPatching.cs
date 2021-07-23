@@ -20,7 +20,7 @@ namespace Mirror
             {
                 // ApplyPatch 'from scratch' version needs StartA, NOT StartB.
                 Compression.CompressVarInt(result, (ulong)change.StartA);
-                // ApplyPatch 'copy & apply' verison needs StartB, not StartA.
+                // ApplyPatch 'duplicate & apply' version needs StartB, not StartA.
                 //Compression.CompressVarInt(result, (ulong)change.StartB);
                 Compression.CompressVarInt(result, (ulong)change.deletedA);
                 Compression.CompressVarInt(result, (ulong)change.insertedB);
