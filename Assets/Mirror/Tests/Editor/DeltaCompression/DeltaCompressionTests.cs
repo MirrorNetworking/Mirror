@@ -295,6 +295,38 @@ namespace Mirror.Tests.DeltaCompression
             DeltaTest(writerA, writerB);
         }
 
+        // patch with no changes needs to work too
+        [Test]
+        public void Patch_Unchanged()
+        {
+            // test values larger than indices for easier reading
+            // -> we want soething like ABCBCDE so we have a reptition of
+            //    different values in there like BCBC
+            // -> this way we can test what 'insertedB' means
+            // -> also want more than one removal at a time (the two '55's)
+            byte[] A = {11, 22, 33};
+            byte[] B = {11, 22, 33};
+            Debug.Log($"A={BitConverter.ToString(A)}");
+            Debug.Log($"B={BitConverter.ToString(B)}");
+            NetworkWriter writerA = new NetworkWriter();
+            writerA.WriteBytes(A, 0, A.Length);
+            NetworkWriter writerB = new NetworkWriter();
+            writerB.WriteBytes(B, 0, B.Length);
+
+            // compute delta
+            NetworkWriter delta = new NetworkWriter();
+            ComputeDelta(writerA, writerB, delta);
+
+            // apply patch to A to get B
+            NetworkWriter patched = new NetworkWriter();
+            ApplyPatch(writerA, new NetworkReader(delta.ToArray()), patched);
+
+            // compare
+            Debug.Log($"D={BitConverter.ToString(delta.ToArray())}");
+            Debug.Log($"P={BitConverter.ToString(patched.ToArray())}");
+            Assert.That(patched.ToArray().SequenceEqual(writerB.ToArray()));
+        }
+
         // simply patch test for easy debugging
         [Test]
         public void Patch_SimplifiedExample()
