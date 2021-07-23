@@ -48,7 +48,6 @@ namespace Mirror.Tests.DeltaCompression
                 // 'B' at 'startB' has 'N' the following new values
                 for (int i = 0; i < change.insertedB; ++i)
                 {
-                    // TODO use byte to begin with instead of int[]. or <T>.
                     // DO NOT _VARINT_ the actual value.
                     // it's just a byte. it could be anything. we don't know.
                     result.WriteByte(B.Array[change.StartB + i]);
