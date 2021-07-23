@@ -121,8 +121,8 @@ namespace Mirror
         // Deprecated 2021-07-18
         /// <summary>Deprecated: Use NetworkServer.active and/or NetworkClient.active instead.</summary>
         [Obsolete("Use NetworkServer.active and/or NetworkClient.active instead")]
-        [NonSerialized]
-        public bool isNetworkActive;
+        [HideInInspector]
+        public bool isNetworkActive => NetworkServer.active || NetworkClient.active;
 
         // TODO remove this
         static NetworkConnection clientReadyConnection;
@@ -553,7 +553,6 @@ namespace Mirror
             OnStopServer();
 
             //Debug.Log("NetworkManager StopServer");
-            isNetworkActive = false;
             NetworkServer.Shutdown();
 
             // set offline mode BEFORE changing scene so that FinishStartScene
@@ -600,7 +599,6 @@ namespace Mirror
             OnStopClient();
 
             //Debug.Log("NetworkManager StopClient");
-            isNetworkActive = false;
 
             // shutdown client
             NetworkClient.Disconnect();

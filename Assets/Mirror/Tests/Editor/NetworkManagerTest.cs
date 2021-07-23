@@ -81,7 +81,6 @@ namespace Mirror.Tests
         {
             manager.StartHost();
 
-            Assert.That(manager.isNetworkActive, Is.True);
             Assert.That(manager.mode == NetworkManagerMode.Host);
             Assert.That(NetworkServer.active, Is.True);
             Assert.That(NetworkClient.active, Is.True);
@@ -93,7 +92,6 @@ namespace Mirror.Tests
             manager.StartHost();
             manager.StopHost();
 
-            Assert.That(manager.isNetworkActive, Is.False);
             Assert.That(manager.mode == NetworkManagerMode.Offline);
             Assert.That(NetworkServer.active, Is.False);
             Assert.That(NetworkClient.active, Is.False);
