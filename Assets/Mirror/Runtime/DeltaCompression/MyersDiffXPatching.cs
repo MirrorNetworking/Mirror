@@ -78,13 +78,10 @@ namespace Mirror
             //   reconstruct from scratch: 146ms (nonalloc!)
 
             ArraySegment<byte> ASegment = A.ToArraySegment();
-
-            // read amount of changes in any case
-            int count = (int)Compression.DecompressVarInt(delta);
-
             int indexA = 0;
 
             // reconstruct...
+            int count = (int)Compression.DecompressVarInt(delta);
             for (int i = 0; i < count; ++i)
             {
                 // read the next change
