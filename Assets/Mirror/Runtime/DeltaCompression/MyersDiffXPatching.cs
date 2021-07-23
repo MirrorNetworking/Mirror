@@ -80,6 +80,8 @@ namespace Mirror
             // read amount of changes in any case
             int count = (int)Compression.DecompressVarInt(delta);
 
+            int indexA = 0;
+
             // any changes?
             if (count > 0)
             {
@@ -95,15 +97,16 @@ namespace Mirror
                     // we progressed through 'A' until 'IndexA'.
                     // copy everything until the next change at 'StartB'
 
-                    // first of: copy everything until this change.
-                    result.WriteBytes(ASegment.Array, ASegment.Offset + AIndex, StartB);
-
-                    // so we are at
+                    // first of: copy everything from A[indexA] until this change
+                    //           EXCLUDING this change/index
+                    int copy = StartA - indexA;
+                    result.WriteBytes(ASegment.Array, ASegment.Offset + indexA, copy);
+                    indexA += copy;
 
                     // deletedA means we don't take those from A.
                     // in other words, skip them.
                     // TODO safety. should be > 0 and within range etc.
-                    AIndex += deletedA;
+                    indexA += deletedA;
 
                     // inserted means we have 'N' new values in delta.
                     for (int n = 0; n < insertedB; ++n)
@@ -114,17 +117,13 @@ namespace Mirror
                         result.WriteByte(value);
                         //Debug.Log($"->patch: inserted '0x{value:X2}' into B @ {StartB + n} => {BitConverter.ToString(B.ToArray())}");
                     }
-
-                    //
-
                 }
             }
-            // no changes. simply copy A into result.
-            // TODO this could be 'copy everything from last to finish
-            else
-            {
-                result.WriteBytes(ASegment.Array, ASegment.Offset, ASegment.Count);
-            }
+
+            // we may have applied changes until indexA.
+            // copy everything that's left.
+            int remainder = ASegment.Count - indexA;
+            result.WriteBytes(ASegment.Array, ASegment.Offset + indexA, remainder);
 
             // convert A bytes to list for easier insertion/deletion
             // copy byte by byte to avoid new List(A.ToArray()) allocation.
