@@ -21,7 +21,8 @@ namespace Mirror
                 // assuming the other end already has 'A'
                 // we need to save instructions to construct 'B' from 'A'.
                 Compression.CompressVarInt(result, (ulong)change.StartA);
-                Compression.CompressVarInt(result, (ulong)change.StartB);
+                // StartB is not needed when reconstructing.
+                //Compression.CompressVarInt(result, (ulong)change.StartB);
                 Compression.CompressVarInt(result, (ulong)change.deletedA);
                 Compression.CompressVarInt(result, (ulong)change.insertedB);
 
@@ -37,8 +38,6 @@ namespace Mirror
             }
         }
 
-        // TODO try reverse reconstruction from scratch instead of inserting/
-        //      removing from 'B'. that would avoid LinkedList.
         public static void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result)
         {
             // the challenge here is to reconstruct B := A + Delta
@@ -74,6 +73,10 @@ namespace Mirror
             //         B = aab
             //       delete the value from A[StartA] now:
             //         means simply skip them in A
+            //
+            // Benchmark for 100k ApplyPatch calls:
+            //   duplicate A & apply:      395ms
+            //   reconstruct from scratch: 146ms (nonalloc!)
 
             ArraySegment<byte> ASegment = A.ToArraySegment();
 
@@ -90,7 +93,7 @@ namespace Mirror
                 {
                     // read the next change
                     int StartA = (int)Compression.DecompressVarInt(delta);
-                    int StartB = (int)Compression.DecompressVarInt(delta);
+                    //int StartB = (int)Compression.DecompressVarInt(delta);
                     int deletedA = (int)Compression.DecompressVarInt(delta);
                     int insertedB = (int)Compression.DecompressVarInt(delta);
 
@@ -125,11 +128,20 @@ namespace Mirror
             int remainder = ASegment.Count - indexA;
             result.WriteBytes(ASegment.Array, ASegment.Offset + indexA, remainder);
 
+
+
+            // FOR FUTURE REFERENCE, this is the 'DUPLICATE A & RECONSTRUCT'
+            // algorithm.
+            //
+            // DUPLICATE A needs to always send 'StartB', NOT 'StartA'.
+            // FROM SCRATCH always needs to send 'StartA', NOT 'StartB'.
+
             // convert A bytes to list for easier insertion/deletion
             // copy byte by byte to avoid new List(A.ToArray()) allocation.
             // TODO avoid List<byte> allocation
             // TODO linked list for performance? insert is expensive
-            /*List<byte> B = new List<byte>();
+            /*
+            List<byte> B = new List<byte>();
             ArraySegment<byte> ASegment = A.ToArraySegment();
             for (int i = 0; i < ASegment.Count; ++i)
                 B.Add(ASegment.Array[ASegment.Offset + i]);
@@ -163,7 +175,8 @@ namespace Mirror
 
             // put B into result writer (nonalloc)
             for (int i = 0; i < B.Count; ++i)
-                result.WriteByte(B[i]);*/
+                result.WriteByte(B[i]);
+            */
         }
     }
 }
