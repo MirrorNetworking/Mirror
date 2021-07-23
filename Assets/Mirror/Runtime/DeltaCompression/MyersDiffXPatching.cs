@@ -50,8 +50,13 @@ namespace Mirror
         {
             // TODO linked list for performance? insert is expensive
             // TODO avoid ToArray
+
             // convert A bytes to list for easier insertion/deletion
-            List<byte> B = new List<byte>(A.ToArray());
+            // copy byte by byte to avoid new List(A.ToArray()) allocation.
+            List<byte> B = new List<byte>();
+            ArraySegment<byte> ASegment = A.ToArraySegment();
+            for (int i = 0; i < ASegment.Count; ++i)
+                B.Add(ASegment.Array[ASegment.Offset + i]);
 
             // deserialize patch
             int count = (int)Compression.DecompressVarInt(delta);
