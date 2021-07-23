@@ -131,5 +131,35 @@ namespace Mirror.Tests
             // 1 degree tolerance
             Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));
         }
+
+        [Test]
+        public void VarInt()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            Compression.CompressVarInt(writer, 0);
+            Compression.CompressVarInt(writer, 234);
+            Compression.CompressVarInt(writer, 2284);
+            Compression.CompressVarInt(writer, 67821);
+            Compression.CompressVarInt(writer, 16777210);
+            Compression.CompressVarInt(writer, 16777219);
+            Compression.CompressVarInt(writer, 4294967295);
+            Compression.CompressVarInt(writer, 1099511627775);
+            Compression.CompressVarInt(writer, 281474976710655);
+            Compression.CompressVarInt(writer, 72057594037927935);
+            Compression.CompressVarInt(writer, ulong.MaxValue);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(0));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(234));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(2284));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(67821));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(16777210));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(16777219));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(4294967295));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(1099511627775));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(281474976710655));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(72057594037927935));
+            Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(ulong.MaxValue));
+        }
     }
 }

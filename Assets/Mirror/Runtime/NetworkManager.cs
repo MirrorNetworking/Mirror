@@ -244,7 +244,7 @@ namespace Mirror
                 authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
 
-            ConfigureServerFrameRate();
+            ConfigureHeadlessFrameRate();
 
             // Copy auto-disconnect settings to NetworkServer
 #pragma warning disable 618
@@ -333,7 +333,7 @@ namespace Mirror
             }
 
             // In case this is a headless client...
-            ConfigureServerFrameRate();
+            ConfigureHeadlessFrameRate();
 
             RegisterClientMessages();
 
@@ -532,8 +532,6 @@ namespace Mirror
             if (!NetworkServer.active)
                 return;
 
-            //Debug.Log("NetworkManager StopServer");
-
             if (authenticator != null)
             {
                 authenticator.OnServerAuthenticated.RemoveListener(OnServerAuthenticated);
@@ -554,6 +552,8 @@ namespace Mirror
 
             OnStopServer();
 
+            //Debug.Log("NetworkManager StopServer");
+            isNetworkActive = false;
             NetworkServer.Shutdown();
 
             // set offline mode BEFORE changing scene so that FinishStartScene
@@ -599,6 +599,9 @@ namespace Mirror
 
             OnStopClient();
 
+            //Debug.Log("NetworkManager StopClient");
+            isNetworkActive = false;
+
             // shutdown client
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
@@ -640,14 +643,24 @@ namespace Mirror
             }
         }
 
-        /// <summary>Set the frame rate for a headless server. Override to disable or modify.</summary>
-        public virtual void ConfigureServerFrameRate()
+        // DEPRECATED 2021-07-21
+        [Obsolete("Renamed to ConfigureHeadlessFrameRate()")]
+        public virtual void ConfigureServerFrameRate() {}
+
+        /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
+        // useful for dedicated servers.
+        // useful for headless benchmark clients.
+        public virtual void ConfigureHeadlessFrameRate()
         {
-            // only set framerate for server build
 #if UNITY_SERVER
             Application.targetFrameRate = serverTickRate;
             // Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
 #endif
+
+            // call the obsolete function in case someone did anything important
+#pragma warning disable 618
+            ConfigureServerFrameRate();
+#pragma warning restore 618
         }
 
         bool InitializeSingleton()
