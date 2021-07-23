@@ -84,8 +84,9 @@ namespace Mirror
                 }
             }
 
-            // convert to byte[]
-            result.WriteBytes(B.ToArray(), 0, B.Count);
+            // put B into result writer (nonalloc)
+            for (int i = 0; i < B.Count; ++i)
+                result.WriteByte(B[i]);
         }
     }
 }
