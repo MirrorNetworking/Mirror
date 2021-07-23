@@ -59,7 +59,7 @@ namespace Mirror.Tests.DeltaCompression
             MyersDiffXPatching.ApplyPatch(A, delta, result);
 
         // overwrite benchmark functon to use NonAlloc version & caches
-        public override void OnBenchmark(NetworkWriter writerA, NetworkWriter writerB, int amount, NetworkWriter result)
+        public override void ComputeDeltaBenchmark(NetworkWriter writerA, NetworkWriter writerB, int amount, NetworkWriter result)
         {
             //Debug.Log($"Running NonAlloc benchmark...");
 
