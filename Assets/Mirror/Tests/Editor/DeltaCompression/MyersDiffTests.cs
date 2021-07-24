@@ -85,7 +85,7 @@ namespace Mirror.Tests.DeltaCompression
         // Rider 2021.2 EAP 7 Apple Silicon, Relase Mode: 3.0s
         // Unity 2021.2.0b2 Apple Silicon, Release Mode:  4.6s
         [Test]
-        public void Benchmark_1k()
+        public void Benchmark_1k_NetCore_vs_Mono()
         {
             // prepare a big byte[]
             byte[] A = new byte[1000];
