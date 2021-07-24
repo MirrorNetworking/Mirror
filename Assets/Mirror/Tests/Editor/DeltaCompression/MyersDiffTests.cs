@@ -148,5 +148,40 @@ namespace Mirror.Tests.DeltaCompression
             for (int i = 0; i < 1000; ++i)
                 MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
         }
+
+        // raw MyersDiffX test for Rider netcore vs. Unity mono comparison.
+        // Macbook Air M1.
+        //
+        // Rider 2021.2 EAP 7 Apple Silicon, Relase Mode: 87 ms
+        // Unity 2021.2.0b2 Apple Silicon, Release Mode:  41 ms
+        [Test]
+        public void Benchmark_NetCore_vs_Mono_1percent_changes_x1000()
+        {
+            // prepare a big byte[]
+            byte[] A = new byte[1000];
+            byte[] B = new byte[1000];
+            // change 1/3rd of values in B
+            for (int i = 0; i < B.Length; ++i)
+                if (i % 100 == 0)
+                    B[i] = 0xFF;
+
+            // prepare the caches for nonalloc
+            // allocate the lists.
+            // already with expected capacity to avoid resizing.
+            List<Item> result = new List<Item>();
+            List<bool> modifiedA = new List<bool>(A.Length + 2);
+            List<bool> modifiedB = new List<bool>(B.Length + 2);
+
+            // need two vectors of size 2 * MAX + 2
+            int MAX = A.Length + B.Length + 1;
+            // vector for the (0,0) to (x,y) search
+            List<int> DownVector = new List<int>(2 * MAX + 2);
+            // vector for the (u,v) to (N,M) search
+            List<int> UpVector = new List<int>(2 * MAX + 2);
+
+            // run 1k times
+            for (int i = 0; i < 1000; ++i)
+                MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+        }
     }
 }
