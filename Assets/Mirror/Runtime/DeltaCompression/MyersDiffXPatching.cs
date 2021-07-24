@@ -3,9 +3,9 @@
 // this is framework dependent, so not part of MyersDiffX repo.
 using System;
 using System.Collections.Generic;
-using MyersDiffX;
+using Mirror;
 
-namespace Mirror
+namespace MyersDiffX
 {
     public static class MyersDiffXPatching
     {
