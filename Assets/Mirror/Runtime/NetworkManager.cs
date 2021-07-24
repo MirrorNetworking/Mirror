@@ -676,7 +676,7 @@ namespace Mirror
                     // Return false to not allow collision-destroyed second instance to continue.
                     return false;
                 }
-                Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
+                //Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
                 singleton = this;
                 if (Application.isPlaying) DontDestroyOnLoad(gameObject);
             }
