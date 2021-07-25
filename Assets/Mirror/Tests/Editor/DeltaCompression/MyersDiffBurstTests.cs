@@ -2,9 +2,7 @@
 using System;
 using MyersDiffX;
 using NUnit.Framework;
-using Unity.Burst;
 using Unity.Collections;
-using Unity.Jobs;
 
 namespace Mirror.Tests.DeltaCompression
 {
@@ -157,27 +155,6 @@ namespace Mirror.Tests.DeltaCompression
             UpVector.Dispose();
         }
 
-        // Using BurstCompile to compile a Job with Burst
-        // Set CompileSynchronously to true to make sure that the method will
-        // not be compiled asynchronously but on the first schedule
-        [BurstCompile(CompileSynchronously=true)]
-        struct MyersXDiffJob : IJob
-        {
-            // input
-            [ReadOnly] public NativeArray<byte> A;
-            [ReadOnly] public NativeArray<byte> B;
-            public NativeList<byte> modifiedA;
-            public NativeList<byte> modifiedB;
-            public NativeList<int> DownVector;
-            public NativeList<int> UpVector;
-
-            // output
-            [WriteOnly] public NativeList<Item> result;
-
-            public void Execute() =>
-                MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
-        }
-
         // first burst compiled test
         [Test]
         public void Diff_BurstCompiled()
@@ -202,23 +179,8 @@ namespace Mirror.Tests.DeltaCompression
             // vector for the (u,v) to (N,M) search
             NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
 
-            // diff & burst
-            MyersXDiffJob job = new MyersXDiffJob
-            {
-                A = A,
-                B = B,
-                modifiedA = modifiedA,
-                modifiedB = modifiedB,
-                UpVector = UpVector,
-                DownVector = DownVector,
-                result = result
-            };
-            job.Run();
-            //job.Schedule().Complete();
-
-            //MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
-
-            // check result
+            // diff - bursted version
+            MyersDiffXBurst.DiffNonAlloc_Bursted(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
             Assert.That(result.Length, Is.EqualTo(1));
             AssertItem(result[0], 0, 0, 1, 1);
 

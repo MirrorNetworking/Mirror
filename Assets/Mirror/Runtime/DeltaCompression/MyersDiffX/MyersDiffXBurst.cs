@@ -87,7 +87,9 @@
 // 2008.05.31 Adjusted the testing code that failed because of the Optimize method (not a bug in the diff algorithm).
 // 2008.10.08 Fixing a test case and adding a new test case.
 using System;
+using Unity.Burst;
 using Unity.Collections;
+using Unity.Jobs;
 
 namespace MyersDiffX
 {
@@ -132,6 +134,47 @@ namespace MyersDiffX
                 DownVector, UpVector);
 
             CreateDiffs(modifiedA, modifiedB, result);
+        }
+
+
+        // Using BurstCompile to compile a Job with Burst
+        // Set CompileSynchronously to true to make sure that the method will
+        // not be compiled asynchronously but on the first schedule
+        [BurstCompile(CompileSynchronously=true)]
+        struct MyersXDiffJob : IJob
+        {
+            // input
+            [ReadOnly] public NativeArray<byte> A;
+            [ReadOnly] public NativeArray<byte> B;
+            public NativeList<byte> modifiedA;
+            public NativeList<byte> modifiedB;
+            public NativeList<int> DownVector;
+            public NativeList<int> UpVector;
+
+            // output
+            [WriteOnly] public NativeList<Item> result;
+
+            public void Execute() =>
+                DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+        }
+
+        // run diff in a bursted job
+        public static void DiffNonAlloc_Bursted(NativeArray<byte> A, NativeArray<byte> B,
+            NativeList<byte> modifiedA, NativeList<byte> modifiedB,
+            NativeList<int> DownVector, NativeList<int> UpVector,
+            NativeList<Item> result)
+        {
+            MyersXDiffJob job = new MyersXDiffJob
+            {
+                A = A,
+                B = B,
+                modifiedA = modifiedA,
+                modifiedB = modifiedB,
+                UpVector = UpVector,
+                DownVector = DownVector,
+                result = result
+            };
+            job.Run();
         }
 
         // This is the algorithm to find the Shortest Middle Snake (SMS).

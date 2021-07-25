@@ -1,6 +1,7 @@
 {
     "name": "Mirror",
     "references": [
+        "Unity.Burst",
         "Unity.Collections",
         "Mirror.CompilerSymbols",
         "Telepathy",
