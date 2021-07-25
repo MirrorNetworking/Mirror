@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using MyersDiffX;
 using NUnit.Framework;
+using Unity.Collections;
 
 namespace Mirror.Tests.DeltaCompression
 {
@@ -182,6 +183,46 @@ namespace Mirror.Tests.DeltaCompression
             // run 1k times
             for (int i = 0; i < 1000; ++i)
                 MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+        }
+
+        // NativeArray test to prepare for Burst
+        [Test]
+        public void Benchmark_30percent_changes_x1000_NativeArray()
+        {
+            // prepare a big byte[]
+            NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.Persistent);
+            NativeArray<byte> B = new NativeArray<byte>(1000, Allocator.Persistent);
+            // change 1/3rd of values in B
+            for (int i = 0; i < B.Length; ++i)
+                if (i % 3 == 0)
+                    B[i] = 0xFF;
+
+            // prepare the caches for nonalloc
+            // allocate the lists.
+            // already with expected capacity to avoid resizing.
+            NativeArray<Item> result = new NativeArray<Item>(1000, Allocator.Persistent);
+            NativeArray<bool> modifiedA = new NativeArray<bool>(A.Length + 2, Allocator.Persistent);
+            NativeArray<bool> modifiedB = new NativeArray<bool>(B.Length + 2, Allocator.Persistent);
+
+            // need two vectors of size 2 * MAX + 2
+            int MAX = A.Length + B.Length + 1;
+            // vector for the (0,0) to (x,y) search
+            NativeArray<int> DownVector = new NativeArray<int>(2 * MAX + 2, Allocator.Persistent);
+            // vector for the (u,v) to (N,M) search
+            NativeArray<int> UpVector = new NativeArray<int>(2 * MAX + 2, Allocator.Persistent);
+
+            // run 1k times
+            //for (int i = 0; i < 1000; ++i)
+            //    MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+
+            // cleanup
+            A.Dispose();
+            B.Dispose();
+            result.Dispose();
+            modifiedA.Dispose();
+            modifiedB.Dispose();
+            DownVector.Dispose();
+            UpVector.Dispose();
         }
     }
 }
