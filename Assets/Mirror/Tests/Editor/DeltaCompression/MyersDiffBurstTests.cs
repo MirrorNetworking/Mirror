@@ -197,7 +197,9 @@ namespace Mirror.Tests.DeltaCompression
         }
 
         [Test]
-        public void Benchmark_1percent_changes_x1000()
+        [TestCase(1000)]
+        [TestCase(10_000)]
+        public void Benchmark_1percent_changes(int iterations)
         {
             // prepare a big byte[]
             NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.Persistent);
@@ -222,7 +224,7 @@ namespace Mirror.Tests.DeltaCompression
             NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
 
             // run 1k times
-            for (int i = 0; i < 1000; ++i)
+            for (int i = 0; i < iterations; ++i)
                 MyersDiffXBurst.DiffNonAlloc_Bursted_Run(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
 
             // cleanup
