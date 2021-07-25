@@ -1,3 +1,5 @@
+// NOTES:
+// - AntiChunk test is too bad for rdiff. all chunks after insertions are dirty.
 using System.Collections.Generic;
 using Octodiff.Core;
 
