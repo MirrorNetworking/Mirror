@@ -336,7 +336,7 @@ namespace Mirror.Tests.DeltaCompression
         [Test]
         [TestCase(1000)]
         [TestCase(10_000)]
-        public void Benchmark_30percent_changes_x1000(int iterations)
+        public void Benchmark_30percent_changes(int iterations)
         {
             // prepare a big byte[]
             NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.Persistent);
