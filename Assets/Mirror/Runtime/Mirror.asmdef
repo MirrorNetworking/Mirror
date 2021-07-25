@@ -1,6 +1,7 @@
 {
     "name": "Mirror",
     "references": [
+        "Unity.Collections",
         "Mirror.CompilerSymbols",
         "Telepathy",
         "kcp2k"

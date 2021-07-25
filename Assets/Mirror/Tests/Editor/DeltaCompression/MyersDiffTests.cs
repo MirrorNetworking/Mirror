@@ -200,16 +200,16 @@ namespace Mirror.Tests.DeltaCompression
             // prepare the caches for nonalloc
             // allocate the lists.
             // already with expected capacity to avoid resizing.
-            NativeArray<Item> result = new NativeArray<Item>(1000, Allocator.Persistent);
-            NativeArray<bool> modifiedA = new NativeArray<bool>(A.Length + 2, Allocator.Persistent);
-            NativeArray<bool> modifiedB = new NativeArray<bool>(B.Length + 2, Allocator.Persistent);
+            NativeList<Item> result = new NativeList<Item>(1000, Allocator.Persistent);
+            NativeList<bool> modifiedA = new NativeList<bool>(A.Length + 2, Allocator.Persistent);
+            NativeList<bool> modifiedB = new NativeList<bool>(B.Length + 2, Allocator.Persistent);
 
             // need two vectors of size 2 * MAX + 2
             int MAX = A.Length + B.Length + 1;
             // vector for the (0,0) to (x,y) search
-            NativeArray<int> DownVector = new NativeArray<int>(2 * MAX + 2, Allocator.Persistent);
+            NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
             // vector for the (u,v) to (N,M) search
-            NativeArray<int> UpVector = new NativeArray<int>(2 * MAX + 2, Allocator.Persistent);
+            NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
 
             // run 1k times
             //for (int i = 0; i < 1000; ++i)

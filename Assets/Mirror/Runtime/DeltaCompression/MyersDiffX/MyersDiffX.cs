@@ -88,6 +88,7 @@
 // 2008.10.08 Fixing a test case and adding a new test case.
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 
 namespace MyersDiffX
 {
@@ -160,6 +161,46 @@ namespace MyersDiffX
                                      DownVector, UpVector);
 
             CreateDiffs(modifiedA, modifiedB, result);
+        }
+
+        // NativeArray version WIP
+        public static void DiffNonAlloc_Burst(NativeArray<byte> A, NativeArray<byte> B,
+                NativeList<bool> modifiedA, NativeList<bool> modifiedB,
+                NativeList<int> DownVector, NativeList<int> UpVector,
+                NativeList<Item> result)
+        {
+            // initialize result list
+            result.Clear();
+
+            // initialize the modified arrays.
+            // new bool[size] initializes them to 'false'.
+            // we need to initialize our list manually.
+            // that's the price to pay to avoid allocations.
+            modifiedA.Clear();
+            modifiedB.Clear();
+            // TODO is this necessary, or does the algo set all values anyway?
+            for (int i = 0; i < A.Length + 2; ++i) modifiedA.Add(false);
+            for (int i = 0; i < B.Length + 2; ++i) modifiedB.Add(false);
+
+            // initialize the vector arrays.
+            // new int[size] initializes them to '0'.
+            // we need to initialize our list manually.
+            // that's the price to pay to avoid allocations.
+            DownVector.Clear();
+            UpVector.Clear();
+            int MAX = A.Length + B.Length + 1;
+            // TODO is this necessary, or does the algo set all values anyway?
+            for (int i = 0; i < 2 * MAX + 2; ++i)
+            {
+                DownVector.Add(0);
+                UpVector.Add(0);
+            }
+
+            /*LongestCommonSubsequence(A, modifiedA, 0, A.Count,
+                B, modifiedB, 0, B.Count,
+                DownVector, UpVector);
+
+            CreateDiffs(modifiedA, modifiedB, result);*/
         }
 
         // This is the algorithm to find the Shortest Middle Snake (SMS).
