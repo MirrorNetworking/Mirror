@@ -55,8 +55,10 @@ namespace Mirror.Tests.DeltaCompression
 
             // copy buffers to native array
             // TODO allocs
-            NativeArray<byte> A = new NativeArray<byte>(fromSegment.Array, Allocator.Persistent);
-            NativeArray<byte> B = new NativeArray<byte>(toSegment.Array, Allocator.Persistent);
+            NativeArray<byte> A = new NativeArray<byte>(fromSegment.Count, Allocator.Persistent);
+            NativeArray<byte> B = new NativeArray<byte>(toSegment.Count, Allocator.Persistent);
+            for (int i = 0; i < fromSegment.Count; ++i) A[i] = fromSegment.Array[fromSegment.Offset + i];
+            for (int i = 0; i < toSegment.Count; ++i) B[i] = toSegment.Array[toSegment.Offset + i];
 
             // myers diff nonalloc
             MyersDiffXBurst.DiffNonAlloc(
