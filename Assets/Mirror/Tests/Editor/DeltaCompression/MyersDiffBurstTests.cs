@@ -2,7 +2,9 @@
 using System;
 using MyersDiffX;
 using NUnit.Framework;
+using Unity.Burst;
 using Unity.Collections;
+using Unity.Jobs;
 
 namespace Mirror.Tests.DeltaCompression
 {
@@ -142,6 +144,81 @@ namespace Mirror.Tests.DeltaCompression
 
             // diff
             MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+            Assert.That(result.Length, Is.EqualTo(1));
+            AssertItem(result[0], 0, 0, 1, 1);
+
+            // cleanup
+            A.Dispose();
+            B.Dispose();
+            result.Dispose();
+            modifiedA.Dispose();
+            modifiedB.Dispose();
+            DownVector.Dispose();
+            UpVector.Dispose();
+        }
+
+        // Using BurstCompile to compile a Job with Burst
+        // Set CompileSynchronously to true to make sure that the method will
+        // not be compiled asynchronously but on the first schedule
+        [BurstCompile(CompileSynchronously=true)]
+        struct MyersXDiffJob : IJob
+        {
+            // input
+            [ReadOnly] public NativeArray<byte> A;
+            [ReadOnly] public NativeArray<byte> B;
+            public NativeList<byte> modifiedA;
+            public NativeList<byte> modifiedB;
+            public NativeList<int> DownVector;
+            public NativeList<int> UpVector;
+
+            // output
+            [WriteOnly] public NativeList<Item> result;
+
+            public void Execute() =>
+                MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+        }
+
+        // first burst compiled test
+        [Test]
+        public void Diff_BurstCompiled()
+        {
+            // prepare a big byte[]
+            NativeArray<byte> A = new NativeArray<byte>(3, Allocator.Persistent);
+            NativeArray<byte> B = new NativeArray<byte>(3, Allocator.Persistent);
+            // change one value in B
+            B[0] = 0xFF;
+
+            // prepare the caches for nonalloc
+            // allocate the lists.
+            // already with expected capacity to avoid resizing.
+            NativeList<Item> result = new NativeList<Item>(1000, Allocator.Persistent);
+            NativeList<byte> modifiedA = new NativeList<byte>(A.Length + 2, Allocator.Persistent);
+            NativeList<byte> modifiedB = new NativeList<byte>(B.Length + 2, Allocator.Persistent);
+
+            // need two vectors of size 2 * MAX + 2
+            int MAX = A.Length + B.Length + 1;
+            // vector for the (0,0) to (x,y) search
+            NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+            // vector for the (u,v) to (N,M) search
+            NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+
+            // diff & burst
+            MyersXDiffJob job = new MyersXDiffJob
+            {
+                A = A,
+                B = B,
+                modifiedA = modifiedA,
+                modifiedB = modifiedB,
+                UpVector = UpVector,
+                DownVector = DownVector,
+                result = result
+            };
+            job.Run();
+            //job.Schedule().Complete();
+
+            //MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+
+            // check result
             Assert.That(result.Length, Is.EqualTo(1));
             AssertItem(result[0], 0, 0, 1, 1);
 
