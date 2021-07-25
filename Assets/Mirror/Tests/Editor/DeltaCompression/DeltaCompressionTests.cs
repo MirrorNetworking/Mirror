@@ -295,6 +295,26 @@ namespace Mirror.Tests.DeltaCompression
             DeltaTest(writerA, writerB);
         }
 
+        // test compression for 1000 bytes with only 1 change
+        [Test]
+        public void Compression_1000bytes_OneChange()
+        {
+            // prepare a big byte[]
+            byte[] A = new byte[1000];
+            byte[] B = new byte[1000];
+            // change one value
+            B[0] = 0xFF;
+
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            NetworkWriter writerB = new NetworkWriter();
+            writerA.WriteBytes(A, 0, A.Length);
+            writerB.WriteBytes(B, 0, B.Length);
+
+            // compute delta
+            DeltaTest(writerA, writerB);
+        }
+
         // patch with no changes needs to work too
         [Test]
         public void Patch_Unchanged()
