@@ -2,6 +2,7 @@
     "name": "Mirror.Tests",
     "rootNamespace": "",
     "references": [
+        "Unity.Collections",
         "Mirror",
         "Mirror.Editor",
         "Mirror.Components",
