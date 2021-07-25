@@ -87,7 +87,6 @@
 // 2008.05.31 Adjusted the testing code that failed because of the Optimize method (not a bug in the diff algorithm).
 // 2008.10.08 Fixing a test case and adding a new test case.
 using System;
-using System.Collections.Generic;
 using Unity.Collections;
 
 namespace MyersDiffX
@@ -128,9 +127,9 @@ namespace MyersDiffX
                 UpVector.Add(0);
             }
 
-            /*LongestCommonSubsequence(A, modifiedA, 0, A.Count,
-                B, modifiedB, 0, B.Count,
-                DownVector, UpVector);*/
+            LongestCommonSubsequence(A, modifiedA, 0, A.Length,
+                B, modifiedB, 0, B.Length,
+                DownVector, UpVector);
 
             CreateDiffs(modifiedA, modifiedB, result);
         }
@@ -145,12 +144,12 @@ namespace MyersDiffX
         //   DownVector: a vector for the (0,0) to (x,y) search. Passed as a parameter for speed reasons.
         //   UpVector: a vector for the (u,v) to (N,M) search. Passed as a parameter for speed reasons.
         // Returns a MiddleSnakeData record containing x,y (u,v aren't needed)
-        internal static (int x, int y) ShortestMiddleSnake<T>(ArraySegment<T> A, int LowerA, int UpperA, ArraySegment<T> B, int LowerB, int UpperB,
-            List<int> DownVector, List<int> UpVector)
+        internal static (int x, int y) ShortestMiddleSnake(NativeArray<byte> A, int LowerA, int UpperA, NativeArray<byte> B, int LowerB, int UpperB,
+            NativeList<int> DownVector, NativeList<int> UpVector)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
-            where T : struct, IComparable, IEquatable<T>
+            //where T : struct, IComparable, IEquatable<T>
         {
-            int MAX = A.Count + B.Count + 1;
+            int MAX = A.Length + B.Length + 1;
 
             int DownK = LowerA - LowerB; // the k-line to start the forward search
             int UpK = UpperA - UpperB; // the k-line to start the reverse search
@@ -193,7 +192,7 @@ namespace MyersDiffX
                     y = x - k;
 
                     // find the end of the furthest reaching forward D-path in diagonal k.
-                    while ((x < UpperA) && (y < UpperB) && (A.Array[x].Equals(B.Array[y])))
+                    while ((x < UpperA) && (y < UpperB) && (A[x].Equals(B[y])))
                     {
                         x++; y++;
                     }
@@ -232,7 +231,7 @@ namespace MyersDiffX
                     }
                     y = x - k;
 
-                    while ((x > LowerA) && (y > LowerB) && (A.Array[x - 1].Equals(B.Array[y - 1])))
+                    while ((x > LowerA) && (y > LowerB) && (A[x - 1].Equals(B[y - 1])))
                     {
                       x--; y--; // diagonal
                     }
@@ -270,20 +269,23 @@ namespace MyersDiffX
         //   UpperB: upper bound of the actual range in DataB (exclusive)
         //   DownVector: a vector for the (0,0) to (x,y) search. Passed as a parameter for speed reasons.
         //   UpVector: a vector for the (u,v) to (N,M) search. Passed as a parameter for speed reasons.
-        static void LongestCommonSubsequence<T>(ArraySegment<T> A, List<bool> modifiedA, int LowerA, int UpperA, ArraySegment<T> B, List<bool> modifiedB, int LowerB, int UpperB, List<int> DownVector, List<int> UpVector)
+        static void LongestCommonSubsequence(
+            NativeArray<byte> A, NativeList<byte> modifiedA, int LowerA, int UpperA,
+            NativeArray<byte> B, NativeList<byte> modifiedB, int LowerB, int UpperB,
+            NativeList<int> DownVector, NativeList<int> UpVector)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
-            where T : struct, IComparable, IEquatable<T>
+            //where T : struct, IComparable, IEquatable<T>
         {
             // Debug.Write(2, "LCS", String.Format("Analyse the box: A[{0}-{1}] to B[{2}-{3}]", LowerA, UpperA, LowerB, UpperB));
 
             // Fast walkthrough equal lines at the start
-            while (LowerA < UpperA && LowerB < UpperB && A.Array[LowerA].Equals(B.Array[LowerB]))
+            while (LowerA < UpperA && LowerB < UpperB && A[LowerA].Equals(B[LowerB]))
             {
                 LowerA++; LowerB++;
             }
 
             // Fast walkthrough equal lines at the end
-            while (LowerA < UpperA && LowerB < UpperB && A.Array[UpperA - 1].Equals(B.Array[UpperB - 1]))
+            while (LowerA < UpperA && LowerB < UpperB && A[UpperA - 1].Equals(B[UpperB - 1]))
             {
                 --UpperA; --UpperB;
             }
@@ -292,13 +294,13 @@ namespace MyersDiffX
             {
                 // mark as inserted lines.
                 while (LowerB < UpperB)
-                    modifiedB[LowerB++] = true;
+                    modifiedB[LowerB++] = 1; // true
             }
             else if (LowerB == UpperB)
             {
                 // mark as deleted lines.
                 while (LowerA < UpperA)
-                    modifiedA[LowerA++] = true;
+                    modifiedA[LowerA++] = 1; // true
             }
             else
             {
