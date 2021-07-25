@@ -1,19 +1,5 @@
-// original paper: http://www.xmailserver.org/diff2.pdf
-// used in diff, git!
-//
-// VARINT before/after:
-//   Delta_Tiny:   17 bytes =>  5 bytes
-//   Delta_Small:  83 bytes => 26 bytes
-//   Delta_Big:   318 bytes => 99 bytes
-//
-// BENCHMARK 100k BIG CHANGE before/after:
-//   original (int[], allocations):   3487ms
-//   MyersDiffX V0.2 (<T>, nonalloc): 5000ms ????
-//
-// BENCHMARK 100k TINY CHANGE:
-//   MyersDiffX V0.2 (<T>, nonalloc):  342ms
+// burst version for MyersDiff tests
 using System;
-using System.Collections.Generic;
 using MyersDiffX;
 using NUnit.Framework;
 using Unity.Collections;
@@ -33,27 +19,48 @@ namespace Mirror.Tests.DeltaCompression
 
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
         {
+            // prepare the caches for nonalloc
+            // allocate the lists.
+            // already with expected capacity to avoid resizing.
+            NativeList<Item> diffs = new NativeList<Item>(1000, Allocator.Persistent);
+            NativeList<byte> modifiedA = new NativeList<byte>(from.Position + 2, Allocator.Persistent);
+            NativeList<byte> modifiedB = new NativeList<byte>(to.Position + 2, Allocator.Persistent);
+
+            // need two vectors of size 2 * MAX + 2
+            int MAX = from.Position + to.Position + 1;
+            // vector for the (0,0) to (x,y) search
+            NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+            // vector for the (u,v) to (N,M) search
+            NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+
             // prepare caches
-            List<bool> modifiedA = new List<bool>();
-            List<bool> modifiedB = new List<bool>();
-            List<int> DownVector = new List<int>();
-            List<int> UpVector = new List<int>();
-            List<Item> diffs = new List<Item>();
             ComputeDeltaNonAlloc(from, to, result, modifiedA, modifiedB, DownVector, UpVector, diffs);
+
+            // cleanup
+            diffs.Dispose();
+            modifiedA.Dispose();
+            modifiedB.Dispose();
+            DownVector.Dispose();
+            UpVector.Dispose();
         }
 
         // NonAlloc version for benchmark
         public void ComputeDeltaNonAlloc(NetworkWriter from, NetworkWriter to, NetworkWriter result,
-            List<bool> modifiedA, List<bool> modifiedB,
-            List<int> DownVector, List<int> UpVector,
-            List<Item> diffs)
+            NativeList<byte> modifiedA, NativeList<byte> modifiedB,
+            NativeList<int> DownVector, NativeList<int> UpVector,
+            NativeList<Item> diffs)
         {
             ArraySegment<byte> fromSegment = from.ToArraySegment();
             ArraySegment<byte> toSegment = to.ToArraySegment();
 
+            // copy buffers to native array
+            // TODO allocs
+            NativeArray<byte> A = new NativeArray<byte>(fromSegment.Array, Allocator.Persistent);
+            NativeArray<byte> B = new NativeArray<byte>(toSegment.Array, Allocator.Persistent);
+
             // myers diff nonalloc
-            MyersDiffX.MyersDiffX.DiffNonAlloc(
-                fromSegment, toSegment,
+            MyersDiffXBurst.DiffNonAlloc(
+                A, B,
                 modifiedA, modifiedB,
                 DownVector, UpVector,
                 diffs
@@ -63,7 +70,11 @@ namespace Mirror.Tests.DeltaCompression
 
             // make patch
             // TODO linked list etc.
-            MyersDiffXPatching.MakePatch(fromSegment, toSegment, diffs, result);
+            MyersDiffXBurstPatching.MakePatch(A, B, diffs, result);
+
+            // cleanup
+            A.Dispose();
+            B.Dispose();
         }
 
         public override void ApplyPatch(NetworkWriter A, NetworkReader delta, NetworkWriter result) =>
@@ -74,12 +85,19 @@ namespace Mirror.Tests.DeltaCompression
         {
             //Debug.Log($"Running NonAlloc benchmark...");
 
-            // prepare caches
-            List<bool> modifiedA = new List<bool>();
-            List<bool> modifiedB = new List<bool>();
-            List<int> DownVector = new List<int>();
-            List<int> UpVector = new List<int>();
-            List<Item> diffs = new List<Item>();
+            // prepare the caches for nonalloc
+            // allocate the lists.
+            // already with expected capacity to avoid resizing.
+            NativeList<Item> diffs = new NativeList<Item>(1000, Allocator.Persistent);
+            NativeList<byte> modifiedA = new NativeList<byte>(writerA.Position + 2, Allocator.Persistent);
+            NativeList<byte> modifiedB = new NativeList<byte>(writerB.Position + 2, Allocator.Persistent);
+
+            // need two vectors of size 2 * MAX + 2
+            int MAX = writerA.Position + writerB.Position + 1;
+            // vector for the (0,0) to (x,y) search
+            NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+            // vector for the (u,v) to (N,M) search
+            NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
 
             for (int i = 0; i < amount; ++i)
             {
@@ -87,6 +105,13 @@ namespace Mirror.Tests.DeltaCompression
                 result.Position = 0;
                 ComputeDeltaNonAlloc(writerA, writerB, result, modifiedA, modifiedB, DownVector, UpVector, diffs);
             }
+
+            // cleanup
+            diffs.Dispose();
+            modifiedA.Dispose();
+            modifiedB.Dispose();
+            DownVector.Dispose();
+            UpVector.Dispose();
         }
 
         // NativeArray test to prepare for Burst
