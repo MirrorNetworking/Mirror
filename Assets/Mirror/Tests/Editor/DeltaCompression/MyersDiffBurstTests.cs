@@ -236,6 +236,63 @@ namespace Mirror.Tests.DeltaCompression
         }
 
         [Test]
+        [TestCase(1000)]
+        [TestCase(10_000)]
+        public void Benchmark_1percent_changes_Parallel(int iterations)
+        {
+            // store all handles
+            List<JobHandle> jobs = new List<JobHandle>();
+            List<IDisposable> cleanups = new List<IDisposable>();
+
+            // run 1000x. allocate new data for each one.
+            for (int j = 0; j < iterations; ++j)
+            {
+                // prepare a big byte[]
+                NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.Persistent);
+                NativeArray<byte> B = new NativeArray<byte>(1000, Allocator.Persistent);
+                // change 1/100th of values in B
+                for (int i = 0; i < B.Length; ++i)
+                    if (i % 100 == 0)
+                        B[i] = 0xFF;
+
+                // prepare the caches for nonalloc
+                // allocate the lists.
+                // already with expected capacity to avoid resizing.
+                NativeList<Item> result = new NativeList<Item>(1000, Allocator.Persistent);
+                NativeList<byte> modifiedA = new NativeList<byte>(A.Length + 2, Allocator.Persistent);
+                NativeList<byte> modifiedB = new NativeList<byte>(B.Length + 2, Allocator.Persistent);
+
+                // need two vectors of size 2 * MAX + 2
+                int MAX = A.Length + B.Length + 1;
+                // vector for the (0,0) to (x,y) search
+                NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+                // vector for the (u,v) to (N,M) search
+                NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+
+                // schedule
+                JobHandle job = MyersDiffXBurst.DiffNonAlloc_Bursted_Schedule(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+                jobs.Add(job);
+
+                // remember to clean up
+                cleanups.Add(A);
+                cleanups.Add(B);
+                cleanups.Add(result);
+                cleanups.Add(modifiedA);
+                cleanups.Add(modifiedB);
+                cleanups.Add(DownVector);
+                cleanups.Add(UpVector);
+            }
+
+            // complete all
+            foreach (JobHandle job in jobs)
+                job.Complete();
+
+            // clean up all
+            foreach (IDisposable dis in cleanups)
+                dis.Dispose();
+        }
+
+        [Test]
         public void Benchmark_10percent_changes_x1000()
         {
             // prepare a big byte[]
