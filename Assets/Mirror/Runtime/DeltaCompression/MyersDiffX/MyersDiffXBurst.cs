@@ -95,8 +95,9 @@ namespace MyersDiffX
     public class MyersDiffXBurst
     {
         // NativeArray version WIP
+        // -> modified arrays of byte instead of bool for burst
         public static void DiffNonAlloc(NativeArray<byte> A, NativeArray<byte> B,
-                NativeList<bool> modifiedA, NativeList<bool> modifiedB,
+                NativeList<byte> modifiedA, NativeList<byte> modifiedB,
                 NativeList<int> DownVector, NativeList<int> UpVector,
                 NativeList<Item> result)
         {
@@ -110,8 +111,8 @@ namespace MyersDiffX
             modifiedA.Clear();
             modifiedB.Clear();
             // TODO is this necessary, or does the algo set all values anyway?
-            for (int i = 0; i < A.Length + 2; ++i) modifiedA.Add(false);
-            for (int i = 0; i < B.Length + 2; ++i) modifiedB.Add(false);
+            for (int i = 0; i < A.Length + 2; ++i) modifiedA.Add(0);
+            for (int i = 0; i < B.Length + 2; ++i) modifiedB.Add(0);
 
             // initialize the vector arrays.
             // new int[size] initializes them to '0'.
@@ -321,7 +322,8 @@ namespace MyersDiffX
         // both A and B can reuse the same function.
         //   index, length, modified are our own (a/lengthA/modifiedA or vice versa)
         //   otherIndex, otherLength are the other (b/lengthB or vice versa)
-        static int WalkModified(int index, int length, NativeList<bool> modified, int otherIndex, int otherLength)
+        // (modified array of byte instead of bool for burst)
+        static int WalkModified(int index, int length, NativeList<byte> modified, int otherIndex, int otherLength)
         {
             // end of other reached yet? then jump straight to the end.
             // (check avoids deadlock, see EdgeCase_Increase test)
@@ -329,7 +331,7 @@ namespace MyersDiffX
                 return length;
 
             // end of other not reached yet? then walk while modified
-            while (index < length && modified[index])
+            while (index < length && modified[index] != 0)
                 ++index;
 
             return index;
@@ -342,7 +344,7 @@ namespace MyersDiffX
         //   modifiedA: bool modification[] from DiffData
         //   lengthB: length of B[]
         //   modifiedB: bool modification[] from DiffData
-        internal static void CreateDiffs(NativeList<bool> modifiedA, NativeList<bool> modifiedB, NativeList<Item> result)
+        internal static void CreateDiffs(NativeList<byte> modifiedA, NativeList<byte> modifiedB, NativeList<Item> result)
         {
             // modified [] is always original length + 2.
             // calculate original length instead of passing it as parameter too.
@@ -357,8 +359,9 @@ namespace MyersDiffX
             while (a < lengthA || b < lengthB)
             {
                 // walk through a and b while both unmodified
-                if (a < lengthA && !modifiedA[a] &&
-                    b < lengthB && !modifiedB[b])
+                // (modified arrays of byte instead of bool for burst, so check == 0)
+                if (a < lengthA && modifiedA[a] == 0 &&
+                    b < lengthB && modifiedB[b] == 0 )
                 {
                     ++a;
                     ++b;

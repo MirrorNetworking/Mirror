@@ -201,8 +201,8 @@ namespace Mirror.Tests.DeltaCompression
             // allocate the lists.
             // already with expected capacity to avoid resizing.
             NativeList<Item> result = new NativeList<Item>(1000, Allocator.Persistent);
-            NativeList<bool> modifiedA = new NativeList<bool>(A.Length + 2, Allocator.Persistent);
-            NativeList<bool> modifiedB = new NativeList<bool>(B.Length + 2, Allocator.Persistent);
+            NativeList<byte> modifiedA = new NativeList<byte>(A.Length + 2, Allocator.Persistent);
+            NativeList<byte> modifiedB = new NativeList<byte>(B.Length + 2, Allocator.Persistent);
 
             // need two vectors of size 2 * MAX + 2
             int MAX = A.Length + B.Length + 1;
