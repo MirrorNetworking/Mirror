@@ -504,7 +504,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // measure performance. needs to be fast enough.
         [Test]
-        public void Benchmark_ComputeDelta_100k_TinyChange()
+        public void Benchmark_ComputeDelta_10k_TinyChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
@@ -515,12 +515,12 @@ namespace Mirror.Tests.DeltaCompression
 
             // compute delta several times
             NetworkWriter result = new NetworkWriter();
-            ComputeDeltaBenchmark(writerA, writerB, 100_000, result);
+            ComputeDeltaBenchmark(writerA, writerB, 10_000, result);
         }
 
         // measure performance. needs to be fast enough.
         [Test]
-        public void Benchmark_ComputeDelta_100k_BigChange()
+        public void Benchmark_ComputeDelta_10k_BigChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
@@ -531,7 +531,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // compute delta several times
             NetworkWriter result = new NetworkWriter();
-            ComputeDeltaBenchmark(writerA, writerB, 100_000, result);
+            ComputeDeltaBenchmark(writerA, writerB, 10_000, result);
         }
 
         // actual benchmark execution can be overwritten for caching etc.
@@ -549,7 +549,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // measure performance. needs to be fast enough.
         [Test]
-        public void Benchmark_ApplyPatch_100k_BigChange()
+        public void Benchmark_ApplyPatch_10k_BigChange()
         {
             // serialize both
             NetworkWriter writerA = new NetworkWriter();
@@ -564,7 +564,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // apply patch to A to get B
             NetworkWriter patched = new NetworkWriter();
-            ApplyPatchBenchmark(writerA, delta, patched, 100_000);
+            ApplyPatchBenchmark(writerA, delta, patched, 10_000);
         }
     }
 }
