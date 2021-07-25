@@ -95,9 +95,9 @@ namespace MyersDiffX
 {
     public class MyersDiffXBurst
     {
-        // NativeArray version WIP
+        // NativeArray version, called from Diff_Burst
         // -> modified arrays of byte instead of bool for burst
-        public static void DiffNonAlloc(NativeArray<byte> A, NativeArray<byte> B,
+        static void DiffNonAlloc(NativeArray<byte> A, NativeArray<byte> B,
                 NativeList<byte> modifiedA, NativeList<byte> modifiedB,
                 NativeList<int> DownVector, NativeList<int> UpVector,
                 NativeList<Item> result)
