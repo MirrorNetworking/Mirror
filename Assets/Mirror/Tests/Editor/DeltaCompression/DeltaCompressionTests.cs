@@ -345,6 +345,40 @@ namespace Mirror.Tests.DeltaCompression
             // compute delta
             DeltaTest(writerA, writerB);
         }
+        // test compression for 1000 bytes with insertions.
+        // some algorithms use chunks.
+        // insertions would offset all chunks.
+        // need to see how algorithms behave in those cases.
+        [Test]
+        public void Compression_1000bytes_AntiChunk()
+        {
+            // list with unique values
+            List<byte> A = new List<byte>();
+            for (int i = 0; i < 1000; ++i) A.Add((byte)i);
+
+            // same list but with insertions to offset chunks
+            List<byte> B = new List<byte>(A);
+            B.Insert(0, 0xFF);
+            B.Insert(99, 0xFF);
+            B.Insert(199, 0xFF);
+            B.Insert(299, 0xFF);
+            B.Insert(399, 0xFF);
+            B.Insert(499, 0xFF);
+            B.Insert(599, 0xFF);
+            B.Insert(699, 0xFF);
+            B.Insert(799, 0xFF);
+            B.Insert(899, 0xFF);
+            B.Insert(999, 0xFF);
+
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            NetworkWriter writerB = new NetworkWriter();
+            writerA.WriteBytes(A.ToArray(), 0, A.Count);
+            writerB.WriteBytes(B.ToArray(), 0, B.Count);
+
+            // compute delta
+            DeltaTest(writerA, writerB);
+        }
 
         // patch with no changes needs to work too
         [Test]
