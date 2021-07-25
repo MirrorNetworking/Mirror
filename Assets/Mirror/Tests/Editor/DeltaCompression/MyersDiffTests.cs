@@ -213,7 +213,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // run 1k times
             for (int i = 0; i < 1000; ++i)
-                MyersDiffX.MyersDiffX.DiffNonAlloc_Burst(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+                MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
 
             // cleanup
             A.Dispose();

@@ -88,45 +88,17 @@
 // 2008.10.08 Fixing a test case and adding a new test case.
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 
 namespace MyersDiffX
 {
-    public class MyersDiffX
+    public class MyersDiffXBurst
     {
-        // Find the difference in 2 arrays (bytes / strings / etc.).
-        // Returns a array of Items that describe the differences.
-        // result as parameter to avoid allocations (i.e. in games).
-        public static List<Item> Diff<T>(T[] A, T[] B)
-            // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
-            where T : struct, IComparable, IEquatable<T>
-        {
-            // allocate the lists.
-            // already with expected capacity to avoid resizing.
-            List<Item> result = new List<Item>();
-            List<bool> modifiedA = new List<bool>(A.Length + 2);
-            List<bool> modifiedB = new List<bool>(B.Length + 2);
-
-            // need two vectors of size 2 * MAX + 2
-            int MAX = A.Length + B.Length + 1;
-            // vector for the (0,0) to (x,y) search
-            List<int> DownVector = new List<int>(2 * MAX + 2);
-            // vector for the (u,v) to (N,M) search
-            List<int> UpVector = new List<int>(2 * MAX + 2);
-
-            DiffNonAlloc(new ArraySegment<T>(A), new ArraySegment<T>(B), modifiedA, modifiedB, DownVector, UpVector, result);
-            return result;
-        }
-
-        // Allocation free version where helpers are passed as parameters.
-        // useful for games etc. that need to avoid runtime allocations.
-        // -> A, B are actual parameters
-        // -> the lists are to avoid allocations
-        public static void DiffNonAlloc<T>(ArraySegment<T> A, ArraySegment<T> B,
-                                           List<bool> modifiedA, List<bool> modifiedB,
-                                           List<int> DownVector, List<int> UpVector,
-                                           List<Item> result)
-            // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
-            where T : struct, IComparable, IEquatable<T>
+        // NativeArray version WIP
+        public static void DiffNonAlloc(NativeArray<byte> A, NativeArray<byte> B,
+                NativeList<bool> modifiedA, NativeList<bool> modifiedB,
+                NativeList<int> DownVector, NativeList<int> UpVector,
+                NativeList<Item> result)
         {
             // initialize result list
             result.Clear();
@@ -138,8 +110,8 @@ namespace MyersDiffX
             modifiedA.Clear();
             modifiedB.Clear();
             // TODO is this necessary, or does the algo set all values anyway?
-            for (int i = 0; i < A.Count + 2; ++i) modifiedA.Add(false);
-            for (int i = 0; i < B.Count + 2; ++i) modifiedB.Add(false);
+            for (int i = 0; i < A.Length + 2; ++i) modifiedA.Add(false);
+            for (int i = 0; i < B.Length + 2; ++i) modifiedB.Add(false);
 
             // initialize the vector arrays.
             // new int[size] initializes them to '0'.
@@ -147,7 +119,7 @@ namespace MyersDiffX
             // that's the price to pay to avoid allocations.
             DownVector.Clear();
             UpVector.Clear();
-            int MAX = A.Count + B.Count + 1;
+            int MAX = A.Length + B.Length + 1;
             // TODO is this necessary, or does the algo set all values anyway?
             for (int i = 0; i < 2 * MAX + 2; ++i)
             {
@@ -155,9 +127,9 @@ namespace MyersDiffX
                 UpVector.Add(0);
             }
 
-            LongestCommonSubsequence(A, modifiedA, 0, A.Count,
-                                     B, modifiedB, 0, B.Count,
-                                     DownVector, UpVector);
+            /*LongestCommonSubsequence(A, modifiedA, 0, A.Count,
+                B, modifiedB, 0, B.Count,
+                DownVector, UpVector);*/
 
             CreateDiffs(modifiedA, modifiedB, result);
         }
@@ -349,7 +321,7 @@ namespace MyersDiffX
         // both A and B can reuse the same function.
         //   index, length, modified are our own (a/lengthA/modifiedA or vice versa)
         //   otherIndex, otherLength are the other (b/lengthB or vice versa)
-        static int WalkModified(int index, int length, List<bool> modified, int otherIndex, int otherLength)
+        static int WalkModified(int index, int length, NativeList<bool> modified, int otherIndex, int otherLength)
         {
             // end of other reached yet? then jump straight to the end.
             // (check avoids deadlock, see EdgeCase_Increase test)
@@ -370,12 +342,12 @@ namespace MyersDiffX
         //   modifiedA: bool modification[] from DiffData
         //   lengthB: length of B[]
         //   modifiedB: bool modification[] from DiffData
-        internal static void CreateDiffs(List<bool> modifiedA, List<bool> modifiedB, List<Item> result)
+        internal static void CreateDiffs(NativeList<bool> modifiedA, NativeList<bool> modifiedB, NativeList<Item> result)
         {
             // modified [] is always original length + 2.
             // calculate original length instead of passing it as parameter too.
-            int lengthA = modifiedA.Count - 2;
-            int lengthB = modifiedB.Count - 2;
+            int lengthA = modifiedA.Length - 2;
+            int lengthB = modifiedB.Length - 2;
 
             // indices for both arrays
             int a = 0;
