@@ -204,7 +204,7 @@ namespace Mirror.Tests.DeltaCompression
             NativeArray<byte> B = new NativeArray<byte>(1000, Allocator.Persistent);
             // change 1/3rd of values in B
             for (int i = 0; i < B.Length; ++i)
-                if (i % 10 == 0)
+                if (i % 100 == 0)
                     B[i] = 0xFF;
 
             // prepare the caches for nonalloc
