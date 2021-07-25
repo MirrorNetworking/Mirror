@@ -250,8 +250,8 @@ namespace Mirror.Tests.DeltaCompression
             for (int j = 0; j < iterations; ++j)
             {
                 // prepare a big byte[]
-                NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.Persistent);
-                NativeArray<byte> B = new NativeArray<byte>(1000, Allocator.Persistent);
+                NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.TempJob);
+                NativeArray<byte> B = new NativeArray<byte>(1000, Allocator.TempJob);
                 // change 1/100th of values in B
                 for (int i = 0; i < B.Length; ++i)
                     if (i % 100 == 0)
@@ -260,16 +260,16 @@ namespace Mirror.Tests.DeltaCompression
                 // prepare the caches for nonalloc
                 // allocate the lists.
                 // already with expected capacity to avoid resizing.
-                NativeList<Item> result = new NativeList<Item>(1000, Allocator.Persistent);
-                NativeList<byte> modifiedA = new NativeList<byte>(A.Length + 2, Allocator.Persistent);
-                NativeList<byte> modifiedB = new NativeList<byte>(B.Length + 2, Allocator.Persistent);
+                NativeList<Item> result = new NativeList<Item>(1000, Allocator.TempJob);
+                NativeList<byte> modifiedA = new NativeList<byte>(A.Length + 2, Allocator.TempJob);
+                NativeList<byte> modifiedB = new NativeList<byte>(B.Length + 2, Allocator.TempJob);
 
                 // need two vectors of size 2 * MAX + 2
                 int MAX = A.Length + B.Length + 1;
                 // vector for the (0,0) to (x,y) search
-                NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+                NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.TempJob);
                 // vector for the (u,v) to (N,M) search
-                NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+                NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.TempJob);
 
                 // schedule
                 JobHandle job = MyersDiffXBurst.DiffNonAlloc_Bursted_Schedule(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
@@ -387,8 +387,8 @@ namespace Mirror.Tests.DeltaCompression
             for (int j = 0; j < iterations; ++j)
             {
                 // prepare a big byte[]
-                NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.Persistent);
-                NativeArray<byte> B = new NativeArray<byte>(1000, Allocator.Persistent);
+                NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.TempJob);
+                NativeArray<byte> B = new NativeArray<byte>(1000, Allocator.TempJob);
                 // change 1/3rd of values in B
                 for (int i = 0; i < B.Length; ++i)
                     if (i % 3 == 0)
@@ -397,16 +397,16 @@ namespace Mirror.Tests.DeltaCompression
                 // prepare the caches for nonalloc
                 // allocate the lists.
                 // already with expected capacity to avoid resizing.
-                NativeList<Item> result = new NativeList<Item>(1000, Allocator.Persistent);
-                NativeList<byte> modifiedA = new NativeList<byte>(A.Length + 2, Allocator.Persistent);
-                NativeList<byte> modifiedB = new NativeList<byte>(B.Length + 2, Allocator.Persistent);
+                NativeList<Item> result = new NativeList<Item>(1000, Allocator.TempJob);
+                NativeList<byte> modifiedA = new NativeList<byte>(A.Length + 2, Allocator.TempJob);
+                NativeList<byte> modifiedB = new NativeList<byte>(B.Length + 2, Allocator.TempJob);
 
                 // need two vectors of size 2 * MAX + 2
                 int MAX = A.Length + B.Length + 1;
                 // vector for the (0,0) to (x,y) search
-                NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+                NativeList<int> DownVector = new NativeList<int>(2 * MAX + 2, Allocator.TempJob);
                 // vector for the (u,v) to (N,M) search
-                NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
+                NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.TempJob);
 
                 // schedule
                 JobHandle job = MyersDiffXBurst.DiffNonAlloc_Bursted_Schedule(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
