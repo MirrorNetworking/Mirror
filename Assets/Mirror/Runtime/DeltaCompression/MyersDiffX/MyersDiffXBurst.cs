@@ -144,8 +144,10 @@ namespace MyersDiffX
         //   DownVector: a vector for the (0,0) to (x,y) search. Passed as a parameter for speed reasons.
         //   UpVector: a vector for the (u,v) to (N,M) search. Passed as a parameter for speed reasons.
         // Returns a MiddleSnakeData record containing x,y (u,v aren't needed)
-        internal static (int x, int y) ShortestMiddleSnake(NativeArray<byte> A, int LowerA, int UpperA, NativeArray<byte> B, int LowerB, int UpperB,
-            NativeList<int> DownVector, NativeList<int> UpVector)
+        internal static void ShortestMiddleSnake(NativeArray<byte> A, int LowerA, int UpperA, NativeArray<byte> B, int LowerB, int UpperB,
+            NativeList<int> DownVector, NativeList<int> UpVector,
+            // burst doesn't support (x, y) tuple return type. need out params.
+            out int resultX, out int resultY)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
             //where T : struct, IComparable, IEquatable<T>
         {
@@ -203,11 +205,11 @@ namespace MyersDiffX
                     {
                         if (UpVector[UpOffset + k] <= DownVector[DownOffset + k])
                         {
-                            return (DownVector[DownOffset + k],
-                                    DownVector[DownOffset + k] - k);
-                                    // 2002.09.20: no need for 2 points
-                                    //UpVector[UpOffset + k],
-                                    //UpVector[UpOffset + k] - k;
+                            resultX = DownVector[DownOffset + k];
+                            resultY = DownVector[DownOffset + k] - k;
+                            // 2002.09.20: no need for 2 points
+                            //UpVector[UpOffset + k],
+                            //UpVector[UpOffset + k] - k;
                         }
                     }
                 } // for k
@@ -242,11 +244,12 @@ namespace MyersDiffX
                     {
                         if (UpVector[UpOffset + k] <= DownVector[DownOffset + k])
                         {
-                            return (DownVector[DownOffset + k],
-                                    DownVector[DownOffset + k] - k);
-                                    // 2002.09.20: no need for 2 points
-                                    //UpVector[UpOffset + k],
-                                    //UpVector[UpOffset + k] - k;
+                            resultX = DownVector[DownOffset + k];
+                            resultY = DownVector[DownOffset + k] - k;
+                            return;
+                            // 2002.09.20: no need for 2 points
+                            //UpVector[UpOffset + k],
+                            //UpVector[UpOffset + k] - k;
                         } // if
                     } // if
                 } // for k
@@ -305,7 +308,7 @@ namespace MyersDiffX
             else
             {
                 // Find the middle snake and length of an optimal path for A and B
-                (int x, int y) = ShortestMiddleSnake(A, LowerA, UpperA, B, LowerB, UpperB, DownVector, UpVector);
+                ShortestMiddleSnake(A, LowerA, UpperA, B, LowerB, UpperB, DownVector, UpVector, out int x, out int y);
                 // Debug.Write(2, "MiddleSnakeData", String.Format("{0},{1}", smsrd.x, smsrd.y));
 
                 // The path is from LowerX to (x,y) and (x,y) to UpperX
