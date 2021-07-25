@@ -177,6 +177,26 @@ namespace MyersDiffX
             job.Run();
         }
 
+        // run diff in a bursted job. returns job handle.
+        // use .Complete() on it to get the result.
+        public static JobHandle DiffNonAlloc_Bursted_Schedule(NativeArray<byte> A, NativeArray<byte> B,
+            NativeList<byte> modifiedA, NativeList<byte> modifiedB,
+            NativeList<int> DownVector, NativeList<int> UpVector,
+            NativeList<Item> result)
+        {
+            MyersXDiffJob job = new MyersXDiffJob
+            {
+                A = A,
+                B = B,
+                modifiedA = modifiedA,
+                modifiedB = modifiedB,
+                UpVector = UpVector,
+                DownVector = DownVector,
+                result = result
+            };
+            return job.Schedule();
+        }
+
         // This is the algorithm to find the Shortest Middle Snake (SMS).
         //   A[]: sequence A
         //   LowerA: lower bound of the actual range in DataA
