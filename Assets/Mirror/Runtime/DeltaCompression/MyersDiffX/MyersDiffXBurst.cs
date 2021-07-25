@@ -250,6 +250,7 @@ namespace MyersDiffX
                         {
                             resultX = DownVector[DownOffset + k];
                             resultY = DownVector[DownOffset + k] - k;
+                            return;
                             // 2002.09.20: no need for 2 points
                             //UpVector[UpOffset + k],
                             //UpVector[UpOffset + k] - k;
