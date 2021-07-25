@@ -187,7 +187,7 @@ namespace Mirror.Tests.DeltaCompression
 
         // NativeArray test to prepare for Burst
         [Test]
-        public void Benchmark_30percent_changes_x1000_NativeArray()
+        public void Benchmark_30percent_changes_x1000_NativeCollections()
         {
             // prepare a big byte[]
             NativeArray<byte> A = new NativeArray<byte>(1000, Allocator.Persistent);
