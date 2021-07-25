@@ -212,8 +212,8 @@ namespace Mirror.Tests.DeltaCompression
             NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
 
             // run 1k times
-            //for (int i = 0; i < 1000; ++i)
-            //    MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+            for (int i = 0; i < 1000; ++i)
+                MyersDiffX.MyersDiffX.DiffNonAlloc_Burst(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
 
             // cleanup
             A.Dispose();
