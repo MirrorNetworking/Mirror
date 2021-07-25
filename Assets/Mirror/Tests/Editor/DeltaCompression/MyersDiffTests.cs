@@ -82,17 +82,17 @@ namespace Mirror.Tests.DeltaCompression
         // raw MyersDiffX test for Rider netcore vs. Unity mono comparison.
         // Macbook Air M1.
         //
-        // Rider 2021.2 EAP 7 Apple Silicon, Relase Mode: 3.0s
-        // Unity 2021.2.0b2 Apple Silicon, Release Mode:  4.6s
+        // Rider 2021.2 EAP 7 Apple Silicon, Relase Mode: 87 ms
+        // Unity 2021.2.0b2 Apple Silicon, Release Mode:  41 ms
         [Test]
-        public void Benchmark_NetCore_vs_Mono_30percent_changes_x1000()
+        public void Benchmark_NetCore_vs_Mono_1percent_changes_x1000()
         {
             // prepare a big byte[]
             byte[] A = new byte[1000];
             byte[] B = new byte[1000];
             // change 1/3rd of values in B
             for (int i = 0; i < B.Length; ++i)
-                if (i % 3 == 0)
+                if (i % 100 == 0)
                     B[i] = 0xFF;
 
             // prepare the caches for nonalloc
@@ -152,17 +152,17 @@ namespace Mirror.Tests.DeltaCompression
         // raw MyersDiffX test for Rider netcore vs. Unity mono comparison.
         // Macbook Air M1.
         //
-        // Rider 2021.2 EAP 7 Apple Silicon, Relase Mode: 87 ms
-        // Unity 2021.2.0b2 Apple Silicon, Release Mode:  41 ms
+        // Rider 2021.2 EAP 7 Apple Silicon, Relase Mode: 3.0s
+        // Unity 2021.2.0b2 Apple Silicon, Release Mode:  4.6s
         [Test]
-        public void Benchmark_NetCore_vs_Mono_1percent_changes_x1000()
+        public void Benchmark_NetCore_vs_Mono_30percent_changes_x1000()
         {
             // prepare a big byte[]
             byte[] A = new byte[1000];
             byte[] B = new byte[1000];
             // change 1/3rd of values in B
             for (int i = 0; i < B.Length; ++i)
-                if (i % 100 == 0)
+                if (i % 3 == 0)
                     B[i] = 0xFF;
 
             // prepare the caches for nonalloc
