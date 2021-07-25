@@ -158,8 +158,8 @@ namespace MyersDiffX
                 DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
         }
 
-        // run diff in a bursted job
-        public static void DiffNonAlloc_Bursted(NativeArray<byte> A, NativeArray<byte> B,
+        // run diff in a bursted job. wait for completion before returning.
+        public static void DiffNonAlloc_Bursted_Run(NativeArray<byte> A, NativeArray<byte> B,
             NativeList<byte> modifiedA, NativeList<byte> modifiedB,
             NativeList<int> DownVector, NativeList<int> UpVector,
             NativeList<Item> result)

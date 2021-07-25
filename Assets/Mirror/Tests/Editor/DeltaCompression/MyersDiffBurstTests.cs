@@ -61,7 +61,7 @@ namespace Mirror.Tests.DeltaCompression
             for (int i = 0; i < toSegment.Count; ++i) B[i] = toSegment.Array[toSegment.Offset + i];
 
             // myers diff nonalloc
-            MyersDiffXBurst.DiffNonAlloc(
+            MyersDiffXBurst.DiffNonAlloc_Bursted_Run(
                 A, B,
                 modifiedA, modifiedB,
                 DownVector, UpVector,
@@ -141,7 +141,7 @@ namespace Mirror.Tests.DeltaCompression
             NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
 
             // diff
-            MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+            MyersDiffXBurst.DiffNonAlloc_Bursted_Run(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
             Assert.That(result.Length, Is.EqualTo(1));
             AssertItem(result[0], 0, 0, 1, 1);
 
@@ -180,7 +180,7 @@ namespace Mirror.Tests.DeltaCompression
             NativeList<int> UpVector = new NativeList<int>(2 * MAX + 2, Allocator.Persistent);
 
             // diff - bursted version
-            MyersDiffXBurst.DiffNonAlloc_Bursted(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+            MyersDiffXBurst.DiffNonAlloc_Bursted_Run(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
             Assert.That(result.Length, Is.EqualTo(1));
             AssertItem(result[0], 0, 0, 1, 1);
 
@@ -221,7 +221,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // run 1k times
             for (int i = 0; i < 1000; ++i)
-                MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+                MyersDiffXBurst.DiffNonAlloc_Bursted_Run(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
 
             // cleanup
             A.Dispose();
@@ -260,7 +260,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // run 1k times
             for (int i = 0; i < 1000; ++i)
-                MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+                MyersDiffXBurst.DiffNonAlloc_Bursted_Run(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
 
             // cleanup
             A.Dispose();
@@ -299,7 +299,7 @@ namespace Mirror.Tests.DeltaCompression
 
             // run 1k times
             for (int i = 0; i < 1000; ++i)
-                MyersDiffXBurst.DiffNonAlloc(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
+                MyersDiffXBurst.DiffNonAlloc_Bursted_Run(A, B, modifiedA, modifiedB, DownVector, UpVector, result);
 
             // cleanup
             A.Dispose();
