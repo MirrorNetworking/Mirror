@@ -345,6 +345,38 @@ namespace Mirror.Tests.DeltaCompression
             // compute delta
             DeltaTest(writerA, writerB);
         }
+
+        // test compression for 1000 bytes with only 10 changes
+        // this should be a good test for chunk algorithms
+        [Test]
+        public void Compression_1000bytes_AreaChanges()
+        {
+            // prepare a big byte[]
+            byte[] A = new byte[1000];
+            byte[] B = new byte[1000];
+
+            // change an area in the beginning
+            B[1] = 0xFF;
+            B[3] = 0xFF;
+
+            // change an area in the middle
+            B[500] = 0xFF;
+            B[510] = 0xFF;
+
+            // change an area in the end
+            B[950] = 0xFF;
+            B[960] = 0xFF;
+
+            // serialize both
+            NetworkWriter writerA = new NetworkWriter();
+            NetworkWriter writerB = new NetworkWriter();
+            writerA.WriteBytes(A, 0, A.Length);
+            writerB.WriteBytes(B, 0, B.Length);
+
+            // compute delta
+            DeltaTest(writerA, writerB);
+        }
+
         // test compression for 1000 bytes with insertions.
         // some algorithms use chunks.
         // insertions would offset all chunks.
