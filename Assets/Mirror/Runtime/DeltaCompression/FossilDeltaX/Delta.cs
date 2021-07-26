@@ -6,28 +6,22 @@ namespace FossilDeltaX
 	{
 		public static ushort HASHSIZE = 16;
 
-		// insert: size, command, bytes
+		// insert: <<command, size, bytes>>
 		static void WriteInsert(Writer writer, byte[] bytes, int offset, int count)
 		{
-			// TODO varint
-			writer.WriteInt((uint)count);
+			// varint for minium bandwidth
 			writer.WriteByte(Command.INSERT);
+			writer.WriteVarInt((uint)count);
 			writer.WriteBytes(bytes, offset, count);
 		}
 
+		// copy: <<command, count, offset>>
 		static void WriteCopy(Writer writer, int count, int offset)
 		{
-			// COPY command
-			writer.WriteInt((uint)count);
+			// varint for minium bandwidth
 			writer.WriteByte(Command.COPY);
-			writer.WriteInt((uint)offset);
-			writer.WriteByte(Command.COPY_END);
-		}
-
-		static void WriteChecksum(Writer writer, uint checksum)
-		{
-			writer.WriteInt(checksum);
-			writer.WriteByte(Command.CHECKSUM);
+			writer.WriteVarInt((uint)count);
+			writer.WriteVarInt((uint)offset);
 		}
 
 		// Compute the hash table used to locate matching sections in the source.
@@ -117,8 +111,9 @@ namespace FossilDeltaX
 				int litsz = i-k;
 				// sz will hold the number of bytes needed to encode the "insert"
 				// command and the copy command, not counting the "insert" text.
-				// TODO this is stilly. but might be needed for varint counting later
-				int sz = DigitCount(i-k) + DigitCount(cnt) + DigitCount(offset) + 3;
+				// -> we use varint, so we need to calculate byte sizes here
+				// TODO make sure i-k is always >0 otherwise varint is too big
+				int sz = VarIntSize((ulong)(i-k)) + VarIntSize((ulong)cnt) + VarIntSize((ulong)offset) + 3;
 				if (cnt >= sz && cnt > match.cnt)
 				{
 					// Remember this match only if it is the best so far and it
@@ -145,8 +140,6 @@ namespace FossilDeltaX
 			if (A.Length <= HASHSIZE)
 			{
 				WriteInsert(writer, B, 0, B.Length);
-				// checksum always 0. remove later.
-				WriteChecksum(writer, 0);
 				return writer.ToArray();
 			}
 
@@ -211,17 +204,13 @@ namespace FossilDeltaX
 				WriteInsert(writer, B, _base, B.Length - _base);
 			}
 
-			// Output the final checksum record.
-			// checksum always 0. remove later.
-			WriteChecksum(writer, 0);
 			return writer.ToArray();
 		}
 
-		static void ProcessCopyCommand(byte[] A, Reader reader, Writer writer, uint count, ref uint total)
+		static void ProcessCopyCommand(byte[] A, Reader reader, Writer writer, ref uint total)
 		{
-			uint offset = reader.GetInt();
-			if (reader.HaveBytes() && reader.GetByte() != Command.COPY_END)
-				throw new Exception("copy command not terminated");
+			uint count = (uint)reader.ReadVarInt();
+			uint offset = (uint)reader.ReadVarInt();
 
 			total += count;
 			// 'limit' header was removed to reduce bandwidth
@@ -233,8 +222,10 @@ namespace FossilDeltaX
 			writer.WriteBytes(A, (int)offset, (int)count);
 		}
 
-		static void ProcessInsertCommand(byte[] delta, Reader reader, Writer writer, uint count, ref uint total)
+		static void ProcessInsertCommand(byte[] delta, Reader reader, Writer writer, ref uint total)
 		{
+			uint count = (uint)reader.ReadVarInt();
+
 			total += count;
 
 			// 'limit' header was removed to reduce bandwidth
@@ -255,45 +246,70 @@ namespace FossilDeltaX
 			Writer writer = new Writer();
 			while(deltaReader.HaveBytes())
 			{
-				uint cnt = deltaReader.GetInt();
-
-				switch (deltaReader.GetByte())
+				int command = deltaReader.ReadByte();
+				switch (command)
 				{
 					// copy command
 					case Command.COPY:
 					{
-						ProcessCopyCommand(A, deltaReader, writer, cnt, ref total);
+						ProcessCopyCommand(A, deltaReader, writer, ref total);
 						break;
 					}
 
 					// insert command
 					case Command.INSERT:
 					{
-						ProcessInsertCommand(delta, deltaReader, writer, cnt, ref total);
+						ProcessInsertCommand(delta, deltaReader, writer, ref total);
 						break;
 					}
 
-					// checksum (end) command
-					case Command.CHECKSUM:
-					{
-						// checksum always 0. remove later.
-						// no need to verify anymore.
-
-						// 'limit' header was removed to reduce bandwidth
-						//if (total != limit)
-						//	throw new Exception("generated size does not match predicted size");
-						return writer.ToArray();
-					}
-
 					default:
-						throw new Exception("unknown delta operator");
+						throw new Exception($"unknown delta operator: 0x{command:X2}");
 				}
 			}
-			throw new Exception("unterminated delta");
+
+			// done parsing
+			return writer.ToArray();
 		}
 
-		// Reader/Writer WriteByte always use 4 bytes now
-		// might need to count varint stuff later.
-		internal static int DigitCount(int v) => 4;
+		// predict how many bytes we need for varint for a value
+		internal static int VarIntSize(ulong value)
+		{
+            if (value <= 240)
+            {
+                return 1;
+            }
+            if (value <= 2287)
+            {
+                return 2;
+            }
+            if (value <= 67823)
+            {
+                return 3;
+            }
+            if (value <= 16777215)
+            {
+                return 4;
+            }
+            if (value <= 4294967295)
+            {
+                return 5;
+            }
+            if (value <= 1099511627775)
+            {
+                return 6;
+            }
+            if (value <= 281474976710655)
+            {
+                return 7;
+            }
+            if (value <= 72057594037927935)
+            {
+                return 8;
+            }
+
+            // all others
+            return 9;
+		}
 	}
 }
