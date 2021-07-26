@@ -1,6 +1,6 @@
 namespace Mirror.Tests.DeltaCompression
 {
-    public class FossilDeltaCompressionTests : DeltaCompressionTests
+    public class FossilDeltaTests : DeltaCompressionTests
     {
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
         {
