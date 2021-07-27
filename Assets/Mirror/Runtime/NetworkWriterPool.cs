@@ -5,7 +5,7 @@ namespace Mirror
     /// <summary>Pooled NetworkWriter, automatically returned to pool when using 'using'</summary>
     public sealed class PooledNetworkWriter : NetworkWriter, IDisposable
     {
-        public void Dispose() => NetworkWriterPool.Recycle(this);
+        public new void Dispose() => NetworkWriterPool.Recycle(this);
     }
 
     /// <summary>Pool of NetworkWriters to avoid allocations.</summary>

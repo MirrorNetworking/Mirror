@@ -840,9 +840,9 @@ namespace Mirror
             // write placeholder length bytes
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
-            int headerPosition = writer.Position;
+            int headerPosition = (int)writer.Position;
             writer.WriteInt(0);
-            int contentPosition = writer.Position;
+            int contentPosition = (int)writer.Position;
 
             // write payload
             bool result = false;
@@ -855,7 +855,7 @@ namespace Mirror
                 // show a detailed error and let the user know what went wrong
                 Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "\n\n" + e);
             }
-            int endPosition = writer.Position;
+            int endPosition = (int)writer.Position;
 
             // fill in length now
             writer.Position = headerPosition;
@@ -895,7 +895,7 @@ namespace Mirror
 
                     // remember start position in case we need to copy it into
                     // observers writer too
-                    int startPosition = ownerWriter.Position;
+                    int startPosition = (int)ownerWriter.Position;
 
                     // write index as byte [0..255]
                     ownerWriter.WriteByte((byte)i);
@@ -917,7 +917,7 @@ namespace Mirror
                     if (comp.syncMode == SyncMode.Observers)
                     {
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
-                        int length = ownerWriter.Position - startPosition;
+                        int length = (int)ownerWriter.Position - startPosition;
                         observersWriter.WriteBytes(segment.Array, startPosition, length);
                         ++observersWritten;
                     }

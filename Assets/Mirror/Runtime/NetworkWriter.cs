@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
@@ -15,7 +16,14 @@ namespace Mirror
     }
 
     /// <summary>Network Writer for most simple types like floats, ints, buffers, structs, etc. Use NetworkWriterPool.GetReader() to avoid allocations.</summary>
-    public class NetworkWriter
+    //
+    // NetworkWriter inherits from abstract STREAM:
+    // * allows us to pass NetworkWriter to third party libraries using Stream
+    // * for example: Delta Compression algorithms write results into Streams
+    // * this way we can pass NetworkWriter directly without helper Streams(!)
+    // => same performance. we simply overwrite a few base functions.
+    // => we still use our own buffer, etc.
+    public class NetworkWriter : Stream
     {
         public const int MaxStringLength = 1024 * 32;
 
@@ -24,8 +32,19 @@ namespace Mirror
         // => 1500 bytes by default because on average, most packets will be <= MTU
         byte[] buffer = new byte[1500];
 
-        /// <summary>Next position to write to the buffer</summary>
-        public int Position;
+        // Stream class required functions
+        public override void Flush() => throw new NotImplementedException();
+        public override int Read(byte[] buf, int offset, int count) => throw new NotImplementedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotImplementedException();
+        public override void SetLength(long value) => throw new NotImplementedException();
+        public override void Write(byte[] buf, int offset, int count) => WriteBytes(buf, offset, count);
+        public override bool CanRead => false;
+        public override bool CanSeek => true;
+        public override bool CanWrite => true;
+        // use .Position instead of .Length to avoid confusion.
+        // .ToArray/Segment always returns [0, Position], NOT [0, Length].
+        public override long Length => throw new NotImplementedException();
+        public override long Position { get; set; }
 
         /// <summary>Reset both the position and length of the stream</summary>
         // Leaves the capacity the same so that we can reuse this writer without
@@ -49,28 +68,29 @@ namespace Mirror
         public byte[] ToArray()
         {
             byte[] data = new byte[Position];
-            Array.ConstrainedCopy(buffer, 0, data, 0, Position);
+            Array.ConstrainedCopy(buffer, 0, data, 0, (int)Position);
             return data;
         }
 
         /// <summary>Returns allocation-free ArraySegment until 'Position'.</summary>
         public ArraySegment<byte> ToArraySegment()
         {
-            return new ArraySegment<byte>(buffer, 0, Position);
+            return new ArraySegment<byte>(buffer, 0, (int)Position);
         }
 
-        public void WriteByte(byte value)
+        public override void WriteByte(byte value)
         {
-            EnsureCapacity(Position + 1);
+            EnsureCapacity((int)Position + 1);
             buffer[Position++] = value;
         }
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
+        // TODO rename to 'Write' like 'Stream.Write' which we override above.
         public void WriteBytes(byte[] buffer, int offset, int count)
         {
-            EnsureCapacity(Position + count);
-            Array.ConstrainedCopy(buffer, offset, this.buffer, Position, count);
+            EnsureCapacity((int)Position + count);
+            Array.ConstrainedCopy(buffer, offset, this.buffer, (int)Position, count);
             Position += count;
         }
 

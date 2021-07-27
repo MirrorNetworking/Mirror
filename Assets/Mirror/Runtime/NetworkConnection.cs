@@ -131,7 +131,7 @@ namespace Mirror
             {
                 // pack message and send allocation free
                 MessagePacking.Pack(message, writer);
-                NetworkDiagnostics.OnSend(message, channelId, writer.Position, 1);
+                NetworkDiagnostics.OnSend(message, channelId, (int)writer.Position, 1);
                 Send(writer.ToArraySegment(), channelId);
             }
         }
