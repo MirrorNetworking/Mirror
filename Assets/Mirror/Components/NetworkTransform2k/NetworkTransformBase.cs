@@ -285,7 +285,7 @@ namespace Mirror
             // -> don't apply for host mode player either, even if in
             //    client authority mode. if it doesn't go over the network,
             //    then we don't need to do anything.
-            if (clientAuthority && !isLocalPlayer)
+            if (clientAuthority && !hasAuthority)
             {
                 // compute snapshot interpolation & apply if any was spit out
                 // TODO we don't have Time.deltaTime double yet. float is fine.
