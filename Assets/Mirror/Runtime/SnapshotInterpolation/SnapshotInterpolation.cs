@@ -49,10 +49,31 @@ namespace Mirror
         //       we buffer for 'bufferTime' locally.
         //       it has nothing to do with remote timestamp.
         //       and we wouldn't know the current remoteTime either.
-        public static bool HasAmountOlderThan<T>(SortedList<double, T> buffer, double threshold, int amount)
-            where T : Snapshot =>
-                buffer.Count >= amount &&
-                buffer.Values[amount - 1].localTimestamp <= threshold;
+        public static bool HasAmountOlderThan<T>(SortedList<double, T> buffer, double threshold, int amount, double bufferedTime)
+            where T : Snapshot
+        {
+            if(buffer.Count >= amount && buffer.Values[amount - 1].localTimestamp <= threshold)
+            {
+                return true;
+            } 
+            else 
+            {
+                if(buffer.Count > amount)
+                {
+                    bool hasSnapshotToCoverBuffer = false;
+                    for(int i = amount; i < buffer.Count; i++)
+                    {
+                        if(buffer.Values[i].remoteTimestamp - buffer.Values[amount - 1].remoteTimestamp >= bufferedTime)
+                        {
+                            hasSnapshotToCoverBuffer = true;
+                            break;
+                        }
+                    }
+                    return hasSnapshotToCoverBuffer;
+                }
+                return false;
+            }
+        }
 
         // calculate catchup.
         // the goal is to buffer 'bufferTime' snapshots.
@@ -156,7 +177,7 @@ namespace Mirror
             // we always need two OLD ENOUGH snapshots to interpolate.
             // otherwise there's nothing to do.
             double threshold = time - bufferTime;
-            if (!HasAmountOlderThan(buffer, threshold, 2))
+            if (!HasAmountOlderThan(buffer, threshold, 2, bufferedTime))
                 return false;
 
             // multiply deltaTime by catchup.
@@ -207,7 +228,7 @@ namespace Mirror
             //            and then in next compute() wait again because it
             //            wasn't old enough yet.
             while (interpolationTime >= delta &&
-                   HasAmountOlderThan(buffer, threshold, 3))
+                   HasAmountOlderThan(buffer, threshold, 3, bufferedTime))
             {
                 // subtract exactly delta from interpolation time
                 // instead of setting to '0', where we would lose the
@@ -275,7 +296,7 @@ namespace Mirror
             //   instantly instead of actually interpolating through them.
             //
             // in other words, if we DON'T have >= 3 old enough.
-            if (!HasAmountOlderThan(buffer, threshold, 3))
+            if (!HasAmountOlderThan(buffer, threshold, 3, bufferedTime))
             {
                 // interpolationTime is always from 0..delta.
                 // so we cap it at delta.
