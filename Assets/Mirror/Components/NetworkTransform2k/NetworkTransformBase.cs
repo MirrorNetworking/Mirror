@@ -282,7 +282,7 @@ namespace Mirror
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
             //    so no need to apply any snapshots there.
-            // -> don't apply for host mode player either, even if in
+            // -> don't apply for host mode player objects either, even if in
             //    client authority mode. if it doesn't go over the network,
             //    then we don't need to do anything.
             if (clientAuthority && !hasAuthority)
