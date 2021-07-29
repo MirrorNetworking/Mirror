@@ -5,6 +5,7 @@ namespace FossilDeltaX
 {
 	public class Delta
 	{
+		// from docs: "The value of this parameter has to be a power of two."
 		public const ushort HASH_SIZE = 16;
 
 		// insert: <<command, size, bytes>>
@@ -28,19 +29,36 @@ namespace FossilDeltaX
 
 		// Compute the hash table used to locate matching sections in the source.
 		// -> RollingHash is a struct to avoid allocations. pass as ref!
-		static void ComputeHashTable(ArraySegmentX<byte> A, ref RollingHash hash, out int nHash, out int[] collide, out int[] landmark)
+		// -> collide[] & landmark[] are reusable & resized if necessary.
+		internal static void ComputeHashTable(ArraySegmentX<byte> A, ref RollingHash hash, out int nHash, ref int[] collide, ref int[] landmark)
 		{
 			nHash = A.Count / HASH_SIZE;
-			collide = new int[nHash];
-			landmark = new int[nHash];
 
-			for (int i = 0; i < collide.Length; i++) collide[i] = -1;
-			for (int i = 0; i < landmark.Length; i++) landmark[i] = -1;
+			// instead of allocating, resize the reusable array only if we need
+			// a larger one. next time we won't resize & allocate then.
+			// NOTE that 'stackalloc' would limit us to around 1 MB A[].
+			//      we want this to work with any size without StackOverflow.
+			// NOTE that passing a List<int> would be 30% slower.
+			if (collide.Length < nHash) Array.Resize(ref collide, nHash);
+			if (landmark.Length < nHash) Array.Resize(ref landmark, nHash);
 
-			for (int i = 0; i < A.Count-HASH_SIZE; i += HASH_SIZE)
+			// initialize arrays.
+			// note that their size might be larger than nHash from last time.
+			// we only care about the size until 'nhash'.
+			for (int i = 0; i < nHash; i++)
+			{
+				collide[i] = -1;
+				landmark[i] = -1;
+			}
+
+			// compute hashes for every HASH_SIZEd chunk.
+			// note that this does nothing if A.Length is exactly HASH_SIZE
+			// because 'i < ...'.
+			// that's what the original code does, it's not obvious why.
+			for (int i = 0; i < A.Count - HASH_SIZE; i += HASH_SIZE)
 			{
 				hash.Init(A, i);
-				int hv = (int) (hash.Value() % nHash);
+				int hv = (int)(hash.Value() % nHash);
 				collide[i/HASH_SIZE] = landmark[hv];
 				landmark[hv] = i/HASH_SIZE;
 			}
@@ -62,6 +80,8 @@ namespace FossilDeltaX
 		}
 
 		// magic search function
+		// -> collide[] & landmark[] are reusable & resized if necessary.
+		//    even though they might be larger, only use them from [0..nhash]!
 		static bool Search(ArraySegmentX<byte> A, ArraySegmentX<byte> B, uint hashValue, int nHash, int[] collide, int[] landmark,
 			int _base, int i,
 			out Match match)
@@ -109,9 +129,10 @@ namespace FossilDeltaX
 				k--;
 
 				// Compute the offset and size of the matching region.
-				int offset = iSrc-k;
-				int cnt = j+k+1;
-				int litsz = i-k;
+				int offset = iSrc - k;
+				int cnt = j + k + 1;
+				// Number of bytes of literal text before the copy
+				int litsz = i - k;
 				// sz will hold the number of bytes needed to encode the "insert"
 				// command and the copy command, not counting the "insert" text.
 				// -> we use varint, so we need to calculate byte sizes here
@@ -137,7 +158,9 @@ namespace FossilDeltaX
 		public static byte[] Create(byte[] A, byte[] B)
 		{
 			MemoryStream stream = new MemoryStream();
-			Create(new ArraySegmentX<byte>(A), new ArraySegmentX<byte>(B), stream);
+			int[] collide = new int[0];
+			int[] landmark = new int[0];
+			Create(new ArraySegmentX<byte>(A), new ArraySegmentX<byte>(B), ref collide, ref landmark, stream);
 			return stream.ToArray();
 		}
 
@@ -147,7 +170,8 @@ namespace FossilDeltaX
 		// => ArraySegment so inputs can come from Streams / NetworkReader etc.
 		//    without having to copy the _exact_ part into an array.
 		// => ArraySegmentX is 3.76x faster than ArraySegment here.
-		public static void Create(ArraySegmentX<byte> A, ArraySegmentX<byte> B, Stream result)
+		// -> collide[] & landmark[] are reusable & resized if necessary.
+		public static void Create(ArraySegmentX<byte> A, ArraySegmentX<byte> B, ref int[] collide, ref int[] landmark, Stream result)
 		{
 			int lastRead = -1;
 
@@ -162,7 +186,7 @@ namespace FossilDeltaX
 
 			// Compute the hash table used to locate matching sections in the source.
 			RollingHash hash = new RollingHash();
-			ComputeHashTable(A, ref hash, out int nHash, out int[] collide, out int[] landmark);
+			ComputeHashTable(A, ref hash, out int nHash, ref collide, ref landmark);
 
 			// _base seems to be the offset of current chunk
 			int _base = 0;
@@ -223,7 +247,8 @@ namespace FossilDeltaX
 			}
 		}
 
-		static void ProcessCopyCommand(ArraySegmentX<byte> A, Reader reader, Stream writer, ref uint total)
+		// Reader is a struct to avoid allocations. pass as 'ref'.
+		static void ProcessCopyCommand(ArraySegmentX<byte> A, ref Reader reader, Stream writer, ref uint total)
 		{
 			uint count = (uint)reader.ReadVarInt();
 			uint offset = (uint)reader.ReadVarInt();
@@ -240,7 +265,8 @@ namespace FossilDeltaX
 			writer.Write(A.Array, A.Offset + (int)offset, (int)count);
 		}
 
-		static void ProcessInsertCommand(ArraySegmentX<byte> delta, Reader reader, Stream writer, ref uint total)
+		// Reader is a struct to avoid allocations. pass as 'ref'.
+		static void ProcessInsertCommand(ArraySegmentX<byte> delta, ref Reader reader, Stream writer, ref uint total)
 		{
 			uint count = (uint)reader.ReadVarInt();
 
@@ -254,8 +280,8 @@ namespace FossilDeltaX
 
 			// write buffer at offset with count.
 			// need to include ArraySegment.Offset when accessing the .Array.
-			writer.Write(reader.buffer.Array, reader.buffer.Offset + (int)reader.pos, (int)count);
-			reader.pos += count;
+			writer.Write(reader.buffer.Array, reader.buffer.Offset + (int)reader.Position, (int)count);
+			reader.Position += count;
 		}
 
 		// applies delta to A and returns the result.
@@ -285,12 +311,12 @@ namespace FossilDeltaX
 				{
 					case Command.COPY:
 					{
-						ProcessCopyCommand(A, deltaReader, result, ref total);
+						ProcessCopyCommand(A, ref deltaReader, result, ref total);
 						break;
 					}
 					case Command.INSERT:
 					{
-						ProcessInsertCommand(delta, deltaReader, result, ref total);
+						ProcessInsertCommand(delta, ref deltaReader, result, ref total);
 						break;
 					}
 					default:

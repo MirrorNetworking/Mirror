@@ -94,7 +94,8 @@ namespace FossilDeltaX
             }
         }
 
-        public static ulong ReadVarInt(this Reader reader)
+        // Reader is a struct to avoid allocations. pass as 'ref'.
+        public static ulong ReadVarInt(ref this Reader reader)
         {
             byte a0 = reader.ReadByte();
             if (a0 < 241)

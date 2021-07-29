@@ -26,75 +26,79 @@ THE SOFTWARE.
 using System;
 
 // no namespace. drop it in and use it directly anywhere.
-
-public readonly struct ArraySegmentX<T>
+// put it into FossilDeltaX namespace so it doesn't collide with other libs that
+// might use ArraySegmentX too.
+namespace FossilDeltaX
 {
-    // readonly instead of property to avoid two IL calls each time.
-    public readonly T[] Array;
-    public readonly int Offset;
-    public readonly int Count;
-
-    public ArraySegmentX(T[] array)
+    public readonly struct ArraySegmentX<T>
     {
-        if (array == null) throw new ArgumentNullException("array");
+        // readonly instead of property to avoid two IL calls each time.
+        public readonly T[] Array;
+        public readonly int Offset;
+        public readonly int Count;
 
-        Array = array;
-        Offset = 0;
-        Count = array.Length;
-    }
-
-    public ArraySegmentX(T[] array, int offset, int count)
-    {
-        if (array == null) throw new ArgumentNullException("array");
-        if (offset < 0) throw new ArgumentOutOfRangeException("offset");
-        if (count < 0) throw new ArgumentOutOfRangeException("count");
-        if (array.Length - offset < count) throw new ArgumentException("Length - offset needs to be >= count");
-
-        Array = array;
-        Offset = offset;
-        Count = count;
-    }
-
-    // [] indexer for convenience.
-    // this requires an IL call though.
-    // use segment.Array[segment.Offset + i] directly when performance matters.
-    public T this[int index]
-    {
-        // don't allow accesing outside of segment.
-        get
+        public ArraySegmentX(T[] array)
         {
-            // make sure that [] stays within count even if array is bigger
-            if (index >= Count) throw new ArgumentOutOfRangeException("index");
-            return Array[Offset + index];
+            if (array == null) throw new ArgumentNullException("array");
+
+            Array = array;
+            Offset = 0;
+            Count = array.Length;
         }
-        set
+
+        public ArraySegmentX(T[] array, int offset, int count)
         {
-            // make sure that [] stays within count even if array is bigger
-            if (index >= Count) throw new ArgumentOutOfRangeException("index");
-            Array[Offset + index] = value;
+            if (array == null) throw new ArgumentNullException("array");
+            if (offset < 0) throw new ArgumentOutOfRangeException("offset");
+            if (count < 0) throw new ArgumentOutOfRangeException("count");
+            if (array.Length - offset < count) throw new ArgumentException("Length - offset needs to be >= count");
+
+            Array = array;
+            Offset = offset;
+            Count = count;
         }
+
+        // [] indexer for convenience.
+        // this requires an IL call though.
+        // use segment.Array[segment.Offset + i] directly when performance matters.
+        public T this[int index]
+        {
+            // don't allow accesing outside of segment.
+            get
+            {
+                // make sure that [] stays within count even if array is bigger
+                if (index >= Count) throw new ArgumentOutOfRangeException("index");
+                return Array[Offset + index];
+            }
+            set
+            {
+                // make sure that [] stays within count even if array is bigger
+                if (index >= Count) throw new ArgumentOutOfRangeException("index");
+                Array[Offset + index] = value;
+            }
+        }
+
+        public override int GetHashCode() =>
+            // netcore version doesn't work in Unity because HashCode is internal
+            //Array is null ? 0 : HashCode.Combine(Offset, Count, Array.GetHashCode());
+            Array == null ? 0 : Array.GetHashCode() ^ Offset ^ Count;
+
+        // Equals from netcore ArraySegment<T>
+        public override bool Equals(object obj) =>
+            obj is ArraySegmentX<T> x && Equals(x);
+
+        public bool Equals(ArraySegmentX<T> obj) =>
+            obj.Array == Array && obj.Offset == Offset && obj.Count == Count;
+
+        // operators
+        public static bool operator ==(ArraySegmentX<T> a, ArraySegmentX<T> b) => a.Equals(b);
+        public static bool operator !=(ArraySegmentX<T> a, ArraySegmentX<T> b) => !(a == b);
+
+        // implicit conversions to / from original ArraySegment for ease of use
+        public static implicit operator ArraySegment<T>(ArraySegmentX<T> segment) =>
+            new ArraySegment<T>(segment.Array, segment.Offset, segment.Count);
+
+        public static implicit operator ArraySegmentX<T>(ArraySegment<T> segment) =>
+            new ArraySegmentX<T>(segment.Array, segment.Offset, segment.Count);
     }
-
-    public override int GetHashCode() =>
-        // netcore version doesn't work in Unity because HashCode is internal
-        //Array is null ? 0 : HashCode.Combine(Offset, Count, Array.GetHashCode());
-        Array == null ? 0 : Array.GetHashCode() ^ Offset ^ Count;
-
-    // Equals from netcore ArraySegment<T>
-    public override bool Equals(object obj) =>
-        obj is ArraySegmentX<T> x && Equals(x);
-
-    public bool Equals(ArraySegmentX<T> obj) =>
-        obj.Array == Array && obj.Offset == Offset && obj.Count == Count;
-
-    // operators
-    public static bool operator ==(ArraySegmentX<T> a, ArraySegmentX<T> b) => a.Equals(b);
-    public static bool operator !=(ArraySegmentX<T> a, ArraySegmentX<T> b) => !(a == b);
-
-    // implicit conversions to / from original ArraySegment for ease of use
-    public static implicit operator ArraySegment<T>(ArraySegmentX<T> segment) =>
-        new ArraySegment<T>(segment.Array, segment.Offset, segment.Count);
-
-    public static implicit operator ArraySegmentX<T>(ArraySegment<T> segment) =>
-        new ArraySegmentX<T>(segment.Array, segment.Offset, segment.Count);
 }

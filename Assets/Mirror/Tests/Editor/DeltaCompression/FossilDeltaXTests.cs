@@ -1,4 +1,5 @@
 using System.IO;
+using FossilDeltaX;
 
 namespace Mirror.Tests.DeltaCompression
 {
@@ -24,6 +25,8 @@ namespace Mirror.Tests.DeltaCompression
         {
             ArraySegmentX<byte> ASegment = writerA.ToArraySegment();
             ArraySegmentX<byte> BSegment = writerB.ToArraySegment();
+            int[] collide = new int[0];
+            int[] landmark = new int[0];
             MemoryStream stream = new MemoryStream();
 
             for (int i = 0; i < amount; ++i)
@@ -33,7 +36,7 @@ namespace Mirror.Tests.DeltaCompression
                 stream.Position = 0;
 
                 // nonalloc delta
-                FossilDeltaX.Delta.Create(ASegment, BSegment, stream);
+                FossilDeltaX.Delta.Create(ASegment, BSegment, ref collide, ref landmark, stream);
                 // copy to result for fairness. need to do in Mirror later too.
                 ArraySegmentX<byte> streamSegment = new ArraySegmentX<byte>(stream.GetBuffer(), 0, (int)stream.Position);
                 result.WriteBytes(streamSegment.Array, streamSegment.Offset, streamSegment.Count);
