@@ -134,13 +134,6 @@ namespace Mirror
             }
         }
 
-        void CmdSetAnimatorSpeed(float newSpeed)
-        {
-            // set animator
-            animator.speed = newSpeed;
-            animatorSpeed = newSpeed;
-        }
-
         void OnAnimatorSpeedChanged(float _, float value)
         {
             // skip if host or client with authority
@@ -591,6 +584,14 @@ namespace Mirror
             }
 
             RpcOnAnimationResetTriggerClientMessage(hash);
+        }
+
+        [Command]
+        void CmdSetAnimatorSpeed(float newSpeed)
+        {
+            // set animator
+            animator.speed = newSpeed;
+            animatorSpeed = newSpeed;
         }
 
         #endregion
