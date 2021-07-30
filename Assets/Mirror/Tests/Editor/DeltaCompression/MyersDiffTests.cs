@@ -12,7 +12,6 @@
 //
 // BENCHMARK 100k TINY CHANGE:
 //   MyersDiffX V0.2 (<T>, nonalloc):  342ms
-using System;
 using System.Collections.Generic;
 using MyersDiffX;
 using NUnit.Framework;
@@ -33,28 +32,28 @@ namespace Mirror.Tests.DeltaCompression
         public override void ComputeDelta(NetworkWriter from, NetworkWriter to, NetworkWriter result)
         {
             // prepare caches
-            List<bool> modifiedA = new List<bool>();
-            List<bool> modifiedB = new List<bool>();
-            List<int> DownVector = new List<int>();
-            List<int> UpVector = new List<int>();
+            bool[] modifiedA = new bool[0];
+            bool[] modifiedB = new bool[0];
+            int[] DownVector = new int[0];
+            int[] UpVector = new int[0];
             List<Item> diffs = new List<Item>();
-            ComputeDeltaNonAlloc(from, to, result, modifiedA, modifiedB, DownVector, UpVector, diffs);
+            ComputeDeltaNonAlloc(from, to, result, ref modifiedA, ref modifiedB, ref DownVector, ref UpVector, diffs);
         }
 
         // NonAlloc version for benchmark
         public void ComputeDeltaNonAlloc(NetworkWriter from, NetworkWriter to, NetworkWriter result,
-            List<bool> modifiedA, List<bool> modifiedB,
-            List<int> DownVector, List<int> UpVector,
+            ref bool[] modifiedA, ref bool[] modifiedB,
+            ref int[] DownVector, ref int[] UpVector,
             List<Item> diffs)
         {
-            ArraySegment<byte> fromSegment = from.ToArraySegment();
-            ArraySegment<byte> toSegment = to.ToArraySegment();
+            ArraySegmentX<byte> fromSegment = from.ToArraySegment();
+            ArraySegmentX<byte> toSegment = to.ToArraySegment();
 
             // myers diff nonalloc
             MyersDiffX.MyersDiffX.DiffNonAlloc(
                 fromSegment, toSegment,
-                modifiedA, modifiedB,
-                DownVector, UpVector,
+                ref modifiedA, ref modifiedB,
+                ref DownVector, ref UpVector,
                 diffs
             );
             //foreach (Diff.Item item in diffs)
@@ -74,17 +73,17 @@ namespace Mirror.Tests.DeltaCompression
             //Debug.Log($"Running NonAlloc benchmark...");
 
             // prepare caches
-            List<bool> modifiedA = new List<bool>();
-            List<bool> modifiedB = new List<bool>();
-            List<int> DownVector = new List<int>();
-            List<int> UpVector = new List<int>();
+            bool[] modifiedA = new bool[0];
+            bool[] modifiedB = new bool[0];
+            int[] DownVector = new int[0];
+            int[] UpVector = new int[0];
             List<Item> diffs = new List<Item>();
 
             for (int i = 0; i < amount; ++i)
             {
                 // reset write each time. don't want to measure resizing.
                 result.Position = 0;
-                ComputeDeltaNonAlloc(writerA, writerB, result, modifiedA, modifiedB, DownVector, UpVector, diffs);
+                ComputeDeltaNonAlloc(writerA, writerB, result, ref modifiedA, ref modifiedB, ref DownVector, ref UpVector, diffs);
             }
         }
 
@@ -108,19 +107,19 @@ namespace Mirror.Tests.DeltaCompression
             // allocate the lists.
             // already with expected capacity to avoid resizing.
             List<Item> result = new List<Item>();
-            List<bool> modifiedA = new List<bool>(A.Length + 2);
-            List<bool> modifiedB = new List<bool>(B.Length + 2);
+            bool[] modifiedA = new bool[A.Length + 2];
+            bool[] modifiedB = new bool[B.Length + 2];
 
             // need two vectors of size 2 * MAX + 2
             int MAX = A.Length + B.Length + 1;
             // vector for the (0,0) to (x,y) search
-            List<int> DownVector = new List<int>(2 * MAX + 2);
+            int[] DownVector = new int[2 * MAX + 2];
             // vector for the (u,v) to (N,M) search
-            List<int> UpVector = new List<int>(2 * MAX + 2);
+            int[] UpVector = new int[2 * MAX + 2];
 
             // run 1k times
             for (int i = 0; i < 1000; ++i)
-                MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+                MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegmentX<byte>(A), new ArraySegmentX<byte>(B), ref modifiedA, ref modifiedB, ref DownVector, ref UpVector, result);
         }
 
         // raw MyersDiffX test for Rider netcore vs. Unity mono comparison.
@@ -143,19 +142,19 @@ namespace Mirror.Tests.DeltaCompression
             // allocate the lists.
             // already with expected capacity to avoid resizing.
             List<Item> result = new List<Item>();
-            List<bool> modifiedA = new List<bool>(A.Length + 2);
-            List<bool> modifiedB = new List<bool>(B.Length + 2);
+            bool[] modifiedA = new bool[A.Length + 2];
+            bool[] modifiedB = new bool[B.Length + 2];
 
             // need two vectors of size 2 * MAX + 2
             int MAX = A.Length + B.Length + 1;
             // vector for the (0,0) to (x,y) search
-            List<int> DownVector = new List<int>(2 * MAX + 2);
+            int[] DownVector = new int[2 * MAX + 2];
             // vector for the (u,v) to (N,M) search
-            List<int> UpVector = new List<int>(2 * MAX + 2);
+            int[] UpVector = new int[2 * MAX + 2];
 
             // run 1k times
             for (int i = 0; i < 1000; ++i)
-                MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+                MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegmentX<byte>(A), new ArraySegmentX<byte>(B), ref modifiedA, ref modifiedB, ref DownVector, ref UpVector, result);
         }
 
         // raw MyersDiffX test for Rider netcore vs. Unity mono comparison.
@@ -178,19 +177,19 @@ namespace Mirror.Tests.DeltaCompression
             // allocate the lists.
             // already with expected capacity to avoid resizing.
             List<Item> result = new List<Item>();
-            List<bool> modifiedA = new List<bool>(A.Length + 2);
-            List<bool> modifiedB = new List<bool>(B.Length + 2);
+            bool[] modifiedA = new bool[A.Length + 2];
+            bool[] modifiedB = new bool[B.Length + 2];
 
             // need two vectors of size 2 * MAX + 2
             int MAX = A.Length + B.Length + 1;
             // vector for the (0,0) to (x,y) search
-            List<int> DownVector = new List<int>(2 * MAX + 2);
+            int[] DownVector = new int[2 * MAX + 2];
             // vector for the (u,v) to (N,M) search
-            List<int> UpVector = new List<int>(2 * MAX + 2);
+            int[] UpVector = new int[2 * MAX + 2];
 
             // run 1k times
             for (int i = 0; i < 1000; ++i)
-                MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegment<byte>(A), new ArraySegment<byte>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+                MyersDiffX.MyersDiffX.DiffNonAlloc(new ArraySegmentX<byte>(A), new ArraySegmentX<byte>(B), ref modifiedA, ref modifiedB, ref DownVector, ref UpVector, result);
         }
     }
 }

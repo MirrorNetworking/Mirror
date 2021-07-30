@@ -103,27 +103,33 @@ namespace MyersDiffX
             // allocate the lists.
             // already with expected capacity to avoid resizing.
             List<Item> result = new List<Item>();
-            List<bool> modifiedA = new List<bool>(A.Length + 2);
-            List<bool> modifiedB = new List<bool>(B.Length + 2);
+            bool[] modifiedA = new bool[A.Length + 2];
+            bool[] modifiedB = new bool[B.Length + 2];
 
+            // Up/DownVector as reusable int[] that we only resize if necessary.
             // need two vectors of size 2 * MAX + 2
             int MAX = A.Length + B.Length + 1;
+            int VECTOR_SIZE = 2 * MAX + 2;
             // vector for the (0,0) to (x,y) search
-            List<int> DownVector = new List<int>(2 * MAX + 2);
+            int[] DownVector = new int[VECTOR_SIZE];
             // vector for the (u,v) to (N,M) search
-            List<int> UpVector = new List<int>(2 * MAX + 2);
+            int[] UpVector = new int[VECTOR_SIZE];
 
-            DiffNonAlloc(new ArraySegment<T>(A), new ArraySegment<T>(B), modifiedA, modifiedB, DownVector, UpVector, result);
+            DiffNonAlloc(new ArraySegmentX<T>(A), new ArraySegmentX<T>(B), ref modifiedA, ref modifiedB, ref DownVector, ref UpVector, result);
             return result;
         }
 
         // Allocation free version where helpers are passed as parameters.
         // useful for games etc. that need to avoid runtime allocations.
-        // -> A, B are actual parameters
+        // -> A, B are the input arrays
+        //    ArraySegment to avoid allocations.
+        //    Mirror's NetworkWriter can use .ToArraySegment and avoid allocs.
         // -> the lists are to avoid allocations
-        public static void DiffNonAlloc<T>(ArraySegment<T> A, ArraySegment<T> B,
-                                           List<bool> modifiedA, List<bool> modifiedB,
-                                           List<int> DownVector, List<int> UpVector,
+        // -> reusable ref bool[] & ref int[] that we only resize if necessary
+        //    DO NOT USE .LENGTH as it might be larger than valid data range.
+        public static void DiffNonAlloc<T>(ArraySegmentX<T> A, ArraySegmentX<T> B,
+                                           ref bool[] modifiedA, ref bool[] modifiedB,
+                                           ref int[] DownVector, ref int[] UpVector,
                                            List<Item> result)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
             where T : struct, IComparable, IEquatable<T>
@@ -131,35 +137,40 @@ namespace MyersDiffX
             // initialize result list
             result.Clear();
 
+            // only resize (and reallocate) modified arrays if too small
+            if (modifiedA.Length < A.Count + 2) Array.Resize(ref modifiedA, A.Count + 2);
+            if (modifiedB.Length < B.Count + 2) Array.Resize(ref modifiedB, B.Count + 2);
+
             // initialize the modified arrays.
-            // new bool[size] initializes them to 'false'.
-            // we need to initialize our list manually.
-            // that's the price to pay to avoid allocations.
-            modifiedA.Clear();
-            modifiedB.Clear();
             // TODO is this necessary, or does the algo set all values anyway?
-            for (int i = 0; i < A.Count + 2; ++i) modifiedA.Add(false);
-            for (int i = 0; i < B.Count + 2; ++i) modifiedB.Add(false);
+            for (int i = 0; i < A.Count + 2; ++i) modifiedA[i] = false;
+            for (int i = 0; i < B.Count + 2; ++i) modifiedB[i] = false;
+
+            // the two vectors need to be at least of size 2 * MAX + 2.
+            // only resize (and reallocate) if too small..
+            int MAX = A.Count + B.Count + 1;
+            int VECTOR_SIZE = 2 * MAX + 2;
+            if (DownVector.Length < VECTOR_SIZE) Array.Resize(ref DownVector, VECTOR_SIZE);
+            if (UpVector.Length < VECTOR_SIZE) Array.Resize(ref UpVector, VECTOR_SIZE);
 
             // initialize the vector arrays.
-            // new int[size] initializes them to '0'.
-            // we need to initialize our list manually.
-            // that's the price to pay to avoid allocations.
-            DownVector.Clear();
-            UpVector.Clear();
-            int MAX = A.Count + B.Count + 1;
+            // NOTE: only from [0..VECTOR_SIZE]. everything beyond we don't use.
+            // NOTE: List<int> would be significantly slower!
             // TODO is this necessary, or does the algo set all values anyway?
-            for (int i = 0; i < 2 * MAX + 2; ++i)
+            for (int i = 0; i < VECTOR_SIZE; ++i)
             {
-                DownVector.Add(0);
-                UpVector.Add(0);
+                DownVector[i] = 0;
+                UpVector[i] = 0;
             }
 
             LongestCommonSubsequence(A, modifiedA, 0, A.Count,
                                      B, modifiedB, 0, B.Count,
                                      DownVector, UpVector);
 
-            CreateDiffs(modifiedA, modifiedB, result);
+            // CreateDiffs need to know valid size of modified arrays
+            CreateDiffs(new ArraySegmentX<bool>(modifiedA, 0, A.Count + 2),
+                        new ArraySegmentX<bool>(modifiedB, 0, B.Count + 2),
+                        result);
         }
 
         // This is the algorithm to find the Shortest Middle Snake (SMS).
@@ -171,9 +182,18 @@ namespace MyersDiffX
         //   UpperB: upper bound of the actual range in DataB (exclusive)
         //   DownVector: a vector for the (0,0) to (x,y) search. Passed as a parameter for speed reasons.
         //   UpVector: a vector for the (u,v) to (N,M) search. Passed as a parameter for speed reasons.
+        // -> reusable int[] that we only resize if necessary
+        //    DO NOT USE .LENGTH as it might be larger than valid data range.
         // Returns a MiddleSnakeData record containing x,y (u,v aren't needed)
-        internal static (int x, int y) ShortestMiddleSnake<T>(ArraySegment<T> A, int LowerA, int UpperA, ArraySegment<T> B, int LowerB, int UpperB,
-            List<int> DownVector, List<int> UpVector)
+        // => return values as 'out' because burst doesn't suppor Tuple returns.
+        //
+        // NOTE that google uses almost the same algorithm:
+        // https://github.com/google/diff-match-patch/blob/62f2e689f498f9c92dbc588c58750addec9b1654/csharp/DiffMatchPatch.cs#L448
+        internal static void ShortestMiddleSnake<T>(
+            ArraySegmentX<T> A, int LowerA, int UpperA,
+            ArraySegmentX<T> B, int LowerB, int UpperB,
+            int[] DownVector, int[] UpVector,
+            out int resultX, out int resultY)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
             where T : struct, IComparable, IEquatable<T>
         {
@@ -231,8 +251,9 @@ namespace MyersDiffX
                     {
                         if (UpVector[UpOffset + k] <= DownVector[DownOffset + k])
                         {
-                            return (DownVector[DownOffset + k],
-                                    DownVector[DownOffset + k] - k);
+                            resultX = DownVector[DownOffset + k];
+                            resultY = DownVector[DownOffset + k] - k;
+                            return;
                                     // 2002.09.20: no need for 2 points
                                     //UpVector[UpOffset + k],
                                     //UpVector[UpOffset + k] - k;
@@ -270,8 +291,9 @@ namespace MyersDiffX
                     {
                         if (UpVector[UpOffset + k] <= DownVector[DownOffset + k])
                         {
-                            return (DownVector[DownOffset + k],
-                                    DownVector[DownOffset + k] - k);
+                            resultX = DownVector[DownOffset + k];
+                            resultY = DownVector[DownOffset + k] - k;
+                            return;
                                     // 2002.09.20: no need for 2 points
                                     //UpVector[UpOffset + k],
                                     //UpVector[UpOffset + k] - k;
@@ -297,7 +319,12 @@ namespace MyersDiffX
         //   UpperB: upper bound of the actual range in DataB (exclusive)
         //   DownVector: a vector for the (0,0) to (x,y) search. Passed as a parameter for speed reasons.
         //   UpVector: a vector for the (u,v) to (N,M) search. Passed as a parameter for speed reasons.
-        static void LongestCommonSubsequence<T>(ArraySegment<T> A, List<bool> modifiedA, int LowerA, int UpperA, ArraySegment<T> B, List<bool> modifiedB, int LowerB, int UpperB, List<int> DownVector, List<int> UpVector)
+        // -> reusable int[] & bool[] that we only resize if necessary
+        //    DO NOT USE .LENGTH as it might be larger than valid data range.
+        static void LongestCommonSubsequence<T>(
+            ArraySegmentX<T> A, bool[] modifiedA, int LowerA, int UpperA,
+            ArraySegmentX<T> B, bool[] modifiedB, int LowerB, int UpperB,
+            int[] DownVector, int[] UpVector)
             // need ICompareable for <>, need IEquatable<T> to avoid .Equals boxing
             where T : struct, IComparable, IEquatable<T>
         {
@@ -330,7 +357,7 @@ namespace MyersDiffX
             else
             {
                 // Find the middle snake and length of an optimal path for A and B
-                (int x, int y) = ShortestMiddleSnake(A, LowerA, UpperA, B, LowerB, UpperB, DownVector, UpVector);
+                ShortestMiddleSnake(A, LowerA, UpperA, B, LowerB, UpperB, DownVector, UpVector, out int x, out int y);
                 // Debug.Write(2, "MiddleSnakeData", String.Format("{0},{1}", smsrd.x, smsrd.y));
 
                 // The path is from LowerX to (x,y) and (x,y) to UpperX
@@ -349,7 +376,9 @@ namespace MyersDiffX
         // both A and B can reuse the same function.
         //   index, length, modified are our own (a/lengthA/modifiedA or vice versa)
         //   otherIndex, otherLength are the other (b/lengthB or vice versa)
-        static int WalkModified(int index, int length, List<bool> modified, int otherIndex, int otherLength)
+        // -> modified[]s are reusable, where length might be larger than valid
+        //    data range. that's why we pass an ArraySegment with valid range.
+        static int WalkModified(int index, int length, ArraySegmentX<bool> modified, int otherIndex, int otherLength)
         {
             // end of other reached yet? then jump straight to the end.
             // (check avoids deadlock, see EdgeCase_Increase test)
@@ -370,7 +399,9 @@ namespace MyersDiffX
         //   modifiedA: bool modification[] from DiffData
         //   lengthB: length of B[]
         //   modifiedB: bool modification[] from DiffData
-        internal static void CreateDiffs(List<bool> modifiedA, List<bool> modifiedB, List<Item> result)
+        // -> modified[]s are reusable, where length might be larger than valid
+        //    data range. that's why we pass an ArraySegment with valid range.
+        internal static void CreateDiffs(ArraySegmentX<bool> modifiedA, ArraySegmentX<bool> modifiedB, List<Item> result)
         {
             // modified [] is always original length + 2.
             // calculate original length instead of passing it as parameter too.

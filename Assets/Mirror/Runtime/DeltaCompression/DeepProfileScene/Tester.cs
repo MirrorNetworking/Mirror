@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
@@ -13,10 +12,10 @@ public class Tester : MonoBehaviour
     public int iterationsPerFrame = 10;
 
     // prepare caches
-    List<bool> modifiedA = new List<bool>();
-    List<bool> modifiedB = new List<bool>();
-    List<int> DownVector = new List<int>();
-    List<int> UpVector = new List<int>();
+    bool[] modifiedA = new bool[0];
+    bool[] modifiedB = new bool[0];
+    int[] DownVector = new int[0];
+    int[] UpVector = new int[0];
     List<Item> diffs = new List<Item>();
 
     // Start is called before the first frame update
@@ -33,18 +32,18 @@ public class Tester : MonoBehaviour
 
     // NonAlloc version for benchmark
     public void ComputeDeltaNonAlloc(NetworkWriter from, NetworkWriter to, NetworkWriter result,
-        List<bool> modifiedA, List<bool> modifiedB,
-        List<int> DownVector, List<int> UpVector,
+        ref bool[] modifiedA, ref bool[] modifiedB,
+        ref int[] DownVector, ref int[] UpVector,
         List<Item> diffs)
     {
-        ArraySegment<byte> fromSegment = from.ToArraySegment();
-        ArraySegment<byte> toSegment = to.ToArraySegment();
+        ArraySegmentX<byte> fromSegment = from.ToArraySegment();
+        ArraySegmentX<byte> toSegment = to.ToArraySegment();
 
         // myers diff nonalloc
         MyersDiffX.MyersDiffX.DiffNonAlloc(
             fromSegment, toSegment,
-            modifiedA, modifiedB,
-            DownVector, UpVector,
+            ref modifiedA, ref modifiedB,
+            ref DownVector, ref UpVector,
             diffs
         );
         //foreach (Diff.Item item in diffs)
@@ -61,7 +60,7 @@ public class Tester : MonoBehaviour
         for (int i = 0; i < iterationsPerFrame; ++i)
         {
             result.Position = 0;
-            ComputeDeltaNonAlloc(A, B, result, modifiedA, modifiedB, DownVector, UpVector, diffs);
+            ComputeDeltaNonAlloc(A, B, result, ref modifiedA, ref modifiedB, ref DownVector, ref UpVector, diffs);
         }
     }
 }
