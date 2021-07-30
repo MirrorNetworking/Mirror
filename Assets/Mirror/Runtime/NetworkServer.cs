@@ -55,6 +55,7 @@ namespace Mirror
         // => public so that custom NetworkManagers can hook into it
         public static Action<NetworkConnection> OnConnectedEvent;
         public static Action<NetworkConnection> OnDisconnectedEvent;
+        public static Action<NetworkConnection, Exception> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
@@ -153,15 +154,16 @@ namespace Mirror
             {
                 DisconnectAll();
 
-                if (!dontListen)
-                {
-                    // stop the server.
-                    // we do NOT call Transport.Shutdown, because someone only
-                    // called NetworkServer.Shutdown. we can't assume that the
-                    // client is supposed to be shut down too!
-                    Transport.activeTransport.ServerStop();
-                }
-
+                // stop the server.
+                // we do NOT call Transport.Shutdown, because someone only
+                // called NetworkServer.Shutdown. we can't assume that the
+                // client is supposed to be shut down too!
+                //
+                // NOTE: stop no matter what, even if 'dontListen':
+                //       someone might enabled dontListen at runtime.
+                //       but we still need to stop the server.
+                //       fixes https://github.com/vis2k/Mirror/issues/2536
+                Transport.activeTransport.ServerStop();
                 initialized = false;
             }
             dontListen = false;
@@ -518,8 +520,10 @@ namespace Mirror
 
         static void OnError(int connectionId, Exception exception)
         {
-            // TODO Let's discuss how we will handle errors
             Debug.LogException(exception);
+            // try get connection. passes null otherwise.
+            connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
+            OnErrorEvent?.Invoke(conn, exception);
         }
 
         // message handlers ////////////////////////////////////////////////////

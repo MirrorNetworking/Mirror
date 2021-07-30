@@ -74,6 +74,7 @@ namespace Mirror
         // => public so that custom NetworkManagers can hook into it
         public static Action OnConnectedEvent;
         public static Action OnDisconnectedEvent;
+        public static Action<Exception> OnErrorEvent;
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>
         public static readonly Dictionary<Guid, GameObject> prefabs =
@@ -386,7 +387,11 @@ namespace Mirror
             connection = null;
         }
 
-        static void OnError(Exception exception) => Debug.LogException(exception);
+        static void OnError(Exception exception)
+        {
+            Debug.LogException(exception);
+            OnErrorEvent?.Invoke(exception);
+        }
 
         // send ////////////////////////////////////////////////////////////////
         /// <summary>Send a NetworkMessage to the server over the given channel.</summary>

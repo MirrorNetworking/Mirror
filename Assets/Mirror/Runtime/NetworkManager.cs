@@ -242,7 +242,7 @@ namespace Mirror
                 authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
 
-            ConfigureServerFrameRate();
+            ConfigureHeadlessFrameRate();
 
             // Copy auto-disconnect settings to NetworkServer
 #pragma warning disable 618
@@ -335,7 +335,7 @@ namespace Mirror
             isNetworkActive = true;
 
             // In case this is a headless client...
-            ConfigureServerFrameRate();
+            ConfigureHeadlessFrameRate();
 
             RegisterClientMessages();
 
@@ -640,14 +640,24 @@ namespace Mirror
             }
         }
 
-        /// <summary>Set the frame rate for a headless server. Override to disable or modify.</summary>
-        public virtual void ConfigureServerFrameRate()
+        // DEPRECATED 2021-07-21
+        [Obsolete("Renamed to ConfigureHeadlessFrameRate()")]
+        public virtual void ConfigureServerFrameRate() {}
+
+        /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
+        // useful for dedicated servers.
+        // useful for headless benchmark clients.
+        public virtual void ConfigureHeadlessFrameRate()
         {
-            // only set framerate for server build
 #if UNITY_SERVER
             Application.targetFrameRate = serverTickRate;
             // Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
 #endif
+
+            // call the obsolete function in case someone did anything important
+#pragma warning disable 618
+            ConfigureServerFrameRate();
+#pragma warning restore 618
         }
 
         bool InitializeSingleton()
@@ -685,6 +695,7 @@ namespace Mirror
         {
             NetworkServer.OnConnectedEvent = OnServerConnectInternal;
             NetworkServer.OnDisconnectedEvent = OnServerDisconnect;
+            NetworkServer.OnErrorEvent = OnServerError;
             NetworkServer.RegisterHandler<AddPlayerMessage>(OnServerAddPlayerInternal);
 
             // Network Server initially registers its own handler for this, so we replace it here.
@@ -695,6 +706,7 @@ namespace Mirror
         {
             NetworkClient.OnConnectedEvent = OnClientConnectInternal;
             NetworkClient.OnDisconnectedEvent = OnClientDisconnectInternal;
+            NetworkClient.OnErrorEvent = OnClientError;
             NetworkClient.RegisterHandler<NotReadyMessage>(OnClientNotReadyMessageInternal);
             NetworkClient.RegisterHandler<SceneMessage>(OnClientSceneInternal, false);
 
@@ -1232,6 +1244,9 @@ namespace Mirror
         [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
         public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
 
+        /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
+        public virtual void OnServerError(NetworkConnection conn, Exception exception) {}
+
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
 
@@ -1268,6 +1283,9 @@ namespace Mirror
         // Deprecated 2021-02-13
         [Obsolete("OnClientError was removed because it hasn't been used in a long time.")]
         public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
+
+        /// <summary>Called on client when transport raises an exception.</summary>
+        public virtual void OnClientError(Exception exception) {}
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
