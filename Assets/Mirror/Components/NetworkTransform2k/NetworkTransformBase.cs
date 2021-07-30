@@ -446,14 +446,12 @@ namespace Mirror
             // make sure that catchup threshold is > buffer multiplier.
             // for a buffer multiplier of '3', we usually have at _least_ 3
             // buffered snapshots. often 4-5 even.
-            // catchUpThreshold should be a minimum of 4, to prevent clashes with
-            // SnapshotInterpolation looking for at least 3 old enough buffers, else
-            // catch up will be implemented while there is not enough old buffers,
-            // and will result in jitter. 
-            // catchupThreshold should be at least bufferTimeMultiplier + 2 because
-            // the first 2 snapshots are used for interpolation, and catch up should start
-            // only if we have those 2 used snapshots + buffered snapshots.
-            catchupThreshold = Mathf.Max(bufferTimeMultiplier + 2, catchupThreshold, 4);
+            // catchUpThreshold should be a minimum of bufferTimeMultiplier + 3, 
+            // to prevent clashes with SnapshotInterpolation looking for at least 
+            // 3 old enough buffers, else catch up will be implemented while there 
+            // is not enough old buffers, and will result in jitter. 
+            
+            catchupThreshold = Mathf.Max(bufferTimeMultiplier + 3, catchupThreshold);
 
             // buffer limit should be at least multiplier to have enough in there
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
