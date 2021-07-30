@@ -11,6 +11,9 @@ namespace Mirror
         [Tooltip("The maximum range that objects will be visible at.")]
         public int visRange = 30;
 
+        [Tooltip("Project entities near client owned objects to grid")]
+        public bool projectNearClientOwnedObjects = false;
+
         // if we see 8 neighbors then 1 entry is visRange/3
         public int resolution => visRange / 3;
 
@@ -37,7 +40,6 @@ namespace Mirror
             checkMethod == CheckMethod.XZ_FOR_3D
             ? Vector2Int.RoundToInt(new Vector2(position.x, position.z) / resolution)
             : Vector2Int.RoundToInt(new Vector2(position.x, position.y) / resolution);
-
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
             // calculate projected positions
@@ -66,9 +68,6 @@ namespace Mirror
         {
             // only on server
             if (!NetworkServer.active) return;
-
-            // NOTE: unlike Scene/MatchInterestManagement, this rebuilds ALL
-            //       entities every INTERVAL. consider the other approach later.
 
             // IMPORTANT: refresh grid every update!
             // => newly spawned entities get observers assigned via
@@ -100,16 +99,23 @@ namespace Mirror
 
                     // put into grid
                     grid.Add(position, connection);
+
+                    if (projectNearClientOwnedObjects)
+                        foreach (NetworkIdentity clientOwnedObject in connection.clientOwnedObjects)
+                        {
+                            Vector2Int clientOwnedObjectPosition = ProjectToGrid(clientOwnedObject.transform.position);
+                            grid.Add(clientOwnedObjectPosition, connection);
+                        }
                 }
             }
 
             // rebuild all spawned entities' observers every 'interval'
             // this will call OnRebuildObservers which then returns the
             // observers at grid[position] for each entity.
-            if (NetworkTime.localTime >= lastRebuildTime + rebuildInterval)
+            if (NetworkTime.time >= lastRebuildTime + rebuildInterval)
             {
                 RebuildAll();
-                lastRebuildTime = NetworkTime.localTime;
+                lastRebuildTime = NetworkTime.time;
             }
         }
 
