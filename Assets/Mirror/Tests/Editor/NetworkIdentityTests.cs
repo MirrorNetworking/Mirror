@@ -927,12 +927,19 @@ namespace Mirror.Tests
         public void OnStopClient()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out NetworkDestroyExceptionNetworkBehaviour compEx,
                 out NetworkDestroyCalledNetworkBehaviour comp);
 
-            // make sure our test values are set to 0
-            Assert.That(compEx.called, Is.EqualTo(0));
-            Assert.That(comp.called, Is.EqualTo(0));
+            // call OnStopClient in identity
+            identity.OnStopClient();
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnStopClientException()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out NetworkDestroyExceptionNetworkBehaviour compEx,
+                out NetworkDestroyCalledNetworkBehaviour comp);
 
             // call OnStopClient in identity
             // one component will throw an exception, but that shouldn't stop
