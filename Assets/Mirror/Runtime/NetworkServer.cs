@@ -1238,6 +1238,7 @@ namespace Mirror
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
             // otherwise simply .Reset() it.
+            // for Unspawn() etc.
             else
             {
                 identity.Reset();
