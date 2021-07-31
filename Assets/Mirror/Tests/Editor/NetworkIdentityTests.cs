@@ -946,7 +946,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStopServer_CallsNetworkComponentsOnStopServer()
+        public void OnStopServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out StopServerCalledNetworkBehaviour comp);
