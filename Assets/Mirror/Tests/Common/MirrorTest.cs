@@ -193,7 +193,6 @@ namespace Mirror.Tests
         {
             NetworkClient.ConnectHost();
             UpdateTransport();
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
         }
 
         protected void UpdateTransport()
