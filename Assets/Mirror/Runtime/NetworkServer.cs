@@ -139,7 +139,11 @@ namespace Mirror
                     // spawned prefabs are destroyed
                     else
                     {
-                        GameObject.Destroy(identity.gameObject);
+                        // call NetworkServer.Destroy directly instead of
+                        // GameObject.Destroy()->
+                        //   NetworkIdentity.OnDestroy()->
+                        //     NetworkServer.Destroy()
+                        Destroy(identity.gameObject);
                     }
                 }
             }
