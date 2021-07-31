@@ -207,6 +207,7 @@ namespace Mirror
         }
 
         // called by LocalClient to add itself. don't call directly.
+        // TODO consider internal setter instead?
         internal static void SetLocalConnection(LocalConnectionToClient conn)
         {
             if (localConnection != null)
