@@ -187,6 +187,15 @@ namespace Mirror.Tests
             Assert.That(connectionToClient.isReady, Is.True);
         }
 
+        // fully connect HOST client to local server
+        // sets NetworkServer.localConnection / NetworkClient.connection.
+        protected void ConnectHostClientBlocking()
+        {
+            NetworkClient.ConnectHost();
+            UpdateTransport();
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+        }
+
         protected void UpdateTransport()
         {
             transport.ClientEarlyUpdate();
