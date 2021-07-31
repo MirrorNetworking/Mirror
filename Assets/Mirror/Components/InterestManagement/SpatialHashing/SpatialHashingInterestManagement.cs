@@ -67,6 +67,9 @@ namespace Mirror
             // only on server
             if (!NetworkServer.active) return;
 
+            // NOTE: unlike Scene/MatchInterestManagement, this rebuilds ALL
+            //       entities every INTERVAL. consider the other approach later.
+
             // IMPORTANT: refresh grid every update!
             // => newly spawned entities get observers assigned via
             //    OnCheckObservers. this can happen any time and we don't want

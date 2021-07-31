@@ -946,20 +946,17 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStopServer()
+        public void OnStopServer_CallsNetworkComponentsOnStopServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out StopServerCalledNetworkBehaviour comp);
-
-            // make sure our test values are set to 0
-            Assert.That(comp.called, Is.EqualTo(0));
 
             identity.OnStopServer();
             Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
-        public void OnStopServerEx()
+        public void OnStopServerException()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out StopServerExceptionNetworkBehaviour compEx);
 

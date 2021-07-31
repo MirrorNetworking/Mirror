@@ -55,6 +55,7 @@ namespace Mirror
         // => public so that custom NetworkManagers can hook into it
         public static Action<NetworkConnection> OnConnectedEvent;
         public static Action<NetworkConnection> OnDisconnectedEvent;
+        public static Action<NetworkConnection, Exception> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
@@ -128,17 +129,21 @@ namespace Mirror
             {
                 if (identity != null)
                 {
-                    // scene objects are reset and disabled.
+                    // spawned scene objects are reset and disabled.
                     // they always stay in the scene, we don't destroy them.
                     if (identity.sceneId != 0)
                     {
                         identity.Reset();
                         identity.gameObject.SetActive(false);
                     }
-                    // spawned objects are destroyed
+                    // spawned prefabs are destroyed
                     else
                     {
-                        GameObject.Destroy(identity.gameObject);
+                        // call NetworkServer.Destroy directly instead of
+                        // GameObject.Destroy()->
+                        //   NetworkIdentity.OnDestroy()->
+                        //     NetworkServer.Destroy()
+                        Destroy(identity.gameObject);
                     }
                 }
             }
@@ -153,15 +158,16 @@ namespace Mirror
             {
                 DisconnectAll();
 
-                if (!dontListen)
-                {
-                    // stop the server.
-                    // we do NOT call Transport.Shutdown, because someone only
-                    // called NetworkServer.Shutdown. we can't assume that the
-                    // client is supposed to be shut down too!
-                    Transport.activeTransport.ServerStop();
-                }
-
+                // stop the server.
+                // we do NOT call Transport.Shutdown, because someone only
+                // called NetworkServer.Shutdown. we can't assume that the
+                // client is supposed to be shut down too!
+                //
+                // NOTE: stop no matter what, even if 'dontListen':
+                //       someone might enabled dontListen at runtime.
+                //       but we still need to stop the server.
+                //       fixes https://github.com/vis2k/Mirror/issues/2536
+                Transport.activeTransport.ServerStop();
                 initialized = false;
             }
             dontListen = false;
@@ -518,8 +524,10 @@ namespace Mirror
 
         static void OnError(int connectionId, Exception exception)
         {
-            // TODO Let's discuss how we will handle errors
             Debug.LogException(exception);
+            // try get connection. passes null otherwise.
+            connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
+            OnErrorEvent?.Invoke(conn, exception);
         }
 
         // message handlers ////////////////////////////////////////////////////
@@ -1227,14 +1235,14 @@ namespace Mirror
 
             identity.OnStopServer();
 
-            // when unspawning, don't destroy the server's object
+            // only .Destroy() if we are supposed to destroy it on server
             if (destroyServerObject)
             {
                 identity.destroyCalled = true;
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
-            // if we are destroying the server object we don't need to reset the identity
-            // reseting it will cause isClient/isServer to be false in the OnDestroy call
+            // otherwise simply .Reset() it.
+            // for Unspawn() etc.
             else
             {
                 identity.Reset();
