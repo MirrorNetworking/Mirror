@@ -118,10 +118,7 @@ namespace Mirror
         /// <summary>Number of active player objects across all connections on the server.</summary>
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
-        // Deprecated 2021-07-18
-        /// <summary>Deprecated: Use NetworkServer.active and/or NetworkClient.active instead.</summary>
-        [Obsolete("Use NetworkServer.active and/or NetworkClient.active instead")]
-        [HideInInspector]
+        /// <summary>True if the server is running or client is connected/connecting.</summary>
         public bool isNetworkActive => NetworkServer.active || NetworkClient.active;
 
         // TODO remove this
