@@ -1181,7 +1181,7 @@ namespace Mirror
         // Unlike when calling NetworkServer.Destroy(), on the server the object
         // will NOT be destroyed. This allows the server to re-use the object,
         // even spawn it again later.
-        public static void UnSpawn(GameObject obj) => DestroyObject(obj, DestroyMode.Reset_And_Hide);
+        public static void UnSpawn(GameObject obj) => DestroyObject(obj, DestroyMode.Reset);
 
         // destroy /////////////////////////////////////////////////////////////
         /// <summary>Destroys all of the connection's owned objects on the server.</summary>
@@ -1201,12 +1201,10 @@ namespace Mirror
             conn.identity = null;
         }
 
-        // sometimes we want to GameObject.Destroy.
-        // sometimes we want to call .Reset() and hide it.
-        // sometimes for .Unspawn.
-        // sometimes for destroying scene objects.
+        // sometimes we want to GameObject.Destroy it.
+        // sometimes we want to just unspawn on clients and .Reset() it on server.
         // => 'bool destroy' isn't obvious enough. it's really destroy OR reset!
-        enum DestroyMode { GameObject_Destroy, Reset_And_Hide }
+        enum DestroyMode { Destroy, Reset }
 
         static void DestroyObject(NetworkIdentity identity, DestroyMode mode)
         {
@@ -1243,13 +1241,13 @@ namespace Mirror
             identity.OnStopServer();
 
             // are we supposed to GameObject.Destroy() it completely?
-            if (mode == DestroyMode.GameObject_Destroy)
+            if (mode == DestroyMode.Destroy)
             {
                 identity.destroyCalled = true;
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
             // otherwise simply .Reset() and set inactive again
-            else if (mode == DestroyMode.Reset_And_Hide)
+            else if (mode == DestroyMode.Reset)
             {
                 identity.Reset();
             }
@@ -1273,7 +1271,7 @@ namespace Mirror
         // In some cases it is useful to remove an object but not delete it on
         // the server. For that, use NetworkServer.UnSpawn() instead of
         // NetworkServer.Destroy().
-        public static void Destroy(GameObject obj) => DestroyObject(obj, DestroyMode.GameObject_Destroy);
+        public static void Destroy(GameObject obj) => DestroyObject(obj, DestroyMode.Destroy);
 
         // interest management /////////////////////////////////////////////////
         // Helper function to add all server connections as observers.
