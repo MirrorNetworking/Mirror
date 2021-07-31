@@ -959,7 +959,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStopServerEx()
+        public void OnStopServerException()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out StopServerExceptionNetworkBehaviour compEx);
 
