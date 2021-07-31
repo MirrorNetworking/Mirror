@@ -1228,18 +1228,17 @@ namespace Mirror
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
-            ObjectDestroyMessage message = new ObjectDestroyMessage
-            {
-                netId = identity.netId
-            };
-            SendToObservers(identity, message);
-
+            // send object destroy message to all observers, clear observers
+            SendToObservers(identity, new ObjectDestroyMessage{netId = identity.netId});
             identity.ClearObservers();
+
+            // in host mode, call OnStopClient manually
             if (NetworkClient.active && localClientActive)
             {
                 identity.OnStopClient();
             }
 
+            // we are on the server. call OnStopServer.
             identity.OnStopServer();
 
             // are we supposed to GameObject.Destroy() it completely?
