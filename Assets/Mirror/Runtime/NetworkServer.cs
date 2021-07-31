@@ -129,17 +129,21 @@ namespace Mirror
             {
                 if (identity != null)
                 {
-                    // scene objects are reset and disabled.
+                    // spawned scene objects are reset and disabled.
                     // they always stay in the scene, we don't destroy them.
                     if (identity.sceneId != 0)
                     {
                         identity.Reset();
                         identity.gameObject.SetActive(false);
                     }
-                    // spawned objects are destroyed
+                    // spawned prefabs are destroyed
                     else
                     {
-                        GameObject.Destroy(identity.gameObject);
+                        // call NetworkServer.Destroy directly instead of
+                        // GameObject.Destroy()->
+                        //   NetworkIdentity.OnDestroy()->
+                        //     NetworkServer.Destroy()
+                        Destroy(identity.gameObject);
                     }
                 }
             }
@@ -1232,14 +1236,14 @@ namespace Mirror
 
             identity.OnStopServer();
 
-            // when unspawning, don't destroy the server's object
+            // only .Destroy() if we are supposed to destroy it on server
             if (destroyServerObject)
             {
                 identity.destroyCalled = true;
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
-            // if we are destroying the server object we don't need to reset the identity
-            // reseting it will cause isClient/isServer to be false in the OnDestroy call
+            // otherwise simply .Reset() it.
+            // for Unspawn() etc.
             else
             {
                 identity.Reset();
