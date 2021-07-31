@@ -1055,6 +1055,29 @@ namespace Mirror.Tests
             Assert.That(identity.netId, Is.Zero);
         }
 
+        // test to reproduce a bug where stopping the server would not call
+        // OnStopServer on scene objects:
+        // https://github.com/vis2k/Mirror/issues/2119
+        [Test]
+        public void Shutdown_CallsSceneObjectsOnStopServer()
+        {
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient _);
+
+            // create & spawn an object
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity,
+                out StopServerCalledNetworkBehaviour comp);
+
+            // make sure it was spawned as a scene object.
+            // they don't come from prefabs, so they always are.
+            Assert.That(identity.sceneId, !Is.Null);
+
+            // shutdown should call OnStopServer etc.
+            NetworkServer.Shutdown();
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
         [Test]
         public void ShutdownCleanup()
         {
