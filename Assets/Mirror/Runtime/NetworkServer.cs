@@ -125,7 +125,10 @@ namespace Mirror
         // Note: NetworkClient.DestroyAllClientObjects does the same on client.
         static void CleanupNetworkIdentities()
         {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            // iterate a COPY of NetworkIdentity.spawned.
+            // DestroyObject removes them from the original collection.
+            // removing while iterating is not allowed.
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.ToList())
             {
                 if (identity != null)
                 {
