@@ -10,7 +10,7 @@ namespace kcp2k
     public abstract class KcpConnection
     {
         protected Socket socket;
-        protected EndPoint remoteEndpoint;
+        protected EndPoint remoteEndPoint;
         internal Kcp kcp;
 
         // kcp can have several different states, let's use a state machine
@@ -650,7 +650,7 @@ namespace kcp2k
         }
 
         // get remote endpoint
-        public EndPoint GetRemoteEndPoint() => remoteEndpoint;
+        public EndPoint GetRemoteEndPoint() => remoteEndPoint;
 
         // pause/unpause to safely support mirror scene handling and to
         // immediately pause the receive while loop if needed.

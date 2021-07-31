@@ -2,11 +2,12 @@ using UnityEngine;
 
 namespace Mirror.Examples.Additive
 {
-    // This script is attached to a scene object called Zone that is on the Player layer and has:
-    // - Sphere Collider with isTrigger = true
-    // - Network Identity with Server Only checked
-    // These OnTrigger events only run on the server and will only send a message to the player
-    // that entered the Zone to load the subscene assigned to the subscene property.
+    // This script is attached to a prefab called Zone that is on the Player layer
+    // AdditiveNetworkManager, in OnStartServer, instantiates the prefab only on the server.
+    // It never exists for clients (other than host client if there is one).
+    // The prefab has a Sphere Collider with isTrigger = true.
+    // These OnTrigger events only run on the server and will only send a message to the
+    // client that entered the Zone to load the subscene assigned to the subscene property.
     public class ZoneHandler : MonoBehaviour
     {
         [Scene]

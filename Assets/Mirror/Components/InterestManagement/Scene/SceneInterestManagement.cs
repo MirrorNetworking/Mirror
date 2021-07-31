@@ -17,9 +17,9 @@ namespace Mirror
 
         public override void OnSpawned(NetworkIdentity identity)
         {
-            Scene currentScene = gameObject.scene;
+            Scene currentScene = identity.gameObject.scene;
             lastObjectScene[identity] = currentScene;
-            // Debug.Log($"SceneInterestManagement.OnSpawned({gameObject.name}) currentScene: {currentScene}");
+            // Debug.Log($"SceneInterestManagement.OnSpawned({identity.name}) currentScene: {currentScene}");
             if (!sceneObjects.TryGetValue(currentScene, out HashSet<NetworkIdentity> objects))
             {
                 objects = new HashSet<NetworkIdentity>();
@@ -46,10 +46,10 @@ namespace Mirror
             //   if scene changed:
             //     add previous to dirty
             //     add new to dirty
-            foreach (NetworkIdentity netIdentity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
             {
-                Scene currentScene = lastObjectScene[netIdentity];
-                Scene newScene = netIdentity.gameObject.scene;
+                Scene currentScene = lastObjectScene[identity];
+                Scene newScene = identity.gameObject.scene;
                 if (newScene == currentScene) continue;
 
                 // Mark new/old scenes as dirty so they get rebuilt
@@ -60,17 +60,17 @@ namespace Mirror
                 // and the new scene need to rebuild their respective observers lists.
 
                 // Remove this object from the hashset of the scene it just left
-                sceneObjects[currentScene].Remove(netIdentity);
+                sceneObjects[currentScene].Remove(identity);
 
                 // Set this to the new scene this object just entered
-                lastObjectScene[netIdentity] = newScene;
+                lastObjectScene[identity] = newScene;
 
                 // Make sure this new scene is in the dictionary
                 if (!sceneObjects.ContainsKey(newScene))
                     sceneObjects.Add(newScene, new HashSet<NetworkIdentity>());
 
                 // Add this object to the hashset of the new scene
-                sceneObjects[newScene].Add(netIdentity);
+                sceneObjects[newScene].Add(identity);
             }
 
             // rebuild all dirty scenes
@@ -91,7 +91,7 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
-            return identity.gameObject.scene == gameObject.scene;
+            return identity.gameObject.scene == newObserver.identity.gameObject.scene;
         }
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers,
