@@ -129,21 +129,19 @@ namespace Mirror
             {
                 if (identity != null)
                 {
-                    // spawned scene objects are reset and disabled.
-                    // they always stay in the scene, we don't destroy them.
+                    // scene object
                     if (identity.sceneId != 0)
                     {
+                        // spawned scene objects are only reset and disabled.
+                        // they always stay in the scene, we don't destroy them.
                         identity.Reset();
                         identity.gameObject.SetActive(false);
                     }
-                    // spawned prefabs are destroyed
+                    // spawned prefabs
                     else
                     {
-                        // call NetworkServer.Destroy directly instead of
-                        // GameObject.Destroy()->
-                        //   NetworkIdentity.OnDestroy()->
-                        //     NetworkServer.Destroy()
-                        Destroy(identity.gameObject);
+                        // spawned prefabs are unspawned and destroyed.
+                        DestroyObject(identity, DestroyMode.Destroy);
                     }
                 }
             }
