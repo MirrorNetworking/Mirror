@@ -192,7 +192,9 @@ namespace Mirror.Tests
         protected void ConnectHostClientBlocking()
         {
             NetworkClient.ConnectHost();
+            NetworkClient.ConnectLocalServer();
             UpdateTransport();
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
         }
 
         // fully connect client to local server & authenticate & set read
