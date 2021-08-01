@@ -273,8 +273,7 @@ namespace Mirror
         }
 
         // hasSpawned should always be false before runtime
-        // internal for tests
-        [SerializeField, HideInInspector] internal bool hasSpawned;
+        [SerializeField, HideInInspector] bool hasSpawned;
         public bool SpawnedFromInstantiate { get; private set; }
 
         // NetworkBehaviour components are initialized in Awake once.
