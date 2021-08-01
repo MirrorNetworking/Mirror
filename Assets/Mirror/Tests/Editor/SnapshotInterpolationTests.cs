@@ -160,30 +160,29 @@ namespace Mirror.Tests
             // check at time = 2.1, where third one would be old enough.
             Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 2.1, 3), Is.True);
         }
-        
+
+        // UDP messages might arrive twice sometimes.
+        // make sure InsertIfNewEnough can handle it.
         [Test]
-        public void InsertIfNewEnoughAddTwoSnapshotsWithSameKey()
+        public void InsertIfNewEnough_ReceivedSameSnapshotTwice()
         {
-            //Add three first to get past the buffer.Count checks in InsertIfNewEnough()
             SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
             SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
             SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
-            buffer.Add(a.remoteTimestamp, a);
-            buffer.Add(b.remoteTimestamp, b);
-            buffer.Add(c.remoteTimestamp, c);
 
-            //Set a remoteTime, both snapshots use it to ensure equality.
-            double sampleRemoteTimestamp = 5.425;
-            SimpleSnapshot first = new SimpleSnapshot(sampleRemoteTimestamp, 1, 0);
-            //Add first snapshot
-            SnapshotInterpolation.InsertIfNewEnough(first, buffer);
-            SimpleSnapshot second = new SimpleSnapshot(sampleRemoteTimestamp, 2, 20);
+            // add two valid snapshots first.
+            // we can't add 'duplicates' before 3rd and 4th anyway.
+            SnapshotInterpolation.InsertIfNewEnough(a, buffer);
+            SnapshotInterpolation.InsertIfNewEnough(b, buffer);
 
-            //Add second snapshot which has the same remote time.
-            Assert.DoesNotThrow(
-                () => SnapshotInterpolation.InsertIfNewEnough(second, buffer)
-            );
-        } 
+            // insert C which is newer than B.
+            // then insert it again because it arrive twice.
+            SnapshotInterpolation.InsertIfNewEnough(c, buffer);
+            SnapshotInterpolation.InsertIfNewEnough(c, buffer);
+
+            // count should still be 3.
+            Assert.That(buffer.Count, Is.EqualTo(3));
+        }
         
         [Test]
         public void CalculateCatchup_Empty()
