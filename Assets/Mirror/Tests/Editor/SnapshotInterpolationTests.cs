@@ -161,6 +161,29 @@ namespace Mirror.Tests
             Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 2.1, 3), Is.True);
         }
 
+        // UDP messages might arrive twice sometimes.
+        // make sure InsertIfNewEnough can handle it.
+        [Test]
+        public void InsertIfNewEnough_ReceivedSameSnapshotTwice()
+        {
+            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+
+            // add two valid snapshots first.
+            // we can't add 'duplicates' before 3rd and 4th anyway.
+            SnapshotInterpolation.InsertIfNewEnough(a, buffer);
+            SnapshotInterpolation.InsertIfNewEnough(b, buffer);
+
+            // insert C which is newer than B.
+            // then insert it again because it arrive twice.
+            SnapshotInterpolation.InsertIfNewEnough(c, buffer);
+            SnapshotInterpolation.InsertIfNewEnough(c, buffer);
+
+            // count should still be 3.
+            Assert.That(buffer.Count, Is.EqualTo(3));
+        }
+        
         [Test]
         public void CalculateCatchup_Empty()
         {
