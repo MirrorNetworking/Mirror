@@ -160,7 +160,31 @@ namespace Mirror.Tests
             // check at time = 2.1, where third one would be old enough.
             Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 2.1, 3), Is.True);
         }
+        
+        [Test]
+        public void InsertIfNewEnoughAddTwoSnapshotsWithSameKey()
+        {
+            //Add three first to get past the buffer.Count checks in InsertIfNewEnough()
+            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+            buffer.Add(c.remoteTimestamp, c);
 
+            //Set a remoteTime, both snapshots use it to ensure equality.
+            double sampleRemoteTimestamp = 5.425;
+            SimpleSnapshot first = new SimpleSnapshot(sampleRemoteTimestamp, 1, 0);
+            //Add first snapshot
+            SnapshotInterpolation.InsertIfNewEnough(first, buffer);
+            SimpleSnapshot second = new SimpleSnapshot(sampleRemoteTimestamp, 2, 20);
+
+            //Add second snapshot which has the same remote time.
+            Assert.DoesNotThrow(
+                () => SnapshotInterpolation.InsertIfNewEnough(second, buffer)
+            );
+        } 
+        
         [Test]
         public void CalculateCatchup_Empty()
         {
