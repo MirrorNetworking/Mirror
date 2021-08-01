@@ -1237,6 +1237,11 @@ namespace Mirror
             if (NetworkClient.active && localClientActive)
             {
                 identity.OnStopClient();
+                // The object may have been spawned with host client ownership,
+                // e.g. a pet so we need to clear hasAuthority and call
+                // NotifyAuthority which invokes OnStopAuthority if hasAuthority.
+                identity.hasAuthority = false;
+                identity.NotifyAuthority();
             }
 
             // we are on the server. call OnStopServer.
