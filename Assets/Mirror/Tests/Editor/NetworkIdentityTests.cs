@@ -1123,6 +1123,7 @@ namespace Mirror.Tests
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
             Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.hasSpawned, Is.False);
             Assert.That(identity.observers, Is.Empty);
         }
 
