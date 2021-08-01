@@ -1116,10 +1116,14 @@ namespace Mirror.Tests
 
             // mark for reset and reset
             identity.Reset();
+            Assert.That(identity.isServer, Is.False);
             Assert.That(identity.isClient, Is.False);
+            Assert.That(identity.isLocalPlayer, Is.False);
             Assert.That(identity.netId, Is.EqualTo(0));
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
+            Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.observers, Is.Empty);
         }
 
         [Test, Ignore("NetworkServerTest.SendCommand does it already")]
