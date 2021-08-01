@@ -164,7 +164,7 @@ namespace Mirror.Tests
         // UDP messages might arrive twice sometimes.
         // make sure InsertIfNewEnough can handle it.
         [Test]
-        public void InsertIfNewEnough_ReceivedSameSnapshotTwice()
+        public void InsertIfNewEnough_Duplicate()
         {
             SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
             SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
@@ -183,7 +183,7 @@ namespace Mirror.Tests
             // count should still be 3.
             Assert.That(buffer.Count, Is.EqualTo(3));
         }
-        
+
         [Test]
         public void CalculateCatchup_Empty()
         {
