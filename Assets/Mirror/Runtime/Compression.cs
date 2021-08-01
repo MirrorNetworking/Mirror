@@ -194,7 +194,7 @@ namespace Mirror
         // compress ulong varint.
         // same result for int, short and byte. only need one function.
         // NOT an extension. otherwise weaver might accidentally use it.
-        public static void CompressVarInt(NetworkWriter writer, ulong value)
+        public static void CompressVarUInt(NetworkWriter writer, ulong value)
         {
             if (value <= 240)
             {
@@ -279,8 +279,16 @@ namespace Mirror
             }
         }
 
+
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public static void CompressVarInt(NetworkWriter writer, long i)
+        {
+            ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
+            CompressVarUInt(writer, zigzagged);
+        }
+
         // NOT an extension. otherwise weaver might accidentally use it.
-        public static ulong DecompressVarInt(NetworkReader reader)
+        public static ulong DecompressVarUInt(NetworkReader reader)
         {
             byte a0 = reader.ReadByte();
             if (a0 < 241)
@@ -337,6 +345,13 @@ namespace Mirror
             }
 
             throw new IndexOutOfRangeException("DecompressVarInt failure: " + a0);
+        }
+
+        // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public static long DecompressVarInt(NetworkReader reader)
+        {
+            ulong data = DecompressVarUInt(reader);
+            return ((long)(data >> 1)) ^ -((long)data & 1);
         }
     }
 }

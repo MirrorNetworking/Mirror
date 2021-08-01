@@ -125,21 +125,27 @@ namespace Mirror
         // Note: NetworkClient.DestroyAllClientObjects does the same on client.
         static void CleanupNetworkIdentities()
         {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            // iterate a COPY of NetworkIdentity.spawned.
+            // DestroyObject removes them from the original collection.
+            // removing while iterating is not allowed.
+            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.ToList())
             {
                 if (identity != null)
                 {
-                    // scene objects are reset and disabled.
-                    // they always stay in the scene, we don't destroy them.
+                    // scene object
                     if (identity.sceneId != 0)
                     {
-                        identity.Reset();
+                        // spawned scene objects are unspawned and reset.
+                        // afterwards we disable them again.
+                        // (they always stay in the scene, we don't destroy them)
+                        DestroyObject(identity, DestroyMode.Reset);
                         identity.gameObject.SetActive(false);
                     }
-                    // spawned objects are destroyed
+                    // spawned prefabs
                     else
                     {
-                        GameObject.Destroy(identity.gameObject);
+                        // spawned prefabs are unspawned and destroyed.
+                        DestroyObject(identity, DestroyMode.Destroy);
                     }
                 }
             }
@@ -201,6 +207,7 @@ namespace Mirror
         }
 
         // called by LocalClient to add itself. don't call directly.
+        // TODO consider internal setter instead?
         internal static void SetLocalConnection(LocalConnectionToClient conn)
         {
             if (localConnection != null)
@@ -1177,7 +1184,7 @@ namespace Mirror
         // Unlike when calling NetworkServer.Destroy(), on the server the object
         // will NOT be destroyed. This allows the server to re-use the object,
         // even spawn it again later.
-        public static void UnSpawn(GameObject obj) => DestroyObject(obj, false);
+        public static void UnSpawn(GameObject obj) => DestroyObject(obj, DestroyMode.Reset);
 
         // destroy /////////////////////////////////////////////////////////////
         /// <summary>Destroys all of the connection's owned objects on the server.</summary>
@@ -1197,7 +1204,12 @@ namespace Mirror
             conn.identity = null;
         }
 
-        static void DestroyObject(NetworkIdentity identity, bool destroyServerObject)
+        // sometimes we want to GameObject.Destroy it.
+        // sometimes we want to just unspawn on clients and .Reset() it on server.
+        // => 'bool destroy' isn't obvious enough. it's really destroy OR reset!
+        enum DestroyMode { Destroy, Reset }
+
+        static void DestroyObject(NetworkIdentity identity, DestroyMode mode)
         {
             if (aoi)
             {
@@ -1217,35 +1229,33 @@ namespace Mirror
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
-            ObjectDestroyMessage message = new ObjectDestroyMessage
-            {
-                netId = identity.netId
-            };
-            SendToObservers(identity, message);
-
+            // send object destroy message to all observers, clear observers
+            SendToObservers(identity, new ObjectDestroyMessage{netId = identity.netId});
             identity.ClearObservers();
+
+            // in host mode, call OnStopClient manually
             if (NetworkClient.active && localClientActive)
             {
                 identity.OnStopClient();
             }
 
+            // we are on the server. call OnStopServer.
             identity.OnStopServer();
 
-            // when unspawning, don't destroy the server's object
-            if (destroyServerObject)
+            // are we supposed to GameObject.Destroy() it completely?
+            if (mode == DestroyMode.Destroy)
             {
                 identity.destroyCalled = true;
                 UnityEngine.Object.Destroy(identity.gameObject);
             }
-            // if we are destroying the server object we don't need to reset the identity
-            // reseting it will cause isClient/isServer to be false in the OnDestroy call
-            else
+            // otherwise simply .Reset() and set inactive again
+            else if (mode == DestroyMode.Reset)
             {
                 identity.Reset();
             }
         }
 
-        static void DestroyObject(GameObject obj, bool destroyServerObject)
+        static void DestroyObject(GameObject obj, DestroyMode mode)
         {
             if (obj == null)
             {
@@ -1255,7 +1265,7 @@ namespace Mirror
 
             if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {
-                DestroyObject(identity, destroyServerObject);
+                DestroyObject(identity, mode);
             }
         }
 
@@ -1263,7 +1273,7 @@ namespace Mirror
         // In some cases it is useful to remove an object but not delete it on
         // the server. For that, use NetworkServer.UnSpawn() instead of
         // NetworkServer.Destroy().
-        public static void Destroy(GameObject obj) => DestroyObject(obj, true);
+        public static void Destroy(GameObject obj) => DestroyObject(obj, DestroyMode.Destroy);
 
         // interest management /////////////////////////////////////////////////
         // Helper function to add all server connections as observers.
