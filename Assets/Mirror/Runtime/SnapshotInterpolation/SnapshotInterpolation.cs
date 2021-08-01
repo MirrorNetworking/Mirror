@@ -40,7 +40,9 @@ namespace Mirror
                 return;
 
             // otherwise sort it into the list
-            buffer.Add(timestamp, snapshot);
+            // as long as buffer does not already contain it.
+            if(!buffer.ContainsKey(timestamp))                
+                buffer.Add(timestamp, snapshot);
         }
 
         // helper function to check if we have >= n old enough snapshots.
