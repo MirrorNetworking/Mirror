@@ -328,13 +328,11 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectHostClientBlockingAuthenticatedAndReady();
 
-            // add player object.
+            // spawn a player(!) object
             // otherwise client wouldn't receive spawn / authority messages
-            CreateNetworked(out _, out NetworkIdentity player, out StopAuthorityCalledNetworkBehaviour comp);
-            NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player.gameObject);
-
-            // AddPlayer sends spawn message. process it so NotifyAuthority is called.
-            ProcessMessages();
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player,
+                out StopAuthorityCalledNetworkBehaviour comp,
+                NetworkServer.localConnection);
 
             // need to have authority for this test
             Assert.That(player.hasAuthority, Is.True);
