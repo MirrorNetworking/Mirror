@@ -337,11 +337,12 @@ namespace Mirror.Tests
             // need to have authority for this test
             Assert.That(player.hasAuthority, Is.True);
 
-            // destroy should call OnStopAuthority
-            // // ignore 'Destroy called in Edit mode' error
+            // destroy and ignore 'Destroy called in Edit mode' error
             LogAssert.ignoreFailingMessages = true;
             NetworkServer.Destroy(player.gameObject);
             LogAssert.ignoreFailingMessages = false;
+
+            // destroy should call OnStopAuthority
             Assert.That(comp.called, Is.EqualTo(1));
         }
 
