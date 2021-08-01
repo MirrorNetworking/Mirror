@@ -40,8 +40,9 @@ namespace Mirror
                 return;
 
             // otherwise sort it into the list
-            // as long as buffer does not already contain it.
-            if(!buffer.ContainsKey(timestamp))                
+            // an UDP messages might arrive twice sometimes.
+            // SortedList throws if key already exists, so check.
+            if (!buffer.ContainsKey(timestamp))                
                 buffer.Add(timestamp, snapshot);
         }
 
