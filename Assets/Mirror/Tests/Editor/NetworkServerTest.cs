@@ -326,19 +326,22 @@ namespace Mirror.Tests
         {
             // listen & connect a HOST client
             NetworkServer.Listen(1);
-            ConnectHostClientBlocking();
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
-            // create & spawn an object
-            // with host connection so we have authority
-            CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity identity,
+            // spawn a player(!) object
+            // otherwise client wouldn't receive spawn / authority messages
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player,
                 out StopAuthorityCalledNetworkBehaviour comp,
                 NetworkServer.localConnection);
 
             // need to have authority for this test
-            Assert.That(identity.hasAuthority, Is.True);
+            Assert.That(player.hasAuthority, Is.True);
 
             // destroy should call OnStopAuthority
-            NetworkServer.Destroy(go);
+            // // ignore 'Destroy called in Edit mode' error
+            LogAssert.ignoreFailingMessages = true;
+            NetworkServer.Destroy(player.gameObject);
+            LogAssert.ignoreFailingMessages = false;
             Assert.That(comp.called, Is.EqualTo(1));
         }
 

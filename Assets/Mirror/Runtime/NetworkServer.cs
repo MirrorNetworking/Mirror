@@ -1233,13 +1233,13 @@ namespace Mirror
             SendToObservers(identity, new ObjectDestroyMessage{netId = identity.netId});
             identity.ClearObservers();
 
-            // The object may have been spawned with host client ownership, e.g. a pet
-            // so we need to clear hasAuthority and call NotifyAuthority which will
-            // invoke OnStopAuthority if hasAuthority was true.
             // in host mode, call OnStopClient manually
             if (NetworkClient.active && localClientActive)
             {
                 identity.OnStopClient();
+                // The object may have been spawned with host client ownership,
+                // e.g. a pet so we need to clear hasAuthority and call
+                // NotifyAuthority which invokes OnStopAuthority if hasAuthority.
                 identity.hasAuthority = false;
                 identity.NotifyAuthority();
             }
