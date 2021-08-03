@@ -294,11 +294,11 @@ namespace Mirror
                     ref serverInterpolationTime,
                     bufferTime, serverBuffer,
                     catchupThreshold, catchupMultiplier,
-                    out Snapshot computed))
+                    out NTSnapshot computed))
                 {
                     NTSnapshot start = serverBuffer.Values[0];
                     NTSnapshot goal = serverBuffer.Values[1];
-                    ApplySnapshot(start, goal, (NTSnapshot)computed);
+                    ApplySnapshot(start, goal, computed);
                 }
             }
         }
@@ -354,11 +354,11 @@ namespace Mirror
                     ref clientInterpolationTime,
                     bufferTime, clientBuffer,
                     catchupThreshold, catchupMultiplier,
-                    out Snapshot computed))
+                    out NTSnapshot computed))
                 {
                     NTSnapshot start = clientBuffer.Values[0];
                     NTSnapshot goal = clientBuffer.Values[1];
-                    ApplySnapshot(start, goal, (NTSnapshot)computed);
+                    ApplySnapshot(start, goal, computed);
                 }
             }
         }

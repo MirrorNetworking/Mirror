@@ -133,7 +133,7 @@ namespace Mirror
             SortedList<double, T> buffer,
             int catchupThreshold,
             float catchupMultiplier,
-            out Snapshot computed)
+            out T computed)
                 where T : Snapshot
         {
             // we buffer snapshots for 'bufferTime'
@@ -261,7 +261,8 @@ namespace Mirror
             //Debug.Log($"InverseLerp({first.remoteTimestamp:F2}, {second.remoteTimestamp:F2}, {first.remoteTimestamp} + {interpolationTime:F2}) = {t:F2} snapshotbuffer={buffer.Count}");
 
             // interpolate snapshot, return true to indicate we computed one
-            computed = first.Interpolate(second, t);
+            // TODO casting 'second' to 'Snapshot' still boxes
+            computed = (T)first.Interpolate(second, t);
 
             // interpolationTime:
             // overshooting is ONLY allowed for smooth transitions when
