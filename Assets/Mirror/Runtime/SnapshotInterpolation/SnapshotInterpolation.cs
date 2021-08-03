@@ -75,7 +75,7 @@ namespace Mirror
         // get first & second buffer entries and delta between them.
         // helper function because we use this several times.
         // => assumes at least two entries in buffer.
-        public static void GetFirstSecondAndDelta<T>(SortedList<double, T> buffer, out Snapshot first, out Snapshot second, out double delta)
+        public static void GetFirstSecondAndDelta<T>(SortedList<double, T> buffer, out T first, out T second, out double delta)
             where T : Snapshot
         {
             // get first & second
@@ -195,7 +195,7 @@ namespace Mirror
             interpolationTime += deltaTime;
 
             // get first & second & delta
-            GetFirstSecondAndDelta(buffer, out Snapshot first, out Snapshot second, out double delta);
+            GetFirstSecondAndDelta(buffer, out T first, out T second, out double delta);
 
             // reached goal and have more old enough snapshots in buffer?
             // then skip and move to next.
