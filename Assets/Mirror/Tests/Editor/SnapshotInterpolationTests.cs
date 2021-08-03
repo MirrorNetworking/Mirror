@@ -20,14 +20,13 @@ namespace Mirror.Tests
             this.value = value;
         }
 
-        public Snapshot Interpolate(Snapshot to, double t) =>
+        public static SimpleSnapshot Interpolate(SimpleSnapshot from, SimpleSnapshot to, double t) =>
             new SimpleSnapshot(
                 // interpolated snapshot is applied directly. don't need timestamps.
                 0, 0,
                 // lerp unclamped in case we ever need to extrapolate.
                 // atm SnapshotInterpolation never does.
-                Mathd.LerpUnclamped(value, ((SimpleSnapshot)to).value, t)
-            );
+                Mathd.LerpUnclamped(from.value, to.value, t));
     }
 
     public class SnapshotInterpolationTests
@@ -241,7 +240,7 @@ namespace Mirror.Tests
             float bufferTime = 0;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should not spit out any snapshot to apply
             Assert.That(result, Is.False);
@@ -274,7 +273,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should not spit out any snapshot to apply
             Assert.That(result, Is.False);
@@ -302,7 +301,7 @@ namespace Mirror.Tests
             float bufferTime = 1;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should not spit out any snapshot to apply
             Assert.That(result, Is.False);
@@ -335,7 +334,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
@@ -373,7 +372,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
@@ -411,7 +410,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
@@ -462,7 +461,7 @@ namespace Mirror.Tests
             double deltaTime = 0.5;
             double interpolationTime = 0;
             float bufferTime = 2;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
@@ -524,7 +523,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
@@ -593,7 +592,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should still spit out a result between first & second.
             Assert.That(result, Is.True);
@@ -654,7 +653,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
@@ -711,7 +710,7 @@ namespace Mirror.Tests
             float bufferTime = 2;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, out SimpleSnapshot computed);
+            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);

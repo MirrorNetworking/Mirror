@@ -69,7 +69,7 @@ namespace Mirror.Tests.NetworkTransform2k
             );
 
             // interpolate
-            NTSnapshot between = (NTSnapshot)from.Interpolate(to, 0.5);
+            NTSnapshot between = NTSnapshot.Interpolate(from, to, 0.5);
 
             // note: timestamp interpolation isn't needed. we don't use it.
             //Assert.That(between.remoteTimestamp, Is.EqualTo(1.5).Within(Mathf.Epsilon));

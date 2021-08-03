@@ -17,6 +17,7 @@
 //      -> client gets Cmd() and X at the same time, but buffers X for bufferTime
 //      -> for unreliable, it would get X before the reliable Cmd(), still
 //         buffer for bufferTime but end up closer to the original time
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -92,6 +93,10 @@ namespace Mirror
         // (can be bigger than delta when overshooting)
         double serverInterpolationTime;
         double clientInterpolationTime;
+
+        // only convert the static Interpolation function to Func<T> once to
+        // avoid allocations
+        Func<NTSnapshot, NTSnapshot, double, NTSnapshot> Interpolate = NTSnapshot.Interpolate;
 
         [Header("Debug")]
         public bool showGizmos;
@@ -294,6 +299,7 @@ namespace Mirror
                     ref serverInterpolationTime,
                     bufferTime, serverBuffer,
                     catchupThreshold, catchupMultiplier,
+                    Interpolate,
                     out NTSnapshot computed))
                 {
                     NTSnapshot start = serverBuffer.Values[0];
@@ -354,6 +360,7 @@ namespace Mirror
                     ref clientInterpolationTime,
                     bufferTime, clientBuffer,
                     catchupThreshold, catchupMultiplier,
+                    Interpolate,
                     out NTSnapshot computed))
                 {
                     NTSnapshot start = clientBuffer.Values[0];

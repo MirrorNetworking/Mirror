@@ -121,6 +121,11 @@ namespace Mirror
         //                   a value > 3 like 6.
         // catchupMultiplier: catchup by % per additional excess buffer entry
         //                    over the amount of 'catchupThreshold'.
+        // Interpolate: interpolates one snapshot to another, returns the result
+        //   T Interpolate(T from, T to, double t);
+        //   => needs to be Func<T> instead of a function in the Snapshot
+        //      interface because that would require boxing.
+        //   => make sure to only allocate that function once.
         //
         // returns
         //   'true' if it spit out a snapshot to apply.
@@ -133,6 +138,7 @@ namespace Mirror
             SortedList<double, T> buffer,
             int catchupThreshold,
             float catchupMultiplier,
+            Func<T, T, double, T> Interpolate,
             out T computed)
                 where T : Snapshot
         {
@@ -261,8 +267,7 @@ namespace Mirror
             //Debug.Log($"InverseLerp({first.remoteTimestamp:F2}, {second.remoteTimestamp:F2}, {first.remoteTimestamp} + {interpolationTime:F2}) = {t:F2} snapshotbuffer={buffer.Count}");
 
             // interpolate snapshot, return true to indicate we computed one
-            // TODO casting 'second' to 'Snapshot' still boxes
-            computed = (T)first.Interpolate(second, t);
+            computed = Interpolate(first, second, t);
 
             // interpolationTime:
             // overshooting is ONLY allowed for smooth transitions when
