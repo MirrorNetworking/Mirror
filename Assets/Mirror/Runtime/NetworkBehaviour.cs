@@ -47,7 +47,7 @@ namespace Mirror
         // keeping this ridiculous summary as a reminder of a time long gone...
         public bool hasAuthority => netIdentity.hasAuthority;
         
-        /// <summary>This returns true if the current client or server has authority over the obect.</summary>
+        /// <summary>This returns true if the current client or server has authority over the object.</summary>
         public bool hasClientOrServerAuthority =>  hasAuthority || (isServer && connectionToClient == null);
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
