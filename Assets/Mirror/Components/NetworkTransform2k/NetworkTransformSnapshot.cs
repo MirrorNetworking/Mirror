@@ -39,24 +39,23 @@ namespace Mirror
             this.scale = scale;
         }
 
-        public Snapshot Interpolate(Snapshot to, double t)
+        public static NTSnapshot Interpolate(NTSnapshot from, NTSnapshot to, double t)
         {
             // NOTE:
             // Vector3 & Quaternion components are float anyway, so we can
             // keep using the functions with 't' as float instead of double.
-            NTSnapshot toCasted = (NTSnapshot)to;
             return new NTSnapshot(
                 // interpolated snapshot is applied directly. don't need timestamps.
                 0, 0,
                 // lerp position/rotation/scale unclamped in case we ever need
                 // to extrapolate. atm SnapshotInterpolation never does.
-                Vector3.LerpUnclamped(position, toCasted.position, (float)t),
+                Vector3.LerpUnclamped(from.position, to.position, (float)t),
                 // IMPORTANT: LerpUnclamped(0, 60, 1.5) extrapolates to ~86.
                 //            SlerpUnclamped(0, 60, 1.5) extrapolates to 90!
                 //            (0, 90, 1.5) is even worse. for Lerp.
                 //            => Slerp works way better for our euler angles.
-                Quaternion.SlerpUnclamped(rotation, toCasted.rotation, (float)t),
-                Vector3.LerpUnclamped(scale, toCasted.scale, (float)t)
+                Quaternion.SlerpUnclamped(from.rotation, to.rotation, (float)t),
+                Vector3.LerpUnclamped(from.scale, to.scale, (float)t)
             );
         }
     }

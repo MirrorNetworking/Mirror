@@ -40,7 +40,10 @@ namespace Mirror
                 return;
 
             // otherwise sort it into the list
-            buffer.Add(timestamp, snapshot);
+            // an UDP messages might arrive twice sometimes.
+            // SortedList throws if key already exists, so check.
+            if (!buffer.ContainsKey(timestamp))
+                buffer.Add(timestamp, snapshot);
         }
 
         // helper function to check if we have >= n old enough snapshots.
@@ -72,7 +75,7 @@ namespace Mirror
         // get first & second buffer entries and delta between them.
         // helper function because we use this several times.
         // => assumes at least two entries in buffer.
-        public static void GetFirstSecondAndDelta<T>(SortedList<double, T> buffer, out Snapshot first, out Snapshot second, out double delta)
+        public static void GetFirstSecondAndDelta<T>(SortedList<double, T> buffer, out T first, out T second, out double delta)
             where T : Snapshot
         {
             // get first & second
@@ -118,6 +121,11 @@ namespace Mirror
         //                   a value > 3 like 6.
         // catchupMultiplier: catchup by % per additional excess buffer entry
         //                    over the amount of 'catchupThreshold'.
+        // Interpolate: interpolates one snapshot to another, returns the result
+        //   T Interpolate(T from, T to, double t);
+        //   => needs to be Func<T> instead of a function in the Snapshot
+        //      interface because that would require boxing.
+        //   => make sure to only allocate that function once.
         //
         // returns
         //   'true' if it spit out a snapshot to apply.
@@ -130,7 +138,8 @@ namespace Mirror
             SortedList<double, T> buffer,
             int catchupThreshold,
             float catchupMultiplier,
-            out Snapshot computed)
+            Func<T, T, double, T> Interpolate,
+            out T computed)
                 where T : Snapshot
         {
             // we buffer snapshots for 'bufferTime'
@@ -192,7 +201,7 @@ namespace Mirror
             interpolationTime += deltaTime;
 
             // get first & second & delta
-            GetFirstSecondAndDelta(buffer, out Snapshot first, out Snapshot second, out double delta);
+            GetFirstSecondAndDelta(buffer, out T first, out T second, out double delta);
 
             // reached goal and have more old enough snapshots in buffer?
             // then skip and move to next.
@@ -258,7 +267,7 @@ namespace Mirror
             //Debug.Log($"InverseLerp({first.remoteTimestamp:F2}, {second.remoteTimestamp:F2}, {first.remoteTimestamp} + {interpolationTime:F2}) = {t:F2} snapshotbuffer={buffer.Count}");
 
             // interpolate snapshot, return true to indicate we computed one
-            computed = first.Interpolate(second, t);
+            computed = Interpolate(first, second, t);
 
             // interpolationTime:
             // overshooting is ONLY allowed for smooth transitions when

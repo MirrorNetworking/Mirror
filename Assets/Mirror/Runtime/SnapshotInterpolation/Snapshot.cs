@@ -16,10 +16,5 @@ namespace Mirror
         //            network. simply get it from batching.
         double remoteTimestamp { get; set; }
         double localTimestamp { get; set; }
-
-        // interpolate from this snapshot to another, return the result
-        // IMPORTANT: make sure to use unclamped interpolation.
-        //            in other words, it should be able to extrapolate.
-        Snapshot Interpolate(Snapshot to, double t);
     }
 }
