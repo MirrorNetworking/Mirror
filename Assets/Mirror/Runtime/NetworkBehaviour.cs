@@ -46,6 +46,9 @@ namespace Mirror
         /// <summary>This returns true if this object is the authoritative version of the object in the distributed network application.</summary>
         // keeping this ridiculous summary as a reminder of a time long gone...
         public bool hasAuthority => netIdentity.hasAuthority;
+        
+        /// <summary>This returns true if the current client or server has authority over the obect.</summary>
+        public bool hasClientOrServerAuthority =>  hasAuthority || (isServer && connectionToClient == null);
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
