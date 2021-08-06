@@ -532,6 +532,7 @@ namespace Mirror
         /// <summary>Stops the server from listening and simulating the game.</summary>
         public void StopServer()
         {
+            // return if already stopped to avoid recursion deadlock
             if (!NetworkServer.active)
                 return;
 
@@ -675,13 +676,13 @@ namespace Mirror
                     // Return false to not allow collision-destroyed second instance to continue.
                     return false;
                 }
-                Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
+                //Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
                 singleton = this;
                 if (Application.isPlaying) DontDestroyOnLoad(gameObject);
             }
             else
             {
-                Debug.Log("NetworkManager created singleton (ForScene)");
+                //Debug.Log("NetworkManager created singleton (ForScene)");
                 singleton = this;
             }
 
