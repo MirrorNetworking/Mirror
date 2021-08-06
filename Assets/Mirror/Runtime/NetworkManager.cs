@@ -569,12 +569,6 @@ namespace Mirror
         /// <summary>Stops and disconnects the client.</summary>
         public void StopClient()
         {
-            // return if already stopped to avoid recursion deadlock
-            if (!NetworkClient.active)
-                return;
-
-            //Debug.Log("NetworkManager StopClient");
-
             if (authenticator != null)
             {
                 authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
