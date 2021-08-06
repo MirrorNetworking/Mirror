@@ -927,12 +927,19 @@ namespace Mirror.Tests
         public void OnStopClient()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out NetworkDestroyExceptionNetworkBehaviour compEx,
                 out NetworkDestroyCalledNetworkBehaviour comp);
 
-            // make sure our test values are set to 0
-            Assert.That(compEx.called, Is.EqualTo(0));
-            Assert.That(comp.called, Is.EqualTo(0));
+            // call OnStopClient in identity
+            identity.OnStopClient();
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnStopClientException()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out NetworkDestroyExceptionNetworkBehaviour compEx,
+                out NetworkDestroyCalledNetworkBehaviour comp);
 
             // call OnStopClient in identity
             // one component will throw an exception, but that shouldn't stop
@@ -946,7 +953,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void OnStopServer_CallsNetworkComponentsOnStopServer()
+        public void OnStopServer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out StopServerCalledNetworkBehaviour comp);
@@ -1109,10 +1116,14 @@ namespace Mirror.Tests
 
             // mark for reset and reset
             identity.Reset();
+            Assert.That(identity.isServer, Is.False);
             Assert.That(identity.isClient, Is.False);
+            Assert.That(identity.isLocalPlayer, Is.False);
             Assert.That(identity.netId, Is.EqualTo(0));
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
+            Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.observers, Is.Empty);
         }
 
         [Test, Ignore("NetworkServerTest.SendCommand does it already")]

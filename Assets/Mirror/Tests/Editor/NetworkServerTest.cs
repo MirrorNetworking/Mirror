@@ -320,6 +320,32 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
+        // test to reproduce https://github.com/vis2k/Mirror/pull/2797
+        [Test]
+        public void Destroy_HostMode_CallsOnStopAuthority()
+        {
+            // listen & connect a HOST client
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // spawn a player(!) object
+            // otherwise client wouldn't receive spawn / authority messages
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player,
+                out StopAuthorityCalledNetworkBehaviour comp,
+                NetworkServer.localConnection);
+
+            // need to have authority for this test
+            Assert.That(player.hasAuthority, Is.True);
+
+            // destroy and ignore 'Destroy called in Edit mode' error
+            LogAssert.ignoreFailingMessages = true;
+            NetworkServer.Destroy(player.gameObject);
+            LogAssert.ignoreFailingMessages = false;
+
+            // destroy should call OnStopAuthority
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
         // send a message all the way from client to server
         [Test]
         public void Send_ClientToServerMessage()
@@ -1053,6 +1079,29 @@ namespace Mirror.Tests
             // unspawn should reset netid
             NetworkServer.UnSpawn(go);
             Assert.That(identity.netId, Is.Zero);
+        }
+
+        // test to reproduce a bug where stopping the server would not call
+        // OnStopServer on scene objects:
+        // https://github.com/vis2k/Mirror/issues/2119
+        [Test]
+        public void Shutdown_CallsSceneObjectsOnStopServer()
+        {
+            // listen & connect a client
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient _);
+
+            // create & spawn an object
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity,
+                out StopServerCalledNetworkBehaviour comp);
+
+            // make sure it was spawned as a scene object.
+            // they don't come from prefabs, so they always are.
+            Assert.That(identity.sceneId, !Is.Null);
+
+            // shutdown should call OnStopServer etc.
+            NetworkServer.Shutdown();
+            Assert.That(comp.called, Is.EqualTo(1));
         }
 
         [Test]
