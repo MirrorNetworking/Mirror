@@ -6,11 +6,12 @@ using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
     using UnityEditor;
+    using System.Linq;
 
-    #if UNITY_2021_2_OR_NEWER
+#if UNITY_2021_2_OR_NEWER
         using UnityEditor.SceneManagement;
-    #elif UNITY_2018_3_OR_NEWER
-        using UnityEditor.Experimental.SceneManagement;
+#elif UNITY_2018_3_OR_NEWER
+using UnityEditor.Experimental.SceneManagement;
     #endif
 #endif
 
@@ -322,6 +323,8 @@ namespace Mirror
 
         void OnValidate()
         {
+            //Debug.Log($"NetworkIdentity:OnValidate for {gameObject.name}");
+
             // OnValidate is not called when using Instantiate, so we can use
             // it to make sure that hasSpawned is false
             hasSpawned = false;
@@ -1190,6 +1193,36 @@ namespace Mirror
         // after OnDestroy is called.
         internal void Reset()
         {
+#if UNITY_EDITOR
+            // This fires in editor when adding a component to an object
+            Debug.Log("NetworkIdentity:Reset");
+
+            // Prevent adding NetworkIdentity to NetworkManager
+            if (transform.root.GetComponentInChildren<NetworkManager>() != null)
+            {
+                Debug.LogError("NetworkIdentity cannot be added to the same object hierarchy as NetworkManager.");
+                DestroyImmediate(this, true);
+                return;
+            }
+
+            // Prevent adding NetworkIdentity to parent or child of another NetworkIdentity
+            foreach (NetworkIdentity networkIdentity in transform.root.GetComponentsInChildren<NetworkIdentity>().ToList())
+                if (networkIdentity != this)
+                {
+                    Debug.LogError("NetworkIdentity cannot be added to a parent or child of another object with a NetworkIdentity.");
+
+                    // Remove any NetworkBehaviours that might be here without a NetworkIdentity
+                    foreach (NetworkBehaviour networkBehaviour in transform.root.GetComponentsInChildren<NetworkBehaviour>().ToList())
+                    {
+                        Debug.LogError($"Removing NetworkBehaviour {networkBehaviour.GetType()} from {gameObject.name} for lack of a NetworkIdentity.");
+                        DestroyImmediate(networkBehaviour, true);
+                    }
+
+                    DestroyImmediate(this, true);
+                    return;
+                }
+#endif
+
             // make sure to call this before networkBehavioursCache is cleared below
             ResetSyncObjects();
 
