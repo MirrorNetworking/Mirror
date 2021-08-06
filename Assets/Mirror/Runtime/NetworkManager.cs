@@ -952,6 +952,7 @@ namespace Mirror
             if (clientReadyConnection != null)
             {
 #pragma warning disable 618
+                // obsolete method calls new method because it's not empty
                 OnClientConnect(clientReadyConnection);
 #pragma warning restore 618
                 clientLoadedScene = true;
@@ -990,6 +991,7 @@ namespace Mirror
                 {
                     // let client know that we changed scene
 #pragma warning disable 618
+                    // obsolete method calls new method because it's not empty
                     OnClientSceneChanged(NetworkClient.connection);
 #pragma warning restore 618
                 }
@@ -1019,6 +1021,7 @@ namespace Mirror
             if (clientReadyConnection != null)
             {
 #pragma warning disable 618
+                // obsolete method calls new method because it's not empty
                 OnClientConnect(clientReadyConnection);
 #pragma warning restore 618
                 clientLoadedScene = true;
@@ -1028,6 +1031,7 @@ namespace Mirror
             if (NetworkClient.isConnected)
             {
 #pragma warning disable 618
+                // obsolete method calls new method because it's not empty
                 OnClientSceneChanged(NetworkClient.connection);
 #pragma warning restore 618
             }
@@ -1174,6 +1178,7 @@ namespace Mirror
             {
                 clientLoadedScene = false;
 #pragma warning disable 618
+                // obsolete method calls new method because it's not empty
                 OnClientConnect(NetworkClient.connection);
 #pragma warning restore 618
             }
@@ -1189,6 +1194,7 @@ namespace Mirror
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
 #pragma warning disable 618
+            // obsolete method calls new method because it's not empty
             OnClientDisconnect(NetworkClient.connection);
 #pragma warning restore 618
         }
