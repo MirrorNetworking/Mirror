@@ -1,4 +1,4 @@
-﻿// our ideal update looks like this:
+// our ideal update looks like this:
 //   transport.process_incoming()
 //   update_world()
 //   transport.process_outgoing()
