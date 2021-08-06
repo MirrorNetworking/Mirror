@@ -1200,6 +1200,8 @@ namespace Mirror
 #pragma warning disable 618
             OnClientNotReady(NetworkClient.connection);
 #pragma warning restore 618
+            OnClientNotReady();
+
             // NOTE: clientReadyConnection is not set here! don't want OnClientConnect to be invoked again after scene changes.
         }
 
@@ -1308,11 +1310,11 @@ namespace Mirror
         public virtual void OnClientError(Exception exception) {}
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
-        public virtual void OnClientNotReady() { }
+        public virtual void OnClientNotReady() {}
 
         // Deprecated 2021-07-08
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
-        public virtual void OnClientNotReady(NetworkConnection conn) => OnClientNotReady();
+        public virtual void OnClientNotReady(NetworkConnection conn) {}
 
         /// <summary>Called from ClientChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         // customHandling: indicates if scene loading will be handled through overrides

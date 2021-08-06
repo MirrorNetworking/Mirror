@@ -474,6 +474,7 @@ namespace Mirror
 #pragma warning disable 618
             OnRoomClientConnect(NetworkClient.connection);
 #pragma warning restore 618
+            OnRoomClientConnect();
             base.OnClientConnect();
         }
 
@@ -486,6 +487,7 @@ namespace Mirror
 #pragma warning disable 618
             OnRoomClientDisconnect(NetworkClient.connection);
 #pragma warning restore 618
+            OnRoomClientDisconnect();
             base.OnClientDisconnect();
         }
 
@@ -514,6 +516,9 @@ namespace Mirror
                 CallOnClientExitRoom();
 
             base.OnClientSceneChanged();
+#pragma warning disable 618
+            OnRoomClientSceneChanged(NetworkClient.connection);
+#pragma warning restore 618
             OnRoomClientSceneChanged();
         }
 
@@ -644,7 +649,7 @@ namespace Mirror
 
         // Deprecated 2021-07-08
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
-        public virtual void OnRoomClientConnect(NetworkConnection conn) => OnRoomClientConnect();
+        public virtual void OnRoomClientConnect(NetworkConnection conn) {}
 
         /// <summary>
         /// This is called on the client when disconnected from a server.
@@ -653,7 +658,7 @@ namespace Mirror
 
         // Deprecated 2021-07-08
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
-        public virtual void OnRoomClientDisconnect(NetworkConnection conn) => OnRoomClientDisconnect();
+        public virtual void OnRoomClientDisconnect(NetworkConnection conn) {}
 
         /// <summary>
         /// This is called on the client when a client is started.
@@ -673,7 +678,7 @@ namespace Mirror
 
         // Deprecated 2021-07-08
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
-        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) => OnRoomClientSceneChanged();
+        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) {}
 
         /// <summary>
         /// Called on the client when adding a player to the room fails.
