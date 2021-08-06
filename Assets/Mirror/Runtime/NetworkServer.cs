@@ -115,7 +115,7 @@ namespace Mirror
             if (!dontListen)
             {
                 Transport.activeTransport.ServerStart();
-                //Debug.Log("Server started listening");
+                Debug.Log("Server started listening");
             }
 
             active = true;
@@ -156,7 +156,6 @@ namespace Mirror
         /// <summary>Shuts down the server and disconnects all clients</summary>
         public static void Shutdown()
         {
-            //Debug.Log("Shutting down server.");
             if (initialized)
             {
                 DisconnectAll();
