@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using Mirror.RemoteCalls;
 using UnityEngine;
+#if UNITY_EDITOR
+using System.Linq;
+#endif
 
 namespace Mirror
 {
@@ -86,6 +89,57 @@ namespace Mirror
 
         /// <summary>Returns the index of the component on this object</summary>
         public int ComponentIndex { get; internal set; }
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            //Debug.Log($"NetworkBehaviour:OnValidate for {gameObject.name}");
+
+            List<NetworkIdentity> networkIdentities = transform.root.GetComponentsInChildren<NetworkIdentity>().ToList();
+
+            // Check for missing NetworkIdentity
+            if (networkIdentities.Count == 0)
+            {
+                // Add the missing NetworkIdentity
+                // This can happen if a script was added as a MonoBehaviour and changed to
+                // a NetworkBehaviour later.  RequireComponent doesn't catch / handle that.
+                gameObject.AddComponent<NetworkIdentity>();
+                return;
+            }
+
+            if (networkIdentities.Count == 1 && networkIdentities.First().gameObject == gameObject)
+            {
+                // This is how it should be.
+                return;
+            }
+
+            // We have at least one NetworkIdentity in the object hierarchy,
+            // but it's not on this gameObject...perhaps on a parent or child.
+            Debug.LogError($"NetworkBehaviour {GetType()} on {gameObject.name} requires a NetworkIdentity but there's already one elsewhere in the hierarchy. Move it to the correct object.", gameObject);
+        }
+
+        // This fires in editor when adding a component to an object
+        void Reset()
+        {
+            //Debug.Log("NetworkBehaviour:Reset");
+
+            // Prevent adding NetworkBehaviour to NetworkManager
+            if (transform.root.GetComponentInChildren<NetworkManager>() != null)
+            {
+                Debug.LogError("NetworkBehaviour cannot be added to the same object hierarchy as NetworkManager.");
+                DestroyImmediate(this, true);
+                return;
+            }
+
+            // Prevent adding NetworkBehaviour without NetworkIdentity
+            // This can happen if NetworkIdentity was blocked ( see NetworkIdentity.Reset() )
+            if (GetComponent<NetworkIdentity>() == null)
+            {
+                Debug.LogError("NetworkBehaviour cannot be added without NetworkIdentity.");
+                DestroyImmediate(this, true);
+            }
+        }
+#endif
 
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).
