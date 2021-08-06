@@ -1270,7 +1270,6 @@ namespace Mirror
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
             StopClient();
-            //Debug.Log("OnClientDisconnect: Client disconnected.");
         }
 
         // Deprecated 2021-02-13
