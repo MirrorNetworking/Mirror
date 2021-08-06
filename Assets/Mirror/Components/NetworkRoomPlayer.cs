@@ -126,7 +126,7 @@ namespace Mirror
         #region Optional UI
 
         /// <summary>
-        /// Render a UI for the room.   Override to provide your on UI
+        /// Render a UI for the room. Override to provide your own UI
         /// </summary>
         public virtual void OnGUI()
         {

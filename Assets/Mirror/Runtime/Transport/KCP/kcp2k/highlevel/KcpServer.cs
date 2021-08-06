@@ -15,6 +15,9 @@ namespace kcp2k
         public Action<int> OnDisconnected;
 
         // configuration
+        // DualMode uses both IPv6 and IPv4. not all platforms support it.
+        // (Nintendo Switch, etc.)
+        public bool DualMode;
         // NoDelay is recommended to reduce latency. This also scales better
         // without buffers getting full.
         public bool NoDelay;
@@ -40,13 +43,9 @@ namespace kcp2k
         public int Timeout;
 
         // state
-        Socket socket;
-#if UNITY_SWITCH
-        // switch does not support ipv6
-        EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
-#else
-        EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
-#endif
+        protected Socket socket;
+        EndPoint newClientEP;
+
         // IMPORTANT: raw receive buffer always needs to be of 'MTU' size, even
         //            if MaxMessageSize is larger. kcp always sends in MTU
         //            segments and having a buffer smaller than MTU would
@@ -60,6 +59,7 @@ namespace kcp2k
         public KcpServer(Action<int> OnConnected,
                          Action<int, ArraySegment<byte>> OnData,
                          Action<int> OnDisconnected,
+                         bool DualMode,
                          bool NoDelay,
                          uint Interval,
                          int FastResend = 0,
@@ -71,6 +71,7 @@ namespace kcp2k
             this.OnConnected = OnConnected;
             this.OnData = OnData;
             this.OnDisconnected = OnDisconnected;
+            this.DualMode = DualMode;
             this.NoDelay = NoDelay;
             this.Interval = Interval;
             this.FastResend = FastResend;
@@ -78,6 +79,11 @@ namespace kcp2k
             this.SendWindowSize = SendWindowSize;
             this.ReceiveWindowSize = ReceiveWindowSize;
             this.Timeout = Timeout;
+
+            // create newClientEP either IPv4 or IPv6
+            newClientEP = DualMode
+                          ? new IPEndPoint(IPAddress.IPv6Any, 0)
+                          : new IPEndPoint(IPAddress.Any, 0);
         }
 
         public bool IsActive() => socket != null;
@@ -91,15 +97,19 @@ namespace kcp2k
             }
 
             // listen
-#if UNITY_SWITCH
-            // Switch does not support ipv6
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.Bind(new IPEndPoint(IPAddress.Any, port));
-#else
-            socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-            socket.DualMode = true;
-            socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
-#endif
+            if (DualMode)
+            {
+                // IPv6 socket with DualMode
+                socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+                socket.DualMode = true;
+                socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
+            }
+            else
+            {
+                // IPv4 socket
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                socket.Bind(new IPEndPoint(IPAddress.Any, port));
+            }
         }
 
         public void Send(int connectionId, ArraySegment<byte> segment, KcpChannel channel)
@@ -127,6 +137,33 @@ namespace kcp2k
             return "";
         }
 
+        // EndPoint & Receive functions can be overwritten for where-allocation:
+        // https://github.com/vis2k/where-allocation
+        protected virtual int ReceiveFrom(byte[] buffer, out int connectionHash)
+        {
+            // NOTE: ReceiveFrom allocates.
+            //   we pass our IPEndPoint to ReceiveFrom.
+            //   receive from calls newClientEP.Create(socketAddr).
+            //   IPEndPoint.Create always returns a new IPEndPoint.
+            //   https://github.com/mono/mono/blob/f74eed4b09790a0929889ad7fc2cf96c9b6e3757/mcs/class/System/System.Net.Sockets/Socket.cs#L1761
+            int read = socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP);
+
+            // calculate connectionHash from endpoint
+            // NOTE: IPEndPoint.GetHashCode() allocates.
+            //  it calls m_Address.GetHashCode().
+            //  m_Address is an IPAddress.
+            //  GetHashCode() allocates for IPv6:
+            //  https://github.com/mono/mono/blob/bdd772531d379b4e78593587d15113c37edd4a64/mcs/class/referencesource/System/net/System/Net/IPAddress.cs#L699
+            //
+            // => using only newClientEP.Port wouldn't work, because
+            //    different connections can have the same port.
+            connectionHash = newClientEP.GetHashCode();
+            return read;
+        }
+
+        protected virtual KcpServerConnection CreateConnection() =>
+            new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
+
         // process incoming messages. should be called before updating the world.
         HashSet<int> connectionsToRemove = new HashSet<int>();
         public void TickIncoming()
@@ -135,24 +172,9 @@ namespace kcp2k
             {
                 try
                 {
-                    // NOTE: ReceiveFrom allocates.
-                    //   we pass our IPEndPoint to ReceiveFrom.
-                    //   receive from calls newClientEP.Create(socketAddr).
-                    //   IPEndPoint.Create always returns a new IPEndPoint.
-                    //   https://github.com/mono/mono/blob/f74eed4b09790a0929889ad7fc2cf96c9b6e3757/mcs/class/System/System.Net.Sockets/Socket.cs#L1761
-                    int msgLength = socket.ReceiveFrom(rawReceiveBuffer, 0, rawReceiveBuffer.Length, SocketFlags.None, ref newClientEP);
+                    // receive
+                    int msgLength = ReceiveFrom(rawReceiveBuffer, out int connectionId);
                     //Log.Info($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
-
-                    // calculate connectionId from endpoint
-                    // NOTE: IPEndPoint.GetHashCode() allocates.
-                    //  it calls m_Address.GetHashCode().
-                    //  m_Address is an IPAddress.
-                    //  GetHashCode() allocates for IPv6:
-                    //  https://github.com/mono/mono/blob/bdd772531d379b4e78593587d15113c37edd4a64/mcs/class/referencesource/System/net/System/Net/IPAddress.cs#L699
-                    //
-                    // => using only newClientEP.Port wouldn't work, because
-                    //    different connections can have the same port.
-                    int connectionId = newClientEP.GetHashCode();
 
                     // IMPORTANT: detect if buffer was too small for the received
                     //            msgLength. otherwise the excess data would be
@@ -163,8 +185,9 @@ namespace kcp2k
                         // is this a new connection?
                         if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
                         {
-                            // create a new KcpConnection
-                            connection = new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
+                            // create a new KcpConnection based on last received
+                            // EndPoint. can be overwritten for where-allocation.
+                            connection = CreateConnection();
 
                             // DO NOT add to connections yet. only if the first message
                             // is actually the kcp handshake. otherwise it's either:
@@ -195,7 +218,7 @@ namespace kcp2k
 
                                 // add to connections dict after being authenticated.
                                 connections.Add(connectionId, connection);
-                                Log.Info($"KCP: server added connection({connectionId}): {newClientEP}");
+                                Log.Info($"KCP: server added connection({connectionId})");
 
                                 // setup Data + Disconnected events only AFTER the
                                 // handshake. we don't want to fire OnServerDisconnected

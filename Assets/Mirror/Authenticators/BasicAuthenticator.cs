@@ -13,9 +13,6 @@ namespace Mirror.Authenticators
         public string username;
         public string password;
 
-        // this is set if authentication fails to prevent garbage AuthRequestMessage spam
-        bool ServerAuthFailed;
-
         #region Messages
 
         public struct AuthRequestMessage : NetworkMessage
@@ -104,13 +101,7 @@ namespace Mirror.Authenticators
                 conn.isAuthenticated = false;
 
                 // disconnect the client after 1 second so that response message gets delivered
-                if (!ServerAuthFailed)
-                {
-                    // set this false so this coroutine can only be started once
-                    ServerAuthFailed = true;
-
-                    StartCoroutine(DelayedDisconnect(conn, 1));
-                }
+                StartCoroutine(DelayedDisconnect(conn, 1));
             }
         }
 
@@ -160,6 +151,7 @@ namespace Mirror.Authenticators
             NetworkClient.connection.Send(authRequestMessage);
         }
 
+        // Deprecated 2021-04-29
         [Obsolete("Call OnAuthResponseMessage without the NetworkConnection parameter. It always points to NetworkClient.connection anyway.")]
         public void OnAuthResponseMessage(NetworkConnection conn, AuthResponseMessage msg) => OnAuthResponseMessage(msg);
 

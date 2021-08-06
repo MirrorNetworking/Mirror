@@ -89,7 +89,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4822224316094678}
   - component: {fileID: 114402732107420660}
-  - component: {fileID: 114720308987319626}
   - component: {fileID: 114265392388239132}
   - component: {fileID: 143011667059871024}
   - component: {fileID: 4839740653866577337}
@@ -136,21 +135,6 @@ MonoBehaviour:
   visible: 0
   m_AssetId: 
   hasSpawned: 0
---- !u!114 &114720308987319626
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1480027675339556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7fdb599e1359924bad6255660370252, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  forceHidden: 0
 --- !u!114 &114265392388239132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,6 +155,8 @@ MonoBehaviour:
   localScaleSensitivity: 0.01
   compressRotation: 0
   interpolateScale: 0
+  interpolateRotation: 1
+  interpolatePosition: 1
   syncScale: 0
 --- !u!143 &143011667059871024
 CharacterController:

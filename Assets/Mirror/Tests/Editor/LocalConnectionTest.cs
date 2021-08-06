@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class LocalConnectionTest
+    public class LocalConnectionTest : MirrorTest
     {
         struct TestMessage : NetworkMessage {}
 
@@ -10,13 +10,11 @@ namespace Mirror.Tests
         LocalConnectionToServer connectionToServer;
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            connectionToServer = new LocalConnectionToServer();
-            connectionToClient = new LocalConnectionToClient();
+            base.SetUp();
 
-            connectionToClient.connectionToServer = connectionToServer;
-            connectionToServer.connectionToClient = connectionToClient;
+            CreateLocalConnectionPair(out connectionToClient, out connectionToServer);
 
             // set up server/client connections so message handling works
             NetworkClient.connection = connectionToServer;
@@ -24,11 +22,10 @@ namespace Mirror.Tests
         }
 
         [TearDown]
-        public void TearDown()
+        public override void TearDown()
         {
             connectionToServer.Disconnect();
-            NetworkClient.Shutdown();
-            NetworkServer.Shutdown();
+            base.TearDown();
         }
 
         [Test]

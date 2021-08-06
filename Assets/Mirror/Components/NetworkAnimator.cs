@@ -30,7 +30,6 @@ namespace Mirror
         [Tooltip("Animator that will have parameters synchronized")]
         public Animator animator;
 
-
         /// <summary>
         /// Syncs animator.speed
         /// </summary>
@@ -48,7 +47,7 @@ namespace Mirror
         int[] animationHash;
         int[] transitionHash;
         float[] layerWeight;
-        float nextSendTime;
+        double nextSendTime;
 
         bool SendMessagesAllowed
         {
@@ -134,13 +133,6 @@ namespace Mirror
             }
         }
 
-        void CmdSetAnimatorSpeed(float newSpeed)
-        {
-            // set animator
-            animator.speed = newSpeed;
-            animatorSpeed = newSpeed;
-        }
-
         void OnAnimatorSpeedChanged(float _, float value)
         {
             // skip if host or client with authority
@@ -196,7 +188,7 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            float now = Time.time;
+            double now = NetworkTime.localTime;
             if (SendMessagesAllowed && syncInterval >= 0 && now > nextSendTime)
             {
                 nextSendTime = now + syncInterval;
@@ -591,6 +583,14 @@ namespace Mirror
             }
 
             RpcOnAnimationResetTriggerClientMessage(hash);
+        }
+
+        [Command]
+        void CmdSetAnimatorSpeed(float newSpeed)
+        {
+            // set animator
+            animator.speed = newSpeed;
+            animatorSpeed = newSpeed;
         }
 
         #endregion

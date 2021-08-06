@@ -1,4 +1,4 @@
-﻿// our ideal update looks like this:
+// our ideal update looks like this:
 //   transport.process_incoming()
 //   update_world()
 //   transport.process_outgoing()
@@ -149,7 +149,7 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         static void RuntimeInitializeOnLoad()
         {
-            Debug.Log("Mirror: adding Network[Early/Late]Update to Unity...");
+            //Debug.Log("Mirror: adding Network[Early/Late]Update to Unity...");
 
             // get loop
             // 2019 has GetCURRENTPlayerLoop which is safe to use without

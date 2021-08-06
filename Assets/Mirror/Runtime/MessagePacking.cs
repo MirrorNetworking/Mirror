@@ -6,18 +6,21 @@ namespace Mirror
     // message packing all in one place, instead of constructing headers in all
     // kinds of different places
     //
-    //   MsgType     (1-n bytes)
+    //   MsgType     (2 bytes)
     //   Content     (ContentSize bytes)
-    //
-    // -> we use varint for headers because most messages will result in 1 byte
-    //    type/size headers then instead of always
-    //    using 2 bytes for shorts.
-    // -> this reduces bandwidth by 10% if average message size is 20 bytes
-    //    (probably even shorter)
     public static class MessagePacking
     {
         // message header size
-        internal const int HeaderSize = sizeof(ushort);
+        public const int HeaderSize = sizeof(ushort);
+
+        // max message content size (without header) calculation for convenience
+        // -> Transport.GetMaxPacketSize is the raw maximum
+        // -> Every message gets serialized into <<id, content>>
+        // -> Every serialized message get put into a batch with a header
+        public static int MaxContentSize =>
+            Transport.activeTransport.GetMaxPacketSize()
+            - HeaderSize
+            - Batcher.HeaderSize;
 
         public static ushort GetId<T>() where T : struct, NetworkMessage
         {
@@ -46,7 +49,7 @@ namespace Mirror
         // -> NetworkReader will point at content afterwards!
         public static bool Unpack(NetworkReader messageReader, out ushort msgType)
         {
-            // read message type (varint)
+            // read message type
             try
             {
                 msgType = messageReader.ReadUShort();
@@ -116,7 +119,7 @@ namespace Mirror
             }
             catch (Exception e)
             {
-                Debug.LogError($"Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Disconnecting connId={conn.connectionId} to prevent exploits from an Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
                 conn.Disconnect();
             }
         };

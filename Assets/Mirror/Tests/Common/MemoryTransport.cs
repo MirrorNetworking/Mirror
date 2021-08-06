@@ -35,7 +35,7 @@ namespace Mirror.Tests
         // 1400 max batch size
         // -> need something != GetMaxPacketSize for testing
         // -> MTU aka 1400 is used a lot anyway
-        public override int GetMaxBatchSize(int channelId) => 1400;
+        public override int GetBatchThreshold(int channelId) => 1400;
         public override void Shutdown() {}
         public override bool ClientConnected() => clientConnected;
         public override void ClientConnect(string address)
@@ -57,6 +57,15 @@ namespace Mirror.Tests
             // only  if client connected
             if (clientConnected)
             {
+                // a real transport fails for > max sized messages.
+                // mirror checks it, but let's guarantee that we catch > max
+                // sized message send attempts just like a real transport would.
+                // => helps to cover packet size issues i.e. for timestamp
+                //    batching tests
+                int max = GetMaxPacketSize(channelId);
+                if (segment.Count > max)
+                    throw new Exception($"MemoryTransport ClientSend of {segment.Count} bytes exceeds max of {max} bytes");
+
                 // copy segment data because it's only valid until return
                 byte[] data = new byte[segment.Count];
                 Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
@@ -120,6 +129,15 @@ namespace Mirror.Tests
             // only if server is running and client is connected
             if (serverActive && clientConnected)
             {
+                // a real transport fails for > max sized messages.
+                // mirror checks it, but let's guarantee that we catch > max
+                // sized message send attempts just like a real transport would.
+                // => helps to cover packet size issues i.e. for timestamp
+                //    batching tests
+                int max = GetMaxPacketSize(channelId);
+                if (segment.Count > max)
+                    throw new Exception($"MemoryTransport ServerSend of {segment.Count} bytes exceeds max of {max} bytes");
+
                 // copy segment data because it's only valid until return
                 byte[] data = new byte[segment.Count];
                 Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);

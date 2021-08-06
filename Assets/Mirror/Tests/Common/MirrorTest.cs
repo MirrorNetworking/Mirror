@@ -1,5 +1,7 @@
 // base class for networking tests to make things easier.
 using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests
@@ -26,9 +28,20 @@ namespace Mirror.Tests
 
         public virtual void TearDown()
         {
+            NetworkClient.Shutdown();
+            NetworkServer.Shutdown();
+
+            // some tests might modify NetworkServer.connections without ever
+            // starting the server.
+            // NetworkServer.Shutdown() only clears connections if it was started.
+            // so let's do it manually for proper test cleanup here.
+            NetworkServer.connections.Clear();
+
             foreach (GameObject go in instantiated)
                 if (go != null)
                     GameObject.DestroyImmediate(go);
+
+            NetworkIdentity.spawned.Clear();
 
             GameObject.DestroyImmediate(transport.gameObject);
             Transport.activeTransport = null;
@@ -138,21 +151,112 @@ namespace Mirror.Tests
                 Debug.Assert(component.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
         }
 
+        // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN PLAYER.
+        // often times, we really need a player object for the client to receive
+        // certain messages.
+        protected void CreateNetworkedAndSpawnPlayer<T>(out GameObject go, out NetworkIdentity identity, out T component, NetworkConnection ownerConnection)
+            where T : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            // create a networked object
+            CreateNetworked(out go, out identity, out component);
+
+            // add as player & process spawn message on client.
+            NetworkServer.AddPlayerForConnection(ownerConnection, go);
+            ProcessMessages();
+        }
+
+        // fully connect client to local server
+        // gives out the server's connection to client for convenience if needed
+        protected void ConnectClientBlocking(out NetworkConnectionToClient connectionToClient)
+        {
+            NetworkClient.Connect("127.0.0.1");
+            UpdateTransport();
+
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+            connectionToClient = NetworkServer.connections.Values.First();
+        }
+
+        // fully connect client to local server & authenticate
+        protected void ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient)
+        {
+            ConnectClientBlocking(out connectionToClient);
+
+            // authenticate server & client connections
+            connectionToClient.isAuthenticated = true;
+            NetworkClient.connection.isAuthenticated = true;
+        }
+
+        // fully connect client to local server & authenticate & set read
+        protected void ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient)
+        {
+            ConnectClientBlocking(out connectionToClient);
+
+            // authenticate server & client connections
+            connectionToClient.isAuthenticated = true;
+            NetworkClient.connection.isAuthenticated = true;
+
+            // set ready
+            NetworkClient.Ready();
+            ProcessMessages();
+            Assert.That(connectionToClient.isReady, Is.True);
+        }
+
+        // fully connect HOST client to local server
+        // sets NetworkServer.localConnection / NetworkClient.connection.
+        protected void ConnectHostClientBlocking()
+        {
+            NetworkClient.ConnectHost();
+            NetworkClient.ConnectLocalServer();
+            UpdateTransport();
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+        }
+
+        // fully connect client to local server & authenticate & set read
+        protected void ConnectHostClientBlockingAuthenticatedAndReady()
+        {
+            ConnectHostClientBlocking();
+
+            // authenticate server & client connections
+            NetworkServer.localConnection.isAuthenticated = true;
+            NetworkClient.connection.isAuthenticated = true;
+
+            // set ready
+            NetworkClient.Ready();
+            ProcessMessages();
+            Assert.That(NetworkServer.localConnection.isReady, Is.True);
+        }
+
         protected void UpdateTransport()
         {
             transport.ClientEarlyUpdate();
             transport.ServerEarlyUpdate();
         }
 
-        protected static void ProcessMessages()
+        protected void ProcessMessages()
         {
             // server & client need to be active
             Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
             Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
 
-            // run update so message are processed
-            NetworkServer.NetworkLateUpdate();
+            // update server & client so batched messages are flushed
             NetworkClient.NetworkLateUpdate();
+            NetworkServer.NetworkLateUpdate();
+
+            // update transport so sent messages are received
+            UpdateTransport();
+        }
+
+        // helper function to create local connection pair
+        protected void CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out LocalConnectionToServer connectionToServer)
+        {
+            connectionToClient = new LocalConnectionToClient();
+            connectionToServer = new LocalConnectionToServer();
+            connectionToClient.connectionToServer = connectionToServer;
+            connectionToServer.connectionToClient = connectionToClient;
         }
     }
 }
