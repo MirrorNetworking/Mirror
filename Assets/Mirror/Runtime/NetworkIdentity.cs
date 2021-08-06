@@ -1195,9 +1195,11 @@ namespace Mirror
         {
 #if UNITY_EDITOR
             // This fires in editor when adding a component to an object
-            Debug.Log("NetworkIdentity:Reset");
+            //Debug.Log("NetworkIdentity:Reset");
 
             // Prevent adding NetworkIdentity to NetworkManager
+            // This adds NO dependency on the presence of a NetworkManager component,
+            // only that NetworkManager class exists in Mirror, which it will forever.
             if (transform.root.GetComponentInChildren<NetworkManager>() != null)
             {
                 Debug.LogError("NetworkIdentity cannot be added to the same object hierarchy as NetworkManager.");
