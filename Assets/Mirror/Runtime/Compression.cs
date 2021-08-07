@@ -18,8 +18,8 @@ namespace Mirror
             // convert to abs
             Vector4 abs = new Vector4(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z), Mathf.Abs(value.w));
 
-            // set largest to first value (x)
-            largest = value.x;
+            // set largest to first abs (x)
+            largest = abs.x;
             withoutLargest = new Vector3(value.y, value.z, value.w);
             int index = 0;
 
