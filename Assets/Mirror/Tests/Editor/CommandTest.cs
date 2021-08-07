@@ -11,10 +11,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onSendInt;
 
         [Command]
-        public void SendInt(int someInt)
-        {
+        public void SendInt(int someInt) =>
             onSendInt?.Invoke(someInt);
-        }
     }
 
     class IgnoreAuthorityBehaviour : NetworkBehaviour
@@ -22,10 +20,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onSendInt;
 
         [Command(requiresAuthority = false)]
-        public void CmdSendInt(int someInt)
-        {
+        public void CmdSendInt(int someInt) =>
             onSendInt?.Invoke(someInt);
-        }
     }
 
     class SenderConnectionBehaviour : NetworkBehaviour
@@ -33,10 +29,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int, NetworkConnection> onSendInt;
 
         [Command]
-        public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null)
-        {
+        public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null) =>
             onSendInt?.Invoke(someInt, conn);
-        }
     }
 
     class SenderConnectionIgnoreAuthorityBehaviour : NetworkBehaviour
@@ -44,10 +38,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int, NetworkConnection> onSendInt;
 
         [Command(requiresAuthority = false)]
-        public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null)
-        {
+        public void CmdSendInt(int someInt, NetworkConnectionToClient conn = null) =>
             onSendInt?.Invoke(someInt, conn);
-        }
     }
 
     class ThrowBehaviour : NetworkBehaviour
@@ -55,10 +47,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public const string ErrorMessage = "Bad things happened";
 
         [Command]
-        public void SendThrow(int someInt)
-        {
-            throw new Exception(ErrorMessage);
-        }
+        public void SendThrow(int _) => throw new Exception(ErrorMessage);
     }
 
     public class CommandTest : RemoteTestBase
