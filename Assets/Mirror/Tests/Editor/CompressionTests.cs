@@ -105,17 +105,6 @@ namespace Mirror.Tests
             Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));
         }
 
-        // client sending invalid data should still produce valid quaternions to
-        // avoid any possible bugs on server
-        [Test]
-        public void DecompressQuaternionInvalidData()
-        {
-            // decompress
-            // 0xFFFFFFFF will decompress to (0.7, 0.7, 0.7, NaN)
-            Quaternion decompressed = Compression.DecompressQuaternion(0xFFFFFFFF);
-            Assert.That(decompressed, Is.EqualTo(Quaternion.identity));
-        }
-
         // test for issue https://github.com/vis2k/Mirror/issues/2674
         [Test]
         public void CompressAndDecompressQuaternion_2674()
@@ -139,6 +128,17 @@ namespace Mirror.Tests
             float angle = Quaternion.Angle(value, decompressed);
             // 1 degree tolerance
             Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));
+        }
+
+        // client sending invalid data should still produce valid quaternions to
+        // avoid any possible bugs on server
+        [Test]
+        public void DecompressQuaternionInvalidData()
+        {
+            // decompress
+            // 0xFFFFFFFF will decompress to (0.7, 0.7, 0.7, NaN)
+            Quaternion decompressed = Compression.DecompressQuaternion(0xFFFFFFFF);
+            Assert.That(decompressed, Is.EqualTo(Quaternion.identity));
         }
 
         [Test]
