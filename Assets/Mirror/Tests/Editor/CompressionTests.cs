@@ -88,8 +88,8 @@ namespace Mirror.Tests
         [Test]
         public void CompressAndDecompressQuaternion_Iterate_0_to_360()
         {
-            // stepSize 1: 360 * 360 * 360 =  46 million   [takes 96 s]
-            // stepSize 5:  72 *  72 *  72 = 373 thousand  [takes 700 ms]
+            // stepSize 1: 360 * 360 * 360 =  46 million  [takes 96 s]
+            // stepSize 5:  72 *  72 *  72 = 373 thousand [takes 700 ms]
             const int stepSize = 5;
 
             for (int x = 0; x <= 360; x += stepSize)
