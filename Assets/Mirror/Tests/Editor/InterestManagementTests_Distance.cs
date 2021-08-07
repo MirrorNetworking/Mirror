@@ -11,18 +11,19 @@ namespace Mirror.Tests
         [SetUp]
         public override void SetUp()
         {
-            GameObject go = new GameObject();
+            base.SetUp();
+
+            // create AOI GameObject
+            CreateGameObject(out GameObject go);
             aoi = go.AddComponent<DistanceInterestManagement>();
             aoi.visRange = 10;
             // setup server aoi since InterestManagement Awake isn't called
             NetworkServer.aoi = aoi;
-            base.SetUp();
         }
 
         [TearDown]
         public override void TearDown()
         {
-            GameObject.DestroyImmediate(aoi.gameObject);
             base.TearDown();
             // clear server aoi again
             NetworkServer.aoi = null;
