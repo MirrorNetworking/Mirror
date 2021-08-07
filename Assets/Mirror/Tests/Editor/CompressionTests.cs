@@ -30,7 +30,7 @@ namespace Mirror.Tests
             Assert.That(withoutLargest, Is.EqualTo(new Vector3(value.y, value.z, value.w)));
         }
 
-        [Test]
+        [Test, Ignore("Enable when needed.")]
         public void LargestAbsoluteComponentIndexBenchmark()
         {
             Vector4 value = new Vector4(1, 2, 3, 4);
@@ -182,7 +182,7 @@ namespace Mirror.Tests
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(281474976710655));
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(72057594037927935));
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue));
-            
+
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(long.MinValue));
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(-72057594037927935));
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(-281474976710655));
