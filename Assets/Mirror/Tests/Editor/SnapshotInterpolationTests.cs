@@ -338,7 +338,6 @@ namespace Mirror.Tests
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started just now, from 0.
             // and deltaTime is 1.5, so we should be at 1.5 now.
             Assert.That(interpolationTime, Is.EqualTo(1.5));
@@ -346,7 +345,7 @@ namespace Mirror.Tests
             Assert.That(buffer.Count, Is.EqualTo(2));
             // interpolationTime is at 1.5, so 3/4 between first & second.
             // computed snapshot should be interpolated at 3/4ths.
-            Assert.That(computedCasted.value, Is.EqualTo(1.75).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(1.75).Within(Mathf.Epsilon));
         }
 
         // fourth step: compute should begin if we have two old enough snapshots
@@ -376,7 +375,6 @@ namespace Mirror.Tests
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started just now, from 0.
             // and deltaTime is 0.5, so we should be at 0.5 now.
             Assert.That(interpolationTime, Is.EqualTo(0.5));
@@ -384,7 +382,7 @@ namespace Mirror.Tests
             // the first two. third should still be there.
             Assert.That(buffer.Count, Is.EqualTo(3));
             // computed snapshot should be interpolated in the middle
-            Assert.That(computedCasted.value, Is.EqualTo(1.5).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(1.5).Within(Mathf.Epsilon));
         }
 
         // fourth step: simulate interpolation after a long time of no updates.
@@ -414,7 +412,6 @@ namespace Mirror.Tests
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started at 0.5, right between first & second.
             // we received another snapshot at t=101.
             // delta = 98.5 seconds
@@ -431,7 +428,7 @@ namespace Mirror.Tests
             // which is at 98% of the value
             // => Lerp(1, 101, 0.98): 101-1 is 100. 98% are 98. relative to '1'
             //    makes it 99.
-            Assert.That(computedCasted.value, Is.EqualTo(99).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(99).Within(Mathf.Epsilon));
         }
 
         // fourth step: catchup should be considered if buffer gets too large
@@ -465,7 +462,6 @@ namespace Mirror.Tests
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started just now, from 0.
             // and deltaTime is 0.5 + 50% catchup, so we should be at 0.75 now
             Assert.That(interpolationTime, Is.EqualTo(0.75));
@@ -474,7 +470,7 @@ namespace Mirror.Tests
             Assert.That(buffer.Count, Is.EqualTo(4));
             // computed snapshot should be interpolated in 3/4 because
             // interpolationTime is at 3/4
-            Assert.That(computedCasted.value, Is.EqualTo(1.75).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(1.75).Within(Mathf.Epsilon));
         }
 
         // fifth step: interpolation time overshoots the end while waiting for
@@ -527,7 +523,6 @@ namespace Mirror.Tests
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started at the end = 1
             // and deltaTime is 0.5, so it's at 1.5 internally.
             //
@@ -542,7 +537,7 @@ namespace Mirror.Tests
             // buffer should be untouched, we are still interpolating between the two
             Assert.That(buffer.Count, Is.EqualTo(2));
             // computed snapshot should NOT extrapolate beyond second snap.
-            Assert.That(computedCasted.value, Is.EqualTo(2).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(2).Within(Mathf.Epsilon));
         }
 
         // fifth step: interpolation time overshoots the end while having more
@@ -596,7 +591,6 @@ namespace Mirror.Tests
 
             // should still spit out a result between first & second.
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started at the end = 1
             // and deltaTime is 0.5, so we were at 1.5 internally.
             //
@@ -613,7 +607,7 @@ namespace Mirror.Tests
             // buffer should be untouched. shouldn't have moved to third yet.
             Assert.That(buffer.Count, Is.EqualTo(3));
             // computed snapshot should be all the way at second snapshot.
-            Assert.That(computedCasted.value, Is.EqualTo(2).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(2).Within(Mathf.Epsilon));
         }
 
         // fifth step: interpolation time overshoots the end while having more
@@ -657,7 +651,6 @@ namespace Mirror.Tests
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started at the end = 1
             // and deltaTime is 0.5, so we were at 1.5 internally.
             // we have more snapshots, so we jump to the next and subtract '1'
@@ -667,7 +660,7 @@ namespace Mirror.Tests
             Assert.That(buffer.Count, Is.EqualTo(2));
             // computed snapshot should be 1/4 way between second and third
             // because delta is 2 and interpolationTime is at 0.5 which is 1/4
-            Assert.That(computedCasted.value, Is.EqualTo(2.5).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(2.5).Within(Mathf.Epsilon));
         }
 
         // fifth step: interpolation time overshoots 2x the end while having
@@ -714,7 +707,6 @@ namespace Mirror.Tests
 
             // should spit out the interpolated snapshot
             Assert.That(result, Is.True);
-            SimpleSnapshot computedCasted = (SimpleSnapshot)computed;
             // interpolation started at the end = 1
             // and deltaTime is 2.5, so we were at 4.5 internally.
             // we have more snapshots, so we:
@@ -726,7 +718,7 @@ namespace Mirror.Tests
             Assert.That(buffer.Count, Is.EqualTo(2));
             // computed snapshot should be 1/4 way between second and third
             // because delta is 2 and interpolationTime is at 0.5 which is 1/4
-            Assert.That(computedCasted.value, Is.EqualTo(4.5).Within(Mathf.Epsilon));
+            Assert.That(computed.value, Is.EqualTo(4.5).Within(Mathf.Epsilon));
         }
     }
 }
