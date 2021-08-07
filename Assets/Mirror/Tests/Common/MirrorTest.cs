@@ -140,6 +140,21 @@ namespace Mirror.Tests
 
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
         // => ownerConnection can be NetworkServer.localConnection if needed.
+        protected void CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity identity, NetworkConnection ownerConnection = null)
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            CreateNetworked(out go, out identity);
+
+            // spawn
+            NetworkServer.Spawn(go, ownerConnection);
+            ProcessMessages();
+        }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
+        // => ownerConnection can be NetworkServer.localConnection if needed.
         protected void CreateNetworkedAndSpawn<T>(out GameObject go, out NetworkIdentity identity, out T component, NetworkConnection ownerConnection = null)
             where T : NetworkBehaviour
         {
