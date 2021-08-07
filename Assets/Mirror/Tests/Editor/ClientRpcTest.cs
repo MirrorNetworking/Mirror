@@ -101,27 +101,27 @@ namespace Mirror.Tests.RemoteAttrributeTest
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out AbstractNetworkBehaviourClientRpcBehaviour hostBehaviour, NetworkServer.localConnection);
 
             // spawn clientrpc parameter targets
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity wolfIdentity, out AbstractNetworkBehaviourClientRpcBehaviour.MockWolf wolf, NetworkServer.localConnection);
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity zombieIdentity, out AbstractNetworkBehaviourClientRpcBehaviour.MockZombie zombie, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out AbstractNetworkBehaviourClientRpcBehaviour.MockWolf wolf, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out AbstractNetworkBehaviourClientRpcBehaviour.MockZombie zombie, NetworkServer.localConnection);
 
             AbstractNetworkBehaviourClientRpcBehaviour.MockMonsterBase currentMonster = null;
 
-            int callCount = 0;
+            int called = 0;
             hostBehaviour.onSendMonsterBase += incomingMonster =>
             {
-                callCount++;
+                called++;
                 Assert.That(incomingMonster, Is.EqualTo(currentMonster));
             };
 
             currentMonster = wolf;
             hostBehaviour.RpcSendMonster(currentMonster);
             ProcessMessages();
-            Assert.That(callCount, Is.EqualTo(1));
+            Assert.That(called, Is.EqualTo(1));
 
             currentMonster = zombie;
             hostBehaviour.RpcSendMonster(currentMonster);
             ProcessMessages();
-            Assert.That(callCount, Is.EqualTo(2));
+            Assert.That(called, Is.EqualTo(2));
         }
     }
 }
