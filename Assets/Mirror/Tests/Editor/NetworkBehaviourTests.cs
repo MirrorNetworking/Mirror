@@ -201,7 +201,7 @@ namespace Mirror.Tests
         [Test]
         public void IsServerOnly()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
 
             // call OnStartServer so isServer is true
             identity.OnStartServer();
@@ -216,7 +216,7 @@ namespace Mirror.Tests
         [Test]
         public void IsClientOnly()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
 
             // isClientOnly should be true when isServer = false && isClient = true
             identity.isClient = true;
@@ -229,14 +229,14 @@ namespace Mirror.Tests
         public void HasNoAuthorityByDefault()
         {
             // no authority by default
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out _, out EmptyBehaviour emptyBehaviour);
             Assert.That(emptyBehaviour.hasAuthority, Is.False);
         }
 
         [Test]
         public void HasIdentitysNetId()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.netId = 42;
             Assert.That(emptyBehaviour.netId, Is.EqualTo(42));
         }
@@ -244,7 +244,7 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToServer()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.connectionToServer = new LocalConnectionToServer();
             Assert.That(emptyBehaviour.connectionToServer, Is.EqualTo(identity.connectionToServer));
         }
@@ -252,7 +252,7 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToClient()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.connectionToClient = new LocalConnectionToClient();
             Assert.That(emptyBehaviour.connectionToClient, Is.EqualTo(identity.connectionToClient));
         }
