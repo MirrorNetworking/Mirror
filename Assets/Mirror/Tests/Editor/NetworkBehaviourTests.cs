@@ -250,6 +250,7 @@ namespace Mirror.Tests
         [Test, Ignore("NetworkServerTest.SendCommand does it already")]
         public void SendCommandInternal() {}
 
+        // TODO replace with a more easy [Command] test (instead of manual)
         // test to prevent https://github.com/vis2k/Mirror/issues/2629
         // from happening again in the future
         // -> [Command]s can be called on other objects with requiresAuthority=false.
