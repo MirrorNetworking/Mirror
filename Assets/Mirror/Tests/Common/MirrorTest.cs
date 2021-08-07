@@ -149,9 +149,6 @@ namespace Mirror.Tests
 
             CreateNetworked(out go, out identity, out component);
 
-            // host mode object needs a connection to server for commands to work
-            identity.connectionToServer = NetworkClient.connection;
-
             // spawn
             NetworkServer.Spawn(go, ownerConnection);
             ProcessMessages();
