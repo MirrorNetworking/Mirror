@@ -13,13 +13,13 @@ namespace Mirror
 
         // helper function to find largest absolute element
         // returns the index of the largest one
-        public static int LargestAbsoluteComponentIndex(Vector4 value, out float largest, out Vector3 withoutLargest)
+        public static int LargestAbsoluteComponentIndex(Vector4 value, out float largestAbs, out Vector3 withoutLargest)
         {
             // convert to abs
             Vector4 abs = new Vector4(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z), Mathf.Abs(value.w));
 
             // set largest to first abs (x)
-            largest = abs.x;
+            largestAbs = abs.x;
             withoutLargest = new Vector3(value.y, value.z, value.w);
             int index = 0;
 
@@ -27,22 +27,22 @@ namespace Mirror
             // performance for 100k calls
             //   for-loop:       25ms
             //   manual checks:  22ms
-            if (abs.y > largest)
+            if (abs.y > largestAbs)
             {
                 index = 1;
-                largest = abs.y;
+                largestAbs = abs.y;
                 withoutLargest = new Vector3(value.x, value.z, value.w);
             }
-            if (abs.z > largest)
+            if (abs.z > largestAbs)
             {
                 index = 2;
-                largest = abs.z;
+                largestAbs = abs.z;
                 withoutLargest = new Vector3(value.x, value.y, value.w);
             }
-            if (abs.w > largest)
+            if (abs.w > largestAbs)
             {
                 index = 3;
-                largest = abs.w;
+                largestAbs = abs.w;
                 withoutLargest = new Vector3(value.x, value.y, value.z);
             }
 
