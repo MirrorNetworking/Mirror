@@ -759,7 +759,7 @@ namespace Mirror.Tests
         [Test]
         public void SetSyncVarNetworkIdentityZeroNetId()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
+            CreateNetworked(out _, out _, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
 
             // set some existing NI+netId first to check if it is going to be
             // overwritten
@@ -798,7 +798,7 @@ namespace Mirror.Tests
             Assert.That(identity.isServer, Is.True);
 
             // create a syncable GameObject
-            CreateNetworked(out GameObject go, out NetworkIdentity ni);
+            CreateNetworked(out _, out NetworkIdentity ni);
             ni.netId = identity.netId + 1;
 
             // assign it in the component
