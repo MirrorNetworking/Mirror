@@ -95,10 +95,10 @@ namespace Mirror
         {
             //Debug.Log($"NetworkBehaviour:OnValidate for {gameObject.name}");
 
-            List<NetworkIdentity> networkIdentities = transform.root.GetComponentsInChildren<NetworkIdentity>().ToList();
+            NetworkIdentity[] networkIdentities = transform.root.GetComponentsInChildren<NetworkIdentity>();
 
             // Check for missing NetworkIdentity
-            if (networkIdentities.Count == 0)
+            if (networkIdentities.Length == 0)
             {
                 // Add the missing NetworkIdentity
                 // This can happen if a script was added as a MonoBehaviour and changed to
@@ -107,7 +107,7 @@ namespace Mirror
                 return;
             }
 
-            if (networkIdentities.Count == 1 && networkIdentities.First().gameObject == gameObject)
+            if (networkIdentities.Length == 1 && networkIdentities.First().gameObject == gameObject)
             {
                 // This is how it should be.
                 return;
@@ -115,7 +115,7 @@ namespace Mirror
 
             // We have at least one NetworkIdentity in the object hierarchy,
             // but it's not on this gameObject...perhaps on a parent or child.
-            Debug.LogError($"NetworkBehaviour {GetType()} on {gameObject.name} requires a NetworkIdentity but there's already one elsewhere in the hierarchy. Move it to the correct object.", gameObject);
+            Debug.LogError($"NetworkBehaviour {GetType()} on {gameObject.name} requires a NetworkIdentity but there's already one on {networkIdentities.First().gameObject.name}. Move {GetType()} to the same object as the Network Identity.", gameObject);
         }
 
         // This fires in editor when adding a component to an object
