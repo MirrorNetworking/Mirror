@@ -50,23 +50,16 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void DoesNotAddObjectsWithNoSceneId()
         {
-            NetworkIdentity noId1 = CreateSceneObject(0);
-            NetworkIdentity noId2 = CreateSceneObject(0);
-            NetworkIdentity hasId1 = CreateSceneObject(40);
-            NetworkIdentity hasId2 = CreateSceneObject(41);
+            NetworkIdentity noId = CreateSceneObject(0);
+            NetworkIdentity hasId = CreateSceneObject(40);
 
-            noId1.gameObject.SetActive(false);
-            noId2.gameObject.SetActive(false);
-            hasId1.gameObject.SetActive(false);
-            hasId2.gameObject.SetActive(false);
+            noId.gameObject.SetActive(false);
+            hasId.gameObject.SetActive(false);
 
             NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId1));
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId2));
-
-            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId1));
-            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId2));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId));
+            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId));
         }
 
         [Test]
