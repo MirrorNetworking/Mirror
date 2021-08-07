@@ -99,10 +99,8 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarGameObject wrapper to expose it
-        public void SetSyncVarGameObjectExposed(GameObject newGameObject, ulong dirtyBit)
-        {
+        public void SetSyncVarGameObjectExposed(GameObject newGameObject, ulong dirtyBit) =>
             SetSyncVarGameObject(newGameObject, ref test, dirtyBit, ref testNetId);
-        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -114,10 +112,8 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarGameObject wrapper to expose it
-        public GameObject GetSyncVarGameObjectExposed()
-        {
-            return GetSyncVarGameObject(testNetId, ref test);
-        }
+        public GameObject GetSyncVarGameObjectExposed() =>
+            GetSyncVarGameObject(testNetId, ref test);
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -129,10 +125,8 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarNetworkIdentity wrapper to expose it
-        public void SetSyncVarNetworkIdentityExposed(NetworkIdentity newNetworkIdentity, ulong dirtyBit)
-        {
+        public void SetSyncVarNetworkIdentityExposed(NetworkIdentity newNetworkIdentity, ulong dirtyBit) =>
             SetSyncVarNetworkIdentity(newNetworkIdentity, ref test, dirtyBit, ref testNetId);
-        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -144,49 +138,36 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarNetworkIdentity wrapper to expose it
-        public NetworkIdentity GetSyncVarNetworkIdentityExposed()
-        {
-            return GetSyncVarNetworkIdentity(testNetId, ref test);
-        }
+        public NetworkIdentity GetSyncVarNetworkIdentityExposed() =>
+            GetSyncVarNetworkIdentity(testNetId, ref test);
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourInitSyncObjectExposed : NetworkBehaviour
     {
-        public void InitSyncObjectExposed(SyncObject obj)
-        {
+        public void InitSyncObjectExposed(SyncObject obj) =>
             InitSyncObject(obj);
-        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class OnStopClientComponent : NetworkBehaviour
     {
         public int called;
-        public override void OnStopClient()
-        {
-            ++called;
-        }
+        public override void OnStopClient() => ++called;
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class OnStartClientComponent : NetworkBehaviour
     {
         public int called;
-        public override void OnStartClient()
-        {
-            ++called;
-        }
+        public override void OnStartClient() => ++called;
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class OnStartLocalPlayerComponent : NetworkBehaviour
     {
         public int called;
-        public override void OnStartLocalPlayer()
-        {
-            ++called;
-        }
+        public override void OnStartLocalPlayer() => ++called;
     }
 
     public class NetworkBehaviourTests : MirrorEditModeTest
