@@ -108,7 +108,7 @@ namespace Mirror.Tests
         }
 
         // test for issue https://github.com/vis2k/Mirror/issues/2674
-        [Test, Ignore("TODO")]
+        [Test]
         public void CompressAndDecompressQuaternion_2674()
         {
             // we need a normalized value
