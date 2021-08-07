@@ -35,7 +35,7 @@ namespace Mirror.Tests
         // 1400 max batch size
         // -> need something != GetMaxPacketSize for testing
         // -> MTU aka 1400 is used a lot anyway
-        public override int GetMaxBatchSize(int channelId) => 1400;
+        public override int GetBatchThreshold(int channelId) => 1400;
         public override void Shutdown() {}
         public override bool ClientConnected() => clientConnected;
         public override void ClientConnect(string address)
@@ -52,11 +52,20 @@ namespace Mirror.Tests
                 clientConnected = true;
             }
         }
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
             // only  if client connected
             if (clientConnected)
             {
+                // a real transport fails for > max sized messages.
+                // mirror checks it, but let's guarantee that we catch > max
+                // sized message send attempts just like a real transport would.
+                // => helps to cover packet size issues i.e. for timestamp
+                //    batching tests
+                int max = GetMaxPacketSize(channelId);
+                if (segment.Count > max)
+                    throw new Exception($"MemoryTransport ClientSend of {segment.Count} bytes exceeds max of {max} bytes");
+
                 // copy segment data because it's only valid until return
                 byte[] data = new byte[segment.Count];
                 Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
@@ -85,7 +94,8 @@ namespace Mirror.Tests
                 clientConnected = false;
             }
         }
-        void ProcessClientMessages()
+        // messages should always be processed in early update
+        public override void ClientEarlyUpdate()
         {
             // note: process even if not connected because when calling
             // Disconnect, we add a Disconnected event which still needs to be
@@ -114,11 +124,20 @@ namespace Mirror.Tests
         public override bool ServerActive() => serverActive;
         public override Uri ServerUri() => throw new NotImplementedException();
         public override void ServerStart() { serverActive = true; }
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             // only if server is running and client is connected
             if (serverActive && clientConnected)
             {
+                // a real transport fails for > max sized messages.
+                // mirror checks it, but let's guarantee that we catch > max
+                // sized message send attempts just like a real transport would.
+                // => helps to cover packet size issues i.e. for timestamp
+                //    batching tests
+                int max = GetMaxPacketSize(channelId);
+                if (segment.Count > max)
+                    throw new Exception($"MemoryTransport ServerSend of {segment.Count} bytes exceeds max of {max} bytes");
+
                 // copy segment data because it's only valid until return
                 byte[] data = new byte[segment.Count];
                 Array.Copy(segment.Array, segment.Offset, data, 0, segment.Count);
@@ -128,7 +147,7 @@ namespace Mirror.Tests
             }
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public override void ServerDisconnect(int connectionId)
         {
             // clear all pending messages that we may have received.
             // over the wire, we wouldn't receive any more pending messages
@@ -143,8 +162,6 @@ namespace Mirror.Tests
 
             // not active anymore
             serverActive = false;
-
-            return false;
         }
 
         public override string ServerGetClientAddress(int connectionId) => string.Empty;
@@ -164,7 +181,8 @@ namespace Mirror.Tests
             // not active anymore
             serverActive = false;
         }
-        void ProcessServerMessages()
+        // messages should always be processed in early update
+        public override void ServerEarlyUpdate()
         {
             while (serverIncoming.Count > 0)
             {
@@ -185,13 +203,6 @@ namespace Mirror.Tests
                         break;
                 }
             }
-        }
-
-        // processing
-        public void LateUpdate()
-        {
-            ProcessClientMessages();
-            ProcessServerMessages();
         }
     }
 }

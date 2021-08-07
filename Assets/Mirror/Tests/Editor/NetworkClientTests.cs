@@ -1,43 +1,27 @@
 ﻿using System;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkClientTests
+    public class NetworkClientTests : MirrorEditModeTest
     {
-        GameObject transportGO;
-
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            // client.connect sets transport.enabled, which only works if
-            // Transport is on a GameObject
-            transportGO = new GameObject();
-            Transport.activeTransport = transportGO.AddComponent<MemoryTransport>();
-
+            base.SetUp();
             // we need a server to connect to
             NetworkServer.Listen(10);
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            NetworkServer.Shutdown();
-            NetworkClient.Shutdown();
-            GameObject.DestroyImmediate(transportGO);
-            Transport.activeTransport = null;
-        }
-
         [Test]
-        public void serverIp()
+        public void ServerIp()
         {
             NetworkClient.ConnectHost();
             Assert.That(NetworkClient.serverIp, Is.EqualTo("localhost"));
         }
 
         [Test]
-        public void isConnected()
+        public void IsConnected()
         {
             Assert.That(NetworkClient.isConnected, Is.False);
             NetworkClient.ConnectHost();
@@ -49,7 +33,7 @@ namespace Mirror.Tests
         {
             NetworkClient.Connect(new Uri("memory://localhost"));
             // update transport so connect event is processed
-            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+            UpdateTransport();
             Assert.That(NetworkClient.isConnected, Is.True);
         }
 
@@ -65,28 +49,66 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.localConnection, Is.Null);
         }
 
+        [Test, Ignore("NetworkServerTest.SendClientToServerMessage does it already")]
+        public void Send() {}
+
+        // test to guarantee Disconnect() eventually calls OnClientDisconnected.
+        // prevents https://github.com/vis2k/Mirror/issues/2818 forever.
+        // previously there was a bug where:
+        // - Disconnect() sets state = Disconnected
+        // - Transport processes it
+        // - OnTransportDisconnected() early returns because
+        //   state == Disconnected already, so it wouldn't call the event.
         [Test]
-        public void Send()
+        public void DisconnectCallsOnClientDisconnected_Remote()
         {
-            // register server handler
-            int called = 0;
-            NetworkServer.RegisterHandler<AddPlayerMessage>((conn, msg) => { ++called; }, false);
+            // setup hook
+            bool called = false;
+            NetworkClient.OnDisconnectedEvent = () => called = true;
 
-            // connect a regular connection. not host, because host would use
-            // connId=0 but memorytransport uses connId=1
-            NetworkClient.Connect("localhost");
-            // update transport so connect event is processed
-            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+            // connect
+            ConnectClientBlocking(out _);
 
-            // send it
-            AddPlayerMessage message = new AddPlayerMessage();
-            NetworkClient.Send(message);
+            // disconnect & process everything
+            NetworkClient.Disconnect();
+            UpdateTransport();
 
-            // update transport so data event is processed
-            ((MemoryTransport)Transport.activeTransport).LateUpdate();
+            // was it called?
+            Assert.That(called, Is.True);
+        }
 
-            // received it on server?
-            Assert.That(called, Is.EqualTo(1));
+        // same as above, but for host mode
+        // prevents https://github.com/vis2k/Mirror/issues/2818 forever.
+        [Test]
+        public void DisconnectCallsOnClientDisconnected_HostMode()
+        {
+            // setup hook
+            bool called = false;
+            NetworkClient.OnDisconnectedEvent = () => called = true;
+
+            // connect host
+            NetworkClient.ConnectHost();
+
+            // disconnect & process everything
+            NetworkClient.Disconnect();
+            UpdateTransport();
+
+            // was it called?
+            Assert.That(called, Is.True);
+        }
+
+        [Test]
+        public void ShutdownCleanup()
+        {
+            // add some test event hooks to make sure they are cleaned up.
+            // there used to be a bug where they wouldn't be cleaned up.
+            NetworkClient.OnConnectedEvent = () => {};
+            NetworkClient.OnDisconnectedEvent = () => {};
+
+            NetworkClient.Shutdown();
+
+            Assert.That(NetworkClient.OnConnectedEvent, Is.Null);
+            Assert.That(NetworkClient.OnDisconnectedEvent, Is.Null);
         }
     }
 }

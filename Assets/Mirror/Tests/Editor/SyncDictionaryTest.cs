@@ -254,7 +254,6 @@ namespace Mirror.Tests
             {
                 new KeyValuePair<int, string>(1, "World"),
                 new KeyValuePair<int, string>(2, "!"),
-
             }));
         }
 
@@ -289,7 +288,6 @@ namespace Mirror.Tests
             Assert.That(serverSyncDictionary.IsDirty, Is.False);
         }
 
-
         [Test]
         public void ObjectCanBeReusedAfterReset()
         {
@@ -311,7 +309,6 @@ namespace Mirror.Tests
         public void ResetShouldSetReadOnlyToFalse()
         {
             clientSyncDictionary.Reset();
-
             Assert.That(clientSyncDictionary.IsReadOnly, Is.False);
         }
 
@@ -319,7 +316,6 @@ namespace Mirror.Tests
         public void ResetShouldClearChanges()
         {
             serverSyncDictionary.Reset();
-
             Assert.That(serverSyncDictionary.GetChangeCount(), Is.Zero);
         }
 
@@ -327,7 +323,6 @@ namespace Mirror.Tests
         public void ResetShouldClearItems()
         {
             serverSyncDictionary.Reset();
-
             Assert.That(serverSyncDictionary, Is.Empty);
         }
     }

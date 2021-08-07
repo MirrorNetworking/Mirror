@@ -5,23 +5,17 @@ using UnityEngine;
 namespace Mirror.Tests
 {
     [TestFixture]
-    public class NetworkManagerTest
+    public class NetworkManagerTest : MirrorEditModeTest
     {
         GameObject gameObject;
         NetworkManager manager;
 
         [SetUp]
-        public void SetupNetworkManager()
+        public override void SetUp()
         {
-            gameObject = new GameObject();
-            gameObject.AddComponent<MemoryTransport>();
+            base.SetUp();
+            gameObject = transport.gameObject;
             manager = gameObject.AddComponent<NetworkManager>();
-        }
-
-        [TearDown]
-        public void TearDownNetworkManager()
-        {
-            GameObject.DestroyImmediate(gameObject);
         }
 
         [Test]
@@ -30,7 +24,6 @@ namespace Mirror.Tests
             Assert.That(manager.dontDestroyOnLoad, Is.True);
             Assert.That(manager.runInBackground, Is.True);
             Assert.That(manager.autoStartServerBuild, Is.True);
-            Assert.That(manager.showDebugMessages, Is.False);
             Assert.That(manager.serverTickRate, Is.EqualTo(30));
             Assert.That(manager.offlineScene, Is.Empty);
             Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
@@ -38,7 +31,6 @@ namespace Mirror.Tests
             Assert.That(manager.autoCreatePlayer, Is.True);
             Assert.That(manager.spawnPrefabs, Is.Empty);
             Assert.That(manager.numPlayers, Is.Zero);
-            Assert.That(manager.isNetworkActive, Is.False);
 
             Assert.That(NetworkManager.networkSceneName, Is.Empty);
             Assert.That(NetworkManager.startPositionIndex, Is.Zero);
@@ -52,7 +44,6 @@ namespace Mirror.Tests
 
             manager.StartServer();
 
-            Assert.That(manager.isNetworkActive, Is.True);
             Assert.That(manager.mode == NetworkManagerMode.ServerOnly);
             Assert.That(NetworkServer.active, Is.True);
         }
@@ -63,7 +54,6 @@ namespace Mirror.Tests
             manager.StartServer();
             manager.StopServer();
 
-            Assert.That(manager.isNetworkActive, Is.False);
             Assert.That(manager.mode == NetworkManagerMode.Offline);
         }
 
@@ -72,7 +62,6 @@ namespace Mirror.Tests
         {
             manager.StartClient();
 
-            Assert.That(manager.isNetworkActive, Is.True);
             Assert.That(manager.mode == NetworkManagerMode.ClientOnly);
 
             manager.StopClient();
@@ -84,8 +73,28 @@ namespace Mirror.Tests
             manager.StartClient();
             manager.StopClient();
 
-            Assert.That(manager.isNetworkActive, Is.False);
             Assert.That(manager.mode == NetworkManagerMode.Offline);
+        }
+
+        [Test]
+        public void StartHostTest()
+        {
+            manager.StartHost();
+
+            Assert.That(manager.mode == NetworkManagerMode.Host);
+            Assert.That(NetworkServer.active, Is.True);
+            Assert.That(NetworkClient.active, Is.True);
+        }
+
+        [Test]
+        public void StopHostTest()
+        {
+            manager.StartHost();
+            manager.StopHost();
+
+            Assert.That(manager.mode == NetworkManagerMode.Offline);
+            Assert.That(NetworkServer.active, Is.False);
+            Assert.That(NetworkClient.active, Is.False);
         }
 
         [Test]
@@ -142,7 +151,7 @@ namespace Mirror.Tests
         [Test]
         public void StartClientUriTest()
         {
-            UriBuilder uriBuilder = new UriBuilder()
+            UriBuilder uriBuilder = new UriBuilder
             {
                 Host = "localhost",
                 Scheme = "local"
@@ -150,7 +159,6 @@ namespace Mirror.Tests
             manager.StartClient(uriBuilder.Uri);
 
             Assert.That(manager.mode, Is.EqualTo(NetworkManagerMode.ClientOnly));
-            Assert.That(manager.isNetworkActive, Is.EqualTo(true));
             Assert.That(manager.networkAddress, Is.EqualTo(uriBuilder.Uri.Host));
         }
     }

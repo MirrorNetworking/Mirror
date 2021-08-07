@@ -15,7 +15,7 @@ namespace Mirror
     /// </remarks>
     [AddComponentMenu("Network/NetworkAnimator")]
     [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkAnimator.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-animator")]
     public class NetworkAnimator : NetworkBehaviour
     {
         [Header("Authority")]
@@ -30,11 +30,10 @@ namespace Mirror
         [Tooltip("Animator that will have parameters synchronized")]
         public Animator animator;
 
-
         /// <summary>
         /// Syncs animator.speed
         /// </summary>
-        [SyncVar(hook = nameof(onAnimatorSpeedChanged))]
+        [SyncVar(hook = nameof(OnAnimatorSpeedChanged))]
         float animatorSpeed;
         float previousSpeed;
 
@@ -48,7 +47,7 @@ namespace Mirror
         int[] animationHash;
         int[] transitionHash;
         float[] layerWeight;
-        float nextSendTime;
+        double nextSendTime;
 
         bool SendMessagesAllowed
         {
@@ -127,21 +126,14 @@ namespace Mirror
                 {
                     animatorSpeed = newSpeed;
                 }
-                else if (ClientScene.readyConnection != null)
+                else if (isClient)
                 {
                     CmdSetAnimatorSpeed(newSpeed);
                 }
             }
         }
 
-        void CmdSetAnimatorSpeed(float newSpeed)
-        {
-            // set animator
-            animator.speed = newSpeed;
-            animatorSpeed = newSpeed;
-        }
-
-        void onAnimatorSpeedChanged(float _, float value)
+        void OnAnimatorSpeedChanged(float _, float value)
         {
             // skip if host or client with authority
             // they will have already set the speed so don't set again
@@ -196,7 +188,7 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            float now = Time.time;
+            double now = NetworkTime.localTime;
             if (SendMessagesAllowed && syncInterval >= 0 && now > nextSendTime)
             {
                 nextSendTime = now + syncInterval;
@@ -215,7 +207,7 @@ namespace Mirror
             {
                 RpcOnAnimationClientMessage(stateHash, normalizedTime, layerId, weight, parameters);
             }
-            else if (ClientScene.readyConnection != null)
+            else if (isClient)
             {
                 CmdOnAnimationServerMessage(stateHash, normalizedTime, layerId, weight, parameters);
             }
@@ -227,7 +219,7 @@ namespace Mirror
             {
                 RpcOnAnimationParametersClientMessage(parameters);
             }
-            else if (ClientScene.readyConnection != null)
+            else if (isClient)
             {
                 CmdOnAnimationParametersServerMessage(parameters);
             }
@@ -311,7 +303,7 @@ namespace Mirror
         bool WriteParameters(NetworkWriter writer, bool forceAll = false)
         {
             ulong dirtyBits = forceAll ? (~0ul) : NextDirtyBits();
-            writer.WriteUInt64(dirtyBits);
+            writer.WriteULong(dirtyBits);
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
@@ -321,17 +313,17 @@ namespace Mirror
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
                     int newIntValue = animator.GetInteger(par.nameHash);
-                    writer.WriteInt32(newIntValue);
+                    writer.WriteInt(newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
                     float newFloatValue = animator.GetFloat(par.nameHash);
-                    writer.WriteSingle(newFloatValue);
+                    writer.WriteFloat(newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
                     bool newBoolValue = animator.GetBool(par.nameHash);
-                    writer.WriteBoolean(newBoolValue);
+                    writer.WriteBool(newBoolValue);
                 }
             }
             return dirtyBits != 0;
@@ -342,7 +334,7 @@ namespace Mirror
             bool animatorEnabled = animator.enabled;
             // need to read values from NetworkReader even if animator is disabled
 
-            ulong dirtyBits = reader.ReadUInt64();
+            ulong dirtyBits = reader.ReadULong();
             for (int i = 0; i < parameters.Length; i++)
             {
                 if ((dirtyBits & (1ul << i)) == 0)
@@ -351,19 +343,19 @@ namespace Mirror
                 AnimatorControllerParameter par = parameters[i];
                 if (par.type == AnimatorControllerParameterType.Int)
                 {
-                    int newIntValue = reader.ReadInt32();
+                    int newIntValue = reader.ReadInt();
                     if (animatorEnabled)
                         animator.SetInteger(par.nameHash, newIntValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Float)
                 {
-                    float newFloatValue = reader.ReadSingle();
+                    float newFloatValue = reader.ReadFloat();
                     if (animatorEnabled)
                         animator.SetFloat(par.nameHash, newFloatValue);
                 }
                 else if (par.type == AnimatorControllerParameterType.Bool)
                 {
-                    bool newBoolValue = reader.ReadBoolean();
+                    bool newBoolValue = reader.ReadBool();
                     if (animatorEnabled)
                         animator.SetBool(par.nameHash, newBoolValue);
                 }
@@ -386,16 +378,16 @@ namespace Mirror
                     if (animator.IsInTransition(i))
                     {
                         AnimatorStateInfo st = animator.GetNextAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
+                        writer.WriteInt(st.fullPathHash);
+                        writer.WriteFloat(st.normalizedTime);
                     }
                     else
                     {
                         AnimatorStateInfo st = animator.GetCurrentAnimatorStateInfo(i);
-                        writer.WriteInt32(st.fullPathHash);
-                        writer.WriteSingle(st.normalizedTime);
+                        writer.WriteInt(st.fullPathHash);
+                        writer.WriteFloat(st.normalizedTime);
                     }
-                    writer.WriteSingle(animator.GetLayerWeight(i));
+                    writer.WriteFloat(animator.GetLayerWeight(i));
                 }
                 WriteParameters(writer, initialState);
                 return true;
@@ -415,9 +407,9 @@ namespace Mirror
             {
                 for (int i = 0; i < animator.layerCount; i++)
                 {
-                    int stateHash = reader.ReadInt32();
-                    float normalizedTime = reader.ReadSingle();
-                    animator.SetLayerWeight(i, reader.ReadSingle());
+                    int stateHash = reader.ReadInt();
+                    float normalizedTime = reader.ReadFloat();
+                    animator.SetLayerWeight(i, reader.ReadFloat());
                     animator.Play(stateHash, i, normalizedTime);
                 }
 
@@ -455,7 +447,7 @@ namespace Mirror
                     return;
                 }
 
-                if (ClientScene.readyConnection != null)
+                if (isClient)
                     CmdOnAnimationTriggerServerMessage(hash);
 
                 // call on client right away
@@ -504,7 +496,7 @@ namespace Mirror
                     return;
                 }
 
-                if (ClientScene.readyConnection != null)
+                if (isClient)
                     CmdOnAnimationResetTriggerServerMessage(hash);
 
                 // call on client right away
@@ -591,6 +583,14 @@ namespace Mirror
             }
 
             RpcOnAnimationResetTriggerClientMessage(hash);
+        }
+
+        [Command]
+        void CmdSetAnimatorSpeed(float newSpeed)
+        {
+            // set animator
+            animator.speed = newSpeed;
+            animatorSpeed = newSpeed;
         }
 
         #endregion

@@ -1,7 +1,3 @@
-- name: Home
-  href: index.md
-- name: Articles
-  href: Articles/
 - name: API Reference
   href: xref:Mirror
 - name: Sponsor Us!

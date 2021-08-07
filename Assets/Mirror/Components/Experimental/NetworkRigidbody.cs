@@ -3,14 +3,14 @@ using UnityEngine;
 namespace Mirror.Experimental
 {
     [AddComponentMenu("Network/Experimental/NetworkRigidbody")]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkRigidbody.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-rigidbody")]
     public class NetworkRigidbody : NetworkBehaviour
     {
         [Header("Settings")]
         [SerializeField] internal Rigidbody target = null;
 
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField] bool clientAuthority = false;
+        public bool clientAuthority = false;
 
         [Header("Velocity")]
 

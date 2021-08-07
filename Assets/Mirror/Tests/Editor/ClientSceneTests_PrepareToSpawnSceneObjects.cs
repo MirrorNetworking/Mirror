@@ -7,84 +7,59 @@ namespace Mirror.Tests.ClientSceneTests
     {
         NetworkIdentity CreateSceneObject(ulong sceneId)
         {
-            GameObject runtimeObject = new GameObject("Runtime GameObject");
-            NetworkIdentity networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity);
+            gameObject.name = "Runtime GameObject";
             // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
-            networkIdentity.sceneId = sceneId;
-
-            _createdObjects.Add(runtimeObject);
-
-            return networkIdentity;
+            identity.sceneId = sceneId;
+            return identity;
         }
-
 
         [Test]
         public void AddsAllInactiveIdentitiesInSceneWithSceneIdToDictionary()
         {
             NetworkIdentity obj1 = CreateSceneObject(10);
             NetworkIdentity obj2 = CreateSceneObject(11);
-            NetworkIdentity obj3 = CreateSceneObject(12);
-            NetworkIdentity obj4 = CreateSceneObject(13);
 
             obj1.gameObject.SetActive(false);
             obj2.gameObject.SetActive(false);
-            obj3.gameObject.SetActive(false);
-            obj4.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.That(spawnableObjects, Has.Count.EqualTo(4));
+            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(2));
 
-            Assert.IsTrue(spawnableObjects.ContainsValue(obj1));
-            Assert.IsTrue(spawnableObjects.ContainsValue(obj2));
-            Assert.IsTrue(spawnableObjects.ContainsValue(obj3));
-            Assert.IsTrue(spawnableObjects.ContainsValue(obj4));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj1));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj2));
         }
 
         [Test]
         public void DoesNotAddActiveObjectsToDictionary()
         {
-            NetworkIdentity active1 = CreateSceneObject(30);
-            NetworkIdentity active2 = CreateSceneObject(31);
-            NetworkIdentity inactive1 = CreateSceneObject(32);
-            NetworkIdentity inactive2 = CreateSceneObject(33);
+            NetworkIdentity active = CreateSceneObject(30);
+            NetworkIdentity inactive = CreateSceneObject(32);
 
-            active1.gameObject.SetActive(true);
-            active2.gameObject.SetActive(true);
-            inactive1.gameObject.SetActive(false);
-            inactive2.gameObject.SetActive(false);
+            active.gameObject.SetActive(true);
+            inactive.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.That(spawnableObjects, Has.Count.EqualTo(2));
-
-            Assert.IsTrue(spawnableObjects.ContainsValue(inactive1));
-            Assert.IsTrue(spawnableObjects.ContainsValue(inactive2));
-
-            Assert.IsFalse(spawnableObjects.ContainsValue(active1));
-            Assert.IsFalse(spawnableObjects.ContainsValue(active2));
+            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(1));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(inactive));
+            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(active));
         }
 
         [Test]
         public void DoesNotAddObjectsWithNoSceneId()
         {
-            NetworkIdentity noId1 = CreateSceneObject(0);
-            NetworkIdentity noId2 = CreateSceneObject(0);
-            NetworkIdentity hasId1 = CreateSceneObject(40);
-            NetworkIdentity hasId2 = CreateSceneObject(41);
+            NetworkIdentity noId = CreateSceneObject(0);
+            NetworkIdentity hasId = CreateSceneObject(40);
 
-            noId1.gameObject.SetActive(false);
-            noId2.gameObject.SetActive(false);
-            hasId1.gameObject.SetActive(false);
-            hasId2.gameObject.SetActive(false);
+            noId.gameObject.SetActive(false);
+            hasId.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.IsTrue(spawnableObjects.ContainsValue(hasId1));
-            Assert.IsTrue(spawnableObjects.ContainsValue(hasId2));
-
-            Assert.IsFalse(spawnableObjects.ContainsValue(noId1));
-            Assert.IsFalse(spawnableObjects.ContainsValue(noId2));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId));
+            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId));
         }
 
         [Test]
@@ -95,35 +70,35 @@ namespace Mirror.Tests.ClientSceneTests
             obj1.gameObject.SetActive(false);
             obj2.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.IsTrue(spawnableObjects.ContainsKey(20));
-            Assert.That(spawnableObjects[20], Is.EqualTo(obj1));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsKey(20));
+            Assert.That(NetworkClient.spawnableObjects[20], Is.EqualTo(obj1));
 
-            Assert.IsTrue(spawnableObjects.ContainsKey(21));
-            Assert.That(spawnableObjects[21], Is.EqualTo(obj2));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsKey(21));
+            Assert.That(NetworkClient.spawnableObjects[21], Is.EqualTo(obj2));
         }
 
         [Test]
         public void ClearsExistingItemsFromDictionary()
         {
             // destroyed objects from old scene
-            spawnableObjects.Add(60, null);
-            spawnableObjects.Add(62, null);
+            NetworkClient.spawnableObjects.Add(60, null);
+            NetworkClient.spawnableObjects.Add(62, null);
 
             // active object
             NetworkIdentity obj1 = CreateSceneObject(61);
-            spawnableObjects.Add(61, obj1);
+            NetworkClient.spawnableObjects.Add(61, obj1);
 
             // new disabled object
             NetworkIdentity obj2 = CreateSceneObject(63);
             obj2.gameObject.SetActive(false);
 
-            ClientScene.PrepareToSpawnSceneObjects();
+            NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.That(spawnableObjects, Has.Count.EqualTo(1));
-            Assert.IsFalse(spawnableObjects.ContainsValue(null));
-            Assert.IsTrue(spawnableObjects.ContainsValue(obj2));
+            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(1));
+            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(null));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj2));
         }
     }
 }

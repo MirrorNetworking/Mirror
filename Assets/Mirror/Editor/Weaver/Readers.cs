@@ -19,7 +19,10 @@ namespace Mirror.Weaver
         {
             if (readFuncs.ContainsKey(dataType))
             {
-                Weaver.Warning($"Registering a Read method for {dataType.FullName} when one already exists", methodReference);
+                // TODO enable this again later.
+                // Reader has some obsolete functions that were renamed.
+                // Don't want weaver warnings for all of them.
+                //Weaver.Warning($"Registering a Read method for {dataType.FullName} when one already exists", methodReference);
             }
 
             // we need to import type when we Initialize Readers so import here in case it is used anywhere else
@@ -31,7 +34,7 @@ namespace Mirror.Weaver
         {
             Register(typeReference, newReaderFunc);
 
-            Weaver.WeaveLists.generateContainerClass.Methods.Add(newReaderFunc);
+            Weaver.GeneratedCodeClass.Methods.Add(newReaderFunc);
         }
 
         /// <summary>
@@ -71,49 +74,21 @@ namespace Mirror.Weaver
             }
 
             TypeDefinition variableDefinition = variableReference.Resolve();
+
+            // check if the type is completely invalid
             if (variableDefinition == null)
             {
                 Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 return null;
             }
-            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>() &&
-                !variableReference.IsDerivedFrom<NetworkBehaviour>())
-            {
-                Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                return null;
-            }
-            if (variableReference.Is<UnityEngine.Object>())
-            {
-                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                return null;
-            }
-            if (variableReference.Is<UnityEngine.ScriptableObject>())
-            {
-                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                return null;
-            }
-            if (variableReference.IsByReference)
+            else if (variableReference.IsByReference)
             {
                 // error??
                 Weaver.Error($"Cannot pass type {variableReference.Name} by reference", variableReference);
                 return null;
             }
-            if (variableDefinition.HasGenericParameters && !variableDefinition.Is(typeof(ArraySegment<>)) && !variableDefinition.Is(typeof(List<>)))
-            {
-                Weaver.Error($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                return null;
-            }
-            if (variableDefinition.IsInterface)
-            {
-                Weaver.Error($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                return null;
-            }
-            if (variableDefinition.IsAbstract)
-            {
-                Weaver.Error($"Cannot generate reader for abstract class {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                return null;
-            }
 
+            // use existing func for known types
             if (variableDefinition.IsEnum)
             {
                 return GenerateEnumReadFunc(variableReference);
@@ -132,6 +107,38 @@ namespace Mirror.Weaver
             else if (variableReference.IsDerivedFrom<NetworkBehaviour>())
             {
                 return GetNetworkBehaviourReader(variableReference);
+            }
+
+            // check if reader generation is applicable on this type
+            if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
+            {
+                Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                return null;
+            }
+            if (variableReference.Is<UnityEngine.Object>())
+            {
+                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                return null;
+            }
+            if (variableReference.Is<UnityEngine.ScriptableObject>())
+            {
+                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                return null;
+            }
+            if (variableDefinition.HasGenericParameters)
+            {
+                Weaver.Error($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                return null;
+            }
+            if (variableDefinition.IsInterface)
+            {
+                Weaver.Error($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                return null;
+            }
+            if (variableDefinition.IsAbstract)
+            {
+                Weaver.Error($"Cannot generate reader for abstract class {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                return null;
             }
 
             return GenerateClassOrStructReadFunction(variableReference);

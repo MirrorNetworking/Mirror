@@ -73,22 +73,22 @@ namespace Mirror.Tests
             switch (overload)
             {
                 case RegisterPrefabOverload.Prefab:
-                    ClientScene.RegisterPrefab(prefab);
+                    NetworkClient.RegisterPrefab(prefab);
                     break;
                 case RegisterPrefabOverload.Prefab_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid);
+                    NetworkClient.RegisterPrefab(prefab, anotherGuid);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
                     break;
 
                 default:
@@ -106,13 +106,13 @@ namespace Mirror.Tests
             switch (overload)
             {
                 case RegisterPrefabOverload.Prefab_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, guid);
+                    NetworkClient.RegisterPrefab(prefab, guid);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, guid, spawnHandler, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, guid, spawnHandler, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, guid, spawnHandlerDelegate, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, guid, spawnHandlerDelegate, unspawnHandler);
                     break;
 
                 case RegisterPrefabOverload.Prefab:
@@ -133,10 +133,10 @@ namespace Mirror.Tests
             switch (overload)
             {
                 case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
                     break;
 
                 case RegisterPrefabOverload.Prefab:
@@ -158,10 +158,10 @@ namespace Mirror.Tests
             switch (overload)
             {
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
                     break;
 
                 case RegisterPrefabOverload.Prefab:
@@ -185,16 +185,16 @@ namespace Mirror.Tests
             {
 
                 case RegisterPrefabOverload.Prefab_SpawnDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, spawnHandler, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, anotherGuid, spawnHandler, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate:
-                    ClientScene.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, spawnHandlerDelegate, unspawnHandler);
                     break;
                 case RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId:
-                    ClientScene.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
+                    NetworkClient.RegisterPrefab(prefab, anotherGuid, spawnHandlerDelegate, unspawnHandler);
                     break;
 
                 case RegisterPrefabOverload.Prefab:

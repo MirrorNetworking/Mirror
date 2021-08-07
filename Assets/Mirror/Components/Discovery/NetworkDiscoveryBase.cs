@@ -16,7 +16,7 @@ namespace Mirror.Discovery
     /// <see cref="NetworkDiscovery">NetworkDiscovery</see> for a sample implementation
     /// </summary>
     [DisallowMultipleComponent]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkDiscovery.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-discovery")]
     public abstract class NetworkDiscoveryBase<Request, Response> : MonoBehaviour
         where Request : NetworkMessage
         where Response : NetworkMessage
@@ -30,6 +30,10 @@ namespace Mirror.Discovery
         [SerializeField]
         [Tooltip("The UDP port the server will listen for multi-cast messages")]
         protected int serverBroadcastListenPort = 47777;
+
+        [SerializeField]
+        [Tooltip("If true, broadcasts a discovery request every ActiveDiscoveryInterval seconds")]
+        public bool enableActiveDiscovery = true;
 
         [SerializeField]
         [Tooltip("Time in seconds between multi-cast messages")]
@@ -71,6 +75,19 @@ namespace Mirror.Discovery
         // Ensure the ports are cleared no matter when Game/Unity UI exits
         void OnApplicationQuit()
         {
+            //Debug.Log("NetworkDiscoveryBase OnApplicationQuit");
+            Shutdown();
+        }
+
+        void OnDisable()
+        {
+            //Debug.Log("NetworkDiscoveryBase OnDisable");
+            Shutdown();
+        }
+
+        void OnDestroy()
+        {
+            //Debug.Log("NetworkDiscoveryBase OnDestroy");
             Shutdown();
         }
 
@@ -158,7 +175,7 @@ namespace Mirror.Discovery
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
             {
-                long handshake = networkReader.ReadInt64();
+                long handshake = networkReader.ReadLong();
                 if (handshake != secretHandshake)
                 {
                     // message is not for us
@@ -191,7 +208,7 @@ namespace Mirror.Discovery
             {
                 try
                 {
-                    writer.WriteInt64(secretHandshake);
+                    writer.WriteLong(secretHandshake);
 
                     writer.Write(info);
 
@@ -245,13 +262,14 @@ namespace Mirror.Discovery
             catch (Exception)
             {
                 // Free the port if we took it
+                //Debug.LogError("NetworkDiscoveryBase StartDiscovery Exception");
                 Shutdown();
                 throw;
             }
 
             _ = ClientListenAsync();
 
-            InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
+            if (enableActiveDiscovery) InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
         }
 
         /// <summary>
@@ -259,6 +277,7 @@ namespace Mirror.Discovery
         /// </summary>
         public void StopDiscovery()
         {
+            //Debug.Log("NetworkDiscoveryBase StopDiscovery");
             Shutdown();
         }
 
@@ -294,11 +313,17 @@ namespace Mirror.Discovery
             if (clientUdpClient == null)
                 return;
 
+            if (NetworkClient.isConnected)
+            {
+                StopDiscovery();
+                return;
+            }
+
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
 
             using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
             {
-                writer.WriteInt64(secretHandshake);
+                writer.WriteLong(secretHandshake);
 
                 try
                 {
@@ -335,7 +360,7 @@ namespace Mirror.Discovery
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(udpReceiveResult.Buffer))
             {
-                if (networkReader.ReadInt64() != secretHandshake)
+                if (networkReader.ReadLong() != secretHandshake)
                     return;
 
                 Response response = networkReader.Read<Response>();

@@ -16,7 +16,7 @@ namespace Mirror
             Rect valueRect = new Rect(position.x, position.y, valueWidth, position.height);
             Rect labelRect = new Rect(position.x + valueWidth, position.y, syncVarIndicatorRect.x, position.height);
 
-            EditorGUI.PropertyField(valueRect, property, true);
+            EditorGUI.PropertyField(valueRect, property, label, true);
             GUI.Label(labelRect, syncVarIndicatorContent, EditorStyles.miniLabel);
         }
 
@@ -25,4 +25,4 @@ namespace Mirror
             return EditorGUI.GetPropertyHeight(property);
         }
     }
-} //namespace
+}

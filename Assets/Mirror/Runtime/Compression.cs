@@ -1,238 +1,357 @@
+// Quaternion compression from DOTSNET
 using System;
 using UnityEngine;
 
 namespace Mirror
 {
-    /// <summary>
-    /// Functions to Compress Quaternions and Floats
-    /// </summary>
-    /// <remarks>
-    /// Uncompressed Quaternion = 32 * 4 = 128 bits => send 16 bytes
-    ///
-    /// <para>
-    ///     Quaternion is always normalized so we drop largest value and re-calculate it.
-    ///     We can encode which one is the largest using 2 bits
-    ///     <code>
-    ///     x^2 + y^2 + z^2 + w^2 = 1
-    ///     </code>
-    /// </para>
-    ///
-    /// <para>
-    ///     2nd largest value has max size of 1/sqrt(2)
-    ///     We can encode the smallest three components in [-1/sqrt(2),+1/sqrt(2)] instead of [-1,+1]
-    ///     <code>
-    ///     c^2 + c^2 + 0 + 0 = 1
-    ///     </code>
-    /// </para>
-    /// 
-    /// <para>
-    ///     Sign of largest value doesn't matter
-    ///     <code>
-    ///     Q * vec3 == (-Q) * vec3
-    ///     </code>
-    /// </para>
-    /// 
-    /// <list type="bullet">
-    /// <listheader><description>
-    ///     RotationPrecision <br/>
-    ///     <code>
-    ///     2/sqrt(2) / (2^bitCount - 1)
-    ///     </code>
-    /// </description></listheader>
-    /// 
-    /// <item><description>
-    ///     rotation precision +-0.00138 in range [-1,+1]
-    ///     <code>
-    ///     10 bits per value
-    ///     2 + 10 * 3 = 32 bits => send 4 bytes
-    ///     </code>
-    /// </description></item>
-    /// </list>
-    ///
-    /// <para>
-    /// Links for more info:
-    /// <br/><see href="https://youtu.be/Z9X4lysFr64">GDC Talk</see>
-    /// <br/><see href="https://gafferongames.com/post/snapshot_compression/">Post on Snapshot Compression</see>
-    /// </para>
-    /// </remarks>
+    /// <summary>Functions to Compress Quaternions and Floats</summary>
     public static class Compression
     {
-        const float QuaternionMinValue = -1f / 1.414214f; // 1/ sqrt(2)
-        const float QuaternionMaxValue = 1f / 1.414214f;
+        // quaternion compression //////////////////////////////////////////////
+        // smallest three: https://gafferongames.com/post/snapshot_compression/
+        // compresses 16 bytes quaternion into 4 bytes
 
-        const int QuaternionBitLength = 10;
-        // same as Mathf.Pow(2, targetBitLength) - 1
-        const uint QuaternionUintRange = (1 << QuaternionBitLength) - 1;
-
-        /// <summary>
-        /// Used to Compress Quaternion into 4 bytes
-        /// </summary>
-        public static uint CompressQuaternion(Quaternion value)
+        // helper function to find largest absolute element
+        // returns the index of the largest one
+        public static int LargestAbsoluteComponentIndex(Vector4 value, out float largestAbs, out Vector3 withoutLargest)
         {
-            // make sure value is normalized (don't trust user given value, and math here assumes normalized)
-            value = value.normalized;
+            // convert to abs
+            Vector4 abs = new Vector4(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z), Mathf.Abs(value.w));
 
-            int largestIndex = FindLargestIndex(value);
-            Vector3 small = GetSmallerDimensions(largestIndex, value);
-            // largest needs to be positive to be calculated by reader 
-            // if largest is negative flip sign of others because Q = -Q
-            if (value[largestIndex] < 0)
+            // set largest to first abs (x)
+            largestAbs = abs.x;
+            withoutLargest = new Vector3(value.y, value.z, value.w);
+            int largestIndex = 0;
+
+            // compare to the others, starting at second value
+            // performance for 100k calls
+            //   for-loop:       25ms
+            //   manual checks:  22ms
+            if (abs.y > largestAbs)
             {
-                small *= -1;
+                largestIndex = 1;
+                largestAbs = abs.y;
+                withoutLargest = new Vector3(value.x, value.z, value.w);
+            }
+            if (abs.z > largestAbs)
+            {
+                largestIndex = 2;
+                largestAbs = abs.z;
+                withoutLargest = new Vector3(value.x, value.y, value.w);
+            }
+            if (abs.w > largestAbs)
+            {
+                largestIndex = 3;
+                largestAbs = abs.w;
+                withoutLargest = new Vector3(value.x, value.y, value.z);
             }
 
-            uint a = ScaleToUInt(small.x, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
-            uint b = ScaleToUInt(small.y, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
-            uint c = ScaleToUInt(small.z, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
-
-            // pack each 10 bits and extra 2 bits into uint32
-            uint packed = a | b << 10 | c << 20 | (uint)largestIndex << 30;
-
-            return packed;
+            return largestIndex;
         }
 
-        internal static int FindLargestIndex(Quaternion q)
+        // scale a float within min/max range to an ushort between min/max range
+        // note: can also use this for byte range from byte.MinValue to byte.MaxValue
+        public static ushort ScaleFloatToUShort(float value, float minValue, float maxValue, ushort minTarget, ushort maxTarget)
         {
-            int index = default;
-            float current = default;
+            // note: C# ushort - ushort => int, hence so many casts
+            // max ushort - min ushort only fits into something bigger
+            int targetRange = maxTarget - minTarget;
+            float valueRange = maxValue - minValue;
+            float valueRelative = value - minValue;
+            return (ushort)(minTarget + (ushort)(valueRelative / valueRange * targetRange));
+        }
 
-            // check each value to see which one is largest (ignoring +-)
-            for (int i = 0; i < 4; i++)
+        // scale an ushort within min/max range to a float between min/max range
+        // note: can also use this for byte range from byte.MinValue to byte.MaxValue
+        public static float ScaleUShortToFloat(ushort value, ushort minValue, ushort maxValue, float minTarget, float maxTarget)
+        {
+            // note: C# ushort - ushort => int, hence so many casts
+            float targetRange = maxTarget - minTarget;
+            ushort valueRange = (ushort)(maxValue - minValue);
+            ushort valueRelative = (ushort)(value - minValue);
+            return minTarget + (valueRelative / (float)valueRange * targetRange);
+        }
+
+        const float QuaternionMinRange = -0.707107f;
+        const float QuaternionMaxRange =  0.707107f;
+        const ushort TenBitsMax = 0x3FF;
+
+        // helper function to access 'nth' component of quaternion
+        static float QuaternionElement(Quaternion q, int element)
+        {
+            switch (element)
             {
-                float next = Mathf.Abs(q[i]);
-                if (next > current)
-                {
-                    index = i;
-                    current = next;
-                }
+                case 0: return q.x;
+                case 1: return q.y;
+                case 2: return q.z;
+                case 3: return q.w;
+                default: return 0;
             }
-
-            return index;
         }
 
-        static Vector3 GetSmallerDimensions(int largestIndex, Quaternion value)
+        // note: assumes normalized quaternions
+        public static uint CompressQuaternion(Quaternion q)
         {
-            float x = value.x;
-            float y = value.y;
-            float z = value.z;
-            float w = value.w;
+            // note: assuming normalized quaternions is enough. no need to force
+            //       normalize here. we already normalize when decompressing.
 
+            // find the largest component index [0,3] + value
+            int largestIndex = LargestAbsoluteComponentIndex(new Vector4(q.x, q.y, q.z, q.w), out float _, out Vector3 withoutLargest);
+
+            // from here on, we work with the 3 components without largest!
+
+            // "You might think you need to send a sign bit for [largest] in
+            // case it is negative, but you don’t, because you can make
+            // [largest] always positive by negating the entire quaternion if
+            // [largest] is negative. in quaternion space (x,y,z,w) and
+            // (-x,-y,-z,-w) represent the same rotation."
+            if (QuaternionElement(q, largestIndex) < 0)
+                withoutLargest = -withoutLargest;
+
+            // put index & three floats into one integer.
+            // => index is 2 bits (4 values require 2 bits to store them)
+            // => the three floats are between [-0.707107,+0.707107] because:
+            //    "If v is the absolute value of the largest quaternion
+            //     component, the next largest possible component value occurs
+            //     when two components have the same absolute value and the
+            //     other two components are zero. The length of that quaternion
+            //     (v,v,0,0) is 1, therefore v^2 + v^2 = 1, 2v^2 = 1,
+            //     v = 1/sqrt(2). This means you can encode the smallest three
+            //     components in [-0.707107,+0.707107] instead of [-1,+1] giving
+            //     you more precision with the same number of bits."
+            // => the article recommends storing each float in 9 bits
+            // => our uint has 32 bits, so we might as well store in (32-2)/3=10
+            //    10 bits max value: 1023=0x3FF (use OSX calc to flip 10 bits)
+            ushort aScaled = ScaleFloatToUShort(withoutLargest.x, QuaternionMinRange, QuaternionMaxRange, 0, TenBitsMax);
+            ushort bScaled = ScaleFloatToUShort(withoutLargest.y, QuaternionMinRange, QuaternionMaxRange, 0, TenBitsMax);
+            ushort cScaled = ScaleFloatToUShort(withoutLargest.z, QuaternionMinRange, QuaternionMaxRange, 0, TenBitsMax);
+
+            // now we just need to pack them into one integer
+            // -> index is 2 bit and needs to be shifted to 31..32
+            // -> a is 10 bit and needs to be shifted 20..30
+            // -> b is 10 bit and needs to be shifted 10..20
+            // -> c is 10 bit and needs to be at      0..10
+            return (uint)(largestIndex << 30 | aScaled << 20 | bScaled << 10 | cScaled);
+        }
+
+        // Quaternion normalizeSAFE from ECS math.normalizesafe()
+        // => useful to produce valid quaternions even if client sends invalid
+        //    data
+        static Quaternion QuaternionNormalizeSafe(Quaternion value)
+        {
+            // The smallest positive normal number representable in a float.
+            const float FLT_MIN_NORMAL = 1.175494351e-38F;
+
+            Vector4 v = new Vector4(value.x, value.y, value.z, value.w);
+            float length = Vector4.Dot(v, v);
+            return length > FLT_MIN_NORMAL
+                   ? value.normalized
+                   : Quaternion.identity;
+        }
+
+        // note: gives normalized quaternions
+        public static Quaternion DecompressQuaternion(uint data)
+        {
+            // get cScaled which is at 0..10 and ignore the rest
+            ushort cScaled = (ushort)(data & TenBitsMax);
+
+            // get bScaled which is at 10..20 and ignore the rest
+            ushort bScaled = (ushort)((data >> 10) & TenBitsMax);
+
+            // get aScaled which is at 20..30 and ignore the rest
+            ushort aScaled = (ushort)((data >> 20) & TenBitsMax);
+
+            // get 2 bit largest index, which is at 31..32
+            int largestIndex = (int)(data >> 30);
+
+            // scale back to floats
+            float a = ScaleUShortToFloat(aScaled, 0, TenBitsMax, QuaternionMinRange, QuaternionMaxRange);
+            float b = ScaleUShortToFloat(bScaled, 0, TenBitsMax, QuaternionMinRange, QuaternionMaxRange);
+            float c = ScaleUShortToFloat(cScaled, 0, TenBitsMax, QuaternionMinRange, QuaternionMaxRange);
+
+            // calculate the omitted component based on a²+b²+c²+d²=1
+            float d = Mathf.Sqrt(1 - a*a - b*b - c*c);
+
+            // reconstruct based on largest index
+            Vector4 value;
             switch (largestIndex)
             {
-                case 0:
-                    return new Vector3(y, z, w);
-                case 1:
-                    return new Vector3(x, z, w);
-                case 2:
-                    return new Vector3(x, y, w);
-                case 3:
-                    return new Vector3(x, y, z);
-                default:
-                    throw new IndexOutOfRangeException("Invalid Quaternion index!");
+                case 0:  value = new Vector4(d, a, b, c); break;
+                case 1:  value = new Vector4(a, d, b, c); break;
+                case 2:  value = new Vector4(a, b, d, c); break;
+                default: value = new Vector4(a, b, c, d); break;
             }
+
+            // ECS Rotation only works with normalized quaternions.
+            // make sure that's always the case here to avoid ECS bugs where
+            // everything stops moving if the quaternion isn't normalized.
+            // => NormalizeSafe returns a normalized quaternion even if we pass
+            //    in NaN from deserializing invalid values!
+            return QuaternionNormalizeSafe(new Quaternion(value.x, value.y, value.z, value.w));
         }
 
-
-        /// <summary>
-        /// Used to read a Compressed Quaternion from 4 bytes
-        /// <para>Quaternion is normalized</para>
-        /// </summary>
-        public static Quaternion DecompressQuaternion(uint packed)
+        // varint compression //////////////////////////////////////////////////
+        // compress ulong varint.
+        // same result for int, short and byte. only need one function.
+        // NOT an extension. otherwise weaver might accidentally use it.
+        public static void CompressVarUInt(NetworkWriter writer, ulong value)
         {
-            // 10 bits
-            const uint mask = 0b11_1111_1111;
-            Quaternion result;
-
-
-            uint a = packed & mask;
-            uint b = (packed >> 10) & mask;
-            uint c = (packed >> 20) & mask;
-            uint largestIndex = (packed >> 30) & mask;
-
-            float x = ScaleFromUInt(a, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
-            float y = ScaleFromUInt(b, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
-            float z = ScaleFromUInt(c, QuaternionMinValue, QuaternionMaxValue, 0, QuaternionUintRange);
-
-            Vector3 small = new Vector3(x, y, z);
-            result = FromSmallerDimensions(largestIndex, small);
-            return result;
-        }
-
-        static Quaternion FromSmallerDimensions(uint largestIndex, Vector3 smallest)
-        {
-            float a = smallest.x;
-            float b = smallest.y;
-            float c = smallest.z;
-
-            float largest = Mathf.Sqrt(1 - a * a - b * b - c * c);
-            switch (largestIndex)
+            if (value <= 240)
             {
-                case 0:
-                    return new Quaternion(largest, a, b, c).normalized;
-                case 1:
-                    return new Quaternion(a, largest, b, c).normalized;
-                case 2:
-                    return new Quaternion(a, b, largest, c).normalized;
-                case 3:
-                    return new Quaternion(a, b, c, largest).normalized;
-                default:
-                    throw new IndexOutOfRangeException("Invalid Quaternion index!");
+                writer.Write((byte)value);
+                return;
+            }
+            if (value <= 2287)
+            {
+                writer.Write((byte)(((value - 240) >> 8) + 241));
+                writer.Write((byte)((value - 240) & 0xFF));
+                return;
+            }
+            if (value <= 67823)
+            {
+                writer.Write((byte)249);
+                writer.Write((byte)((value - 2288) >> 8));
+                writer.Write((byte)((value - 2288) & 0xFF));
+                return;
+            }
+            if (value <= 16777215)
+            {
+                writer.Write((byte)250);
+                writer.Write((byte)(value & 0xFF));
+                writer.Write((byte)((value >> 8) & 0xFF));
+                writer.Write((byte)((value >> 16) & 0xFF));
+                return;
+            }
+            if (value <= 4294967295)
+            {
+                writer.Write((byte)251);
+                writer.Write((byte)(value & 0xFF));
+                writer.Write((byte)((value >> 8) & 0xFF));
+                writer.Write((byte)((value >> 16) & 0xFF));
+                writer.Write((byte)((value >> 24) & 0xFF));
+                return;
+            }
+            if (value <= 1099511627775)
+            {
+                writer.Write((byte)252);
+                writer.Write((byte)(value & 0xFF));
+                writer.Write((byte)((value >> 8) & 0xFF));
+                writer.Write((byte)((value >> 16) & 0xFF));
+                writer.Write((byte)((value >> 24) & 0xFF));
+                writer.Write((byte)((value >> 32) & 0xFF));
+                return;
+            }
+            if (value <= 281474976710655)
+            {
+                writer.Write((byte)253);
+                writer.Write((byte)(value & 0xFF));
+                writer.Write((byte)((value >> 8) & 0xFF));
+                writer.Write((byte)((value >> 16) & 0xFF));
+                writer.Write((byte)((value >> 24) & 0xFF));
+                writer.Write((byte)((value >> 32) & 0xFF));
+                writer.Write((byte)((value >> 40) & 0xFF));
+                return;
+            }
+            if (value <= 72057594037927935)
+            {
+                writer.Write((byte)254);
+                writer.Write((byte)(value & 0xFF));
+                writer.Write((byte)((value >> 8) & 0xFF));
+                writer.Write((byte)((value >> 16) & 0xFF));
+                writer.Write((byte)((value >> 24) & 0xFF));
+                writer.Write((byte)((value >> 32) & 0xFF));
+                writer.Write((byte)((value >> 40) & 0xFF));
+                writer.Write((byte)((value >> 48) & 0xFF));
+                return;
+            }
 
+            // all others
+            {
+                writer.Write((byte)255);
+                writer.Write((byte)(value & 0xFF));
+                writer.Write((byte)((value >> 8) & 0xFF));
+                writer.Write((byte)((value >> 16) & 0xFF));
+                writer.Write((byte)((value >> 24) & 0xFF));
+                writer.Write((byte)((value >> 32) & 0xFF));
+                writer.Write((byte)((value >> 40) & 0xFF));
+                writer.Write((byte)((value >> 48) & 0xFF));
+                writer.Write((byte)((value >> 56) & 0xFF));
             }
         }
 
 
-        /// <summary>
-        /// Scales float from minFloat->maxFloat to minUint->maxUint
-        /// <para>values out side of minFloat/maxFloat will return either 0 or maxUint</para>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="minFloat"></param>
-        /// <param name="maxFloat"></param>
-        /// <param name="minUint">should be a power of 2, can be 0</param>
-        /// <param name="maxUint">should be a power of 2, for example 1 &lt;&lt; 8 for value to take up 8 bytes</param>
-        /// <returns></returns>
-        public static uint ScaleToUInt(float value, float minFloat, float maxFloat, uint minUint, uint maxUint)
+        // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public static void CompressVarInt(NetworkWriter writer, long i)
         {
-            // if out of range return min/max
-            if (value > maxFloat) { return maxUint; }
-            if (value < minFloat) { return minUint; }
-
-            float rangeFloat = maxFloat - minFloat;
-            uint rangeUint = maxUint - minUint;
-
-            // scale value to 0->1 (as float)
-            float valueRelative = (value - minFloat) / rangeFloat;
-            // scale value to uMin->uMax
-            float outValue = valueRelative * rangeUint + minUint;
-
-            return (uint)outValue;
+            ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
+            CompressVarUInt(writer, zigzagged);
         }
 
-        /// <summary>
-        /// Scales uint from minUint->maxUint to minFloat->maxFloat 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="minFloat"></param>
-        /// <param name="maxFloat"></param>
-        /// <param name="minUint">should be a power of 2, can be 0</param>
-        /// <param name="maxUint">should be a power of 2, for example 1 &lt;&lt; 8 for value to take up 8 bytes</param>
-        /// <returns></returns>
-        public static float ScaleFromUInt(uint value, float minFloat, float maxFloat, uint minUint, uint maxUint)
+        // NOT an extension. otherwise weaver might accidentally use it.
+        public static ulong DecompressVarUInt(NetworkReader reader)
         {
-            // if out of range return min/max
-            if (value > maxUint) { return maxFloat; }
-            if (value < minUint) { return minFloat; }
+            byte a0 = reader.ReadByte();
+            if (a0 < 241)
+            {
+                return a0;
+            }
 
-            float rangeFloat = maxFloat - minFloat;
-            uint rangeUint = maxUint - minUint;
+            byte a1 = reader.ReadByte();
+            if (a0 >= 241 && a0 <= 248)
+            {
+                return 240 + ((a0 - (ulong)241) << 8) + a1;
+            }
 
-            // scale value to 0->1 (as float)
-            // make sure divide is float
-            float valueRelative = (value - minUint) / (float)rangeUint;
-            // scale value to fMin->fMax
-            float outValue = valueRelative * rangeFloat + minFloat;
-            return outValue;
+            byte a2 = reader.ReadByte();
+            if (a0 == 249)
+            {
+                return 2288 + ((ulong)a1 << 8) + a2;
+            }
+
+            byte a3 = reader.ReadByte();
+            if (a0 == 250)
+            {
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16);
+            }
+
+            byte a4 = reader.ReadByte();
+            if (a0 == 251)
+            {
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24);
+            }
+
+            byte a5 = reader.ReadByte();
+            if (a0 == 252)
+            {
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32);
+            }
+
+            byte a6 = reader.ReadByte();
+            if (a0 == 253)
+            {
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40);
+            }
+
+            byte a7 = reader.ReadByte();
+            if (a0 == 254)
+            {
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48);
+            }
+
+            byte a8 = reader.ReadByte();
+            if (a0 == 255)
+            {
+                return a1 + (((ulong)a2) << 8) + (((ulong)a3) << 16) + (((ulong)a4) << 24) + (((ulong)a5) << 32) + (((ulong)a6) << 40) + (((ulong)a7) << 48)  + (((ulong)a8) << 56);
+            }
+
+            throw new IndexOutOfRangeException("DecompressVarInt failure: " + a0);
+        }
+
+        // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        public static long DecompressVarInt(NetworkReader reader)
+        {
+            ulong data = DecompressVarUInt(reader);
+            return ((long)(data >> 1)) ^ -((long)data & 1);
         }
     }
 }

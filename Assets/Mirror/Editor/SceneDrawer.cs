@@ -36,7 +36,7 @@ namespace Mirror
             foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
             {
                 SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(buildScene.path);
-                if (sceneAsset.name == sceneName)
+                if (sceneAsset!= null && sceneAsset.name == sceneName)
                 {
                     return sceneAsset;
                 }

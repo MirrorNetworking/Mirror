@@ -21,18 +21,17 @@ namespace Mirror.Tests
     {
         public static void WriteQuest(this NetworkWriter writer, MockQuest quest)
         {
-            writer.WriteInt32(quest.Id);
+            writer.WriteInt(quest.Id);
         }
         public static MockQuest WriteQuest(this NetworkReader reader)
         {
-            return new MockQuest(reader.ReadInt32());
+            return new MockQuest(reader.ReadInt());
         }
     }
 
     [TestFixture]
     public class CustomRWTest
     {
-
         public struct QuestMessage : NetworkMessage
         {
             public MockQuest quest;
@@ -41,15 +40,13 @@ namespace Mirror.Tests
         [Test]
         public void TestCustomRW()
         {
-            QuestMessage message = new QuestMessage()
+            QuestMessage message = new QuestMessage
             {
                 quest = new MockQuest(100)
             };
 
-            byte[] data = MessagePackerTest.PackToByteArray(message);
-
-            QuestMessage unpacked = MessagePackerTest.UnpackFromByteArray<QuestMessage>(data);
-
+            byte[] data = MessagePackingTest.PackToByteArray(message);
+            QuestMessage unpacked = MessagePackingTest.UnpackFromByteArray<QuestMessage>(data);
             Assert.That(unpacked.quest.Id, Is.EqualTo(100));
         }
     }

@@ -1,33 +1,27 @@
 ﻿using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
     class NetworkManagerOnServerDisconnect : NetworkManager
     {
         public int called;
-        public override void OnServerDisconnect(NetworkConnection conn) { ++called; }
-    }
+        public override void OnServerDisconnect(NetworkConnection conn)
+        {
+            base.OnServerDisconnect(conn);
+            ++called; 
+        }
+}
 
     [TestFixture]
-    public class NetworkManagerStopHostOnServerDisconnectTest
+    public class NetworkManagerStopHostOnServerDisconnectTest : MirrorEditModeTest
     {
-        GameObject gameObject;
         NetworkManagerOnServerDisconnect manager;
-        MemoryTransport transport;
 
         [SetUp]
-        public void SetUp()
+        public override void SetUp()
         {
-            gameObject = new GameObject();
-            transport = gameObject.AddComponent<MemoryTransport>();
-            manager = gameObject.AddComponent<NetworkManagerOnServerDisconnect>();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            GameObject.DestroyImmediate(gameObject);
+            base.SetUp();
+            manager = transport.gameObject.AddComponent<NetworkManagerOnServerDisconnect>();
         }
 
         // test to prevent https://github.com/vis2k/Mirror/issues/1515

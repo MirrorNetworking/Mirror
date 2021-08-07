@@ -44,9 +44,9 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(Channels.DefaultReliable, 4000)]
-        [TestCase(Channels.DefaultReliable, 2000)]
-        [TestCase(Channels.DefaultUnreliable, 4000)]
+        [TestCase(Channels.Reliable, 4000)]
+        [TestCase(Channels.Reliable, 2000)]
+        [TestCase(Channels.Unreliable, 4000)]
         public void TestGetMaxPacketSize(int channel, int packageSize)
         {
             inner.GetMaxPacketSize(Arg.Any<int>()).Returns(packageSize);
@@ -97,8 +97,8 @@ namespace Mirror.Tests
         }
 
         [Test]
-        [TestCase(Channels.DefaultReliable)]
-        [TestCase(Channels.DefaultUnreliable)]
+        [TestCase(Channels.Reliable)]
+        [TestCase(Channels.Unreliable)]
         public void TestClientSend(int channel)
         {
             byte[] array = new byte[10];
@@ -106,13 +106,11 @@ namespace Mirror.Tests
             const int count = 5;
             ArraySegment<byte> segment = new ArraySegment<byte>(array, offset, count);
 
-            middleware.ClientSend(channel, segment);
+            middleware.ClientSend(segment, channel);
 
-            inner.Received(1).ClientSend(channel, Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count));
-            inner.Received(0).ClientSend(Arg.Is<int>(x => x != channel), Arg.Any<ArraySegment<byte>>());
+            inner.Received(1).ClientSend(Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count), channel);
+            inner.Received(0).ClientSend(Arg.Any<ArraySegment<byte>>(), Arg.Is<int>(x => x != channel));
         }
-
-
 
         [Test]
         [TestCase(true)]
@@ -154,24 +152,11 @@ namespace Mirror.Tests
             const int count = 5;
             ArraySegment<byte> segment = new ArraySegment<byte>(array, offset, count);
 
-            middleware.ServerSend(id, channel, segment);
+            middleware.ServerSend(id, segment, channel);
 
-            inner.Received(1).ServerSend(id, channel, Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count));
+            inner.Received(1).ServerSend(id, Arg.Is<ArraySegment<byte>>(x => x.Array == array && x.Offset == offset && x.Count == count), channel);
             // only need to check first arg,
-            inner.Received(0).ServerSend(Arg.Is<int>(x => x != id), Arg.Any<int>(), Arg.Any<ArraySegment<byte>>());
-        }
-
-        [Test]
-        [TestCase(0, true)]
-        [TestCase(19, false)]
-        public void TestServerDisconnect(int id, bool result)
-        {
-            inner.ServerDisconnect(id).Returns(result);
-
-            Assert.That(middleware.ServerDisconnect(id), Is.EqualTo(result));
-
-            inner.Received(1).ServerDisconnect(id);
-            inner.Received(0).ServerDisconnect(Arg.Is<int>(x => x != id));
+            inner.Received(0).ServerSend(Arg.Is<int>(x => x != id), Arg.Any<ArraySegment<byte>>(), Arg.Any<int>());
         }
 
         [Test]

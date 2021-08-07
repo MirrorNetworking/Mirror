@@ -9,45 +9,39 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void RemovesPrefabFromDictionary()
         {
-            prefabs.Add(validPrefabGuid, validPrefab);
-
-            ClientScene.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(prefabs.ContainsKey(validPrefabGuid));
+            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
+            NetworkClient.UnregisterPrefab(validPrefab);
+            Assert.IsFalse(NetworkClient.prefabs.ContainsKey(validPrefabGuid));
         }
 
         [Test]
         public void RemovesSpawnHandlerFromDictionary()
         {
-            spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
-
-            ClientScene.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(spawnHandlers.ContainsKey(validPrefabGuid));
+            NetworkClient.spawnHandlers.Add(validPrefabGuid, new SpawnHandlerDelegate(x => null));
+            NetworkClient.UnregisterPrefab(validPrefab);
+            Assert.IsFalse(NetworkClient.spawnHandlers.ContainsKey(validPrefabGuid));
         }
 
         [Test]
         public void RemovesUnSpawnHandlerFromDictionary()
         {
-            unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => {}));
-
-            ClientScene.UnregisterPrefab(validPrefab);
-
-            Assert.IsFalse(unspawnHandlers.ContainsKey(validPrefabGuid));
+            NetworkClient.unspawnHandlers.Add(validPrefabGuid, new UnSpawnDelegate(x => {}));
+            NetworkClient.UnregisterPrefab(validPrefab);
+            Assert.IsFalse(NetworkClient.unspawnHandlers.ContainsKey(validPrefabGuid));
         }
 
         [Test]
         public void ErrorWhenPrefabIsNull()
         {
             LogAssert.Expect(LogType.Error, "Could not unregister prefab because it was null");
-            ClientScene.UnregisterPrefab(null);
+            NetworkClient.UnregisterPrefab(null);
         }
 
         [Test]
         public void ErrorWhenPrefabHasNoNetworkIdentity()
         {
             LogAssert.Expect(LogType.Error, $"Could not unregister '{invalidPrefab.name}' since it contains no NetworkIdentity component");
-            ClientScene.UnregisterPrefab(invalidPrefab);
+            NetworkClient.UnregisterPrefab(invalidPrefab);
         }
 
     }

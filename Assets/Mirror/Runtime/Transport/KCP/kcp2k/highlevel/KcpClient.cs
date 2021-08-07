@@ -22,7 +22,12 @@ namespace kcp2k
             this.OnDisconnected = OnDisconnected;
         }
 
-        public void Connect(string address, ushort port, bool noDelay, uint interval, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV)
+        // CreateConnection can be overwritten for where-allocation:
+        // https://github.com/vis2k/where-allocation
+        protected virtual KcpClientConnection CreateConnection() =>
+            new KcpClientConnection();
+
+        public void Connect(string address, ushort port, bool noDelay, uint interval, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = KcpConnection.DEFAULT_TIMEOUT)
         {
             if (connected)
             {
@@ -30,7 +35,8 @@ namespace kcp2k
                 return;
             }
 
-            connection = new KcpClientConnection();
+            // create connection
+            connection = CreateConnection();
 
             // setup events
             connection.OnAuthenticated = () =>
@@ -53,7 +59,7 @@ namespace kcp2k
             };
 
             // connect
-            connection.Connect(address, port, noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize);
+            connection.Connect(address, port, noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout);
         }
 
         public void Send(ArraySegment<byte> segment, KcpChannel channel)
@@ -79,16 +85,31 @@ namespace kcp2k
             }
         }
 
+        // process incoming messages. should be called before updating the world.
+        public void TickIncoming()
+        {
+            // recv on socket first, then process incoming
+            // (even if we didn't receive anything. need to tick ping etc.)
+            // (connection is null if not active)
+            connection?.RawReceive();
+            connection?.TickIncoming();
+        }
+
+        // process outgoing messages. should be called after updating the world.
+        public void TickOutgoing()
+        {
+            // process outgoing
+            // (connection is null if not active)
+            connection?.TickOutgoing();
+        }
+
+        // process incoming and outgoing for convenience
+        // => ideally call ProcessIncoming() before updating the world and
+        //    ProcessOutgoing() after updating the world for minimum latency
         public void Tick()
         {
-            // tick client connection
-            if (connection != null)
-            {
-                // recv on socket first
-                connection.RawReceive();
-                // then update
-                connection.Tick();
-            }
+            TickIncoming();
+            TickOutgoing();
         }
 
         // pause/unpause to safely support mirror scene handling and to

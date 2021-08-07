@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -312,6 +312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneId: 1581524575
   serverOnly: 0
+  visible: 0
   m_AssetId: 
   hasSpawned: 0
 --- !u!1 &90143746
@@ -1425,7 +1426,7 @@ GameObject:
   - component: {fileID: 1027272350}
   - component: {fileID: 1027272349}
   m_Layer: 5
-  m_Name: UsernameInput
+  m_Name: NetworkAddressInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1506,7 +1507,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1783103025}
-        m_MethodName: set_playerName
+        m_MethodName: SetHostname
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

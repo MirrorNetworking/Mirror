@@ -28,7 +28,6 @@ namespace Mirror.Tests
             Assert.That(serverList.IsDirty, Is.True);
         }
 
-
         [Test]
         public void OldValueShouldNotBeNewValue()
         {

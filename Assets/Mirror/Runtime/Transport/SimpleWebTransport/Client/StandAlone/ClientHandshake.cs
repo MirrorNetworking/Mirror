@@ -32,7 +32,7 @@ namespace Mirror.SimpleWeb
 
                 string expectedResponse = Convert.ToBase64String(keySumHash);
                 string handshake =
-                    $"GET /chat HTTP/1.1\r\n" +
+                    $"GET {uri.PathAndQuery} HTTP/1.1\r\n" +
                     $"Host: {uri.Host}:{uri.Port}\r\n" +
                     $"Upgrade: websocket\r\n" +
                     $"Connection: Upgrade\r\n" +

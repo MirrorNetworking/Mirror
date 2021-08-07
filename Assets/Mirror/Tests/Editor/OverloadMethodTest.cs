@@ -16,8 +16,8 @@ namespace Mirror.Tests.MessageTests
         public int someValue;
 
         // Weaver should ignore these methods because they have two args
-        public void Serialize(NetworkWriter writer, int AnotherValue) { /* method with 2 args */ }
-        public void Deserialize(NetworkReader reader, int AnotherValue) { /* method with 2 args */ }
+        public void Serialize(NetworkWriter writer, int AnotherValue) {}
+        public void Deserialize(NetworkReader reader, int AnotherValue) {}
     }
 
     public class OverloadMethodTest
@@ -31,10 +31,8 @@ namespace Mirror.Tests.MessageTests
                 someValue = value
             };
 
-            byte[] data = MessagePackerTest.PackToByteArray(intMessage);
-
-            NoArgMethodMessage unpacked = MessagePackerTest.UnpackFromByteArray<NoArgMethodMessage>(data);
-
+            byte[] data = MessagePackingTest.PackToByteArray(intMessage);
+            NoArgMethodMessage unpacked = MessagePackingTest.UnpackFromByteArray<NoArgMethodMessage>(data);
             Assert.That(unpacked.someValue, Is.EqualTo(value));
         }
 
@@ -47,10 +45,8 @@ namespace Mirror.Tests.MessageTests
                 someValue = value
             };
 
-            byte[] data = MessagePackerTest.PackToByteArray(intMessage);
-
-            TwoArgMethodMessage unpacked = MessagePackerTest.UnpackFromByteArray<TwoArgMethodMessage>(data);
-
+            byte[] data = MessagePackingTest.PackToByteArray(intMessage);
+            TwoArgMethodMessage unpacked = MessagePackingTest.UnpackFromByteArray<TwoArgMethodMessage>(data);
             Assert.That(unpacked.someValue, Is.EqualTo(value));
         }
     }

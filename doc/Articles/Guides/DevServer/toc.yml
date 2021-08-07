@@ -1,6 +1,0 @@
-- name: Overview
-  href: index.md
-- name: AWS
-  href: AWS/index.md
-- name: Google Cloud
-  href: gcloud/index.md

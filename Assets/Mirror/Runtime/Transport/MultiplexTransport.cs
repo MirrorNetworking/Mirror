@@ -20,6 +20,38 @@ namespace Mirror
             }
         }
 
+        public override void ClientEarlyUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ClientEarlyUpdate();
+            }
+        }
+
+        public override void ServerEarlyUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ServerEarlyUpdate();
+            }
+        }
+
+        public override void ClientLateUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ClientLateUpdate();
+            }
+        }
+
+        public override void ServerLateUpdate()
+        {
+            foreach (Transport transport in transports)
+            {
+                transport.ServerLateUpdate();
+            }
+        }
+
         void OnEnable()
         {
             foreach (Transport transport in transports)
@@ -105,9 +137,9 @@ namespace Mirror
                 available.ClientDisconnect();
         }
 
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
-            available.ClientSend(channelId, segment);
+            available.ClientSend(segment, channelId);
         }
 
         #endregion
@@ -192,14 +224,14 @@ namespace Mirror
             return transports[transportId].ServerGetClientAddress(baseConnectionId);
         }
 
-        public override bool ServerDisconnect(int connectionId)
+        public override void ServerDisconnect(int connectionId)
         {
             int baseConnectionId = ToBaseId(connectionId);
             int transportId = ToTransportId(connectionId);
-            return transports[transportId].ServerDisconnect(baseConnectionId);
+            transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             int baseConnectionId = ToBaseId(connectionId);
             int transportId = ToTransportId(connectionId);
@@ -208,7 +240,7 @@ namespace Mirror
             {
                 if (i == transportId)
                 {
-                    transports[i].ServerSend(baseConnectionId, channelId, segment);
+                    transports[i].ServerSend(baseConnectionId, segment, channelId);
                 }
             }
         }

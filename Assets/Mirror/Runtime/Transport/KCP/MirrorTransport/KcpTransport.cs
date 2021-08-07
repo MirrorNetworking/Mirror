@@ -16,21 +16,28 @@ namespace kcp2k
         // common
         [Header("Transport Configuration")]
         public ushort Port = 7777;
+        [Tooltip("DualMode listens to IPv6 and IPv4 simultaneously. Disable if the platform only supports IPv4.")]
+        public bool DualMode = true;
         [Tooltip("NoDelay is recommended to reduce latency. This also scales better without buffers getting full.")]
         public bool NoDelay = true;
         [Tooltip("KCP internal update interval. 100ms is KCP default, but a lower interval is recommended to minimize latency and to scale to more networked entities.")]
         public uint Interval = 10;
+        [Tooltip("KCP timeout in milliseconds. Note that KCP sends a ping automatically.")]
+        public int Timeout = 10000;
+
         [Header("Advanced")]
         [Tooltip("KCP fastresend parameter. Faster resend for the cost of higher bandwidth. 0 in normal mode, 2 in turbo mode.")]
         public int FastResend = 2;
-        [Tooltip("KCP congestion window. Enabled in normal mode, disabled in turbo mode. Disable this for high scale games if connections get chocked regularly.")]
+        [Tooltip("KCP congestion window. Enabled in normal mode, disabled in turbo mode. Disable this for high scale games if connections get choked regularly.")]
         public bool CongestionWindow = false; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
         [Tooltip("KCP window size can be modified to support higher loads.")]
         public uint SendWindowSize = 4096; //Kcp.WND_SND; 32 by default. Mirror sends a lot, so we need a lot more.
         [Tooltip("KCP window size can be modified to support higher loads.")]
         public uint ReceiveWindowSize = 4096; //Kcp.WND_RCV; 128 by default. Mirror sends a lot, so we need a lot more.
+        [Tooltip("Enable to use where-allocation NonAlloc KcpServer/Client/Connection versions. Highly recommended on all Unity platforms.")]
+        public bool NonAlloc = true;
 
-        // server & client
+        // server & client (where-allocation NonAlloc versions)
         KcpServer server;
         KcpClient client;
 
@@ -55,24 +62,42 @@ namespace kcp2k
             Log.Error = Debug.LogError;
 
             // client
-            client = new KcpClient(
-                () => OnClientConnected.Invoke(),
-                (message) => OnClientDataReceived.Invoke(message, Channels.DefaultReliable),
-                () => OnClientDisconnected.Invoke()
-            );
+            client = NonAlloc
+                ? new KcpClientNonAlloc(
+                      () => OnClientConnected.Invoke(),
+                      (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
+                      () => OnClientDisconnected.Invoke())
+                : new KcpClient(
+                      () => OnClientConnected.Invoke(),
+                      (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
+                      () => OnClientDisconnected.Invoke());
 
             // server
-            server = new KcpServer(
-                (connectionId) => OnServerConnected.Invoke(connectionId),
-                (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.DefaultReliable),
-                (connectionId) => OnServerDisconnected.Invoke(connectionId),
-                NoDelay,
-                Interval,
-                FastResend,
-                CongestionWindow,
-                SendWindowSize,
-                ReceiveWindowSize
-            );
+            server = NonAlloc
+                ? new KcpServerNonAlloc(
+                      (connectionId) => OnServerConnected.Invoke(connectionId),
+                      (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
+                      (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      DualMode,
+                      NoDelay,
+                      Interval,
+                      FastResend,
+                      CongestionWindow,
+                      SendWindowSize,
+                      ReceiveWindowSize,
+                      Timeout)
+                : new KcpServer(
+                      (connectionId) => OnServerConnected.Invoke(connectionId),
+                      (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
+                      (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      DualMode,
+                      NoDelay,
+                      Interval,
+                      FastResend,
+                      CongestionWindow,
+                      SendWindowSize,
+                      ReceiveWindowSize,
+                      Timeout);
 
             if (statisticsLog)
                 InvokeRepeating(nameof(OnLogStatistics), 1, 1);
@@ -88,16 +113,16 @@ namespace kcp2k
         public override bool ClientConnected() => client.connected;
         public override void ClientConnect(string address)
         {
-            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize);
+            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
         }
-        public override void ClientSend(int channelId, ArraySegment<byte> segment)
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
             // switch to kcp channel.
             // unreliable or reliable.
             // default to reliable just to be sure.
             switch (channelId)
             {
-                case Channels.DefaultUnreliable:
+                case Channels.Unreliable:
                     client.Send(segment, KcpChannel.Unreliable);
                     break;
                 default:
@@ -106,25 +131,18 @@ namespace kcp2k
             }
         }
         public override void ClientDisconnect() => client.Disconnect();
-
-        // IMPORTANT: set script execution order to >1000 to call Transport's
-        //            LateUpdate after all others. Fixes race condition where
-        //            e.g. in uSurvival Transport would apply Cmds before
-        //            ShoulderRotation.LateUpdate, resulting in projectile
-        //            spawns at the point before shoulder rotation.
-        public void LateUpdate()
+        // process incoming in early update
+        public override void ClientEarlyUpdate()
         {
             // scene change messages disable transports to stop them from
             // processing while changing the scene.
             // -> we need to check enabled here
             // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
             // (see also: https://github.com/vis2k/Mirror/pull/379)
-            if (!enabled)
-                return;
-
-            server.Tick();
-            client.Tick();
+            if (enabled) client.TickIncoming();
         }
+        // process outgoing in late update
+        public override void ClientLateUpdate() => client.TickOutgoing();
 
         // scene change message will disable transports.
         // kcp processes messages in an internal loop which should be
@@ -156,14 +174,14 @@ namespace kcp2k
         }
         public override bool ServerActive() => server.IsActive();
         public override void ServerStart() => server.Start(Port);
-        public override void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment)
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             // switch to kcp channel.
             // unreliable or reliable.
             // default to reliable just to be sure.
             switch (channelId)
             {
-                case Channels.DefaultUnreliable:
+                case Channels.Unreliable:
                     server.Send(connectionId, segment, KcpChannel.Unreliable);
                     break;
                 default:
@@ -171,26 +189,33 @@ namespace kcp2k
                     break;
             }
         }
-        public override bool ServerDisconnect(int connectionId)
-        {
-            server.Disconnect(connectionId);
-            return true;
-        }
+        public override void ServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
         public override void ServerStop() => server.Stop();
+        public override void ServerEarlyUpdate()
+        {
+            // scene change messages disable transports to stop them from
+            // processing while changing the scene.
+            // -> we need to check enabled here
+            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // (see also: https://github.com/vis2k/Mirror/pull/379)
+            if (enabled) server.TickIncoming();
+        }
+        // process outgoing in late update
+        public override void ServerLateUpdate() => server.TickOutgoing();
 
         // common
         public override void Shutdown() {}
 
         // max message size
-        public override int GetMaxPacketSize(int channelId = Channels.DefaultReliable)
+        public override int GetMaxPacketSize(int channelId = Channels.Reliable)
         {
             // switch to kcp channel.
             // unreliable or reliable.
             // default to reliable just to be sure.
             switch (channelId)
             {
-                case Channels.DefaultUnreliable:
+                case Channels.Unreliable:
                     return KcpConnection.UnreliableMaxMessageSize;
                 default:
                     return KcpConnection.ReliableMaxMessageSize;
@@ -205,30 +230,27 @@ namespace kcp2k
         // network.
         // => instead we always use MTU sized batches.
         // => people can still send maxed size if needed.
-        public override int GetMaxBatchSize(int channelId) =>
+        public override int GetBatchThreshold(int channelId) =>
             KcpConnection.UnreliableMaxMessageSize;
 
-        public override string ToString()
-        {
-            return "KCP";
-        }
-
         // server statistics
-        public int GetAverageMaxSendRate() =>
+        // LONG to avoid int overflows with connections.Sum.
+        // see also: https://github.com/vis2k/Mirror/pull/2777
+        public long GetAverageMaxSendRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (int)conn.MaxSendRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => (long)conn.MaxSendRate) / server.connections.Count
                 : 0;
-        public int GetAverageMaxReceiveRate() =>
+        public long GetAverageMaxReceiveRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (int)conn.MaxReceiveRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => (long)conn.MaxReceiveRate) / server.connections.Count
                 : 0;
-        int GetTotalSendQueue() =>
+        long GetTotalSendQueue() =>
             server.connections.Values.Sum(conn => conn.SendQueueCount);
-        int GetTotalReceiveQueue() =>
+        long GetTotalReceiveQueue() =>
             server.connections.Values.Sum(conn => conn.ReceiveQueueCount);
-        int GetTotalSendBuffer() =>
+        long GetTotalSendBuffer() =>
             server.connections.Values.Sum(conn => conn.SendBufferCount);
-        int GetTotalReceiveBuffer() =>
+        long GetTotalReceiveBuffer() =>
             server.connections.Values.Sum(conn => conn.ReceiveBufferCount);
 
         // PrettyBytes function from DOTSNET
@@ -290,7 +312,7 @@ namespace kcp2k
         {
             if (ServerActive())
             {
-                string log = "kcp SERVER @ time: " + NetworkTime.time + "\n";
+                string log = "kcp SERVER @ time: " + NetworkTime.localTime + "\n";
                 log += $"  connections: {server.connections.Count}\n";
                 log += $"  MaxSendRate (avg): {PrettyBytes(GetAverageMaxSendRate())}/s\n";
                 log += $"  MaxRecvRate (avg): {PrettyBytes(GetAverageMaxReceiveRate())}/s\n";
@@ -303,7 +325,7 @@ namespace kcp2k
 
             if (ClientConnected())
             {
-                string log = "kcp CLIENT @ time: " + NetworkTime.time + "\n";
+                string log = "kcp CLIENT @ time: " + NetworkTime.localTime + "\n";
                 log += $"  MaxSendRate: {PrettyBytes(client.connection.MaxSendRate)}/s\n";
                 log += $"  MaxRecvRate: {PrettyBytes(client.connection.MaxReceiveRate)}/s\n";
                 log += $"  SendQueue: {client.connection.SendQueueCount}\n";
@@ -313,6 +335,8 @@ namespace kcp2k
                 Debug.Log(log);
             }
         }
+
+        public override string ToString() => "KCP";
     }
 }
 //#endif MIRROR <- commented out because MIRROR isn't defined on first import yet

@@ -20,7 +20,7 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class CommandAttribute : Attribute
     {
-        public int channel = Channels.DefaultReliable;
+        public int channel = Channels.Reliable;
         public bool requiresAuthority = true;
     }
 
@@ -30,7 +30,7 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class ClientRpcAttribute : Attribute
     {
-        public int channel = Channels.DefaultReliable;
+        public int channel = Channels.Reliable;
         public bool includeOwner = true;
     }
 
@@ -40,7 +40,7 @@ namespace Mirror
     [AttributeUsage(AttributeTargets.Method)]
     public class TargetRpcAttribute : Attribute
     {
-        public int channel = Channels.DefaultReliable;
+        public int channel = Channels.Reliable;
     }
 
     /// <summary>

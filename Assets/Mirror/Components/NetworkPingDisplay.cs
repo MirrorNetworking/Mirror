@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Mirror
@@ -7,44 +8,26 @@ namespace Mirror
     /// </summary>
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkPingDisplay")]
-    [HelpURL("https://mirror-networking.com/docs/Articles/Components/NetworkPingDisplay.html")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-ping-display")]
     public class NetworkPingDisplay : MonoBehaviour
     {
-        public bool showPing = true;
-        [Tooltip("True shows the round trip time, from origin to destination, then back again. Set to false for time to server only.")]
-        public bool showRoundTripTime = true;
-        int rttMultiplier = 1;
-        public Vector2 position = new Vector2(200, 0);
-        public int fontSize = 24;
-        public Color textColor = new Color32(255, 255, 255, 80);
-        public string format = "{0}ms";
-
-        GUIStyle style;
-
-        void Awake()
-        {
-            style = new GUIStyle();
-            style.alignment = TextAnchor.UpperLeft;
-            style.fontSize = fontSize;
-            style.normal.textColor = textColor;
-        }
+        public Color color = Color.white;
+        public int padding = 2;
+        int width = 150;
+        int height = 25;
 
         void OnGUI()
         {
-            if (!showPing) { return; }
-            if (showRoundTripTime) { rttMultiplier = 1; } else { rttMultiplier = 2; }
+            // only while client is active
+            if (!NetworkClient.active) return;
 
-            string text = string.Format(format, (int)((NetworkTime.rtt / rttMultiplier) * 1000));
-
-            // leave here or create special method to update fontSize and textColor
-            style.fontSize = fontSize;
-            style.normal.textColor = textColor;
-
-            int width = Screen.width;
-            int height = Screen.height;
-            Rect rect = new Rect(position.x, position.y, width - 200, height * 2 / 100);
-
-            GUI.Label(rect, text, style);
+            // show rtt in bottom right corner, right aligned
+            GUI.color = color;
+            Rect rect = new Rect(Screen.width - width - padding, Screen.height - height - padding, width, height);
+            GUIStyle style = GUI.skin.GetStyle("Label");
+            style.alignment = TextAnchor.MiddleRight;
+            GUI.Label(rect, $"RTT: {Math.Round(NetworkTime.rtt * 1000)}ms", style);
+            GUI.color = Color.white;
         }
     }
 }

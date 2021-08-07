@@ -34,8 +34,15 @@ namespace Mirror.Weaver
             // NetworkConnection parameter is optional
             if (HasNetworkConnectionParameter(md))
             {
-                // if call has NetworkConnection write clients connection as first arg
-                //ClientScene.readyconnection
+                // on server, the NetworkConnection parameter is a connection to client.
+                // when the rpc is invoked on the client, it still has the same
+                // function signature. we pass in the connection to server,
+                // which is cleaner than just passing null)
+                //NetworkClient.readyconnection
+                //
+                // TODO
+                // a) .connectionToServer = best solution. no doubt.
+                // b) NetworkClient.connection for now. add TODO to not use static later.
                 worker.Emit(OpCodes.Call, WeaverTypes.ReadyConnectionReference);
             }
 

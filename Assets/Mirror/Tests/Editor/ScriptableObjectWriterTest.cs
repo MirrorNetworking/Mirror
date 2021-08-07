@@ -31,9 +31,9 @@ namespace Mirror.Tests
 
             message.scriptableObject.someData = 10;
 
-            byte[] data = MessagePackerTest.PackToByteArray(message);
+            byte[] data = MessagePackingTest.PackToByteArray(message);
 
-            ScriptableObjectMessage unpacked = MessagePackerTest.UnpackFromByteArray<ScriptableObjectMessage>(data);
+            ScriptableObjectMessage unpacked = MessagePackingTest.UnpackFromByteArray<ScriptableObjectMessage>(data);
 
             Assert.That(unpacked.scriptableObject, Is.Not.Null);
             Assert.That(unpacked.scriptableObject.someData, Is.EqualTo(10));

@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 using Mirror;
 
 /*
-	Documentation: https://mirror-networking.com/docs/Components/NetworkManager.html
+	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
 	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
 */
 
@@ -159,11 +159,12 @@ public class #SCRIPTNAME# : NetworkManager
     }
 
     /// <summary>
-    /// Called on the server when a network error occurs for a client connection.
+    /// Called on server when transport raises an exception.
+    /// <para>NetworkConnection may be null.</para>
     /// </summary>
-    /// <param name="conn">Connection from client.</param>
-    /// <param name="errorCode">Error code.</param>
-    public override void OnServerError(NetworkConnection conn, int errorCode) { }
+    /// <param name="conn">Connection of the client...may be null</param>
+    /// <param name="exception">Exception thrown from the Transport.</param>
+    public override void OnServerError(NetworkConnection conn, Exception exception) { }
 
     #endregion
 
@@ -190,18 +191,17 @@ public class #SCRIPTNAME# : NetworkManager
     }
 
     /// <summary>
-    /// Called on clients when a network error occurs.
-    /// </summary>
-    /// <param name="conn">Connection to a server.</param>
-    /// <param name="errorCode">Error code.</param>
-    public override void OnClientError(NetworkConnection conn, int errorCode) { }
-
-    /// <summary>
     /// Called on clients when a servers tells the client it is no longer ready.
     /// <para>This is commonly used when switching scenes.</para>
     /// </summary>
     /// <param name="conn">Connection to the server.</param>
     public override void OnClientNotReady(NetworkConnection conn) { }
+
+    /// <summary>
+    /// Called on client when transport raises an exception.</summary>
+    /// </summary>
+    /// <param name="exception">Exception thrown from the Transport.</param>
+    public override void OnClientError(Exception exception) { }
 
     #endregion
 

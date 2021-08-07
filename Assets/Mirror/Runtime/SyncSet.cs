@@ -76,7 +76,7 @@ namespace Mirror
         public void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
-            writer.WriteUInt32((uint)objects.Count);
+            writer.WriteUInt((uint)objects.Count);
 
             foreach (T obj in objects)
             {
@@ -87,13 +87,13 @@ namespace Mirror
             // thus the client will need to skip all the pending changes
             // or they would be applied again.
             // So we write how many changes are pending
-            writer.WriteUInt32((uint)changes.Count);
+            writer.WriteUInt((uint)changes.Count);
         }
 
         public void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
-            writer.WriteUInt32((uint)changes.Count);
+            writer.WriteUInt((uint)changes.Count);
 
             for (int i = 0; i < changes.Count; i++)
             {
@@ -122,7 +122,7 @@ namespace Mirror
             IsReadOnly = true;
 
             // if init,  write the full list content
-            int count = (int)reader.ReadUInt32();
+            int count = (int)reader.ReadUInt();
 
             objects.Clear();
             changes.Clear();
@@ -136,7 +136,7 @@ namespace Mirror
             // We will need to skip all these changes
             // the next time the list is synchronized
             // because they have already been applied
-            changesAhead = (int)reader.ReadUInt32();
+            changesAhead = (int)reader.ReadUInt();
         }
 
         public void OnDeserializeDelta(NetworkReader reader)
@@ -144,7 +144,7 @@ namespace Mirror
             // This list can now only be modified by synchronization
             IsReadOnly = true;
 
-            int changesCount = (int)reader.ReadUInt32();
+            int changesCount = (int)reader.ReadUInt();
 
             for (int i = 0; i < changesCount; i++)
             {
@@ -288,6 +288,7 @@ namespace Mirror
 
         public bool SetEquals(IEnumerable<T> other) => objects.SetEquals(other);
 
+        // custom implementation so we can do our own Clear/Add/Remove for delta
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
             if (other == this)
@@ -306,6 +307,7 @@ namespace Mirror
             }
         }
 
+        // custom implementation so we can do our own Clear/Add/Remove for delta
         public void UnionWith(IEnumerable<T> other)
         {
             if (other != this)
@@ -321,7 +323,6 @@ namespace Mirror
     public class SyncHashSet<T> : SyncSet<T>
     {
         public SyncHashSet() : this(EqualityComparer<T>.Default) {}
-
         public SyncHashSet(IEqualityComparer<T> comparer) : base(new HashSet<T>(comparer ?? EqualityComparer<T>.Default)) {}
 
         // allocation free enumerator
@@ -331,7 +332,6 @@ namespace Mirror
     public class SyncSortedSet<T> : SyncSet<T>
     {
         public SyncSortedSet() : this(Comparer<T>.Default) {}
-
         public SyncSortedSet(IComparer<T> comparer) : base(new SortedSet<T>(comparer ?? Comparer<T>.Default)) {}
 
         // allocation free enumerator
