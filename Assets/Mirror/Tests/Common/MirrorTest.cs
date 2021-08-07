@@ -48,11 +48,21 @@ namespace Mirror.Tests
         }
 
         // create a tracked GameObject for tests without Networkidentity
+        // add to tracker list if needed (useful for cleanups afterwards)
         protected void CreateGameObject(out GameObject go)
         {
             go = new GameObject();
             // track
             instantiated.Add(go);
+        }
+
+        // create GameObject + MonoBehaviour<T>
+        // add to tracker list if needed (useful for cleanups afterwards)
+        protected void CreateGameObject<T>(out GameObject go, out T component)
+            where T : MonoBehaviour
+        {
+            CreateGameObject(out go);
+            component = go.AddComponent<T>();
         }
 
         // create GameObject + NetworkIdentity
