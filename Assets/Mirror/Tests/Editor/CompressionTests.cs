@@ -146,7 +146,7 @@ namespace Mirror.Tests
         {
             // we need a normalized value
             Quaternion value = Quaternion.Euler(338.850037f, 170.609955f, 182.979996f).normalized;
-            Debug.Log("immediate=" + value.eulerAngles);
+            Debug.Log("original=" + value.eulerAngles);
 
             // compress
             uint data = Compression.CompressQuaternion(value);
