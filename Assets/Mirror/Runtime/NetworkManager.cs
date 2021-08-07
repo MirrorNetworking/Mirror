@@ -180,6 +180,7 @@ namespace Mirror
         void Reset()
         {
             // Prevent adding NetworkManager to parent or child of another NetworkManager
+            // Reset fires earlier than OnValidate so doing this here prevents transport from being added.
             foreach (NetworkManager networkManager in transform.root.GetComponentsInChildren<NetworkManager>().ToList())
                 if (networkManager != this)
                 {
