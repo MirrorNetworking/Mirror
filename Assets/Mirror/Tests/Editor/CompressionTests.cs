@@ -28,6 +28,15 @@ namespace Mirror.Tests
             Assert.That(index, Is.EqualTo(0));
             Assert.That(largest, Is.EqualTo(Mathf.Abs(value.x)));
             Assert.That(withoutLargest, Is.EqualTo(new Vector3(value.y, value.z, value.w)));
+
+            // test to guarantee it uses 'abs' for first value
+            // to reproduce https://github.com/vis2k/Mirror/issues/2674
+            // IF all values are properly 'abs', THEN first one should be largest
+            value = new Vector4(-3, 0, 1, 2);
+            index = Compression.LargestAbsoluteComponentIndex(value, out largest, out withoutLargest);
+            Assert.That(index, Is.EqualTo(0));
+            Assert.That(largest, Is.EqualTo(Mathf.Abs(value.x)));
+            Assert.That(withoutLargest, Is.EqualTo(new Vector3(value.y, value.z, value.w)));
         }
 
         [Test, Ignore("Enable when needed.")]
