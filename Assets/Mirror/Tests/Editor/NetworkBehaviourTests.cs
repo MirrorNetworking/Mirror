@@ -317,81 +317,8 @@ namespace Mirror.Tests
         [Test, Ignore("ClientRpcTest.cs tests Rpcs already")]
         public void SendRPCInternal() {}
 
-        [Test]
-        public void SendTargetRPCInternal()
-        {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendTargetRPCInternalComponent comp);
-
-            // calling rpc before server is active shouldn't work
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called when server not active");
-            comp.CallSendTargetRPCInternal(null);
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // we need to start a server and connect a client in order to be
-            // able to send commands
-            // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
-
-            // connect host client
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.active, Is.True);
-
-            // get the host connection which already has client->server and
-            // server->client set up
-            LocalConnectionToServer connectionToServer = (LocalConnectionToServer)NetworkClient.connection;
-
-            // set host connection as ready and authenticated
-            connectionToServer.isReady = true;
-            connectionToServer.isAuthenticated = true;
-            connectionToServer.connectionToClient.isReady = true;
-            connectionToServer.connectionToClient.isAuthenticated = true;
-            connectionToServer.connectionToClient.identity = identity;
-
-            // calling rpc before isServer is true shouldn't work
-            LogAssert.Expect(LogType.Warning, $"TargetRpc {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called on {gameObject.name} but that object has not been spawned or has been unspawned");
-            comp.CallSendTargetRPCInternal(null);
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // call OnStartServer so isServer is true
-            identity.OnStartServer();
-
-            // calling rpc on connectionToServer shouldn't work
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} requires a NetworkConnectionToClient but was given {typeof(NetworkConnectionToServer).Name}");
-            comp.CallSendTargetRPCInternal(new NetworkConnectionToServer());
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // set proper connection to client
-            identity.connectionToClient = connectionToServer.connectionToClient;
-
-            // isServer needs to be true, otherwise we can't call rpcs
-            Assert.That(comp.isServer, Is.True);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
-                nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated),
-                MirrorInvokeType.ClientRpc,
-                NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated);
-
-            // identity needs to be in spawned dict, otherwise rpc handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call rpc
-            comp.CallSendTargetRPCInternal(null);
-
-            // update client's connection so that pending messages are processed
-            connectionToServer.Update();
-
-            // rpc should have been called now
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-            // clear clientscene.readyconnection
-            NetworkServer.RemoveLocalConnection();
-        }
+        [Test, Ignore("TargetRpcTest.cs tests TargetRpcs already")]
+        public void SendTargetRPCInternal() {}
 
         [Test]
         public void RegisterDelegateDoesntOverwrite()
