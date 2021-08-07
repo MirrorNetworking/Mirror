@@ -83,6 +83,41 @@ namespace Mirror.Tests
             Assert.That(decompressed.w, Is.EqualTo(value.w).Within(0.005f));
         }
 
+        // iterate all [0..360] euler angles for x, y, z
+        // to make sure it all works and we missed nothing.
+        [Test]
+        public void CompressAndDecompressQuaternion_Iterate_0_to_360()
+        {
+            // stepSize 1: 360 * 360 * 360 =  46 million   [takes 96 s]
+            // stepSize 5:  72 *  72 *  72 = 373 thousand  [takes 700 ms]
+            const int stepSize = 5;
+
+            for (int x = 0; x <= 360; x += stepSize)
+            {
+                for (int y = 0; y <= 360; y += stepSize)
+                {
+                    for (int z = 0; z <= 360; z += stepSize)
+                    {
+                        // we need a normalized value
+                        Quaternion value = Quaternion.Euler(x, y, z).normalized;
+
+                        // compress
+                        uint data = Compression.CompressQuaternion(value);
+
+                        // decompress
+                        Quaternion decompressed = Compression.DecompressQuaternion(data);
+
+                        // compare them. Quaternion.Angle is easiest to get the angle
+                        // between them. using .eulerAngles would give 0, 90, 360 which is
+                        // hard to compare.
+                        float angle = Quaternion.Angle(value, decompressed);
+                        // 1 degree tolerance
+                        Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));
+                    }
+                }
+            }
+        }
+
         // someone mentioned issues with 90 degree euler becoming -90 degree
         [Test]
         public void CompressAndDecompressQuaternion_90DegreeEuler()
