@@ -43,9 +43,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
-    /// <summary>
-    /// test for 2 overrides
-    /// </summary>
+    // test for 2 overrides
     class VirtualOverrideCommandWithBase2 : VirtualOverrideCommandWithBase
     {
         public event Action<int> onOverrideSendInt2;
