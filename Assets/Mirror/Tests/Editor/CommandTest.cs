@@ -95,7 +95,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 callCount++;
             };
-            LogAssert.Expect(LogType.Warning, $"Trying to send command for object without authority. {typeof(AuthorityBehaviour).ToString()}.{nameof(AuthorityBehaviour.SendInt)}");
+            LogAssert.Expect(LogType.Warning, $"Trying to send command for object without authority. {typeof(AuthorityBehaviour)}.{nameof(AuthorityBehaviour.SendInt)}");
             hostBehaviour.SendInt(someInt);
             ProcessMessages();
             Assert.That(callCount, Is.Zero);
