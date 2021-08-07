@@ -24,20 +24,9 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
     class AbstractNetworkBehaviourClientRpcBehaviour : NetworkBehaviour
     {
-        public abstract class MockMonsterBase : NetworkBehaviour
-        {
-            public abstract string GetName();
-        }
-
-        public class MockZombie : MockMonsterBase
-        {
-            public override string GetName() => "Zombie";
-        }
-
-        public class MockWolf : MockMonsterBase
-        {
-            public override string GetName() => "Wolf";
-        }
+        public abstract class MockMonsterBase : NetworkBehaviour {}
+        public class MockZombie : MockMonsterBase {}
+        public class MockWolf : MockMonsterBase {}
 
         public event Action<MockMonsterBase> onSendMonsterBase;
 
