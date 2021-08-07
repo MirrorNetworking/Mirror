@@ -67,7 +67,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void CommandIsSentWithAuthority()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out AuthorityBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out AuthorityBehaviour hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -86,7 +86,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void WarningForCommandSentWithoutAuthority()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out AuthorityBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out AuthorityBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -106,7 +106,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void CommandIsSentWithAuthorityWhenIgnoringAuthority()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out IgnoreAuthorityBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out IgnoreAuthorityBehaviour hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
 
@@ -125,7 +125,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void CommandIsSentWithoutAuthorityWhenIgnoringAuthority()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out IgnoreAuthorityBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out IgnoreAuthorityBehaviour hostBehaviour);
 
             const int someInt = 20;
 
@@ -144,7 +144,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void SenderConnectionIsSetWhenCommandIsRecieved()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out SenderConnectionBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out SenderConnectionBehaviour hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
             NetworkConnectionToClient connectionToClient = NetworkServer.connections[0];
@@ -167,7 +167,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void SenderConnectionIsSetWhenCommandIsRecievedWithIgnoreAuthority()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out SenderConnectionIgnoreAuthorityBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out SenderConnectionIgnoreAuthorityBehaviour hostBehaviour);
 
             const int someInt = 20;
             NetworkConnectionToClient connectionToClient = NetworkServer.connections[0];
@@ -189,7 +189,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void CommandThatThrowsShouldBeCaught()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out ThrowBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out ThrowBehaviour hostBehaviour, NetworkServer.localConnection);
 
             const int someInt = 20;
             NetworkConnectionToClient connectionToClient = NetworkServer.connections[0];
