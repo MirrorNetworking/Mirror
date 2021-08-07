@@ -115,7 +115,7 @@ namespace Mirror
 
             // We have at least one NetworkIdentity in the object hierarchy,
             // but it's not on this gameObject...perhaps on a parent or child.
-            Debug.LogError($"NetworkBehaviour {GetType()} on {gameObject.name} requires a NetworkIdentity but there's already one on {networkIdentities.First().gameObject.name}. Move {GetType()} to the same object as the Network Identity.", gameObject);
+            Debug.LogError($"NetworkBehaviour {GetType()} on {gameObject.name} requires a Network Identity but there's already one on {networkIdentities.First().gameObject.name}. Move {GetType()} to the same object as the Network Identity.", gameObject);
         }
 
         // This fires in editor when adding a component to an object
