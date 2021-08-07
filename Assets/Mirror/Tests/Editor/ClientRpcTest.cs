@@ -9,10 +9,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onSendInt;
 
         [ClientRpc]
-        public void SendInt(int someInt)
-        {
+        public void SendInt(int someInt) =>
             onSendInt?.Invoke(someInt);
-        }
     }
 
     class ExcludeOwnerBehaviour : NetworkBehaviour
@@ -20,10 +18,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onSendInt;
 
         [ClientRpc(includeOwner = false)]
-        public void RpcSendInt(int someInt)
-        {
+        public void RpcSendInt(int someInt) =>
             onSendInt?.Invoke(someInt);
-        }
     }
 
     class AbstractNetworkBehaviourClientRpcBehaviour : NetworkBehaviour
@@ -35,27 +31,19 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
         public class MockZombie : MockMonsterBase
         {
-            public override string GetName()
-            {
-                return "Zombie";
-            }
+            public override string GetName() => "Zombie";
         }
 
         public class MockWolf : MockMonsterBase
         {
-            public override string GetName()
-            {
-                return "Wolf";
-            }
+            public override string GetName() => "Wolf";
         }
 
         public event Action<MockMonsterBase> onSendMonsterBase;
 
         [ClientRpc]
-        public void RpcSendMonster(MockMonsterBase someMonster)
-        {
+        public void RpcSendMonster(MockMonsterBase someMonster) =>
             onSendMonsterBase?.Invoke(someMonster);
-        }
     }
 
     public class ClientRpcTest : RemoteTestBase
