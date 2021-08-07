@@ -119,8 +119,7 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
         /// <summary>True if the server is running or client is connected/connecting.</summary>
-        [NonSerialized]
-        public bool isNetworkActive;
+        public bool isNetworkActive => NetworkServer.active || NetworkClient.active;
 
         // TODO remove this
         static NetworkConnection clientReadyConnection;
@@ -265,8 +264,6 @@ namespace Mirror
 
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
-
-            isNetworkActive = true;
         }
 
         /// <summary>Starts the server, listening for incoming connections.</summary>
@@ -332,8 +329,6 @@ namespace Mirror
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
-            isNetworkActive = true;
-
             // In case this is a headless client...
             ConfigureHeadlessFrameRate();
 
@@ -372,8 +367,6 @@ namespace Mirror
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
-
-            isNetworkActive = true;
 
             RegisterClientMessages();
 
@@ -557,7 +550,6 @@ namespace Mirror
             OnStopServer();
 
             //Debug.Log("NetworkManager StopServer");
-            isNetworkActive = false;
             NetworkServer.Shutdown();
 
             // set offline mode BEFORE changing scene so that FinishStartScene
@@ -598,7 +590,6 @@ namespace Mirror
             OnStopClient();
 
             //Debug.Log("NetworkManager StopClient");
-            isNetworkActive = false;
 
             // shutdown client
             NetworkClient.Disconnect();
