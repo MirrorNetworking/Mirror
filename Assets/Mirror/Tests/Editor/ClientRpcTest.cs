@@ -45,15 +45,15 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
             const int someInt = 20;
 
-            int callCount = 0;
+            int called = 0;
             hostBehaviour.onSendInt += incomingInt =>
             {
-                callCount++;
+                called++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
             hostBehaviour.SendInt(someInt);
             ProcessMessages();
-            Assert.That(callCount, Is.EqualTo(1));
+            Assert.That(called, Is.EqualTo(1));
         }
 
         [Test]
@@ -64,15 +64,15 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
             const int someInt = 20;
 
-            int callCount = 0;
+            int called = 0;
             hostBehaviour.onSendInt += incomingInt =>
             {
-                callCount++;
+                called++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
             hostBehaviour.RpcSendInt(someInt);
             ProcessMessages();
-            Assert.That(callCount, Is.EqualTo(1));
+            Assert.That(called, Is.EqualTo(1));
         }
 
         [Test]
@@ -83,15 +83,15 @@ namespace Mirror.Tests.RemoteAttrributeTest
 
             const int someInt = 20;
 
-            int callCount = 0;
+            int called = 0;
             hostBehaviour.onSendInt += incomingInt =>
             {
-                callCount++;
+                called++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
             hostBehaviour.RpcSendInt(someInt);
             ProcessMessages();
-            Assert.That(callCount, Is.EqualTo(0));
+            Assert.That(called, Is.EqualTo(0));
         }
 
         [Test]
