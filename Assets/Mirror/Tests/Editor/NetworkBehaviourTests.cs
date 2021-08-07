@@ -308,6 +308,7 @@ namespace Mirror.Tests
 
             // call command. don't require authority.
             // the object doesn't have a .connectionToServer (like a scene object)
+            Assert.That(comp.connectionToServer, Is.Null);
             comp.CallSendCommandInternal(false);
             Assert.That(comp.called, Is.EqualTo(1));
 
