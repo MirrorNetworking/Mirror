@@ -21,7 +21,7 @@ namespace Mirror
             // set largest to first abs (x)
             largestAbs = abs.x;
             withoutLargest = new Vector3(value.y, value.z, value.w);
-            int index = 0;
+            int largestIndex = 0;
 
             // compare to the others, starting at second value
             // performance for 100k calls
@@ -29,24 +29,24 @@ namespace Mirror
             //   manual checks:  22ms
             if (abs.y > largestAbs)
             {
-                index = 1;
+                largestIndex = 1;
                 largestAbs = abs.y;
                 withoutLargest = new Vector3(value.x, value.z, value.w);
             }
             if (abs.z > largestAbs)
             {
-                index = 2;
+                largestIndex = 2;
                 largestAbs = abs.z;
                 withoutLargest = new Vector3(value.x, value.y, value.w);
             }
             if (abs.w > largestAbs)
             {
-                index = 3;
+                largestIndex = 3;
                 largestAbs = abs.w;
                 withoutLargest = new Vector3(value.x, value.y, value.z);
             }
 
-            return index;
+            return largestIndex;
         }
 
         // scale a float within min/max range to an ushort between min/max range
