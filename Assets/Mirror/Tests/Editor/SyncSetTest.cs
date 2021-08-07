@@ -279,7 +279,6 @@ namespace Mirror.Tests
         public void ResetShouldSetReadOnlyToFalse()
         {
             clientSyncSet.Reset();
-
             Assert.That(clientSyncSet.IsReadOnly, Is.False);
         }
 
@@ -287,7 +286,6 @@ namespace Mirror.Tests
         public void ResetShouldClearChanges()
         {
             serverSyncSet.Reset();
-
             Assert.That(serverSyncSet.GetChangeCount(), Is.Zero);
         }
 
@@ -295,7 +293,6 @@ namespace Mirror.Tests
         public void ResetShouldClearItems()
         {
             serverSyncSet.Reset();
-
             Assert.That(serverSyncSet, Is.Empty);
         }
     }
