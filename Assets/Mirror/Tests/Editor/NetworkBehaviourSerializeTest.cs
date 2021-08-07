@@ -21,10 +21,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         public int SyncField;
     }
 
-    class OverrideBehaviourFromSyncVar : AbstractBehaviour
-    {
-
-    }
+    class OverrideBehaviourFromSyncVar : AbstractBehaviour {}
 
     class OverrideBehaviourWithSyncVarFromSyncVar : AbstractBehaviour
     {
@@ -274,7 +271,6 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
             Assert.That(target.customSerializeField, Is.EqualTo(20.5f));
         }
 
-
         [Test]
         [TestCase(true)]
         [TestCase(false)]
@@ -298,7 +294,6 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
             Assert.That(target.customSerializeField, Is.EqualTo(20.5f));
         }
-
 
         [Test]
         [TestCase(true)]
