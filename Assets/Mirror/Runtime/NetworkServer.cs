@@ -893,12 +893,12 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, out bool ownerWritten, observersWriter, out bool observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out bool _, observersWriter, out bool _);
 
             // convert to ArraySegment to avoid reader allocations
-            // (need to handle null case too)
-            ArraySegment<byte> ownerSegment = ownerWritten ? ownerWriter.ToArraySegment() : default;
-            ArraySegment<byte> observersSegment = observersWritten ? observersWriter.ToArraySegment() : default;
+            // if nothing was written, .ToArraySegment returns an empty segment.
+            ArraySegment<byte> ownerSegment = ownerWriter.ToArraySegment();
+            ArraySegment<byte> observersSegment = observersWriter.ToArraySegment();
 
             // use owner segment if 'conn' owns this identity, otherwise
             // use observers segment
