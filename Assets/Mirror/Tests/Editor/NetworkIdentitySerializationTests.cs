@@ -70,6 +70,50 @@ namespace Mirror.Tests
             Assert.That(comp2.value, Is.EqualTo(null));
         }
 
+        // serialize -> deserialize. multiple components to be sure.
+        // one for Owner, one for Observer
+        // one SERVER_TO_CLIENT, one CLIENT_TO_SERVER
+        [Test]
+        public void OnSerializeAndDeserializeAllSafely_CLIENT_TO_SERVER()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SerializeTest1NetworkBehaviour comp1,
+                out SerializeTest2NetworkBehaviour comp2);
+
+            // set to CLIENT with some unique values
+            // and set connection to server to pretend we are the owner.
+            identity.isClient = true;
+            identity.connectionToServer = new FakeNetworkConnection();
+            comp1.syncDirection = SyncDirection.SERVER_TO_CLIENT;
+            comp1.value = 12345;
+            comp2.syncDirection = SyncDirection.CLIENT_TO_SERVER;
+            comp2.value = "67890";
+
+            // serialize all
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+
+            // should have written something into 'owner' writer
+            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));
+            Debug.Log("ownerWriter: " + BitConverter.ToString(ownerWriter.ToArray()));
+
+            // set to SERVER and reset component values
+            identity.isServer = true;
+            identity.isClient = false;
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all. should only get the CLIENT_TO_SERVER value.
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            identity.OnDeserializeAllSafely(reader, true);
+            Assert.That(comp1.value, Is.EqualTo(0));
+            Assert.That(comp2.value, Is.EqualTo("67890"));
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+        }
+
         // serialization should work even if a component throws an exception.
         // so if first component throws, second should still be serialized fine.
         [Test]
