@@ -906,31 +906,62 @@ namespace Mirror
                     //
                     // if host mode: see 'if server'
 
-                    // remember start position in case we need to copy it into
-                    // observers writer too
-                    int startPosition = ownerWriter.Position;
-
-                    // write index as byte [0..255]
-                    ownerWriter.WriteByte((byte)i);
-
-                    // serialize into ownerWriter first
-                    // (owner always gets everything!)
-                    OnSerializeSafely(comp, ownerWriter, initialState);
-
-                    // copy into observersWriter too if SyncMode.Observers
-                    // -> we copy instead of calling OnSerialize again because
-                    //    we don't know what magic the user does in OnSerialize.
-                    // -> it's not guaranteed that calling it twice gets the
-                    //    same result
-                    // -> it's not guaranteed that calling it twice doesn't mess
-                    //    with the user's OnSerialize timing code etc.
-                    // => so we just copy the result without touching
-                    //    OnSerialize again
-                    if (comp.syncMode == SyncMode.Observers)
+                    if (isServer)
                     {
-                        ArraySegment<byte> segment = ownerWriter.ToArraySegment();
-                        int length = ownerWriter.Position - startPosition;
-                        observersWriter.WriteBytes(segment.Array, startPosition, length);
+                        if (comp.syncDirection == SyncDirection.SERVER_TO_CLIENT)
+                        {
+                            // remember start position for copying
+                            int startPosition = ownerWriter.Position;
+
+                            // write index as byte [0..255]
+                            // (we are definitely going to serialize here)
+                            ownerWriter.WriteByte((byte)i);
+
+                            // serialize into owner writer first
+                            OnSerializeSafely(comp, ownerWriter, initialState);
+
+                            // copy into observersWriter if mode == observers
+                            // -> we copy instead of calling OnSerialize again because
+                            //    we don't know what magic the user does in OnSerialize.
+                            // -> it's not guaranteed that calling it twice gets the
+                            //    same result
+                            // -> it's not guaranteed that calling it twice doesn't mess
+                            //    with the user's OnSerialize timing code etc.
+                            // => so we just copy the result without touching
+                            //    OnSerialize again
+                            if (comp.syncMode == SyncMode.Observers)
+                            {
+                                ArraySegment<byte> segment = ownerWriter.ToArraySegment();
+                                int length = ownerWriter.Position - startPosition;
+                                observersWriter.WriteBytes(segment.Array, startPosition, length);
+                            }
+                        }
+                        else if (comp.syncDirection == SyncDirection.CLIENT_TO_SERVER)
+                        {
+                            // serialize into observers write if mode == observers
+                            if (comp.syncMode == SyncMode.Observers)
+                            {
+                                // write index as byte [0..255]
+                                // (we are definitely going to serialize here)
+                                observersWriter.WriteByte((byte)i);
+
+                                OnSerializeSafely(comp, observersWriter, initialState);
+                            }
+                        }
+                    }
+                    else if (isClient)
+                    {
+                        // only serialize if CLIENT_TO_SERVER direction and owned
+                        if (comp.syncDirection == SyncDirection.CLIENT_TO_SERVER &&
+                            connectionToServer != null)
+                        {
+                            // write index as byte [0..255]
+                            // (we are definitely going to serialize here)
+                            observersWriter.WriteByte((byte)i);
+
+                            // serialize into owner writer
+                            OnSerializeSafely(comp, ownerWriter, initialState);
+                        }
                     }
                 }
             }
