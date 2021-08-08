@@ -149,20 +149,17 @@ namespace Mirror.Tests
         public void SerializationMismatch()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SerializeTest1NetworkBehaviour comp1,
                 out SerializeMismatchNetworkBehaviour compMiss,
-                out SerializeTest2NetworkBehaviour comp2);
+                out SerializeTest2NetworkBehaviour comp);
 
             // set some unique values to serialize
-            comp1.value = 12345;
-            comp2.value = "67890";
+            comp.value = "67890";
 
             // serialize
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // reset component values
-            comp1.value = 0;
-            comp2.value = null;
+            comp.value = null;
 
             // deserialize all
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
@@ -173,8 +170,7 @@ namespace Mirror.Tests
 
             // the mismatch component will fail, but the one before and after
             // should still work fine. that's the whole point.
-            Assert.That(comp1.value, Is.EqualTo(12345));
-            Assert.That(comp2.value, Is.EqualTo("67890"));
+            Assert.That(comp.value, Is.EqualTo("67890"));
         }
     }
 }
