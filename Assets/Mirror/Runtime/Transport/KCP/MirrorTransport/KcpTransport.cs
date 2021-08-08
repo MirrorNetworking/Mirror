@@ -7,6 +7,7 @@ using Mirror;
 
 namespace kcp2k
 {
+    [HelpURL("https://mirror-networking.gitbook.io/docs/transports/kcp-transport")]
     [DisallowMultipleComponent]
     public class KcpTransport : Transport
     {
