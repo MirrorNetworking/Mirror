@@ -123,14 +123,6 @@ namespace Mirror
         {
             //Debug.Log("NetworkBehaviour:Reset");
 
-            // Prevent adding NetworkBehaviour to NetworkManager
-            if (transform.root.GetComponentInChildren<NetworkManager>() != null)
-            {
-                Debug.LogError("NetworkBehaviour cannot be added to the same object hierarchy as NetworkManager.");
-                DestroyImmediate(this, true);
-                return;
-            }
-
             // Prevent adding NetworkBehaviour without NetworkIdentity
             // This can happen if NetworkIdentity was blocked ( see NetworkIdentity.Reset() )
             if (GetComponent<NetworkIdentity>() == null)
