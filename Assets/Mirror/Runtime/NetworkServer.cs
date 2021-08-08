@@ -929,7 +929,7 @@ namespace Mirror
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
-                    payload = payload,
+                    payload = payload
                 };
                 conn.Send(message);
             }
