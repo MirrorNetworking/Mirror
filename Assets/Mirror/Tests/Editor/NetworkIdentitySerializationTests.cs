@@ -68,7 +68,7 @@ namespace Mirror.Tests
         // OnSerializeAllSafely supports at max 64 components, because our
         // dirty mask is ulong and can only handle so many bits.
         [Test]
-        public void OnSerializeAllSafelyShouldNotLogErrorsForTooManyComponents()
+        public void TooManyComponents()
         {
             CreateNetworked(out GameObject gameObject, out NetworkIdentity identity);
 
@@ -106,7 +106,7 @@ namespace Mirror.Tests
         // insane runtime errors like monsters that look like npcs. that's what
         // happened back in the day with UNET).
         [Test]
-        public void OnDeserializeSafelyShouldDetectAndHandleDeSerializationMismatch()
+        public void SerializationMismatch()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SerializeTest1NetworkBehaviour comp1,
