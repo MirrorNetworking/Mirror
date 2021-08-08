@@ -29,7 +29,8 @@ namespace Mirror.Tests
                 out SerializeTest1NetworkBehaviour comp1,
                 out SerializeTest2NetworkBehaviour comp2);
 
-            // set some unique values to serialize
+            // set to SERVER with some unique values
+            identity.isServer = true;
             comp1.value = 12345;
             comp1.syncMode = SyncMode.Observers;
             comp2.value = "67890";
@@ -44,7 +45,9 @@ namespace Mirror.Tests
             Debug.Log("ownerWriter: " + BitConverter.ToString(ownerWriter.ToArray()));
             Debug.Log("observersWriter: " + BitConverter.ToString(observersWriter.ToArray()));
 
-            // reset component values
+            // set to CLIENT and reset component values
+            identity.isServer = false;
+            identity.isClient = true;
             comp1.value = 0;
             comp2.value = null;
 
@@ -76,7 +79,8 @@ namespace Mirror.Tests
                 out SerializeExceptionNetworkBehaviour compExc,
                 out SerializeTest2NetworkBehaviour comp2);
 
-            // set some unique values to serialize
+            // set to SERVER with some unique values
+            identity.isServer = true;
             compExc.syncMode = SyncMode.Observers;
             comp2.value = "67890";
             comp2.syncMode = SyncMode.Owner;
@@ -91,7 +95,9 @@ namespace Mirror.Tests
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
 
-            // reset component values
+            // set to CLIENT and reset component values
+            identity.isServer = false;
+            identity.isClient = true;
             comp2.value = null;
 
             // deserialize all for owner - should work even if compExc throws an exception
@@ -136,6 +142,9 @@ namespace Mirror.Tests
             _ = identity.NetworkBehaviours;
             LogAssert.ignoreFailingMessages = false;
 
+            // set to SERVER
+            identity.isServer = true;
+
             // try to serialize
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
@@ -156,13 +165,16 @@ namespace Mirror.Tests
                 out SerializeMismatchNetworkBehaviour compMiss,
                 out SerializeTest2NetworkBehaviour comp);
 
-            // set some unique values to serialize
+            // set to SERVER with some unique values
+            identity.isServer = true;
             comp.value = "67890";
 
             // serialize
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
-            // reset component values
+            // set to CLIENT and reset component values
+            identity.isServer = false;
+            identity.isClient = true;
             comp.value = null;
 
             // deserialize all
