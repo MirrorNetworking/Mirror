@@ -26,10 +26,8 @@ namespace Mirror.Tests
             NetworkWriter observersWriter = new NetworkWriter();
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
-            // owner should have written something
+            // owner & observers should have written something
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
-
-            // observers should have written something
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
 
             // reset component values
@@ -77,10 +75,8 @@ namespace Mirror.Tests
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
             LogAssert.ignoreFailingMessages = false;
 
-            // owner should have written something
+            // owner & observers should have written something
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
-
-            // observers should have written something
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
 
             // reset component values
@@ -129,7 +125,6 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             _ = identity.NetworkBehaviours;
             LogAssert.ignoreFailingMessages = false;
-
 
             // try to serialize
             NetworkWriter ownerWriter = new NetworkWriter();
