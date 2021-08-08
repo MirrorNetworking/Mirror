@@ -7,17 +7,64 @@ namespace Mirror.Tests
 {
     public class NetworkIdentitySerializationTests : MirrorEditModeTest
     {
+        // serialize -> deserialize. multiple components to be sure.
         [Test]
         public void OnSerializeAndDeserializeAllSafely()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SerializeTest1NetworkBehaviour comp1,
-                out SerializeExceptionNetworkBehaviour compExc,
                 out SerializeTest2NetworkBehaviour comp2);
 
             // set some unique values to serialize
             comp1.value = 12345;
             comp1.syncMode = SyncMode.Observers;
+            comp2.value = "67890";
+            comp2.syncMode = SyncMode.Owner;
+
+            // serialize all
+            NetworkWriter ownerWriter = new NetworkWriter();
+            NetworkWriter observersWriter = new NetworkWriter();
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+
+            // owner should have written something
+            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
+
+            // observers should have written something
+            Assert.That(observersWriter.Position, Is.GreaterThan(0));
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all for owner
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            identity.OnDeserializeAllSafely(reader, true);
+            Assert.That(comp1.value, Is.EqualTo(12345));
+            Assert.That(comp2.value, Is.EqualTo("67890"));
+
+            // reset component values
+            comp1.value = 0;
+            comp2.value = null;
+
+            // deserialize all for observers
+            reader = new NetworkReader(observersWriter.ToArray());
+            identity.OnDeserializeAllSafely(reader, true);
+            // observers mode, should be in data
+            Assert.That(comp1.value, Is.EqualTo(12345));
+            // owner mode, should not be in data
+            Assert.That(comp2.value, Is.EqualTo(null));
+        }
+
+        // serialization should work even if a component throws an exception.
+        // so if first component throws, second should still be serialized fine.
+        [Test]
+        public void SerializationException()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SerializeExceptionNetworkBehaviour compExc,
+                out SerializeTest2NetworkBehaviour comp2);
+
+            // set some unique values to serialize
             compExc.syncMode = SyncMode.Observers;
             comp2.value = "67890";
             comp2.syncMode = SyncMode.Owner;
@@ -37,7 +84,6 @@ namespace Mirror.Tests
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
 
             // reset component values
-            comp1.value = 0;
             comp2.value = null;
 
             // deserialize all for owner - should work even if compExc throws an exception
@@ -46,11 +92,9 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);
             LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp1.value, Is.EqualTo(12345));
             Assert.That(comp2.value, Is.EqualTo("67890"));
 
             // reset component values
-            comp1.value = 0;
             comp2.value = null;
 
             // deserialize all for observers - should work even if compExc throws an exception
@@ -59,8 +103,6 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = true;
             identity.OnDeserializeAllSafely(reader, true);
             LogAssert.ignoreFailingMessages = false;
-            // observers mode, should be in data
-            Assert.That(comp1.value, Is.EqualTo(12345));
             // owner mode, should not be in data
             Assert.That(comp2.value, Is.EqualTo(null));
         }
