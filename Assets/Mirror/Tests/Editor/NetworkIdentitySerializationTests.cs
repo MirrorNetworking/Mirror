@@ -74,7 +74,7 @@ namespace Mirror.Tests
         // one for Owner, one for Observer
         // one SERVER_TO_CLIENT, one CLIENT_TO_SERVER
         [Test]
-        public void OnSerializeAndDeserializeAllSafely_CLIENT_TO_SERVER()
+        public void OnSerializeAndDeserializeAllSafely_CLIENT_TO_SERVER_OWNED()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SerializeTest1NetworkBehaviour comp1,
@@ -112,6 +112,34 @@ namespace Mirror.Tests
             // reset component values
             comp1.value = 0;
             comp2.value = null;
+        }
+
+        // serialize -> deserialize. multiple components to be sure.
+        // one for Owner, one for Observer
+        // one SERVER_TO_CLIENT, one CLIENT_TO_SERVER
+        [Test]
+        public void OnSerializeAndDeserializeAllSafely_CLIENT_TO_SERVER_NOT_OWNED()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SerializeTest1NetworkBehaviour comp1,
+                out SerializeTest2NetworkBehaviour comp2);
+
+            // set to CLIENT with some unique values
+            // and set connection to server to pretend we are the owner.
+            identity.isClient = true;
+            identity.connectionToServer = null; // NOT OWNED
+            comp1.syncDirection = SyncDirection.SERVER_TO_CLIENT;
+            comp1.value = 12345;
+            comp2.syncDirection = SyncDirection.CLIENT_TO_SERVER;
+            comp2.value = "67890";
+
+            // serialize all
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+
+            // shouldn't sync anything. because even thougn it's CLIENT_TO_SERVER,
+            // we don't own this one so we shouldn't serialize & sync it.
+            Assert.That(ownerWriter.Position, Is.EqualTo(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));
         }
 
         // serialization should work even if a component throws an exception.
