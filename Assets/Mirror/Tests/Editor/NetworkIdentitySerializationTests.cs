@@ -23,7 +23,7 @@ namespace Mirror.Tests
         // serialize -> deserialize. multiple components to be sure.
         // one for Owner, one for Observer
         [Test]
-        public void OnSerializeAndDeserializeAllSafely()
+        public void OnSerializeAndDeserializeAllSafely_SERVER_TO_CLIENT()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SerializeTest1NetworkBehaviour comp1,
