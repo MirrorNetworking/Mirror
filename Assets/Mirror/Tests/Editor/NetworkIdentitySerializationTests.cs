@@ -120,9 +120,7 @@ namespace Mirror.Tests
 
             // add 65 components
             for (int i = 0; i < 65; ++i)
-            {
                 gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            }
 
             // CreateNetworked already initializes the components.
             // let's reset and initialize again with the added ones.
