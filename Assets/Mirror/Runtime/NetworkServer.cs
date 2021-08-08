@@ -893,7 +893,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, out bool _, observersWriter, out bool _);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // convert to ArraySegment to avoid reader allocations
             // if nothing was written, .ToArraySegment returns an empty segment.
@@ -1490,14 +1490,14 @@ namespace Mirror
             if (owned)
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWritten)
+                if (serialization.ownerWriter.Position > 0)
                     return serialization.ownerWriter;
             }
             // observers writer if not owned
             else
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.observersWritten)
+                if (serialization.observersWriter.Position > 0)
                     return serialization.observersWriter;
             }
 

@@ -758,14 +758,14 @@ namespace Mirror.Tests
             NetworkWriter observersWriter = new NetworkWriter();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.OnSerializeAllSafely(true, ownerWriter, out bool ownerWritten, observersWriter, out bool observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
             LogAssert.ignoreFailingMessages = false;
 
             // owner should have written something
-            Assert.That(ownerWritten, Is.EqualTo(true));
+            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
 
             // observers should have written something
-            Assert.That(observersWritten, Is.EqualTo(true));
+            Assert.That(observersWriter.Position, Is.GreaterThan(0));
 
             // reset component values
             comp1.value = 0;
@@ -824,13 +824,11 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
 
-            identity.OnSerializeAllSafely(true, ownerWriter, out bool ownerWritten, observersWriter, out bool observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // Should still write with too mnany Components because NetworkBehavioursCache should handle the error
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
-            Assert.That(ownerWritten, Is.True);
-            Assert.That(observersWritten, Is.True);
         }
 
         [Test]
@@ -874,7 +872,7 @@ namespace Mirror.Tests
             // serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            identity.OnSerializeAllSafely(true, ownerWriter, out bool _, observersWriter, out bool _);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // reset component values
             comp1.value = 0;

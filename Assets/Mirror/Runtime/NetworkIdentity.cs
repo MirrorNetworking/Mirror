@@ -28,9 +28,6 @@ namespace Mirror
         public int tick;
         public NetworkWriter ownerWriter;
         public NetworkWriter observersWriter;
-        // TODO there is probably a more simple way later
-        public bool ownerWritten;
-        public bool observersWritten;
     }
 
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
@@ -871,11 +868,8 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out bool ownerWritten, NetworkWriter observersWriter, out bool observersWritten)
+        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
-            // clear 'written' variables
-            ownerWritten = observersWritten = false;
-
             // check if components are in byte.MaxRange just to be 100% sure
             // that we avoid overflows
             NetworkBehaviour[] components = NetworkBehaviours;
@@ -903,7 +897,6 @@ namespace Mirror
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
                     OnSerializeSafely(comp, ownerWriter, initialState);
-                    ownerWritten = true;
 
                     // copy into observersWriter too if SyncMode.Observers
                     // -> we copy instead of calling OnSerialize again because
@@ -919,7 +912,6 @@ namespace Mirror
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
                         int length = ownerWriter.Position - startPosition;
                         observersWriter.WriteBytes(segment.Array, startPosition, length);
-                        observersWritten = true;
                     }
                 }
             }
@@ -940,9 +932,7 @@ namespace Mirror
                 // serialize
                 OnSerializeAllSafely(false,
                                      lastSerialization.ownerWriter,
-                                     out lastSerialization.ownerWritten,
-                                     lastSerialization.observersWriter,
-                                     out lastSerialization.observersWritten);
+                                     lastSerialization.observersWriter);
 
                 // set tick
                 lastSerialization.tick = tick;

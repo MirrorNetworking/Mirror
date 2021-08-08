@@ -154,7 +154,7 @@ namespace Mirror.Tests.SyncVarTests
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            identity1.OnSerializeAllSafely(true, ownerWriter, out bool _, observersWriter, out bool _);
+            identity1.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // set up a "client" object
             CreateNetworked(out GameObject gameObject2, out NetworkIdentity identity2, out MockPlayer player2);
@@ -417,7 +417,7 @@ namespace Mirror.Tests.SyncVarTests
             NetworkWriter ownerWriter = new NetworkWriter();
             // not really used in this Test
             NetworkWriter observersWriter = new NetworkWriter();
-            serverIdentity.OnSerializeAllSafely(true, ownerWriter, out bool _, observersWriter, out bool _);
+            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // set up a "client" object
             CreateNetworked(out _, out NetworkIdentity clientIdentity, out SyncVarAbstractNetworkBehaviour clientBehaviour);
