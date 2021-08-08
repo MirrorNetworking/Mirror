@@ -107,6 +107,7 @@ namespace Mirror
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sync Settings", EditorStyles.boldLabel);
 
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncDirection"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
 
