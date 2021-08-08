@@ -7,6 +7,18 @@ namespace Mirror.Tests
 {
     public class NetworkIdentitySerializationTests : MirrorEditModeTest
     {
+        // writers are always needed. create in setup for convenience.
+        NetworkWriter ownerWriter;
+        NetworkWriter observersWriter;
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            ownerWriter = new NetworkWriter();
+            observersWriter = new NetworkWriter();
+        }
+
         // serialize -> deserialize. multiple components to be sure.
         [Test]
         public void OnSerializeAndDeserializeAllSafely()
@@ -22,8 +34,6 @@ namespace Mirror.Tests
             comp2.syncMode = SyncMode.Owner;
 
             // serialize all
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // owner & observers should have written something
@@ -68,8 +78,6 @@ namespace Mirror.Tests
             comp2.syncMode = SyncMode.Owner;
 
             // serialize all - should work even if compExc throws an exception
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
@@ -127,9 +135,6 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = false;
 
             // try to serialize
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
-
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // Should still write with too many Components because NetworkBehavioursCache should handle the error
@@ -155,8 +160,6 @@ namespace Mirror.Tests
             comp2.value = "67890";
 
             // serialize
-            NetworkWriter ownerWriter = new NetworkWriter();
-            NetworkWriter observersWriter = new NetworkWriter();
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // reset component values
