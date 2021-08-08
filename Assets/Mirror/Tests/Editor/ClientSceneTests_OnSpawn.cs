@@ -539,7 +539,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            serverIdentity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            serverIdentity.OnSerializeAllSafely(true, ownerWriter, out bool _, observersWriter, out bool _);
 
             // check that Serialize was called
             Assert.That(onSerializeCalled, Is.EqualTo(1));

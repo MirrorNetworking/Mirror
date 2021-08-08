@@ -893,12 +893,12 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out bool ownerWritten, observersWriter, out bool observersWritten);
 
             // convert to ArraySegment to avoid reader allocations
             // (need to handle null case too)
-            ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
-            ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
+            ArraySegment<byte> ownerSegment = ownerWritten ? ownerWriter.ToArraySegment() : default;
+            ArraySegment<byte> observersSegment = observersWritten ? observersWriter.ToArraySegment() : default;
 
             // use owner segment if 'conn' owns this identity, otherwise
             // use observers segment
@@ -1490,14 +1490,14 @@ namespace Mirror
             if (owned)
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWritten > 0)
+                if (serialization.ownerWritten)
                     return serialization.ownerWriter;
             }
             // observers writer if not owned
             else
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.observersWritten > 0)
+                if (serialization.observersWritten)
                     return serialization.observersWriter;
             }
 

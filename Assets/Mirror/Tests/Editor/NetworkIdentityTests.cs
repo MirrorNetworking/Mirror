@@ -758,14 +758,14 @@ namespace Mirror.Tests
             NetworkWriter observersWriter = new NetworkWriter();
             // error log because of the exception is expected
             LogAssert.ignoreFailingMessages = true;
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out bool ownerWritten, observersWriter, out bool observersWritten);
             LogAssert.ignoreFailingMessages = false;
 
-            // owner should have written all components
-            Assert.That(ownerWritten, Is.EqualTo(3));
+            // owner should have written something
+            Assert.That(ownerWritten, Is.EqualTo(true));
 
-            // observers should have written only the observers components
-            Assert.That(observersWritten, Is.EqualTo(2));
+            // observers should have written something
+            Assert.That(observersWritten, Is.EqualTo(true));
 
             // reset component values
             comp1.value = 0;
@@ -824,13 +824,13 @@ namespace Mirror.Tests
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
 
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out bool ownerWritten, observersWriter, out bool observersWritten);
 
-            // Should still write with too mnay Components because NetworkBehavioursCache should handle the error
+            // Should still write with too mnany Components because NetworkBehavioursCache should handle the error
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
-            Assert.That(ownerWritten, Is.GreaterThan(0));
-            Assert.That(observersWritten, Is.GreaterThan(0));
+            Assert.That(ownerWritten, Is.True);
+            Assert.That(observersWritten, Is.True);
         }
 
         [Test]
@@ -874,7 +874,7 @@ namespace Mirror.Tests
             // serialize
             NetworkWriter ownerWriter = new NetworkWriter();
             NetworkWriter observersWriter = new NetworkWriter();
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, out bool _, observersWriter, out bool _);
 
             // reset component values
             comp1.value = 0;

@@ -29,8 +29,8 @@ namespace Mirror
         public NetworkWriter ownerWriter;
         public NetworkWriter observersWriter;
         // TODO there is probably a more simple way later
-        public int ownerWritten;
-        public int observersWritten;
+        public bool ownerWritten;
+        public bool observersWritten;
     }
 
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
@@ -871,10 +871,10 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
+        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out bool ownerWritten, NetworkWriter observersWriter, out bool observersWritten)
         {
             // clear 'written' variables
-            ownerWritten = observersWritten = 0;
+            ownerWritten = observersWritten = false;
 
             // check if components are in byte.MaxRange just to be 100% sure
             // that we avoid overflows
@@ -903,7 +903,7 @@ namespace Mirror
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
                     OnSerializeSafely(comp, ownerWriter, initialState);
-                    ++ownerWritten;
+                    ownerWritten = true;
 
                     // copy into observersWriter too if SyncMode.Observers
                     // -> we copy instead of calling OnSerialize again because
@@ -919,7 +919,7 @@ namespace Mirror
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
                         int length = ownerWriter.Position - startPosition;
                         observersWriter.WriteBytes(segment.Array, startPosition, length);
-                        ++observersWritten;
+                        observersWritten = true;
                     }
                 }
             }
