@@ -957,7 +957,7 @@ namespace Mirror
                         {
                             // write index as byte [0..255]
                             // (we are definitely going to serialize here)
-                            observersWriter.WriteByte((byte)i);
+                            ownerWriter.WriteByte((byte)i);
 
                             // serialize into owner writer
                             OnSerializeSafely(comp, ownerWriter, initialState);
