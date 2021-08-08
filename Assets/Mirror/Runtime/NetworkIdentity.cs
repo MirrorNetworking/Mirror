@@ -887,6 +887,25 @@ namespace Mirror
                 {
                     // Debug.Log("OnSerializeAllSafely: " + name + " -> " + comp.GetType() + " initial=" + initialState);
 
+                    // we need to consider different sync scenarios:
+                    //
+                    // if server:
+                    //     SERVER_TO_CLIENT:
+                    //       always serialize for owner.
+                    //       serialize for observers only if SyncMode == Observers.
+                    //
+                    //     CLIENT_TO_SERVER:
+                    //       never serialize for owner. owner client knows state.
+                    //       serialize for observers only if SyncMode == Observers.
+                    //
+                    // if client:
+                    //     SERVER_TO_CLIENT:
+                    //       do nothing.
+                    //     CLIENT_TO_SERVER:
+                    //       serialize only if owned.
+                    //
+                    // if host mode: see 'if server'
+
                     // remember start position in case we need to copy it into
                     // observers writer too
                     int startPosition = ownerWriter.Position;
