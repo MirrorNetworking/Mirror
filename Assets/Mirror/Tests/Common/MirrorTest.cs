@@ -41,8 +41,6 @@ namespace Mirror.Tests
                 if (go != null)
                     GameObject.DestroyImmediate(go);
 
-            NetworkIdentity.spawned.Clear();
-
             GameObject.DestroyImmediate(transport.gameObject);
             Transport.activeTransport = null;
         }
