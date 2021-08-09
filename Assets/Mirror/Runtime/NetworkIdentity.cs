@@ -151,10 +151,11 @@ namespace Mirror
                 // client
                 if (NetworkClient.active) return NetworkClient.spawned;
 
-                // neither: then we are testing. for now, keep compatibility
-                // with old tests where we could use .spawned without starting
-                // server or client. so for now, route them to server.spawned.
-                return NetworkServer.spawned;
+                // neither: then we are testing.
+                // we could default to NetworkServer.spawned.
+                // but from the outside, that's not obvious.
+                // better to throw an exception to make it obvious.
+                throw new Exception("NetworkIdentity.spawned was accessed before NetworkServer/NetworkClient were active.");
             }
         }
 
