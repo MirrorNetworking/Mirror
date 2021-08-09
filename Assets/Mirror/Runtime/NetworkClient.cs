@@ -1413,6 +1413,7 @@ namespace Mirror
             DestroyAllClientObjects();
             connectState = ConnectState.None;
             handlers.Clear();
+            spawned.Clear();
             // disconnect the client connection.
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
