@@ -58,7 +58,7 @@ namespace Mirror.Tests.ClientSceneTests
 
     public class ClientSceneTests_OnSpawn : ClientSceneTestsBase
     {
-        Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
+        Dictionary<uint, NetworkIdentity> spawned => NetworkClient.spawned;
 
         [TearDown]
         public override void TearDown()
