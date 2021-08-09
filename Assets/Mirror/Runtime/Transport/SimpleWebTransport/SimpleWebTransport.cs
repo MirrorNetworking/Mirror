@@ -101,7 +101,7 @@ namespace Mirror.SimpleWeb
             return maxMessageSize;
         }
 
-        void Awake()
+        public override void Setup()
         {
             Log.level = _logLevels;
         }

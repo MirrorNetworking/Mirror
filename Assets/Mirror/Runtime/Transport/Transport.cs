@@ -48,6 +48,9 @@ namespace Mirror
         /// <summary>Called by Transport when the client disconnected from the server.</summary>
         public Action OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
 
+        /// <summary>Called by the NetworkManager's Awake/Start to avoid using Awake in Transports so that it's more easily added in runtime</summary>
+        public abstract void Setup();
+
         /// <summary>True if the client is currently connected to the server.</summary>
         public abstract bool ClientConnected();
 

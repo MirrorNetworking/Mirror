@@ -189,6 +189,13 @@ namespace Mirror
 
             // setup OnSceneLoaded callback
             SceneManager.sceneLoaded += OnSceneLoaded;
+
+            // Default transport setup behaviour
+            // If you want to decide Transport at runtime, override this Awake and run Setup on the created Transport
+            if(transport != null)
+			{
+                transport.Setup();
+			}
         }
 
         // virtual so that inheriting classes' Start() can call base.Start() too

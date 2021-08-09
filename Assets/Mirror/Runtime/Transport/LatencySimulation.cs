@@ -56,7 +56,7 @@ namespace Mirror
         // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
         System.Random random = new System.Random();
 
-        public void Awake()
+        public override void Setup()
         {
             if (wrap == null)
                 throw new Exception("PressureDrop requires an underlying transport to wrap around.");

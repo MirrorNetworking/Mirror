@@ -50,7 +50,7 @@ namespace kcp2k
         // log statistics for headless servers that can't show them in GUI
         public bool statisticsLog;
 
-        void Awake()
+        public override void Setup()
         {
             // logging
             //   Log.Info should use Debug.Log if enabled, or nothing otherwise

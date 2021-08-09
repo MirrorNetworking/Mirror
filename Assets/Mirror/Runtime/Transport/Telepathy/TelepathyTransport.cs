@@ -61,7 +61,7 @@ namespace Mirror
         // let's only allocate it once.
         Func<bool> enabledCheck;
 
-        void Awake()
+        public override void Setup()
         {
             // tell Telepathy to use Unity's Debug.Log
             Telepathy.Log.Info = Debug.Log;

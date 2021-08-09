@@ -17,7 +17,7 @@ namespace Mirror
         // the first transport that is available on this platform
         Transport available;
 
-        public void Awake()
+        public override void Setup()
         {
             if (transports == null || transports.Length == 0)
             {

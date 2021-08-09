@@ -14,6 +14,11 @@ namespace Mirror
         /// </summary>
         public Transport inner;
 
+        public override void Setup()
+		{
+
+		}
+
         public override bool Available() => inner.Available();
         public override int GetMaxPacketSize(int channelId = 0) => inner.GetMaxPacketSize(channelId);
         public override void Shutdown() => inner.Shutdown();
