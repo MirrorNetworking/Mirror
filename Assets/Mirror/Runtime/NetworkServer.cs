@@ -123,7 +123,7 @@ namespace Mirror
         }
 
         // Note: NetworkClient.DestroyAllClientObjects does the same on client.
-        static void CleanupNetworkIdentities()
+        static void CleanupSpawned()
         {
             // iterate a COPY of NetworkIdentity.spawned.
             // DestroyObject removes them from the original collection.
@@ -176,7 +176,7 @@ namespace Mirror
             active = false;
             handlers.Clear();
 
-            CleanupNetworkIdentities();
+            CleanupSpawned();
             NetworkIdentity.ResetNextNetworkId();
 
             // clear events. someone might have hooked into them before, but
