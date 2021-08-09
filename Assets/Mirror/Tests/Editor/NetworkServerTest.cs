@@ -762,17 +762,10 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
-            // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
-            identity.netId = 42;
+            // add an identity with two networkbehaviour components.
+            // spawned, otherwise command handler won't find it in .spawned.
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1, connectionToClient);
             identity.isLocalPlayer = true;
-            // for authority check
-            identity.connectionToClient = connectionToClient;
-            connectionToClient.identity = identity;
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
 
             // call the command
             comp1.TestCommand();
