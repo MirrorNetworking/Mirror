@@ -499,7 +499,6 @@ namespace Mirror
                 GUI.color = Color.white;
             }
         }
-        #endif
 
         protected virtual void DrawGizmos(SortedList<double, NTSnapshot> buffer)
         {
@@ -536,5 +535,6 @@ namespace Mirror
             if (isServer) DrawGizmos(serverBuffer);
             if (isClient) DrawGizmos(clientBuffer);
         }
+        #endif
     }
 }
