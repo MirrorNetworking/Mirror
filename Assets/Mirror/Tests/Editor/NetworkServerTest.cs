@@ -737,8 +737,8 @@ namespace Mirror.Tests
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp, connectionToClient);
-            identity.isLocalPlayer = true;
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp, connectionToClient);
 
             // call the command
             comp.TestCommand();
@@ -757,8 +757,8 @@ namespace Mirror.Tests
 
             // add an identity with two networkbehaviour components.
             // spawned, otherwise command handler won't find it in .spawned.
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1, connectionToClient);
-            identity.isLocalPlayer = true;
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1, connectionToClient);
 
             // call the command
             comp1.TestCommand();
@@ -776,8 +776,8 @@ namespace Mirror.Tests
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
+            // WITH OWNER = WITH AUTHORITY
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp, connectionToClient);
-            identity.isLocalPlayer = true;
 
             // change identity's owner connection so we can't call [Commands] on it
             identity.connectionToClient = new LocalConnectionToClient();
