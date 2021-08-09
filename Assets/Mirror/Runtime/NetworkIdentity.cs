@@ -136,8 +136,27 @@ namespace Mirror
         /// <summary>All spawned NetworkIdentities by netId. Available on server and client.</summary>
         // server sees ALL spawned ones.
         // client sees OBSERVED spawned ones.
-        public static readonly Dictionary<uint, NetworkIdentity> spawned =
-            new Dictionary<uint, NetworkIdentity>();
+        // => split into NetworkServer.spawned and NetworkClient.spawned to
+        //    reduce shared state between server & client.
+        // => prepares for NetworkServer/Client as component & better host mode.
+        [Obsolete("NetworkIdentity.spawned is now NetworkServer.spawned on server, NetworkClient.spawned on client.\nPrepares for NetworkServer/Client as component, better host mode, better testing.")]
+        public static Dictionary<uint, NetworkIdentity> spawned
+        {
+            get
+            {
+                // server / host mode: use the one from server.
+                // host mode has access to all spawned.
+                if (NetworkServer.active) return NetworkServer.spawned;
+
+                // client
+                if (NetworkClient.active) return NetworkClient.spawned;
+
+                // neither: then we are testing. for now, keep compatibility
+                // with old tests where we could use .spawned without starting
+                // server or client. so for now, route them to server.spawned.
+                return NetworkServer.spawned;
+            }
+        }
 
         // get all NetworkBehaviour components
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
