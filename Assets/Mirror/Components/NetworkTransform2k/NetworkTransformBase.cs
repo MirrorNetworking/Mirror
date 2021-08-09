@@ -459,6 +459,7 @@ namespace Mirror
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
 
+        #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
         {
@@ -498,6 +499,7 @@ namespace Mirror
                 GUI.color = Color.white;
             }
         }
+        #endif
 
         protected virtual void DrawGizmos(SortedList<double, NTSnapshot> buffer)
         {
