@@ -9,26 +9,19 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onVirtualSendInt;
 
         [Command]
-        public virtual void CmdSendInt(int someInt)
-        {
+        public virtual void CmdSendInt(int someInt) =>
             onVirtualSendInt?.Invoke(someInt);
-        }
     }
 
-    class VirtualNoOverrideCommand : VirtualCommand
-    {
-
-    }
+    class VirtualNoOverrideCommand : VirtualCommand {}
 
     class VirtualOverrideCommand : VirtualCommand
     {
         public event Action<int> onOverrideSendInt;
 
         [Command]
-        public override void CmdSendInt(int someInt)
-        {
+        public override void CmdSendInt(int someInt) =>
             onOverrideSendInt?.Invoke(someInt);
-        }
     }
 
     class VirtualOverrideCommandWithBase : VirtualCommand
@@ -43,9 +36,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
-    /// <summary>
-    /// test for 2 overrides
-    /// </summary>
+    // test for 2 overrides
     class VirtualOverrideCommandWithBase2 : VirtualOverrideCommandWithBase
     {
         public event Action<int> onOverrideSendInt2;

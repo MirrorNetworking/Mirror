@@ -10,10 +10,8 @@ namespace Mirror.Tests.ClientSceneTests
         {
             NetworkClient.prefabs.Add(Guid.NewGuid(), null);
             NetworkClient.prefabs.Add(Guid.NewGuid(), null);
-            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
 
             NetworkClient.ClearSpawners();
-
             Assert.IsEmpty(NetworkClient.prefabs);
         }
 
@@ -22,17 +20,14 @@ namespace Mirror.Tests.ClientSceneTests
         {
             NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
             NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
-            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
 
             NetworkClient.ClearSpawners();
-
             Assert.IsEmpty(NetworkClient.spawnHandlers);
         }
 
         [Test]
         public void RemovesAllUnspawnHandlersFromDictionary()
         {
-            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
             NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
             NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
 
@@ -46,13 +41,10 @@ namespace Mirror.Tests.ClientSceneTests
         {
             NetworkClient.prefabs.Add(Guid.NewGuid(), null);
             NetworkClient.prefabs.Add(Guid.NewGuid(), null);
-            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
 
             NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
             NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
-            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
 
-            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
             NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
             NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
 

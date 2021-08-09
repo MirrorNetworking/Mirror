@@ -376,10 +376,12 @@ namespace Mirror
             // and short circuit running the Shutdown process twice.
             if (connectState == ConnectState.Disconnected) return;
 
+            // Raise the event before changing ConnectState
+            // because 'active' depends on this during shutdown
+            if (connection != null) OnDisconnectedEvent?.Invoke();
+
             connectState = ConnectState.Disconnected;
             ready = false;
-
-            if (connection != null) OnDisconnectedEvent?.Invoke();
 
             // now that everything was handled, clear the connection.
             // previously this was done in Disconnect() already, but we still
@@ -1398,7 +1400,7 @@ namespace Mirror
         /// <summary>Shutdown the client.</summary>
         public static void Shutdown()
         {
-            Debug.Log("Shutting down client.");
+            //Debug.Log("Shutting down client.");
             ClearSpawners();
             spawnableObjects.Clear();
             ready = false;

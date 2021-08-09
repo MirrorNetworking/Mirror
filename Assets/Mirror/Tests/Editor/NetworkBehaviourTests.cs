@@ -99,10 +99,8 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarGameObject wrapper to expose it
-        public void SetSyncVarGameObjectExposed(GameObject newGameObject, ulong dirtyBit)
-        {
+        public void SetSyncVarGameObjectExposed(GameObject newGameObject, ulong dirtyBit) =>
             SetSyncVarGameObject(newGameObject, ref test, dirtyBit, ref testNetId);
-        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -114,10 +112,8 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarGameObject wrapper to expose it
-        public GameObject GetSyncVarGameObjectExposed()
-        {
-            return GetSyncVarGameObject(testNetId, ref test);
-        }
+        public GameObject GetSyncVarGameObjectExposed() =>
+            GetSyncVarGameObject(testNetId, ref test);
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -129,10 +125,8 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarNetworkIdentity wrapper to expose it
-        public void SetSyncVarNetworkIdentityExposed(NetworkIdentity newNetworkIdentity, ulong dirtyBit)
-        {
+        public void SetSyncVarNetworkIdentityExposed(NetworkIdentity newNetworkIdentity, ulong dirtyBit) =>
             SetSyncVarNetworkIdentity(newNetworkIdentity, ref test, dirtyBit, ref testNetId);
-        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
@@ -144,49 +138,36 @@ namespace Mirror.Tests
         public uint testNetId;
 
         // SetSyncVarNetworkIdentity wrapper to expose it
-        public NetworkIdentity GetSyncVarNetworkIdentityExposed()
-        {
-            return GetSyncVarNetworkIdentity(testNetId, ref test);
-        }
+        public NetworkIdentity GetSyncVarNetworkIdentityExposed() =>
+            GetSyncVarNetworkIdentity(testNetId, ref test);
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourInitSyncObjectExposed : NetworkBehaviour
     {
-        public void InitSyncObjectExposed(SyncObject obj)
-        {
+        public void InitSyncObjectExposed(SyncObject obj) =>
             InitSyncObject(obj);
-        }
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class OnStopClientComponent : NetworkBehaviour
     {
         public int called;
-        public override void OnStopClient()
-        {
-            ++called;
-        }
+        public override void OnStopClient() => ++called;
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class OnStartClientComponent : NetworkBehaviour
     {
         public int called;
-        public override void OnStartClient()
-        {
-            ++called;
-        }
+        public override void OnStartClient() => ++called;
     }
 
     // we need to inherit from networkbehaviour to test protected functions
     public class OnStartLocalPlayerComponent : NetworkBehaviour
     {
         public int called;
-        public override void OnStartLocalPlayer()
-        {
-            ++called;
-        }
+        public override void OnStartLocalPlayer() => ++called;
     }
 
     public class NetworkBehaviourTests : MirrorEditModeTest
@@ -201,7 +182,7 @@ namespace Mirror.Tests
         [Test]
         public void IsServerOnly()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
 
             // call OnStartServer so isServer is true
             identity.OnStartServer();
@@ -216,7 +197,7 @@ namespace Mirror.Tests
         [Test]
         public void IsClientOnly()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
 
             // isClientOnly should be true when isServer = false && isClient = true
             identity.isClient = true;
@@ -229,14 +210,14 @@ namespace Mirror.Tests
         public void HasNoAuthorityByDefault()
         {
             // no authority by default
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out _, out EmptyBehaviour emptyBehaviour);
             Assert.That(emptyBehaviour.hasAuthority, Is.False);
         }
 
         [Test]
         public void HasIdentitysNetId()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.netId = 42;
             Assert.That(emptyBehaviour.netId, Is.EqualTo(42));
         }
@@ -244,7 +225,7 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToServer()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.connectionToServer = new LocalConnectionToServer();
             Assert.That(emptyBehaviour.connectionToServer, Is.EqualTo(identity.connectionToServer));
         }
@@ -252,7 +233,7 @@ namespace Mirror.Tests
         [Test]
         public void HasIdentitysConnectionToClient()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
+            CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
             identity.connectionToClient = new LocalConnectionToClient();
             Assert.That(emptyBehaviour.connectionToClient, Is.EqualTo(identity.connectionToClient));
         }
@@ -269,215 +250,11 @@ namespace Mirror.Tests
         [Test, Ignore("NetworkServerTest.SendCommand does it already")]
         public void SendCommandInternal() {}
 
-        // test to prevent https://github.com/vis2k/Mirror/issues/2629
-        // from happening again in the future
-        // -> [Command]s can be called on other objects with requiresAuthority=false.
-        // -> those objects don't have a .connectionToServer
-        // -> we broke it when using .connectionToServer instead of
-        //    NetworkClient.connection in SendCommandInternal.
-        [Test]
-        public void SendCommandInternal_RequiresAuthorityFalse_ForOtherObjectWithoutConnectionToServer()
-        {
-            // we need to start a server and connect a client in order to be
-            // able to send commands
-            // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
+        [Test, Ignore("ClientRpcTest.cs tests Rpcs already")]
+        public void SendRPCInternal() {}
 
-            // create a connection from client to server and from server to client
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient,
-                                      out LocalConnectionToServer connectionToServer);
-            connectionToClient.isReady = true;
-            connectionToClient.isAuthenticated = true;
-            connectionToServer.isReady = true;
-            connectionToServer.isAuthenticated = true;
-
-            // connect client
-            NetworkClient.Connect("localhost");
-            Assert.That(NetworkClient.active, Is.True);
-
-            // add command component
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourSendCommandInternalComponent comp);
-
-            // DO NOT ASSIGN connectionToServer for the identity
-
-            // isClient needs to be true, otherwise we can't call commands
-            identity.isClient = true;
-
-            // register our connection at the server so that it sets up the
-            // connection's handlers
-            NetworkServer.AddConnection(connectionToClient);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendCommandInternalComponent),
-                    nameof(NetworkBehaviourSendCommandInternalComponent.CommandGenerated),
-                    MirrorInvokeType.Command,
-                    NetworkBehaviourSendCommandInternalComponent.CommandGenerated,
-                    false);
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // clientscene.readyconnection needs to be set for commands
-            NetworkClient.connection = connectionToServer;
-            NetworkClient.Ready();
-
-            // call command. don't require authority.
-            // the object doesn't have a .connectionToClient (like a scene object)
-            comp.CallSendCommandInternal(false);
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
-
-        [Test]
-        public void SendRPCInternal()
-        {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendRPCInternalComponent comp);
-
-            // calling rpc before server is active shouldn't work
-            LogAssert.Expect(LogType.Error, "RPC Function " + nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated) + " called on Client.");
-            comp.CallSendRPCInternal();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // we need to start a server and connect a client in order to be
-            // able to send commands
-            // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
-
-            // connect host client
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.active, Is.True);
-
-            // get the host connection which already has client->server and
-            // server->client set up
-            LocalConnectionToServer connectionToServer = (LocalConnectionToServer)NetworkClient.connection;
-
-            // set host connection as ready and authenticated
-            connectionToServer.isReady = true;
-            connectionToServer.isAuthenticated = true;
-            connectionToServer.connectionToClient.isReady = true;
-            connectionToServer.connectionToClient.isAuthenticated = true;
-            connectionToServer.connectionToClient.identity = identity;
-
-            // calling rpc before isServer is true shouldn't work
-            LogAssert.Expect(LogType.Warning, "ClientRpc " + nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated) + " called on un-spawned object: " + gameObject.name);
-            comp.CallSendRPCInternal();
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // we need an observer because sendrpc sends to ready observers
-            // creates observers
-            identity.OnStartServer();
-            identity.observers[connectionToServer.connectionToClient.connectionId] = connectionToServer.connectionToClient;
-
-            // isServer needs to be true, otherwise we can't call rpcs
-            Assert.That(comp.isServer, Is.True);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendRPCInternalComponent),
-                nameof(NetworkBehaviourSendRPCInternalComponent.RPCGenerated),
-                MirrorInvokeType.ClientRpc,
-                NetworkBehaviourSendRPCInternalComponent.RPCGenerated);
-
-            // identity needs to be in spawned dict, otherwise rpc handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call rpc
-            comp.CallSendRPCInternal();
-
-            // update client's connection so that pending messages are processed
-            connectionToServer.Update();
-
-            // rpc should have been called now
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-            // clear clientscene.readyconnection
-            NetworkServer.RemoveLocalConnection();
-        }
-
-        [Test]
-        public void SendTargetRPCInternal()
-        {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSendTargetRPCInternalComponent comp);
-
-            // calling rpc before server is active shouldn't work
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called when server not active");
-            comp.CallSendTargetRPCInternal(null);
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // we need to start a server and connect a client in order to be
-            // able to send commands
-            // message handlers
-            NetworkServer.RegisterHandler<SpawnMessage>((conn, msg) => {}, false);
-            NetworkServer.Listen(1);
-            Assert.That(NetworkServer.active, Is.True);
-
-            // connect host client
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.active, Is.True);
-
-            // get the host connection which already has client->server and
-            // server->client set up
-            LocalConnectionToServer connectionToServer = (LocalConnectionToServer)NetworkClient.connection;
-
-            // set host connection as ready and authenticated
-            connectionToServer.isReady = true;
-            connectionToServer.isAuthenticated = true;
-            connectionToServer.connectionToClient.isReady = true;
-            connectionToServer.connectionToClient.isAuthenticated = true;
-            connectionToServer.connectionToClient.identity = identity;
-
-            // calling rpc before isServer is true shouldn't work
-            LogAssert.Expect(LogType.Warning, $"TargetRpc {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} called on {gameObject.name} but that object has not been spawned or has been unspawned");
-            comp.CallSendTargetRPCInternal(null);
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // call OnStartServer so isServer is true
-            identity.OnStartServer();
-
-            // calling rpc on connectionToServer shouldn't work
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated)} requires a NetworkConnectionToClient but was given {typeof(NetworkConnectionToServer).Name}");
-            comp.CallSendTargetRPCInternal(new NetworkConnectionToServer());
-            Assert.That(comp.called, Is.EqualTo(0));
-
-            // set proper connection to client
-            identity.connectionToClient = connectionToServer.connectionToClient;
-
-            // isServer needs to be true, otherwise we can't call rpcs
-            Assert.That(comp.isServer, Is.True);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(NetworkBehaviourSendTargetRPCInternalComponent),
-                nameof(NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated),
-                MirrorInvokeType.ClientRpc,
-                NetworkBehaviourSendTargetRPCInternalComponent.TargetRPCGenerated);
-
-            // identity needs to be in spawned dict, otherwise rpc handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call rpc
-            comp.CallSendTargetRPCInternal(null);
-
-            // update client's connection so that pending messages are processed
-            connectionToServer.Update();
-
-            // rpc should have been called now
-            Assert.That(comp.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-            // clear clientscene.readyconnection
-            NetworkServer.RemoveLocalConnection();
-        }
+        [Test, Ignore("TargetRpcTest.cs tests TargetRpcs already")]
+        public void SendTargetRPCInternal() {}
 
         [Test]
         public void RegisterDelegateDoesntOverwrite()
@@ -499,6 +276,7 @@ namespace Mirror.Tests
                 MirrorInvokeType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
+
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, "Function " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate) + " and " + typeof(NetworkBehaviourDelegateComponent) + "." + nameof(NetworkBehaviourDelegateComponent.Delegate2) + " have the same hash.  Please rename one of them");
@@ -981,7 +759,7 @@ namespace Mirror.Tests
         [Test]
         public void SetSyncVarNetworkIdentityZeroNetId()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
+            CreateNetworked(out _, out _, out NetworkBehaviourSetSyncVarNetworkIdentityComponent comp);
 
             // set some existing NI+netId first to check if it is going to be
             // overwritten
@@ -1020,7 +798,7 @@ namespace Mirror.Tests
             Assert.That(identity.isServer, Is.True);
 
             // create a syncable GameObject
-            CreateNetworked(out GameObject go, out NetworkIdentity ni);
+            CreateNetworked(out _, out NetworkIdentity ni);
             ni.netId = identity.netId + 1;
 
             // assign it in the component

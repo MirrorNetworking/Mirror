@@ -115,7 +115,7 @@ namespace Mirror
             if (!dontListen)
             {
                 Transport.activeTransport.ServerStart();
-                Debug.Log("Server started listening");
+                //Debug.Log("Server started listening");
             }
 
             active = true;
@@ -893,12 +893,12 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // convert to ArraySegment to avoid reader allocations
-            // (need to handle null case too)
-            ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
-            ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
+            // if nothing was written, .ToArraySegment returns an empty segment.
+            ArraySegment<byte> ownerSegment = ownerWriter.ToArraySegment();
+            ArraySegment<byte> observersSegment = observersWriter.ToArraySegment();
 
             // use owner segment if 'conn' owns this identity, otherwise
             // use observers segment
@@ -929,7 +929,7 @@ namespace Mirror
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
-                    payload = payload,
+                    payload = payload
                 };
                 conn.Send(message);
             }
@@ -1490,14 +1490,14 @@ namespace Mirror
             if (owned)
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWritten > 0)
+                if (serialization.ownerWriter.Position > 0)
                     return serialization.ownerWriter;
             }
             // observers writer if not owned
             else
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.observersWritten > 0)
+                if (serialization.observersWriter.Position > 0)
                     return serialization.observersWriter;
             }
 

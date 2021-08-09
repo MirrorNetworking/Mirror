@@ -1,38 +1,29 @@
 using System;
 using NSubstitute;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class MultiplexTest
+    public class MultiplexTest : MirrorTest
     {
-
         Transport transport1;
         Transport transport2;
-        MultiplexTransport transport;
+        new MultiplexTransport transport;
 
         [SetUp]
         public void Setup()
         {
+            base.SetUp();
+
+            CreateGameObject(out _, out transport);
+
             transport1 = Substitute.For<Transport>();
             transport2 = Substitute.For<Transport>();
-
-            GameObject gameObject = new GameObject();
-
-            transport = gameObject.AddComponent<MultiplexTransport>();
             transport.transports = new[] { transport1, transport2 };
 
             transport.Awake();
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            GameObject.DestroyImmediate(transport.gameObject);
-        }
-
-        #region Client tests
         // A Test behaves as an ordinary method
         [Test]
         public void TestAvailable()
@@ -165,10 +156,6 @@ namespace Mirror.Tests
             callback.Received().Invoke();
         }
 
-        #endregion
-
-        #region Server tests
-
         [Test]
         public void TestServerConnected()
         {
@@ -189,9 +176,5 @@ namespace Mirror.Tests
 
             transport1.Received().ServerSend(1, segment, 5);
         }
-
-
-        #endregion
-
     }
 }

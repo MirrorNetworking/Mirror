@@ -5,8 +5,12 @@ namespace Mirror.Tests
     class NetworkManagerOnServerDisconnect : NetworkManager
     {
         public int called;
-        public override void OnServerDisconnect(NetworkConnection conn) { ++called; }
-    }
+        public override void OnServerDisconnect(NetworkConnection conn)
+        {
+            base.OnServerDisconnect(conn);
+            ++called; 
+        }
+}
 
     [TestFixture]
     public class NetworkManagerStopHostOnServerDisconnectTest : MirrorEditModeTest

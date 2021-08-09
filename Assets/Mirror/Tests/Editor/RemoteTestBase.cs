@@ -9,13 +9,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         {
             // start server/client
             NetworkServer.Listen(1);
-            NetworkClient.ConnectHost();
-            NetworkServer.SpawnObjects();
-            NetworkServer.ActivateHostScene();
-            NetworkClient.ConnectLocalServer();
-            NetworkServer.localConnection.isAuthenticated = true;
-            NetworkClient.connection.isAuthenticated = true;
-            NetworkClient.Ready();
+            ConnectHostClientBlockingAuthenticatedAndReady();
         }
     }
 }

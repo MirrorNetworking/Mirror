@@ -6,6 +6,14 @@ namespace Mirror.Tests
 {
     public class ExtensionsTest
     {
+        // supposed to return same result on all platforms
+        [Test]
+        public void GetStableHashHode()
+        {
+            Assert.That("".GetStableHashCode(), Is.EqualTo(23));
+            Assert.That("Test".GetStableHashCode(), Is.EqualTo(23844169));
+        }
+
         [Test]
         public void CopyToList()
         {

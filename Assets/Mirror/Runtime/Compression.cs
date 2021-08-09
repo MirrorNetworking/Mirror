@@ -13,40 +13,40 @@ namespace Mirror
 
         // helper function to find largest absolute element
         // returns the index of the largest one
-        public static int LargestAbsoluteComponentIndex(Vector4 value, out float largest, out Vector3 withoutLargest)
+        public static int LargestAbsoluteComponentIndex(Vector4 value, out float largestAbs, out Vector3 withoutLargest)
         {
             // convert to abs
             Vector4 abs = new Vector4(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z), Mathf.Abs(value.w));
 
-            // set largest to first value (x)
-            largest = value.x;
+            // set largest to first abs (x)
+            largestAbs = abs.x;
             withoutLargest = new Vector3(value.y, value.z, value.w);
-            int index = 0;
+            int largestIndex = 0;
 
             // compare to the others, starting at second value
             // performance for 100k calls
             //   for-loop:       25ms
             //   manual checks:  22ms
-            if (abs.y > largest)
+            if (abs.y > largestAbs)
             {
-                index = 1;
-                largest = abs.y;
+                largestIndex = 1;
+                largestAbs = abs.y;
                 withoutLargest = new Vector3(value.x, value.z, value.w);
             }
-            if (abs.z > largest)
+            if (abs.z > largestAbs)
             {
-                index = 2;
-                largest = abs.z;
+                largestIndex = 2;
+                largestAbs = abs.z;
                 withoutLargest = new Vector3(value.x, value.y, value.w);
             }
-            if (abs.w > largest)
+            if (abs.w > largestAbs)
             {
-                index = 3;
-                largest = abs.w;
+                largestIndex = 3;
+                largestAbs = abs.w;
                 withoutLargest = new Vector3(value.x, value.y, value.z);
             }
 
-            return index;
+            return largestIndex;
         }
 
         // scale a float within min/max range to an ushort between min/max range

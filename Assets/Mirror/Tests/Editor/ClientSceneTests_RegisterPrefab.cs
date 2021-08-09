@@ -129,7 +129,7 @@ namespace Mirror.Tests.ClientSceneTests
                 ? $"Could not register handler for '{validPrefab.name}' with new assetId because the new assetId was empty"
                 : $"Could not register '{validPrefab.name}' with new assetId because the new assetId was empty";
             LogAssert.Expect(LogType.Error, msg);
-            CallRegisterPrefab(validPrefab, overload, guid: new Guid());
+            CallRegisterPrefab(validPrefab, overload, new Guid());
         }
 
         [Test]
@@ -217,7 +217,7 @@ namespace Mirror.Tests.ClientSceneTests
                 return null;
             });
 
-            CallRegisterPrefab(validPrefab, overload, spawnHandler: handler);
+            CallRegisterPrefab(validPrefab, overload, handler);
 
 
             Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(guid));
@@ -244,7 +244,7 @@ namespace Mirror.Tests.ClientSceneTests
                 return null;
             });
 
-            CallRegisterPrefab(validPrefab, overload, spawnHandler: handler);
+            CallRegisterPrefab(validPrefab, overload, handler);
 
             Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(guid));
 
@@ -272,7 +272,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             SpawnHandlerDelegate handler = new SpawnHandlerDelegate(x => null);
 
-            CallRegisterPrefab(validPrefab, overload, spawnHandlerDelegate: handler);
+            CallRegisterPrefab(validPrefab, overload, handler);
 
             Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(guid));
             Assert.AreEqual(NetworkClient.spawnHandlers[guid], handler);

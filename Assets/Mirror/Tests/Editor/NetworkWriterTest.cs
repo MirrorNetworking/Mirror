@@ -513,6 +513,16 @@ namespace Mirror.Tests
             Assert.That(reader.ReadString(), Is.EqualTo("world"));
         }
 
+        // sometimes we may serialize nothing, then call ToArraySegment.
+        // make sure this works even if empty.
+        [Test]
+        public void TestToArraySegment_EmptyContent()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            ArraySegment<byte> segment = writer.ToArraySegment();
+            Assert.That(segment.Count, Is.EqualTo(0));
+        }
+
         [Test]
         public void TestChar()
         {
