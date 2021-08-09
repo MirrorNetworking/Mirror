@@ -181,7 +181,7 @@ namespace Mirror
         {
             // Prevent adding NetworkManager to parent or child of another NetworkManager
             // Reset fires earlier than OnValidate so doing this here prevents transport from being added.
-            foreach (NetworkManager networkManager in transform.root.GetComponentsInChildren<NetworkManager>().ToList())
+            foreach (NetworkManager networkManager in transform.root.GetComponentsInChildren<NetworkManager>())
                 if (networkManager != this)
                 {
                     Debug.LogError("NetworkManager cannot be added to the same object hierarchy as another NetworkManager.");
