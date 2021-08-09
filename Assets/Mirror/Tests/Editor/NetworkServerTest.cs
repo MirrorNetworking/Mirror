@@ -797,8 +797,8 @@ namespace Mirror.Tests
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
-            identity.isLocalPlayer = false; // NO AUTHORITY
+            // WITHOUT OWNER = WITHOUT AUTHORITY for this test
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp);
 
             // call the command
             comp.TestCommand();
