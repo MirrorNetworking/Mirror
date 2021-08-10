@@ -61,6 +61,16 @@ namespace Mirror.Tests.SyncVarTests
 
     public class SyncVarTest : SyncVarTestBase
     {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            // start server & connect client because we need spawn functions
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+        }
+
         [Test]
         public void TestSettingStruct()
         {
@@ -175,9 +185,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarGameObject serverObject);
             CreateNetworked(out _, out _, out SyncVarGameObject clientObject);
 
-            CreateNetworked(out GameObject serverValue, out NetworkIdentity serverIdentity);
-            serverIdentity.netId = 2044;
-            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out GameObject serverValue, out _);
 
             serverObject.value = serverValue;
             clientObject.value = null;
@@ -195,9 +204,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverObject);
             CreateNetworked(out _, out _, out SyncVarNetworkIdentity clientObject);
 
-            CreateNetworked(out _, out NetworkIdentity serverValue);
-            serverValue.netId = 2045;
-            NetworkIdentity.spawned[serverValue.netId] = serverValue;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity serverValue);
 
             serverObject.value = serverValue;
             clientObject.value = null;
@@ -215,9 +223,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarTransform serverObject);
             CreateNetworked(out _, out _, out SyncVarTransform clientObject);
 
-            CreateNetworked(out _, out NetworkIdentity serverIdentity);
-            serverIdentity.netId = 2045;
-            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverIdentity);
             Transform serverValue = serverIdentity.transform;
 
             serverObject.value = serverValue;
@@ -236,9 +243,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
             CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
 
-            CreateNetworked(out _, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverValue);
-            serverIdentity.netId = 2046;
-            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverValue);
 
             serverObject.value = serverValue;
             clientObject.value = null;
@@ -256,9 +262,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
             CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
 
-            CreateNetworked(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour behaviour1, out SyncVarNetworkBehaviour behaviour2);
-            identity.netId = 2046;
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour behaviour1, out SyncVarNetworkBehaviour behaviour2);
 
             // create array/set indices
             _ = identity.NetworkBehaviours;
@@ -294,9 +299,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarGameObject serverObject);
             CreateNetworked(out _, out _, out SyncVarGameObject clientObject);
 
-            CreateNetworked(out GameObject serverValue, out NetworkIdentity identity);
-            identity.netId = 2047;
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out GameObject serverValue, out NetworkIdentity identity);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
@@ -331,9 +335,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverObject);
             CreateNetworked(out _, out _, out SyncVarNetworkIdentity clientObject);
 
-            CreateNetworked(out _, out NetworkIdentity serverValue);
-            serverValue.netId = 2047;
-            NetworkIdentity.spawned[serverValue.netId] = serverValue;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverValue);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
@@ -368,9 +371,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
             CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
 
-            CreateNetworked(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour serverValue);
-            identity.netId = 2047;
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour serverValue);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
