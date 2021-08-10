@@ -1,6 +1,5 @@
 using System.Collections;
 using NUnit.Framework;
-using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime
@@ -20,7 +19,7 @@ namespace Mirror.Tests.Runtime
         public IEnumerator LocalPlayerIsSetToNullAfterNetworkDestroy()
         {
             // need spawned local player
-            CreateNetworkedAndSpawnPlayer(out GameObject go, out NetworkIdentity identity, NetworkServer.localConnection);
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity identity, NetworkServer.localConnection);
 
             // need to have localPlayer set for this test
             Assert.That(NetworkClient.localPlayer, !Is.Null);
@@ -37,7 +36,7 @@ namespace Mirror.Tests.Runtime
         public IEnumerator LocalPlayerIsSetToNullAfterNetworkUnspawn()
         {
             // need spawned local player
-            CreateNetworkedAndSpawnPlayer(out GameObject go, out NetworkIdentity identity, NetworkServer.localConnection);
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity identity, NetworkServer.localConnection);
 
             // need to have localPlayer set for this test
             Assert.That(NetworkClient.localPlayer, !Is.Null);
