@@ -280,7 +280,8 @@ namespace Mirror
             // since host does not send anything to update the server, any client
             // authoritative movement done by the host will have to be broadcasted 
             // here by checking IsClientWithAuthority.
-            if (NetworkTime.localTime >= lastServerSendTime + sendInterval && (!clientAuthority || IsClientWithAuthority))
+            if (NetworkTime.localTime >= lastServerSendTime + sendInterval && 
+                (!clientAuthority || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
