@@ -465,6 +465,8 @@ namespace Mirror
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
 
+// OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
         {
@@ -540,5 +542,6 @@ namespace Mirror
             if (isServer) DrawGizmos(serverBuffer);
             if (isClient) DrawGizmos(clientBuffer);
         }
+#endif
     }
 }
