@@ -19,12 +19,6 @@ namespace Mirror.Tests.Runtime
             yield return null;
         }
 
-        [UnityTearDown]
-        public override IEnumerator UnityTearDown()
-        {
-            yield return base.UnityTearDown();
-        }
-
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
