@@ -11,47 +11,21 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public override void SetUp()
         {
             base.SetUp();
-            Debug.Assert(NetworkClient.localPlayer == null, "LocalPlayer should be null before this test");
-            NetworkClient.connection = new FakeNetworkConnection();
-        }
 
-        // TODO reuse MirrorTest.CreateNetworkedAndSpawn?
-        NetworkIdentity SpawnObject(bool localPlayer)
-        {
-            const uint netId = 1000;
-
-            CreateNetworked(out GameObject go, out NetworkIdentity identity);
-
-            SpawnMessage msg = new SpawnMessage
-            {
-                netId = netId,
-                isLocalPlayer = localPlayer,
-                isOwner = localPlayer,
-            };
-
-            // ApplySpawnPayload applies the message (sets netId etc.)
-            NetworkClient.ApplySpawnPayload(identity, msg);
-
-            // isLocalPlayer is set in OnStartLocalPlayer.
-            // that function is only called by ApplySpawnPayload if isSpawnFinished.
-            // spawn finished isn't set.
-            // so let's set local player manually instead.
-            identity.isLocalPlayer = localPlayer;
-
-            if (localPlayer)
-            {
-                Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));
-            }
-
-            return identity;
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
         }
 
         [UnityTest]
         public IEnumerator LocalPlayerIsSetToNullAfterDestroy()
         {
-            NetworkIdentity player = SpawnObject(true);
+            // need spawned local player
+            CreateNetworkedAndSpawnPlayer(out GameObject go, out NetworkIdentity identity, NetworkServer.localConnection);
 
-            GameObject.Destroy(player);
+            // need to have localPlayer set for this test
+            Assert.That(NetworkClient.localPlayer, !Is.Null);
+
+            GameObject.Destroy(go);
 
             // wait a frame for destroy to happen
             yield return null;
@@ -63,8 +37,14 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [UnityTest]
         public IEnumerator DestroyingOtherObjectDoesntEffectLocalPlayer()
         {
-            NetworkIdentity player = SpawnObject(true);
-            NetworkIdentity notPlayer = SpawnObject(false);
+            // need spawned not-local-player
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity notPlayer);
+
+            // need spawned local player
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player, NetworkServer.localConnection);
+
+            // need to have localPlayer set for this test
+            Assert.That(NetworkClient.localPlayer, !Is.Null);
 
             GameObject.Destroy(notPlayer);
 
@@ -78,11 +58,15 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [UnityTest]
         public IEnumerator LocalPlayerIsSetToNullAfterDestroyMessage()
         {
-            NetworkIdentity player = SpawnObject(true);
+            // need spawned local player
+            CreateNetworkedAndSpawnPlayer(out GameObject go, out NetworkIdentity identity, NetworkServer.localConnection);
+
+            // need to have localPlayer set for this test
+            Assert.That(NetworkClient.localPlayer, !Is.Null);
 
             NetworkClient.OnObjectDestroy(new ObjectDestroyMessage
             {
-                netId = player.netId
+                netId = identity.netId
             });
 
             // wait a frame for destroy to happen
