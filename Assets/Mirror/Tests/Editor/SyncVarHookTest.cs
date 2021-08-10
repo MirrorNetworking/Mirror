@@ -112,6 +112,16 @@ namespace Mirror.Tests.SyncVarTests
 
     public class SyncVarHookTest : SyncVarTestBase
     {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            // start server & connect client because we need spawn functions
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+        }
+
         [Test]
         [TestCase(true)]
         [TestCase(false)]
@@ -200,9 +210,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out GameObjectHookBehaviour clientObject);
 
             GameObject clientValue = null;
-            CreateNetworked(out GameObject serverValue, out NetworkIdentity serverIdentity);
-            serverIdentity.netId = 2032;
-            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out GameObject serverValue, out NetworkIdentity serverIdentity);
 
             serverObject.value = serverValue;
             clientObject.value = clientValue;
@@ -229,9 +238,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkIdentityHookBehaviour clientObject);
 
             NetworkIdentity clientValue = null;
-            CreateNetworked(out GameObject _, out NetworkIdentity serverValue);
-            serverValue.netId = 2033;
-            NetworkIdentity.spawned[serverValue.netId] = serverValue;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity serverValue);
 
             serverObject.value = serverValue;
             clientObject.value = clientValue;
@@ -258,9 +266,8 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourHookBehaviour clientObject);
 
             NetworkBehaviourHookBehaviour clientValue = null;
-            CreateNetworked(out GameObject _, out NetworkIdentity serverIdentity, out NetworkBehaviourHookBehaviour serverValue);
-            serverIdentity.netId = 2033;
-            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity serverIdentity, out NetworkBehaviourHookBehaviour serverValue);
 
             serverObject.value = serverValue;
             clientObject.value = clientValue;
