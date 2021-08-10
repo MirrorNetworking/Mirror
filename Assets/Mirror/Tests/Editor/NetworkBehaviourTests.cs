@@ -672,6 +672,10 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarGameObjectOnClient()
         {
+            // start server & connect client because we need spawn functions
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             // are we on client and not on server?
@@ -681,13 +685,9 @@ namespace Mirror.Tests
             // create a networked object with test component
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
-            // create a syncable GameObject
-            CreateNetworked(out GameObject go, out NetworkIdentity ni);
-            ni.netId = 43;
-
-            // register in spawned dict because clients should look it up via
-            // netId
-            NetworkIdentity.spawned[ni.netId] = ni;
+            // create a spawned, syncable GameObject
+            // (client tries to look up via netid, so needs to be spawned)
+            CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity ni);
 
             // assign ONLY netId in the component. assume that GameObject was
             // assigned earlier but client walked so far out of range that it
