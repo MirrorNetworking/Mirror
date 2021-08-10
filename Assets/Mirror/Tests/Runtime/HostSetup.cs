@@ -17,16 +17,6 @@ namespace Mirror.Tests.Runtime
         protected virtual void afterStartHost() {}
         protected virtual void beforeStopHost() {}
 
-        protected static void FakeSpawnServerClientIdentity(NetworkIdentity serverNI, NetworkIdentity clientNI)
-        {
-            serverNI.OnStartServer();
-            NetworkServer.RebuildObservers(serverNI, true);
-
-            clientNI.netId = serverNI.netId;
-            NetworkIdentity.spawned[serverNI.netId] = clientNI;
-            clientNI.OnStartClient();
-        }
-
         [UnitySetUp]
         public override IEnumerator UnitySetUp()
         {
