@@ -10,24 +10,12 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 {
     public class TestListenerBehaviour : MonoBehaviour
     {
-        /*
-            **Note**
+        // If object is destroyed then both OnDisable and OnDestroy will be called
+        public event Action onDestroyCalled;
+        public event Action onDisableCalled;
 
-            If object is destroyed then both OnDisable and OnDestroy will be called
-
-         */
-
-        public event System.Action onDestroyCalled;
-        public event System.Action onDisableCalled;
-
-        public void OnDisable()
-        {
-            onDisableCalled?.Invoke();
-        }
-        void OnDestroy()
-        {
-            onDestroyCalled?.Invoke();
-        }
+        public void OnDisable() => onDisableCalled?.Invoke();
+        void OnDestroy() => onDestroyCalled?.Invoke();
     }
 
     // A network Behaviour that changes NetworkIdentity.spawned in OnDisable
