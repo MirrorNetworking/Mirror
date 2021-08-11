@@ -60,10 +60,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Assert.That(NetworkClient.localPlayer, !Is.Null);
 
             // OnObjectDestroy, wait one frame, localPlayer should be cleared
-            NetworkClient.OnObjectDestroy(new ObjectDestroyMessage
-            {
-                netId = identity.netId
-            });
+            NetworkClient.OnObjectDestroy(new ObjectDestroyMessage{netId = identity.netId});
             yield return null;
             Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
