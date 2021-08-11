@@ -37,6 +37,17 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
         Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
 
+        [UnitySetUp]
+        public override IEnumerator UnitySetUp()
+        {
+            yield return base.UnitySetUp();
+
+            // start server & client and wait 1 frame
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+            yield return null;
+        }
+
         [UnityTearDown]
         public override IEnumerator UnityTearDown()
         {
@@ -156,10 +167,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [Test]
         public void CatchesAndLogsExeptionWhenSpawnedListIsChanged()
         {
-            CreateNetworked(out GameObject badGameObject, out NetworkIdentity identity, out BadBehaviour bad);
-            const int id = 3535;
-            identity.netId = id;
-            spawned.Add(id, identity);
+            // create spawned (needs to be added to .spawned!)
+            CreateNetworkedAndSpawn(out GameObject badGameObject, out NetworkIdentity identity, out BadBehaviour bad);
 
             LogAssert.Expect(LogType.Exception, new Regex("InvalidOperationException"));
             LogAssert.Expect(LogType.Error, "Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
