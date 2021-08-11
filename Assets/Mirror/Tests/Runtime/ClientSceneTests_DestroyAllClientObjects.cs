@@ -34,7 +34,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
     public class ClientSceneTests_DestroyAllClientObjects : MirrorPlayModeTest
     {
-        Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
         Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
 
         [UnitySetUp]
@@ -51,7 +50,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [UnityTearDown]
         public override IEnumerator UnityTearDown()
         {
-            spawned.Clear();
             unspawnHandlers.Clear();
             base.TearDown();
             yield return null;
@@ -159,7 +157,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkClient.DestroyAllClientObjects();
 
-            Assert.That(spawned, Is.Empty);
+            Assert.That(NetworkIdentity.spawned, Is.Empty);
         }
 
         [Test]
