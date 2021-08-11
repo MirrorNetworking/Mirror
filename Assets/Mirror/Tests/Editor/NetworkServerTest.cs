@@ -733,12 +733,12 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
             // WITH OWNER = WITH AUTHORITY
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp, connectionToClient);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp, NetworkServer.localConnection);
 
             // call the command
             comp.TestCommand();
@@ -753,12 +753,12 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components.
             // spawned, otherwise command handler won't find it in .spawned.
             // WITH OWNER = WITH AUTHORITY
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1, connectionToClient);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1, NetworkServer.localConnection);
 
             // call the command
             comp1.TestCommand();
@@ -772,12 +772,12 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
             // WITH OWNER = WITH AUTHORITY
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp, connectionToClient);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp, NetworkServer.localConnection);
 
             // change identity's owner connection so we can't call [Commands] on it
             identity.connectionToClient = new LocalConnectionToClient();
@@ -793,7 +793,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
             // spawned, otherwise command handler won't find it in .spawned.
