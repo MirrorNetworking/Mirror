@@ -68,7 +68,7 @@ namespace Mirror.Tests.SyncVarTests
 
             // start server & connect client because we need spawn functions
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out _);
+            ConnectHostClientBlockingAuthenticatedAndReady();
         }
 
         [Test]
