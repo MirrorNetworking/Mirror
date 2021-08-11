@@ -815,15 +815,17 @@ namespace Mirror.Tests
 
             // spawn identity with a networkbehaviour.
             // (needs to be in .spawned for ActivateHostScene)
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out OnStartClientTestNetworkBehaviour comp);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out OnStartClientTestNetworkBehaviour serverComp,
+                out _, out _, out _);
 
             // ActivateHostScene calls OnStartClient for spawned objects where
             // isClient is still false. set it to false first.
-            identity.isClient = false;
+            serverIdentity.isClient = false;
             NetworkServer.ActivateHostScene();
 
             // was OnStartClient called for all .spawned networkidentities?
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(serverComp.called, Is.EqualTo(1));
         }
 
         [Test]
