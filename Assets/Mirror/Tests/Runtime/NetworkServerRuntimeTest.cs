@@ -25,14 +25,12 @@ namespace Mirror.Tests.Runtime
             CreateNetworked(out GameObject player, out _);
             NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
 
+            // add player, wait 1 frame to spawn
             NetworkServer.AddPlayerForConnection(conn, player);
-
-            // allow 1 frame to spawn object
             yield return null;
 
+            // destroy player for connection, wait 1 frame to unspawn and destroy
             NetworkServer.DestroyPlayerForConnection(conn);
-
-            // allow 1 frame to unspawn object and for unity to destroy object
             yield return null;
 
             Assert.That(player == null, "Player should be destroyed with DestroyPlayerForConnection");
