@@ -106,7 +106,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsFalse(identity1.gameObject.activeSelf);
             Assert.IsFalse(identity1.gameObject.activeSelf);
 
-            Assert.That(NetworkIdentity.spawned, Is.Empty);
+            Assert.That(NetworkServer.spawned, Is.Empty);
         }
     }
 }
