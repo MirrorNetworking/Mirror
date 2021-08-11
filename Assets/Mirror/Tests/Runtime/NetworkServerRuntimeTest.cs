@@ -64,10 +64,8 @@ namespace Mirror.Tests.Runtime
             NetworkIdentity identity2 = spawnPrefab(prefab);
 
 
-            // test
+            // shutdown, wait 1 frame for unity to destroy objects
             NetworkServer.Shutdown();
-
-            // wait 1 frame for unity to destroy objects
             yield return null;
 
             // check that objects were destroyed
