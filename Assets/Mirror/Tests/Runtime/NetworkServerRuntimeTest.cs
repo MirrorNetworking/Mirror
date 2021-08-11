@@ -36,25 +36,19 @@ namespace Mirror.Tests.Runtime
         [UnityTest]
         public IEnumerator RemovePlayerForConnectionTest()
         {
-            GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
-            NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
+            // create spawned player
+            CreateNetworkedAndSpawnPlayer(out GameObject player, out _, NetworkServer.localConnection);
 
-            NetworkServer.AddPlayerForConnection(conn, player);
-
-            // allow 1 frame to spawn object
-            yield return null;
-
-            NetworkServer.RemovePlayerForConnection(conn, false);
-
-            // allow 1 frame to unspawn object
+            // remove player for connection, wait 1 frame to unspawn
+            NetworkServer.RemovePlayerForConnection(NetworkServer.localConnection, false);
             yield return null;
 
             Assert.That(player, Is.Not.Null, "Player should be not be destroyed");
-            Assert.That(conn.identity == null, "identity should be null");
+            Assert.That(NetworkServer.localConnection.identity == null, "identity should be null");
 
             // respawn player
-            NetworkServer.AddPlayerForConnection(conn, player);
-            Assert.That(conn.identity != null, "identity should not be null");
+            NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
+            Assert.That(NetworkServer.localConnection.identity != null, "identity should not be null");
         }
 
         [UnityTest]
