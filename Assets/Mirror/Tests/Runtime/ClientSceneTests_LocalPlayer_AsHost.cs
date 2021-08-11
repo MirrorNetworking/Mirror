@@ -24,11 +24,9 @@ namespace Mirror.Tests.Runtime
             // need to have localPlayer set for this test
             Assert.That(NetworkClient.localPlayer, !Is.Null);
 
-            // unspawn, wait one frame for OnDestroy to be called
+            // unspawn, wait one frame, localPlayer should be cleared
             NetworkServer.Destroy(identity.gameObject);
             yield return null;
-
-            // use "is null" here to avoid unity == check
             Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
 
@@ -41,11 +39,9 @@ namespace Mirror.Tests.Runtime
             // need to have localPlayer set for this test
             Assert.That(NetworkClient.localPlayer, !Is.Null);
 
-            // unspawn, wait one frame for OnDestroy to be called
+            // unspawn, wait one frame, localPlayer should be cleared
             NetworkServer.UnSpawn(identity.gameObject);
             yield return null;
-
-            // use "is null" here to avoid unity == check
             Assert.IsTrue(NetworkClient.localPlayer is null, "local player should be set to c# null");
         }
     }
