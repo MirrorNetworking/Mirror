@@ -19,7 +19,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
     }
 
     // A network Behaviour that changes NetworkIdentity.spawned in OnDisable
-    public class BadBehaviour : MonoBehaviour
+    public class BadBehaviour : NetworkBehaviour
     {
         public void OnDisable()
         {
@@ -156,11 +156,10 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [Test]
         public void CatchesAndLogsExeptionWhenSpawnedListIsChanged()
         {
-            GameObject badGameObject = new GameObject("bad", typeof(NetworkIdentity), typeof(BadBehaviour));
-            NetworkIdentity netId = badGameObject.GetComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject badGameObject, out NetworkIdentity identity, out BadBehaviour bad);
             const int id = 3535;
-            netId.netId = id;
-            spawned.Add(id, netId);
+            identity.netId = id;
+            spawned.Add(id, identity);
 
             LogAssert.Expect(LogType.Exception, new Regex("InvalidOperationException"));
             LogAssert.Expect(LogType.Error, "Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
