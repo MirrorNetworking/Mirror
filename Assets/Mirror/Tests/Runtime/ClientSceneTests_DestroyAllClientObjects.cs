@@ -57,12 +57,10 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             yield return null;
         }
 
-        TestListenerBehaviour CreateAndAddObject(uint netId, ulong sceneId)
+        TestListenerBehaviour CreateAndAddObject(ulong sceneId)
         {
-            CreateNetworked(out GameObject go, out NetworkIdentity identity, out TestListenerBehaviour listener);
-            identity.netId = netId;
+            CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity identity, out TestListenerBehaviour listener);
             identity.sceneId = sceneId;
-            spawned.Add(netId, identity);
             return listener;
         }
 
@@ -70,8 +68,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public IEnumerator DestroysAllNetworkPrefabsInScene()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(10001, 0);
-            TestListenerBehaviour listener2 = CreateAndAddObject(10002, 0);
+            TestListenerBehaviour listener1 = CreateAndAddObject(0);
+            TestListenerBehaviour listener2 = CreateAndAddObject(0);
 
             int destroyCalled1 = 0;
             int destroyCalled2 = 0;
@@ -92,8 +90,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public IEnumerator DisablesAllNetworkSceneObjectsInScene()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(20001, 101);
-            TestListenerBehaviour listener2 = CreateAndAddObject(20002, 102);
+            TestListenerBehaviour listener1 = CreateAndAddObject(101);
+            TestListenerBehaviour listener2 = CreateAndAddObject(102);
 
             int disableCalled1 = 0;
             int disableCalled2 = 0;
@@ -123,8 +121,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public void CallsUnspawnHandlerInsteadOfDestroy()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(30001, 0);
-            TestListenerBehaviour listener2 = CreateAndAddObject(30002, 0);
+            TestListenerBehaviour listener1 = CreateAndAddObject(0);
+            TestListenerBehaviour listener2 = CreateAndAddObject(0);
 
             Guid guid1 = Guid.NewGuid();
             Guid guid2 = Guid.NewGuid();
@@ -156,8 +154,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public void ClearsSpawnedList()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(30001, 0);
-            TestListenerBehaviour listener2 = CreateAndAddObject(30002, 0);
+            TestListenerBehaviour listener1 = CreateAndAddObject(0);
+            TestListenerBehaviour listener2 = CreateAndAddObject(0);
 
             NetworkClient.DestroyAllClientObjects();
 
