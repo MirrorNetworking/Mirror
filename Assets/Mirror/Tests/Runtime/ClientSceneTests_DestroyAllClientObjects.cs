@@ -8,7 +8,7 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime.ClientSceneTests
 {
-    public class TestListenerBehaviour : MonoBehaviour
+    public class TestListenerBehaviour : NetworkBehaviour
     {
         // If object is destroyed then both OnDisable and OnDestroy will be called
         public event Action onDestroyCalled;
@@ -48,10 +48,9 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
         TestListenerBehaviour CreateAndAddObject(uint netId, ulong sceneId)
         {
-            CreateNetworked(out GameObject go, out NetworkIdentity identity);
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out TestListenerBehaviour listener);
             identity.netId = netId;
             identity.sceneId = sceneId;
-            TestListenerBehaviour listener = go.AddComponent<TestListenerBehaviour>();
             spawned.Add(netId, identity);
             return listener;
         }
