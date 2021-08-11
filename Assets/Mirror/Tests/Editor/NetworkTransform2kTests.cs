@@ -29,9 +29,14 @@ namespace Mirror.Tests.NetworkTransform2k
         public override void SetUp()
         {
             // set up world with server & client
+            // host mode for now.
+            // TODO separate client & server after .spawned split.
+            //      we can use CreateNetworkedAndSpawn that creates on sv & cl.
+            //      then move on server, update, verify client position etc.
             base.SetUp();
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+            connectionToClient = NetworkServer.localConnection;
 
             // create a networked object with NetworkTransform
             CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity _, out component, connectionToClient);
