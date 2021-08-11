@@ -157,7 +157,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkClient.DestroyAllClientObjects();
 
-            Assert.That(NetworkIdentity.spawned, Is.Empty);
+            Assert.That(NetworkClient.spawned, Is.Empty);
         }
 
         [Test]
