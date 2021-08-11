@@ -60,8 +60,8 @@ namespace Mirror.Tests.Runtime
             const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(ValidPrefabAssetGuid));
 
-            NetworkIdentity identity1 = spawnPrefab(prefab);
-            NetworkIdentity identity2 = spawnPrefab(prefab);
+            NetworkIdentity identity1 = SpawnPrefab(prefab);
+            NetworkIdentity identity2 = SpawnPrefab(prefab);
 
 
             // shutdown, wait 1 frame for unity to destroy objects
@@ -76,7 +76,7 @@ namespace Mirror.Tests.Runtime
             Assert.That(NetworkIdentity.spawned, Is.Empty);
         }
 
-        static NetworkIdentity spawnPrefab(GameObject prefab)
+        NetworkIdentity SpawnPrefab(GameObject prefab)
         {
             GameObject clone1 = GameObject.Instantiate(prefab);
             NetworkServer.Spawn(clone1);
