@@ -125,10 +125,10 @@ namespace Mirror.Tests.Runtime
             GameObject.DestroyImmediate(identity2.gameObject);
         }
 
-        static NetworkIdentity spawnSceneObject(string Name)
+        NetworkIdentity spawnSceneObject(string Name)
         {
-            GameObject obj = new GameObject(Name, typeof(NetworkIdentity));
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
+            CreateNetworked(out GameObject obj, out NetworkIdentity identity);
+            obj.name = Name;
             obj.SetActive(false);
             if (identity.sceneId == 0) { identity.sceneId = (ulong)obj.GetHashCode(); }
             NetworkServer.Spawn(obj);
