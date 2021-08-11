@@ -22,7 +22,7 @@ namespace Mirror.Tests.Runtime
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
-            GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
+            CreateNetworked(out GameObject player, out _);
             NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
 
             NetworkServer.AddPlayerForConnection(conn, player);
