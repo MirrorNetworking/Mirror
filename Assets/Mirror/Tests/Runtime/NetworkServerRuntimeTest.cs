@@ -94,7 +94,6 @@ namespace Mirror.Tests.Runtime
             NetworkIdentity identity1 = SpawnSceneObject();
             NetworkIdentity identity2 = SpawnSceneObject();
 
-
             // test
             NetworkServer.Shutdown();
 
