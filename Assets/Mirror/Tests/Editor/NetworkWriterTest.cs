@@ -17,7 +17,7 @@ namespace Mirror.Tests
 
             // start server & connect client because we need spawn functions
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out _);
+            ConnectHostClientBlockingAuthenticatedAndReady();
         }
 
         /* uncomment if needed. commented for faster test workflow. this takes >3s.
