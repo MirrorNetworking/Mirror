@@ -91,8 +91,8 @@ namespace Mirror.Tests.Runtime
             // setup
             NetworkServer.Listen(1);
 
-            NetworkIdentity identity1 = spawnSceneObject("test 1");
-            NetworkIdentity identity2 = spawnSceneObject("test 2");
+            NetworkIdentity identity1 = SpawnSceneObject();
+            NetworkIdentity identity2 = SpawnSceneObject();
 
 
             // test
@@ -108,10 +108,9 @@ namespace Mirror.Tests.Runtime
             Assert.That(NetworkIdentity.spawned, Is.Empty);
         }
 
-        NetworkIdentity spawnSceneObject(string Name)
+        NetworkIdentity SpawnSceneObject()
         {
             CreateNetworked(out GameObject obj, out NetworkIdentity identity);
-            obj.name = Name;
             obj.SetActive(false);
             if (identity.sceneId == 0) { identity.sceneId = (ulong)obj.GetHashCode(); }
             NetworkServer.Spawn(obj);
