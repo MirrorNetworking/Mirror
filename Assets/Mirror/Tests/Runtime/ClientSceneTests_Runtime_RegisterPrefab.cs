@@ -6,15 +6,10 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 {
     public class ClientSceneTests_Runtime_RegisterPrefab : ClientSceneTests_RegisterPrefabBase
     {
-        /// <summary>
-        /// Create scene objects, must be done at runtime so that sceneId isn't set when assetId.get is called
-        /// </summary>
-        /// <param name="runtimeObject"></param>
-        /// <param name="networkIdentity"></param>
-        protected static void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
+        // Create scene objects, must be done at runtime so that sceneId isn't set when assetId.get is called
+        protected void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
         {
-            runtimeObject = new GameObject("Runtime GameObject");
-            networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
+            CreateNetworked(out runtimeObject, out networkIdentity);
             // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
             networkIdentity.sceneId = 0;
         }
