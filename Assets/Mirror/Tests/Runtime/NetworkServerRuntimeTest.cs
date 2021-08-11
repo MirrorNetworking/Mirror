@@ -119,10 +119,6 @@ namespace Mirror.Tests.Runtime
             Assert.IsFalse(identity1.gameObject.activeSelf);
 
             Assert.That(NetworkIdentity.spawned, Is.Empty);
-
-            // cleanup
-            GameObject.DestroyImmediate(identity1.gameObject);
-            GameObject.DestroyImmediate(identity2.gameObject);
         }
 
         NetworkIdentity spawnSceneObject(string Name)
