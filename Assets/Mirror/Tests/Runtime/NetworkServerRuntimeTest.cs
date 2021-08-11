@@ -110,7 +110,6 @@ namespace Mirror.Tests.Runtime
         NetworkIdentity SpawnSceneObject()
         {
             CreateNetworked(out GameObject obj, out NetworkIdentity identity);
-            obj.SetActive(false);
             if (identity.sceneId == 0) { identity.sceneId = (ulong)obj.GetHashCode(); }
             NetworkServer.Spawn(obj);
 
