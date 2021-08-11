@@ -14,23 +14,20 @@ namespace Mirror.Tests.Runtime
         {
             yield return base.UnitySetUp();
 
-            // start server and wait 1 frame
+            // start server & client and wait 1 frame
             NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
             yield return null;
         }
 
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
-            CreateNetworked(out GameObject player, out _);
-            NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
-
-            // add player, wait 1 frame to spawn
-            NetworkServer.AddPlayerForConnection(conn, player);
-            yield return null;
+            // create spawned player
+            CreateNetworkedAndSpawnPlayer(out GameObject player, out _, NetworkServer.localConnection);
 
             // destroy player for connection, wait 1 frame to unspawn and destroy
-            NetworkServer.DestroyPlayerForConnection(conn);
+            NetworkServer.DestroyPlayerForConnection(NetworkServer.localConnection);
             yield return null;
 
             Assert.That(player == null, "Player should be destroyed with DestroyPlayerForConnection");
