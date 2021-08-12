@@ -267,36 +267,39 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsMultipleBehaviour(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverObject,
+                out _, out _, out SyncVarNetworkBehaviour clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour behaviour1, out SyncVarNetworkBehaviour behaviour2);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverBehaviour1, out SyncVarNetworkBehaviour serverBehaviour2,
+                out _, out NetworkIdentity clientIdentity, out SyncVarNetworkBehaviour clientBehaviour1, out SyncVarNetworkBehaviour clientBehaviour2);
 
             // create array/set indices
-            _ = identity.NetworkBehaviours;
+            _ = serverIdentity.NetworkBehaviours;
 
-            int index1 = behaviour1.ComponentIndex;
-            int index2 = behaviour2.ComponentIndex;
+            int index1 = serverBehaviour1.ComponentIndex;
+            int index2 = serverBehaviour2.ComponentIndex;
 
             // check components of same type have different indexes
             Assert.That(index1, Is.Not.EqualTo(index2));
 
             // check behaviour 1 can be synced
-            serverObject.value = behaviour1;
+            serverObject.value = serverBehaviour1;
             clientObject.value = null;
 
             bool written1 = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written1);
-            Assert.That(clientObject.value, Is.EqualTo(behaviour1));
+            Assert.That(clientObject.value, Is.EqualTo(clientBehaviour1));
 
             // check that behaviour 2 can be synced
-            serverObject.value = behaviour2;
+            serverObject.value = serverBehaviour2;
             clientObject.value = null;
 
             bool written2 = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written2);
-            Assert.That(clientObject.value, Is.EqualTo(behaviour2));
+            Assert.That(clientObject.value, Is.EqualTo(clientBehaviour2));
         }
 
         [Test]
