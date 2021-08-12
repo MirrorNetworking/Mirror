@@ -537,6 +537,8 @@ namespace Mirror
 
         protected virtual void OnDrawGizmos()
         {
+            // This fires in edit mode but that spams NRE's so check isPlaying
+            if (!Application.isPlaying) return;
             if (!showGizmos) return;
 
             if (isServer) DrawGizmos(serverBuffer);
