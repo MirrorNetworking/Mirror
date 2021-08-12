@@ -371,14 +371,18 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncVarCacheNetidForBehaviour(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverObject,
+                out _, out _, out SyncVarNetworkBehaviour clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverValue,
+                out _, out NetworkIdentity clientIdentity, out SyncVarNetworkBehaviour clientValue);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
+            // set on server
             serverObject.value = serverValue;
             clientObject.value = null;
 
@@ -386,8 +390,8 @@ namespace Mirror.Tests.SyncVarTests
             bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
             Assert.IsTrue(written, "did not write");
 
-            // remove identity from collection
-            NetworkIdentity.spawned.Remove(identity.netId);
+            // remove identity from client, as if it walked out of range
+            NetworkClient.spawned.Remove(clientIdentity.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -395,11 +399,11 @@ namespace Mirror.Tests.SyncVarTests
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
 
-            // add identity back to collection
-            NetworkIdentity.spawned.Add(identity.netId, identity);
+            // add identity back to collection, as if it walked back into range
+            NetworkClient.spawned.Add(clientIdentity.netId, clientIdentity);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
         }
 
         [Test]
