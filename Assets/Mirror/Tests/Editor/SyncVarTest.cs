@@ -185,18 +185,21 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsGameobject(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarGameObject serverObject);
-            CreateNetworked(out _, out _, out SyncVarGameObject clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarGameObject serverObject,
+                out _, out _, out SyncVarGameObject clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out GameObject serverValue, out _);
+            CreateNetworkedAndSpawn(
+                out GameObject serverValue, out _,
+                out GameObject clientValue, out _);
 
             serverObject.value = serverValue;
             clientObject.value = null;
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(serverValue));
+            Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
