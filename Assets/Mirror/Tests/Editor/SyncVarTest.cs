@@ -335,11 +335,14 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncVarCacheNetidForIdentity(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkIdentity clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkIdentity serverObject,
+                out _, out _, out SyncVarNetworkIdentity clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverValue,
+                out _, out NetworkIdentity clientValue);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
@@ -350,8 +353,8 @@ namespace Mirror.Tests.SyncVarTests
             bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
             Assert.IsTrue(written, "did not write");
 
-            // remove identity from collection
-            NetworkIdentity.spawned.Remove(serverValue.netId);
+            // remove identity from client, as if it walked out of range
+            NetworkClient.spawned.Remove(clientValue.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -359,11 +362,11 @@ namespace Mirror.Tests.SyncVarTests
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
 
-            // add identity back to collection
-            NetworkIdentity.spawned.Add(serverValue.netId, serverValue);
+            // add identity back to collection, as if it walked back into range
+            NetworkClient.spawned.Add(clientValue.netId, clientValue);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
         }
 
         [Test]
