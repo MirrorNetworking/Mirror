@@ -254,18 +254,21 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsBehaviour(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverObject,
+                out _, out _, out SyncVarNetworkBehaviour clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverValue,
+                out _, out _, out SyncVarNetworkBehaviour clientValue);
 
             serverObject.value = serverValue;
             clientObject.value = null;
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(serverValue));
+            Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
