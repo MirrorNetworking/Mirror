@@ -133,9 +133,11 @@ namespace Mirror.Tests.SyncVarTests
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
@@ -160,9 +162,11 @@ namespace Mirror.Tests.SyncVarTests
             const int clientValue = 16;
             const int serverValue = 16;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
@@ -185,9 +189,11 @@ namespace Mirror.Tests.SyncVarTests
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int hookcallCount = 0;
             StaticHookBehaviour.HookCalled += (oldValue, newValue) =>
             {
@@ -209,18 +215,19 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out GameObjectHookBehaviour serverObject);
             CreateNetworked(out GameObject _, out NetworkIdentity _, out GameObjectHookBehaviour clientObject);
 
-            GameObject clientValue = null;
             // create spawned because we will look up netId in .spawned
             CreateNetworkedAndSpawn(out GameObject serverValue, out NetworkIdentity serverIdentity);
 
+            // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
+            clientObject.value = null;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
+                Assert.That(oldValue, Is.EqualTo(null));
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
@@ -237,18 +244,19 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkIdentityHookBehaviour serverObject);
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkIdentityHookBehaviour clientObject);
 
-            NetworkIdentity clientValue = null;
             // create spawned because we will look up netId in .spawned
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity serverValue);
 
+            // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
+            clientObject.value = null;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
+                Assert.That(oldValue, Is.EqualTo(null));
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
@@ -265,18 +273,19 @@ namespace Mirror.Tests.SyncVarTests
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourHookBehaviour serverObject);
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourHookBehaviour clientObject);
 
-            NetworkBehaviourHookBehaviour clientValue = null;
             // create spawned because we will look up netId in .spawned
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity serverIdentity, out NetworkBehaviourHookBehaviour serverValue);
 
+            // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
+            clientObject.value = null;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
+                Assert.That(oldValue, Is.EqualTo(null));
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
@@ -296,9 +305,11 @@ namespace Mirror.Tests.SyncVarTests
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int baseCallCount = 0;
             clientObject.BaseHookCalled += (oldValue, newValue) =>
             {
@@ -323,9 +334,11 @@ namespace Mirror.Tests.SyncVarTests
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int overrideCallCount = 0;
             int baseCallCount = 0;
             clientObject.OverrideHookCalled += (oldValue, newValue) =>
@@ -356,9 +369,11 @@ namespace Mirror.Tests.SyncVarTests
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
