@@ -282,7 +282,9 @@ namespace Mirror.Tests.SyncVarTests
                 out _, out _, out NetworkBehaviourHookBehaviour clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity serverIdentity, out NetworkBehaviourHookBehaviour serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out _, out NetworkBehaviourHookBehaviour serverValue,
+                out _, out _, out NetworkBehaviourHookBehaviour clientValue);
 
             // change it on server
             serverObject.value = serverValue;
@@ -294,7 +296,7 @@ namespace Mirror.Tests.SyncVarTests
             {
                 callCount++;
                 Assert.That(oldValue, Is.EqualTo(null));
-                Assert.That(newValue, Is.EqualTo(serverValue));
+                Assert.That(newValue, Is.EqualTo(clientValue));
             };
 
             bool written = SyncToClient(serverObject, clientObject, intialState);
