@@ -223,19 +223,24 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncTransform(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarTransform serverObject);
-            CreateNetworked(out _, out _, out SyncVarTransform clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarTransform serverObject,
+                out _, out _, out SyncVarTransform clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverIdentity);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity,
+                out _, out NetworkIdentity clientIdentity);
+
             Transform serverValue = serverIdentity.transform;
+            Transform clientValue = clientIdentity.transform;
 
             serverObject.value = serverValue;
             clientObject.value = null;
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(serverValue));
+            Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
