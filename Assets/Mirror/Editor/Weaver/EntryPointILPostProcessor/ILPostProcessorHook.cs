@@ -12,6 +12,9 @@ namespace Mirror.Weaver
 {
     public class ILPostProcessorHook : ILPostProcessor
     {
+        // from CompilationFinishedHook
+        const string MirrorRuntimeAssemblyName = "Mirror";
+
         // ???
         public override ILPostProcessor GetInstance() => this;
 
