@@ -4,6 +4,8 @@
 // Unity.*.CodeGen:
 // https://forum.unity.com/threads/how-does-unity-do-codegen-and-why-cant-i-do-it-myself.853867/#post-5646937
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Unity.CompilationPipeline.Common.Diagnostics;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 // IMPORTANT: 'using UnityEngine' does not work in here.
@@ -36,7 +38,7 @@ namespace Mirror.Weaver
         // ???
         public override ILPostProcessor GetInstance() => this;
 
-        // TODO process Mirror, or anything that references Mirror
+        // process Mirror, or anything that references Mirror
         public override bool WillProcess(ICompiledAssembly compiledAssembly)
         {
             // compiledAssembly.References are file paths:
@@ -47,7 +49,8 @@ namespace Mirror.Weaver
             // log them to see:
             //     foreach (string reference in compiledAssembly.References)
             //         Log($"{compiledAssembly.Name} references {reference}");
-            return compiledAssembly.Name == MirrorRuntimeAssemblyName;
+            return compiledAssembly.Name == MirrorRuntimeAssemblyName ||
+                   compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
         }
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
