@@ -21,6 +21,7 @@ namespace Mirror.Weaver
         // TODO process Mirror, or anything that references Mirror
         public override bool WillProcess(ICompiledAssembly compiledAssembly)
         {
+            // TODO need logging to see what ICompiledAssembly references are
             return false;
         }
 
