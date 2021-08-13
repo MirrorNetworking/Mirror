@@ -18,6 +18,7 @@ namespace Mirror.Weaver
         // ???
         public override ILPostProcessor GetInstance() => this;
 
+        // TODO process Mirror, or anything that references Mirror
         public override bool WillProcess(ICompiledAssembly compiledAssembly)
         {
             return false;
