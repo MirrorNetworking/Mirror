@@ -39,16 +39,13 @@ namespace Mirror.Weaver
         // TODO process Mirror, or anything that references Mirror
         public override bool WillProcess(ICompiledAssembly compiledAssembly)
         {
-            Log($"Considering {compiledAssembly.Name}");
-            return true;
+            return compiledAssembly.Name == MirrorRuntimeAssemblyName;
         }
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
             Log($"Processing {compiledAssembly.Name}");
-            byte[] peData = new byte[0];
-            byte[] pdbData = new byte[0];
-            return new ILPostProcessResult(new InMemoryAssembly(peData, pdbData), Logs);
+            return new ILPostProcessResult(compiledAssembly.InMemoryAssembly, Logs);
         }
     }
 }
