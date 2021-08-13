@@ -1,9 +1,9 @@
 {
-    "name": "Mirror.Weaver",
+    "name": "Unity.Mirror.CodeGen",
+    "rootNamespace": "",
     "references": [
         "Mirror"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -11,6 +11,8 @@
     "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": []
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
