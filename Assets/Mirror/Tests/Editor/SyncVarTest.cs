@@ -185,18 +185,21 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsGameobject(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarGameObject serverObject);
-            CreateNetworked(out _, out _, out SyncVarGameObject clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarGameObject serverObject,
+                out _, out _, out SyncVarGameObject clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out GameObject serverValue, out _);
+            CreateNetworkedAndSpawn(
+                out GameObject serverValue, out _,
+                out GameObject clientValue, out _);
 
             serverObject.value = serverValue;
             clientObject.value = null;
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(serverValue));
+            Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
@@ -204,18 +207,21 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncIdentity(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkIdentity clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkIdentity serverObject,
+                out _, out _, out SyncVarNetworkIdentity clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverValue,
+                out _, out NetworkIdentity clientValue);
 
             serverObject.value = serverValue;
             clientObject.value = null;
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(serverValue));
+            Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
@@ -223,19 +229,24 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncTransform(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarTransform serverObject);
-            CreateNetworked(out _, out _, out SyncVarTransform clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarTransform serverObject,
+                out _, out _, out SyncVarTransform clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverIdentity);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity,
+                out _, out NetworkIdentity clientIdentity);
+
             Transform serverValue = serverIdentity.transform;
+            Transform clientValue = clientIdentity.transform;
 
             serverObject.value = serverValue;
             clientObject.value = null;
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(serverValue));
+            Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
@@ -243,18 +254,21 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsBehaviour(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverObject,
+                out _, out _, out SyncVarNetworkBehaviour clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity _, out SyncVarNetworkBehaviour serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverValue,
+                out _, out _, out SyncVarNetworkBehaviour clientValue);
 
             serverObject.value = serverValue;
             clientObject.value = null;
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(serverValue));
+            Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
@@ -262,36 +276,39 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncsMultipleBehaviour(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverObject,
+                out _, out _, out SyncVarNetworkBehaviour clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour behaviour1, out SyncVarNetworkBehaviour behaviour2);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverBehaviour1, out SyncVarNetworkBehaviour serverBehaviour2,
+                out _, out NetworkIdentity clientIdentity, out SyncVarNetworkBehaviour clientBehaviour1, out SyncVarNetworkBehaviour clientBehaviour2);
 
             // create array/set indices
-            _ = identity.NetworkBehaviours;
+            _ = serverIdentity.NetworkBehaviours;
 
-            int index1 = behaviour1.ComponentIndex;
-            int index2 = behaviour2.ComponentIndex;
+            int index1 = serverBehaviour1.ComponentIndex;
+            int index2 = serverBehaviour2.ComponentIndex;
 
             // check components of same type have different indexes
             Assert.That(index1, Is.Not.EqualTo(index2));
 
             // check behaviour 1 can be synced
-            serverObject.value = behaviour1;
+            serverObject.value = serverBehaviour1;
             clientObject.value = null;
 
             bool written1 = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written1);
-            Assert.That(clientObject.value, Is.EqualTo(behaviour1));
+            Assert.That(clientObject.value, Is.EqualTo(clientBehaviour1));
 
             // check that behaviour 2 can be synced
-            serverObject.value = behaviour2;
+            serverObject.value = serverBehaviour2;
             clientObject.value = null;
 
             bool written2 = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written2);
-            Assert.That(clientObject.value, Is.EqualTo(behaviour2));
+            Assert.That(clientObject.value, Is.EqualTo(clientBehaviour2));
         }
 
         [Test]
@@ -299,11 +316,14 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncVarCacheNetidForGameObject(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarGameObject serverObject);
-            CreateNetworked(out _, out _, out SyncVarGameObject clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarGameObject serverObject,
+                out _, out _, out SyncVarGameObject clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out GameObject serverValue, out NetworkIdentity identity);
+            CreateNetworkedAndSpawn(
+                out GameObject serverValue, out NetworkIdentity serverIdentity,
+                out GameObject clientValue, out NetworkIdentity clientIdentity);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
@@ -314,8 +334,8 @@ namespace Mirror.Tests.SyncVarTests
             bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
             Assert.IsTrue(written, "did not write");
 
-            // remove identity from collection
-            NetworkIdentity.spawned.Remove(identity.netId);
+            // remove identity from client, as if it walked out of range
+            NetworkClient.spawned.Remove(clientIdentity.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -323,11 +343,11 @@ namespace Mirror.Tests.SyncVarTests
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
 
-            // add identity back to collection
-            NetworkIdentity.spawned.Add(identity.netId, identity);
+            // add identity back to collection, as if it walked back into range
+            NetworkClient.spawned.Add(clientIdentity.netId, clientIdentity);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
         }
 
         [Test]
@@ -335,11 +355,14 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncVarCacheNetidForIdentity(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkIdentity serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkIdentity clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkIdentity serverObject,
+                out _, out _, out SyncVarNetworkIdentity clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverValue,
+                out _, out NetworkIdentity clientValue);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
@@ -350,8 +373,8 @@ namespace Mirror.Tests.SyncVarTests
             bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
             Assert.IsTrue(written, "did not write");
 
-            // remove identity from collection
-            NetworkIdentity.spawned.Remove(serverValue.netId);
+            // remove identity from client, as if it walked out of range
+            NetworkClient.spawned.Remove(clientValue.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -359,11 +382,11 @@ namespace Mirror.Tests.SyncVarTests
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
 
-            // add identity back to collection
-            NetworkIdentity.spawned.Add(serverValue.netId, serverValue);
+            // add identity back to collection, as if it walked back into range
+            NetworkClient.spawned.Add(clientValue.netId, clientValue);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
         }
 
         [Test]
@@ -371,14 +394,18 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void SyncVarCacheNetidForBehaviour(bool initialState)
         {
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour serverObject);
-            CreateNetworked(out _, out _, out SyncVarNetworkBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarNetworkBehaviour serverObject,
+                out _, out _, out SyncVarNetworkBehaviour clientObject);
 
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out SyncVarNetworkBehaviour serverValue);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SyncVarNetworkBehaviour serverValue,
+                out _, out NetworkIdentity clientIdentity, out SyncVarNetworkBehaviour clientValue);
 
             Assert.That(serverValue, Is.Not.Null, "getCreatedValue should not return null");
 
+            // set on server
             serverObject.value = serverValue;
             clientObject.value = null;
 
@@ -386,8 +413,8 @@ namespace Mirror.Tests.SyncVarTests
             bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
             Assert.IsTrue(written, "did not write");
 
-            // remove identity from collection
-            NetworkIdentity.spawned.Remove(identity.netId);
+            // remove identity from client, as if it walked out of range
+            NetworkClient.spawned.Remove(clientIdentity.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -395,11 +422,11 @@ namespace Mirror.Tests.SyncVarTests
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
 
-            // add identity back to collection
-            NetworkIdentity.spawned.Add(identity.netId, identity);
+            // add identity back to collection, as if it walked back into range
+            NetworkClient.spawned.Add(clientIdentity.netId, clientIdentity);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
+            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
         }
 
         [Test]

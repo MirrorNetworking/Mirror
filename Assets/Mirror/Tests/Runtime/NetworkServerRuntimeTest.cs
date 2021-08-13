@@ -72,7 +72,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsTrue(identity1 == null);
             Assert.IsTrue(identity2 == null);
 
-            Assert.That(NetworkIdentity.spawned, Is.Empty);
+            Assert.That(NetworkServer.spawned, Is.Empty);
         }
 
         NetworkIdentity SpawnPrefab(GameObject prefab)
@@ -80,7 +80,7 @@ namespace Mirror.Tests.Runtime
             GameObject clone1 = GameObject.Instantiate(prefab);
             NetworkServer.Spawn(clone1);
             NetworkIdentity identity1 = clone1.GetComponent<NetworkIdentity>();
-            Assert.IsTrue(NetworkIdentity.spawned.ContainsValue(identity1));
+            Assert.IsTrue(NetworkServer.spawned.ContainsValue(identity1));
             return identity1;
         }
 
@@ -106,7 +106,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsFalse(identity1.gameObject.activeSelf);
             Assert.IsFalse(identity1.gameObject.activeSelf);
 
-            Assert.That(NetworkIdentity.spawned, Is.Empty);
+            Assert.That(NetworkServer.spawned, Is.Empty);
         }
     }
 }

@@ -687,18 +687,20 @@ namespace Mirror.Tests
 
             // create a spawned, syncable GameObject
             // (client tries to look up via netid, so needs to be spawned)
-            CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity ni);
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity,
+                out GameObject clientGO, out NetworkIdentity clientIdentity);
 
             // assign ONLY netId in the component. assume that GameObject was
             // assigned earlier but client walked so far out of range that it
             // was despawned on the client. so it's forced to do the netId look-
             // up.
             Assert.That(comp.test, Is.Null);
-            comp.testNetId = ni.netId;
+            comp.testNetId = clientIdentity.netId;
 
             // get it on the client. should look up netId in spawned
             GameObject result = comp.GetSyncVarGameObjectExposed();
-            Assert.That(result, Is.EqualTo(go));
+            Assert.That(result, Is.EqualTo(clientGO));
         }
 
         [Test]
@@ -840,18 +842,20 @@ namespace Mirror.Tests
 
             // create a spawned, syncable GameObject
             // (client tries to look up via netid, so needs to be spawned)
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity ni);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity,
+                out _, out NetworkIdentity clientIdentity);
 
             // assign ONLY netId in the component. assume that GameObject was
             // assigned earlier but client walked so far out of range that it
             // was despawned on the client. so it's forced to do the netId look-
             // up.
             Assert.That(comp.test, Is.Null);
-            comp.testNetId = ni.netId;
+            comp.testNetId = clientIdentity.netId;
 
             // get it on the client. should look up netId in spawned
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
-            Assert.That(result, Is.EqualTo(ni));
+            Assert.That(result, Is.EqualTo(clientIdentity));
         }
 
         [Test]

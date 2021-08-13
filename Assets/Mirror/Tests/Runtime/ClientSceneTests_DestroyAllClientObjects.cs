@@ -28,7 +28,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             const int id = 32032;
             netId.netId = id;
 
-            NetworkIdentity.spawned.Add(id, netId);
+            NetworkClient.spawned.Add(id, netId);
         }
     }
 
@@ -157,7 +157,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             NetworkClient.DestroyAllClientObjects();
 
-            Assert.That(NetworkIdentity.spawned, Is.Empty);
+            Assert.That(NetworkClient.spawned, Is.Empty);
         }
 
         [Test]

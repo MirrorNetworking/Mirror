@@ -58,7 +58,7 @@ namespace Mirror
         // IMPORTANT: check if NetworkServer.active when using Update()!
         protected void RebuildAll()
         {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
             {
                 NetworkServer.RebuildObservers(identity, false);
             }

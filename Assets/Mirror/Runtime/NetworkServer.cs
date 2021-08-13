@@ -26,6 +26,11 @@ namespace Mirror
         internal static Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
+        /// <summary>All spawned NetworkIdentities by netId.</summary>
+        // server sees ALL spawned ones.
+        public static readonly Dictionary<uint, NetworkIdentity> spawned =
+            new Dictionary<uint, NetworkIdentity>();
+
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
@@ -88,7 +93,7 @@ namespace Mirror
         // client doesn't get spawn messages for those, so need to call manually.
         public static void ActivateHostScene()
         {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 if (!identity.isClient)
                 {
@@ -125,10 +130,10 @@ namespace Mirror
         // Note: NetworkClient.DestroyAllClientObjects does the same on client.
         static void CleanupSpawned()
         {
-            // iterate a COPY of NetworkIdentity.spawned.
+            // iterate a COPY of spawned.
             // DestroyObject removes them from the original collection.
             // removing while iterating is not allowed.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.ToList())
+            foreach (NetworkIdentity identity in spawned.Values.ToList())
             {
                 if (identity != null)
                 {
@@ -150,7 +155,7 @@ namespace Mirror
                 }
             }
 
-            NetworkIdentity.spawned.Clear();
+            spawned.Clear();
         }
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
@@ -858,7 +863,7 @@ namespace Mirror
         // players on a single client
         static void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
         {
-            if (!NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + msg.netId + "]");
                 return;
@@ -1103,7 +1108,7 @@ namespace Mirror
 
         static void SpawnObserversForConnection(NetworkConnection conn)
         {
-            // Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
+            // Debug.Log("Spawning " + spawned.Count + " objects for conn " + conn);
 
             if (!conn.isReady)
             {
@@ -1117,7 +1122,7 @@ namespace Mirror
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 // try with far away ones in ummorpg!
                 if (identity.gameObject.activeSelf) //TODO this is different
@@ -1225,7 +1230,7 @@ namespace Mirror
                 }
             }
             // Debug.Log("DestroyObject instance:" + identity.netId);
-            NetworkIdentity.spawned.Remove(identity.netId);
+            spawned.Remove(identity.netId);
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
@@ -1515,7 +1520,7 @@ namespace Mirror
             //   clear dirty bits if it has no observers.
             //   we did this before push->pull broadcasting so let's keep
             //   doing this for now.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 if (identity.observers == null || identity.observers.Count == 0)
                 {

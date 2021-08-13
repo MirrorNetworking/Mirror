@@ -46,7 +46,7 @@ namespace Mirror
             //   if scene changed:
             //     add previous to dirty
             //     add new to dirty
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
             {
                 Scene currentScene = lastObjectScene[identity];
                 Scene newScene = identity.gameObject.scene;
