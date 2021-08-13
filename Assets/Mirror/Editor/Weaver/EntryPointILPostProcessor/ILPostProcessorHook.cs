@@ -9,14 +9,12 @@ namespace Mirror.Weaver
 {
     public class ILPostProcessorHook : ILPostProcessor
     {
-        public override ILPostProcessor GetInstance()
-        {
-            throw new System.NotImplementedException();
-        }
+        // ???
+        public override ILPostProcessor GetInstance() => this;
 
         public override bool WillProcess(ICompiledAssembly compiledAssembly)
         {
-            throw new System.NotImplementedException();
+            return false;
         }
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
