@@ -29,7 +29,7 @@ namespace Mirror.Weaver
                 File = null,
                 Line = 0,
                 Column = 0,
-                MessageData = message
+                MessageData = $"Weaver ILPP: {message}"
             });
         }
 
