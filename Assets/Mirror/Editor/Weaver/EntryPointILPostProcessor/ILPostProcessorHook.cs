@@ -39,6 +39,14 @@ namespace Mirror.Weaver
         // TODO process Mirror, or anything that references Mirror
         public override bool WillProcess(ICompiledAssembly compiledAssembly)
         {
+            // compiledAssembly.References are file paths:
+            //   Library/Bee/artifacts/200b0aE.dag/Mirror.CompilerSymbols.dll
+            //   Assets/Mirror/Plugins/Mono.Cecil/Mono.CecilX.dll
+            //   /Applications/Unity/Hub/Editor/2021.2.0b6_apple_silicon/Unity.app/Contents/NetStandard/ref/2.1.0/netstandard.dll
+            //
+            // log them to see:
+            //     foreach (string reference in compiledAssembly.References)
+            //         Log($"{compiledAssembly.Name} references {reference}");
             return compiledAssembly.Name == MirrorRuntimeAssemblyName;
         }
 
