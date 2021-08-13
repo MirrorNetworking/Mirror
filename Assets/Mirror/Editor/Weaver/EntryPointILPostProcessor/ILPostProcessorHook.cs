@@ -4,6 +4,9 @@
 // Unity.*.CodeGen:
 // https://forum.unity.com/threads/how-does-unity-do-codegen-and-why-cant-i-do-it-myself.853867/#post-5646937
 using Unity.CompilationPipeline.Common.ILPostProcessing;
+// IMPORTANT: 'using UnityEngine' does not work in here.
+// Unity gives "(0,0): error System.Security.SecurityException: ECall methods must be packaged into a system module."
+//using UnityEngine;
 
 namespace Mirror.Weaver
 {
