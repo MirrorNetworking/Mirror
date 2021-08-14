@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Mono.CecilX;
 using Unity.CompilationPipeline.Common.Diagnostics;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 // IMPORTANT: 'using UnityEngine' does not work in here.
@@ -55,8 +56,25 @@ namespace Mirror.Weaver
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
-            Log($"Processing {compiledAssembly.Name}");
+             Log($"Processing {compiledAssembly.Name}");
+            TestWeave(compiledAssembly.InMemoryAssembly);
             return new ILPostProcessResult(compiledAssembly.InMemoryAssembly, Logs);
+        }
+
+        // test basic weaving
+        void TestWeave(InMemoryAssembly memoryAssembly)
+        {
+            // load the InMemoryAssembly peData into a MemoryStream
+            byte[] peData = memoryAssembly.PeData;
+            Log($"  peData.Length={peData.Length} bytes");
+            using (MemoryStream stream = new MemoryStream(peData))
+            {
+                // feed it to cecil
+                AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream);
+                Log($"  asmdef: {asmDef}");
+            }
+
+            // TODO return the modified assembly
         }
     }
 }
