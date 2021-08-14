@@ -170,12 +170,13 @@ namespace Mirror.Weaver
                                                td.Name == GeneratedCodeClassName);
         }
 
-        static bool Weave(string assName, IEnumerable<string> dependencies)
+        // assembly as stream to support both files and in-memory assemblies
+        static bool Weave(Stream assemblyStream, string assemblyPath, IEnumerable<string> dependencies)
         {
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-            using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assName, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
+            using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assemblyStream, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(assName));
+                asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
                 asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
                 if (dependencies != null)
                 {
@@ -244,7 +245,11 @@ namespace Mirror.Weaver
 
             try
             {
-                return Weave(assembly, dependencies);
+                // open the file as stream
+                using (FileStream stream = new FileStream(assembly, FileMode.Open, FileAccess.ReadWrite))
+                {
+                    return Weave(stream, assembly, dependencies);
+                }
             }
             catch (Exception e)
             {
