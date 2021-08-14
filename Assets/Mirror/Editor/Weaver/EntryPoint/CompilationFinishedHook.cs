@@ -140,6 +140,7 @@ namespace Mirror.Weaver
             Log.Warning = HandleWarning;
             Log.Error = HandleError;
 
+            Debug.Log($"(old) Weaving: {assemblyPath}");
             if (!Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray()))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
