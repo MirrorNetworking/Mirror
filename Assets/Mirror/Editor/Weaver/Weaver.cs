@@ -239,6 +239,7 @@ namespace Mirror.Weaver
             return true;
         }
 
+        // TODO move this into CompilationFinishedHook since it's only for old method
         public static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies)
         {
             WeavingFailed = false;
