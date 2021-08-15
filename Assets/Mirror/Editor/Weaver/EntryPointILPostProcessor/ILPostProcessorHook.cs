@@ -6,7 +6,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Mono.CecilX;
 using Unity.CompilationPipeline.Common.Diagnostics;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 // IMPORTANT: 'using UnityEngine' does not work in here.
@@ -23,7 +22,7 @@ namespace Mirror.Weaver
         // can't Debug.Log in here. need to add to this list.
         public List<DiagnosticMessage> Logs = new List<DiagnosticMessage>();
 
-        public void Log(string message, DiagnosticType logType = DiagnosticType.Warning)
+        public void LogDiagnostics(string message, DiagnosticType logType = DiagnosticType.Warning)
         {
             Logs.Add(new DiagnosticMessage
             {
@@ -49,26 +48,39 @@ namespace Mirror.Weaver
             //
             // log them to see:
             //     foreach (string reference in compiledAssembly.References)
-            //         Log($"{compiledAssembly.Name} references {reference}");
+            //         LogDiagnostics($"{compiledAssembly.Name} references {reference}");
             return compiledAssembly.Name == MirrorRuntimeAssemblyName ||
                    compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
         }
 
+        // warning message handler that also calls OnWarningMethod delegate
+        static void HandleWarning(string msg)
+        {
+        }
+
+        // error message handler that also calls OnErrorMethod delegate
+        static void HandleError(string msg)
+        {
+        }
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
-            Log($"Processing {compiledAssembly.Name}");
+            LogDiagnostics($"Processing {compiledAssembly.Name}");
+
+            // set up Weaver Log functions to use ILPostProcess Diagnostics log
+            Log.Warning = msg => LogDiagnostics(msg, DiagnosticType.Warning);
+            Log.Error = msg => LogDiagnostics(msg, DiagnosticType.Error);
 
             // load the InMemoryAssembly peData into a MemoryStream
             byte[] peData = compiledAssembly.InMemoryAssembly.PeData;
-            Log($"  peData.Length={peData.Length} bytes");
+            LogDiagnostics($"  peData.Length={peData.Length} bytes");
             using (MemoryStream stream = new MemoryStream(peData))
             {
                 // TODO assembly path
                 if (Weaver.Weave(stream, "", compiledAssembly.References))
                 {
-                    Log($"Weaving succeeded for: {compiledAssembly.Name}");
+                    LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
                 }
-                else Log($"Weaving failed for: {compiledAssembly.Name}");
+                else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
             }
 
             // TODO needs modified assembly
