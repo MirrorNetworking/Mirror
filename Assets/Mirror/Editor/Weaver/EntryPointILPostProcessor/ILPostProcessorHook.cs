@@ -64,7 +64,7 @@ namespace Mirror.Weaver
 
             // load the InMemoryAssembly peData into a MemoryStream
             byte[] peData = compiledAssembly.InMemoryAssembly.PeData;
-            LogDiagnostics($"  peData.Length={peData.Length} bytes");
+            //LogDiagnostics($"  peData.Length={peData.Length} bytes");
             using (MemoryStream stream = new MemoryStream(peData))
             {
                 using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
