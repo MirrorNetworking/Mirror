@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Mono.CecilX;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -141,15 +142,35 @@ namespace Mirror.Weaver
             Log.Error = HandleError;
 
             Debug.Log($"(old) Weaving: {assemblyPath}");
+            WeaveFromFile(assemblyPath, dependencyPaths.ToArray());
+        }
 
+        // helper function to invoke Weaver with an AssemblyDefinition from a
+        // file path, with dependencies added.
+        static void WeaveFromFile(string assemblyPath, string[] dependencies)
+        {
             // open the file as stream
             using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
             {
-                if (!Weaver.Weave(stream, assemblyPath, dependencyPaths.ToArray()))
+                using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
                 {
-                    // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
-                    SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-                    if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+                    asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
+                    asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
+                    if (dependencies != null)
+                    {
+                        foreach (string path in dependencies)
+                        {
+                            asmResolver.AddSearchDirectory(path);
+                        }
+                    }
+
+                    if (!Weaver.Weave(asmDef))
+                    {
+                        // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
+                        SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
+                        if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+                    }
                 }
             }
         }

@@ -76,11 +76,11 @@ namespace Mirror.Weaver
             using (MemoryStream stream = new MemoryStream(peData))
             {
                 // TODO assembly path
-                if (Weaver.Weave(stream, "", compiledAssembly.References))
+                /*if (Weaver.Weave(stream, "", compiledAssembly.References))
                 {
                     LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
                 }
-                else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
+                else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");*/
             }
 
             // TODO needs modified assembly
