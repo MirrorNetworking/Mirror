@@ -78,20 +78,26 @@ namespace Mirror.Weaver
             {
                 using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
                 {
-                    ReaderParameters readerParameters = new ReaderParameters{
-                        ReadWrite = true,
-                        ReadSymbols = true,
-                        AssemblyResolver = asmResolver
-                    };
-                    using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
+                    // we need to load symbols. otherwise we get:
+                    // "(0,0): error Mono.CecilX.Cil.SymbolsNotFoundException: No symbol found for file: "
+                    using (MemoryStream symbols = new MemoryStream(compiledAssembly.InMemoryAssembly.PdbData))
                     {
-                        // TODO add dependencies?
-
-                        if (Weaver.Weave(asmDef))
+                        ReaderParameters readerParameters = new ReaderParameters{
+                            SymbolStream = symbols,
+                            ReadWrite = true,
+                            ReadSymbols = true,
+                            AssemblyResolver = asmResolver
+                        };
+                        using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
                         {
-                            LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
+                            // TODO add dependencies?
+
+                            if (Weaver.Weave(asmDef))
+                            {
+                                LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
+                            }
+                            else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
                         }
-                        else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
                     }
                 }
             }
