@@ -23,12 +23,12 @@ namespace Mirror.Weaver
         // can't Debug.Log in here. need to add to this list.
         public List<DiagnosticMessage> Logs = new List<DiagnosticMessage>();
 
-        public void Log(string message)
+        public void Log(string message, DiagnosticType logType = DiagnosticType.Warning)
         {
             Logs.Add(new DiagnosticMessage
             {
                 // TODO add file etc. for double click opening later?
-                DiagnosticType = DiagnosticType.Warning, // doesn't have .Log
+                DiagnosticType = logType, // doesn't have .Log
                 File = null,
                 Line = 0,
                 Column = 0,
