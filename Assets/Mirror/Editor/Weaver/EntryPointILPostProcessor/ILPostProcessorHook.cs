@@ -63,6 +63,7 @@ namespace Mirror.Weaver
             Log($"  peData.Length={peData.Length} bytes");
             using (MemoryStream stream = new MemoryStream(peData))
             {
+                // TODO assembly path
                 if (Weaver.Weave(stream, "", compiledAssembly.References))
                 {
                     Log($"Weaving succeeded for: {compiledAssembly.Name}");
