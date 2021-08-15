@@ -87,6 +87,7 @@ namespace Mirror.Weaver
                             {
                                 LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
                                 // TODO return modified assembly
+                                // TODO AND pdb / debug symbols
                             }
                             else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
                         }
