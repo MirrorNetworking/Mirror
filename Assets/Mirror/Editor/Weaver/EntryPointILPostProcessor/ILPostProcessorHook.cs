@@ -56,22 +56,24 @@ namespace Mirror.Weaver
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
-             Log($"Processing {compiledAssembly.Name}");
-            TestWeave(compiledAssembly.InMemoryAssembly);
+            Log($"Processing {compiledAssembly.Name}");
+            TestWeave(compiledAssembly);
             return new ILPostProcessResult(compiledAssembly.InMemoryAssembly, Logs);
         }
 
         // test basic weaving
-        void TestWeave(InMemoryAssembly memoryAssembly)
+        void TestWeave(ICompiledAssembly compiledAssembly)
         {
             // load the InMemoryAssembly peData into a MemoryStream
-            byte[] peData = memoryAssembly.PeData;
+            byte[] peData = compiledAssembly.InMemoryAssembly.PeData;
             Log($"  peData.Length={peData.Length} bytes");
             using (MemoryStream stream = new MemoryStream(peData))
             {
-                // feed it to cecil
-                AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream);
-                Log($"  asmdef: {asmDef}");
+                if (Weaver.Weave(stream, "", compiledAssembly.References))
+                {
+                    Log($"Weaving succeeded for: {compiledAssembly.Name}");
+                }
+                else Log($"Weaving failed for: {compiledAssembly.Name}");
             }
 
             // TODO return the modified assembly
