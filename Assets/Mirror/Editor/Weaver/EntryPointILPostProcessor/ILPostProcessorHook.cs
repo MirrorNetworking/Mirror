@@ -6,6 +6,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Mono.CecilX;
 using Unity.CompilationPipeline.Common.Diagnostics;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 // IMPORTANT: 'using UnityEngine' does not work in here.
@@ -75,12 +76,24 @@ namespace Mirror.Weaver
             LogDiagnostics($"  peData.Length={peData.Length} bytes");
             using (MemoryStream stream = new MemoryStream(peData))
             {
-                // TODO assembly path
-                /*if (Weaver.Weave(stream, "", compiledAssembly.References))
+                using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
                 {
-                    LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
+                    ReaderParameters readerParameters = new ReaderParameters{
+                        ReadWrite = true,
+                        ReadSymbols = true,
+                        AssemblyResolver = asmResolver
+                    };
+                    using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
+                    {
+                        // TODO add dependencies?
+
+                        if (Weaver.Weave(asmDef))
+                        {
+                            LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
+                        }
+                        else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
+                    }
                 }
-                else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");*/
             }
 
             // TODO needs modified assembly
