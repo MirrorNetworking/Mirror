@@ -86,6 +86,7 @@ namespace Mirror.Weaver
                             if (Weaver.Weave(asmDef))
                             {
                                 LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
+                                // TODO return modified assembly
                             }
                             else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
                         }
