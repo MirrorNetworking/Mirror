@@ -54,15 +54,6 @@ namespace Mirror.Weaver
                    compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
         }
 
-        // warning message handler that also calls OnWarningMethod delegate
-        static void HandleWarning(string msg)
-        {
-        }
-
-        // error message handler that also calls OnErrorMethod delegate
-        static void HandleError(string msg)
-        {
-        }
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
             LogDiagnostics($"Processing {compiledAssembly.Name}");
