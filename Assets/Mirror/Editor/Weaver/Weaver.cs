@@ -171,85 +171,73 @@ namespace Mirror.Weaver
         }
 
         // assembly as stream to support both files and in-memory assemblies
-        static bool Weave(Stream assemblyStream, string assemblyPath, IEnumerable<string> dependencies)
-        {
-            using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-            using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assemblyStream, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
-            {
-                asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
-                asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
-                if (dependencies != null)
-                {
-                    foreach (string path in dependencies)
-                    {
-                        asmResolver.AddSearchDirectory(path);
-                    }
-                }
-
-                // fix "No writer found for ..." error
-                // https://github.com/vis2k/Mirror/issues/2579
-                // -> when restarting Unity, weaver would try to weave a DLL
-                //    again
-                // -> resulting in two GeneratedNetworkCode classes (see ILSpy)
-                // -> the second one wouldn't have all the writer types setup
-                if (ContainsGeneratedCodeClass(CurrentAssembly.MainModule))
-                {
-                    //Log.Warning($"Weaver: skipping {CurrentAssembly.Name} because already weaved");
-                    return true;
-                }
-
-                WeaverTypes.SetupTargetTypes(CurrentAssembly);
-
-                CreateGeneratedCodeClass();
-
-                // WeaverList depends on WeaverTypes setup because it uses Import
-                WeaveLists = new WeaverLists();
-
-                System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
-                // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
-                bool modified = ReaderWriterProcessor.Process(CurrentAssembly);
-                rwstopwatch.Stop();
-                Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
-
-                ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
-                Console.WriteLine($"Script Module: {moduleDefinition.Name}");
-
-                modified |= WeaveModule(moduleDefinition);
-
-                if (WeavingFailed)
-                {
-                    return false;
-                }
-
-                if (modified)
-                {
-                    PropertySiteProcessor.Process(moduleDefinition);
-
-                    // add class that holds read/write functions
-                    moduleDefinition.Types.Add(GeneratedCodeClass);
-
-                    ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly);
-
-                    // write to outputDir if specified, otherwise perform in-place write
-                    WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
-                    CurrentAssembly.Write(writeParams);
-                }
-            }
-
-            return true;
-        }
-
-        // TODO move this into CompilationFinishedHook since it's only for old method
-        public static bool WeaveAssembly(string assembly, IEnumerable<string> dependencies)
+        public static bool Weave(Stream assemblyStream, string assemblyPath, IEnumerable<string> dependencies)
         {
             WeavingFailed = false;
 
             try
             {
-                // open the file as stream
-                using (FileStream stream = new FileStream(assembly, FileMode.Open, FileAccess.ReadWrite))
+                using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                using (CurrentAssembly = AssemblyDefinition.ReadAssembly(assemblyStream, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
                 {
-                    return Weave(stream, assembly, dependencies);
+                    asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
+                    asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
+                    if (dependencies != null)
+                    {
+                        foreach (string path in dependencies)
+                        {
+                            asmResolver.AddSearchDirectory(path);
+                        }
+                    }
+
+                    // fix "No writer found for ..." error
+                    // https://github.com/vis2k/Mirror/issues/2579
+                    // -> when restarting Unity, weaver would try to weave a DLL
+                    //    again
+                    // -> resulting in two GeneratedNetworkCode classes (see ILSpy)
+                    // -> the second one wouldn't have all the writer types setup
+                    if (ContainsGeneratedCodeClass(CurrentAssembly.MainModule))
+                    {
+                        //Log.Warning($"Weaver: skipping {CurrentAssembly.Name} because already weaved");
+                        return true;
+                    }
+
+                    WeaverTypes.SetupTargetTypes(CurrentAssembly);
+
+                    CreateGeneratedCodeClass();
+
+                    // WeaverList depends on WeaverTypes setup because it uses Import
+                    WeaveLists = new WeaverLists();
+
+                    System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
+                    bool modified = ReaderWriterProcessor.Process(CurrentAssembly);
+                    rwstopwatch.Stop();
+                    Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
+
+                    ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
+                    Console.WriteLine($"Script Module: {moduleDefinition.Name}");
+
+                    modified |= WeaveModule(moduleDefinition);
+
+                    if (WeavingFailed)
+                    {
+                        return false;
+                    }
+
+                    if (modified)
+                    {
+                        PropertySiteProcessor.Process(moduleDefinition);
+
+                        // add class that holds read/write functions
+                        moduleDefinition.Types.Add(GeneratedCodeClass);
+
+                        ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly);
+
+                        // write to outputDir if specified, otherwise perform in-place write
+                        WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
+                        CurrentAssembly.Write(writeParams);
+                    }
                 }
             }
             catch (Exception e)
@@ -257,7 +245,8 @@ namespace Mirror.Weaver
                 Log.Error("Exception :" + e);
                 return false;
             }
-        }
 
+            return true;
+        }
     }
 }

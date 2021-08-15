@@ -141,11 +141,16 @@ namespace Mirror.Weaver
             Log.Error = HandleError;
 
             Debug.Log($"(old) Weaving: {assemblyPath}");
-            if (!Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray()))
+
+            // open the file as stream
+            using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
             {
-                // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
-                SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+                if (!Weaver.Weave(stream, assemblyPath, dependencyPaths.ToArray()))
+                {
+                    // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
+                    SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
+                    if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+                }
             }
         }
 
