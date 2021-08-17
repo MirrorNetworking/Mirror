@@ -157,7 +157,7 @@ namespace Mirror.Weaver
             // uses generic ReadNetworkBehaviour rather than having weaver create one for each NB
             MethodReference generic = Weaver.weaverTypes.readNetworkBehaviourGeneric;
 
-            MethodReference readFunc = generic.MakeGeneric(variableReference);
+            MethodReference readFunc = generic.MakeGeneric(assembly.MainModule, variableReference);
 
             // register function so it is added to Reader<T>
             // use Register instead of RegisterWriteFunc because this is not a generated function
@@ -197,7 +197,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, GetReadFunc(arrayType));
 
             // return new ArraySegment<T>($array);
-            worker.Emit(OpCodes.Newobj, Weaver.weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance));
+            worker.Emit(OpCodes.Newobj, Weaver.weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
             worker.Emit(OpCodes.Ret);
             return readerFunc;
         }
@@ -363,12 +363,12 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldnull);
                 worker.Emit(OpCodes.Ldftn, readFunc);
                 GenericInstanceType funcGenericInstance = funcRef.MakeGenericInstanceType(networkReaderRef, targetType);
-                MethodReference funcConstructorInstance = funcConstructorRef.MakeHostInstanceGeneric(funcGenericInstance);
+                MethodReference funcConstructorInstance = funcConstructorRef.MakeHostInstanceGeneric(assembly.MainModule, funcGenericInstance);
                 worker.Emit(OpCodes.Newobj, funcConstructorInstance);
 
                 // save it in Reader<T>.read
                 GenericInstanceType genericInstance = genericReaderClassRef.MakeGenericInstanceType(targetType);
-                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
+                FieldReference specializedField = fieldRef.SpecializeField(assembly.MainModule, genericInstance);
                 worker.Emit(OpCodes.Stsfld, specializedField);
             }
         }

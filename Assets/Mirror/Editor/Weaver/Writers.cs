@@ -321,12 +321,12 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldnull);
                 worker.Emit(OpCodes.Ldftn, writeFunc);
                 GenericInstanceType actionGenericInstance = actionRef.MakeGenericInstanceType(networkWriterRef, targetType);
-                MethodReference actionRefInstance = actionConstructorRef.MakeHostInstanceGeneric(actionGenericInstance);
+                MethodReference actionRefInstance = actionConstructorRef.MakeHostInstanceGeneric(assembly.MainModule, actionGenericInstance);
                 worker.Emit(OpCodes.Newobj, actionRefInstance);
 
                 // save it in Writer<T>.write
                 GenericInstanceType genericInstance = genericWriterClassRef.MakeGenericInstanceType(targetType);
-                FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
+                FieldReference specializedField = fieldRef.SpecializeField(assembly.MainModule, genericInstance);
                 worker.Emit(OpCodes.Stsfld, specializedField);
             }
         }

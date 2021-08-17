@@ -115,7 +115,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldfld, netFieldId);
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
-                MethodReference getFunc = Weaver.weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(fd.FieldType);
+                MethodReference getFunc = Weaver.weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(Weaver.CurrentAssembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
                 worker.Emit(OpCodes.Ret);
             }
@@ -175,7 +175,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
 
-                MethodReference getFunc = Weaver.weaverTypes.syncVarNetworkBehaviourEqualReference.MakeGeneric(fd.FieldType);
+                MethodReference getFunc = Weaver.weaverTypes.syncVarNetworkBehaviourEqualReference.MakeGeneric(Weaver.CurrentAssembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
             }
             else
@@ -234,7 +234,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
 
-                MethodReference getFunc = Weaver.weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(fd.FieldType);
+                MethodReference getFunc = Weaver.weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(Weaver.CurrentAssembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
             }
             else

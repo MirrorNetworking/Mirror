@@ -113,12 +113,12 @@ namespace Mirror.Weaver
         }
 
         // Makes T => Variable and imports function
-        public static MethodReference MakeGeneric(this MethodReference generic, TypeReference variableReference)
+        public static MethodReference MakeGeneric(this MethodReference generic, ModuleDefinition module, TypeReference variableReference)
         {
             GenericInstanceMethod instance = new GenericInstanceMethod(generic);
             instance.GenericArguments.Add(variableReference);
 
-            MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+            MethodReference readFunc = module.ImportReference(instance);
             return readFunc;
         }
 
@@ -126,7 +126,7 @@ namespace Mirror.Weaver
         // and a generic instance such as ArraySegment`int
         // Creates a reference to the specialized method  ArraySegment`int`.get_Count
         // Note that calling ArraySegment`T.get_Count directly gives an invalid IL error
-        public static MethodReference MakeHostInstanceGeneric(this MethodReference self, GenericInstanceType instanceType)
+        public static MethodReference MakeHostInstanceGeneric(this MethodReference self, ModuleDefinition module, GenericInstanceType instanceType)
         {
             MethodReference reference = new MethodReference(self.Name, self.ReturnType, instanceType)
             {
@@ -141,17 +141,17 @@ namespace Mirror.Weaver
             foreach (GenericParameter generic_parameter in self.GenericParameters)
                 reference.GenericParameters.Add(new GenericParameter(generic_parameter.Name, reference));
 
-            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+            return module.ImportReference(reference);
         }
 
         // Given a field of a generic class such as Writer<T>.write,
         // and a generic instance such as ArraySegment`int
         // Creates a reference to the specialized method  ArraySegment`int`.get_Count
         // Note that calling ArraySegment`T.get_Count directly gives an invalid IL error
-        public static FieldReference SpecializeField(this FieldReference self, GenericInstanceType instanceType)
+        public static FieldReference SpecializeField(this FieldReference self, ModuleDefinition module, GenericInstanceType instanceType)
         {
             FieldReference reference = new FieldReference(self.Name, self.FieldType, instanceType);
-            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+            return module.ImportReference(reference);
         }
 
         public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
