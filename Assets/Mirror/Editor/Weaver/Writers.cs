@@ -6,16 +6,13 @@ using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
-    public static class Writers
+    // not static, because ILPostProcessor is multithreaded
+    public class Writers
     {
-        static Dictionary<TypeReference, MethodReference> writeFuncs;
+        Dictionary<TypeReference, MethodReference> writeFuncs =
+            new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
-        public static void Init()
-        {
-            writeFuncs = new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
-        }
-
-        public static void Register(TypeReference dataType, MethodReference methodReference)
+        public void Register(TypeReference dataType, MethodReference methodReference)
         {
             if (writeFuncs.ContainsKey(dataType))
             {
@@ -30,7 +27,7 @@ namespace Mirror.Weaver
             writeFuncs[imported] = methodReference;
         }
 
-        static void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
+        void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
         {
             Register(typeReference, newWriterFunc);
 
@@ -38,7 +35,7 @@ namespace Mirror.Weaver
         }
 
         // Finds existing writer for type, if non exists trys to create one
-        public static MethodReference GetWriteFunc(TypeReference variable)
+        public MethodReference GetWriteFunc(TypeReference variable)
         {
             if (writeFuncs.TryGetValue(variable, out MethodReference foundFunc))
             {
@@ -62,7 +59,7 @@ namespace Mirror.Weaver
         }
 
         //Throws GenerateWriterException when writer could not be generated for type
-        static MethodReference GenerateWriter(TypeReference variableReference)
+        MethodReference GenerateWriter(TypeReference variableReference)
         {
             if (variableReference.IsByReference)
             {
@@ -144,7 +141,7 @@ namespace Mirror.Weaver
             return GenerateClassOrStructWriterFunction(variableReference);
         }
 
-        static MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
+        MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
         {
             // all NetworkBehaviours can use the same write function
             if (writeFuncs.TryGetValue(Weaver.weaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
@@ -162,7 +159,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
+        MethodDefinition GenerateEnumWriteFunc(TypeReference variable)
         {
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
@@ -178,7 +175,7 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        static MethodDefinition GenerateWriterFunc(TypeReference variable)
+        MethodDefinition GenerateWriterFunc(TypeReference variable)
         {
             string functionName = "_Write_" + variable.FullName;
             // create new writer for this type
@@ -196,7 +193,7 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        static MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable)
+        MethodDefinition GenerateClassOrStructWriterFunction(TypeReference variable)
         {
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
@@ -212,7 +209,7 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        static void WriteNullCheck(ILProcessor worker)
+        void WriteNullCheck(ILProcessor worker)
         {
             // if (value == null)
             // {
@@ -237,7 +234,7 @@ namespace Mirror.Weaver
         }
 
         /// Find all fields in type and write them
-        static bool WriteAllFields(TypeReference variable, ILProcessor worker)
+        bool WriteAllFields(TypeReference variable, ILProcessor worker)
         {
             uint fields = 0;
             foreach (FieldDefinition field in variable.FindAllPublicFields())
@@ -258,7 +255,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        static MethodDefinition GenerateCollectionWriter(TypeReference variable, TypeReference elementType, string writerFunction)
+        MethodDefinition GenerateCollectionWriter(TypeReference variable, TypeReference elementType, string writerFunction)
         {
 
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
@@ -296,7 +293,7 @@ namespace Mirror.Weaver
         }
 
         // Save a delegate for each one of the writers into Writer{T}.write
-        internal static void InitializeWriters(ILProcessor worker)
+        internal void InitializeWriters(ILProcessor worker)
         {
             ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
 

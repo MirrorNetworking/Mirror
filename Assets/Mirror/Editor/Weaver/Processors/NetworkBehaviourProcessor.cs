@@ -175,7 +175,7 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference writeFunc = Writers.GetWriteFunc(param.ParameterType);
+                MethodReference writeFunc = ReaderWriterProcessor.writers.GetWriteFunc(param.ParameterType);
                 if (writeFunc == null)
                 {
                     Weaver.Error($"{method.Name} has invalid parameter {param}", method);
@@ -404,7 +404,7 @@ namespace Mirror.Weaver
                 // this
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, syncVar);
-                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = ReaderWriterProcessor.writers.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);
@@ -433,7 +433,7 @@ namespace Mirror.Weaver
             // base
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Call, Weaver.weaverTypes.NetworkBehaviourDirtyBitsReference);
-            MethodReference writeUint64Func = Writers.GetWriteFunc(Weaver.weaverTypes.Import<ulong>());
+            MethodReference writeUint64Func = ReaderWriterProcessor.writers.GetWriteFunc(Weaver.weaverTypes.Import<ulong>());
             worker.Emit(OpCodes.Call, writeUint64Func);
 
             // generate a writer call for any dirty variable in this class
@@ -460,7 +460,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, syncVar);
 
-                MethodReference writeFunc = Writers.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = ReaderWriterProcessor.writers.GetWriteFunc(syncVar.FieldType);
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);
