@@ -9,6 +9,9 @@ namespace Mirror.Weaver
     // not static, because ILPostProcessor is multithreaded
     public class Readers
     {
+        // Readers are only for this assembly.
+        // can't be used from another assembly, otherwise we will get:
+        // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
         AssemblyDefinition assembly;
 
         Dictionary<TypeReference, MethodReference> readFuncs =
