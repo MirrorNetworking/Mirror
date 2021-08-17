@@ -11,11 +11,19 @@ namespace Mirror.Weaver
 {
     public static class ReaderWriterProcessor
     {
-        public static Writers writers = new Writers();
-        public static Readers readers = new Readers();
+        public static Writers writers;
+        public static Readers readers;
 
         public static bool Process(AssemblyDefinition CurrentAssembly)
         {
+            // initialize readers & writers with this assembly.
+            // we need to do this in every Process() call.
+            // otherwise we would get
+            // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
+            // errors when still using the previous module's reader/writer funcs.
+            writers = new Writers(CurrentAssembly);
+            readers = new Readers();
+
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
             {
                 if (unityAsm.name == "Mirror")

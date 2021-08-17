@@ -9,8 +9,12 @@ namespace Mirror.Weaver
     // not static, because ILPostProcessor is multithreaded
     public class Writers
     {
+        AssemblyDefinition assembly;
+
         Dictionary<TypeReference, MethodReference> writeFuncs =
             new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
+
+        public Writers(AssemblyDefinition assembly) => this.assembly = assembly;
 
         public void Register(TypeReference dataType, MethodReference methodReference)
         {
@@ -23,7 +27,7 @@ namespace Mirror.Weaver
             }
 
             // we need to import type when we Initialize Writers so import here in case it is used anywhere else
-            TypeReference imported = Weaver.CurrentAssembly.MainModule.ImportReference(dataType);
+            TypeReference imported = assembly.MainModule.ImportReference(dataType);
             writeFuncs[imported] = methodReference;
         }
 
@@ -46,7 +50,7 @@ namespace Mirror.Weaver
                 // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
                 try
                 {
-                    TypeReference importedVariable = Weaver.CurrentAssembly.MainModule.ImportReference(variable);
+                    TypeReference importedVariable = assembly.MainModule.ImportReference(variable);
                     return GenerateWriter(importedVariable);
                 }
                 catch (GenerateWriterException e)
@@ -243,7 +247,7 @@ namespace Mirror.Weaver
                 // need this null check till later PR when GetWriteFunc throws exception instead
                 if (writeFunc == null) { return false; }
 
-                FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+                FieldReference fieldRef = assembly.MainModule.ImportReference(field);
 
                 fields++;
                 worker.Emit(OpCodes.Ldarg_0);
@@ -271,7 +275,7 @@ namespace Mirror.Weaver
                 return writerFunc;
             }
 
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+            ModuleDefinition module = assembly.MainModule;
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkWriterExtensions));
             MethodReference collectionWriter = Resolvers.ResolveMethod(readerExtensions, Weaver.CurrentAssembly, writerFunction);
 
@@ -295,7 +299,7 @@ namespace Mirror.Weaver
         // Save a delegate for each one of the writers into Writer{T}.write
         internal void InitializeWriters(ILProcessor worker)
         {
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+            ModuleDefinition module = assembly.MainModule;
 
             TypeReference genericWriterClassRef = module.ImportReference(typeof(Writer<>));
 
