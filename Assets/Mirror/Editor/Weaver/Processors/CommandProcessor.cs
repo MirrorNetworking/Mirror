@@ -3,9 +3,7 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    /// <summary>
-    /// Processes [Command] methods in NetworkBehaviour
-    /// </summary>
+    // Processes [Command] methods in NetworkBehaviour
     public static class CommandProcessor
     {
         /*
