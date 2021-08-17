@@ -12,8 +12,15 @@ namespace Mirror.Weaver
         // ulong = 64 bytes
         const int SyncVarLimit = 64;
 
+        AssemblyDefinition assembly;
+
         string HookParameterMessage(string hookName, TypeReference ValueType) =>
             $"void {hookName}({ValueType} oldValue, {ValueType} newValue)";
+
+        public SyncVarProcessor(AssemblyDefinition assembly)
+        {
+            this.assembly = assembly;
+        }
 
         // Get hook method if any
         public MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
@@ -116,7 +123,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldfld, netFieldId);
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
-                MethodReference getFunc = Weaver.weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(Weaver.CurrentAssembly.MainModule, fd.FieldType);
+                MethodReference getFunc = Weaver.weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
                 worker.Emit(OpCodes.Ret);
             }
@@ -176,7 +183,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
 
-                MethodReference getFunc = Weaver.weaverTypes.syncVarNetworkBehaviourEqualReference.MakeGeneric(Weaver.CurrentAssembly.MainModule, fd.FieldType);
+                MethodReference getFunc = Weaver.weaverTypes.syncVarNetworkBehaviourEqualReference.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
             }
             else
@@ -235,7 +242,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
 
-                MethodReference getFunc = Weaver.weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(Weaver.CurrentAssembly.MainModule, fd.FieldType);
+                MethodReference getFunc = Weaver.weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
             }
             else
