@@ -37,12 +37,7 @@ namespace Mirror.Weaver
             Weaver.GeneratedCodeClass.Methods.Add(newReaderFunc);
         }
 
-        /// <summary>
-        /// Finds existing reader for type, if non exists trys to create one
-        /// <para>This method is recursive</para>
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <returns>Returns <see cref="MethodReference"/> or null</returns>
+        // Finds existing reader for type, if non exists trys to create one
         public static MethodReference GetReadFunc(TypeReference variable)
         {
             if (readFuncs.TryGetValue(variable, out MethodReference foundFunc))
@@ -331,10 +326,7 @@ namespace Mirror.Weaver
             }
         }
 
-        /// <summary>
-        /// Save a delegate for each one of the readers into <see cref="Reader{T}.read"/>
-        /// </summary>
-        /// <param name="worker"></param>
+        // Save a delegate for each one of the readers into Reader{T}.read
         internal static void InitializeReaders(ILProcessor worker)
         {
             ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
@@ -364,7 +356,6 @@ namespace Mirror.Weaver
                 FieldReference specializedField = fieldRef.SpecializeField(genericInstance);
                 worker.Emit(OpCodes.Stsfld, specializedField);
             }
-
         }
     }
 }

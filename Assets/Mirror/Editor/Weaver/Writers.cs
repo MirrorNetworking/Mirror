@@ -37,12 +37,7 @@ namespace Mirror.Weaver
             Weaver.GeneratedCodeClass.Methods.Add(newWriterFunc);
         }
 
-        /// <summary>
-        /// Finds existing writer for type, if non exists trys to create one
-        /// <para>This method is recursive</para>
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <returns>Returns <see cref="MethodReference"/> or null</returns>
+        // Finds existing writer for type, if non exists trys to create one
         public static MethodReference GetWriteFunc(TypeReference variable)
         {
             if (writeFuncs.TryGetValue(variable, out MethodReference foundFunc))
@@ -65,7 +60,7 @@ namespace Mirror.Weaver
             }
         }
 
-        /// <exception cref="GenerateWriterException">Throws when writer could not be generated for type</exception>
+        //Throws GenerateWriterException when writer could not be generated for type
         static MethodReference GenerateWriter(TypeReference variableReference)
         {
             if (variableReference.IsByReference)
@@ -240,12 +235,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, GetWriteFunc(WeaverTypes.Import<bool>()));
         }
 
-        /// <summary>
         /// Find all fields in type and write them
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <param name="worker"></param>
-        /// <returns>false if fail</returns>
         static bool WriteAllFields(TypeReference variable, ILProcessor worker)
         {
             uint fields = 0;
@@ -303,10 +293,7 @@ namespace Mirror.Weaver
             return writerFunc;
         }
 
-        /// <summary>
-        /// Save a delegate for each one of the writers into <see cref="Writer{T}.write"/>
-        /// </summary>
-        /// <param name="worker"></param>
+        // Save a delegate for each one of the writers into Writer{T}.write
         internal static void InitializeWriters(ILProcessor worker)
         {
             ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
@@ -337,6 +324,5 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Stsfld, specializedField);
             }
         }
-
     }
 }
