@@ -3,9 +3,7 @@ using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
-    /// <summary>
-    /// Compares TypeReference using FullName
-    /// </summary>
+    // Compares TypeReference using FullName
     public class TypeReferenceComparer : IEqualityComparer<TypeReference>
     {
         public bool Equals(TypeReference x, TypeReference y)
