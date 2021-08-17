@@ -3,9 +3,7 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    /// <summary>
-    /// Processes [TargetRpc] methods in NetworkBehaviour
-    /// </summary>
+    // Processes [TargetRpc] methods in NetworkBehaviour
     public static class TargetRpcProcessor
     {
         // helper functions to check if the method has a NetworkConnection parameter

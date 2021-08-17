@@ -70,12 +70,8 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        /// <summary>
-        /// Finds and fixes call to base methods within remote calls
-        /// <para>For example, changes `base.CmdDoSomething` to `base.CallCmdDoSomething` within `this.CallCmdDoSomething`</para>
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="method"></param>
+        // Finds and fixes call to base methods within remote calls
+        //For example, changes `base.CmdDoSomething` to `base.CallCmdDoSomething` within `this.CallCmdDoSomething`
         public static void FixRemoteCallToBaseMethod(TypeDefinition type, MethodDefinition method)
         {
             string callName = method.Name;

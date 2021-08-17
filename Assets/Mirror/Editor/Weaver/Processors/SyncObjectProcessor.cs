@@ -5,12 +5,8 @@ namespace Mirror.Weaver
 {
     public static class SyncObjectProcessor
     {
-        /// <summary>
-        /// Finds SyncObjects fields in a type
-        /// <para>Type should be a NetworkBehaviour</para>
-        /// </summary>
-        /// <param name="td"></param>
-        /// <returns></returns>
+        // Finds SyncObjects fields in a type
+        // Type should be a NetworkBehaviour
         public static List<FieldDefinition> FindSyncObjectsFields(TypeDefinition td)
         {
             List<FieldDefinition> syncObjects = new List<FieldDefinition>();
@@ -35,11 +31,7 @@ namespace Mirror.Weaver
             return syncObjects;
         }
 
-        /// <summary>
-        /// Generates serialization methods for synclists
-        /// </summary>
-        /// <param name="td">The synclist class</param>
-        /// <param name="mirrorBaseType">the base SyncObject td inherits from</param>
+        // Generates serialization methods for synclists
         static void GenerateReadersAndWriters(TypeReference tr)
         {
             if (tr is GenericInstanceType genericInstance)

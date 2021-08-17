@@ -2,9 +2,7 @@ using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
-    /// <summary>
-    /// only shows warnings in case we use SyncVars etc. for MonoBehaviour.
-    /// </summary>
+    // only shows warnings in case we use SyncVars etc. for MonoBehaviour.
     static class MonoBehaviourProcessor
     {
         public static void Process(TypeDefinition td)

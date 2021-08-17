@@ -12,9 +12,7 @@ namespace Mirror.Weaver
     }
 
 
-    /// <summary>
-    /// processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
-    /// </summary>
+    // processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
     class NetworkBehaviourProcessor
     {
         List<FieldDefinition> syncVars = new List<FieldDefinition>();
@@ -515,14 +513,7 @@ namespace Mirror.Weaver
             }
         }
 
-        /// <summary>
         /// [SyncVar] GameObject/NetworkIdentity?
-        /// </summary>
-        /// <param name="syncVar"></param>
-        /// <param name="worker"></param>
-        /// <param name="deserialize"></param>
-        /// <param name="initialState"></param>
-        /// <param name="hookResult"></param>
         void DeserializeNetworkIdentityField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, MethodDefinition hookMethod)
         {
             /*
@@ -622,14 +613,7 @@ namespace Mirror.Weaver
             }
         }
 
-        /// <summary>
-        /// [SyncVar] NetworkBehaviour
-        /// </summary>
-        /// <param name="syncVar"></param>
-        /// <param name="worker"></param>
-        /// <param name="deserialize"></param>
-        /// <param name="initialState"></param>
-        /// <param name="hookResult"></param>
+        // [SyncVar] NetworkBehaviour
         void DeserializeNetworkBehaviourField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, MethodDefinition hookMethod)
         {
             /*
@@ -731,14 +715,7 @@ namespace Mirror.Weaver
         }
 
 
-        /// <summary>
-        /// [SyncVar] int/float/struct/etc.?
-        /// </summary>
-        /// <param name="syncVar"></param>
-        /// <param name="serWorker"></param>
-        /// <param name="deserialize"></param>
-        /// <param name="initialState"></param>
-        /// <param name="hookResult"></param>
+        // [SyncVar] int/float/struct/etc.?
         void DeserializeNormalField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, MethodDefinition hookMethod)
         {
             /*

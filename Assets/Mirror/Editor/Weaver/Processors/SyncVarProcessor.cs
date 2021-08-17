@@ -5,9 +5,7 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    /// <summary>
-    /// Processes [SyncVar] in NetworkBehaviour
-    /// </summary>
+    // Processes [SyncVar] in NetworkBehaviour
     public static class SyncVarProcessor
     {
         // ulong = 64 bytes
