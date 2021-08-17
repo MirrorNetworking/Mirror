@@ -74,15 +74,6 @@ namespace Mirror.Weaver
             Log.Warning($"{message} (at {mr})");
         }
 
-
-        static void CheckMonoBehaviour(TypeDefinition td)
-        {
-            if (td.IsDerivedFrom<UnityEngine.MonoBehaviour>())
-            {
-                MonoBehaviourProcessor.Process(td);
-            }
-        }
-
         static bool WeaveNetworkBehavior(TypeDefinition td)
         {
             if (!td.IsClass)
@@ -90,7 +81,8 @@ namespace Mirror.Weaver
 
             if (!td.IsDerivedFrom<NetworkBehaviour>())
             {
-                CheckMonoBehaviour(td);
+                if (td.IsDerivedFrom<UnityEngine.MonoBehaviour>())
+                    MonoBehaviourProcessor.Process(td);
                 return false;
             }
 
