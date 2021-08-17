@@ -64,11 +64,9 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteSetupLocals(worker);
 
-            if (Weaver.GenerateLogErrors)
-            {
-                worker.Emit(OpCodes.Ldstr, "Call ClientRpc function " + md.Name);
-                worker.Emit(OpCodes.Call, WeaverTypes.logErrorReference);
-            }
+            // add a log message if needed for debugging
+            //worker.Emit(OpCodes.Ldstr, "Call ClientRpc function " + md.Name);
+            //worker.Emit(OpCodes.Call, WeaverTypes.logErrorReference);
 
             NetworkBehaviourProcessor.WriteCreateWriter(worker);
 

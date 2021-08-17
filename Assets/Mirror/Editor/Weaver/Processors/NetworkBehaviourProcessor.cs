@@ -482,11 +482,9 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-            if (Weaver.GenerateLogErrors)
-            {
-                worker.Emit(OpCodes.Ldstr, "Injected Serialize " + netBehaviourSubclass.Name);
-                worker.Emit(OpCodes.Call, WeaverTypes.logErrorReference);
-            }
+            // add a log message if needed for debugging
+            //worker.Emit(OpCodes.Ldstr, "Injected Serialize " + netBehaviourSubclass.Name);
+            //worker.Emit(OpCodes.Call, WeaverTypes.logErrorReference);
 
             // generate: return dirtyLocal
             worker.Emit(OpCodes.Ldloc_0);
@@ -872,11 +870,9 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-            if (Weaver.GenerateLogErrors)
-            {
-                serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Deserialize " + netBehaviourSubclass.Name));
-                serWorker.Append(serWorker.Create(OpCodes.Call, WeaverTypes.logErrorReference));
-            }
+            // add a log message if needed for debugging
+            //serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Deserialize " + netBehaviourSubclass.Name));
+            //serWorker.Append(serWorker.Create(OpCodes.Call, WeaverTypes.logErrorReference));
 
             serWorker.Append(serWorker.Create(OpCodes.Ret));
             netBehaviourSubclass.Methods.Add(serialize);
