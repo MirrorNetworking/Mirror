@@ -76,18 +76,14 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static bool IsMultidimensionalArray(this TypeReference tr)
-        {
-            return tr is ArrayType arrayType && arrayType.Rank > 1;
-        }
+        public static bool IsMultidimensionalArray(this TypeReference tr) =>
+            tr is ArrayType arrayType && arrayType.Rank > 1;
 
         // Does type use netId as backing field
-        public static bool IsNetworkIdentityField(this TypeReference tr)
-        {
-            return tr.Is<UnityEngine.GameObject>()
-                || tr.Is<NetworkIdentity>()
-                || tr.IsDerivedFrom<NetworkBehaviour>();
-        }
+        public static bool IsNetworkIdentityField(this TypeReference tr) =>
+            tr.Is<UnityEngine.GameObject>() ||
+            tr.Is<NetworkIdentity>() ||
+            tr.IsDerivedFrom<NetworkBehaviour>();
 
         public static bool CanBeResolved(this TypeReference parent)
         {
