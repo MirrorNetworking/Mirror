@@ -11,7 +11,6 @@ namespace Mirror.Weaver
         // ulong = 64 bytes
         const int SyncVarLimit = 64;
 
-
         static string HookParameterMessage(string hookName, TypeReference ValueType) =>
             $"void {hookName}({ValueType} oldValue, {ValueType} newValue)";
 
