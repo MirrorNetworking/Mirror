@@ -82,7 +82,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                modified |= new NetworkBehaviourProcessor(behaviour).Process();
+                modified |= new NetworkBehaviourProcessor(behaviour).Process(weaverTypes);
             }
             return modified;
         }

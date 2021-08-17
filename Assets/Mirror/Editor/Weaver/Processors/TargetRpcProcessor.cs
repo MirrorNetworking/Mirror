@@ -13,7 +13,7 @@ namespace Mirror.Weaver
                    md.Parameters[0].ParameterType.Is<NetworkConnection>();
         }
 
-        public static MethodDefinition ProcessTargetRpcInvoke(TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
+        public static MethodDefinition ProcessTargetRpcInvoke(WeaverTypes weaverTypes, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             MethodDefinition rpc = new MethodDefinition(Weaver.InvokeRpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
@@ -23,7 +23,7 @@ namespace Mirror.Weaver
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteClientActiveCheck(worker, md.Name, label, "TargetRPC");
+            NetworkBehaviourProcessor.WriteClientActiveCheck(worker, weaverTypes, md.Name, label, "TargetRPC");
 
             // setup for reader
             worker.Emit(OpCodes.Ldarg_0);
@@ -52,7 +52,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Callvirt, rpcCallFunc);
             worker.Emit(OpCodes.Ret);
 
-            NetworkBehaviourProcessor.AddInvokeParameters(rpc.Parameters);
+            NetworkBehaviourProcessor.AddInvokeParameters(weaverTypes, rpc.Parameters);
             td.Methods.Add(rpc);
             return rpc;
         }
@@ -90,15 +90,15 @@ namespace Mirror.Weaver
             correctly in dependent assemblies
 
         */
-        public static MethodDefinition ProcessTargetRpcCall(TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
+        public static MethodDefinition ProcessTargetRpcCall(WeaverTypes weaverTypes, TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
-            NetworkBehaviourProcessor.WriteSetupLocals(worker);
+            NetworkBehaviourProcessor.WriteSetupLocals(worker, weaverTypes);
 
-            NetworkBehaviourProcessor.WriteCreateWriter(worker);
+            NetworkBehaviourProcessor.WriteCreateWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the TargetRpc call
             // (skip first one if first one is NetworkConnection)
@@ -129,7 +129,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldc_I4, targetRpcAttr.GetField("channel", 0));
             worker.Emit(OpCodes.Callvirt, Weaver.weaverTypes.sendTargetRpcInternal);
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(worker);
+            NetworkBehaviourProcessor.WriteRecycleWriter(worker, weaverTypes);
 
             worker.Emit(OpCodes.Ret);
 

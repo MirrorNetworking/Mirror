@@ -29,16 +29,16 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
-        public static MethodDefinition ProcessCommandCall(TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
+        public static MethodDefinition ProcessCommandCall(WeaverTypes weaverTypes, TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr)
         {
             MethodDefinition cmd = MethodProcessor.SubstituteMethod(td, md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 
-            NetworkBehaviourProcessor.WriteSetupLocals(worker);
+            NetworkBehaviourProcessor.WriteSetupLocals(worker, weaverTypes);
 
             // NetworkWriter writer = new NetworkWriter();
-            NetworkBehaviourProcessor.WriteCreateWriter(worker);
+            NetworkBehaviourProcessor.WriteCreateWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the Cmd call
             if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.Command))
@@ -53,16 +53,16 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldtoken, td);
             // invokerClass
-            worker.Emit(OpCodes.Call, Weaver.weaverTypes.getTypeFromHandleReference);
+            worker.Emit(OpCodes.Call, weaverTypes.getTypeFromHandleReference);
             worker.Emit(OpCodes.Ldstr, cmdName);
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, channel);
             // requiresAuthority ? 1 : 0
             worker.Emit(requiresAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-            worker.Emit(OpCodes.Call, Weaver.weaverTypes.sendCommandInternal);
+            worker.Emit(OpCodes.Call, weaverTypes.sendCommandInternal);
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(worker);
+            NetworkBehaviourProcessor.WriteRecycleWriter(worker, weaverTypes);
 
             worker.Emit(OpCodes.Ret);
             return cmd;
@@ -79,16 +79,16 @@ namespace Mirror.Weaver
                 ((ShipControl)obj).CmdThrust(reader.ReadSingle(), (int)reader.ReadPackedUInt32());
             }
         */
-        public static MethodDefinition ProcessCommandInvoke(TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc)
+        public static MethodDefinition ProcessCommandInvoke(WeaverTypes weaverTypes, TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc)
         {
             MethodDefinition cmd = new MethodDefinition(Weaver.InvokeRpcPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                Weaver.weaverTypes.Import(typeof(void)));
+                weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = cmd.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, method.Name, label, "Command");
+            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, weaverTypes, method.Name, label, "Command");
 
             // setup for reader
             worker.Emit(OpCodes.Ldarg_0);
@@ -103,7 +103,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Callvirt, cmdCallFunc);
             worker.Emit(OpCodes.Ret);
 
-            NetworkBehaviourProcessor.AddInvokeParameters(cmd.Parameters);
+            NetworkBehaviourProcessor.AddInvokeParameters(weaverTypes, cmd.Parameters);
 
             td.Methods.Add(cmd);
             return cmd;
