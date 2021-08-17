@@ -868,7 +868,9 @@ namespace Mirror.Weaver
                 dirtyBit += 1;
             }
 
-
+            // add a log message if needed for debugging
+            //serWorker.Append(serWorker.Create(OpCodes.Ldstr, "Injected Deserialize " + netBehaviourSubclass.Name));
+            //serWorker.Append(serWorker.Create(OpCodes.Call, WeaverTypes.logErrorReference));
 
             serWorker.Append(serWorker.Create(OpCodes.Ret));
             netBehaviourSubclass.Methods.Add(serialize);
