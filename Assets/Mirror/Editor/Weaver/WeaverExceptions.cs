@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
@@ -13,13 +14,13 @@ namespace Mirror.Weaver
             MemberReference = member;
         }
 
-        protected WeaverException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) : base(serializationInfo, streamingContext) {}
+        protected WeaverException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext) {}
     }
 
     [Serializable]
     public class GenerateWriterException : WeaverException
     {
         public GenerateWriterException(string message, MemberReference member) : base(message, member) {}
-        protected GenerateWriterException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) : base(serializationInfo, streamingContext) {}
+        protected GenerateWriterException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext) {}
     }
 }
