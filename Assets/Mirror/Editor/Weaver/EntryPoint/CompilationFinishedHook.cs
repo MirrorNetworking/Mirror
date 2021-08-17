@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Mono.CecilX;
 using UnityEditor;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -139,7 +140,7 @@ namespace Mirror.Weaver
             Log.Warning = HandleWarning;
             Log.Error = HandleError;
 
-            if (!Weaver.Weave(assemblyPath, dependencyPaths.ToArray()))
+            if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray()))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
@@ -166,6 +167,30 @@ namespace Mirror.Weaver
             }
 
             return dependencyPaths;
+        }
+        // helper function to invoke Weaver with an AssemblyDefinition from a
+        // file path, with dependencies added.
+        static bool WeaveFromFile(string assemblyPath, string[] dependencies)
+        {
+            // open the file as stream
+            using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
+            {
+                using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters { ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
+                {
+                    asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
+                    asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
+                    if (dependencies != null)
+                    {
+                        foreach (string path in dependencies)
+                        {
+                            asmResolver.AddSearchDirectory(path);
+                        }
+                    }
+
+                    return Weaver.Weave(asmDef);
+                }
+            }
         }
     }
 }
