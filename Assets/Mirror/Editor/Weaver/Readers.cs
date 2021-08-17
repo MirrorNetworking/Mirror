@@ -9,8 +9,12 @@ namespace Mirror.Weaver
     // not static, because ILPostProcessor is multithreaded
     public class Readers
     {
+        AssemblyDefinition assembly;
+
         Dictionary<TypeReference, MethodReference> readFuncs =
             new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
+
+        public Readers(AssemblyDefinition assembly) => this.assembly = assembly;
 
         internal void Register(TypeReference dataType, MethodReference methodReference)
         {
@@ -23,7 +27,7 @@ namespace Mirror.Weaver
             }
 
             // we need to import type when we Initialize Readers so import here in case it is used anywhere else
-            TypeReference imported = Weaver.CurrentAssembly.MainModule.ImportReference(dataType);
+            TypeReference imported = assembly.MainModule.ImportReference(dataType);
             readFuncs[imported] = methodReference;
         }
 
@@ -43,7 +47,7 @@ namespace Mirror.Weaver
             }
             else
             {
-                TypeReference importedVariable = Weaver.CurrentAssembly.MainModule.ImportReference(variable);
+                TypeReference importedVariable = assembly.MainModule.ImportReference(variable);
                 return GenerateReader(importedVariable);
             }
         }
@@ -219,7 +223,7 @@ namespace Mirror.Weaver
             // generate readers for the element
             GetReadFunc(elementType);
 
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+            ModuleDefinition module = assembly.MainModule;
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkReaderExtensions));
             MethodReference listReader = Resolvers.ResolveMethod(readerExtensions, Weaver.CurrentAssembly, readerFunction);
 
@@ -303,7 +307,7 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                MethodReference ctorRef = Weaver.CurrentAssembly.MainModule.ImportReference(ctor);
+                MethodReference ctorRef = assembly.MainModule.ImportReference(ctor);
 
                 worker.Emit(OpCodes.Newobj, ctorRef);
                 worker.Emit(OpCodes.Stloc_0);
@@ -328,7 +332,7 @@ namespace Mirror.Weaver
                     Weaver.Error($"{field.Name} has an unsupported type", field);
                     Weaver.WeavingFailed = true;
                 }
-                FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
+                FieldReference fieldRef = assembly.MainModule.ImportReference(field);
 
                 worker.Emit(OpCodes.Stfld, fieldRef);
             }
@@ -337,7 +341,7 @@ namespace Mirror.Weaver
         // Save a delegate for each one of the readers into Reader{T}.read
         internal void InitializeReaders(ILProcessor worker)
         {
-            ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
+            ModuleDefinition module = assembly.MainModule;
 
             TypeReference genericReaderClassRef = module.ImportReference(typeof(Reader<>));
 
