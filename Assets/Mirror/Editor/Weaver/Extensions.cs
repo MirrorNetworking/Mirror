@@ -81,9 +81,7 @@ namespace Mirror.Weaver
             return tr is ArrayType arrayType && arrayType.Rank > 1;
         }
 
-        /// <summary>
-        /// Does type use netId as backing field
-        /// </summary>
+        // Does type use netId as backing field
         public static bool IsNetworkIdentityField(this TypeReference tr)
         {
             return tr.Is<UnityEngine.GameObject>()
@@ -118,12 +116,7 @@ namespace Mirror.Weaver
             return true;
         }
 
-        /// <summary>
-        /// Makes T => Variable and imports function
-        /// </summary>
-        /// <param name="generic"></param>
-        /// <param name="variableReference"></param>
-        /// <returns></returns>
+        // Makes T => Variable and imports function
         public static MethodReference MakeGeneric(this MethodReference generic, TypeReference variableReference)
         {
             GenericInstanceMethod instance = new GenericInstanceMethod(generic);
@@ -133,15 +126,10 @@ namespace Mirror.Weaver
             return readFunc;
         }
 
-        /// <summary>
-        /// Given a method of a generic class such as ArraySegment`T.get_Count,
-        /// and a generic instance such as ArraySegment`int
-        /// Creates a reference to the specialized method  ArraySegment`int`.get_Count
-        /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="instanceType"></param>
-        /// <returns></returns>
+        // Given a method of a generic class such as ArraySegment`T.get_Count,
+        // and a generic instance such as ArraySegment`int
+        // Creates a reference to the specialized method  ArraySegment`int`.get_Count
+        // Note that calling ArraySegment`T.get_Count directly gives an invalid IL error
         public static MethodReference MakeHostInstanceGeneric(this MethodReference self, GenericInstanceType instanceType)
         {
             MethodReference reference = new MethodReference(self.Name, self.ReturnType, instanceType)
@@ -160,15 +148,10 @@ namespace Mirror.Weaver
             return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
         }
 
-        /// <summary>
-        /// Given a field of a generic class such as Writer<T>.write,
-        /// and a generic instance such as ArraySegment`int
-        /// Creates a reference to the specialized method  ArraySegment`int`.get_Count
-        /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="instanceType">Generic Instance e.g. Writer<int></param>
-        /// <returns></returns>
+        // Given a field of a generic class such as Writer<T>.write,
+        // and a generic instance such as ArraySegment`int
+        // Creates a reference to the specialized method  ArraySegment`int`.get_Count
+        // Note that calling ArraySegment`T.get_Count directly gives an invalid IL error
         public static FieldReference SpecializeField(this FieldReference self, GenericInstanceType instanceType)
         {
             FieldReference reference = new FieldReference(self.Name, self.FieldType, instanceType);
@@ -229,21 +212,13 @@ namespace Mirror.Weaver
             return null;
         }
 
-        /// <summary>
-        /// Finds public fields in type and base type
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <returns></returns>
+        // Finds public fields in type and base type
         public static IEnumerable<FieldDefinition> FindAllPublicFields(this TypeReference variable)
         {
             return FindAllPublicFields(variable.Resolve());
         }
 
-        /// <summary>
-        /// Finds public fields in type and base type
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <returns></returns>
+        // Finds public fields in type and base type
         public static IEnumerable<FieldDefinition> FindAllPublicFields(this TypeDefinition typeDefinition)
         {
             while (typeDefinition != null)
