@@ -139,7 +139,7 @@ namespace Mirror.Weaver
             Log.Warning = HandleWarning;
             Log.Error = HandleError;
 
-            if (!Weaver.WeaveAssembly(assemblyPath, dependencyPaths.ToArray()))
+            if (!Weaver.Weave(assemblyPath, dependencyPaths.ToArray()))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
