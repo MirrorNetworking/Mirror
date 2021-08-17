@@ -147,7 +147,7 @@ namespace Mirror.Weaver
         static MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
         {
             // all NetworkBehaviours can use the same write function
-            if (writeFuncs.TryGetValue(WeaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
+            if (writeFuncs.TryGetValue(Weaver.weaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
             {
                 // register function so it is added to writer<T>
                 // use Register instead of RegisterWriteFunc because this is not a generated function
@@ -186,9 +186,9 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    WeaverTypes.Import(typeof(void)));
+                    Weaver.weaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, WeaverTypes.Import<NetworkWriter>()));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.weaverTypes.Import<NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
             writerFunc.Body.InitLocals = true;
 
@@ -226,14 +226,14 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Brtrue, labelNotNull);
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldc_I4_0);
-            worker.Emit(OpCodes.Call, GetWriteFunc(WeaverTypes.Import<bool>()));
+            worker.Emit(OpCodes.Call, GetWriteFunc(Weaver.weaverTypes.Import<bool>()));
             worker.Emit(OpCodes.Ret);
             worker.Append(labelNotNull);
 
             // write.WriteBoolean(true);
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldc_I4_1);
-            worker.Emit(OpCodes.Call, GetWriteFunc(WeaverTypes.Import<bool>()));
+            worker.Emit(OpCodes.Call, GetWriteFunc(Weaver.weaverTypes.Import<bool>()));
         }
 
         /// Find all fields in type and write them
@@ -264,7 +264,7 @@ namespace Mirror.Weaver
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             MethodReference elementWriteFunc = GetWriteFunc(elementType);
-            MethodReference intWriterFunc = GetWriteFunc(WeaverTypes.Import<int>());
+            MethodReference intWriterFunc = GetWriteFunc(Weaver.weaverTypes.Import<int>());
 
             // need this null check till later PR when GetWriteFunc throws exception instead
             if (elementWriteFunc == null)

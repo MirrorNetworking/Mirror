@@ -145,12 +145,12 @@ namespace Mirror.Weaver
         {
             MethodDefinition rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
-                    WeaverTypes.Import(typeof(void)));
+                    Weaver.weaverTypes.Import(typeof(void)));
 
             // add [RuntimeInitializeOnLoad] in any case
             System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
             CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
-            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(WeaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
+            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(Weaver.weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
             rwInitializer.CustomAttributes.Add(customAttributeRef);
 
             // add [InitializeOnLoad] if UnityEditor is referenced
@@ -166,7 +166,7 @@ namespace Mirror.Weaver
 
             // for debugging: add a log to see if initialized on load
             //worker.Emit(OpCodes.Ldstr, $"[InitReadWriters] called!");
-            //worker.Emit(OpCodes.Call, WeaverTypes.logWarningReference);
+            //worker.Emit(OpCodes.Call, Weaver.weaverTypes.logWarningReference);
 
             Writers.InitializeWriters(worker);
             Readers.InitializeReaders(worker);

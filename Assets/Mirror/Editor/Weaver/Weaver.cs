@@ -14,6 +14,7 @@ namespace Mirror.Weaver
         public const string GeneratedCodeClassName = "GeneratedNetworkCode";
         public static TypeDefinition GeneratedCodeClass;
 
+        public static WeaverTypes weaverTypes;
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
         public static bool WeavingFailed;
@@ -115,7 +116,7 @@ namespace Mirror.Weaver
             // create "Mirror.GeneratedNetworkCode" class
             GeneratedCodeClass = new TypeDefinition(GeneratedCodeNamespace, GeneratedCodeClassName,
                 TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
-                WeaverTypes.Import<object>());
+                weaverTypes.Import<object>());
         }
 
         static bool ContainsGeneratedCodeClass(ModuleDefinition module)
@@ -148,7 +149,7 @@ namespace Mirror.Weaver
                     return true;
                 }
 
-                WeaverTypes.SetupTargetTypes(CurrentAssembly);
+                weaverTypes = new WeaverTypes(CurrentAssembly);
 
                 CreateGeneratedCodeClass();
 

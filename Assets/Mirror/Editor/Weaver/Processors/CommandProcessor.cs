@@ -53,14 +53,14 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldtoken, td);
             // invokerClass
-            worker.Emit(OpCodes.Call, WeaverTypes.getTypeFromHandleReference);
+            worker.Emit(OpCodes.Call, Weaver.weaverTypes.getTypeFromHandleReference);
             worker.Emit(OpCodes.Ldstr, cmdName);
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, channel);
             // requiresAuthority ? 1 : 0
             worker.Emit(requiresAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-            worker.Emit(OpCodes.Call, WeaverTypes.sendCommandInternal);
+            worker.Emit(OpCodes.Call, Weaver.weaverTypes.sendCommandInternal);
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
@@ -83,7 +83,7 @@ namespace Mirror.Weaver
         {
             MethodDefinition cmd = new MethodDefinition(Weaver.InvokeRpcPrefix + method.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                WeaverTypes.Import(typeof(void)));
+                Weaver.weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = cmd.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);

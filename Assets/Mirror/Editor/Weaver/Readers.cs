@@ -151,7 +151,7 @@ namespace Mirror.Weaver
         static MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
         {
             // uses generic ReadNetworkBehaviour rather than having weaver create one for each NB
-            MethodReference generic = WeaverTypes.readNetworkBehaviourGeneric;
+            MethodReference generic = Weaver.weaverTypes.readNetworkBehaviourGeneric;
 
             MethodReference readFunc = generic.MakeGeneric(variableReference);
 
@@ -193,7 +193,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, GetReadFunc(arrayType));
 
             // return new ArraySegment<T>($array);
-            worker.Emit(OpCodes.Newobj, WeaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance));
+            worker.Emit(OpCodes.Newobj, Weaver.weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(genericInstance));
             worker.Emit(OpCodes.Ret);
             return readerFunc;
         }
@@ -209,7 +209,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     variable);
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, WeaverTypes.Import<NetworkReader>()));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.weaverTypes.Import<NetworkReader>()));
             readerFunc.Body.InitLocals = true;
             RegisterReadFunc(variable, readerFunc);
 
@@ -269,7 +269,7 @@ namespace Mirror.Weaver
             //   return null;
             // }
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Call, GetReadFunc(WeaverTypes.Import<bool>()));
+            worker.Emit(OpCodes.Call, GetReadFunc(Weaver.weaverTypes.Import<bool>()));
 
             Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
             worker.Emit(OpCodes.Brtrue, labelEmptyArray);
@@ -290,7 +290,7 @@ namespace Mirror.Weaver
             }
             else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
             {
-                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(WeaverTypes.ScriptableObjectCreateInstanceMethod);
+                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(Weaver.weaverTypes.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);
                 worker.Emit(OpCodes.Call, genericInstanceMethod);
                 worker.Emit(OpCodes.Stloc_0);

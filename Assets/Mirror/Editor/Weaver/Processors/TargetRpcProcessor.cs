@@ -18,7 +18,7 @@ namespace Mirror.Weaver
             MethodDefinition rpc = new MethodDefinition(Weaver.InvokeRpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                WeaverTypes.Import(typeof(void)));
+                Weaver.weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
@@ -41,7 +41,7 @@ namespace Mirror.Weaver
                 // TODO
                 // a) .connectionToServer = best solution. no doubt.
                 // b) NetworkClient.connection for now. add TODO to not use static later.
-                worker.Emit(OpCodes.Call, WeaverTypes.ReadyConnectionReference);
+                worker.Emit(OpCodes.Call, Weaver.weaverTypes.ReadyConnectionReference);
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
@@ -122,12 +122,12 @@ namespace Mirror.Weaver
             }
             worker.Emit(OpCodes.Ldtoken, td);
             // invokerClass
-            worker.Emit(OpCodes.Call, WeaverTypes.getTypeFromHandleReference);
+            worker.Emit(OpCodes.Call, Weaver.weaverTypes.getTypeFromHandleReference);
             worker.Emit(OpCodes.Ldstr, rpcName);
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, targetRpcAttr.GetField("channel", 0));
-            worker.Emit(OpCodes.Callvirt, WeaverTypes.sendTargetRpcInternal);
+            worker.Emit(OpCodes.Callvirt, Weaver.weaverTypes.sendTargetRpcInternal);
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 

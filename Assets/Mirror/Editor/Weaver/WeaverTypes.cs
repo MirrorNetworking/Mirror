@@ -3,63 +3,65 @@ using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
-    public static class WeaverTypes
+    // not static, because ILPostProcessor is multithreaded
+    public class WeaverTypes
     {
-        public static MethodReference ScriptableObjectCreateInstanceMethod;
+        public MethodReference ScriptableObjectCreateInstanceMethod;
 
-        public static MethodReference NetworkBehaviourDirtyBitsReference;
-        public static MethodReference GetPooledWriterReference;
-        public static MethodReference RecycleWriterReference;
+        public MethodReference NetworkBehaviourDirtyBitsReference;
+        public MethodReference GetPooledWriterReference;
+        public MethodReference RecycleWriterReference;
 
-        public static MethodReference ReadyConnectionReference;
+        public MethodReference ReadyConnectionReference;
 
-        public static MethodReference CmdDelegateConstructor;
+        public MethodReference CmdDelegateConstructor;
 
-        public static MethodReference NetworkServerGetActive;
-        public static MethodReference NetworkServerGetLocalClientActive;
-        public static MethodReference NetworkClientGetActive;
+        public MethodReference NetworkServerGetActive;
+        public MethodReference NetworkServerGetLocalClientActive;
+        public MethodReference NetworkClientGetActive;
 
         // custom attribute types
-        public static MethodReference InitSyncObjectReference;
+        public MethodReference InitSyncObjectReference;
 
         // array segment
-        public static MethodReference ArraySegmentConstructorReference;
+        public MethodReference ArraySegmentConstructorReference;
 
         // syncvar
-        public static MethodReference syncVarEqualReference;
-        public static MethodReference syncVarNetworkIdentityEqualReference;
-        public static MethodReference syncVarGameObjectEqualReference;
-        public static MethodReference setSyncVarReference;
-        public static MethodReference setSyncVarHookGuard;
-        public static MethodReference getSyncVarHookGuard;
-        public static MethodReference setSyncVarGameObjectReference;
-        public static MethodReference getSyncVarGameObjectReference;
-        public static MethodReference setSyncVarNetworkIdentityReference;
-        public static MethodReference getSyncVarNetworkIdentityReference;
-        public static MethodReference syncVarNetworkBehaviourEqualReference;
-        public static MethodReference setSyncVarNetworkBehaviourReference;
-        public static MethodReference getSyncVarNetworkBehaviourReference;
-        public static MethodReference registerCommandDelegateReference;
-        public static MethodReference registerRpcDelegateReference;
-        public static MethodReference getTypeFromHandleReference;
-        public static MethodReference logErrorReference;
-        public static MethodReference logWarningReference;
-        public static MethodReference sendCommandInternal;
-        public static MethodReference sendRpcInternal;
-        public static MethodReference sendTargetRpcInternal;
+        public MethodReference syncVarEqualReference;
+        public MethodReference syncVarNetworkIdentityEqualReference;
+        public MethodReference syncVarGameObjectEqualReference;
+        public MethodReference setSyncVarReference;
+        public MethodReference setSyncVarHookGuard;
+        public MethodReference getSyncVarHookGuard;
+        public MethodReference setSyncVarGameObjectReference;
+        public MethodReference getSyncVarGameObjectReference;
+        public MethodReference setSyncVarNetworkIdentityReference;
+        public MethodReference getSyncVarNetworkIdentityReference;
+        public MethodReference syncVarNetworkBehaviourEqualReference;
+        public MethodReference setSyncVarNetworkBehaviourReference;
+        public MethodReference getSyncVarNetworkBehaviourReference;
+        public MethodReference registerCommandDelegateReference;
+        public MethodReference registerRpcDelegateReference;
+        public MethodReference getTypeFromHandleReference;
+        public MethodReference logErrorReference;
+        public MethodReference logWarningReference;
+        public MethodReference sendCommandInternal;
+        public MethodReference sendRpcInternal;
+        public MethodReference sendTargetRpcInternal;
 
-        public static MethodReference readNetworkBehaviourGeneric;
+        public MethodReference readNetworkBehaviourGeneric;
 
-        static AssemblyDefinition currentAssembly;
+        AssemblyDefinition currentAssembly;
 
-        public static TypeReference Import<T>() => Import(typeof(T));
+        public TypeReference Import<T>() => Import(typeof(T));
 
-        public static TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
+        public TypeReference Import(Type t) => currentAssembly.MainModule.ImportReference(t);
 
-        public static void SetupTargetTypes(AssemblyDefinition currentAssembly)
+        // constructor resolves the types and stores them in fields
+        public WeaverTypes(AssemblyDefinition currentAssembly)
         {
             // system types
-            WeaverTypes.currentAssembly = currentAssembly;
+            this.currentAssembly = currentAssembly;
 
             TypeReference ArraySegmentType = Import(typeof(ArraySegment<>));
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, currentAssembly, ".ctor");

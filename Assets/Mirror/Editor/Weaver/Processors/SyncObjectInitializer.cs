@@ -41,7 +41,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldfld, fd);
 
-            worker.Emit(OpCodes.Call, WeaverTypes.InitSyncObjectReference);
+            worker.Emit(OpCodes.Call, Weaver.weaverTypes.InitSyncObjectReference);
         }
     }
 }

@@ -84,12 +84,12 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.NetworkServerGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.weaverTypes.NetworkServerGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, $"[Server] function '{md.FullName}' called when server was not active"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.weaverTypes.logWarningReference));
             }
             InjectGuardParameters(md, worker, top);
             InjectGuardReturnValue(md, worker, top);
@@ -101,12 +101,12 @@ namespace Mirror.Weaver
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.NetworkClientGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.weaverTypes.NetworkClientGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, $"[Client] function '{md.FullName}' called when client was not active"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, Weaver.weaverTypes.logWarningReference));
             }
 
             InjectGuardParameters(md, worker, top);

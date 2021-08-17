@@ -11,7 +11,7 @@ namespace Mirror.Weaver
             MethodDefinition rpc = new MethodDefinition(
                 Weaver.InvokeRpcPrefix + md.Name,
                 MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                WeaverTypes.Import(typeof(void)));
+                Weaver.weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
@@ -83,14 +83,14 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldtoken, td);
             // invokerClass
-            worker.Emit(OpCodes.Call, WeaverTypes.getTypeFromHandleReference);
+            worker.Emit(OpCodes.Call, Weaver.weaverTypes.getTypeFromHandleReference);
             worker.Emit(OpCodes.Ldstr, rpcName);
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, channel);
             // includeOwner ? 1 : 0
             worker.Emit(includeOwner ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
-            worker.Emit(OpCodes.Callvirt, WeaverTypes.sendRpcInternal);
+            worker.Emit(OpCodes.Callvirt, Weaver.weaverTypes.sendRpcInternal);
 
             NetworkBehaviourProcessor.WriteRecycleWriter(worker);
 
