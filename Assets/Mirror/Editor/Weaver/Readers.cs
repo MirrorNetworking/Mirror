@@ -6,16 +6,13 @@ using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
-    public static class Readers
+    // not static, because ILPostProcessor is multithreaded
+    public class Readers
     {
-        static Dictionary<TypeReference, MethodReference> readFuncs;
+        Dictionary<TypeReference, MethodReference> readFuncs =
+            new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
-        public static void Init()
-        {
-            readFuncs = new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
-        }
-
-        internal static void Register(TypeReference dataType, MethodReference methodReference)
+        internal void Register(TypeReference dataType, MethodReference methodReference)
         {
             if (readFuncs.ContainsKey(dataType))
             {
@@ -30,7 +27,7 @@ namespace Mirror.Weaver
             readFuncs[imported] = methodReference;
         }
 
-        static void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
+        void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
             Register(typeReference, newReaderFunc);
 
@@ -38,7 +35,7 @@ namespace Mirror.Weaver
         }
 
         // Finds existing reader for type, if non exists trys to create one
-        public static MethodReference GetReadFunc(TypeReference variable)
+        public MethodReference GetReadFunc(TypeReference variable)
         {
             if (readFuncs.TryGetValue(variable, out MethodReference foundFunc))
             {
@@ -51,7 +48,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static MethodReference GenerateReader(TypeReference variableReference)
+        MethodReference GenerateReader(TypeReference variableReference)
         {
             // Arrays are special,  if we resolve them, we get the element type,
             // so the following ifs might choke on it for scriptable objects
@@ -148,7 +145,7 @@ namespace Mirror.Weaver
             return GenerateClassOrStructReadFunction(variableReference);
         }
 
-        static MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
+        MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
         {
             // uses generic ReadNetworkBehaviour rather than having weaver create one for each NB
             MethodReference generic = Weaver.weaverTypes.readNetworkBehaviourGeneric;
@@ -162,7 +159,7 @@ namespace Mirror.Weaver
             return readFunc;
         }
 
-        static MethodDefinition GenerateEnumReadFunc(TypeReference variable)
+        MethodDefinition GenerateEnumReadFunc(TypeReference variable)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
@@ -178,7 +175,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable)
+        MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable)
         {
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
@@ -198,7 +195,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateReaderFunction(TypeReference variable)
+        MethodDefinition GenerateReaderFunction(TypeReference variable)
         {
             string functionName = "_Read_" + variable.FullName;
 
@@ -216,7 +213,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, string readerFunction)
+        MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, string readerFunction)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
             // generate readers for the element
@@ -241,7 +238,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable)
+        MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
@@ -263,7 +260,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        static void GenerateNullCheck(ILProcessor worker)
+        void GenerateNullCheck(ILProcessor worker)
         {
             // if (!reader.ReadBoolean()) {
             //   return null;
@@ -280,7 +277,7 @@ namespace Mirror.Weaver
         }
 
         // Initialize the local variable with a new instance
-        static void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td)
+        void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td)
         {
             if (variable.IsValueType)
             {
@@ -313,7 +310,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static void ReadAllFields(TypeReference variable, ILProcessor worker)
+        void ReadAllFields(TypeReference variable, ILProcessor worker)
         {
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
@@ -338,7 +335,7 @@ namespace Mirror.Weaver
         }
 
         // Save a delegate for each one of the readers into Reader{T}.read
-        internal static void InitializeReaders(ILProcessor worker)
+        internal void InitializeReaders(ILProcessor worker)
         {
             ModuleDefinition module = Weaver.CurrentAssembly.MainModule;
 

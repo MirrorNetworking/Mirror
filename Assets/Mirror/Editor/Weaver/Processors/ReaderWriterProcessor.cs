@@ -12,11 +12,10 @@ namespace Mirror.Weaver
     public static class ReaderWriterProcessor
     {
         public static Writers writers = new Writers();
+        public static Readers readers = new Readers();
 
         public static bool Process(AssemblyDefinition CurrentAssembly)
         {
-            // initialize readers & writers
-            Readers.Init();
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
             {
                 if (unityAsm.name == "Mirror")
@@ -60,7 +59,7 @@ namespace Mirror.Weaver
             bool modified = false;
             if (!klass.IsAbstract && !klass.IsInterface && klass.ImplementsInterface<NetworkMessage>())
             {
-                Readers.GetReadFunc(module.ImportReference(klass));
+                readers.GetReadFunc(module.ImportReference(klass));
                 writers.GetWriteFunc(module.ImportReference(klass));
                 modified = true;
             }
@@ -121,7 +120,7 @@ namespace Mirror.Weaver
                 if (method.HasGenericParameters)
                     continue;
 
-                Readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));
+                readers.Register(method.ReturnType, currentAssembly.MainModule.ImportReference(method));
                 modified = true;
             }
             return modified;
@@ -171,7 +170,7 @@ namespace Mirror.Weaver
             //worker.Emit(OpCodes.Call, Weaver.weaverTypes.logWarningReference);
 
             writers.InitializeWriters(worker);
-            Readers.InitializeReaders(worker);
+            readers.InitializeReaders(worker);
 
             worker.Emit(OpCodes.Ret);
 

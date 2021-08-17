@@ -561,7 +561,7 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Emit(OpCodes.Ldarg_1);
             // Read()
-            worker.Emit(OpCodes.Call, Readers.GetReadFunc(Weaver.weaverTypes.Import<uint>()));
+            worker.Emit(OpCodes.Call, ReaderWriterProcessor.readers.GetReadFunc(Weaver.weaverTypes.Import<uint>()));
             // netId
             worker.Emit(OpCodes.Stfld, netIdField);
 
@@ -662,7 +662,7 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Emit(OpCodes.Ldarg_1);
             // Read()
-            worker.Emit(OpCodes.Call, Readers.GetReadFunc(Weaver.weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>()));
+            worker.Emit(OpCodes.Call, ReaderWriterProcessor.readers.GetReadFunc(Weaver.weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>()));
             // netId
             worker.Emit(OpCodes.Stfld, netIdField);
 
@@ -726,7 +726,7 @@ namespace Mirror.Weaver
                 }
              */
 
-            MethodReference readFunc = Readers.GetReadFunc(syncVar.FieldType);
+            MethodReference readFunc = ReaderWriterProcessor.readers.GetReadFunc(syncVar.FieldType);
             if (readFunc == null)
             {
                 Weaver.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
@@ -846,7 +846,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Call, Readers.GetReadFunc(Weaver.weaverTypes.Import<ulong>())));
+            serWorker.Append(serWorker.Create(OpCodes.Call, ReaderWriterProcessor.readers.GetReadFunc(Weaver.weaverTypes.Import<ulong>())));
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
@@ -904,7 +904,7 @@ namespace Mirror.Weaver
                 }
 
 
-                MethodReference readFunc = Readers.GetReadFunc(param.ParameterType);
+                MethodReference readFunc = ReaderWriterProcessor.readers.GetReadFunc(param.ParameterType);
 
                 if (readFunc == null)
                 {

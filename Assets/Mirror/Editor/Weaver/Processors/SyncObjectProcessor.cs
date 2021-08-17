@@ -41,7 +41,7 @@ namespace Mirror.Weaver
                 {
                     if (!argument.IsGenericParameter)
                     {
-                        Readers.GetReadFunc(argument);
+                        ReaderWriterProcessor.readers.GetReadFunc(argument);
                         ReaderWriterProcessor.writers.GetWriteFunc(argument);
                     }
                 }
