@@ -42,7 +42,6 @@ namespace Mirror.Weaver
 
         public NetworkBehaviourProcessor(TypeDefinition td)
         {
-            Weaver.DLog(td, "NetworkBehaviourProcessor");
             netBehaviourSubclass = td;
         }
 
@@ -54,7 +53,6 @@ namespace Mirror.Weaver
             {
                 return false;
             }
-            Weaver.DLog(netBehaviourSubclass, "Found NetworkBehaviour " + netBehaviourSubclass.FullName);
 
             if (netBehaviourSubclass.HasGenericParameters)
             {
@@ -63,7 +61,6 @@ namespace Mirror.Weaver
                 // maybe return false here in the future.
                 return true;
             }
-            Weaver.DLog(netBehaviourSubclass, "Process Start");
             MarkAsProcessed(netBehaviourSubclass);
 
             // deconstruct tuple and set fields
@@ -89,7 +86,6 @@ namespace Mirror.Weaver
             }
 
             GenerateDeSerialization();
-            Weaver.DLog(netBehaviourSubclass, "Process Done");
             return true;
         }
 
@@ -223,8 +219,6 @@ namespace Mirror.Weaver
             if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && syncObjects.Count == 0)
                 return;
 
-            Weaver.DLog(netBehaviourSubclass, "  GenerateConstants ");
-
             // find static constructor
             MethodDefinition cctor = netBehaviourSubclass.GetMethod(".cctor");
             bool cctorFound = cctor != null;
@@ -353,8 +347,6 @@ namespace Mirror.Weaver
 
         void GenerateSerialization()
         {
-            Weaver.DLog(netBehaviourSubclass, "  GenerateSerialization");
-
             const string SerializeMethodName = "SerializeSyncVars";
             if (netBehaviourSubclass.GetMethod(SerializeMethodName) != null)
                 return;
@@ -794,8 +786,6 @@ namespace Mirror.Weaver
 
         void GenerateDeSerialization()
         {
-            Weaver.DLog(netBehaviourSubclass, "  GenerateDeSerialization");
-
             const string DeserializeMethodName = "DeserializeSyncVars";
             if (netBehaviourSubclass.GetMethod(DeserializeMethodName) != null)
                 return;

@@ -43,17 +43,6 @@ namespace Mirror.Weaver
         public static AssemblyDefinition CurrentAssembly { get; private set; }
         public static bool WeavingFailed { get; private set; }
 
-        // private properties
-        static readonly bool DebugLogEnabled = true;
-
-        public static void DLog(TypeDefinition td, string fmt, params object[] args)
-        {
-            if (!DebugLogEnabled)
-                return;
-
-            Console.WriteLine("[" + td.Name + "] " + string.Format(fmt, args));
-        }
-
         // display weaver error
         // and mark process as failed
         public static void Error(string message)
