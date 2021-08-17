@@ -15,6 +15,8 @@ namespace Mirror.Weaver
     // processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
     class NetworkBehaviourProcessor
     {
+        AssemblyDefinition assembly;
+
         List<FieldDefinition> syncVars = new List<FieldDefinition>();
         List<FieldDefinition> syncObjects = new List<FieldDefinition>();
         // <SyncVarField,NetIdField>
@@ -40,8 +42,9 @@ namespace Mirror.Weaver
             public bool includeOwner;
         }
 
-        public NetworkBehaviourProcessor(TypeDefinition td)
+        public NetworkBehaviourProcessor(AssemblyDefinition assembly, TypeDefinition td)
         {
+            this.assembly = assembly;
             netBehaviourSubclass = td;
         }
 
@@ -376,7 +379,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyLocal = new VariableDefinition(weaverTypes.Import<bool>());
             serialize.Body.Variables.Add(dirtyLocal);
 
-            MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, SerializeMethodName);
+            MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, assembly, SerializeMethodName);
             if (baseSerialize != null)
             {
                 // base
@@ -816,7 +819,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyBitsLocal = new VariableDefinition(weaverTypes.Import<long>());
             serialize.Body.Variables.Add(dirtyBitsLocal);
 
-            MethodReference baseDeserialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, Weaver.CurrentAssembly, DeserializeMethodName);
+            MethodReference baseDeserialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, assembly, DeserializeMethodName);
             if (baseDeserialize != null)
             {
                 // base
