@@ -111,19 +111,15 @@ namespace Mirror.Weaver
 
             TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
             // these have multiple methods with same name, so need to check parameters too
-            logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, (md) =>
-            {
-                return md.Name == "LogError" &&
-                    md.Parameters.Count == 1 &&
-                    md.Parameters[0].ParameterType.FullName == typeof(object).FullName;
-            });
-            logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, (md) =>
-            {
-                return md.Name == "LogWarning" &&
-                    md.Parameters.Count == 1 &&
-                    md.Parameters[0].ParameterType.FullName == typeof(object).FullName;
+            logErrorReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, md =>
+                md.Name == "LogError" &&
+                md.Parameters.Count == 1 &&
+                md.Parameters[0].ParameterType.FullName == typeof(object).FullName);
 
-            });
+            logWarningReference = Resolvers.ResolveMethod(unityDebug, currentAssembly, md =>
+                md.Name == "LogWarning" &&
+                md.Parameters.Count == 1 &&
+                md.Parameters[0].ParameterType.FullName == typeof(object).FullName);
 
             TypeReference typeType = Import(typeof(Type));
             getTypeFromHandleReference = Resolvers.ResolveMethod(typeType, currentAssembly, "GetTypeFromHandle");
