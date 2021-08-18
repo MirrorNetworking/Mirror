@@ -16,6 +16,7 @@ namespace Mirror.Weaver
     class NetworkBehaviourProcessor
     {
         AssemblyDefinition assembly;
+        WeaverTypes weaverTypes;
         SyncVarProcessor syncVarProcessor;
 
         List<FieldDefinition> syncVars = new List<FieldDefinition>();
@@ -43,15 +44,16 @@ namespace Mirror.Weaver
             public bool includeOwner;
         }
 
-        public NetworkBehaviourProcessor(AssemblyDefinition assembly, TypeDefinition td)
+        public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, TypeDefinition td)
         {
             this.assembly = assembly;
             syncVarProcessor = new SyncVarProcessor(assembly);
+            this.weaverTypes = weaverTypes;
             netBehaviourSubclass = td;
         }
 
         // return true if modified
-        public bool Process(WeaverTypes weaverTypes)
+        public bool Process()
         {
             // only process once
             if (WasProcessed(netBehaviourSubclass))
@@ -67,23 +69,23 @@ namespace Mirror.Weaver
                 // maybe return false here in the future.
                 return true;
             }
-            MarkAsProcessed(weaverTypes, netBehaviourSubclass);
+            MarkAsProcessed(netBehaviourSubclass);
 
             // deconstruct tuple and set fields
             (syncVars, syncVarNetIds) = syncVarProcessor.ProcessSyncVars(netBehaviourSubclass);
 
             syncObjects = SyncObjectProcessor.FindSyncObjectsFields(netBehaviourSubclass);
 
-            ProcessMethods(weaverTypes);
+            ProcessMethods();
             if (Weaver.WeavingFailed)
             {
                 // originally Process returned true in every case, except if already processed.
                 // maybe return false here in the future.
                 return true;
             }
-            GenerateConstants(weaverTypes);
+            GenerateConstants();
 
-            GenerateSerialization(weaverTypes);
+            GenerateSerialization();
             if (Weaver.WeavingFailed)
             {
                 // originally Process returned true in every case, except if already processed.
@@ -91,7 +93,7 @@ namespace Mirror.Weaver
                 return true;
             }
 
-            GenerateDeSerialization(weaverTypes);
+            GenerateDeSerialization();
             return true;
         }
 
@@ -209,7 +211,7 @@ namespace Mirror.Weaver
             return td.GetMethod(ProcessedFunctionName) != null;
         }
 
-        public static void MarkAsProcessed(WeaverTypes weaverTypes, TypeDefinition td)
+        public void MarkAsProcessed(TypeDefinition td)
         {
             if (!WasProcessed(td))
             {
@@ -221,7 +223,7 @@ namespace Mirror.Weaver
         }
         #endregion
 
-        void GenerateConstants(WeaverTypes weaverTypes)
+        void GenerateConstants()
         {
             if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && syncObjects.Count == 0)
                 return;
@@ -355,7 +357,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, registerMethod);
         }
 
-        void GenerateSerialization(WeaverTypes weaverTypes)
+        void GenerateSerialization()
         {
             const string SerializeMethodName = "SerializeSyncVars";
             if (netBehaviourSubclass.GetMethod(SerializeMethodName) != null)
@@ -797,7 +799,7 @@ namespace Mirror.Weaver
             }
         }
 
-        void GenerateDeSerialization(WeaverTypes weaverTypes)
+        void GenerateDeSerialization()
         {
             const string DeserializeMethodName = "DeserializeSyncVars";
             if (netBehaviourSubclass.GetMethod(DeserializeMethodName) != null)
@@ -1049,7 +1051,7 @@ namespace Mirror.Weaver
                 || type.Resolve().IsDerivedFrom<NetworkConnectionToClient>();
         }
 
-        void ProcessMethods(WeaverTypes weaverTypes)
+        void ProcessMethods()
         {
             HashSet<string> names = new HashSet<string>();
 
@@ -1062,26 +1064,26 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.Is<CommandAttribute>())
                     {
-                        ProcessCommand(weaverTypes, names, md, ca);
+                        ProcessCommand(names, md, ca);
                         break;
                     }
 
                     if (ca.AttributeType.Is<TargetRpcAttribute>())
                     {
-                        ProcessTargetRpc(weaverTypes, names, md, ca);
+                        ProcessTargetRpc(names, md, ca);
                         break;
                     }
 
                     if (ca.AttributeType.Is<ClientRpcAttribute>())
                     {
-                        ProcessClientRpc(weaverTypes, names, md, ca);
+                        ProcessClientRpc(names, md, ca);
                         break;
                     }
                 }
             }
         }
 
-        void ProcessClientRpc(WeaverTypes weaverTypes, HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
+        void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             if (md.IsAbstract)
             {
@@ -1122,7 +1124,7 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessTargetRpc(WeaverTypes weaverTypes, HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
+        void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
             if (md.IsAbstract)
             {
@@ -1152,7 +1154,7 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessCommand(WeaverTypes weaverTypes, HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
+        void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
         {
             if (md.IsAbstract)
             {
