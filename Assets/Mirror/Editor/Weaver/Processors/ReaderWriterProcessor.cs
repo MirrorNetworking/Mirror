@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             // otherwise we would get
             // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
             // errors when still using the previous module's reader/writer funcs.
-            writers = new Writers(CurrentAssembly);
+            writers = new Writers(CurrentAssembly, weaverTypes);
             readers = new Readers(CurrentAssembly, weaverTypes);
 
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())

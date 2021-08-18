@@ -14,10 +14,16 @@ namespace Mirror.Weaver
         // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
         AssemblyDefinition assembly;
 
+        WeaverTypes weaverTypes;
+
         Dictionary<TypeReference, MethodReference> writeFuncs =
             new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
-        public Writers(AssemblyDefinition assembly) => this.assembly = assembly;
+        public Writers(AssemblyDefinition assembly, WeaverTypes weaverTypes)
+        {
+            this.assembly = assembly;
+            this.weaverTypes = weaverTypes;
+        }
 
         public void Register(TypeReference dataType, MethodReference methodReference)
         {
@@ -151,7 +157,7 @@ namespace Mirror.Weaver
         MethodReference GetNetworkBehaviourWriter(TypeReference variableReference)
         {
             // all NetworkBehaviours can use the same write function
-            if (writeFuncs.TryGetValue(Weaver.weaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
+            if (writeFuncs.TryGetValue(weaverTypes.Import<NetworkBehaviour>(), out MethodReference func))
             {
                 // register function so it is added to writer<T>
                 // use Register instead of RegisterWriteFunc because this is not a generated function
@@ -190,9 +196,9 @@ namespace Mirror.Weaver
                     MethodAttributes.Public |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
-                    Weaver.weaverTypes.Import(typeof(void)));
+                    weaverTypes.Import(typeof(void)));
 
-            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, Weaver.weaverTypes.Import<NetworkWriter>()));
+            writerFunc.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, weaverTypes.Import<NetworkWriter>()));
             writerFunc.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.None, variable));
             writerFunc.Body.InitLocals = true;
 
@@ -230,14 +236,14 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Brtrue, labelNotNull);
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldc_I4_0);
-            worker.Emit(OpCodes.Call, GetWriteFunc(Weaver.weaverTypes.Import<bool>()));
+            worker.Emit(OpCodes.Call, GetWriteFunc(weaverTypes.Import<bool>()));
             worker.Emit(OpCodes.Ret);
             worker.Append(labelNotNull);
 
             // write.WriteBoolean(true);
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldc_I4_1);
-            worker.Emit(OpCodes.Call, GetWriteFunc(Weaver.weaverTypes.Import<bool>()));
+            worker.Emit(OpCodes.Call, GetWriteFunc(weaverTypes.Import<bool>()));
         }
 
         /// Find all fields in type and write them
@@ -268,7 +274,7 @@ namespace Mirror.Weaver
             MethodDefinition writerFunc = GenerateWriterFunc(variable);
 
             MethodReference elementWriteFunc = GetWriteFunc(elementType);
-            MethodReference intWriterFunc = GetWriteFunc(Weaver.weaverTypes.Import<int>());
+            MethodReference intWriterFunc = GetWriteFunc(weaverTypes.Import<int>());
 
             // need this null check till later PR when GetWriteFunc throws exception instead
             if (elementWriteFunc == null)
