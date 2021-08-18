@@ -17,6 +17,7 @@ namespace Mirror.Weaver
     {
         AssemblyDefinition assembly;
         WeaverTypes weaverTypes;
+        WeaverLists weaverLists;
         SyncVarProcessor syncVarProcessor;
 
         List<FieldDefinition> syncVars = new List<FieldDefinition>();
@@ -44,11 +45,12 @@ namespace Mirror.Weaver
             public bool includeOwner;
         }
 
-        public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, TypeDefinition td)
+        public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, WeaverLists weaverLists, TypeDefinition td)
         {
             this.assembly = assembly;
-            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes);
             this.weaverTypes = weaverTypes;
+            this.weaverLists = weaverLists;
+            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes);
             netBehaviourSubclass = td;
         }
 
@@ -446,7 +448,7 @@ namespace Mirror.Weaver
             // generate a writer call for any dirty variable in this class
 
             // start at number of syncvars in parent
-            int dirtyBit = Weaver.WeaveLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = weaverLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = worker.Create(OpCodes.Nop);
@@ -858,7 +860,7 @@ namespace Mirror.Weaver
 
             // conditionally read each syncvar
             // start at number of syncvars in parent
-            int dirtyBit = Weaver.WeaveLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = weaverLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);
