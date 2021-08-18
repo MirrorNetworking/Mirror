@@ -305,7 +305,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in syncObjects)
             {
-                SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, fd);
+                SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, weaverTypes, fd);
             }
 
             cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
