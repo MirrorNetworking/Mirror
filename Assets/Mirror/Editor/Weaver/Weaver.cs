@@ -185,7 +185,7 @@ namespace Mirror.Weaver
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);
 
-                    ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly);
+                    ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly, weaverTypes);
 
                     // write to outputDir if specified, otherwise perform in-place write
                     WriterParameters writeParams = new WriterParameters { WriteSymbols = true };

@@ -150,16 +150,16 @@ namespace Mirror.Weaver
         //    in Editor and in tests too
         //
         // use ILSpy to see the result (it's in the DLL's 'Mirror' namespace)
-        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly)
+        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly, WeaverTypes weaverTypes)
         {
             MethodDefinition rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
-                    Weaver.weaverTypes.Import(typeof(void)));
+                    weaverTypes.Import(typeof(void)));
 
             // add [RuntimeInitializeOnLoad] in any case
             System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
             CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
-            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(Weaver.weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
+            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
             rwInitializer.CustomAttributes.Add(customAttributeRef);
 
             // add [InitializeOnLoad] if UnityEditor is referenced
