@@ -50,7 +50,7 @@ namespace Mirror.Weaver
             this.assembly = assembly;
             this.weaverTypes = weaverTypes;
             this.weaverLists = weaverLists;
-            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes);
+            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes, weaverLists);
             netBehaviourSubclass = td;
         }
 
