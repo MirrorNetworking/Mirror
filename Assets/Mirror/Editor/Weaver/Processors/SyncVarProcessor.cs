@@ -13,13 +13,15 @@ namespace Mirror.Weaver
         const int SyncVarLimit = 64;
 
         AssemblyDefinition assembly;
+        WeaverTypes weaverTypes;
 
         string HookParameterMessage(string hookName, TypeReference ValueType) =>
             $"void {hookName}({ValueType} oldValue, {ValueType} newValue)";
 
-        public SyncVarProcessor(AssemblyDefinition assembly)
+        public SyncVarProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes)
         {
             this.assembly = assembly;
+            this.weaverTypes = weaverTypes;
         }
 
         // Get hook method if any
@@ -98,7 +100,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldfld, netFieldId);
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.getSyncVarGameObjectReference);
+                worker.Emit(OpCodes.Call, weaverTypes.getSyncVarGameObjectReference);
                 worker.Emit(OpCodes.Ret);
             }
             // [SyncVar] NetworkIdentity?
@@ -111,7 +113,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldfld, netFieldId);
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.getSyncVarNetworkIdentityReference);
+                worker.Emit(OpCodes.Call, weaverTypes.getSyncVarNetworkIdentityReference);
                 worker.Emit(OpCodes.Ret);
             }
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
@@ -123,7 +125,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldfld, netFieldId);
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
-                MethodReference getFunc = Weaver.weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
+                MethodReference getFunc = weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
                 worker.Emit(OpCodes.Ret);
             }
@@ -148,7 +150,7 @@ namespace Mirror.Weaver
             MethodDefinition set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
                     MethodAttributes.SpecialName |
                     MethodAttributes.HideBySig,
-                    Weaver.weaverTypes.Import(typeof(void)));
+                    weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = set.Body.GetILProcessor();
 
@@ -167,7 +169,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
 
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.syncVarGameObjectEqualReference);
+                worker.Emit(OpCodes.Call, weaverTypes.syncVarGameObjectEqualReference);
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {
@@ -175,7 +177,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
 
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.syncVarNetworkIdentityEqualReference);
+                worker.Emit(OpCodes.Call, weaverTypes.syncVarNetworkIdentityEqualReference);
             }
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
@@ -183,7 +185,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
 
-                MethodReference getFunc = Weaver.weaverTypes.syncVarNetworkBehaviourEqualReference.MakeGeneric(assembly.MainModule, fd.FieldType);
+                MethodReference getFunc = weaverTypes.syncVarNetworkBehaviourEqualReference.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
             }
             else
@@ -191,7 +193,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
 
-                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(Weaver.weaverTypes.syncVarEqualReference);
+                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(weaverTypes.syncVarEqualReference);
                 syncVarEqualGm.GenericArguments.Add(fd.FieldType);
                 worker.Emit(OpCodes.Call, syncVarEqualGm);
             }
@@ -226,7 +228,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
 
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.setSyncVarGameObjectReference);
+                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarGameObjectReference);
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {
@@ -234,7 +236,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
 
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.setSyncVarNetworkIdentityReference);
+                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarNetworkIdentityReference);
             }
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
@@ -242,13 +244,13 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
 
-                MethodReference getFunc = Weaver.weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
+                MethodReference getFunc = weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
             }
             else
             {
                 // make generic version of SetSyncVar with field type
-                GenericInstanceMethod gm = new GenericInstanceMethod(Weaver.weaverTypes.setSyncVarReference);
+                GenericInstanceMethod gm = new GenericInstanceMethod(weaverTypes.setSyncVarReference);
                 gm.GenericArguments.Add(fd.FieldType);
 
                 // invoke SetSyncVar
@@ -261,18 +263,18 @@ namespace Mirror.Weaver
             {
                 //if (NetworkServer.localClientActive && !getSyncVarHookGuard(dirtyBit))
                 Instruction label = worker.Create(OpCodes.Nop);
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.NetworkServerGetLocalClientActive);
+                worker.Emit(OpCodes.Call, weaverTypes.NetworkServerGetLocalClientActive);
                 worker.Emit(OpCodes.Brfalse, label);
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldc_I8, dirtyBit);
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.getSyncVarHookGuard);
+                worker.Emit(OpCodes.Call, weaverTypes.getSyncVarHookGuard);
                 worker.Emit(OpCodes.Brtrue, label);
 
                 // setSyncVarHookGuard(dirtyBit, true);
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldc_I8, dirtyBit);
                 worker.Emit(OpCodes.Ldc_I4_1);
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.setSyncVarHookGuard);
+                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarHookGuard);
 
                 // call hook (oldValue, newValue)
                 // Generates: OnValueChanged(oldValue, value);
@@ -282,7 +284,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldc_I8, dirtyBit);
                 worker.Emit(OpCodes.Ldc_I4_0);
-                worker.Emit(OpCodes.Call, Weaver.weaverTypes.setSyncVarHookGuard);
+                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarHookGuard);
 
                 worker.Append(label);
             }
@@ -308,7 +310,7 @@ namespace Mirror.Weaver
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                    FieldAttributes.Private,
-                   Weaver.weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>());
+                   weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>());
 
                 syncVarNetIds[fd] = netIdField;
             }
@@ -316,7 +318,7 @@ namespace Mirror.Weaver
             {
                 netIdField = new FieldDefinition("___" + fd.Name + "NetId",
                     FieldAttributes.Private,
-                    Weaver.weaverTypes.Import<uint>());
+                    weaverTypes.Import<uint>());
 
                 syncVarNetIds[fd] = netIdField;
             }

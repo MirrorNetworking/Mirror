@@ -47,7 +47,7 @@ namespace Mirror.Weaver
         public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, TypeDefinition td)
         {
             this.assembly = assembly;
-            syncVarProcessor = new SyncVarProcessor(assembly);
+            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes);
             this.weaverTypes = weaverTypes;
             netBehaviourSubclass = td;
         }
