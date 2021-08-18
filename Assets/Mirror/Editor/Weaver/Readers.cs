@@ -14,10 +14,16 @@ namespace Mirror.Weaver
         // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
         AssemblyDefinition assembly;
 
+        WeaverTypes weaverTypes;
+
         Dictionary<TypeReference, MethodReference> readFuncs =
             new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
-        public Readers(AssemblyDefinition assembly) => this.assembly = assembly;
+        public Readers(AssemblyDefinition assembly, WeaverTypes weaverTypes)
+        {
+            this.assembly = assembly;
+            this.weaverTypes = weaverTypes;
+        }
 
         internal void Register(TypeReference dataType, MethodReference methodReference)
         {
@@ -155,7 +161,7 @@ namespace Mirror.Weaver
         MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
         {
             // uses generic ReadNetworkBehaviour rather than having weaver create one for each NB
-            MethodReference generic = Weaver.weaverTypes.readNetworkBehaviourGeneric;
+            MethodReference generic = weaverTypes.readNetworkBehaviourGeneric;
 
             MethodReference readFunc = generic.MakeGeneric(assembly.MainModule, variableReference);
 
@@ -197,7 +203,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, GetReadFunc(arrayType));
 
             // return new ArraySegment<T>($array);
-            worker.Emit(OpCodes.Newobj, Weaver.weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+            worker.Emit(OpCodes.Newobj, weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
             worker.Emit(OpCodes.Ret);
             return readerFunc;
         }
@@ -213,7 +219,7 @@ namespace Mirror.Weaver
                     MethodAttributes.HideBySig,
                     variable);
 
-            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, Weaver.weaverTypes.Import<NetworkReader>()));
+            readerFunc.Parameters.Add(new ParameterDefinition("reader", ParameterAttributes.None, weaverTypes.Import<NetworkReader>()));
             readerFunc.Body.InitLocals = true;
             RegisterReadFunc(variable, readerFunc);
 
@@ -273,7 +279,7 @@ namespace Mirror.Weaver
             //   return null;
             // }
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Call, GetReadFunc(Weaver.weaverTypes.Import<bool>()));
+            worker.Emit(OpCodes.Call, GetReadFunc(weaverTypes.Import<bool>()));
 
             Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
             worker.Emit(OpCodes.Brtrue, labelEmptyArray);
@@ -294,7 +300,7 @@ namespace Mirror.Weaver
             }
             else if (td.IsDerivedFrom<UnityEngine.ScriptableObject>())
             {
-                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(Weaver.weaverTypes.ScriptableObjectCreateInstanceMethod);
+                GenericInstanceMethod genericInstanceMethod = new GenericInstanceMethod(weaverTypes.ScriptableObjectCreateInstanceMethod);
                 genericInstanceMethod.GenericArguments.Add(variable);
                 worker.Emit(OpCodes.Call, genericInstanceMethod);
                 worker.Emit(OpCodes.Stloc_0);
