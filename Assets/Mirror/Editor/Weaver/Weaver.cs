@@ -180,7 +180,7 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    PropertySiteProcessor.Process(moduleDefinition);
+                    PropertySiteProcessor.Process(moduleDefinition, WeaveLists);
 
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);
