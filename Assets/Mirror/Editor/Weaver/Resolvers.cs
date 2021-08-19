@@ -21,7 +21,7 @@ namespace Mirror.Weaver
             MethodReference method = ResolveMethod(tr, scriptDef, m => m.Name == name);
             if (method == null)
             {
-                Weaver.Error($"Method not found with name {name} in type {tr.Name}", tr);
+                Weaver.Log.Error($"Method not found with name {name} in type {tr.Name}", tr);
                 Weaver.WeavingFailed = true;
             }
             return method;
@@ -37,7 +37,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Error($"Method not found in type {t.Name}", t);
+            Weaver.Log.Error($"Method not found in type {t.Name}", t);
             Weaver.WeavingFailed = true;
             return null;
         }

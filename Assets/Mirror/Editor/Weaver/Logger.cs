@@ -1,17 +1,13 @@
-using System;
+using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
     // not static, because ILPostProcessor is multithreaded
-    public class Logger
+    public interface Logger
     {
-        public Action<string> Warning;
-        public Action<string> Error;
-
-        public Logger(Action<string> Warning, Action<string>Error)
-        {
-            this.Warning = Warning;
-            this.Error = Error;
-        }
+        public void Warning(string message);
+        public void Warning(string message, MemberReference mr);
+        public void Error(string message);
+        public void Error(string message, MemberReference mr);
     }
 }

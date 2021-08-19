@@ -50,7 +50,7 @@ namespace Mirror.Weaver
 
             if (methodsWith2Param.Count == 0)
             {
-                Weaver.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+                Weaver.Log.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                     $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                     syncVar);
                 Weaver.WeavingFailed = true;
@@ -66,7 +66,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+            Weaver.Log.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                      $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                    syncVar);
             Weaver.WeavingFailed = true;
@@ -368,21 +368,21 @@ namespace Mirror.Weaver
                 {
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
-                        Weaver.Error($"{fd.Name} cannot be static", fd);
+                        Weaver.Log.Error($"{fd.Name} cannot be static", fd);
                         Weaver.WeavingFailed = true;
                         continue;
                     }
 
                     if (fd.FieldType.IsArray)
                     {
-                        Weaver.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
+                        Weaver.Log.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
                         Weaver.WeavingFailed = true;
                         continue;
                     }
 
                     if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                     {
-                        Weaver.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
+                        Weaver.Log.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
                     }
                     else
                     {
@@ -393,7 +393,7 @@ namespace Mirror.Weaver
 
                         if (dirtyBitCounter == SyncVarLimit)
                         {
-                            Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
+                            Weaver.Log.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
                             Weaver.WeavingFailed = true;
                             continue;
                         }

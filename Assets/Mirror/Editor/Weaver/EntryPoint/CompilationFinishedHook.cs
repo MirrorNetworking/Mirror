@@ -23,20 +23,6 @@ namespace Mirror.Weaver
         // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool UnityLogEnabled = true;
 
-        // warning message handler that also calls OnWarningMethod delegate
-        static void HandleWarning(string msg)
-        {
-            if (UnityLogEnabled) Debug.LogWarning(msg);
-            OnWeaverWarning?.Invoke(msg);
-        }
-
-        // error message handler that also calls OnErrorMethod delegate
-        static void HandleError(string msg)
-        {
-            if (UnityLogEnabled) Debug.LogError(msg);
-            OnWeaverError?.Invoke(msg);
-        }
-
         [InitializeOnLoadMethod]
         public static void OnInitializeOnLoad()
         {
@@ -139,7 +125,7 @@ namespace Mirror.Weaver
             dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
 
             // set up weaver logging
-            Weaver.Log = new Logger(HandleWarning, HandleError);
+            Weaver.Log = new CompilationFinishedLogger();
 
             if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray()))
             {

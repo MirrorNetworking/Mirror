@@ -24,16 +24,6 @@ namespace Mirror.Weaver
         // multi threaded logging.
         public static Logger Log;
 
-        public static void Error(string message, MemberReference mr)
-        {
-            Log.Error($"{message} (at {mr})");
-        }
-
-        public static void Warning(string message, MemberReference mr)
-        {
-            Log.Warning($"{message} (at {mr})");
-        }
-
         static bool WeaveNetworkBehavior(TypeDefinition td)
         {
             if (!td.IsClass)
