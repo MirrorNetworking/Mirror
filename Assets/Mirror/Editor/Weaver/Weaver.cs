@@ -17,7 +17,7 @@ namespace Mirror.Weaver
 
         public static WeaverLists WeaveLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
-        public static bool WeavingFailed { get; private set; }
+        public static bool WeavingFailed;
 
         // display weaver error
         // and mark process as failed
@@ -27,10 +27,9 @@ namespace Mirror.Weaver
             WeavingFailed = true;
         }
 
-        public static void Error(string message, MemberReference mr)
+        public static void ErrorX(string message, MemberReference mr)
         {
             Log.Error($"{message} (at {mr})");
-            WeavingFailed = true;
         }
 
         public static void Warning(string message, MemberReference mr)

@@ -95,13 +95,15 @@ namespace Mirror.Weaver
 
                     if (baseMethod == null)
                     {
-                        Weaver.Error($"Could not find base method for {callName}", method);
+                        Weaver.ErrorX($"Could not find base method for {callName}", method);
+                        Weaver.WeavingFailed = true;
                         return;
                     }
 
                     if (!baseMethod.IsVirtual)
                     {
-                        Weaver.Error($"Could not find base method that was virutal {callName}", method);
+                        Weaver.ErrorX($"Could not find base method that was virutal {callName}", method);
+                        Weaver.WeavingFailed = true;
                         return;
                     }
 
