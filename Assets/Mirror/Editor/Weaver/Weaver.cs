@@ -19,27 +19,26 @@ namespace Mirror.Weaver
         public static AssemblyDefinition CurrentAssembly { get; private set; }
         public static bool WeavingFailed;
 
-        // logging functions can be set from the outside.
+        // logger functions can be set from the outside.
         // for example, Debug.Log or ILPostProcessor Diagnostics log for
         // multi threaded logging.
-        public static Action<string> LogWarningFunc;
-        public static Action<string> LogErrorFunc;
+        public static Logger Log;
 
         // display weaver error
         // and mark process as failed
         public static void Error(string message)
         {
-            LogErrorFunc(message);
+            Log.Error(message);
         }
 
         public static void Error(string message, MemberReference mr)
         {
-            LogErrorFunc($"{message} (at {mr})");
+            Log.Error($"{message} (at {mr})");
         }
 
         public static void Warning(string message, MemberReference mr)
         {
-            LogWarningFunc($"{message} (at {mr})");
+            Log.Warning($"{message} (at {mr})");
         }
 
         static bool WeaveNetworkBehavior(TypeDefinition td)

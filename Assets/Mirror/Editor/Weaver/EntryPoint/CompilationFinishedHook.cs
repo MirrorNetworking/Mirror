@@ -139,8 +139,7 @@ namespace Mirror.Weaver
             dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
 
             // set up weaver logging
-            Weaver.LogWarningFunc = HandleWarning;
-            Weaver.LogErrorFunc = HandleError;
+            Weaver.Log = new Logger(HandleWarning, HandleError);
 
             if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray()))
             {
