@@ -15,15 +15,17 @@ namespace Mirror.Weaver
         AssemblyDefinition assembly;
         WeaverTypes weaverTypes;
         WeaverLists weaverLists;
+        Logger Log;
 
         string HookParameterMessage(string hookName, TypeReference ValueType) =>
             $"void {hookName}({ValueType} oldValue, {ValueType} newValue)";
 
-        public SyncVarProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, WeaverLists weaverLists)
+        public SyncVarProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, WeaverLists weaverLists, Logger Log)
         {
             this.assembly = assembly;
             this.weaverTypes = weaverTypes;
             this.weaverLists = weaverLists;
+            this.Log = Log;
         }
 
         // Get hook method if any
@@ -50,7 +52,7 @@ namespace Mirror.Weaver
 
             if (methodsWith2Param.Count == 0)
             {
-                Weaver.Log.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+                Log.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                     $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                     syncVar);
                 Weaver.WeavingFailed = true;
@@ -66,7 +68,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Log.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+            Log.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                      $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                    syncVar);
             Weaver.WeavingFailed = true;
@@ -368,21 +370,21 @@ namespace Mirror.Weaver
                 {
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
-                        Weaver.Log.Error($"{fd.Name} cannot be static", fd);
+                        Log.Error($"{fd.Name} cannot be static", fd);
                         Weaver.WeavingFailed = true;
                         continue;
                     }
 
                     if (fd.FieldType.IsArray)
                     {
-                        Weaver.Log.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
+                        Log.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
                         Weaver.WeavingFailed = true;
                         continue;
                     }
 
                     if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                     {
-                        Weaver.Log.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
+                        Log.Warning($"{fd.Name} has [SyncVar] attribute. SyncLists should not be marked with SyncVar", fd);
                     }
                     else
                     {
@@ -393,7 +395,7 @@ namespace Mirror.Weaver
 
                         if (dirtyBitCounter == SyncVarLimit)
                         {
-                            Weaver.Log.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
+                            Log.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
                             Weaver.WeavingFailed = true;
                             continue;
                         }
@@ -420,7 +422,7 @@ namespace Mirror.Weaver
         {
             if (newValue == null)
             {
-                Weaver.Log.Error("NewValue field was null when writing SyncVar hook");
+                Log.Error("NewValue field was null when writing SyncVar hook");
                 Weaver.WeavingFailed = true;
             }
 

@@ -64,7 +64,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, weaverLists, behaviour).Process();
+                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, weaverLists, Log, behaviour).Process();
             }
             return modified;
         }

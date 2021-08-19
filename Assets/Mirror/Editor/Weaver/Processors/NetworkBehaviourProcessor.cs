@@ -19,6 +19,7 @@ namespace Mirror.Weaver
         WeaverTypes weaverTypes;
         WeaverLists weaverLists;
         SyncVarProcessor syncVarProcessor;
+        Logger Log;
 
         List<FieldDefinition> syncVars = new List<FieldDefinition>();
         List<FieldDefinition> syncObjects = new List<FieldDefinition>();
@@ -45,12 +46,13 @@ namespace Mirror.Weaver
             public bool includeOwner;
         }
 
-        public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, WeaverLists weaverLists, TypeDefinition td)
+        public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, WeaverLists weaverLists, Logger Log, TypeDefinition td)
         {
             this.assembly = assembly;
             this.weaverTypes = weaverTypes;
             this.weaverLists = weaverLists;
-            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes, weaverLists);
+            this.Log = Log;
+            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes, weaverLists, Log);
             netBehaviourSubclass = td;
         }
 
