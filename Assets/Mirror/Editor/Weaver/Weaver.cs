@@ -24,7 +24,6 @@ namespace Mirror.Weaver
         public static void Error(string message)
         {
             Log.Error(message);
-            WeavingFailed = true;
         }
 
         public static void Error(string message, MemberReference mr)
@@ -107,6 +106,7 @@ namespace Mirror.Weaver
             catch (Exception ex)
             {
                 Error(ex.ToString());
+                WeavingFailed = true;
                 throw new Exception(ex.Message, ex);
             }
         }

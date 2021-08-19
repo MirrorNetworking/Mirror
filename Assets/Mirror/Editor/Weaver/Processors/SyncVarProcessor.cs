@@ -409,6 +409,7 @@ namespace Mirror.Weaver
             if (newValue == null)
             {
                 Weaver.Error("NewValue field was null when writing SyncVar hook");
+                Weaver.WeavingFailed = true;
             }
 
             WriteCallHookMethod(worker, hookMethod, oldValue, newValue);
