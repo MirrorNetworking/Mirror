@@ -15,7 +15,7 @@ namespace Mirror.Weaver
         public static TypeDefinition GeneratedCodeClass;
 
         public static WeaverTypes weaverTypes;
-        public static WeaverLists WeaveLists { get; private set; }
+        public static WeaverLists weaverLists { get; private set; }
         public static AssemblyDefinition CurrentAssembly { get; private set; }
         public static bool WeavingFailed;
 
@@ -82,7 +82,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, WeaveLists, behaviour).Process();
+                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, weaverLists, behaviour).Process();
             }
             return modified;
         }
@@ -160,7 +160,7 @@ namespace Mirror.Weaver
                 CreateGeneratedCodeClass();
 
                 // WeaverList depends on WeaverTypes setup because it uses Import
-                WeaveLists = new WeaverLists();
+                weaverLists = new WeaverLists();
 
                 System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
@@ -180,7 +180,7 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    PropertySiteProcessor.Process(moduleDefinition, WeaveLists);
+                    PropertySiteProcessor.Process(moduleDefinition, weaverLists);
 
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);
