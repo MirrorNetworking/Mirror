@@ -18,13 +18,13 @@ namespace Mirror.Weaver
             {
                 if (fd.HasCustomAttribute<SyncVarAttribute>())
                 {
-                    Weaver.ErrorX($"SyncVar {fd.Name} must be inside a NetworkBehaviour.  {td.Name} is not a NetworkBehaviour", fd);
+                    Weaver.Error($"SyncVar {fd.Name} must be inside a NetworkBehaviour.  {td.Name} is not a NetworkBehaviour", fd);
                     Weaver.WeavingFailed = true;
                 }
 
                 if (SyncObjectInitializer.ImplementsSyncObject(fd.FieldType))
                 {
-                    Weaver.ErrorX($"{fd.Name} is a SyncObject and must be inside a NetworkBehaviour.  {td.Name} is not a NetworkBehaviour", fd);
+                    Weaver.Error($"{fd.Name} is a SyncObject and must be inside a NetworkBehaviour.  {td.Name} is not a NetworkBehaviour", fd);
                     Weaver.WeavingFailed = true;
                 }
             }
@@ -37,17 +37,17 @@ namespace Mirror.Weaver
             {
                 if (md.HasCustomAttribute<CommandAttribute>())
                 {
-                    Weaver.ErrorX($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
+                    Weaver.Error($"Command {md.Name} must be declared inside a NetworkBehaviour", md);
                     Weaver.WeavingFailed = true;
                 }
                 if (md.HasCustomAttribute<ClientRpcAttribute>())
                 {
-                    Weaver.ErrorX($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                    Weaver.Error($"ClientRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     Weaver.WeavingFailed = true;
                 }
                 if (md.HasCustomAttribute<TargetRpcAttribute>())
                 {
-                    Weaver.ErrorX($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
+                    Weaver.Error($"TargetRpc {md.Name} must be declared inside a NetworkBehaviour", md);
                     Weaver.WeavingFailed = true;
                 }
             }

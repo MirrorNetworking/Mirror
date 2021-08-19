@@ -38,7 +38,7 @@ namespace Mirror.Weaver
 
             if (methodsWith2Param.Count == 0)
             {
-                Weaver.ErrorX($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+                Weaver.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                     $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                     syncVar);
                 Weaver.WeavingFailed = true;
@@ -54,7 +54,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.ErrorX($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
+            Weaver.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                      $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                    syncVar);
             Weaver.WeavingFailed = true;
@@ -356,14 +356,14 @@ namespace Mirror.Weaver
                 {
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
-                        Weaver.ErrorX($"{fd.Name} cannot be static", fd);
+                        Weaver.Error($"{fd.Name} cannot be static", fd);
                         Weaver.WeavingFailed = true;
                         continue;
                     }
 
                     if (fd.FieldType.IsArray)
                     {
-                        Weaver.ErrorX($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
+                        Weaver.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
                         Weaver.WeavingFailed = true;
                         continue;
                     }
@@ -381,7 +381,7 @@ namespace Mirror.Weaver
 
                         if (dirtyBitCounter == SyncVarLimit)
                         {
-                            Weaver.ErrorX($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
+                            Weaver.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
                             Weaver.WeavingFailed = true;
                             continue;
                         }

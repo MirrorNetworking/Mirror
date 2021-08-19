@@ -27,7 +27,7 @@ namespace Mirror.Weaver
             WeavingFailed = true;
         }
 
-        public static void ErrorX(string message, MemberReference mr)
+        public static void Error(string message, MemberReference mr)
         {
             Log.Error($"{message} (at {mr})");
         }

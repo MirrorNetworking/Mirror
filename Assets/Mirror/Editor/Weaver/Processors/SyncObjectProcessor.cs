@@ -17,7 +17,7 @@ namespace Mirror.Weaver
                 {
                     if (fd.IsStatic)
                     {
-                        Weaver.ErrorX($"{fd.Name} cannot be static", fd);
+                        Weaver.Error($"{fd.Name} cannot be static", fd);
                         Weaver.WeavingFailed = true;
                         continue;
                     }

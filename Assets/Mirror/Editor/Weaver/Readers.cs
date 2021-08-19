@@ -61,7 +61,7 @@ namespace Mirror.Weaver
             {
                 if (variableReference.IsMultidimensionalArray())
                 {
-                    Weaver.ErrorX($"{variableReference.Name} is an unsupported type. Multidimensional arrays are not supported", variableReference);
+                    Weaver.Error($"{variableReference.Name} is an unsupported type. Multidimensional arrays are not supported", variableReference);
                     Weaver.WeavingFailed = true;
                     return null;
                 }
@@ -74,14 +74,14 @@ namespace Mirror.Weaver
             // check if the type is completely invalid
             if (variableDefinition == null)
             {
-                Weaver.ErrorX($"{variableReference.Name} is not a supported type", variableReference);
+                Weaver.Error($"{variableReference.Name} is not a supported type", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
             else if (variableReference.IsByReference)
             {
                 // error??
-                Weaver.ErrorX($"Cannot pass type {variableReference.Name} by reference", variableReference);
+                Weaver.Error($"Cannot pass type {variableReference.Name} by reference", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
@@ -110,37 +110,37 @@ namespace Mirror.Weaver
             // check if reader generation is applicable on this type
             if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
-                Weaver.ErrorX($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
             if (variableReference.Is<UnityEngine.Object>())
             {
-                Weaver.ErrorX($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
             if (variableReference.Is<UnityEngine.ScriptableObject>())
             {
-                Weaver.ErrorX($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
             if (variableDefinition.HasGenericParameters)
             {
-                Weaver.ErrorX($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
             if (variableDefinition.IsInterface)
             {
-                Weaver.ErrorX($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
             if (variableDefinition.IsAbstract)
             {
-                Weaver.ErrorX($"Cannot generate reader for abstract class {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
+                Weaver.Error($"Cannot generate reader for abstract class {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
                 Weaver.WeavingFailed = true;
                 return null;
             }
@@ -301,7 +301,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Weaver.ErrorX($"{variable.Name} can't be deserialized because it has no default constructor", variable);
+                    Weaver.Error($"{variable.Name} can't be deserialized because it has no default constructor", variable);
                     Weaver.WeavingFailed = true;
                     return;
                 }
@@ -328,7 +328,7 @@ namespace Mirror.Weaver
                 }
                 else
                 {
-                    Weaver.ErrorX($"{field.Name} has an unsupported type", field);
+                    Weaver.Error($"{field.Name} has an unsupported type", field);
                     Weaver.WeavingFailed = true;
                 }
                 FieldReference fieldRef = Weaver.CurrentAssembly.MainModule.ImportReference(field);
