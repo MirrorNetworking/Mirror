@@ -24,13 +24,6 @@ namespace Mirror.Weaver
         // multi threaded logging.
         public static Logger Log;
 
-        // display weaver error
-        // and mark process as failed
-        public static void Error(string message)
-        {
-            Log.Error(message);
-        }
-
         public static void Error(string message, MemberReference mr)
         {
             Log.Error($"{message} (at {mr})");
@@ -110,8 +103,7 @@ namespace Mirror.Weaver
             }
             catch (Exception ex)
             {
-                Error(ex.ToString());
-                WeavingFailed = true;
+
                 throw new Exception(ex.Message, ex);
             }
         }
@@ -195,7 +187,8 @@ namespace Mirror.Weaver
             }
             catch (Exception e)
             {
-                Error("Exception :" + e);
+                Log.Error("Exception :" + e);
+                WeavingFailed = true;
                 return false;
             }
         }
