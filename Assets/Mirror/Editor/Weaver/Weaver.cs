@@ -8,7 +8,7 @@ namespace Mirror.Weaver
 {
     internal static class Weaver
     {
-        public static string InvokeRpcPrefix => "InvokeUserCode_";
+        public const string InvokeRpcPrefix = "InvokeUserCode_";
 
         // generated code class
         public const string GeneratedCodeNamespace = "Mirror";
