@@ -13,16 +13,17 @@ namespace Mirror.Weaver
         // can't be used from another assembly, otherwise we will get:
         // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
         AssemblyDefinition assembly;
-
         WeaverTypes weaverTypes;
+        Logger Log;
 
         Dictionary<TypeReference, MethodReference> writeFuncs =
             new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
-        public Writers(AssemblyDefinition assembly, WeaverTypes weaverTypes)
+        public Writers(AssemblyDefinition assembly, WeaverTypes weaverTypes, Logger Log)
         {
             this.assembly = assembly;
             this.weaverTypes = weaverTypes;
+            this.Log = Log;
         }
 
         public void Register(TypeReference dataType, MethodReference methodReference)
@@ -64,7 +65,7 @@ namespace Mirror.Weaver
                 }
                 catch (GenerateWriterException e)
                 {
-                    Weaver.Log.Error(e.Message, e.MemberReference);
+                    Log.Error(e.Message, e.MemberReference);
                     Weaver.WeavingFailed = true;
                     return null;
                 }
@@ -279,7 +280,7 @@ namespace Mirror.Weaver
             // need this null check till later PR when GetWriteFunc throws exception instead
             if (elementWriteFunc == null)
             {
-                Weaver.Log.Error($"Cannot generate writer for {variable}. Use a supported type or provide a custom writer", variable);
+                Log.Error($"Cannot generate writer for {variable}. Use a supported type or provide a custom writer", variable);
                 Weaver.WeavingFailed = true;
                 return writerFunc;
             }
