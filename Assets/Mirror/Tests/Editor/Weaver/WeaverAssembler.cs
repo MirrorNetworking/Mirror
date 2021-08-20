@@ -108,21 +108,18 @@ namespace Mirror.Weaver.Tests
             try
             {
                 File.Delete(projPathFile);
-
             }
             catch {}
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".pdb"));
-
             }
             catch {}
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".dll.mdb"));
-
             }
             catch {}
         }
