@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -173,7 +174,7 @@ namespace Mirror.Weaver.Tests
 
             while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
             {
-                System.Threading.Thread.Sleep(10);
+                Thread.Sleep(10);
             }
         }
     }
