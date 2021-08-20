@@ -228,7 +228,7 @@ namespace Mirror
             //            and then in next compute() wait again because it
             //            wasn't old enough yet.
             while (interpolationTime >= delta &&
-                   HasAmountOlderThan(buffer, threshold, 3, bufferedTime))
+                   HasAmountOlderThan(buffer, threshold, 3, bufferTime))
             {
                 // subtract exactly delta from interpolation time
                 // instead of setting to '0', where we would lose the
@@ -296,7 +296,7 @@ namespace Mirror
             //   instantly instead of actually interpolating through them.
             //
             // in other words, if we DON'T have >= 3 old enough.
-            if (!HasAmountOlderThan(buffer, threshold, 3, bufferedTime))
+            if (!HasAmountOlderThan(buffer, threshold, 3, bufferTime))
             {
                 // interpolationTime is always from 0..delta.
                 // so we cap it at delta.
