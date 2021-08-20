@@ -72,7 +72,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool WeaveModule(ModuleDefinition moduleDefinition, ref bool WeavingFailed)
+        static bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
             {
@@ -164,7 +164,7 @@ namespace Mirror.Weaver
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
                 Console.WriteLine($"Script Module: {moduleDefinition.Name}");
 
-                modified |= WeaveModule(moduleDefinition, ref WeavingFailed);
+                modified |= WeaveModule(moduleDefinition);
 
                 if (WeavingFailed)
                 {
