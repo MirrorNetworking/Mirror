@@ -15,8 +15,8 @@ namespace Mirror.Weaver
         public static TypeDefinition GeneratedCodeClass;
 
         public static WeaverTypes weaverTypes;
-        public static WeaverLists weaverLists { get; private set; }
-        public static AssemblyDefinition CurrentAssembly { get; private set; }
+        public static WeaverLists weaverLists;
+        public static AssemblyDefinition CurrentAssembly;
         public static Writers writers;
         public static Readers readers;
         public static bool WeavingFailed;
