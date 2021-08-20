@@ -26,6 +26,7 @@ namespace Mirror.Weaver
         // multi threaded logging.
         public static Logger Log;
 
+        // returns 'true' if modified (=if we did anything)
         static bool WeaveNetworkBehavior(TypeDefinition td)
         {
             if (!td.IsClass)
