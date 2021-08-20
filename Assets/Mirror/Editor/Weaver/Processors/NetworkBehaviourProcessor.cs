@@ -951,11 +951,11 @@ namespace Mirror.Weaver
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
-        public static bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
+        public bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
         {
             if (method.IsStatic)
             {
-                Weaver.Log.Error($"{method.Name} must not be static", method);
+                Log.Error($"{method.Name} must not be static", method);
                 Weaver.WeavingFailed = true;
                 return false;
             }
@@ -965,23 +965,23 @@ namespace Mirror.Weaver
         }
 
         // check if a Command/TargetRpc/Rpc function is valid for weaving
-        static bool ValidateFunction(MethodReference md)
+        bool ValidateFunction(MethodReference md)
         {
             if (md.ReturnType.Is<System.Collections.IEnumerator>())
             {
-                Weaver.Log.Error($"{md.Name} cannot be a coroutine", md);
+                Log.Error($"{md.Name} cannot be a coroutine", md);
                 Weaver.WeavingFailed = true;
                 return false;
             }
             if (!md.ReturnType.Is(typeof(void)))
             {
-                Weaver.Log.Error($"{md.Name} cannot return a value.  Make it void instead", md);
+                Log.Error($"{md.Name} cannot return a value.  Make it void instead", md);
                 Weaver.WeavingFailed = true;
                 return false;
             }
             if (md.HasGenericParameters)
             {
-                Weaver.Log.Error($"{md.Name} cannot have generic parameters", md);
+                Log.Error($"{md.Name} cannot have generic parameters", md);
                 Weaver.WeavingFailed = true;
                 return false;
             }
@@ -989,7 +989,7 @@ namespace Mirror.Weaver
         }
 
         // check if all Command/TargetRpc/Rpc function's parameters are valid for weaving
-        static bool ValidateParameters(MethodReference method, RemoteCallType callType)
+        bool ValidateParameters(MethodReference method, RemoteCallType callType)
         {
             for (int i = 0; i < method.Parameters.Count; ++i)
             {
@@ -1003,14 +1003,14 @@ namespace Mirror.Weaver
         }
 
         // validate parameters for a remote function call like Rpc/Cmd
-        static bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
+        bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
         {
             bool isNetworkConnection = param.ParameterType.Is<NetworkConnection>();
             bool isSenderConnection = IsSenderConnection(param, callType);
 
             if (param.IsOut)
             {
-                Weaver.Log.Error($"{method.Name} cannot have out parameters", method);
+                Log.Error($"{method.Name} cannot have out parameters", method);
                 Weaver.WeavingFailed = true;
                 return false;
             }
@@ -1021,11 +1021,11 @@ namespace Mirror.Weaver
             {
                 if (callType == RemoteCallType.Command)
                 {
-                    Weaver.Log.Error($"{method.Name} has invalid parameter {param}, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server", method);
+                    Log.Error($"{method.Name} has invalid parameter {param}, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server", method);
                 }
                 else
                 {
-                    Weaver.Log.Error($"{method.Name} has invalid parameter {param}. Cannot pass NetworkConnections", method);
+                    Log.Error($"{method.Name} has invalid parameter {param}. Cannot pass NetworkConnections", method);
                 }
                 Weaver.WeavingFailed = true;
                 return false;
@@ -1034,7 +1034,7 @@ namespace Mirror.Weaver
             // sender connection can be optional
             if (param.IsOptional && !isSenderConnection)
             {
-                Weaver.Log.Error($"{method.Name} cannot have optional parameters", method);
+                Log.Error($"{method.Name} cannot have optional parameters", method);
                 Weaver.WeavingFailed = true;
                 return false;
             }
