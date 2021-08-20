@@ -136,7 +136,7 @@ namespace Mirror.Weaver
                     return true;
                 }
 
-                weaverTypes = new WeaverTypes(CurrentAssembly);
+                weaverTypes = new WeaverTypes(CurrentAssembly, Log);
 
                 CreateGeneratedCodeClass();
 

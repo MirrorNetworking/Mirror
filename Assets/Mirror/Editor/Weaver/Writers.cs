@@ -287,7 +287,7 @@ namespace Mirror.Weaver
 
             ModuleDefinition module = assembly.MainModule;
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkWriterExtensions));
-            MethodReference collectionWriter = Resolvers.ResolveMethod(readerExtensions, assembly, writerFunction);
+            MethodReference collectionWriter = Resolvers.ResolveMethod(readerExtensions, assembly, Log, writerFunction);
 
             GenericInstanceMethod methodRef = new GenericInstanceMethod(collectionWriter);
             methodRef.GenericArguments.Add(elementType);

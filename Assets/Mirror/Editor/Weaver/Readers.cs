@@ -235,7 +235,7 @@ namespace Mirror.Weaver
 
             ModuleDefinition module = assembly.MainModule;
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkReaderExtensions));
-            MethodReference listReader = Resolvers.ResolveMethod(readerExtensions, assembly, readerFunction);
+            MethodReference listReader = Resolvers.ResolveMethod(readerExtensions, assembly, Log, readerFunction);
 
             GenericInstanceMethod methodRef = new GenericInstanceMethod(listReader);
             methodRef.GenericArguments.Add(elementType);

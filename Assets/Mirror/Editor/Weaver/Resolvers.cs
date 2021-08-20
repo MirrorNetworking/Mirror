@@ -10,24 +10,24 @@ namespace Mirror.Weaver
 {
     public static class Resolvers
     {
-        public static MethodReference ResolveMethod(TypeReference tr, AssemblyDefinition scriptDef, string name)
+        public static MethodReference ResolveMethod(TypeReference tr, AssemblyDefinition scriptDef, Logger Log, string name)
         {
             if (tr == null)
             {
-                Weaver.Log.Error($"Cannot resolve method {name} without a class");
+                Log.Error($"Cannot resolve method {name} without a class");
                 Weaver.WeavingFailed = true;
                 return null;
             }
-            MethodReference method = ResolveMethod(tr, scriptDef, m => m.Name == name);
+            MethodReference method = ResolveMethod(tr, scriptDef, Log, m => m.Name == name);
             if (method == null)
             {
-                Weaver.Log.Error($"Method not found with name {name} in type {tr.Name}", tr);
+                Log.Error($"Method not found with name {name} in type {tr.Name}", tr);
                 Weaver.WeavingFailed = true;
             }
             return method;
         }
 
-        public static MethodReference ResolveMethod(TypeReference t, AssemblyDefinition scriptDef, System.Func<MethodDefinition, bool> predicate)
+        public static MethodReference ResolveMethod(TypeReference t, AssemblyDefinition scriptDef, Logger Log, System.Func<MethodDefinition, bool> predicate)
         {
             foreach (MethodDefinition methodRef in t.Resolve().Methods)
             {
@@ -37,7 +37,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            Weaver.Log.Error($"Method not found in type {t.Name}", t);
+            Log.Error($"Method not found in type {t.Name}", t);
             Weaver.WeavingFailed = true;
             return null;
         }
