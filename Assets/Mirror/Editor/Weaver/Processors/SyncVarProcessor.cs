@@ -29,7 +29,7 @@ namespace Mirror.Weaver
         }
 
         // Get hook method if any
-        public MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar)
+        public MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, ref bool WeavingFailed)
         {
             CustomAttribute syncVarAttr = syncVar.GetCustomAttribute<SyncVarAttribute>();
 
@@ -41,10 +41,10 @@ namespace Mirror.Weaver
             if (hookFunctionName == null)
                 return null;
 
-            return FindHookMethod(td, syncVar, hookFunctionName);
+            return FindHookMethod(td, syncVar, hookFunctionName, ref WeavingFailed);
         }
 
-        MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName)
+        MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName, ref bool WeavingFailed)
         {
             List<MethodDefinition> methods = td.GetMethods(hookFunctionName);
 
@@ -55,7 +55,7 @@ namespace Mirror.Weaver
                 Log.Error($"Could not find hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                     $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                     syncVar);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
 
                 return null;
             }
@@ -71,7 +71,7 @@ namespace Mirror.Weaver
             Log.Error($"Wrong type for Parameter in hook for '{syncVar.Name}', hook name '{hookFunctionName}'. " +
                      $"Method signature should be {HookParameterMessage(hookFunctionName, syncVar.FieldType)}",
                    syncVar);
-            Weaver.WeavingFailed = true;
+            WeavingFailed = true;
 
             return null;
         }
@@ -148,7 +148,7 @@ namespace Mirror.Weaver
             return get;
         }
 
-        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId)
+        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, ref bool WeavingFailed)
         {
             //Create the set method
             MethodDefinition set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
@@ -261,7 +261,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Call, gm);
             }
 
-            MethodDefinition hookMethod = GetHookMethod(td, fd);
+            MethodDefinition hookMethod = GetHookMethod(td, fd, ref WeavingFailed);
 
             if (hookMethod != null)
             {
@@ -303,7 +303,7 @@ namespace Mirror.Weaver
             return set;
         }
 
-        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit)
+        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit, ref bool WeavingFailed)
         {
             string originalName = fd.Name;
 
@@ -328,7 +328,7 @@ namespace Mirror.Weaver
             }
 
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
-            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField);
+            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, ref WeavingFailed);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
@@ -354,7 +354,7 @@ namespace Mirror.Weaver
             }
         }
 
-        public (List<FieldDefinition> syncVars, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds) ProcessSyncVars(TypeDefinition td)
+        public (List<FieldDefinition> syncVars, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds) ProcessSyncVars(TypeDefinition td, ref bool WeavingFailed)
         {
             List<FieldDefinition> syncVars = new List<FieldDefinition>();
             Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
@@ -371,14 +371,14 @@ namespace Mirror.Weaver
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
                         Log.Error($"{fd.Name} cannot be static", fd);
-                        Weaver.WeavingFailed = true;
+                        WeavingFailed = true;
                         continue;
                     }
 
                     if (fd.FieldType.IsArray)
                     {
                         Log.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
-                        Weaver.WeavingFailed = true;
+                        WeavingFailed = true;
                         continue;
                     }
 
@@ -390,13 +390,13 @@ namespace Mirror.Weaver
                     {
                         syncVars.Add(fd);
 
-                        ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter);
+                        ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter, ref WeavingFailed);
                         dirtyBitCounter += 1;
 
                         if (dirtyBitCounter == SyncVarLimit)
                         {
                             Log.Error($"{td.Name} has too many SyncVars. Consider refactoring your class into multiple components", td);
-                            Weaver.WeavingFailed = true;
+                            WeavingFailed = true;
                             continue;
                         }
                     }
@@ -418,12 +418,12 @@ namespace Mirror.Weaver
             WriteCallHookMethod(worker, hookMethod, oldValue, null);
         }
 
-        public void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
+        public void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue, ref bool WeavingFailed)
         {
             if (newValue == null)
             {
                 Log.Error("NewValue field was null when writing SyncVar hook");
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
             }
 
             WriteCallHookMethod(worker, hookMethod, oldValue, newValue);
