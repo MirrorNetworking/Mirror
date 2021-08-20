@@ -61,7 +61,7 @@ namespace Mirror.Weaver
         }
 
         // return true if modified
-        public bool Process()
+        public bool Process(ref bool WeavingFailed)
         {
             // only process once
             if (WasProcessed(netBehaviourSubclass))
@@ -84,7 +84,7 @@ namespace Mirror.Weaver
 
             syncObjects = SyncObjectProcessor.FindSyncObjectsFields(writers, readers, Log, netBehaviourSubclass);
 
-            ProcessMethods();
+            ProcessMethods(ref WeavingFailed);
             if (Weaver.WeavingFailed)
             {
                 // originally Process returned true in every case, except if already processed.
@@ -1059,7 +1059,7 @@ namespace Mirror.Weaver
                 || type.Resolve().IsDerivedFrom<NetworkConnectionToClient>();
         }
 
-        void ProcessMethods()
+        void ProcessMethods(ref bool WeavingFailed)
         {
             HashSet<string> names = new HashSet<string>();
 
@@ -1072,26 +1072,26 @@ namespace Mirror.Weaver
                 {
                     if (ca.AttributeType.Is<CommandAttribute>())
                     {
-                        ProcessCommand(names, md, ca);
+                        ProcessCommand(names, md, ca, ref WeavingFailed);
                         break;
                     }
 
                     if (ca.AttributeType.Is<TargetRpcAttribute>())
                     {
-                        ProcessTargetRpc(names, md, ca);
+                        ProcessTargetRpc(names, md, ca, ref WeavingFailed);
                         break;
                     }
 
                     if (ca.AttributeType.Is<ClientRpcAttribute>())
                     {
-                        ProcessClientRpc(names, md, ca);
+                        ProcessClientRpc(names, md, ca, ref WeavingFailed);
                         break;
                     }
                 }
             }
         }
 
-        void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr)
+        void ProcessClientRpc(HashSet<string> names, MethodDefinition md, CustomAttribute clientRpcAttr, ref bool WeavingFailed)
         {
             if (md.IsAbstract)
             {
@@ -1121,7 +1121,7 @@ namespace Mirror.Weaver
                 includeOwner = includeOwner
             });
 
-            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(weaverTypes, writers, Log, netBehaviourSubclass, md, clientRpcAttr);
+            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(weaverTypes, writers, Log, netBehaviourSubclass, md, clientRpcAttr, ref WeavingFailed);
             // need null check here because ProcessRpcCall returns null if it can't write all the args
             if (rpcCallFunc == null) { return; }
 
@@ -1132,7 +1132,7 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr)
+        void ProcessTargetRpc(HashSet<string> names, MethodDefinition md, CustomAttribute targetRpcAttr, ref bool WeavingFailed)
         {
             if (md.IsAbstract)
             {
@@ -1153,7 +1153,7 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             targetRpcs.Add(md);
 
-            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(weaverTypes, writers, Log, netBehaviourSubclass, md, targetRpcAttr);
+            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(weaverTypes, writers, Log, netBehaviourSubclass, md, targetRpcAttr, ref WeavingFailed);
 
             MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(weaverTypes, readers, Log, netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
@@ -1162,7 +1162,7 @@ namespace Mirror.Weaver
             }
         }
 
-        void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr)
+        void ProcessCommand(HashSet<string> names, MethodDefinition md, CustomAttribute commandAttr, ref bool WeavingFailed)
         {
             if (md.IsAbstract)
             {
@@ -1190,7 +1190,7 @@ namespace Mirror.Weaver
                 requiresAuthority = requiresAuthority
             });
 
-            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(weaverTypes, writers, Log, netBehaviourSubclass, md, commandAttr);
+            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(weaverTypes, writers, Log, netBehaviourSubclass, md, commandAttr, ref WeavingFailed);
 
             MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(weaverTypes, readers, Log, netBehaviourSubclass, md, cmdCallFunc);
             if (cmdFunc != null)

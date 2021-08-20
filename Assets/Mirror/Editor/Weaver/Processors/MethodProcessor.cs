@@ -30,7 +30,7 @@ namespace Mirror.Weaver
         //
         //  the original method definition loses all code
         //  this returns the newly created method with all the user provided code
-        public static MethodDefinition SubstituteMethod(Logger Log, TypeDefinition td, MethodDefinition md)
+        public static MethodDefinition SubstituteMethod(Logger Log, TypeDefinition td, MethodDefinition md, ref bool WeavingFailed)
         {
             string newName = RpcPrefix + md.Name;
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
@@ -66,13 +66,13 @@ namespace Mirror.Weaver
 
             td.Methods.Add(cmd);
 
-            FixRemoteCallToBaseMethod(Log, td, cmd);
+            FixRemoteCallToBaseMethod(Log, td, cmd, ref WeavingFailed);
             return cmd;
         }
 
         // Finds and fixes call to base methods within remote calls
         //For example, changes `base.CmdDoSomething` to `base.CallCmdDoSomething` within `this.CallCmdDoSomething`
-        public static void FixRemoteCallToBaseMethod(Logger Log, TypeDefinition type, MethodDefinition method)
+        public static void FixRemoteCallToBaseMethod(Logger Log, TypeDefinition type, MethodDefinition method, ref bool WeavingFailed)
         {
             string callName = method.Name;
 
@@ -96,14 +96,14 @@ namespace Mirror.Weaver
                     if (baseMethod == null)
                     {
                         Log.Error($"Could not find base method for {callName}", method);
-                        Weaver.WeavingFailed = true;
+                        WeavingFailed = true;
                         return;
                     }
 
                     if (!baseMethod.IsVirtual)
                     {
                         Log.Error($"Could not find base method that was virutal {callName}", method);
-                        Weaver.WeavingFailed = true;
+                        WeavingFailed = true;
                         return;
                     }
 
