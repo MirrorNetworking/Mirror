@@ -158,7 +158,7 @@ namespace Mirror.Weaver.Tests
                 {
                     if (cm.type == CompilerMessageType.Error)
                     {
-                        Debug.LogErrorFormat("{0}:{1} -- {2}", cm.file, cm.line, cm.message);
+                        Debug.LogError($"{cm.file}:{cm.line} -- {cm.message}");
                         CompilerErrors = true;
                     }
                 }
