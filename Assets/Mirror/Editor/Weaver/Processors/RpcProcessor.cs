@@ -6,7 +6,7 @@ namespace Mirror.Weaver
     // Processes [Rpc] methods in NetworkBehaviour
     public static class RpcProcessor
     {
-        public static MethodDefinition ProcessRpcInvoke(WeaverTypes weaverTypes, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
+        public static MethodDefinition ProcessRpcInvoke(WeaverTypes weaverTypes, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             MethodDefinition rpc = new MethodDefinition(
                 Weaver.InvokeRpcPrefix + md.Name,
@@ -22,7 +22,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Castclass, td);
 
-            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.ClientRpc))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, Log, worker, RemoteCallType.ClientRpc))
                 return null;
 
             // invoke actual command function
@@ -71,7 +71,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.ClientRpc))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, Log, md, RemoteCallType.ClientRpc))
                 return null;
 
             string rpcName = md.Name;

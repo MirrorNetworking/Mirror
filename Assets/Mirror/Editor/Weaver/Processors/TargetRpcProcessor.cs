@@ -13,7 +13,7 @@ namespace Mirror.Weaver
                    md.Parameters[0].ParameterType.Is<NetworkConnection>();
         }
 
-        public static MethodDefinition ProcessTargetRpcInvoke(WeaverTypes weaverTypes, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
+        public static MethodDefinition ProcessTargetRpcInvoke(WeaverTypes weaverTypes, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             MethodDefinition rpc = new MethodDefinition(Weaver.InvokeRpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
@@ -45,7 +45,7 @@ namespace Mirror.Weaver
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
-            if (!NetworkBehaviourProcessor.ReadArguments(md, worker, RemoteCallType.TargetRpc))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, Log, worker, RemoteCallType.TargetRpc))
                 return null;
 
             // invoke actual command function
@@ -102,7 +102,7 @@ namespace Mirror.Weaver
 
             // write all the arguments that the user passed to the TargetRpc call
             // (skip first one if first one is NetworkConnection)
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, md, RemoteCallType.TargetRpc))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, Log, md, RemoteCallType.TargetRpc))
                 return null;
 
             string rpcName = md.Name;

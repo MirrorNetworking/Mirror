@@ -156,7 +156,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, weaverTypes.RecycleWriterReference);
         }
 
-        public static bool WriteArguments(ILProcessor worker, MethodDefinition method, RemoteCallType callType)
+        public static bool WriteArguments(ILProcessor worker, Logger Log, MethodDefinition method, RemoteCallType callType)
         {
             // write each argument
             // example result
@@ -189,7 +189,7 @@ namespace Mirror.Weaver
                 MethodReference writeFunc = ReaderWriterProcessor.writers.GetWriteFunc(param.ParameterType);
                 if (writeFunc == null)
                 {
-                    Weaver.Log.Error($"{method.Name} has invalid parameter {param}", method);
+                    Log.Error($"{method.Name} has invalid parameter {param}", method);
                     Weaver.WeavingFailed = true;
                     return false;
                 }
@@ -887,7 +887,7 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ReadArguments(MethodDefinition method, ILProcessor worker, RemoteCallType callType)
+        public static bool ReadArguments(MethodDefinition method, Logger Log, ILProcessor worker, RemoteCallType callType)
         {
             // read each argument
             // example result
@@ -921,7 +921,7 @@ namespace Mirror.Weaver
 
                 if (readFunc == null)
                 {
-                    Weaver.Log.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported Mirror type instead", method);
+                    Log.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported Mirror type instead", method);
                     Weaver.WeavingFailed = true;
                     return false;
                 }
@@ -1121,7 +1121,7 @@ namespace Mirror.Weaver
             // need null check here because ProcessRpcCall returns null if it can't write all the args
             if (rpcCallFunc == null) { return; }
 
-            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(weaverTypes, netBehaviourSubclass, md, rpcCallFunc);
+            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(weaverTypes, Log, netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
             {
                 clientRpcInvocationFuncs.Add(rpcFunc);
@@ -1151,7 +1151,7 @@ namespace Mirror.Weaver
 
             MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(weaverTypes, Log, netBehaviourSubclass, md, targetRpcAttr);
 
-            MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(weaverTypes, netBehaviourSubclass, md, rpcCallFunc);
+            MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(weaverTypes, Log, netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
             {
                 targetRpcInvocationFuncs.Add(rpcFunc);
@@ -1188,7 +1188,7 @@ namespace Mirror.Weaver
 
             MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(weaverTypes, Log, netBehaviourSubclass, md, commandAttr);
 
-            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(weaverTypes, netBehaviourSubclass, md, cmdCallFunc);
+            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(weaverTypes, Log, netBehaviourSubclass, md, cmdCallFunc);
             if (cmdFunc != null)
             {
                 commandInvocationFuncs.Add(cmdFunc);
