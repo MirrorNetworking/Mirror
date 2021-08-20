@@ -82,7 +82,7 @@ namespace Mirror.Weaver
             // deconstruct tuple and set fields
             (syncVars, syncVarNetIds) = syncVarProcessor.ProcessSyncVars(netBehaviourSubclass);
 
-            syncObjects = SyncObjectProcessor.FindSyncObjectsFields(writers, readers, Log, netBehaviourSubclass);
+            syncObjects = SyncObjectProcessor.FindSyncObjectsFields(writers, readers, Log, netBehaviourSubclass, ref WeavingFailed);
 
             ProcessMethods(ref WeavingFailed);
             if (Weaver.WeavingFailed)

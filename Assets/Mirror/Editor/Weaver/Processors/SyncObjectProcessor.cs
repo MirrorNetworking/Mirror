@@ -7,7 +7,7 @@ namespace Mirror.Weaver
     {
         // Finds SyncObjects fields in a type
         // Type should be a NetworkBehaviour
-        public static List<FieldDefinition> FindSyncObjectsFields(Writers writers, Readers readers, Logger Log, TypeDefinition td)
+        public static List<FieldDefinition> FindSyncObjectsFields(Writers writers, Readers readers, Logger Log, TypeDefinition td, ref bool WeavingFailed)
         {
             List<FieldDefinition> syncObjects = new List<FieldDefinition>();
 
@@ -18,7 +18,7 @@ namespace Mirror.Weaver
                     if (fd.IsStatic)
                     {
                         Log.Error($"{fd.Name} cannot be static", fd);
-                        Weaver.WeavingFailed = true;
+                        WeavingFailed = true;
                         continue;
                     }
 
