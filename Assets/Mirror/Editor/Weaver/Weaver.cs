@@ -141,6 +141,9 @@ namespace Mirror.Weaver
 
                 weaverTypes = new WeaverTypes(CurrentAssembly, Log, ref WeavingFailed);
 
+                // weaverTypes are needed for CreateGeneratedCodeClass
+                CreateGeneratedCodeClass();
+
                 // WeaverList depends on WeaverTypes setup because it uses Import
                 weaverLists = new WeaverLists();
 
@@ -149,10 +152,8 @@ namespace Mirror.Weaver
                 // otherwise we would get
                 // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
                 // errors when still using the previous module's reader/writer funcs.
-                writers = new Writers(CurrentAssembly, weaverTypes, Log);
-                readers = new Readers(CurrentAssembly, weaverTypes, Log);
-
-                CreateGeneratedCodeClass();
+                writers = new Writers(CurrentAssembly, weaverTypes, GeneratedCodeClass, Log);
+                readers = new Readers(CurrentAssembly, weaverTypes, GeneratedCodeClass, Log);
 
                 System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages

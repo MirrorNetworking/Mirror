@@ -14,15 +14,17 @@ namespace Mirror.Weaver
         // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
         AssemblyDefinition assembly;
         WeaverTypes weaverTypes;
+        TypeDefinition GeneratedCodeClass;
         Logger Log;
 
         Dictionary<TypeReference, MethodReference> writeFuncs =
             new Dictionary<TypeReference, MethodReference>(new TypeReferenceComparer());
 
-        public Writers(AssemblyDefinition assembly, WeaverTypes weaverTypes, Logger Log)
+        public Writers(AssemblyDefinition assembly, WeaverTypes weaverTypes, TypeDefinition GeneratedCodeClass, Logger Log)
         {
             this.assembly = assembly;
             this.weaverTypes = weaverTypes;
+            this.GeneratedCodeClass = GeneratedCodeClass;
             this.Log = Log;
         }
 
@@ -45,7 +47,7 @@ namespace Mirror.Weaver
         {
             Register(typeReference, newWriterFunc);
 
-            Weaver.GeneratedCodeClass.Methods.Add(newWriterFunc);
+            GeneratedCodeClass.Methods.Add(newWriterFunc);
         }
 
         // Finds existing writer for type, if non exists trys to create one
