@@ -139,7 +139,7 @@ namespace Mirror.Weaver
                     return true;
                 }
 
-                weaverTypes = new WeaverTypes(CurrentAssembly, Log);
+                weaverTypes = new WeaverTypes(CurrentAssembly, Log, ref WeavingFailed);
 
                 // WeaverList depends on WeaverTypes setup because it uses Import
                 weaverLists = new WeaverLists();

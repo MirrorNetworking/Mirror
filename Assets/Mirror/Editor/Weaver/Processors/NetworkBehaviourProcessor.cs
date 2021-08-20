@@ -93,7 +93,7 @@ namespace Mirror.Weaver
             }
             GenerateConstants();
 
-            GenerateSerialization();
+            GenerateSerialization(ref WeavingFailed);
             if (Weaver.WeavingFailed)
             {
                 // originally Process returned true in every case, except if already processed.
@@ -160,7 +160,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, weaverTypes.RecycleWriterReference);
         }
 
-        public static bool WriteArguments(ILProcessor worker, Writers writers, Logger Log, MethodDefinition method, RemoteCallType callType)
+        public static bool WriteArguments(ILProcessor worker, Writers writers, Logger Log, MethodDefinition method, RemoteCallType callType, ref bool WeavingFailed)
         {
             // write each argument
             // example result
@@ -190,7 +190,7 @@ namespace Mirror.Weaver
                     continue;
                 }
 
-                MethodReference writeFunc = writers.GetWriteFunc(param.ParameterType);
+                MethodReference writeFunc = writers.GetWriteFunc(param.ParameterType, ref WeavingFailed);
                 if (writeFunc == null)
                 {
                     Log.Error($"{method.Name} has invalid parameter {param}", method);
@@ -365,7 +365,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, registerMethod);
         }
 
-        void GenerateSerialization()
+        void GenerateSerialization(ref bool WeavingFailed)
         {
             const string SerializeMethodName = "SerializeSyncVars";
             if (netBehaviourSubclass.GetMethod(SerializeMethodName) != null)
@@ -419,7 +419,7 @@ namespace Mirror.Weaver
                 // this
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, syncVar);
-                MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);
@@ -448,7 +448,7 @@ namespace Mirror.Weaver
             // base
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Call, weaverTypes.NetworkBehaviourDirtyBitsReference);
-            MethodReference writeUint64Func = writers.GetWriteFunc(weaverTypes.Import<ulong>());
+            MethodReference writeUint64Func = writers.GetWriteFunc(weaverTypes.Import<ulong>(), ref WeavingFailed);
             worker.Emit(OpCodes.Call, writeUint64Func);
 
             // generate a writer call for any dirty variable in this class
@@ -475,7 +475,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, syncVar);
 
-                MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType);
+                MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);

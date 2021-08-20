@@ -57,7 +57,7 @@ namespace Mirror.Weaver
             if (!klass.IsAbstract && !klass.IsInterface && klass.ImplementsInterface<NetworkMessage>())
             {
                 readers.GetReadFunc(module.ImportReference(klass), ref WeavingFailed);
-                writers.GetWriteFunc(module.ImportReference(klass));
+                writers.GetWriteFunc(module.ImportReference(klass), ref WeavingFailed);
                 modified = true;
             }
 
