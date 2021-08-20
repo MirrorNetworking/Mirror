@@ -7,7 +7,7 @@ namespace Mirror.Weaver
     {
         // Finds SyncObjects fields in a type
         // Type should be a NetworkBehaviour
-        public static List<FieldDefinition> FindSyncObjectsFields(Logger Log, TypeDefinition td)
+        public static List<FieldDefinition> FindSyncObjectsFields(Writers writers, Readers readers, Logger Log, TypeDefinition td)
         {
             List<FieldDefinition> syncObjects = new List<FieldDefinition>();
 
@@ -22,7 +22,7 @@ namespace Mirror.Weaver
                         continue;
                     }
 
-                    GenerateReadersAndWriters(fd.FieldType);
+                    GenerateReadersAndWriters(writers, readers, fd.FieldType);
 
                     syncObjects.Add(fd);
                 }
@@ -33,7 +33,7 @@ namespace Mirror.Weaver
         }
 
         // Generates serialization methods for synclists
-        static void GenerateReadersAndWriters(TypeReference tr)
+        static void GenerateReadersAndWriters(Writers writers, Readers readers, TypeReference tr)
         {
             if (tr is GenericInstanceType genericInstance)
             {
@@ -41,15 +41,15 @@ namespace Mirror.Weaver
                 {
                     if (!argument.IsGenericParameter)
                     {
-                        ReaderWriterProcessor.readers.GetReadFunc(argument);
-                        ReaderWriterProcessor.writers.GetWriteFunc(argument);
+                        readers.GetReadFunc(argument);
+                        writers.GetWriteFunc(argument);
                     }
                 }
             }
 
             if (tr != null)
             {
-                GenerateReadersAndWriters(tr.Resolve().BaseType);
+                GenerateReadersAndWriters(writers, readers, tr.Resolve().BaseType);
             }
         }
     }

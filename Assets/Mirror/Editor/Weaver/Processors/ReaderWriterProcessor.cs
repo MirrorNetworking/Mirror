@@ -11,19 +11,8 @@ namespace Mirror.Weaver
 {
     public static class ReaderWriterProcessor
     {
-        public static Writers writers;
-        public static Readers readers;
-
-        public static bool Process(AssemblyDefinition CurrentAssembly, WeaverTypes weaverTypes, Logger Log)
+        public static bool Process(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers)
         {
-            // initialize readers & writers with this assembly.
-            // we need to do this in every Process() call.
-            // otherwise we would get
-            // "System.ArgumentException: Member ... is declared in another module and needs to be imported"
-            // errors when still using the previous module's reader/writer funcs.
-            writers = new Writers(CurrentAssembly, weaverTypes, Log);
-            readers = new Readers(CurrentAssembly, weaverTypes, Log);
-
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
             {
                 if (unityAsm.name == "Mirror")
@@ -31,15 +20,15 @@ namespace Mirror.Weaver
                     using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
                     using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
                     {
-                        ProcessAssemblyClasses(CurrentAssembly, assembly);
+                        ProcessAssemblyClasses(CurrentAssembly, assembly, writers, readers);
                     }
                 }
             }
 
-            return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly);
+            return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers);
         }
 
-        static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly)
+        static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers)
         {
             bool modified = false;
             foreach (TypeDefinition klass in assembly.MainModule.Types)
@@ -49,20 +38,20 @@ namespace Mirror.Weaver
                 if (klass.IsAbstract && klass.IsSealed)
                 {
                     // if assembly has any declared writers then it is "modified"
-                    modified |= LoadDeclaredWriters(CurrentAssembly, klass);
-                    modified |= LoadDeclaredReaders(CurrentAssembly, klass);
+                    modified |= LoadDeclaredWriters(CurrentAssembly, klass, writers);
+                    modified |= LoadDeclaredReaders(CurrentAssembly, klass, readers);
                 }
             }
 
             foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
                 // if assembly has any network message then it is modified
-                modified |= LoadMessageReadWriter(CurrentAssembly.MainModule, klass);
+                modified |= LoadMessageReadWriter(CurrentAssembly.MainModule, writers, readers, klass);
             }
             return modified;
         }
 
-        static bool LoadMessageReadWriter(ModuleDefinition module, TypeDefinition klass)
+        static bool LoadMessageReadWriter(ModuleDefinition module, Writers writers, Readers readers, TypeDefinition klass)
         {
             bool modified = false;
             if (!klass.IsAbstract && !klass.IsInterface && klass.ImplementsInterface<NetworkMessage>())
@@ -74,12 +63,12 @@ namespace Mirror.Weaver
 
             foreach (TypeDefinition td in klass.NestedTypes)
             {
-                modified |= LoadMessageReadWriter(module, td);
+                modified |= LoadMessageReadWriter(module, writers, readers, td);
             }
             return modified;
         }
 
-        static bool LoadDeclaredWriters(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static bool LoadDeclaredWriters(AssemblyDefinition currentAssembly, TypeDefinition klass, Writers writers)
         {
             // register all the writers in this class.  Skip the ones with wrong signature
             bool modified = false;
@@ -107,7 +96,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool LoadDeclaredReaders(AssemblyDefinition currentAssembly, TypeDefinition klass)
+        static bool LoadDeclaredReaders(AssemblyDefinition currentAssembly, TypeDefinition klass, Readers readers)
         {
             // register all the reader in this class.  Skip the ones with wrong signature
             bool modified = false;
@@ -150,7 +139,7 @@ namespace Mirror.Weaver
         //    in Editor and in tests too
         //
         // use ILSpy to see the result (it's in the DLL's 'Mirror' namespace)
-        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly, WeaverTypes weaverTypes)
+        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly, WeaverTypes weaverTypes, Writers writers, Readers readers)
         {
             MethodDefinition rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,

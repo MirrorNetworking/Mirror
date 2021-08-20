@@ -6,7 +6,7 @@ namespace Mirror.Weaver
     // Processes [Rpc] methods in NetworkBehaviour
     public static class RpcProcessor
     {
-        public static MethodDefinition ProcessRpcInvoke(WeaverTypes weaverTypes, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
+        public static MethodDefinition ProcessRpcInvoke(WeaverTypes weaverTypes, Writers writers, Readers readers, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc)
         {
             MethodDefinition rpc = new MethodDefinition(
                 Weaver.InvokeRpcPrefix + md.Name,
@@ -22,7 +22,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Castclass, td);
 
-            if (!NetworkBehaviourProcessor.ReadArguments(md, Log, worker, RemoteCallType.ClientRpc))
+            if (!NetworkBehaviourProcessor.ReadArguments(md, readers, Log, worker, RemoteCallType.ClientRpc))
                 return null;
 
             // invoke actual command function
@@ -56,7 +56,7 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
-        public static MethodDefinition ProcessRpcCall(WeaverTypes weaverTypes, Logger Log, TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
+        public static MethodDefinition ProcessRpcCall(WeaverTypes weaverTypes, Writers writers, Logger Log, TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr)
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(Log, td, md);
 
@@ -71,7 +71,7 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteCreateWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, Log, md, RemoteCallType.ClientRpc))
+            if (!NetworkBehaviourProcessor.WriteArguments(worker, writers, Log, md, RemoteCallType.ClientRpc))
                 return null;
 
             string rpcName = md.Name;
