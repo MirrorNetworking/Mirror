@@ -140,12 +140,8 @@ namespace Mirror.Weaver
 
                 weaverTypes = new WeaverTypes(CurrentAssembly, Log);
 
-                CreateGeneratedCodeClass();
-
                 // WeaverList depends on WeaverTypes setup because it uses Import
                 weaverLists = new WeaverLists();
-
-                System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                 // initialize readers & writers with this assembly.
                 // we need to do this in every Process() call.
@@ -155,6 +151,9 @@ namespace Mirror.Weaver
                 writers = new Writers(CurrentAssembly, weaverTypes, Log);
                 readers = new Readers(CurrentAssembly, weaverTypes, Log);
 
+                CreateGeneratedCodeClass();
+
+                System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
                 // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
                 bool modified = ReaderWriterProcessor.Process(CurrentAssembly, writers, readers);
                 rwstopwatch.Stop();
