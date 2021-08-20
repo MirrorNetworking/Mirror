@@ -139,7 +139,7 @@ namespace Mirror.Weaver
         //    in Editor and in tests too
         //
         // use ILSpy to see the result (it's in the DLL's 'Mirror' namespace)
-        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly, WeaverTypes weaverTypes, Writers writers, Readers readers)
+        public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly, WeaverTypes weaverTypes, Writers writers, Readers readers, TypeDefinition GeneratedCodeClass)
         {
             MethodDefinition rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
@@ -171,7 +171,7 @@ namespace Mirror.Weaver
 
             worker.Emit(OpCodes.Ret);
 
-            Weaver.GeneratedCodeClass.Methods.Add(rwInitializer);
+            GeneratedCodeClass.Methods.Add(rwInitializer);
         }
     }
 }
