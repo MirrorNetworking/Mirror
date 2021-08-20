@@ -12,14 +12,14 @@ namespace Mirror.Weaver
         // generated code class
         public const string GeneratedCodeNamespace = "Mirror";
         public const string GeneratedCodeClassName = "GeneratedNetworkCode";
-        public static TypeDefinition GeneratedCodeClass;
+        static TypeDefinition GeneratedCodeClass;
 
         public static WeaverTypes weaverTypes;
-        public static WeaverLists weaverLists;
-        public static AssemblyDefinition CurrentAssembly;
-        public static Writers writers;
-        public static Readers readers;
-        public static bool WeavingFailed;
+        static WeaverLists weaverLists;
+        static AssemblyDefinition CurrentAssembly;
+        static Writers writers;
+        static Readers readers;
+        static bool WeavingFailed;
 
         // logger functions can be set from the outside.
         // for example, Debug.Log or ILPostProcessor Diagnostics log for
