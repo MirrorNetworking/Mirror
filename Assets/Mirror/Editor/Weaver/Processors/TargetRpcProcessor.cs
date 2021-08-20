@@ -90,9 +90,9 @@ namespace Mirror.Weaver
             correctly in dependent assemblies
 
         */
-        public static MethodDefinition ProcessTargetRpcCall(WeaverTypes weaverTypes, TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
+        public static MethodDefinition ProcessTargetRpcCall(WeaverTypes weaverTypes, Logger Log, TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr)
         {
-            MethodDefinition rpc = MethodProcessor.SubstituteMethod(td, md);
+            MethodDefinition rpc = MethodProcessor.SubstituteMethod(Log, td, md);
 
             ILProcessor worker = md.Body.GetILProcessor();
 

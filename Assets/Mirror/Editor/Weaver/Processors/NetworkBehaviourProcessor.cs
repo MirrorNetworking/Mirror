@@ -1117,7 +1117,7 @@ namespace Mirror.Weaver
                 includeOwner = includeOwner
             });
 
-            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(weaverTypes, netBehaviourSubclass, md, clientRpcAttr);
+            MethodDefinition rpcCallFunc = RpcProcessor.ProcessRpcCall(weaverTypes, Log, netBehaviourSubclass, md, clientRpcAttr);
             // need null check here because ProcessRpcCall returns null if it can't write all the args
             if (rpcCallFunc == null) { return; }
 
@@ -1149,7 +1149,7 @@ namespace Mirror.Weaver
             names.Add(md.Name);
             targetRpcs.Add(md);
 
-            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(weaverTypes, netBehaviourSubclass, md, targetRpcAttr);
+            MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(weaverTypes, Log, netBehaviourSubclass, md, targetRpcAttr);
 
             MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(weaverTypes, netBehaviourSubclass, md, rpcCallFunc);
             if (rpcFunc != null)
@@ -1186,7 +1186,7 @@ namespace Mirror.Weaver
                 requiresAuthority = requiresAuthority
             });
 
-            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(weaverTypes, netBehaviourSubclass, md, commandAttr);
+            MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(weaverTypes, Log, netBehaviourSubclass, md, commandAttr);
 
             MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(weaverTypes, netBehaviourSubclass, md, cmdCallFunc);
             if (cmdFunc != null)
