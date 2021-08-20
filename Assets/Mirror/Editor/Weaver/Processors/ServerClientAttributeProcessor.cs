@@ -6,22 +6,22 @@ namespace Mirror.Weaver
 {
     static class ServerClientAttributeProcessor
     {
-        public static bool Process(WeaverTypes weaverTypes, Logger Log, TypeDefinition td)
+        public static bool Process(WeaverTypes weaverTypes, Logger Log, TypeDefinition td, ref bool WeavingFailed)
         {
             bool modified = false;
             foreach (MethodDefinition md in td.Methods)
             {
-                modified |= ProcessSiteMethod(weaverTypes, Log, md);
+                modified |= ProcessSiteMethod(weaverTypes, Log, md, ref WeavingFailed);
             }
 
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                modified |= Process(weaverTypes, Log, nested);
+                modified |= Process(weaverTypes, Log, nested, ref WeavingFailed);
             }
             return modified;
         }
 
-        static bool ProcessSiteMethod(WeaverTypes weaverTypes, Logger Log, MethodDefinition md)
+        static bool ProcessSiteMethod(WeaverTypes weaverTypes, Logger Log, MethodDefinition md, ref bool WeavingFailed)
         {
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
@@ -33,7 +33,7 @@ namespace Mirror.Weaver
                 if (HasServerClientAttribute(md))
                 {
                     Log.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                 }
                 return false;
             }

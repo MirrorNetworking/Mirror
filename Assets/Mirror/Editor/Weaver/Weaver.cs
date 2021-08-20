@@ -72,7 +72,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool WeaveModule(ModuleDefinition moduleDefinition)
+        static bool WeaveModule(ModuleDefinition moduleDefinition, ref bool WeavingFailed)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace Mirror.Weaver
                     if (td.IsClass && td.BaseType.CanBeResolved())
                     {
                         modified |= WeaveNetworkBehavior(td);
-                        modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td);
+                        modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td, ref WeavingFailed);
                     }
                 }
                 watch.Stop();
@@ -163,7 +163,7 @@ namespace Mirror.Weaver
                 ModuleDefinition moduleDefinition = CurrentAssembly.MainModule;
                 Console.WriteLine($"Script Module: {moduleDefinition.Name}");
 
-                modified |= WeaveModule(moduleDefinition);
+                modified |= WeaveModule(moduleDefinition, ref WeavingFailed);
 
                 if (WeavingFailed)
                 {
