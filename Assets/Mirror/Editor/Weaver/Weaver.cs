@@ -83,7 +83,7 @@ namespace Mirror.Weaver
                     if (td.IsClass && td.BaseType.CanBeResolved())
                     {
                         modified |= WeaveNetworkBehavior(td);
-                        modified |= ServerClientAttributeProcessor.Process(weaverTypes, td);
+                        modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td);
                     }
                 }
                 watch.Stop();
