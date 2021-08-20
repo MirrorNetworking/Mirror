@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkServerGetActive = Weaver.weaverTypes.NetworkServerGetActive.ToString();
+            string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourServer.NetworkBehaviourServer", "ServerOnlyMethod");
         }
 
@@ -22,7 +22,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkServerGetActive = Weaver.weaverTypes.NetworkServerGetActive.ToString();
+            string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnVirutalMethod.ServerAttributeOnVirutalMethod", "ServerOnlyMethod");
         }
 
@@ -38,7 +38,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkServerGetActive = Weaver.weaverTypes.NetworkServerGetActive.ToString();
+            string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.ServerAttributeOnOverrideMethod.ServerAttributeOnOverrideMethod", "ServerOnlyMethod");
         }
 
@@ -47,7 +47,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkClientGetActive = Weaver.weaverTypes.NetworkClientGetActive.ToString();
+            string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.NetworkBehaviourClient.NetworkBehaviourClient", "ClientOnlyMethod");
         }
 
@@ -56,7 +56,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkClientGetActive = Weaver.weaverTypes.NetworkClientGetActive.ToString();
+            string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnVirutalMethod.ClientAttributeOnVirutalMethod", "ClientOnlyMethod");
         }
 
@@ -72,7 +72,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkClientGetActive = Weaver.weaverTypes.NetworkClientGetActive.ToString();
+            string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.ClientAttributeOnOverrideMethod.ClientAttributeOnOverrideMethod", "ClientOnlyMethod");
         }
 
@@ -81,7 +81,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkClientGetActive = Weaver.weaverTypes.NetworkClientGetActive.ToString();
+            string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.StaticClassClient.StaticClassClient", "ClientOnlyMethod");
         }
         [Test]
@@ -89,7 +89,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkClientGetActive = Weaver.weaverTypes.NetworkClientGetActive.ToString();
+            string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.RegularClassClient.RegularClassClient", "ClientOnlyMethod");
         }
         [Test]
@@ -97,7 +97,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkClientGetActive = Weaver.weaverTypes.NetworkClientGetActive.ToString();
+            string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.MonoBehaviourClient.MonoBehaviourClient", "ClientOnlyMethod");
         }
 
@@ -106,7 +106,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkServerGetActive = Weaver.weaverTypes.NetworkServerGetActive.ToString();
+            string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.StaticClassServer.StaticClassServer", "ServerOnlyMethod");
         }
         [Test]
@@ -114,7 +114,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkServerGetActive = Weaver.weaverTypes.NetworkServerGetActive.ToString();
+            string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.RegularClassServer.RegularClassServer", "ServerOnlyMethod");
         }
         [Test]
@@ -122,7 +122,7 @@ namespace Mirror.Weaver.Tests
         {
             IsSuccess();
 
-            string networkServerGetActive = Weaver.weaverTypes.NetworkServerGetActive.ToString();
+            string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.MonoBehaviourServer.MonoBehaviourServer", "ServerOnlyMethod");
         }
 

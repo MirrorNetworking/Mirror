@@ -5,29 +5,35 @@ using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
-    internal static class Weaver
+    // not static, because ILPostProcessor is multithreaded
+    internal class Weaver
     {
         public const string InvokeRpcPrefix = "InvokeUserCode_";
 
         // generated code class
         public const string GeneratedCodeNamespace = "Mirror";
         public const string GeneratedCodeClassName = "GeneratedNetworkCode";
-        static TypeDefinition GeneratedCodeClass;
+        TypeDefinition GeneratedCodeClass;
 
-        public static WeaverTypes weaverTypes;
-        static WeaverLists weaverLists;
-        static AssemblyDefinition CurrentAssembly;
-        static Writers writers;
-        static Readers readers;
-        static bool WeavingFailed;
+        public WeaverTypes weaverTypes;
+        WeaverLists weaverLists;
+        AssemblyDefinition CurrentAssembly;
+        Writers writers;
+        Readers readers;
+        bool WeavingFailed;
 
         // logger functions can be set from the outside.
         // for example, Debug.Log or ILPostProcessor Diagnostics log for
         // multi threaded logging.
-        public static Logger Log;
+        public Logger Log;
+
+        public Weaver(Logger Log)
+        {
+            this.Log = Log;
+        }
 
         // returns 'true' if modified (=if we did anything)
-        static bool WeaveNetworkBehavior(TypeDefinition td)
+        bool WeaveNetworkBehavior(TypeDefinition td)
         {
             if (!td.IsClass)
                 return false;
@@ -72,7 +78,7 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool WeaveModule(ModuleDefinition moduleDefinition)
+        bool WeaveModule(ModuleDefinition moduleDefinition)
         {
             try
             {
@@ -101,7 +107,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static void CreateGeneratedCodeClass()
+        void CreateGeneratedCodeClass()
         {
             // create "Mirror.GeneratedNetworkCode" class
             GeneratedCodeClass = new TypeDefinition(GeneratedCodeNamespace, GeneratedCodeClassName,
@@ -120,7 +126,7 @@ namespace Mirror.Weaver
         // * old takes a filepath, new takes a in-memory byte[]
         // * old uses DefaultAssemblyResolver with added dependencies paths,
         //   new uses ...?
-        public static bool Weave(AssemblyDefinition asmDef)
+        public bool Weave(AssemblyDefinition asmDef)
         {
             WeavingFailed = false;
             try

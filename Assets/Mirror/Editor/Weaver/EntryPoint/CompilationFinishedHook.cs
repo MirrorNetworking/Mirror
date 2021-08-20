@@ -15,6 +15,9 @@ namespace Mirror.Weaver
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
+        // global weaver define so that tests can use it
+        internal static Weaver weaver;
+
         // delegate for subscription to Weaver warning messages
         public static Action<string> OnWeaverWarning;
         // delete for subscription to Weaver error messages
@@ -124,9 +127,6 @@ namespace Mirror.Weaver
             dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
             dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
 
-            // set up weaver logging
-            Weaver.Log = new CompilationFinishedLogger();
-
             if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray()))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
@@ -181,7 +181,9 @@ namespace Mirror.Weaver
                             }
                         }
 
-                        return Weaver.Weave(asmDef);
+                        // create weaver with logger
+                        weaver = new Weaver(new CompilationFinishedLogger());
+                        return weaver.Weave(asmDef);
                     }
                 }
             }
