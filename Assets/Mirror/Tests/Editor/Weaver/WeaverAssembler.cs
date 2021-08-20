@@ -167,7 +167,7 @@ namespace Mirror.Weaver.Tests
             // Start build of assembly
             if (!assemblyBuilder.Build())
             {
-                Debug.LogErrorFormat("Failed to start build of assembly {0}", assemblyBuilder.assemblyPath);
+                Debug.LogError($"Failed to start build of assembly {assemblyBuilder.assemblyPath}");
                 return;
             }
 
