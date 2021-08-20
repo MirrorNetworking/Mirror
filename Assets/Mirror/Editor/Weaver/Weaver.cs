@@ -32,7 +32,7 @@ namespace Mirror.Weaver
             if (!td.IsDerivedFrom<NetworkBehaviour>())
             {
                 if (td.IsDerivedFrom<UnityEngine.MonoBehaviour>())
-                    MonoBehaviourProcessor.Process(td);
+                    MonoBehaviourProcessor.Process(Log, td);
                 return false;
             }
 
