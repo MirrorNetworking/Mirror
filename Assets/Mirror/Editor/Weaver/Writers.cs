@@ -66,7 +66,7 @@ namespace Mirror.Weaver
                 catch (GenerateWriterException e)
                 {
                     Log.Error(e.Message, e.MemberReference);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                     return null;
                 }
             }
@@ -281,7 +281,7 @@ namespace Mirror.Weaver
             if (elementWriteFunc == null)
             {
                 Log.Error($"Cannot generate writer for {variable}. Use a supported type or provide a custom writer", variable);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return writerFunc;
             }
 
