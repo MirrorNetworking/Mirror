@@ -49,7 +49,7 @@ namespace Mirror.Weaver
         }
 
         // Finds existing reader for type, if non exists trys to create one
-        public MethodReference GetReadFunc(TypeReference variable)
+        public MethodReference GetReadFunc(TypeReference variable, ref bool WeavingFailed)
         {
             if (readFuncs.TryGetValue(variable, out MethodReference foundFunc))
             {
@@ -58,11 +58,11 @@ namespace Mirror.Weaver
             else
             {
                 TypeReference importedVariable = assembly.MainModule.ImportReference(variable);
-                return GenerateReader(importedVariable);
+                return GenerateReader(importedVariable, ref WeavingFailed);
             }
         }
 
-        MethodReference GenerateReader(TypeReference variableReference)
+        MethodReference GenerateReader(TypeReference variableReference, ref bool WeavingFailed)
         {
             // Arrays are special,  if we resolve them, we get the element type,
             // so the following ifs might choke on it for scriptable objects
@@ -73,11 +73,11 @@ namespace Mirror.Weaver
                 if (variableReference.IsMultidimensionalArray())
                 {
                     Log.Error($"{variableReference.Name} is an unsupported type. Multidimensional arrays are not supported", variableReference);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                     return null;
                 }
 
-                return GenerateReadCollection(variableReference, variableReference.GetElementType(), nameof(NetworkReaderExtensions.ReadArray));
+                return GenerateReadCollection(variableReference, variableReference.GetElementType(), nameof(NetworkReaderExtensions.ReadArray), ref WeavingFailed);
             }
 
             TypeDefinition variableDefinition = variableReference.Resolve();
@@ -86,32 +86,32 @@ namespace Mirror.Weaver
             if (variableDefinition == null)
             {
                 Log.Error($"{variableReference.Name} is not a supported type", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
             else if (variableReference.IsByReference)
             {
                 // error??
                 Log.Error($"Cannot pass type {variableReference.Name} by reference", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
 
             // use existing func for known types
             if (variableDefinition.IsEnum)
             {
-                return GenerateEnumReadFunc(variableReference);
+                return GenerateEnumReadFunc(variableReference, ref WeavingFailed);
             }
             else if (variableDefinition.Is(typeof(ArraySegment<>)))
             {
-                return GenerateArraySegmentReadFunc(variableReference);
+                return GenerateArraySegmentReadFunc(variableReference, ref WeavingFailed);
             }
             else if (variableDefinition.Is(typeof(List<>)))
             {
                 GenericInstanceType genericInstance = (GenericInstanceType)variableReference;
                 TypeReference elementType = genericInstance.GenericArguments[0];
 
-                return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList));
+                return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList), ref WeavingFailed);
             }
             else if (variableReference.IsDerivedFrom<NetworkBehaviour>())
             {
@@ -122,41 +122,41 @@ namespace Mirror.Weaver
             if (variableDefinition.IsDerivedFrom<UnityEngine.Component>())
             {
                 Log.Error($"Cannot generate reader for component type {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
             if (variableReference.Is<UnityEngine.Object>())
             {
                 Log.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
             if (variableReference.Is<UnityEngine.ScriptableObject>())
             {
                 Log.Error($"Cannot generate reader for {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
             if (variableDefinition.HasGenericParameters)
             {
                 Log.Error($"Cannot generate reader for generic variable {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
             if (variableDefinition.IsInterface)
             {
                 Log.Error($"Cannot generate reader for interface {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
             if (variableDefinition.IsAbstract)
             {
                 Log.Error($"Cannot generate reader for abstract class {variableReference.Name}. Use a supported type or provide a custom reader", variableReference);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return null;
             }
 
-            return GenerateClassOrStructReadFunction(variableReference);
+            return GenerateClassOrStructReadFunction(variableReference, ref WeavingFailed);
         }
 
         MethodReference GetNetworkBehaviourReader(TypeReference variableReference)
@@ -173,7 +173,7 @@ namespace Mirror.Weaver
             return readFunc;
         }
 
-        MethodDefinition GenerateEnumReadFunc(TypeReference variable)
+        MethodDefinition GenerateEnumReadFunc(TypeReference variable, ref bool WeavingFailed)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
@@ -182,14 +182,14 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
 
             TypeReference underlyingType = variable.Resolve().GetEnumUnderlyingType();
-            MethodReference underlyingFunc = GetReadFunc(underlyingType);
+            MethodReference underlyingFunc = GetReadFunc(underlyingType, ref WeavingFailed);
 
             worker.Emit(OpCodes.Call, underlyingFunc);
             worker.Emit(OpCodes.Ret);
             return readerFunc;
         }
 
-        MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable)
+        MethodDefinition GenerateArraySegmentReadFunc(TypeReference variable, ref bool WeavingFailed)
         {
             GenericInstanceType genericInstance = (GenericInstanceType)variable;
             TypeReference elementType = genericInstance.GenericArguments[0];
@@ -201,7 +201,7 @@ namespace Mirror.Weaver
             // $array = reader.Read<[T]>()
             ArrayType arrayType = elementType.MakeArrayType();
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Call, GetReadFunc(arrayType));
+            worker.Emit(OpCodes.Call, GetReadFunc(arrayType, ref WeavingFailed));
 
             // return new ArraySegment<T>($array);
             worker.Emit(OpCodes.Newobj, weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
@@ -227,11 +227,11 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, string readerFunction)
+        MethodDefinition GenerateReadCollection(TypeReference variable, TypeReference elementType, string readerFunction, ref bool WeavingFailed)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
             // generate readers for the element
-            GetReadFunc(elementType);
+            GetReadFunc(elementType, ref WeavingFailed);
 
             ModuleDefinition module = assembly.MainModule;
             TypeReference readerExtensions = module.ImportReference(typeof(NetworkReaderExtensions));
@@ -252,7 +252,7 @@ namespace Mirror.Weaver
             return readerFunc;
         }
 
-        MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable)
+        MethodDefinition GenerateClassOrStructReadFunction(TypeReference variable, ref bool WeavingFailed)
         {
             MethodDefinition readerFunc = GenerateReaderFunction(variable);
 
@@ -264,23 +264,23 @@ namespace Mirror.Weaver
             TypeDefinition td = variable.Resolve();
 
             if (!td.IsValueType)
-                GenerateNullCheck(worker);
+                GenerateNullCheck(worker, ref WeavingFailed);
 
-            CreateNew(variable, worker, td);
-            ReadAllFields(variable, worker);
+            CreateNew(variable, worker, td, ref WeavingFailed);
+            ReadAllFields(variable, worker, ref WeavingFailed);
 
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ret);
             return readerFunc;
         }
 
-        void GenerateNullCheck(ILProcessor worker)
+        void GenerateNullCheck(ILProcessor worker, ref bool WeavingFailed)
         {
             // if (!reader.ReadBoolean()) {
             //   return null;
             // }
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Call, GetReadFunc(weaverTypes.Import<bool>()));
+            worker.Emit(OpCodes.Call, GetReadFunc(weaverTypes.Import<bool>(), ref WeavingFailed));
 
             Instruction labelEmptyArray = worker.Create(OpCodes.Nop);
             worker.Emit(OpCodes.Brtrue, labelEmptyArray);
@@ -291,7 +291,7 @@ namespace Mirror.Weaver
         }
 
         // Initialize the local variable with a new instance
-        void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td)
+        void CreateNew(TypeReference variable, ILProcessor worker, TypeDefinition td, ref bool WeavingFailed)
         {
             if (variable.IsValueType)
             {
@@ -313,7 +313,7 @@ namespace Mirror.Weaver
                 if (ctor == null)
                 {
                     Log.Error($"{variable.Name} can't be deserialized because it has no default constructor", variable);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                     return;
                 }
 
@@ -324,14 +324,14 @@ namespace Mirror.Weaver
             }
         }
 
-        void ReadAllFields(TypeReference variable, ILProcessor worker)
+        void ReadAllFields(TypeReference variable, ILProcessor worker, ref bool WeavingFailed)
         {
             foreach (FieldDefinition field in variable.FindAllPublicFields())
             {
                 // mismatched ldloca/ldloc for struct/class combinations is invalid IL, which causes crash at runtime
                 OpCode opcode = variable.IsValueType ? OpCodes.Ldloca : OpCodes.Ldloc;
                 worker.Emit(opcode, 0);
-                MethodReference readFunc = GetReadFunc(field.FieldType);
+                MethodReference readFunc = GetReadFunc(field.FieldType, ref WeavingFailed);
                 if (readFunc != null)
                 {
                     worker.Emit(OpCodes.Ldarg_0);
@@ -340,7 +340,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Log.Error($"{field.Name} has an unsupported type", field);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                 }
                 FieldReference fieldRef = assembly.MainModule.ImportReference(field);
 

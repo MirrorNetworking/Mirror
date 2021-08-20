@@ -22,7 +22,7 @@ namespace Mirror.Weaver
                         continue;
                     }
 
-                    GenerateReadersAndWriters(writers, readers, fd.FieldType);
+                    GenerateReadersAndWriters(writers, readers, fd.FieldType, ref WeavingFailed);
 
                     syncObjects.Add(fd);
                 }
@@ -33,7 +33,7 @@ namespace Mirror.Weaver
         }
 
         // Generates serialization methods for synclists
-        static void GenerateReadersAndWriters(Writers writers, Readers readers, TypeReference tr)
+        static void GenerateReadersAndWriters(Writers writers, Readers readers, TypeReference tr, ref bool WeavingFailed)
         {
             if (tr is GenericInstanceType genericInstance)
             {
@@ -41,7 +41,7 @@ namespace Mirror.Weaver
                 {
                     if (!argument.IsGenericParameter)
                     {
-                        readers.GetReadFunc(argument);
+                        readers.GetReadFunc(argument, ref WeavingFailed);
                         writers.GetWriteFunc(argument);
                     }
                 }
@@ -49,7 +49,7 @@ namespace Mirror.Weaver
 
             if (tr != null)
             {
-                GenerateReadersAndWriters(writers, readers, tr.Resolve().BaseType);
+                GenerateReadersAndWriters(writers, readers, tr.Resolve().BaseType, ref WeavingFailed);
             }
         }
     }

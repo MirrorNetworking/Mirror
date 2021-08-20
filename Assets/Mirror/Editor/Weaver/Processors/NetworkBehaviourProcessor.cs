@@ -576,7 +576,7 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Emit(OpCodes.Ldarg_1);
             // Read()
-            worker.Emit(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<uint>()));
+            worker.Emit(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<uint>(), ref WeavingFailed));
             // netId
             worker.Emit(OpCodes.Stfld, netIdField);
 
@@ -677,7 +677,7 @@ namespace Mirror.Weaver
             // reader. for 'reader.Read()' below
             worker.Emit(OpCodes.Ldarg_1);
             // Read()
-            worker.Emit(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>()));
+            worker.Emit(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>(), ref WeavingFailed));
             // netId
             worker.Emit(OpCodes.Stfld, netIdField);
 
@@ -741,7 +741,7 @@ namespace Mirror.Weaver
                 }
              */
 
-            MethodReference readFunc = readers.GetReadFunc(syncVar.FieldType);
+            MethodReference readFunc = readers.GetReadFunc(syncVar.FieldType, ref WeavingFailed);
             if (readFunc == null)
             {
                 Log.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
@@ -861,7 +861,7 @@ namespace Mirror.Weaver
 
             // get dirty bits
             serWorker.Append(serWorker.Create(OpCodes.Ldarg_1));
-            serWorker.Append(serWorker.Create(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<ulong>())));
+            serWorker.Append(serWorker.Create(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<ulong>(), ref WeavingFailed)));
             serWorker.Append(serWorker.Create(OpCodes.Stloc_0));
 
             // conditionally read each syncvar
@@ -891,7 +891,7 @@ namespace Mirror.Weaver
             netBehaviourSubclass.Methods.Add(serialize);
         }
 
-        public static bool ReadArguments(MethodDefinition method, Readers readers, Logger Log, ILProcessor worker, RemoteCallType callType)
+        public static bool ReadArguments(MethodDefinition method, Readers readers, Logger Log, ILProcessor worker, RemoteCallType callType, ref bool WeavingFailed)
         {
             // read each argument
             // example result
@@ -921,7 +921,7 @@ namespace Mirror.Weaver
                 }
 
 
-                MethodReference readFunc = readers.GetReadFunc(param.ParameterType);
+                MethodReference readFunc = readers.GetReadFunc(param.ParameterType, ref WeavingFailed);
 
                 if (readFunc == null)
                 {
@@ -1125,7 +1125,7 @@ namespace Mirror.Weaver
             // need null check here because ProcessRpcCall returns null if it can't write all the args
             if (rpcCallFunc == null) { return; }
 
-            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(weaverTypes, writers, readers, Log, netBehaviourSubclass, md, rpcCallFunc);
+            MethodDefinition rpcFunc = RpcProcessor.ProcessRpcInvoke(weaverTypes, writers, readers, Log, netBehaviourSubclass, md, rpcCallFunc, ref WeavingFailed);
             if (rpcFunc != null)
             {
                 clientRpcInvocationFuncs.Add(rpcFunc);
@@ -1155,7 +1155,7 @@ namespace Mirror.Weaver
 
             MethodDefinition rpcCallFunc = TargetRpcProcessor.ProcessTargetRpcCall(weaverTypes, writers, Log, netBehaviourSubclass, md, targetRpcAttr, ref WeavingFailed);
 
-            MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(weaverTypes, readers, Log, netBehaviourSubclass, md, rpcCallFunc);
+            MethodDefinition rpcFunc = TargetRpcProcessor.ProcessTargetRpcInvoke(weaverTypes, readers, Log, netBehaviourSubclass, md, rpcCallFunc, ref WeavingFailed);
             if (rpcFunc != null)
             {
                 targetRpcInvocationFuncs.Add(rpcFunc);
@@ -1192,7 +1192,7 @@ namespace Mirror.Weaver
 
             MethodDefinition cmdCallFunc = CommandProcessor.ProcessCommandCall(weaverTypes, writers, Log, netBehaviourSubclass, md, commandAttr, ref WeavingFailed);
 
-            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(weaverTypes, readers, Log, netBehaviourSubclass, md, cmdCallFunc);
+            MethodDefinition cmdFunc = CommandProcessor.ProcessCommandInvoke(weaverTypes, readers, Log, netBehaviourSubclass, md, cmdCallFunc, ref WeavingFailed);
             if (cmdFunc != null)
             {
                 commandInvocationFuncs.Add(cmdFunc);

@@ -11,7 +11,7 @@ namespace Mirror.Weaver
 {
     public static class ReaderWriterProcessor
     {
-        public static bool Process(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers)
+        public static bool Process(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
         {
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
             {
@@ -20,15 +20,15 @@ namespace Mirror.Weaver
                     using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
                     using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
                     {
-                        ProcessAssemblyClasses(CurrentAssembly, assembly, writers, readers);
+                        ProcessAssemblyClasses(CurrentAssembly, assembly, writers, readers, ref WeavingFailed);
                     }
                 }
             }
 
-            return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers);
+            return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
         }
 
-        static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers)
+        static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers, ref bool WeavingFailed)
         {
             bool modified = false;
             foreach (TypeDefinition klass in assembly.MainModule.Types)
@@ -46,24 +46,24 @@ namespace Mirror.Weaver
             foreach (TypeDefinition klass in assembly.MainModule.Types)
             {
                 // if assembly has any network message then it is modified
-                modified |= LoadMessageReadWriter(CurrentAssembly.MainModule, writers, readers, klass);
+                modified |= LoadMessageReadWriter(CurrentAssembly.MainModule, writers, readers, klass, ref WeavingFailed);
             }
             return modified;
         }
 
-        static bool LoadMessageReadWriter(ModuleDefinition module, Writers writers, Readers readers, TypeDefinition klass)
+        static bool LoadMessageReadWriter(ModuleDefinition module, Writers writers, Readers readers, TypeDefinition klass, ref bool WeavingFailed)
         {
             bool modified = false;
             if (!klass.IsAbstract && !klass.IsInterface && klass.ImplementsInterface<NetworkMessage>())
             {
-                readers.GetReadFunc(module.ImportReference(klass));
+                readers.GetReadFunc(module.ImportReference(klass), ref WeavingFailed);
                 writers.GetWriteFunc(module.ImportReference(klass));
                 modified = true;
             }
 
             foreach (TypeDefinition td in klass.NestedTypes)
             {
-                modified |= LoadMessageReadWriter(module, writers, readers, td);
+                modified |= LoadMessageReadWriter(module, writers, readers, td, ref WeavingFailed);
             }
             return modified;
         }
