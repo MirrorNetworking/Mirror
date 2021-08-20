@@ -72,7 +72,7 @@ namespace Mirror.Weaver
             if (netBehaviourSubclass.HasGenericParameters)
             {
                 Log.Error($"{netBehaviourSubclass.Name} cannot have generic parameters", netBehaviourSubclass);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 // originally Process returned true in every case, except if already processed.
                 // maybe return false here in the future.
                 return true;
@@ -85,16 +85,16 @@ namespace Mirror.Weaver
             syncObjects = SyncObjectProcessor.FindSyncObjectsFields(writers, readers, Log, netBehaviourSubclass, ref WeavingFailed);
 
             ProcessMethods(ref WeavingFailed);
-            if (Weaver.WeavingFailed)
+            if (WeavingFailed)
             {
                 // originally Process returned true in every case, except if already processed.
                 // maybe return false here in the future.
                 return true;
             }
-            GenerateConstants();
+            GenerateConstants(ref WeavingFailed);
 
             GenerateSerialization(ref WeavingFailed);
-            if (Weaver.WeavingFailed)
+            if (WeavingFailed)
             {
                 // originally Process returned true in every case, except if already processed.
                 // maybe return false here in the future.
@@ -194,7 +194,7 @@ namespace Mirror.Weaver
                 if (writeFunc == null)
                 {
                     Log.Error($"{method.Name} has invalid parameter {param}", method);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                     return false;
                 }
 
@@ -231,7 +231,7 @@ namespace Mirror.Weaver
         }
         #endregion
 
-        void GenerateConstants()
+        void GenerateConstants(ref bool WeavingFailed)
         {
             if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && syncObjects.Count == 0)
                 return;
@@ -252,7 +252,7 @@ namespace Mirror.Weaver
                     else
                     {
                         Log.Error($"{netBehaviourSubclass.Name} has invalid class constructor", cctor);
-                        Weaver.WeavingFailed = true;
+                        WeavingFailed = true;
                         return;
                     }
                 }
@@ -274,7 +274,7 @@ namespace Mirror.Weaver
             if (ctor == null)
             {
                 Log.Error($"{netBehaviourSubclass.Name} has invalid constructor", netBehaviourSubclass);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
@@ -286,7 +286,7 @@ namespace Mirror.Weaver
             else
             {
                 Log.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
@@ -427,7 +427,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Log.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                     return;
                 }
             }
@@ -483,7 +483,7 @@ namespace Mirror.Weaver
                 else
                 {
                     Log.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                     return;
                 }
 
@@ -745,7 +745,7 @@ namespace Mirror.Weaver
             if (readFunc == null)
             {
                 Log.Error($"{syncVar.Name} has unsupported type. Use a supported Mirror type instead", syncVar);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
@@ -926,7 +926,7 @@ namespace Mirror.Weaver
                 if (readFunc == null)
                 {
                     Log.Error($"{method.Name} has invalid parameter {param}.  Unsupported type {param.ParameterType},  use a supported Mirror type instead", method);
-                    Weaver.WeavingFailed = true;
+                    WeavingFailed = true;
                     return false;
                 }
 
@@ -955,50 +955,50 @@ namespace Mirror.Weaver
         }
 
         // check if a Command/TargetRpc/Rpc function & parameters are valid for weaving
-        public bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType)
+        public bool ValidateRemoteCallAndParameters(MethodDefinition method, RemoteCallType callType, ref bool WeavingFailed)
         {
             if (method.IsStatic)
             {
                 Log.Error($"{method.Name} must not be static", method);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return false;
             }
 
-            return ValidateFunction(method) &&
-                   ValidateParameters(method, callType);
+            return ValidateFunction(method, ref WeavingFailed) &&
+                   ValidateParameters(method, callType, ref WeavingFailed);
         }
 
         // check if a Command/TargetRpc/Rpc function is valid for weaving
-        bool ValidateFunction(MethodReference md)
+        bool ValidateFunction(MethodReference md, ref bool WeavingFailed)
         {
             if (md.ReturnType.Is<System.Collections.IEnumerator>())
             {
                 Log.Error($"{md.Name} cannot be a coroutine", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return false;
             }
             if (!md.ReturnType.Is(typeof(void)))
             {
                 Log.Error($"{md.Name} cannot return a value.  Make it void instead", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return false;
             }
             if (md.HasGenericParameters)
             {
                 Log.Error($"{md.Name} cannot have generic parameters", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return false;
             }
             return true;
         }
 
         // check if all Command/TargetRpc/Rpc function's parameters are valid for weaving
-        bool ValidateParameters(MethodReference method, RemoteCallType callType)
+        bool ValidateParameters(MethodReference method, RemoteCallType callType, ref bool WeavingFailed)
         {
             for (int i = 0; i < method.Parameters.Count; ++i)
             {
                 ParameterDefinition param = method.Parameters[i];
-                if (!ValidateParameter(method, param, callType, i == 0))
+                if (!ValidateParameter(method, param, callType, i == 0, ref WeavingFailed))
                 {
                     return false;
                 }
@@ -1007,7 +1007,7 @@ namespace Mirror.Weaver
         }
 
         // validate parameters for a remote function call like Rpc/Cmd
-        bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam)
+        bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam, ref bool WeavingFailed)
         {
             bool isNetworkConnection = param.ParameterType.Is<NetworkConnection>();
             bool isSenderConnection = IsSenderConnection(param, callType);
@@ -1015,7 +1015,7 @@ namespace Mirror.Weaver
             if (param.IsOut)
             {
                 Log.Error($"{method.Name} cannot have out parameters", method);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return false;
             }
 
@@ -1031,7 +1031,7 @@ namespace Mirror.Weaver
                 {
                     Log.Error($"{method.Name} has invalid parameter {param}. Cannot pass NetworkConnections", method);
                 }
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return false;
             }
 
@@ -1039,7 +1039,7 @@ namespace Mirror.Weaver
             if (param.IsOptional && !isSenderConnection)
             {
                 Log.Error($"{method.Name} cannot have optional parameters", method);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return false;
             }
 
@@ -1096,11 +1096,11 @@ namespace Mirror.Weaver
             if (md.IsAbstract)
             {
                 Log.Error("Abstract ClientRpc are currently not supported, use virtual method instead", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
-            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc))
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.ClientRpc, ref WeavingFailed))
             {
                 return;
             }
@@ -1108,7 +1108,7 @@ namespace Mirror.Weaver
             if (names.Contains(md.Name))
             {
                 Log.Error($"Duplicate ClientRpc name {md.Name}", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
@@ -1137,17 +1137,17 @@ namespace Mirror.Weaver
             if (md.IsAbstract)
             {
                 Log.Error("Abstract TargetRpc are currently not supported, use virtual method instead", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
-            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.TargetRpc))
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.TargetRpc, ref WeavingFailed))
                 return;
 
             if (names.Contains(md.Name))
             {
                 Log.Error($"Duplicate Target Rpc name {md.Name}", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
             names.Add(md.Name);
@@ -1167,17 +1167,17 @@ namespace Mirror.Weaver
             if (md.IsAbstract)
             {
                 Log.Error("Abstract Commands are currently not supported, use virtual method instead", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
-            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.Command))
+            if (!ValidateRemoteCallAndParameters(md, RemoteCallType.Command, ref WeavingFailed))
                 return;
 
             if (names.Contains(md.Name))
             {
                 Log.Error($"Duplicate Command name {md.Name}", md);
-                Weaver.WeavingFailed = true;
+                WeavingFailed = true;
                 return;
             }
 
