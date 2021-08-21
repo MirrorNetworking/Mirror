@@ -7,9 +7,12 @@ namespace Mirror.Weaver
     public class WeaverLists
     {
         // setter functions that replace [SyncVar] member variable references. dict<field, replacement>
-        public Dictionary<FieldDefinition, MethodDefinition> replacementSetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
+        public Dictionary<FieldDefinition, MethodDefinition> replacementSetterProperties =
+            new Dictionary<FieldDefinition, MethodDefinition>();
+
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
-        public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties = new Dictionary<FieldDefinition, MethodDefinition>();
+        public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties =
+            new Dictionary<FieldDefinition, MethodDefinition>();
 
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
