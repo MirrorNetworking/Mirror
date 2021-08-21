@@ -184,7 +184,7 @@ namespace Mirror.Weaver.Tests
             {
                 Thread.Sleep(10);
             }
-            Debug.LogWarning("AssemblyBuilder.Sleep(): " + watch.ElapsedMilliseconds + " ms");
+            Debug.LogWarning("AssemblyBuilder waiting for BuildStatus: " + watch.ElapsedMilliseconds + " ms");
         }
     }
 }

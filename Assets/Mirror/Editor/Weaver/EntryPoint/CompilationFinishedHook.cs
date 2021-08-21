@@ -188,7 +188,7 @@ namespace Mirror.Weaver
                         // create weaver with logger
                         weaver = new Weaver(new CompilationFinishedLogger());
                         bool result = weaver.Weave(asmDef);
-                        Debug.LogWarning("WeaveFromFile: " + watch.ElapsedMilliseconds + "ms");
+                        //Debug.LogWarning("WeaveFromFile: " + watch.ElapsedMilliseconds + "ms");
                         return result;
                     }
                 }
