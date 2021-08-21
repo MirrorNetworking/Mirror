@@ -102,7 +102,7 @@ namespace Mirror.Weaver
 
                     if (!baseMethod.IsVirtual)
                     {
-                        Log.Error($"Could not find base method that was virutal {callName}", method);
+                        Log.Error($"Could not find base method that was virtual {callName}", method);
                         WeavingFailed = true;
                         return;
                     }
