@@ -11,7 +11,6 @@ namespace Mirror.Weaver
         TargetRpc
     }
 
-
     // processes SyncVars, Cmds, Rpcs, etc. of NetworkBehaviours
     class NetworkBehaviourProcessor
     {
