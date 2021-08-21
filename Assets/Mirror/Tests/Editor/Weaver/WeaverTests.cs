@@ -48,17 +48,23 @@ namespace Mirror.Weaver.Tests
             // TextRenderingModule is only referenced to use TextMesh type to throw errors about types from another module
             WeaverAssembler.AddReferencesByAssemblyName(new string[] { "UnityEngine.dll", "UnityEngine.CoreModule.dll", "UnityEngine.TextRenderingModule.dll", "Mirror.dll" });
 
+            // old weaver
+#if !UNITY_2020_1_OR_NEWER
             CompilationFinishedHook.UnityLogEnabled = false;
             CompilationFinishedHook.OnWeaverError += HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning += HandleWeaverWarning;
+#endif
         }
 
         [OneTimeTearDown]
         public void FixtureCleanup()
         {
+            // old weaver
+#if !UNITY_2020_1_OR_NEWER
             CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;
             CompilationFinishedHook.UnityLogEnabled = true;
+#endif
         }
 
         [TearDown]
