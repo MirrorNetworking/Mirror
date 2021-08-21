@@ -136,7 +136,7 @@ namespace Mirror.Weaver
             readNetworkBehaviourGeneric = Resolvers.ResolveMethod(readerExtensions, assembly, Log, (md =>
             {
                 return md.Name == nameof(NetworkReaderExtensions.ReadNetworkBehaviour) &&
-                    md.HasGenericParameters;
+                       md.HasGenericParameters;
             }),
             ref WeavingFailed);
         }
