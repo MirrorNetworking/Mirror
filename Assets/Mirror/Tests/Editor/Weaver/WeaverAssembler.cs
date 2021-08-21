@@ -177,10 +177,14 @@ namespace Mirror.Weaver.Tests
             }
             Debug.LogWarning("AssemblyBuilder.Build(): " + watch.ElapsedMilliseconds + " ms");
 
+            // 1314 ms
+            watch = new Stopwatch();
+            watch.Start();
             while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
             {
                 Thread.Sleep(10);
             }
+            Debug.LogWarning("AssemblyBuilder.Sleep(): " + watch.ElapsedMilliseconds + " ms");
         }
     }
 }
