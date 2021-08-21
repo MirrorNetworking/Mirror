@@ -46,7 +46,6 @@ namespace Mirror.Weaver
         void RegisterReadFunc(TypeReference typeReference, MethodDefinition newReaderFunc)
         {
             Register(typeReference, newReaderFunc);
-
             GeneratedCodeClass.Methods.Add(newReaderFunc);
         }
 
@@ -54,14 +53,10 @@ namespace Mirror.Weaver
         public MethodReference GetReadFunc(TypeReference variable, ref bool WeavingFailed)
         {
             if (readFuncs.TryGetValue(variable, out MethodReference foundFunc))
-            {
                 return foundFunc;
-            }
-            else
-            {
-                TypeReference importedVariable = assembly.MainModule.ImportReference(variable);
-                return GenerateReader(importedVariable, ref WeavingFailed);
-            }
+
+            TypeReference importedVariable = assembly.MainModule.ImportReference(variable);
+            return GenerateReader(importedVariable, ref WeavingFailed);
         }
 
         MethodReference GenerateReader(TypeReference variableReference, ref bool WeavingFailed)
