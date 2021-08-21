@@ -345,7 +345,7 @@ namespace Mirror.Weaver
             }
         }
 
-        // Save a delegate for each one of the readers into Reader{T}.read
+        // Save a delegate for each one of the readers into Reader<T>.read
         internal void InitializeReaders(ILProcessor worker)
         {
             ModuleDefinition module = assembly.MainModule;
