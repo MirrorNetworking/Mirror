@@ -113,12 +113,12 @@ namespace Mirror.Weaver
         // * old takes a filepath, new takes a in-memory byte[]
         // * old uses DefaultAssemblyResolver with added dependencies paths,
         //   new uses ...?
-        public bool Weave(AssemblyDefinition asmDef)
+        public bool Weave(AssemblyDefinition assembly)
         {
             WeavingFailed = false;
             try
             {
-                CurrentAssembly = asmDef;
+                CurrentAssembly = assembly;
 
                 // fix "No writer found for ..." error
                 // https://github.com/vis2k/Mirror/issues/2579
