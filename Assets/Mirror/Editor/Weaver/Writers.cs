@@ -244,7 +244,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, GetWriteFunc(weaverTypes.Import<bool>(), ref WeavingFailed));
         }
 
-        /// Find all fields in type and write them
+        // Find all fields in type and write them
         bool WriteAllFields(TypeReference variable, ILProcessor worker, ref bool WeavingFailed)
         {
             uint fields = 0;
