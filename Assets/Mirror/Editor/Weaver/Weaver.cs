@@ -102,7 +102,8 @@ namespace Mirror.Weaver
 
         void CreateGeneratedCodeClass()
         {
-            // create "Mirror.GeneratedNetworkCode" class
+            // create "Mirror.GeneratedNetworkCode" class which holds all
+            // Readers<T> and Writers<T>
             GeneratedCodeClass = new TypeDefinition(GeneratedCodeNamespace, GeneratedCodeClassName,
                 TypeAttributes.BeforeFieldInit | TypeAttributes.Class | TypeAttributes.AnsiClass | TypeAttributes.Public | TypeAttributes.AutoClass | TypeAttributes.Abstract | TypeAttributes.Sealed,
                 weaverTypes.Import<object>());
