@@ -13,6 +13,11 @@ namespace Mirror.Weaver
 
         public void LogDiagnostics(string message, DiagnosticType logType = DiagnosticType.Warning)
         {
+            // DiagnosticMessage can't display \n for some reason.
+            // it just cuts it off and we don't see any stack trace.
+            // so let's replace all line breaks so we get the stack trace.
+            message = message.Replace('\n', ' ');
+
             Logs.Add(new DiagnosticMessage
             {
                 // TODO add file etc. for double click opening later?
