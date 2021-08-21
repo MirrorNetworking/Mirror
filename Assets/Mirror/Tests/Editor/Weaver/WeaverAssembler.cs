@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using UnityEditor.Compilation;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Mirror.Weaver.Tests
 {
@@ -165,12 +167,15 @@ namespace Mirror.Weaver.Tests
                 }
             };
 
-            // Start build of assembly
+            // Start build of assembly (25ms)
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             if (!assemblyBuilder.Build())
             {
                 Debug.LogError($"Failed to start build of assembly {assemblyBuilder.assemblyPath}");
                 return;
             }
+            Debug.LogWarning("AssemblyBuilder.Build(): " + watch.ElapsedMilliseconds + " ms");
 
             while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
             {

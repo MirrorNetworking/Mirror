@@ -14,6 +14,7 @@ namespace Mirror.Weaver.Tests
 
             Stopwatch watch = new Stopwatch();
             watch.Start();
+            // 1363ms
             BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
             Debug.LogWarning("BuildAndWeaveTestAssembly: " + watch.ElapsedMilliseconds + "ms");
         }
