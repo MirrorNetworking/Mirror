@@ -5,9 +5,9 @@ namespace Mirror.Weaver
     // not static, because ILPostProcessor is multithreaded
     public interface Logger
     {
-        public void Warning(string message);
-        public void Warning(string message, MemberReference mr);
-        public void Error(string message);
-        public void Error(string message, MemberReference mr);
+        void Warning(string message);
+        void Warning(string message, MemberReference mr);
+        void Error(string message);
+        void Error(string message, MemberReference mr);
     }
 }
