@@ -15,7 +15,7 @@ namespace Mirror.Weaver
         public const string GeneratedCodeClassName = "GeneratedNetworkCode";
         TypeDefinition GeneratedCodeClass;
 
-        public WeaverTypes weaverTypes;
+        WeaverTypes weaverTypes;
         WeaverLists weaverLists;
         AssemblyDefinition CurrentAssembly;
         Writers writers;
