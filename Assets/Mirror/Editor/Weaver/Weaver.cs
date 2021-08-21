@@ -81,31 +81,23 @@ namespace Mirror.Weaver
 
         bool WeaveModule(ModuleDefinition moduleDefinition)
         {
-            try
+            bool modified = false;
+
+            Stopwatch watch = Stopwatch.StartNew();
+
+            watch.Start();
+            foreach (TypeDefinition td in moduleDefinition.Types)
             {
-                bool modified = false;
-
-                Stopwatch watch = Stopwatch.StartNew();
-
-                watch.Start();
-                foreach (TypeDefinition td in moduleDefinition.Types)
+                if (td.IsClass && td.BaseType.CanBeResolved())
                 {
-                    if (td.IsClass && td.BaseType.CanBeResolved())
-                    {
-                        modified |= WeaveNetworkBehavior(td);
-                        modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td, ref WeavingFailed);
-                    }
+                    modified |= WeaveNetworkBehavior(td);
+                    modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td, ref WeavingFailed);
                 }
-                watch.Stop();
-                Console.WriteLine("Weave behaviours and messages took " + watch.ElapsedMilliseconds + " milliseconds");
-
-                return modified;
             }
-            catch (Exception ex)
-            {
+            watch.Stop();
+            Console.WriteLine("Weave behaviours and messages took " + watch.ElapsedMilliseconds + " milliseconds");
 
-                throw new Exception(ex.Message, ex);
-            }
+            return modified;
         }
 
         void CreateGeneratedCodeClass()
