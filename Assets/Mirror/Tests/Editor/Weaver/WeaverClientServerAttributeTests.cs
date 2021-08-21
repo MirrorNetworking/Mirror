@@ -126,14 +126,7 @@ namespace Mirror.Weaver.Tests
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.MonoBehaviourServer.MonoBehaviourServer", "ServerOnlyMethod");
         }
 
-
-
-
-        /// <summary>
-        /// Checks that first Instructions in MethodBody is addedString
-        /// </summary>
-        /// <param name="addedString"></param>
-        /// <param name="methodName"></param>
+        // Checks that first Instructions in MethodBody is addedString
         static void CheckAddedCode(string addedString, string className, string methodName)
         {
             string assemblyName = Path.Combine(WeaverAssembler.OutputDirectory, WeaverAssembler.OutputFile);
