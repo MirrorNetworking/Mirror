@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
+using Debug = UnityEngine.Debug;
 
 namespace Mirror.Weaver.Tests
 {
@@ -10,7 +12,10 @@ namespace Mirror.Weaver.Tests
         {
             string className = TestContext.CurrentContext.Test.ClassName.Split('.').Last();
 
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
+            Debug.LogWarning("BuildAndWeaveTestAssembly: " + watch.ElapsedMilliseconds + "ms");
         }
 
         protected void IsSuccess()
