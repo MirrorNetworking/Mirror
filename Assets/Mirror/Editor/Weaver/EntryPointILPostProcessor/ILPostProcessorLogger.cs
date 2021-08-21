@@ -11,14 +11,8 @@ namespace Mirror.Weaver
         // can't Debug.Log in ILPostProcessor. need to add to this list.
         internal List<DiagnosticMessage> Logs = new List<DiagnosticMessage>();
 
-        public void LogDiagnostics(string message, DiagnosticType logType = DiagnosticType.Warning)
+        void Add(string message, DiagnosticType logType)
         {
-            // DiagnosticMessage can't display \n for some reason.
-            // it just cuts it off and we don't see any stack trace.
-            // so let's replace all line breaks so we get the stack trace.
-            // (Unity 2021.2.0b6 apple silicon)
-            message = message.Replace("\n", "/");
-
             Logs.Add(new DiagnosticMessage
             {
                 // TODO add file etc. for double click opening later?
@@ -26,8 +20,34 @@ namespace Mirror.Weaver
                 File = null,
                 Line = 0,
                 Column = 0,
-                MessageData = $"Weaver: {message}"
+                MessageData = message
             });
+        }
+
+        public void LogDiagnostics(string message, DiagnosticType logType = DiagnosticType.Warning)
+        {
+            // DiagnosticMessage can't display \n for some reason.
+            // it just cuts it off and we don't see any stack trace.
+            // so let's replace all line breaks so we get the stack trace.
+            // (Unity 2021.2.0b6 apple silicon)
+            //message = message.Replace("\n", "/");
+
+            // lets break it into several messages instead so it's easier readable
+            string[] lines = message.Split('\n');
+
+            // if it's just one line, simply log it
+            if (lines.Length == 1)
+            {
+                Add($"Weaver: {message}", logType);
+            }
+            // for multiple lines, log each line separately with start/end indicators
+            else
+            {
+                // first line with Weaver: ... first
+                Add("----------------------------------------------", logType);
+                foreach (string line in lines) Add(line, logType);
+                Add("----------------------------------------------", logType);
+            }
         }
 
         public void Warning(string message) => Warning(message, null);
