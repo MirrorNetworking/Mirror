@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Mono.CecilX;
 using UnityEditor;
 using UnityEditor.Compilation;
-using UnityEngine;
+using Debug = UnityEngine.Debug;
 using UnityAssembly = UnityEditor.Compilation.Assembly;
 
 namespace Mirror.Weaver
@@ -159,6 +160,9 @@ namespace Mirror.Weaver
         // file path, with dependencies added.
         static bool WeaveFromFile(string assemblyPath, string[] dependencies)
         {
+            // 99ms
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             // open the file as stream
             using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
             {
@@ -183,7 +187,9 @@ namespace Mirror.Weaver
 
                         // create weaver with logger
                         weaver = new Weaver(new CompilationFinishedLogger());
-                        return weaver.Weave(asmDef);
+                        bool result = weaver.Weave(asmDef);
+                        Debug.LogWarning("WeaveFromFile: " + watch.ElapsedMilliseconds + "ms");
+                        return result;
                     }
                 }
             }
