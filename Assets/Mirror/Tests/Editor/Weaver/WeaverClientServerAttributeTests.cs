@@ -84,6 +84,7 @@ namespace Mirror.Weaver.Tests
             string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.StaticClassClient.StaticClassClient", "ClientOnlyMethod");
         }
+
         [Test]
         public void RegularClassClient()
         {
@@ -92,6 +93,7 @@ namespace Mirror.Weaver.Tests
             string networkClientGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkClientGetActive.ToString();
             CheckAddedCode(networkClientGetActive, "WeaverClientServerAttributeTests.RegularClassClient.RegularClassClient", "ClientOnlyMethod");
         }
+
         [Test]
         public void MonoBehaviourClient()
         {
@@ -109,6 +111,7 @@ namespace Mirror.Weaver.Tests
             string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.StaticClassServer.StaticClassServer", "ServerOnlyMethod");
         }
+
         [Test]
         public void RegularClassServer()
         {
@@ -117,6 +120,7 @@ namespace Mirror.Weaver.Tests
             string networkServerGetActive = CompilationFinishedHook.weaver.weaverTypes.NetworkServerGetActive.ToString();
             CheckAddedCode(networkServerGetActive, "WeaverClientServerAttributeTests.RegularClassServer.RegularClassServer", "ServerOnlyMethod");
         }
+
         [Test]
         public void MonoBehaviourServer()
         {
