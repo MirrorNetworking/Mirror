@@ -66,8 +66,6 @@ namespace Mirror.Weaver
             TypeReference ArraySegmentType = Import(typeof(ArraySegment<>));
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, assembly, Log, ".ctor", ref WeavingFailed);
 
-            TypeReference ListType = Import(typeof(System.Collections.Generic.List<>));
-
             TypeReference NetworkServerType = Import(typeof(NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, assembly, Log, "get_active", ref WeavingFailed);
             NetworkServerGetLocalClientActive = Resolvers.ResolveMethod(NetworkServerType, assembly, Log, "get_localClientActive", ref WeavingFailed);
