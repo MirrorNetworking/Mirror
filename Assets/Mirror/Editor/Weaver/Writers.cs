@@ -53,23 +53,19 @@ namespace Mirror.Weaver
         public MethodReference GetWriteFunc(TypeReference variable, ref bool WeavingFailed)
         {
             if (writeFuncs.TryGetValue(variable, out MethodReference foundFunc))
-            {
                 return foundFunc;
-            }
-            else
+
+            // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
+            try
             {
-                // this try/catch will be removed in future PR and make `GetWriteFunc` throw instead
-                try
-                {
-                    TypeReference importedVariable = assembly.MainModule.ImportReference(variable);
-                    return GenerateWriter(importedVariable, ref WeavingFailed);
-                }
-                catch (GenerateWriterException e)
-                {
-                    Log.Error(e.Message, e.MemberReference);
-                    WeavingFailed = true;
-                    return null;
-                }
+                TypeReference importedVariable = assembly.MainModule.ImportReference(variable);
+                return GenerateWriter(importedVariable, ref WeavingFailed);
+            }
+            catch (GenerateWriterException e)
+            {
+                Log.Error(e.Message, e.MemberReference);
+                WeavingFailed = true;
+                return null;
             }
         }
 
