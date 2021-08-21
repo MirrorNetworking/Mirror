@@ -84,8 +84,8 @@ namespace Mirror.Weaver
             bool modified = false;
 
             Stopwatch watch = Stopwatch.StartNew();
-
             watch.Start();
+
             foreach (TypeDefinition td in moduleDefinition.Types)
             {
                 if (td.IsClass && td.BaseType.CanBeResolved())
@@ -94,6 +94,7 @@ namespace Mirror.Weaver
                     modified |= ServerClientAttributeProcessor.Process(weaverTypes, Log, td, ref WeavingFailed);
                 }
             }
+
             watch.Stop();
             Console.WriteLine("Weave behaviours and messages took " + watch.ElapsedMilliseconds + " milliseconds");
 
