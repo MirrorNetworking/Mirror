@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Mono.CecilX;
 
 namespace Mirror.Weaver
@@ -109,12 +108,6 @@ namespace Mirror.Weaver
                 weaverTypes.Import<object>());
         }
 
-        static bool ContainsGeneratedCodeClass(ModuleDefinition module)
-        {
-            return module.GetTypes().Any(td => td.Namespace == GeneratedCodeNamespace &&
-                                               td.Name == GeneratedCodeClassName);
-        }
-
         // Weave takes an AssemblyDefinition to be compatible with both old and
         // new weavers:
         // * old takes a filepath, new takes a in-memory byte[]
@@ -133,7 +126,7 @@ namespace Mirror.Weaver
                 //    again
                 // -> resulting in two GeneratedNetworkCode classes (see ILSpy)
                 // -> the second one wouldn't have all the writer types setup
-                if (ContainsGeneratedCodeClass(CurrentAssembly.MainModule))
+                if (CurrentAssembly.MainModule.ContainsClass(GeneratedCodeNamespace, GeneratedCodeClassName))
                 {
                     //Log.Warning($"Weaver: skipping {CurrentAssembly.Name} because already weaved");
                     return true;

@@ -240,5 +240,9 @@ namespace Mirror.Weaver
                 }
             }
         }
+
+        public static bool ContainsClass(this ModuleDefinition module, string nameSpace, string className) =>
+            module.GetTypes().Any(td => td.Namespace == nameSpace &&
+                                  td.Name == className);
     }
 }
