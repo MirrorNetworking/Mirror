@@ -148,7 +148,7 @@ namespace Mirror.Weaver
                 writers = new Writers(CurrentAssembly, weaverTypes, GeneratedCodeClass, Log);
                 readers = new Readers(CurrentAssembly, weaverTypes, GeneratedCodeClass, Log);
 
-                System.Diagnostics.Stopwatch rwstopwatch = System.Diagnostics.Stopwatch.StartNew();
+                Stopwatch rwstopwatch = Stopwatch.StartNew();
                 // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
                 bool modified = ReaderWriterProcessor.Process(CurrentAssembly, writers, readers, ref WeavingFailed);
                 rwstopwatch.Stop();
