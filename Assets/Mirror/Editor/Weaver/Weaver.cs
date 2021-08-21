@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Mono.CecilX;
 
@@ -84,7 +85,7 @@ namespace Mirror.Weaver
             {
                 bool modified = false;
 
-                System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
+                Stopwatch watch = Stopwatch.StartNew();
 
                 watch.Start();
                 foreach (TypeDefinition td in moduleDefinition.Types)
