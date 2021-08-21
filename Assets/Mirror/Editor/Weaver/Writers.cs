@@ -46,7 +46,6 @@ namespace Mirror.Weaver
         void RegisterWriteFunc(TypeReference typeReference, MethodDefinition newWriterFunc)
         {
             Register(typeReference, newWriterFunc);
-
             GeneratedCodeClass.Methods.Add(newWriterFunc);
         }
 
