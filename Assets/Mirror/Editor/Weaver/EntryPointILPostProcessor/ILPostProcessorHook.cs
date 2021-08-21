@@ -3,11 +3,9 @@
 // Unity.CompilationPipeline reference is only resolved if assembly name is
 // Unity.*.CodeGen:
 // https://forum.unity.com/threads/how-does-unity-do-codegen-and-why-cant-i-do-it-myself.853867/#post-5646937
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.CecilX;
-using Unity.CompilationPipeline.Common.Diagnostics;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 // IMPORTANT: 'using UnityEngine' does not work in here.
 // Unity gives "(0,0): error System.Security.SecurityException: ECall methods must be packaged into a system module."
@@ -20,21 +18,8 @@ namespace Mirror.Weaver
         // from CompilationFinishedHook
         const string MirrorRuntimeAssemblyName = "Mirror";
 
-        // can't Debug.Log in here. need to add to this list.
-        public List<DiagnosticMessage> Logs = new List<DiagnosticMessage>();
-
-        public void LogDiagnostics(string message, DiagnosticType logType = DiagnosticType.Warning)
-        {
-            Logs.Add(new DiagnosticMessage
-            {
-                // TODO add file etc. for double click opening later?
-                DiagnosticType = logType, // doesn't have .Log
-                File = null,
-                Line = 0,
-                Column = 0,
-                MessageData = $"Weaver: {message}"
-            });
-        }
+        // we can't use Debug.Log in ILPP, so we need a custom logger
+        ILPostProcessorLogger Log = new ILPostProcessorLogger();
 
         // ???
         public override ILPostProcessor GetInstance() => this;
@@ -56,11 +41,7 @@ namespace Mirror.Weaver
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
-            LogDiagnostics($"Processing {compiledAssembly.Name}");
-
-            // set up Weaver Log functions to use ILPostProcess Diagnostics log
-            Log.Warning = msg => LogDiagnostics(msg, DiagnosticType.Warning);
-            Log.Error = msg => LogDiagnostics(msg, DiagnosticType.Error);
+            Log.Warning($"Processing {compiledAssembly.Name}");
 
             // load the InMemoryAssembly peData into a MemoryStream
             byte[] peData = compiledAssembly.InMemoryAssembly.PeData;
@@ -83,20 +64,21 @@ namespace Mirror.Weaver
                         {
                             // TODO add dependencies?
 
-                            if (Weaver.Weave(asmDef))
+                            Weaver weaver = new Weaver(Log);
+                            if (weaver.Weave(asmDef))
                             {
-                                LogDiagnostics($"Weaving succeeded for: {compiledAssembly.Name}");
+                                Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
                                 // TODO return modified assembly
                                 // TODO AND pdb / debug symbols
                             }
-                            else LogDiagnostics($"Weaving failed for: {compiledAssembly.Name}");
+                            else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
                         }
                     }
                 }
             }
 
             // TODO needs modified assembly
-            return new ILPostProcessResult(compiledAssembly.InMemoryAssembly, Logs);
+            return new ILPostProcessResult(compiledAssembly.InMemoryAssembly, Log.Logs);
         }
     }
 }
