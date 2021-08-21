@@ -16,7 +16,8 @@ namespace Mirror.Weaver
             // DiagnosticMessage can't display \n for some reason.
             // it just cuts it off and we don't see any stack trace.
             // so let's replace all line breaks so we get the stack trace.
-            message = message.Replace('\n', ' ');
+            // (Unity 2021.2.0b6 apple silicon)
+            message = message.Replace("\n", "/");
 
             Logs.Add(new DiagnosticMessage
             {
