@@ -45,17 +45,23 @@ namespace Mirror.Weaver.Tests
         [OneTimeSetUp]
         public void FixtureSetup()
         {
+            // old weaver
+#if !UNITY_2020_1_OR_NEWER
             CompilationFinishedHook.UnityLogEnabled = false;
             CompilationFinishedHook.OnWeaverError += HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning += HandleWeaverWarning;
+#endif
         }
 
         [OneTimeTearDown]
         public void FixtureCleanup()
         {
+            // old weaver
+#if !UNITY_2020_1_OR_NEWER
             CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;
             CompilationFinishedHook.UnityLogEnabled = true;
+#endif
         }
 
         [TearDown]

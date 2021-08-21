@@ -1,3 +1,4 @@
+#if !UNITY_2020_1_OR_NEWER
 // make sure we weaved successfully when entering play mode.
 using UnityEditor;
 using UnityEngine;
@@ -40,3 +41,4 @@ namespace Mirror
         }
     }
 }
+#endif
