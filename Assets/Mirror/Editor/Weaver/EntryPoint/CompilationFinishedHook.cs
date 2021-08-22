@@ -60,16 +60,16 @@ namespace Mirror.Weaver
 #endif
         }
 
-        static string FindMirrorRuntime()
+        static Assembly FindMirrorRuntime()
         {
-            foreach (UnityAssembly assembly in CompilationPipeline.GetAssemblies())
+            foreach (Assembly assembly in CompilationPipeline.GetAssemblies())
             {
                 if (assembly.name == MirrorRuntimeAssemblyName)
                 {
-                    return assembly.outputPath;
+                    return assembly;
                 }
             }
-            return "";
+            return null;
         }
 
         static bool CompilerMessagesContainError(CompilerMessage[] messages)
@@ -100,12 +100,14 @@ namespace Mirror.Weaver
             }
 
             // find Mirror.dll
-            string mirrorRuntimeDll = FindMirrorRuntime();
-            if (string.IsNullOrEmpty(mirrorRuntimeDll))
+            Assembly mirrorAssembly = FindMirrorRuntime();
+            if (mirrorAssembly == null)
             {
                 Debug.LogError("Failed to find Mirror runtime assembly");
                 return;
             }
+
+            string mirrorRuntimeDll = mirrorAssembly.outputPath;
             if (!File.Exists(mirrorRuntimeDll))
             {
                 // this is normal, it happens with any assembly that is built before mirror
