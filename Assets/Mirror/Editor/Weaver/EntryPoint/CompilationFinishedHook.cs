@@ -157,7 +157,7 @@ namespace Mirror.Weaver
             {
                 // read assembly from stream with parameters
                 using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-                using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
+                using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
                 {
                     // add this assembly's path and unity's assembly path
                     asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
@@ -174,7 +174,7 @@ namespace Mirror.Weaver
 
                     // create weaver with logger
                     weaver = new Weaver(new CompilationFinishedLogger());
-                    return weaver.Weave(asmDef);
+                    return weaver.Weave(assembly);
                 }
             }
         }
