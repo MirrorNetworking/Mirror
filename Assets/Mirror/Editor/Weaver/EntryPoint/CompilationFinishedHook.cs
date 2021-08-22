@@ -155,29 +155,26 @@ namespace Mirror.Weaver
             // open the file as stream
             using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
             {
-                // resolver for this assembly
+                // read assembly from stream with parameters
                 using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
                 {
-                    // read assembly from stream with parameters
-                    using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
+                    // add this assembly's path and unity's assembly path
+                    asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
+                    asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
+
+                    // add dependencies
+                    if (dependencies != null)
                     {
-                        // add this assembly's path and unity's assembly path
-                        asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
-                        asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
-
-                        // add dependencies
-                        if (dependencies != null)
+                        foreach (string path in dependencies)
                         {
-                            foreach (string path in dependencies)
-                            {
-                                asmResolver.AddSearchDirectory(path);
-                            }
+                            asmResolver.AddSearchDirectory(path);
                         }
-
-                        // create weaver with logger
-                        weaver = new Weaver(new CompilationFinishedLogger());
-                        return weaver.Weave(asmDef);
                     }
+
+                    // create weaver with logger
+                    weaver = new Weaver(new CompilationFinishedLogger());
+                    return weaver.Weave(asmDef);
                 }
             }
         }
