@@ -155,17 +155,24 @@ namespace Mirror.Weaver
             // open the file as stream
             using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
             {
+                // resolver for this assembly
                 using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
                 {
+                    // read assembly with the following parameters
                     ReaderParameters readerParameters = new ReaderParameters {
                         ReadWrite = true,
                         ReadSymbols = true,
                         AssemblyResolver = asmResolver
                     };
+
+                    // read assembly from stream with parameters
                     using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
                     {
+                        // add this assembly's path and unity's assembly path
                         asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
                         asmResolver.AddSearchDirectory(Helpers.UnityEngineDllDirectoryName());
+
+                        // add dependencies
                         if (dependencies != null)
                         {
                             foreach (string path in dependencies)
