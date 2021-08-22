@@ -93,6 +93,7 @@ namespace Mirror.Discovery
 
         void Shutdown()
         {
+            EndpMulticastLock();
             if (serverUdpClient != null)
             {
                 try
@@ -149,6 +150,7 @@ namespace Mirror.Discovery
 
         public async Task ServerListenAsync()
         {
+            BeginMulticastLock();
             while (true)
             {
                 try
@@ -236,7 +238,41 @@ namespace Mirror.Discovery
         /// <returns>The message to be sent back to the client or null</returns>
         protected abstract Response ProcessRequest(Request request, IPEndPoint endpoint);
 
-        #endregion
+#if UNITY_ANDROID
+        AndroidJavaObject multicastLock;
+        bool hasMulticastLock;
+#endif
+        void BeginMulticastLock()
+		{
+#if UNITY_ANDROID
+            if (hasMulticastLock)
+                return;
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                using (AndroidJavaObject activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"))
+                {
+                    using (var wifiManager = activity.Call<AndroidJavaObject>("getSystemService", "wifi"))
+                    {
+                        multicastLock = wifiManager.Call<AndroidJavaObject>("createMulticastLock", "lock");
+                        multicastLock.Call("acquire");
+                        hasMulticastLock = true;
+                    }
+                }
+			}
+#endif
+        }
+
+        void EndpMulticastLock()
+        {
+#if UNITY_ANDROID
+            if (!hasMulticastLock)
+                return;
+            multicastLock?.Call("release");
+#endif
+
+        }
+
+#endregion
 
         #region Client
 
