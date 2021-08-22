@@ -128,6 +128,8 @@ namespace Mirror.Weaver
 
         // helper function to add [RuntimeInitializeOnLoad] attribute to method
         // TODO avoid reflection if possible
+        // reflection is used because according paul, 'weaving Mirror.dll caused
+        // unity to rebuild all dlls but in wrong order, which breaks rewired'
         static void AddRuntimeInitializeOnLoadAttribute(AssemblyDefinition assembly, WeaverTypes weaverTypes, MethodDefinition method)
         {
             System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
@@ -139,6 +141,8 @@ namespace Mirror.Weaver
         // helper function to add [InitializeOnLoad] attribute to method
         // (only works in Editor assemblies. check IsEditorAssembly first.)
         // TODO avoid reflection if possible
+        // reflection is used because according paul, 'weaving Mirror.dll caused
+        // unity to rebuild all dlls but in wrong order, which breaks rewired'
         static void AddInitializeOnLoadAttribute(AssemblyDefinition assembly, MethodDefinition method)
         {
             System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
