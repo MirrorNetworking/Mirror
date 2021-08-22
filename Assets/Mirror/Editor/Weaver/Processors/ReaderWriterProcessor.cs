@@ -155,21 +155,21 @@ namespace Mirror.Weaver
         // use ILSpy to see the result (it's in the DLL's 'Mirror' namespace)
         public static void InitializeReaderAndWriters(AssemblyDefinition currentAssembly, WeaverTypes weaverTypes, Writers writers, Readers readers, TypeDefinition GeneratedCodeClass)
         {
-            MethodDefinition rwInitializer = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
+            MethodDefinition initReadWriters = new MethodDefinition("InitReadWriters", MethodAttributes.Public |
                     MethodAttributes.Static,
                     weaverTypes.Import(typeof(void)));
 
             // add [RuntimeInitializeOnLoad] in any case
-            AddRuntimeInitializeOnLoadAttribute(currentAssembly, weaverTypes, rwInitializer);
+            AddRuntimeInitializeOnLoadAttribute(currentAssembly, weaverTypes, initReadWriters);
 
             // add [InitializeOnLoad] if UnityEditor is referenced
             if (IsEditorAssembly(currentAssembly))
             {
-                AddInitializeOnLoadAttribute(currentAssembly, rwInitializer);
+                AddInitializeOnLoadAttribute(currentAssembly, initReadWriters);
             }
 
             // fill function body with reader/writer initializers
-            ILProcessor worker = rwInitializer.Body.GetILProcessor();
+            ILProcessor worker = initReadWriters.Body.GetILProcessor();
 
             // for debugging: add a log to see if initialized on load
             //worker.Emit(OpCodes.Ldstr, $"[InitReadWriters] called!");
@@ -180,7 +180,7 @@ namespace Mirror.Weaver
 
             worker.Emit(OpCodes.Ret);
 
-            GeneratedCodeClass.Methods.Add(rwInitializer);
+            GeneratedCodeClass.Methods.Add(initReadWriters);
         }
     }
 }
