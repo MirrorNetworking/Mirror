@@ -63,10 +63,8 @@ namespace Mirror.Weaver
         static Assembly FindMirrorRuntime() =>
             CompilationPipeline.GetAssemblies().First(assembly => assembly.name == MirrorRuntimeAssemblyName);
 
-        static bool CompilerMessagesContainError(CompilerMessage[] messages)
-        {
-            return messages.Any(msg => msg.type == CompilerMessageType.Error);
-        }
+        static bool CompilerMessagesContainError(CompilerMessage[] messages) =>
+            messages.Any(msg => msg.type == CompilerMessageType.Error);
 
         static void OnCompilationFinished(string assemblyPath, CompilerMessage[] messages)
         {
