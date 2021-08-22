@@ -268,6 +268,7 @@ namespace Mirror.Discovery
             if (!hasMulticastLock)
                 return;
             multicastLock?.Call("release");
+            hasMulticastLock = false;
 #endif
 
         }
