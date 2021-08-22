@@ -123,7 +123,7 @@ namespace Mirror.Weaver
             // -> usually either 'UnityEditor' or 'UnityEditor.CoreModule'
             return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
                 assemblyReference.Name.StartsWith(nameof(UnityEditor))
-                );
+            );
         }
 
         // helper function to add [RuntimeInitializeOnLoad] attribute to method
