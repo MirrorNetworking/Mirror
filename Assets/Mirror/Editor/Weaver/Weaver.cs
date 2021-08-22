@@ -18,6 +18,7 @@ namespace Mirror.Weaver
         WeaverTypes weaverTypes;
         WeaverLists weaverLists;
         AssemblyDefinition CurrentAssembly;
+        AssemblyDefinition MirrorAssembly;
         Writers writers;
         Readers readers;
         bool WeavingFailed;
@@ -114,12 +115,20 @@ namespace Mirror.Weaver
         // * old takes a filepath, new takes a in-memory byte[]
         // * old uses DefaultAssemblyResolver with added dependencies paths,
         //   new uses ...?
-        public bool Weave(AssemblyDefinition assembly)
+        //
+        // => assembly: the one we are currently weaving (MyGame.dll)
+        // => mirrorAssembly: the Mirror.dll assembly. sometimes needed to find
+        //    all extensions in Mirror.dll etc. while we can resolve known types
+        //    in other assemblys, we can't search unknown types in another
+        //    assembly without opening it.
+        //    (weaver shouldn't worry about opening. it should simply weave)
+        public bool Weave(AssemblyDefinition assembly, AssemblyDefinition mirrorAssembly)
         {
             WeavingFailed = false;
             try
             {
                 CurrentAssembly = assembly;
+                MirrorAssembly = mirrorAssembly;
 
                 // fix "No writer found for ..." error
                 // https://github.com/vis2k/Mirror/issues/2579
@@ -151,7 +160,7 @@ namespace Mirror.Weaver
 
                 Stopwatch rwstopwatch = Stopwatch.StartNew();
                 // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
-                bool modified = ReaderWriterProcessor.Process(CurrentAssembly, writers, readers, ref WeavingFailed);
+                bool modified = ReaderWriterProcessor.Process(CurrentAssembly, mirrorAssembly, writers, readers, ref WeavingFailed);
                 rwstopwatch.Stop();
                 Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 

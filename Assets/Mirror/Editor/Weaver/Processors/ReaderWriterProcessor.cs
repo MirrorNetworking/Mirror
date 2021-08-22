@@ -4,40 +4,22 @@ using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 using UnityEditor;
-using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace Mirror.Weaver
 {
     public static class ReaderWriterProcessor
     {
-        public static bool Process(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
+        public static bool Process(AssemblyDefinition CurrentAssembly, AssemblyDefinition mirrorAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
         {
             // find NetworkReader/Writer extensions from Mirror.dll first.
             // and NetworkMessage custom writer/reader extensions.
             // NOTE: do not include this result in our 'modified' return value,
             //       otherwise Unity crashes when running tests
-            ProcessMirrorAssemblyClasses(CurrentAssembly, writers, readers, ref WeavingFailed);
+            ProcessAssemblyClasses(CurrentAssembly, mirrorAssembly, writers, readers, ref WeavingFailed);
 
             // find readers/writers in the assembly we are in right now.
             return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
-        }
-
-        static void ProcessMirrorAssemblyClasses(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
-        {
-            // we search all assemblies to find Mirror.dll.
-            // then find all NetworkReader/WriterExtensions.
-            foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
-            {
-                if (unityAsm.name == "Mirror")
-                {
-                    using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-                    using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(unityAsm.outputPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = asmResolver }))
-                    {
-                        ProcessAssemblyClasses(CurrentAssembly, assembly, writers, readers, ref WeavingFailed);
-                    }
-                }
-            }
         }
 
         static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers, ref bool WeavingFailed)

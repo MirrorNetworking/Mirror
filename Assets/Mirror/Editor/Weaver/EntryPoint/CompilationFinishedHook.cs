@@ -120,7 +120,7 @@ namespace Mirror.Weaver
             dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
             dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
 
-            if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray()))
+            if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray(), mirrorRuntimeDll))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
@@ -150,11 +150,14 @@ namespace Mirror.Weaver
         }
         // helper function to invoke Weaver with an AssemblyDefinition from a
         // file path, with dependencies added.
-        static bool WeaveFromFile(string assemblyPath, string[] dependencies)
+        static bool WeaveFromFile(string assemblyPath, string[] dependencies, string mirrorAssemblyPath)
         {
-            // open the file as stream
+            // resolve mirror assembly
+            using (DefaultAssemblyResolver mirrorAsmResolver = new DefaultAssemblyResolver())
+            using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorAssemblyPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = mirrorAsmResolver }))
+            // open the assembly file as stream
             using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
-            // read assembly from stream with parameters
+            // resolve assembly from stream
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
@@ -173,7 +176,7 @@ namespace Mirror.Weaver
 
                 // create weaver with logger
                 weaver = new Weaver(new CompilationFinishedLogger());
-                return weaver.Weave(assembly);
+                return weaver.Weave(assembly, mirrorAssembly);
             }
         }
     }
