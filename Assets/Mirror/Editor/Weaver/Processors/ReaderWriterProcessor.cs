@@ -15,6 +15,16 @@ namespace Mirror.Weaver
         {
             // find readers/writers from Mirror.dll first
             // which are the ones in NetworkReader/WriterExtensions class.
+            ProcessMirrorAssemblyReaderWriterExtensions(CurrentAssembly, writers, readers, ref WeavingFailed);
+
+            // find readers/writers in the assembly we are in right now.
+            return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
+        }
+
+        static void ProcessMirrorAssemblyReaderWriterExtensions(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
+        {
+            // we search all assemblies to find Mirror.dll.
+            // then find all NetworkReader/WriterExtensions.
             foreach (Assembly unityAsm in CompilationPipeline.GetAssemblies())
             {
                 if (unityAsm.name == "Mirror")
@@ -26,9 +36,6 @@ namespace Mirror.Weaver
                     }
                 }
             }
-
-            // find readers/writers in the assembly we are in right now.
-            return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
         }
 
         static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers, ref bool WeavingFailed)
