@@ -138,7 +138,7 @@ namespace Mirror.Weaver
 
             InitSyncObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "InitSyncObject", ref WeavingFailed);
 
-            TypeReference readerExtensions = Import(typeof(NetworkReaderExtensions));
+            readerExtensions = Import(typeof(NetworkReaderExtensions));
             readNetworkBehaviourGeneric = Resolvers.ResolveMethod(readerExtensions, assembly, Log, (md =>
             {
                 return md.Name == nameof(NetworkReaderExtensions.ReadNetworkBehaviour) &&
