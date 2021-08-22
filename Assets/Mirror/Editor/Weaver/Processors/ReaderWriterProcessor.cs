@@ -15,6 +15,8 @@ namespace Mirror.Weaver
         {
             // find readers/writers from Mirror.dll first
             // which are the ones in NetworkReader/WriterExtensions class.
+            // NOTE: do not include this result in our 'modified' return value,
+            //       otherwise Unity crashes when running tests
             ProcessMirrorAssemblyReaderWriterExtensions(CurrentAssembly, writers, readers, ref WeavingFailed);
 
             // find readers/writers in the assembly we are in right now.
