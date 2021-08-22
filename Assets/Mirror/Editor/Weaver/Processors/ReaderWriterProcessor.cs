@@ -13,17 +13,17 @@ namespace Mirror.Weaver
     {
         public static bool Process(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
         {
-            // find readers/writers from Mirror.dll first
-            // which are the ones in NetworkReader/WriterExtensions class.
+            // find NetworkReader/Writer extensions from Mirror.dll first.
+            // and NetworkMessage custom writer/reader extensions.
             // NOTE: do not include this result in our 'modified' return value,
             //       otherwise Unity crashes when running tests
-            ProcessMirrorAssemblyReaderWriterExtensions(CurrentAssembly, writers, readers, ref WeavingFailed);
+            ProcessMirrorAssemblyClasses(CurrentAssembly, writers, readers, ref WeavingFailed);
 
             // find readers/writers in the assembly we are in right now.
             return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
         }
 
-        static void ProcessMirrorAssemblyReaderWriterExtensions(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
+        static void ProcessMirrorAssemblyClasses(AssemblyDefinition CurrentAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
         {
             // we search all assemblies to find Mirror.dll.
             // then find all NetworkReader/WriterExtensions.
