@@ -126,6 +126,26 @@ namespace Mirror.Weaver
                 );
         }
 
+        // helper function to add [RuntimeInitializeOnLoad] attribute to method
+        // TODO avoid reflection if possible
+        static void AddRuntimeInitializeOnLoadAttribute(AssemblyDefinition assembly, WeaverTypes weaverTypes, MethodDefinition method)
+        {
+            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
+            CustomAttribute customAttributeRef = new CustomAttribute(assembly.MainModule.ImportReference(attributeconstructor));
+            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
+            method.CustomAttributes.Add(customAttributeRef);
+        }
+
+        // helper function to add [InitializeOnLoad] attribute to method
+        // (only works in Editor assemblies. check IsEditorAssembly first.)
+        // TODO avoid reflection if possible
+        static void AddInitializeOnLoadAttribute(AssemblyDefinition assembly, MethodDefinition method)
+        {
+            System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
+            CustomAttribute initializeCustomConstructorRef = new CustomAttribute(assembly.MainModule.ImportReference(initializeOnLoadConstructor));
+            method.CustomAttributes.Add(initializeCustomConstructorRef);
+        }
+
         // adds Mirror.GeneratedNetworkCode.InitReadWriters() method that
         // registers all generated writers into Mirror.Writer<T> static class.
         // -> uses [RuntimeInitializeOnLoad] attribute so it's invoke at runtime
@@ -140,17 +160,12 @@ namespace Mirror.Weaver
                     weaverTypes.Import(typeof(void)));
 
             // add [RuntimeInitializeOnLoad] in any case
-            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
-            CustomAttribute customAttributeRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(attributeconstructor));
-            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
-            rwInitializer.CustomAttributes.Add(customAttributeRef);
+            AddRuntimeInitializeOnLoadAttribute(currentAssembly, weaverTypes, rwInitializer);
 
             // add [InitializeOnLoad] if UnityEditor is referenced
             if (IsEditorAssembly(currentAssembly))
             {
-                System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
-                CustomAttribute initializeCustomConstructorRef = new CustomAttribute(currentAssembly.MainModule.ImportReference(initializeOnLoadConstructor));
-                rwInitializer.CustomAttributes.Add(initializeCustomConstructorRef);
+                AddInitializeOnLoadAttribute(currentAssembly, rwInitializer);
             }
 
             // fill function body with reader/writer initializers
