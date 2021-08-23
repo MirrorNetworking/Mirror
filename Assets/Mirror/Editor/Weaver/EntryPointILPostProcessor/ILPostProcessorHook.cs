@@ -57,7 +57,7 @@ namespace Mirror.Weaver
             byte[] peData = compiledAssembly.InMemoryAssembly.PeData;
             //LogDiagnostics($"  peData.Length={peData.Length} bytes");
             using (MemoryStream stream = new MemoryStream(peData))
-            using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+            using (ILPostProcessorAssemblyResolver asmResolver = new ILPostProcessorAssemblyResolver(compiledAssembly, Log))
             {
                 // we need to load symbols. otherwise we get:
                 // "(0,0): error Mono.CecilX.Cil.SymbolsNotFoundException: No symbol found for file: "
