@@ -25,10 +25,13 @@ namespace Mirror.Weaver
         readonly ICompiledAssembly compiledAssembly;
         AssemblyDefinition selfAssembly;
 
-        public ILPostProcessorAssemblyResolver(ICompiledAssembly compiledAssembly)
+        Logger Log;
+
+        public ILPostProcessorAssemblyResolver(ICompiledAssembly compiledAssembly, Logger Log)
         {
             this.compiledAssembly = compiledAssembly;
             assemblyReferences = compiledAssembly.References;
+            this.Log = Log;
         }
 
         public void Dispose()
