@@ -74,6 +74,10 @@ namespace Mirror.Weaver
                     };
                     using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
                     {
+                        // TODO see if we need this.
+                        // supposedly fixes resolving a type from Mirror.dll while processing Mirror.dll?
+                        // asmResolver.AddAssemblyDefinitionBeingOperatedOn(asmDef);
+
                         Weaver weaver = new Weaver(Log);
 
                         // TODO add dependencies?
