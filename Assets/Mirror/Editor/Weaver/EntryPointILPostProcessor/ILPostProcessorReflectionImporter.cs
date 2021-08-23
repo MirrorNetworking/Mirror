@@ -17,7 +17,7 @@ namespace Mirror.Weaver
 
         public ILPostProcessorReflectionImporter(ModuleDefinition module) : base(module)
         {
-            // find the correct library for System.Private.CoreLib.
+            // find the correct library for "System.Private.CoreLib".
             // either mscorlib or netstandard.
             // defaults to System.Private.CoreLib if not found.
             _correctCorlib = module.AssemblyReferences.FirstOrDefault(a => a.Name == "mscorlib" || a.Name == "netstandard" || a.Name == SystemPrivateCoreLib);
@@ -25,7 +25,12 @@ namespace Mirror.Weaver
 
         public override AssemblyNameReference ImportReference(AssemblyName name)
         {
-            return _correctCorlib != null && name.Name == SystemPrivateCoreLib ? _correctCorlib : base.ImportReference(name);
+            // System.Private.CoreLib?
+            if (name.Name == SystemPrivateCoreLib && _correctCorlib != null)
+                return _correctCorlib;
+
+            // otherwise import as usual
+            return base.ImportReference(name);
         }
     }
 }
