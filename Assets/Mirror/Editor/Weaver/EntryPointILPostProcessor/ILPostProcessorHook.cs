@@ -42,6 +42,13 @@ namespace Mirror.Weaver
                    compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
         }
 
+        // searches for Mirror.dll in references.
+        // note that for Mirror.dll itself, it won't find anything.
+        string FindMirrorRuntimeReference(ICompiledAssembly compiledAssembly)
+        {
+            return compiledAssembly.References.ToList().Find(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
+        }
+
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
             Log.Warning($"Processing {compiledAssembly.Name}");
@@ -64,16 +71,48 @@ namespace Mirror.Weaver
                     };
                     using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
                     {
+                        Weaver weaver = new Weaver(Log);
+
                         // TODO add dependencies?
 
-                        Weaver weaver = new Weaver(Log);
-                        if (weaver.Weave(asmDef))
+                        // we need Mirror.dll AssemblyDefinition too
+                        // find it in references...
+                        // 'Library/Bee/artifacts/200b0aE.dag/Mirror.dll' usually
+                        string mirrorAssemblyPath = FindMirrorRuntimeReference(compiledAssembly);
+
+                        // did we find Mirror.dll in references?
+                        if (mirrorAssemblyPath != null)
                         {
-                            Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
-                            // TODO return modified assembly
-                            // TODO AND pdb / debug symbols
+                            Log.Warning("Mirror Ref: " + mirrorAssemblyPath);
+                            // resolve mirror assembly
+                            // TODO is this safe with ILPP multithreading though?
+                            // (it sure has to exist while we process this assembly since it's referenced)
+                            using (DefaultAssemblyResolver mirrorAsmResolver = new DefaultAssemblyResolver())
+                            using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorAssemblyPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = mirrorAsmResolver }))
+                            {
+                                // weave this assembly. and pass mirror.dll.
+                                if (weaver.Weave(asmDef, mirrorAssembly))
+                                {
+                                    Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
+                                    // TODO return modified assembly
+                                    // TODO AND pdb / debug symbols
+                                }
+                                else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
+                            }
                         }
-                        else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
+                        // we ARE Mirror.dll
+                        else
+                        {
+                            Log.Warning("Mirror Itself: " + compiledAssembly.Name);
+                            // weave this assembly. and mirror.dll is this assembly.
+                            if (weaver.Weave(asmDef, asmDef))
+                            {
+                                Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
+                                // TODO return modified assembly
+                                // TODO AND pdb / debug symbols
+                            }
+                            else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
+                        }
                     }
                 }
             }
