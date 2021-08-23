@@ -79,7 +79,7 @@ namespace Mirror.Weaver
                         // NullReferenceException in WeaverTypes.ctor
                         // when Resolve() is called on the first Mirror type.
                         // need to add the AssemblyDefinition itself to use.
-                        asmResolver.AddAssemblyDefinitionForCompiledAssembly(asmDef);
+                        asmResolver.SetAssemblyDefinitionForCompiledAssembly(asmDef);
 
                         // weave this assembly.
                         Weaver weaver = new Weaver(Log);
