@@ -101,15 +101,21 @@ namespace Mirror.Weaver
                             // otherwise we get exceptions in ReaderWriterProcessor.
                             AssemblyNameReference mirrorNameReference = AssemblyNameReference.Parse(mirrorAssemblyPath);
                             AssemblyDefinition mirrorAssembly = asmResolver.Resolve(mirrorNameReference, readerParameters);
-
-                            // weave this assembly. and pass mirror.dll.
-                            if (weaver.Weave(asmDef, mirrorAssembly))
+                            if (mirrorAssembly != null)
                             {
-                                Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
-                                // TODO return modified assembly
-                                // TODO AND pdb / debug symbols
+                                // TODO null
+                                Log.Warning($"Mirror Asm: {mirrorAssembly}");
+
+                                // weave this assembly. and pass mirror.dll.
+                                if (weaver.Weave(asmDef, mirrorAssembly))
+                                {
+                                    Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
+                                    // TODO return modified assembly
+                                    // TODO AND pdb / debug symbols
+                                }
+                                else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
                             }
-                            else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
+                            else Log.Error($"Failed to resolve Mirror assembly!");
                         }
                         // we ARE Mirror.dll
                         else
