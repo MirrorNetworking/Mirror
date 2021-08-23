@@ -67,7 +67,10 @@ namespace Mirror.Weaver
                         SymbolStream = symbols,
                         ReadWrite = true,
                         ReadSymbols = true,
-                        AssemblyResolver = asmResolver
+                        AssemblyResolver = asmResolver,
+                        // custom reflection importer to fix System.Private.CoreLib
+                        // not being found in custom assembly resolver above.
+                        ReflectionImporterProvider = new ILPostProcessorReflectionImporterProvider()
                     };
                     using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
                     {
