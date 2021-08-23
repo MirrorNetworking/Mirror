@@ -155,7 +155,8 @@ namespace Mirror.Weaver
             }
         }
 
-        public void AddAssemblyDefinitionBeingOperatedOn(AssemblyDefinition assemblyDefinition)
+        // if the CompiledAssembly's AssemblyDefinition is known, we can add it
+        public void AddAssemblyDefinitionForCompiledAssembly(AssemblyDefinition assemblyDefinition)
         {
             selfAssembly = assemblyDefinition;
         }
