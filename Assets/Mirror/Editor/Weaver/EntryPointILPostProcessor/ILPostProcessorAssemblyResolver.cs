@@ -66,7 +66,7 @@ namespace Mirror.Weaver
                 {
                     // returning null will throw exceptions in our weaver where.
                     // let's make it obvious why we returned null for easier debugging.
-                    Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: {name}: Failed to find file for {name}");
+                    Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
                     return null;
                 }
 
