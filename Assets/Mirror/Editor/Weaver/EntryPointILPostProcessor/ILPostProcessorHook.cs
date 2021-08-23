@@ -74,9 +74,12 @@ namespace Mirror.Weaver
                     };
                     using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
                     {
-                        // TODO see if we need this.
-                        // supposedly fixes resolving a type from Mirror.dll while processing Mirror.dll?
-                        //asmResolver.AddAssemblyDefinitionForCompiledAssembly(asmDef);
+                        // resolving a Mirror.dll type like NetworkServer while
+                        // weaving Mirror.dll does not work. it throws a
+                        // NullReferenceException in WeaverTypes.ctor
+                        // when Resolve() is called on the first Mirror type.
+                        // need to add the AssemblyDefinition itself to use.
+                        asmResolver.AddAssemblyDefinitionForCompiledAssembly(asmDef);
 
                         // weave this assembly.
                         Weaver weaver = new Weaver(Log);

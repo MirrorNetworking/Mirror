@@ -158,7 +158,7 @@ namespace Mirror.Weaver
         }
 
         // if the CompiledAssembly's AssemblyDefinition is known, we can add it
-        public void AddAssemblyDefinitionForCompiledAssembly(AssemblyDefinition assemblyDefinition)
+        public void SetAssemblyDefinitionForCompiledAssembly(AssemblyDefinition assemblyDefinition)
         {
             selfAssembly = assemblyDefinition;
         }
