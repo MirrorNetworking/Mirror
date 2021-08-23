@@ -57,7 +57,12 @@ namespace Mirror.Weaver
 
                 string fileName = FindFile(name);
                 if (fileName == null)
+                {
+                    // returning null will throw exceptions in our weaver where.
+                    // let's make it obvious why we returned null for easier debugging.
+                    Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: {name}: Failed to find file for {name}");
                     return null;
+                }
 
                 DateTime lastWriteTime = File.GetLastWriteTime(fileName);
 
