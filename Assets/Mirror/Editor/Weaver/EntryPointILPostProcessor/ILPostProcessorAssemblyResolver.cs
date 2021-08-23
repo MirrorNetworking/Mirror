@@ -66,6 +66,8 @@ namespace Mirror.Weaver
                 {
                     // returning null will throw exceptions in our weaver where.
                     // let's make it obvious why we returned null for easier debugging.
+                    // NOTE: if this fails for "System.Private.CoreLib":
+                    //       ILPostProcessorReflectionImporter fixes it!
                     Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
                     return null;
                 }
