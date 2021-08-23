@@ -50,32 +50,30 @@ namespace Mirror.Weaver
             byte[] peData = compiledAssembly.InMemoryAssembly.PeData;
             //LogDiagnostics($"  peData.Length={peData.Length} bytes");
             using (MemoryStream stream = new MemoryStream(peData))
+            using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
             {
-                using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
+                // we need to load symbols. otherwise we get:
+                // "(0,0): error Mono.CecilX.Cil.SymbolsNotFoundException: No symbol found for file: "
+                using (MemoryStream symbols = new MemoryStream(compiledAssembly.InMemoryAssembly.PdbData))
                 {
-                    // we need to load symbols. otherwise we get:
-                    // "(0,0): error Mono.CecilX.Cil.SymbolsNotFoundException: No symbol found for file: "
-                    using (MemoryStream symbols = new MemoryStream(compiledAssembly.InMemoryAssembly.PdbData))
+                    ReaderParameters readerParameters = new ReaderParameters{
+                        SymbolStream = symbols,
+                        ReadWrite = true,
+                        ReadSymbols = true,
+                        AssemblyResolver = asmResolver
+                    };
+                    using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
                     {
-                        ReaderParameters readerParameters = new ReaderParameters{
-                            SymbolStream = symbols,
-                            ReadWrite = true,
-                            ReadSymbols = true,
-                            AssemblyResolver = asmResolver
-                        };
-                        using (AssemblyDefinition asmDef = AssemblyDefinition.ReadAssembly(stream, readerParameters))
-                        {
-                            // TODO add dependencies?
+                        // TODO add dependencies?
 
-                            Weaver weaver = new Weaver(Log);
-                            if (weaver.Weave(asmDef))
-                            {
-                                Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
-                                // TODO return modified assembly
-                                // TODO AND pdb / debug symbols
-                            }
-                            else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
+                        Weaver weaver = new Weaver(Log);
+                        if (weaver.Weave(asmDef))
+                        {
+                            Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
+                            // TODO return modified assembly
+                            // TODO AND pdb / debug symbols
                         }
+                        else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
                     }
                 }
             }
