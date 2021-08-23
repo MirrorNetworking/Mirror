@@ -90,6 +90,7 @@ namespace Mirror.Weaver
                             // resolve mirror assembly
                             // TODO is this safe with ILPP multithreading though?
                             // (it sure has to exist while we process this assembly since it's referenced)
+                            // TODO use our custom resolver. default fails to resolve in ReaderWriterProcessor.LoadMessageReadWriter -> IsInterface extension
                             using (DefaultAssemblyResolver mirrorAsmResolver = new DefaultAssemblyResolver())
                             using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorAssemblyPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = mirrorAsmResolver }))
                             {
