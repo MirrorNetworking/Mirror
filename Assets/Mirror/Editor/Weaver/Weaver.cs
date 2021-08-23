@@ -15,10 +15,14 @@ namespace Mirror.Weaver
         public const string GeneratedCodeClassName = "GeneratedNetworkCode";
         TypeDefinition GeneratedCodeClass;
 
+        // for resolving Mirror.dll in ReaderWriterProcessor, we need to know
+        // Mirror.dll name
+        public const string MirrorAssemblyName = "Mirror";
+
         WeaverTypes weaverTypes;
         WeaverLists weaverLists;
+        IAssemblyResolver Resolver;
         AssemblyDefinition CurrentAssembly;
-        AssemblyDefinition MirrorAssembly;
         Writers writers;
         Readers readers;
         bool WeavingFailed;
@@ -117,18 +121,24 @@ namespace Mirror.Weaver
         //   new uses ...?
         //
         // => assembly: the one we are currently weaving (MyGame.dll)
-        // => mirrorAssembly: the Mirror.dll assembly. sometimes needed to find
-        //    all extensions in Mirror.dll etc. while we can resolve known types
-        //    in other assemblys, we can't search unknown types in another
-        //    assembly without opening it.
-        //    (weaver shouldn't worry about opening. it should simply weave)
-        public bool Weave(AssemblyDefinition assembly, AssemblyDefinition mirrorAssembly)
+        // => resolver: useful in case we need to resolve any of the assembly's
+        //              assembly.MainModule.AssemblyReferences.
+        //              -> we can resolve ANY of them given that the resolver
+        //                 works properly (need custom one for ILPostProcessor)
+        //              -> IMPORTANT: .Resolve() takes an AssemblyNameReference.
+        //                 those from assembly.MainModule.AssemblyReferences are
+        //                 guaranteed to be resolve-able.
+        //                 Parsing from a string for Library/.../Mirror.dll
+        //                 would not be guaranteed to be resolve-able because
+        //                 for ILPostProcessor we can't assume where Mirror.dll
+        //                 is etc.
+        public bool Weave(AssemblyDefinition assembly, IAssemblyResolver resolver)
         {
             WeavingFailed = false;
             try
             {
+                Resolver = resolver;
                 CurrentAssembly = assembly;
-                MirrorAssembly = mirrorAssembly;
 
                 // fix "No writer found for ..." error
                 // https://github.com/vis2k/Mirror/issues/2579
@@ -160,7 +170,7 @@ namespace Mirror.Weaver
 
                 Stopwatch rwstopwatch = Stopwatch.StartNew();
                 // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
-                bool modified = ReaderWriterProcessor.Process(CurrentAssembly, mirrorAssembly, writers, readers, ref WeavingFailed);
+                bool modified = ReaderWriterProcessor.Process(CurrentAssembly, resolver, Log, writers, readers, ref WeavingFailed);
                 rwstopwatch.Stop();
                 Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 

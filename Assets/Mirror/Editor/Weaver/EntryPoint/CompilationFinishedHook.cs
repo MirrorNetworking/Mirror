@@ -12,6 +12,7 @@ namespace Mirror.Weaver
 {
     public static class CompilationFinishedHook
     {
+        // needs to be the same as Weaver.MirrorAssemblyName!
         const string MirrorRuntimeAssemblyName = "Mirror";
         const string MirrorWeaverAssemblyName = "Mirror.Weaver";
 
@@ -150,9 +151,6 @@ namespace Mirror.Weaver
         // file path, with dependencies added.
         static bool WeaveFromFile(string assemblyPath, string[] dependencies, string mirrorAssemblyPath)
         {
-            // resolve mirror assembly
-            using (DefaultAssemblyResolver mirrorAsmResolver = new DefaultAssemblyResolver())
-            using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorAssemblyPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = mirrorAsmResolver }))
             // open the assembly file as stream
             using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
             // resolve assembly from stream
@@ -174,7 +172,7 @@ namespace Mirror.Weaver
 
                 // create weaver with logger
                 weaver = new Weaver(new CompilationFinishedLogger());
-                return weaver.Weave(assembly, mirrorAssembly);
+                return weaver.Weave(assembly, asmResolver);
             }
         }
     }

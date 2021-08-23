@@ -244,5 +244,16 @@ namespace Mirror.Weaver
         public static bool ContainsClass(this ModuleDefinition module, string nameSpace, string className) =>
             module.GetTypes().Any(td => td.Namespace == nameSpace &&
                                   td.Name == className);
+
+
+        public static AssemblyNameReference FindReference(this ModuleDefinition module, string referenceName)
+        {
+            foreach (AssemblyNameReference reference in module.AssemblyReferences)
+            {
+                if (reference.Name == referenceName)
+                    return reference;
+            }
+            return null;
+        }
     }
 }

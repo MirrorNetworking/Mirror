@@ -10,16 +10,38 @@ namespace Mirror.Weaver
 {
     public static class ReaderWriterProcessor
     {
-        public static bool Process(AssemblyDefinition CurrentAssembly, AssemblyDefinition mirrorAssembly, Writers writers, Readers readers, ref bool WeavingFailed)
+        public static bool Process(AssemblyDefinition CurrentAssembly, IAssemblyResolver resolver, Logger Log, Writers writers, Readers readers, ref bool WeavingFailed)
         {
             // find NetworkReader/Writer extensions from Mirror.dll first.
             // and NetworkMessage custom writer/reader extensions.
             // NOTE: do not include this result in our 'modified' return value,
             //       otherwise Unity crashes when running tests
-            ProcessAssemblyClasses(CurrentAssembly, mirrorAssembly, writers, readers, ref WeavingFailed);
+            ProcessMirrorAssemblyClasses(CurrentAssembly, resolver, Log, writers, readers, ref WeavingFailed);
 
             // find readers/writers in the assembly we are in right now.
             return ProcessAssemblyClasses(CurrentAssembly, CurrentAssembly, writers, readers, ref WeavingFailed);
+        }
+
+        static void ProcessMirrorAssemblyClasses(AssemblyDefinition CurrentAssembly, IAssemblyResolver resolver, Logger Log, Writers writers, Readers readers, ref bool WeavingFailed)
+        {
+            // find Mirror.dll in assembly's references.
+            // those are guaranteed to be resolvable and correct.
+            // after all, it references them :)
+            AssemblyNameReference mirrorAssemblyReference = CurrentAssembly.MainModule.FindReference(Weaver.MirrorAssemblyName);
+            if (mirrorAssemblyReference != null)
+            {
+                // resolve the assembly to load the AssemblyDefinition.
+                // we need to search all types in it.
+                // if we only were to resolve one known type like in WeaverTypes,
+                // then we wouldn't need it.
+                AssemblyDefinition mirrorAssembly = resolver.Resolve(mirrorAssemblyReference);
+                if (mirrorAssembly != null)
+                {
+                    ProcessAssemblyClasses(CurrentAssembly, mirrorAssembly, writers, readers, ref WeavingFailed);
+                }
+                else Log.Error($"Failed to resolve {mirrorAssemblyReference}");
+            }
+            else Log.Error("Failed to find Mirror AssemblyNameReference. Can't register Mirror.dll readers/writers.");
         }
 
         static bool ProcessAssemblyClasses(AssemblyDefinition CurrentAssembly, AssemblyDefinition assembly, Writers writers, Readers readers, ref bool WeavingFailed)
