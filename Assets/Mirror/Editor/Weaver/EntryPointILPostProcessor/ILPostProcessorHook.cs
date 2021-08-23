@@ -91,22 +91,25 @@ namespace Mirror.Weaver
                         if (mirrorAssemblyPath != null)
                         {
                             Log.Warning("Mirror Ref: " + mirrorAssemblyPath);
+
                             // resolve mirror assembly
-                            // TODO is this safe with ILPP multithreading though?
-                            // (it sure has to exist while we process this assembly since it's referenced)
-                            // TODO use our custom resolver. default fails to resolve in ReaderWriterProcessor.LoadMessageReadWriter -> IsInterface extension
-                            using (DefaultAssemblyResolver mirrorAsmResolver = new DefaultAssemblyResolver())
-                            using (AssemblyDefinition mirrorAssembly = AssemblyDefinition.ReadAssembly(mirrorAssemblyPath, new ReaderParameters { ReadWrite = false, ReadSymbols = false, AssemblyResolver = mirrorAsmResolver }))
+                            // DefaultAssemblyResolver does not work with ILPostProcessor.
+                            // we need to use our custom resolver again.
+                            // we already have it, so simply call .Resolve().
+                            // (need to pass correct reader parameters again to
+                            //  avoid System.Private.CoreLib resolve issues again)
+                            // otherwise we get exceptions in ReaderWriterProcessor.
+                            AssemblyNameReference mirrorNameReference = AssemblyNameReference.Parse(mirrorAssemblyPath);
+                            AssemblyDefinition mirrorAssembly = asmResolver.Resolve(mirrorNameReference, readerParameters);
+
+                            // weave this assembly. and pass mirror.dll.
+                            if (weaver.Weave(asmDef, mirrorAssembly))
                             {
-                                // weave this assembly. and pass mirror.dll.
-                                if (weaver.Weave(asmDef, mirrorAssembly))
-                                {
-                                    Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
-                                    // TODO return modified assembly
-                                    // TODO AND pdb / debug symbols
-                                }
-                                else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
+                                Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
+                                // TODO return modified assembly
+                                // TODO AND pdb / debug symbols
                             }
+                            else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
                         }
                         // we ARE Mirror.dll
                         else
