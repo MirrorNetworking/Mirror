@@ -1,5 +1,12 @@
 // based on paul's resolver from
 // https://github.com/MirageNet/Mirage/commit/def64cd1db525398738f057b3d1eb1fe8afc540c?branch=def64cd1db525398738f057b3d1eb1fe8afc540c&diff=split
+//
+// using DefaultAssemblyResolver with ILPostProcessor throws Exceptions in
+// WeaverTypes.cs when resolving anything, for example:
+// ArraySegment<T> in Mirror.Tests.Dll.
+//
+// we need a custom resolver for ILPostProcessor.
+#if UNITY_2020_1_OR_NEWER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,15 +19,16 @@ namespace Mirror.Weaver
 {
     class ILPostProcessorAssemblyResolver : IAssemblyResolver
     {
-        private readonly string[] _assemblyReferences;
-        private readonly Dictionary<string, AssemblyDefinition> _assemblyCache = new Dictionary<string, AssemblyDefinition>();
-        private readonly ICompiledAssembly _compiledAssembly;
-        private AssemblyDefinition _selfAssembly;
+        readonly string[] assemblyReferences;
+        readonly Dictionary<string, AssemblyDefinition> assemblyCache =
+            new Dictionary<string, AssemblyDefinition>();
+        readonly ICompiledAssembly compiledAssembly;
+        AssemblyDefinition selfAssembly;
 
         public ILPostProcessorAssemblyResolver(ICompiledAssembly compiledAssembly)
         {
-            _compiledAssembly = compiledAssembly;
-            _assemblyReferences = compiledAssembly.References;
+            this.compiledAssembly = compiledAssembly;
+            assemblyReferences = compiledAssembly.References;
         }
 
         public void Dispose()
@@ -34,14 +42,15 @@ namespace Mirror.Weaver
             // Cleanup
         }
 
-        public AssemblyDefinition Resolve(AssemblyNameReference name) => Resolve(name, new ReaderParameters(ReadingMode.Deferred));
+        public AssemblyDefinition Resolve(AssemblyNameReference name) =>
+            Resolve(name, new ReaderParameters(ReadingMode.Deferred));
 
         public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
         {
-            lock (_assemblyCache)
+            lock (assemblyCache)
             {
-                if (name.Name == _compiledAssembly.Name)
-                    return _selfAssembly;
+                if (name.Name == compiledAssembly.Name)
+                    return selfAssembly;
 
                 string fileName = FindFile(name);
                 if (fileName == null)
@@ -51,7 +60,7 @@ namespace Mirror.Weaver
 
                 string cacheKey = fileName + lastWriteTime;
 
-                if (_assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
+                if (assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
                     return result;
 
                 parameters.AssemblyResolver = this;
@@ -63,30 +72,31 @@ namespace Mirror.Weaver
                     parameters.SymbolStream = MemoryStreamFor(pdb);
 
                 AssemblyDefinition assemblyDefinition = AssemblyDefinition.ReadAssembly(ms, parameters);
-                _assemblyCache.Add(cacheKey, assemblyDefinition);
+                assemblyCache.Add(cacheKey, assemblyDefinition);
                 return assemblyDefinition;
             }
         }
 
-        private string FindFile(AssemblyNameReference name)
+        // find assemblyname in assembly's references
+        string FindFile(AssemblyNameReference name)
         {
-            string fileName = _assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name.Name + ".dll");
+            string fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name.Name + ".dll");
             if (fileName != null)
                 return fileName;
 
             // perhaps the type comes from an exe instead
-            fileName = _assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name.Name + ".exe");
+            fileName = assemblyReferences.FirstOrDefault(r => Path.GetFileName(r) == name.Name + ".exe");
             if (fileName != null)
                 return fileName;
 
-            //Unfortunately the current ICompiledAssembly API only provides direct references.
-            //It is very much possible that a postprocessor ends up investigating a type in a directly
-            //referenced assembly, that contains a field that is not in a directly referenced assembly.
-            //if we don't do anything special for that situation, it will fail to resolve.  We should fix this
-            //in the ILPostProcessing API. As a workaround, we rely on the fact here that the indirect references
-            //are always located next to direct references, so we search in all directories of direct references we
-            //got passed, and if we find the file in there, we resolve to it.
-            foreach (string parentDir in _assemblyReferences.Select(Path.GetDirectoryName).Distinct())
+            // Unfortunately the current ICompiledAssembly API only provides direct references.
+            // It is very much possible that a postprocessor ends up investigating a type in a directly
+            // referenced assembly, that contains a field that is not in a directly referenced assembly.
+            // if we don't do anything special for that situation, it will fail to resolve.  We should fix this
+            // in the ILPostProcessing API. As a workaround, we rely on the fact here that the indirect references
+            // are always located next to direct references, so we search in all directories of direct references we
+            // got passed, and if we find the file in there, we resolve to it.
+            foreach (string parentDir in assemblyReferences.Select(Path.GetDirectoryName).Distinct())
             {
                 string candidate = Path.Combine(parentDir, name.Name + ".dll");
                 if (File.Exists(candidate))
@@ -96,6 +106,8 @@ namespace Mirror.Weaver
             return null;
         }
 
+        // open file as MemoryStream
+        // attempts multiple times, not sure why..
         static MemoryStream MemoryStreamFor(string fileName)
         {
             return Retry(10, TimeSpan.FromSeconds(1), () =>
@@ -113,7 +125,7 @@ namespace Mirror.Weaver
             });
         }
 
-        private static MemoryStream Retry(int retryCount, TimeSpan waitTime, Func<MemoryStream> func)
+        static MemoryStream Retry(int retryCount, TimeSpan waitTime, Func<MemoryStream> func)
         {
             try
             {
@@ -131,7 +143,8 @@ namespace Mirror.Weaver
 
         public void AddAssemblyDefinitionBeingOperatedOn(AssemblyDefinition assemblyDefinition)
         {
-            _selfAssembly = assemblyDefinition;
+            selfAssembly = assemblyDefinition;
         }
     }
 }
+#endif
