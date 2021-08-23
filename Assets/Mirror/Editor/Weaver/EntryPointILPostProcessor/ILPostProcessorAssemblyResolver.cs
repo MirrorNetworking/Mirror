@@ -1,6 +1,12 @@
 // based on paul's resolver from
 // https://github.com/MirageNet/Mirage/commit/def64cd1db525398738f057b3d1eb1fe8afc540c?branch=def64cd1db525398738f057b3d1eb1fe8afc540c&diff=split
 //
+// an assembly resolver's job is to open an assembly in case we want to resolve
+// a type from it.
+//
+// for example, while weaving MyGame.dll: if we want to resolve ArraySegment<T>,
+// then we need to open and resolve from another assembly (CoreLib).
+//
 // using DefaultAssemblyResolver with ILPostProcessor throws Exceptions in
 // WeaverTypes.cs when resolving anything, for example:
 // ArraySegment<T> in Mirror.Tests.Dll.
