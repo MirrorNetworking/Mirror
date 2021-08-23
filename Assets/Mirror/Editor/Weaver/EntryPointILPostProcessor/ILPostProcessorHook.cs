@@ -78,58 +78,15 @@ namespace Mirror.Weaver
                         // supposedly fixes resolving a type from Mirror.dll while processing Mirror.dll?
                         //asmResolver.AddAssemblyDefinitionForCompiledAssembly(asmDef);
 
+                        // weave this assembly.
                         Weaver weaver = new Weaver(Log);
-
-                        // TODO add dependencies?
-
-                        // we need Mirror.dll AssemblyDefinition too
-                        // find it in references...
-                        // 'Library/Bee/artifacts/200b0aE.dag/Mirror.dll' usually
-                        string mirrorAssemblyPath = FindMirrorRuntimeReference(compiledAssembly);
-
-                        // did we find Mirror.dll in references?
-                        if (mirrorAssemblyPath != null)
+                        if (weaver.Weave(asmDef, asmResolver))
                         {
-                            Log.Warning("Mirror Ref: " + mirrorAssemblyPath);
-
-                            // resolve mirror assembly
-                            // DefaultAssemblyResolver does not work with ILPostProcessor.
-                            // we need to use our custom resolver again.
-                            // we already have it, so simply call .Resolve().
-                            // (need to pass correct reader parameters again to
-                            //  avoid System.Private.CoreLib resolve issues again)
-                            // otherwise we get exceptions in ReaderWriterProcessor.
-                            AssemblyNameReference mirrorNameReference = AssemblyNameReference.Parse(mirrorAssemblyPath);
-                            AssemblyDefinition mirrorAssembly = asmResolver.Resolve(mirrorNameReference, readerParameters);
-                            if (mirrorAssembly != null)
-                            {
-                                // TODO null
-                                Log.Warning($"Mirror Asm: {mirrorAssembly}");
-
-                                // weave this assembly. and pass mirror.dll.
-                                if (weaver.Weave(asmDef, mirrorAssembly))
-                                {
-                                    Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
-                                    // TODO return modified assembly
-                                    // TODO AND pdb / debug symbols
-                                }
-                                else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
-                            }
-                            else Log.Error($"Failed to resolve Mirror assembly!");
+                            Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
+                            // TODO return modified assembly
+                            // TODO AND pdb / debug symbols
                         }
-                        // we ARE Mirror.dll
-                        else
-                        {
-                            Log.Warning("Mirror Itself: " + compiledAssembly.Name);
-                            // weave this assembly. and mirror.dll is this assembly.
-                            if (weaver.Weave(asmDef, asmDef))
-                            {
-                                Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
-                                // TODO return modified assembly
-                                // TODO AND pdb / debug symbols
-                            }
-                            else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
-                        }
+                        else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
                     }
                 }
             }
