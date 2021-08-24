@@ -1,4 +1,3 @@
-#if !UNITY_2020_1_OR_NEWER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +27,10 @@ namespace Mirror.Weaver
         // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool UnityLogEnabled = true;
 
+// for Unity 2020+ we use ILPostProcessor.
+// only automatically invoke it for older versions.
+// for newer versions, we still call CompilationFinished manually in tests.
+#if !UNITY_2020_1_OR_NEWER
         [InitializeOnLoadMethod]
         public static void OnInitializeOnLoad()
         {
@@ -61,6 +64,7 @@ namespace Mirror.Weaver
             UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
 #endif
         }
+#endif
 
         static Assembly FindCompilationPipelineAssembly(string assemblyName) =>
             CompilationPipeline.GetAssemblies().First(assembly => assembly.name == assemblyName);
@@ -68,7 +72,7 @@ namespace Mirror.Weaver
         static bool CompilerMessagesContainError(CompilerMessage[] messages) =>
             messages.Any(msg => msg.type == CompilerMessageType.Error);
 
-        static void OnCompilationFinished(string assemblyPath, CompilerMessage[] messages)
+        public static void OnCompilationFinished(string assemblyPath, CompilerMessage[] messages)
         {
             // Do nothing if there were compile errors on the target
             if (CompilerMessagesContainError(messages))
@@ -184,4 +188,3 @@ namespace Mirror.Weaver
         }
     }
 }
-#endif

@@ -1,6 +1,6 @@
 // logger for compilation finished hook.
 // where we need a callback and Debug.Log.
-#if !UNITY_2020_1_OR_NEWER
+//#if !UNITY_2020_1_OR_NEWER <- still need it for tests in 2020+
 using Mono.CecilX;
 using UnityEngine;
 
@@ -27,4 +27,4 @@ namespace Mirror.Weaver
         }
     }
 }
-#endif
+//#endif
