@@ -9,6 +9,7 @@ using System.Linq;
 // Unity.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.
 // otherwise we get a reflection exception with 'file not found: CecilX'.
 using Mono.CecilX;
+using Mono.CecilX.Cil;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 // IMPORTANT: 'using UnityEngine' does not work in here.
 // Unity gives "(0,0): error System.Security.SecurityException: ECall methods must be packaged into a system module."
@@ -86,8 +87,24 @@ namespace Mirror.Weaver
                         if (weaver.Weave(asmDef, asmResolver, out bool modified))
                         {
                             Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
-                            // TODO return modified assembly
-                            // TODO AND pdb / debug symbols
+
+                            // write if modified
+                            if (modified)
+                            {
+                                MemoryStream peOut = new MemoryStream();
+                                MemoryStream pdbOut = new MemoryStream();
+                                WriterParameters writerParameters = new WriterParameters
+                                {
+                                    SymbolWriterProvider = new PortablePdbWriterProvider(),
+                                    SymbolStream = pdbOut,
+                                    WriteSymbols = true
+                                };
+
+                                asmDef.Write(peOut, writerParameters);
+
+                                InMemoryAssembly inMemory = new InMemoryAssembly(peOut.ToArray(), pdbOut.ToArray());
+                                return new ILPostProcessResult(inMemory, Log.Logs);
+                            }
                         }
                         else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
                     }
