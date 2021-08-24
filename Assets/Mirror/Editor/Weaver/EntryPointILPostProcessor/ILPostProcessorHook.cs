@@ -83,7 +83,7 @@ namespace Mirror.Weaver
 
                         // weave this assembly.
                         Weaver weaver = new Weaver(Log);
-                        if (weaver.Weave(asmDef, asmResolver))
+                        if (weaver.Weave(asmDef, asmResolver, out bool modified))
                         {
                             Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
                             // TODO return modified assembly
