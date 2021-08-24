@@ -91,6 +91,19 @@ namespace Mirror.Weaver
                             // write if modified
                             if (modified)
                             {
+                                // when weaving Mirror.dll with ILPostProcessor,
+                                // Weave() -> WeaverTypes -> resolving the first
+                                // type in Mirror.dll adds a reference to
+                                // Mirror.dll even though we are in Mirror.dll.
+                                // -> this would throw an exception:
+                                //    "Mirror references itself" and not compile
+                                // -> need to detect and fix manually here
+                                if (asmDef.MainModule.AssemblyReferences.Any(r => r.Name == asmDef.Name.Name))
+                                {
+                                    asmDef.MainModule.AssemblyReferences.Remove(asmDef.MainModule.AssemblyReferences.First(r => r.Name == asmDef.Name.Name));
+                                    Log.Warning($"fixed self referencing Assembly: {asmDef.Name.Name}");
+                                }
+
                                 MemoryStream peOut = new MemoryStream();
                                 MemoryStream pdbOut = new MemoryStream();
                                 WriterParameters writerParameters = new WriterParameters
