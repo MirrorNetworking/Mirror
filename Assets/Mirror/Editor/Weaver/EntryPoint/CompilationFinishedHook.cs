@@ -172,7 +172,15 @@ namespace Mirror.Weaver
 
                 // create weaver with logger
                 weaver = new Weaver(new CompilationFinishedLogger());
-                return weaver.Weave(assembly, asmResolver);
+                if (weaver.Weave(assembly, asmResolver, out bool modified))
+                {
+                    // write changes to file if modified
+                    if (modified)
+                        assembly.Write(new WriterParameters{WriteSymbols = true});
+
+                    return true;
+                }
+                return false;
             }
         }
     }

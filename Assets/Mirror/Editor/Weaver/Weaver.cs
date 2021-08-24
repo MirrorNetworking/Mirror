@@ -132,9 +132,10 @@ namespace Mirror.Weaver
         //                 would not be guaranteed to be resolve-able because
         //                 for ILPostProcessor we can't assume where Mirror.dll
         //                 is etc.
-        public bool Weave(AssemblyDefinition assembly, IAssemblyResolver resolver)
+        public bool Weave(AssemblyDefinition assembly, IAssemblyResolver resolver, out bool modified)
         {
             WeavingFailed = false;
+            modified = false;
             try
             {
                 Resolver = resolver;
@@ -170,7 +171,7 @@ namespace Mirror.Weaver
 
                 Stopwatch rwstopwatch = Stopwatch.StartNew();
                 // Need to track modified from ReaderWriterProcessor too because it could find custom read/write functions or create functions for NetworkMessages
-                bool modified = ReaderWriterProcessor.Process(CurrentAssembly, resolver, Log, writers, readers, ref WeavingFailed);
+                modified = ReaderWriterProcessor.Process(CurrentAssembly, resolver, Log, writers, readers, ref WeavingFailed);
                 rwstopwatch.Stop();
                 Console.WriteLine($"Find all reader and writers took {rwstopwatch.ElapsedMilliseconds} milliseconds");
 
@@ -193,9 +194,11 @@ namespace Mirror.Weaver
 
                     ReaderWriterProcessor.InitializeReaderAndWriters(CurrentAssembly, weaverTypes, writers, readers, GeneratedCodeClass);
 
-                    // write to outputDir if specified, otherwise perform in-place write
-                    WriterParameters writeParams = new WriterParameters { WriteSymbols = true };
-                    CurrentAssembly.Write(writeParams);
+                    // DO NOT WRITE here.
+                    // CompilationFinishedHook writes to the file.
+                    // ILPostProcessor writes to in-memory assembly.
+                    // it depends on the caller.
+                    //CurrentAssembly.Write(new WriterParameters{ WriteSymbols = true });
                 }
 
                 return true;
