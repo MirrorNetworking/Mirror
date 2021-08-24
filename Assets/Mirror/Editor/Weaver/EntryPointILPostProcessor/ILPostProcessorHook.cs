@@ -52,7 +52,7 @@ namespace Mirror.Weaver
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
-            Log.Warning($"Processing {compiledAssembly.Name}");
+            //Log.Warning($"Processing {compiledAssembly.Name}");
 
             // load the InMemoryAssembly peData into a MemoryStream
             byte[] peData = compiledAssembly.InMemoryAssembly.PeData;
