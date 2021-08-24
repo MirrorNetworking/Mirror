@@ -8,30 +8,18 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests.Runtime.ClientSceneTests
 {
-    public class TestListenerBehaviour : MonoBehaviour
+    public class TestListenerBehaviour : NetworkBehaviour
     {
-        /*
-            **Note**
+        // If object is destroyed then both OnDisable and OnDestroy will be called
+        public event Action onDestroyCalled;
+        public event Action onDisableCalled;
 
-            If object is destroyed then both OnDisable and OnDestroy will be called
-
-         */
-
-        public event System.Action onDestroyCalled;
-        public event System.Action onDisableCalled;
-
-        public void OnDisable()
-        {
-            onDisableCalled?.Invoke();
-        }
-        void OnDestroy()
-        {
-            onDestroyCalled?.Invoke();
-        }
+        public void OnDisable() => onDisableCalled?.Invoke();
+        void OnDestroy() => onDestroyCalled?.Invoke();
     }
 
     // A network Behaviour that changes NetworkIdentity.spawned in OnDisable
-    public class BadBehaviour : MonoBehaviour
+    public class BadBehaviour : NetworkBehaviour
     {
         public void OnDisable()
         {
@@ -40,31 +28,37 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             const int id = 32032;
             netId.netId = id;
 
-            NetworkIdentity.spawned.Add(id, netId);
+            NetworkClient.spawned.Add(id, netId);
         }
     }
 
     public class ClientSceneTests_DestroyAllClientObjects : MirrorPlayModeTest
     {
-        Dictionary<uint, NetworkIdentity> spawned => NetworkIdentity.spawned;
         Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
+
+        [UnitySetUp]
+        public override IEnumerator UnitySetUp()
+        {
+            yield return base.UnitySetUp();
+
+            // start server & client and wait 1 frame
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+            yield return null;
+        }
 
         [UnityTearDown]
         public override IEnumerator UnityTearDown()
         {
-            spawned.Clear();
             unspawnHandlers.Clear();
             base.TearDown();
             yield return null;
         }
 
-        TestListenerBehaviour CreateAndAddObject(uint netId, ulong sceneId)
+        TestListenerBehaviour CreateAndAddObject(ulong sceneId)
         {
-            CreateNetworked(out GameObject go, out NetworkIdentity identity);
-            identity.netId = netId;
+            CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity identity, out TestListenerBehaviour listener);
             identity.sceneId = sceneId;
-            TestListenerBehaviour listener = go.AddComponent<TestListenerBehaviour>();
-            spawned.Add(netId, identity);
             return listener;
         }
 
@@ -72,17 +66,14 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         public IEnumerator DestroysAllNetworkPrefabsInScene()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(10001, 0);
-            TestListenerBehaviour listener2 = CreateAndAddObject(10002, 0);
-            TestListenerBehaviour listener3 = CreateAndAddObject(10003, 0);
+            TestListenerBehaviour listener1 = CreateAndAddObject(0);
+            TestListenerBehaviour listener2 = CreateAndAddObject(0);
 
             int destroyCalled1 = 0;
             int destroyCalled2 = 0;
-            int destroyCalled3 = 0;
 
             listener1.onDestroyCalled += () => destroyCalled1++;
             listener2.onDestroyCalled += () => destroyCalled2++;
-            listener3.onDestroyCalled += () => destroyCalled3++;
 
             NetworkClient.DestroyAllClientObjects();
 
@@ -91,32 +82,26 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             Assert.That(destroyCalled1, Is.EqualTo(1));
             Assert.That(destroyCalled2, Is.EqualTo(1));
-            Assert.That(destroyCalled3, Is.EqualTo(1));
         }
 
         [UnityTest]
         public IEnumerator DisablesAllNetworkSceneObjectsInScene()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(20001, 101);
-            TestListenerBehaviour listener2 = CreateAndAddObject(20002, 102);
-            TestListenerBehaviour listener3 = CreateAndAddObject(20003, 103);
+            TestListenerBehaviour listener1 = CreateAndAddObject(101);
+            TestListenerBehaviour listener2 = CreateAndAddObject(102);
 
             int disableCalled1 = 0;
             int disableCalled2 = 0;
-            int disableCalled3 = 0;
 
             listener1.onDisableCalled += () => disableCalled1++;
             listener2.onDisableCalled += () => disableCalled2++;
-            listener3.onDisableCalled += () => disableCalled3++;
 
             int destroyCalled1 = 0;
             int destroyCalled2 = 0;
-            int destroyCalled3 = 0;
 
             listener1.onDestroyCalled += () => destroyCalled1++;
             listener2.onDestroyCalled += () => destroyCalled2++;
-            listener3.onDestroyCalled += () => destroyCalled3++;
 
             NetworkClient.DestroyAllClientObjects();
 
@@ -125,76 +110,61 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             Assert.That(disableCalled1, Is.EqualTo(1));
             Assert.That(disableCalled2, Is.EqualTo(1));
-            Assert.That(disableCalled3, Is.EqualTo(1));
 
             Assert.That(destroyCalled1, Is.EqualTo(0), "Scene objects should not be destroyed");
             Assert.That(destroyCalled2, Is.EqualTo(0), "Scene objects should not be destroyed");
-            Assert.That(destroyCalled3, Is.EqualTo(0), "Scene objects should not be destroyed");
         }
 
         [Test]
         public void CallsUnspawnHandlerInsteadOfDestroy()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(30001, 0);
-            TestListenerBehaviour listener2 = CreateAndAddObject(30002, 0);
-            TestListenerBehaviour listener3 = CreateAndAddObject(30003, 0);
+            TestListenerBehaviour listener1 = CreateAndAddObject(0);
+            TestListenerBehaviour listener2 = CreateAndAddObject(0);
 
             Guid guid1 = Guid.NewGuid();
             Guid guid2 = Guid.NewGuid();
-            Guid guid3 = Guid.NewGuid();
 
             int unspawnCalled1 = 0;
             int unspawnCalled2 = 0;
-            int unspawnCalled3 = 0;
 
             unspawnHandlers.Add(guid1, x => unspawnCalled1++);
             unspawnHandlers.Add(guid2, x => unspawnCalled2++);
-            unspawnHandlers.Add(guid3, x => unspawnCalled3++);
             listener1.GetComponent<NetworkIdentity>().assetId = guid1;
             listener2.GetComponent<NetworkIdentity>().assetId = guid2;
-            listener3.GetComponent<NetworkIdentity>().assetId = guid3;
 
             int disableCalled1 = 0;
             int disableCalled2 = 0;
-            int disableCalled3 = 0;
 
             listener1.onDisableCalled += () => disableCalled1++;
             listener2.onDisableCalled += () => disableCalled2++;
-            listener3.onDisableCalled += () => disableCalled3++;
 
             NetworkClient.DestroyAllClientObjects();
 
             Assert.That(unspawnCalled1, Is.EqualTo(1));
             Assert.That(unspawnCalled2, Is.EqualTo(1));
-            Assert.That(unspawnCalled3, Is.EqualTo(1));
 
             Assert.That(disableCalled1, Is.EqualTo(0), "Object with UnspawnHandler should not be destroyed");
             Assert.That(disableCalled2, Is.EqualTo(0), "Object with UnspawnHandler should not be destroyed");
-            Assert.That(disableCalled3, Is.EqualTo(0), "Object with UnspawnHandler should not be destroyed");
         }
 
         [Test]
         public void ClearsSpawnedList()
         {
             // sceneId 0 is prefab
-            TestListenerBehaviour listener1 = CreateAndAddObject(30001, 0);
-            TestListenerBehaviour listener2 = CreateAndAddObject(30002, 0);
-            TestListenerBehaviour listener3 = CreateAndAddObject(30003, 0);
+            TestListenerBehaviour listener1 = CreateAndAddObject(0);
+            TestListenerBehaviour listener2 = CreateAndAddObject(0);
 
             NetworkClient.DestroyAllClientObjects();
 
-            Assert.That(spawned, Is.Empty);
+            Assert.That(NetworkClient.spawned, Is.Empty);
         }
 
         [Test]
         public void CatchesAndLogsExeptionWhenSpawnedListIsChanged()
         {
-            GameObject badGameObject = new GameObject("bad", typeof(NetworkIdentity), typeof(BadBehaviour));
-            NetworkIdentity netId = badGameObject.GetComponent<NetworkIdentity>();
-            const int id = 3535;
-            netId.netId = id;
-            spawned.Add(id, netId);
+            // create spawned (needs to be added to .spawned!)
+            CreateNetworkedAndSpawn(out GameObject badGameObject, out NetworkIdentity identity, out BadBehaviour bad);
 
             LogAssert.Expect(LogType.Exception, new Regex("InvalidOperationException"));
             LogAssert.Expect(LogType.Error, "Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");

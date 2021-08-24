@@ -76,20 +76,14 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static bool IsMultidimensionalArray(this TypeReference tr)
-        {
-            return tr is ArrayType arrayType && arrayType.Rank > 1;
-        }
+        public static bool IsMultidimensionalArray(this TypeReference tr) =>
+            tr is ArrayType arrayType && arrayType.Rank > 1;
 
-        /// <summary>
-        /// Does type use netId as backing field
-        /// </summary>
-        public static bool IsNetworkIdentityField(this TypeReference tr)
-        {
-            return tr.Is<UnityEngine.GameObject>()
-                || tr.Is<NetworkIdentity>()
-                || tr.IsDerivedFrom<NetworkBehaviour>();
-        }
+        // Does type use netId as backing field
+        public static bool IsNetworkIdentityField(this TypeReference tr) =>
+            tr.Is<UnityEngine.GameObject>() ||
+            tr.Is<NetworkIdentity>() ||
+            tr.IsDerivedFrom<NetworkBehaviour>();
 
         public static bool CanBeResolved(this TypeReference parent)
         {
@@ -118,31 +112,21 @@ namespace Mirror.Weaver
             return true;
         }
 
-        /// <summary>
-        /// Makes T => Variable and imports function
-        /// </summary>
-        /// <param name="generic"></param>
-        /// <param name="variableReference"></param>
-        /// <returns></returns>
-        public static MethodReference MakeGeneric(this MethodReference generic, TypeReference variableReference)
+        // Makes T => Variable and imports function
+        public static MethodReference MakeGeneric(this MethodReference generic, ModuleDefinition module, TypeReference variableReference)
         {
             GenericInstanceMethod instance = new GenericInstanceMethod(generic);
             instance.GenericArguments.Add(variableReference);
 
-            MethodReference readFunc = Weaver.CurrentAssembly.MainModule.ImportReference(instance);
+            MethodReference readFunc = module.ImportReference(instance);
             return readFunc;
         }
 
-        /// <summary>
-        /// Given a method of a generic class such as ArraySegment`T.get_Count,
-        /// and a generic instance such as ArraySegment`int
-        /// Creates a reference to the specialized method  ArraySegment`int`.get_Count
-        /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="instanceType"></param>
-        /// <returns></returns>
-        public static MethodReference MakeHostInstanceGeneric(this MethodReference self, GenericInstanceType instanceType)
+        // Given a method of a generic class such as ArraySegment`T.get_Count,
+        // and a generic instance such as ArraySegment`int
+        // Creates a reference to the specialized method  ArraySegment`int`.get_Count
+        // Note that calling ArraySegment`T.get_Count directly gives an invalid IL error
+        public static MethodReference MakeHostInstanceGeneric(this MethodReference self, ModuleDefinition module, GenericInstanceType instanceType)
         {
             MethodReference reference = new MethodReference(self.Name, self.ReturnType, instanceType)
             {
@@ -157,22 +141,17 @@ namespace Mirror.Weaver
             foreach (GenericParameter generic_parameter in self.GenericParameters)
                 reference.GenericParameters.Add(new GenericParameter(generic_parameter.Name, reference));
 
-            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+            return module.ImportReference(reference);
         }
 
-        /// <summary>
-        /// Given a field of a generic class such as Writer<T>.write,
-        /// and a generic instance such as ArraySegment`int
-        /// Creates a reference to the specialized method  ArraySegment`int`.get_Count
-        /// <para> Note that calling ArraySegment`T.get_Count directly gives an invalid IL error </para>
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="instanceType">Generic Instance e.g. Writer<int></param>
-        /// <returns></returns>
-        public static FieldReference SpecializeField(this FieldReference self, GenericInstanceType instanceType)
+        // Given a field of a generic class such as Writer<T>.write,
+        // and a generic instance such as ArraySegment`int
+        // Creates a reference to the specialized method  ArraySegment`int`.get_Count
+        // Note that calling ArraySegment`T.get_Count directly gives an invalid IL error
+        public static FieldReference SpecializeField(this FieldReference self, ModuleDefinition module, GenericInstanceType instanceType)
         {
             FieldReference reference = new FieldReference(self.Name, self.FieldType, instanceType);
-            return Weaver.CurrentAssembly.MainModule.ImportReference(reference);
+            return module.ImportReference(reference);
         }
 
         public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
@@ -229,21 +208,13 @@ namespace Mirror.Weaver
             return null;
         }
 
-        /// <summary>
-        /// Finds public fields in type and base type
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <returns></returns>
+        // Finds public fields in type and base type
         public static IEnumerable<FieldDefinition> FindAllPublicFields(this TypeReference variable)
         {
             return FindAllPublicFields(variable.Resolve());
         }
 
-        /// <summary>
-        /// Finds public fields in type and base type
-        /// </summary>
-        /// <param name="variable"></param>
-        /// <returns></returns>
+        // Finds public fields in type and base type
         public static IEnumerable<FieldDefinition> FindAllPublicFields(this TypeDefinition typeDefinition)
         {
             while (typeDefinition != null)
@@ -268,6 +239,21 @@ namespace Mirror.Weaver
                     break;
                 }
             }
+        }
+
+        public static bool ContainsClass(this ModuleDefinition module, string nameSpace, string className) =>
+            module.GetTypes().Any(td => td.Namespace == nameSpace &&
+                                  td.Name == className);
+
+
+        public static AssemblyNameReference FindReference(this ModuleDefinition module, string referenceName)
+        {
+            foreach (AssemblyNameReference reference in module.AssemblyReferences)
+            {
+                if (reference.Name == referenceName)
+                    return reference;
+            }
+            return null;
         }
     }
 }

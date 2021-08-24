@@ -112,20 +112,33 @@ namespace Mirror.Tests.SyncVarTests
 
     public class SyncVarHookTest : SyncVarTestBase
     {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            // start server & connect client because we need spawn functions
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+        }
+
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public void Hook_CalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out HookBehaviour serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out HookBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out HookBehaviour serverObject,
+                out _, out _, out HookBehaviour clientObject);
 
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
@@ -144,15 +157,18 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void Hook_NotCalledWhenSyncingSameValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out HookBehaviour serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out HookBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out HookBehaviour serverObject,
+                out _, out _, out HookBehaviour clientObject);
 
             const int clientValue = 16;
             const int serverValue = 16;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
@@ -169,15 +185,18 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void StaticMethod_HookCalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out StaticHookBehaviour serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out StaticHookBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out StaticHookBehaviour serverObject,
+                out _, out _, out StaticHookBehaviour clientObject);
 
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int hookcallCount = 0;
             StaticHookBehaviour.HookCalled += (oldValue, newValue) =>
             {
@@ -196,23 +215,26 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void GameObjectHook_HookCalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out GameObjectHookBehaviour serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out GameObjectHookBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out GameObjectHookBehaviour serverObject,
+                out _, out _, out GameObjectHookBehaviour clientObject);
 
-            GameObject clientValue = null;
-            CreateNetworked(out GameObject serverValue, out NetworkIdentity serverIdentity);
-            serverIdentity.netId = 2032;
-            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(
+                out GameObject serverValue, out _,
+                out GameObject clientValue, out _);
 
+            // change it on server
+            clientObject.value = null;
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
-                Assert.That(newValue, Is.EqualTo(serverValue));
+                Assert.That(oldValue, Is.EqualTo(null));
+                Assert.That(newValue, Is.EqualTo(clientValue));
             };
 
             bool written = SyncToClient(serverObject, clientObject, intialState);
@@ -225,23 +247,26 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void NetworkIdentityHook_HookCalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkIdentityHookBehaviour serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkIdentityHookBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out NetworkIdentityHookBehaviour serverObject,
+                out _, out _, out NetworkIdentityHookBehaviour clientObject);
 
-            NetworkIdentity clientValue = null;
-            CreateNetworked(out GameObject _, out NetworkIdentity serverValue);
-            serverValue.netId = 2033;
-            NetworkIdentity.spawned[serverValue.netId] = serverValue;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverValue,
+                out _, out NetworkIdentity clientValue);
 
+            // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
+            clientObject.value = null;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
-                Assert.That(newValue, Is.EqualTo(serverValue));
+                Assert.That(oldValue, Is.EqualTo(null));
+                Assert.That(newValue, Is.EqualTo(clientValue));
             };
 
             bool written = SyncToClient(serverObject, clientObject, intialState);
@@ -254,23 +279,26 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void NetworkBehaviourHook_HookCalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourHookBehaviour serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourHookBehaviour clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out NetworkBehaviourHookBehaviour serverObject,
+                out _, out _, out NetworkBehaviourHookBehaviour clientObject);
 
-            NetworkBehaviourHookBehaviour clientValue = null;
-            CreateNetworked(out GameObject _, out NetworkIdentity serverIdentity, out NetworkBehaviourHookBehaviour serverValue);
-            serverIdentity.netId = 2033;
-            NetworkIdentity.spawned[serverIdentity.netId] = serverIdentity;
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(
+                out _, out _, out NetworkBehaviourHookBehaviour serverValue,
+                out _, out _, out NetworkBehaviourHookBehaviour clientValue);
 
+            // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
+            clientObject.value = null;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
-                Assert.That(newValue, Is.EqualTo(serverValue));
+                Assert.That(oldValue, Is.EqualTo(null));
+                Assert.That(newValue, Is.EqualTo(clientValue));
             };
 
             bool written = SyncToClient(serverObject, clientObject, intialState);
@@ -283,15 +311,18 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void VirtualHook_HookCalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out VirtualHookBase serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out VirtualHookBase clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out VirtualHookBase serverObject,
+                out _, out _, out VirtualHookBase clientObject);
 
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int baseCallCount = 0;
             clientObject.BaseHookCalled += (oldValue, newValue) =>
             {
@@ -310,15 +341,18 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void VirtualOverrideHook_HookCalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out VirtualOverrideHook serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out VirtualOverrideHook clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out VirtualOverrideHook serverObject,
+                out _, out _, out VirtualOverrideHook clientObject);
 
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int overrideCallCount = 0;
             int baseCallCount = 0;
             clientObject.OverrideHookCalled += (oldValue, newValue) =>
@@ -343,15 +377,18 @@ namespace Mirror.Tests.SyncVarTests
         [TestCase(false)]
         public void AbstractHook_HookCalledWhenSyncingChangedValue(bool intialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out AbstractHook serverObject);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out AbstractHook clientObject);
+            CreateNetworkedAndSpawn(
+                out _, out _, out AbstractHook serverObject,
+                out _, out _, out AbstractHook clientObject);
 
             const int clientValue = 10;
             const int serverValue = 24;
 
+            // change it on server
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
+            // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {

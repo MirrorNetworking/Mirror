@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Mirror.RemoteCalls;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -995,43 +994,7 @@ namespace Mirror.Tests
         [Test, Ignore("NetworkServerTest.SendCommand does it already")]
         public void HandleCommand() {}
 
-        [Test]
-        public void HandleRpc()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out RpcTestNetworkBehaviour comp0);
-
-            // register the command delegate, otherwise it's not found
-            int registeredHash = RemoteCallHelper.RegisterDelegate(typeof(RpcTestNetworkBehaviour),
-                nameof(RpcTestNetworkBehaviour.RpcGenerated),
-                MirrorInvokeType.ClientRpc,
-                RpcTestNetworkBehaviour.RpcGenerated);
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
-
-            // call HandleRpc and check if the rpc was called in the component
-            int functionHash = RemoteCallHelper.GetMethodHash(typeof(RpcTestNetworkBehaviour), nameof(RpcTestNetworkBehaviour.RpcGenerated));
-            NetworkReader payload = new NetworkReader(new byte[0]);
-            identity.HandleRemoteCall(0, functionHash, MirrorInvokeType.ClientRpc, payload);
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // try wrong component index. rpc shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleRemoteCall(1, functionHash, MirrorInvokeType.ClientRpc, payload);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // try wrong function hash. rpc shouldn't be called again.
-            // warning is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.HandleRemoteCall(0, functionHash + 1, MirrorInvokeType.ClientRpc, payload);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(comp0.called, Is.EqualTo(1));
-
-            // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
-        }
+        [Test, Ignore("RpcTests do it already")]
+        public void HandleRpc() {}
     }
 }

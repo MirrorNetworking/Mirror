@@ -10,6 +10,16 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkWriterTest : MirrorEditModeTest
     {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            // start server & connect client because we need spawn functions
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+        }
+
         /* uncomment if needed. commented for faster test workflow. this takes >3s.
         [Test]
         public void Benchmark()
@@ -1041,32 +1051,19 @@ namespace Mirror.Tests
         [Test]
         public void TestNetworkBehaviour()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out RpcNetworkIdentityBehaviour behaviour);
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour behaviour);
 
-            const uint netId = 100;
-            identity.netId = netId;
-            NetworkIdentity.spawned[netId] = identity;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteNetworkBehaviour(behaviour);
 
-            try
-            {
-                NetworkWriter writer = new NetworkWriter();
-                writer.WriteNetworkBehaviour(behaviour);
+            byte[] bytes = writer.ToArray();
 
-                byte[] bytes = writer.ToArray();
+            Assert.That(bytes.Length, Is.EqualTo(5), "Networkbehaviour should be 5 bytes long.");
 
-                Assert.That(bytes.Length, Is.EqualTo(5), "Networkbehaviour should be 5 bytes long.");
-
-                NetworkReader reader = new NetworkReader(bytes);
-                RpcNetworkIdentityBehaviour actual = reader.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>();
-                Assert.That(actual, Is.EqualTo(behaviour), "Read should find the same behaviour as written");
-            }
-            // use finally so object is destroyed evne if tests fails
-            finally
-            {
-                // teardown
-                NetworkIdentity.spawned[netId] = null;
-                GameObject.DestroyImmediate(gameObject);
-            }
+            NetworkReader reader = new NetworkReader(bytes);
+            RpcNetworkIdentityBehaviour actual = reader.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>();
+            Assert.That(actual, Is.EqualTo(behaviour), "Read should find the same behaviour as written");
         }
 
         [Test]
@@ -1090,32 +1087,19 @@ namespace Mirror.Tests
         [Description("Uses Generic read function to check weaver correctly creates it")]
         public void TestNetworkBehaviourWeaverGenerated()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out RpcNetworkIdentityBehaviour behaviour);
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour behaviour);
 
-            const uint netId = 100;
-            identity.netId = netId;
-            NetworkIdentity.spawned[netId] = identity;
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(behaviour);
 
-            try
-            {
-                NetworkWriter writer = new NetworkWriter();
-                writer.Write(behaviour);
+            byte[] bytes = writer.ToArray();
 
-                byte[] bytes = writer.ToArray();
+            Assert.That(bytes.Length, Is.EqualTo(5), "Networkbehaviour should be 5 bytes long.");
 
-                Assert.That(bytes.Length, Is.EqualTo(5), "Networkbehaviour should be 5 bytes long.");
-
-                NetworkReader reader = new NetworkReader(bytes);
-                RpcNetworkIdentityBehaviour actual = reader.Read<RpcNetworkIdentityBehaviour>();
-                Assert.That(actual, Is.EqualTo(behaviour), "Read should find the same behaviour as written");
-            }
-            // use finally so object is destroyed evne if tests fails
-            finally
-            {
-                // teardown
-                NetworkIdentity.spawned.Remove(netId);
-                GameObject.DestroyImmediate(gameObject);
-            }
+            NetworkReader reader = new NetworkReader(bytes);
+            RpcNetworkIdentityBehaviour actual = reader.Read<RpcNetworkIdentityBehaviour>();
+            Assert.That(actual, Is.EqualTo(behaviour), "Read should find the same behaviour as written");
         }
     }
 }

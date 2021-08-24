@@ -25,7 +25,7 @@ namespace Mirror.Tests
             connectionA.isAuthenticated = true;
             connectionA.isReady = true;
             connectionA.identity = identityA;
-            NetworkIdentity.spawned[0xAA] = identityA;
+            NetworkServer.spawned[0xAA] = identityA;
 
             // B
             CreateNetworked(out gameObjectB, out identityB);
@@ -33,7 +33,7 @@ namespace Mirror.Tests
             connectionB.isAuthenticated = true;
             connectionB.isReady = true;
             connectionB.identity = identityB;
-            NetworkIdentity.spawned[0xBB] = identityB;
+            NetworkServer.spawned[0xBB] = identityB;
 
             // need to start server so that interest management works
             NetworkServer.Listen(10);

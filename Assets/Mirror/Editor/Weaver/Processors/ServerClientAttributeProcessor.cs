@@ -6,22 +6,22 @@ namespace Mirror.Weaver
 {
     static class ServerClientAttributeProcessor
     {
-        public static bool Process(TypeDefinition td)
+        public static bool Process(WeaverTypes weaverTypes, Logger Log, TypeDefinition td, ref bool WeavingFailed)
         {
             bool modified = false;
             foreach (MethodDefinition md in td.Methods)
             {
-                modified |= ProcessSiteMethod(md);
+                modified |= ProcessSiteMethod(weaverTypes, Log, md, ref WeavingFailed);
             }
 
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                modified |= Process(nested);
+                modified |= Process(weaverTypes, Log, nested, ref WeavingFailed);
             }
             return modified;
         }
 
-        static bool ProcessSiteMethod(MethodDefinition md)
+        static bool ProcessSiteMethod(WeaverTypes weaverTypes, Logger Log, MethodDefinition md, ref bool WeavingFailed)
         {
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
@@ -32,14 +32,15 @@ namespace Mirror.Weaver
             {
                 if (HasServerClientAttribute(md))
                 {
-                    Weaver.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
+                    Log.Error("Server or Client Attributes can't be added to abstract method. Server and Client Attributes are not inherited so they need to be applied to the override methods instead.", md);
+                    WeavingFailed = true;
                 }
                 return false;
             }
 
             if (md.Body != null && md.Body.Instructions != null)
             {
-                return ProcessMethodAttributes(md);
+                return ProcessMethodAttributes(weaverTypes, md);
             }
             return false;
         }
@@ -62,50 +63,50 @@ namespace Mirror.Weaver
             return false;
         }
 
-        public static bool ProcessMethodAttributes(MethodDefinition md)
+        public static bool ProcessMethodAttributes(WeaverTypes weaverTypes, MethodDefinition md)
         {
             if (md.HasCustomAttribute<ServerAttribute>())
-                InjectServerGuard(md, true);
+                InjectServerGuard(weaverTypes, md, true);
             else if (md.HasCustomAttribute<ServerCallbackAttribute>())
-                InjectServerGuard(md, false);
+                InjectServerGuard(weaverTypes, md, false);
             else if (md.HasCustomAttribute<ClientAttribute>())
-                InjectClientGuard(md, true);
+                InjectClientGuard(weaverTypes, md, true);
             else if (md.HasCustomAttribute<ClientCallbackAttribute>())
-                InjectClientGuard(md, false);
+                InjectClientGuard(weaverTypes, md, false);
             else
                 return false;
 
             return true;
         }
 
-        static void InjectServerGuard(MethodDefinition md, bool logWarning)
+        static void InjectServerGuard(WeaverTypes weaverTypes, MethodDefinition md, bool logWarning)
         {
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.NetworkServerGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, weaverTypes.NetworkServerGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, $"[Server] function '{md.FullName}' called when server was not active"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, weaverTypes.logWarningReference));
             }
             InjectGuardParameters(md, worker, top);
             InjectGuardReturnValue(md, worker, top);
             worker.InsertBefore(top, worker.Create(OpCodes.Ret));
         }
 
-        static void InjectClientGuard(MethodDefinition md, bool logWarning)
+        static void InjectClientGuard(WeaverTypes weaverTypes, MethodDefinition md, bool logWarning)
         {
             ILProcessor worker = md.Body.GetILProcessor();
             Instruction top = md.Body.Instructions[0];
 
-            worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.NetworkClientGetActive));
+            worker.InsertBefore(top, worker.Create(OpCodes.Call, weaverTypes.NetworkClientGetActive));
             worker.InsertBefore(top, worker.Create(OpCodes.Brtrue, top));
             if (logWarning)
             {
                 worker.InsertBefore(top, worker.Create(OpCodes.Ldstr, $"[Client] function '{md.FullName}' called when client was not active"));
-                worker.InsertBefore(top, worker.Create(OpCodes.Call, WeaverTypes.logWarningReference));
+                worker.InsertBefore(top, worker.Create(OpCodes.Call, weaverTypes.logWarningReference));
             }
 
             InjectGuardParameters(md, worker, top);

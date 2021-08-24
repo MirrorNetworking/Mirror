@@ -80,7 +80,7 @@ namespace Mirror
             Action<NetworkWriter, T> writeDelegate = Writer<T>.write;
             if (writeDelegate == null)
             {
-                Debug.LogError($"No writer found for {typeof(T)}. Use a type supported by Mirror or define a custom writer");
+                Debug.LogError($"No writer found for {typeof(T)}. This happens either if you are missing a NetworkWriter extension for your custom type, or if weaving failed. Try to reimport a script to weave again.");
             }
             else
             {
