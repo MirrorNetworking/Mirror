@@ -119,7 +119,7 @@ namespace Mirror.Weaver
             dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
             dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
 
-            if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray(), mirrorRuntimeDll))
+            if (!WeaveFromFile(assemblyPath, dependencyPaths.ToArray()))
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
@@ -149,7 +149,7 @@ namespace Mirror.Weaver
         }
         // helper function to invoke Weaver with an AssemblyDefinition from a
         // file path, with dependencies added.
-        static bool WeaveFromFile(string assemblyPath, string[] dependencies, string mirrorAssemblyPath)
+        static bool WeaveFromFile(string assemblyPath, string[] dependencies)
         {
             // open the assembly file as stream
             using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
