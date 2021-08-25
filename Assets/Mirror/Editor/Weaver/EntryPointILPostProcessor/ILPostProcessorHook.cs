@@ -124,7 +124,8 @@ namespace Mirror.Weaver
                 }
             }
 
-            // TODO needs modified assembly
+            // always return an ILPostProcessResult with Logs.
+            // otherwise we won't see Logs if weaving failed.
             return new ILPostProcessResult(compiledAssembly.InMemoryAssembly, Log.Logs);
         }
     }
