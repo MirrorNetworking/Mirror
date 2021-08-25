@@ -118,7 +118,6 @@ namespace Mirror.Weaver.Tests
                 // AssemblyBuilder doesn't invoke ILPostProcessor after build.
                 // we need to weave manually here in 2020+.
                 // -> we have the assemblyPath
-                // -> Weaver takes an AssemblyDefinition and resolver
                 // -> simply use the from-file Assembly + Resolver from before.
                 CompilationFinishedHook.OnCompilationFinished(assemblyPath, compilerMessages);
 #endif
