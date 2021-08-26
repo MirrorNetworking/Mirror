@@ -61,8 +61,8 @@ namespace Mirror.Weaver
 #endif
         }
 
-        static Assembly FindMirrorRuntime() =>
-            CompilationPipeline.GetAssemblies().First(assembly => assembly.name == MirrorRuntimeAssemblyName);
+        static Assembly FindCompilationPipelineAssembly(string assemblyName) =>
+            CompilationPipeline.GetAssemblies().First(assembly => assembly.name == assemblyName);
 
         static bool CompilerMessagesContainError(CompilerMessage[] messages) =>
             messages.Any(msg => msg.type == CompilerMessageType.Error);
@@ -90,7 +90,7 @@ namespace Mirror.Weaver
             }
 
             // find Mirror.dll
-            Assembly mirrorAssembly = FindMirrorRuntime();
+            Assembly mirrorAssembly = FindCompilationPipelineAssembly(MirrorRuntimeAssemblyName);
             if (mirrorAssembly == null)
             {
                 Debug.LogError("Failed to find Mirror runtime assembly");
