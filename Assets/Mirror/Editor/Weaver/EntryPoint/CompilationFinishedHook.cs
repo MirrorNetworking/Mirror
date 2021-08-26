@@ -134,13 +134,13 @@ namespace Mirror.Weaver
             {
                 Path.GetDirectoryName(assemblyPath)
             };
-            foreach (UnityAssembly unityAsm in CompilationPipeline.GetAssemblies())
+            foreach (Assembly assembly in CompilationPipeline.GetAssemblies())
             {
-                if (unityAsm.outputPath == assemblyPath)
+                if (assembly.outputPath == assemblyPath)
                 {
-                    foreach (string unityAsmRef in unityAsm.compiledAssemblyReferences)
+                    foreach (string reference in assembly.compiledAssemblyReferences)
                     {
-                        dependencyPaths.Add(Path.GetDirectoryName(unityAsmRef));
+                        dependencyPaths.Add(Path.GetDirectoryName(reference));
                     }
                 }
             }
