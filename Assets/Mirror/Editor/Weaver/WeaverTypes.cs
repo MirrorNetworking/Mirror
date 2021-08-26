@@ -1,6 +1,7 @@
 using System;
 using Mono.CecilX;
 using UnityEditor;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -54,6 +55,8 @@ namespace Mirror.Weaver
 
         // attributes
         public TypeDefinition initializeOnLoadMethodAttribute;
+        public TypeDefinition runtimeInitializeOnLoadMethodAttribute;
+
         AssemblyDefinition assembly;
 
         public TypeReference Import<T>() => Import(typeof(T));
@@ -146,6 +149,9 @@ namespace Mirror.Weaver
             // attributes
             TypeReference initializeOnLoadMethodAttributeRef = Import(typeof(InitializeOnLoadMethodAttribute));
             initializeOnLoadMethodAttribute = initializeOnLoadMethodAttributeRef.Resolve();
+
+            TypeReference runtimeInitializeOnLoadMethodAttributeRef = Import(typeof(RuntimeInitializeOnLoadMethodAttribute));
+            runtimeInitializeOnLoadMethodAttribute = runtimeInitializeOnLoadMethodAttributeRef.Resolve();
         }
     }
 }

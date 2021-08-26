@@ -139,15 +139,31 @@ namespace Mirror.Weaver
         }
 
         // helper function to add [RuntimeInitializeOnLoad] attribute to method
-        // TODO avoid reflection if possible
-        // reflection is used because according paul, 'weaving Mirror.dll caused
-        // unity to rebuild all dlls but in wrong order, which breaks rewired'
         static void AddRuntimeInitializeOnLoadAttribute(AssemblyDefinition assembly, WeaverTypes weaverTypes, MethodDefinition method)
         {
-            System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
-            CustomAttribute customAttributeRef = new CustomAttribute(assembly.MainModule.ImportReference(attributeconstructor));
-            customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
-            method.CustomAttributes.Add(customAttributeRef);
+            // previously we used reflection because according paul, 'weaving
+            // Mirror.dll caused unity to rebuild all dlls but in wrong order,
+            // which breaks rewired'
+            // -> it's not obvious why importing the attribute via reflection
+            //    is better than importing it via cecil.
+            // -> reflection adds an extra layer of magic to weaving
+            // for now, let's use only cecil.
+            //System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
+            //CustomAttribute customAttributeRef = new CustomAttribute(assembly.MainModule.ImportReference(attributeconstructor));
+            //customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
+            //method.CustomAttributes.Add(customAttributeRef);
+
+            // to add a CustomAttribute, we need the attribute's constructor.
+            // in this case, there are two: empty, and RuntimeInitializeOnLoadType.
+            // we want the last one, with the type parameter.
+            MethodDefinition ctor = weaverTypes.runtimeInitializeOnLoadMethodAttribute.GetConstructors().Last();
+            //MethodDefinition ctor = weaverTypes.runtimeInitializeOnLoadMethodAttribute.GetConstructors().First();
+            // using ctor directly throws: ArgumentException: Member 'System.Void UnityEditor.InitializeOnLoadMethodAttribute::.ctor()' is declared in another module and needs to be imported
+            // we need to import it first.
+            CustomAttribute attribute = new CustomAttribute(assembly.MainModule.ImportReference(ctor));
+            // add the RuntimeInitializeLoadType.BeforeSceneLoad argument to ctor
+            attribute.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
+            method.CustomAttributes.Add(attribute);
         }
 
         // helper function to add [InitializeOnLoad] attribute to method
