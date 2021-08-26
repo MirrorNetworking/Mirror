@@ -115,7 +115,7 @@ namespace Mirror.Weaver
                 return;
             }
 
-            HashSet<string> dependencyPaths = GetDependecyPaths(assemblyPath);
+            HashSet<string> dependencyPaths = GetDependencyPaths(assemblyPath);
             dependencyPaths.Add(Path.GetDirectoryName(mirrorRuntimeDll));
             dependencyPaths.Add(Path.GetDirectoryName(unityEngineCoreModuleDLL));
 
@@ -127,7 +127,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static HashSet<string> GetDependecyPaths(string assemblyPath)
+        static HashSet<string> GetDependencyPaths(string assemblyPath)
         {
             // build directory list for later asm/symbol resolving using CompilationPipeline refs
             HashSet<string> dependencyPaths = new HashSet<string>
