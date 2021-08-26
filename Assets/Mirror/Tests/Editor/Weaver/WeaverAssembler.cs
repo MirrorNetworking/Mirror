@@ -119,6 +119,7 @@ namespace Mirror.Weaver.Tests
                 // we need to weave manually here in 2020+.
                 // -> we have the assemblyPath
                 // -> simply use the from-file Assembly + Resolver from before.
+                // TODO if we drop 2019 support, then move CompilationFinishedHook into WeaverTests folder
                 CompilationFinishedHook.OnCompilationFinished(assemblyPath, compilerMessages);
 #endif
             };
