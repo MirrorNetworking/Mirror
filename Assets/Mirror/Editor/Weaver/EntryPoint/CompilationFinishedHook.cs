@@ -151,11 +151,9 @@ namespace Mirror.Weaver
         // file path, with dependencies added.
         static bool WeaveFromFile(string assemblyPath, string[] dependencies)
         {
-            // open the assembly file as stream
-            using (FileStream stream = new FileStream(assemblyPath, FileMode.Open, FileAccess.ReadWrite))
             // resolve assembly from stream
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
-            using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(stream, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
+            using (AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly(assemblyPath, new ReaderParameters{ ReadWrite = true, ReadSymbols = true, AssemblyResolver = asmResolver }))
             {
                 // add this assembly's path and unity's assembly path
                 asmResolver.AddSearchDirectory(Path.GetDirectoryName(assemblyPath));
