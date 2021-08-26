@@ -1,5 +1,6 @@
 using System;
 using Mono.CecilX;
+using UnityEditor;
 
 namespace Mirror.Weaver
 {
@@ -51,6 +52,8 @@ namespace Mirror.Weaver
 
         public MethodReference readNetworkBehaviourGeneric;
 
+        // attributes
+        public TypeDefinition initializeOnLoadMethodAttribute;
         AssemblyDefinition assembly;
 
         public TypeReference Import<T>() => Import(typeof(T));
@@ -139,6 +142,10 @@ namespace Mirror.Weaver
                        md.HasGenericParameters;
             }),
             ref WeavingFailed);
+
+            // attributes
+            TypeReference initializeOnLoadMethodAttributeRef = Import(typeof(InitializeOnLoadMethodAttribute));
+            initializeOnLoadMethodAttribute = initializeOnLoadMethodAttributeRef.Resolve();
         }
     }
 }
