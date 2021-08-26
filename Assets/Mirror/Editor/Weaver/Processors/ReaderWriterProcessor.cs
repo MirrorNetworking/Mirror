@@ -141,17 +141,11 @@ namespace Mirror.Weaver
         // helper function to add [RuntimeInitializeOnLoad] attribute to method
         static void AddRuntimeInitializeOnLoadAttribute(AssemblyDefinition assembly, WeaverTypes weaverTypes, MethodDefinition method)
         {
-            // previously we used reflection because according paul, 'weaving
-            // Mirror.dll caused unity to rebuild all dlls but in wrong order,
-            // which breaks rewired'
-            // -> it's not obvious why importing the attribute via reflection
-            //    is better than importing it via cecil.
-            // -> reflection adds an extra layer of magic to weaving
-            // for now, let's use only cecil.
-            //System.Reflection.ConstructorInfo attributeconstructor = typeof(RuntimeInitializeOnLoadMethodAttribute).GetConstructor(new[] { typeof(RuntimeInitializeLoadType) });
-            //CustomAttribute customAttributeRef = new CustomAttribute(assembly.MainModule.ImportReference(attributeconstructor));
-            //customAttributeRef.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
-            //method.CustomAttributes.Add(customAttributeRef);
+            // NOTE: previously we used reflection because according paul,
+            // 'weaving Mirror.dll caused unity to rebuild all dlls but in wrong
+            //  order, which breaks rewired'
+            // it's not obvious why importing an attribute via reflection instead
+            // of cecil would break anything. let's use cecil.
 
             // to add a CustomAttribute, we need the attribute's constructor.
             // in this case, there are two: empty, and RuntimeInitializeOnLoadType.
@@ -170,16 +164,11 @@ namespace Mirror.Weaver
         // (only works in Editor assemblies. check IsEditorAssembly first.)
         static void AddInitializeOnLoadAttribute(AssemblyDefinition assembly, WeaverTypes weaverTypes, MethodDefinition method)
         {
-            // previously we used reflection because according paul, 'weaving
-            // Mirror.dll caused unity to rebuild all dlls but in wrong order,
-            // which breaks rewired'
-            // -> it's not obvious why importing the attribute via reflection
-            //    is better than importing it via cecil.
-            // -> reflection adds an extra layer of magic to weaving
-            // for now, let's use only cecil.
-            //System.Reflection.ConstructorInfo initializeOnLoadConstructor = typeof(InitializeOnLoadMethodAttribute).GetConstructor(new Type[0]);
-            //CustomAttribute initializeCustomConstructorRef = new CustomAttribute(assembly.MainModule.ImportReference(initializeOnLoadConstructor));
-            //method.CustomAttributes.Add(initializeCustomConstructorRef);
+            // NOTE: previously we used reflection because according paul,
+            // 'weaving Mirror.dll caused unity to rebuild all dlls but in wrong
+            //  order, which breaks rewired'
+            // it's not obvious why importing an attribute via reflection instead
+            // of cecil would break anything. let's use cecil.
 
             // to add a CustomAttribute, we need the attribute's constructor.
             // in this case, there's only one - and it's an empty constructor.
