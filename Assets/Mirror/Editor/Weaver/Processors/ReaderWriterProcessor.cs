@@ -1,6 +1,5 @@
 // finds all readers and writers and register them
 using System;
-using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 using UnityEditor;
@@ -139,15 +138,6 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        static bool IsEditorAssembly(AssemblyDefinition currentAssembly)
-        {
-            // we want to add the [InitializeOnLoad] attribute if it's available
-            // -> usually either 'UnityEditor' or 'UnityEditor.CoreModule'
-            return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
-                assemblyReference.Name.StartsWith(nameof(UnityEditor))
-            );
-        }
-
         // helper function to add [RuntimeInitializeOnLoad] attribute to method
         // TODO avoid reflection if possible
         // reflection is used because according paul, 'weaving Mirror.dll caused
@@ -189,7 +179,7 @@ namespace Mirror.Weaver
             AddRuntimeInitializeOnLoadAttribute(currentAssembly, weaverTypes, initReadWriters);
 
             // add [InitializeOnLoad] if UnityEditor is referenced
-            if (IsEditorAssembly(currentAssembly))
+            if (Helpers.IsEditorAssembly(currentAssembly))
             {
                 AddInitializeOnLoadAttribute(currentAssembly, initReadWriters);
             }
