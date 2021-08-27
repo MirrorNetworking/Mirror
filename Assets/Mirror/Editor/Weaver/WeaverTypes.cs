@@ -1,5 +1,7 @@
 using System;
 using Mono.CecilX;
+using UnityEditor;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -50,6 +52,10 @@ namespace Mirror.Weaver
         public MethodReference sendTargetRpcInternal;
 
         public MethodReference readNetworkBehaviourGeneric;
+
+        // attributes
+        public TypeDefinition initializeOnLoadMethodAttribute;
+        public TypeDefinition runtimeInitializeOnLoadMethodAttribute;
 
         AssemblyDefinition assembly;
 
@@ -139,6 +145,19 @@ namespace Mirror.Weaver
                        md.HasGenericParameters;
             }),
             ref WeavingFailed);
+
+            // [InitializeOnLoadMethod]
+            // 'UnityEditor' is not available in builds.
+            // we can only import this attribute if we are in an Editor assembly.
+            if (Helpers.IsEditorAssembly(assembly))
+            {
+                TypeReference initializeOnLoadMethodAttributeRef = Import(typeof(InitializeOnLoadMethodAttribute));
+                initializeOnLoadMethodAttribute = initializeOnLoadMethodAttributeRef.Resolve();
+            }
+
+            // [RuntimeInitializeOnLoadMethod]
+            TypeReference runtimeInitializeOnLoadMethodAttributeRef = Import(typeof(RuntimeInitializeOnLoadMethodAttribute));
+            runtimeInitializeOnLoadMethodAttribute = runtimeInitializeOnLoadMethodAttributeRef.Resolve();
         }
     }
 }
