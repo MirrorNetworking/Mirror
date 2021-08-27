@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -108,21 +109,18 @@ namespace Mirror.Weaver.Tests
             try
             {
                 File.Delete(projPathFile);
-
             }
             catch {}
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".pdb"));
-
             }
             catch {}
 
             try
             {
                 File.Delete(Path.ChangeExtension(projPathFile, ".dll.mdb"));
-
             }
             catch {}
         }
@@ -161,7 +159,7 @@ namespace Mirror.Weaver.Tests
                 {
                     if (cm.type == CompilerMessageType.Error)
                     {
-                        Debug.LogErrorFormat("{0}:{1} -- {2}", cm.file, cm.line, cm.message);
+                        Debug.LogError($"{cm.file}:{cm.line} -- {cm.message}");
                         CompilerErrors = true;
                     }
                 }
@@ -170,13 +168,13 @@ namespace Mirror.Weaver.Tests
             // Start build of assembly
             if (!assemblyBuilder.Build())
             {
-                Debug.LogErrorFormat("Failed to start build of assembly {0}", assemblyBuilder.assemblyPath);
+                Debug.LogError($"Failed to start build of assembly {assemblyBuilder.assemblyPath}");
                 return;
             }
 
             while (assemblyBuilder.status != AssemblyBuilderStatus.Finished)
             {
-                System.Threading.Thread.Sleep(10);
+                Thread.Sleep(10);
             }
         }
     }

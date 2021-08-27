@@ -324,10 +324,15 @@ namespace Mirror
             if (netId == 0)
                 return null;
 
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity;
-            }
+            // look in server spawned
+            if (NetworkServer.active &&
+                NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity serverIdentity))
+                return serverIdentity;
+
+            // look in client spawned
+            if (NetworkClient.active &&
+                NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity clientIdentity))
+                return clientIdentity;
 
             // a netId not being in spawned is common.
             // for example, "[SyncVar] NetworkIdentity target" netId would not
@@ -338,23 +343,19 @@ namespace Mirror
 
         public static NetworkBehaviour ReadNetworkBehaviour(this NetworkReader reader)
         {
-            uint netId = reader.ReadUInt();
-            if (netId == 0)
-                return null;
-
-            // if netId is not 0, then index is also sent to read before returning
-            byte componentIndex = reader.ReadByte();
-
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.NetworkBehaviours[componentIndex];
-            }
+            // reuse ReadNetworkIdentity, get the component at index
+            NetworkIdentity identity = ReadNetworkIdentity(reader);
 
             // a netId not being in spawned is common.
             // for example, "[SyncVar] NetworkBehaviour target" netId would not
             // be known on client if the monster walks out of proximity for a
             // moment. no need to log any error or warning here.
-            return null;
+            if (identity == null)
+                return null;
+
+            // if identity isn't null, then index is also sent to read before returning
+            byte componentIndex = reader.ReadByte();
+            return identity.NetworkBehaviours[componentIndex];
         }
 
         public static T ReadNetworkBehaviour<T>(this NetworkReader reader) where T : NetworkBehaviour

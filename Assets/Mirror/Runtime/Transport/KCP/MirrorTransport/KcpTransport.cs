@@ -7,6 +7,7 @@ using Mirror;
 
 namespace kcp2k
 {
+    [HelpURL("https://mirror-networking.gitbook.io/docs/transports/kcp-transport")]
     [DisallowMultipleComponent]
     public class KcpTransport : Transport
     {
@@ -272,6 +273,8 @@ namespace kcp2k
             return $"{(bytes / (1024f * 1024f * 1024f)):F2} GB";
         }
 
+// OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         void OnGUI()
         {
             if (!statisticsGUI) return;
@@ -307,6 +310,7 @@ namespace kcp2k
 
             GUILayout.EndArea();
         }
+#endif
 
         void OnLogStatistics()
         {

@@ -672,6 +672,10 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarGameObjectOnClient()
         {
+            // start server & connect client because we need spawn functions
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             // are we on client and not on server?
@@ -681,24 +685,22 @@ namespace Mirror.Tests
             // create a networked object with test component
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
-            // create a syncable GameObject
-            CreateNetworked(out GameObject go, out NetworkIdentity ni);
-            ni.netId = 43;
-
-            // register in spawned dict because clients should look it up via
-            // netId
-            NetworkIdentity.spawned[ni.netId] = ni;
+            // create a spawned, syncable GameObject
+            // (client tries to look up via netid, so needs to be spawned)
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity,
+                out GameObject clientGO, out NetworkIdentity clientIdentity);
 
             // assign ONLY netId in the component. assume that GameObject was
             // assigned earlier but client walked so far out of range that it
             // was despawned on the client. so it's forced to do the netId look-
             // up.
             Assert.That(comp.test, Is.Null);
-            comp.testNetId = ni.netId;
+            comp.testNetId = clientIdentity.netId;
 
             // get it on the client. should look up netId in spawned
             GameObject result = comp.GetSyncVarGameObjectExposed();
-            Assert.That(result, Is.EqualTo(go));
+            Assert.That(result, Is.EqualTo(clientGO));
         }
 
         [Test]
@@ -828,30 +830,32 @@ namespace Mirror.Tests
         [Test]
         public void GetSyncVarNetworkIdentityOnClient()
         {
+            // start server & connect client because we need spawn functions
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
 
             // are we on client and not on server?
             identity.isClient = true;
             Assert.That(identity.isServer, Is.False);
 
-            // create a syncable GameObject
-            CreateNetworked(out GameObject _, out NetworkIdentity ni);
-            ni.netId = 43;
-
-            // register in spawned dict because clients should look it up via
-            // netId
-            NetworkIdentity.spawned[ni.netId] = ni;
+            // create a spawned, syncable GameObject
+            // (client tries to look up via netid, so needs to be spawned)
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity,
+                out _, out NetworkIdentity clientIdentity);
 
             // assign ONLY netId in the component. assume that GameObject was
             // assigned earlier but client walked so far out of range that it
             // was despawned on the client. so it's forced to do the netId look-
             // up.
             Assert.That(comp.test, Is.Null);
-            comp.testNetId = ni.netId;
+            comp.testNetId = clientIdentity.netId;
 
             // get it on the client. should look up netId in spawned
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();
-            Assert.That(result, Is.EqualTo(ni));
+            Assert.That(result, Is.EqualTo(clientIdentity));
         }
 
         [Test]

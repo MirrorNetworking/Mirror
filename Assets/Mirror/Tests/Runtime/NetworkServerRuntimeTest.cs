@@ -14,31 +14,20 @@ namespace Mirror.Tests.Runtime
         {
             yield return base.UnitySetUp();
 
-            // start server and wait 1 frame
+            // start server & client and wait 1 frame
             NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
             yield return null;
-        }
-
-        [UnityTearDown]
-        public override IEnumerator UnityTearDown()
-        {
-            yield return base.UnityTearDown();
         }
 
         [UnityTest]
         public IEnumerator DestroyPlayerForConnectionTest()
         {
-            GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
-            NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
+            // create spawned player
+            CreateNetworkedAndSpawnPlayer(out GameObject player, out _, NetworkServer.localConnection);
 
-            NetworkServer.AddPlayerForConnection(conn, player);
-
-            // allow 1 frame to spawn object
-            yield return null;
-
-            NetworkServer.DestroyPlayerForConnection(conn);
-
-            // allow 1 frame to unspawn object and for unity to destroy object
+            // destroy player for connection, wait 1 frame to unspawn and destroy
+            NetworkServer.DestroyPlayerForConnection(NetworkServer.localConnection);
             yield return null;
 
             Assert.That(player == null, "Player should be destroyed with DestroyPlayerForConnection");
@@ -47,25 +36,19 @@ namespace Mirror.Tests.Runtime
         [UnityTest]
         public IEnumerator RemovePlayerForConnectionTest()
         {
-            GameObject player = new GameObject("testPlayer", typeof(NetworkIdentity));
-            NetworkConnectionToClient conn = new NetworkConnectionToClient(1);
+            // create spawned player
+            CreateNetworkedAndSpawnPlayer(out GameObject player, out _, NetworkServer.localConnection);
 
-            NetworkServer.AddPlayerForConnection(conn, player);
-
-            // allow 1 frame to spawn object
-            yield return null;
-
-            NetworkServer.RemovePlayerForConnection(conn, false);
-
-            // allow 1 frame to unspawn object
+            // remove player for connection, wait 1 frame to unspawn
+            NetworkServer.RemovePlayerForConnection(NetworkServer.localConnection, false);
             yield return null;
 
             Assert.That(player, Is.Not.Null, "Player should be not be destroyed");
-            Assert.That(conn.identity == null, "identity should be null");
+            Assert.That(NetworkServer.localConnection.identity == null, "identity should be null");
 
             // respawn player
-            NetworkServer.AddPlayerForConnection(conn, player);
-            Assert.That(conn.identity != null, "identity should not be null");
+            NetworkServer.AddPlayerForConnection(NetworkServer.localConnection, player);
+            Assert.That(NetworkServer.localConnection.identity != null, "identity should not be null");
         }
 
         [UnityTest]
@@ -77,14 +60,11 @@ namespace Mirror.Tests.Runtime
             const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(ValidPrefabAssetGuid));
 
-            NetworkIdentity identity1 = spawnPrefab(prefab);
-            NetworkIdentity identity2 = spawnPrefab(prefab);
+            NetworkIdentity identity1 = SpawnPrefab(prefab);
+            NetworkIdentity identity2 = SpawnPrefab(prefab);
 
-
-            // test
+            // shutdown, wait 1 frame for unity to destroy objects
             NetworkServer.Shutdown();
-
-            // wait 1 frame for unity to destroy objects
             yield return null;
 
             // check that objects were destroyed
@@ -92,15 +72,15 @@ namespace Mirror.Tests.Runtime
             Assert.IsTrue(identity1 == null);
             Assert.IsTrue(identity2 == null);
 
-            Assert.That(NetworkIdentity.spawned, Is.Empty);
+            Assert.That(NetworkServer.spawned, Is.Empty);
         }
 
-        static NetworkIdentity spawnPrefab(GameObject prefab)
+        NetworkIdentity SpawnPrefab(GameObject prefab)
         {
             GameObject clone1 = GameObject.Instantiate(prefab);
             NetworkServer.Spawn(clone1);
             NetworkIdentity identity1 = clone1.GetComponent<NetworkIdentity>();
-            Assert.IsTrue(NetworkIdentity.spawned.ContainsValue(identity1));
+            Assert.IsTrue(NetworkServer.spawned.ContainsValue(identity1));
             return identity1;
         }
 
@@ -110,9 +90,11 @@ namespace Mirror.Tests.Runtime
             // setup
             NetworkServer.Listen(1);
 
-            NetworkIdentity identity1 = spawnSceneObject("test 1");
-            NetworkIdentity identity2 = spawnSceneObject("test 2");
-
+            // spawn two scene objects
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity1);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity2);
+            identity1.sceneId = (ulong)identity1.GetHashCode();
+            identity2.sceneId = (ulong)identity2.GetHashCode();
 
             // test
             NetworkServer.Shutdown();
@@ -124,23 +106,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsFalse(identity1.gameObject.activeSelf);
             Assert.IsFalse(identity1.gameObject.activeSelf);
 
-            Assert.That(NetworkIdentity.spawned, Is.Empty);
-
-            // cleanup
-            GameObject.DestroyImmediate(identity1.gameObject);
-            GameObject.DestroyImmediate(identity2.gameObject);
-        }
-
-        static NetworkIdentity spawnSceneObject(string Name)
-        {
-            GameObject obj = new GameObject(Name, typeof(NetworkIdentity));
-            NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
-            obj.SetActive(false);
-            if (identity.sceneId == 0) { identity.sceneId = (ulong)obj.GetHashCode(); }
-            NetworkServer.Spawn(obj);
-
-            Assert.IsTrue(NetworkIdentity.spawned.ContainsValue(identity));
-            return identity;
+            Assert.That(NetworkServer.spawned, Is.Empty);
         }
     }
 }

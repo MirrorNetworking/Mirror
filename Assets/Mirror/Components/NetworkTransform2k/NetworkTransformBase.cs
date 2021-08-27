@@ -453,12 +453,20 @@ namespace Mirror
             // make sure that catchup threshold is > buffer multiplier.
             // for a buffer multiplier of '3', we usually have at _least_ 3
             // buffered snapshots. often 4-5 even.
-            catchupThreshold = Mathf.Max(bufferTimeMultiplier + 1, catchupThreshold);
+            //
+            // catchUpThreshold should be a minimum of bufferTimeMultiplier + 3, 
+            // to prevent clashes with SnapshotInterpolation looking for at least 
+            // 3 old enough buffers, else catch up will be implemented while there 
+            // is not enough old buffers, and will result in jitter. 
+            // (validated with several real world tests by ninja & imer)
+            catchupThreshold = Mathf.Max(bufferTimeMultiplier + 3, catchupThreshold);
 
             // buffer limit should be at least multiplier to have enough in there
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
 
+// OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
         {
@@ -529,10 +537,13 @@ namespace Mirror
 
         protected virtual void OnDrawGizmos()
         {
+            // This fires in edit mode but that spams NRE's so check isPlaying
+            if (!Application.isPlaying) return;
             if (!showGizmos) return;
 
             if (isServer) DrawGizmos(serverBuffer);
             if (isClient) DrawGizmos(clientBuffer);
         }
+#endif
     }
 }

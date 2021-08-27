@@ -6,37 +6,20 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 {
     public class ClientSceneTests_Runtime_RegisterPrefab : ClientSceneTests_RegisterPrefabBase
     {
-        /// <summary>
-        /// Create scene objects, must be done at runtime so that sceneId isn't set when assetId.get is called
-        /// </summary>
-        /// <param name="runtimeObject"></param>
-        /// <param name="networkIdentity"></param>
-        protected static void CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity)
-        {
-            runtimeObject = new GameObject("Runtime GameObject");
-            networkIdentity = runtimeObject.AddComponent<NetworkIdentity>();
-            // set sceneId to zero as it is set in onvalidate (does not set id at runtime)
-            networkIdentity.sceneId = 0;
-        }
-
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnDelegate_NewAssetId)]
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
         public void Handler_AddsSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
+            // create a scene object
+            CreateNetworked(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
             Debug.Assert(networkIdentity.sceneId == 0, "SceneId was not set to 0");
             Debug.Assert(runtimeObject.GetComponent<NetworkIdentity>().sceneId == 0, "SceneId was not set to 0");
 
             //test
             CallRegisterPrefab(runtimeObject, overload);
-
             Assert.IsTrue(NetworkClient.spawnHandlers.ContainsKey(anotherGuid));
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
         }
 
         [Test]
@@ -45,8 +28,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate)]
         public void ErrorForEmptyGuid(RegisterPrefabOverload overload)
         {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
+            // create a scene object
+            CreateNetworked(out GameObject runtimeObject, out _);
 
             //test
             string msg = OverloadWithHandler(overload)
@@ -55,17 +38,14 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
             LogAssert.Expect(LogType.Error, msg);
             CallRegisterPrefab(runtimeObject, overload);
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
         }
 
         [Test]
         [TestCase(RegisterPrefabOverload.Prefab_NewAssetId)]
         public void PrefabNewGuid_AddsRuntimeObjectToDictionary(RegisterPrefabOverload overload)
         {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
+            // create a scene object
+            CreateNetworked(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
 
             //test
             CallRegisterPrefab(runtimeObject, overload);
@@ -74,9 +54,6 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             Assert.AreEqual(NetworkClient.prefabs[anotherGuid], runtimeObject);
 
             Assert.AreEqual(networkIdentity.assetId, anotherGuid);
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
         }
 
         [Test]
@@ -84,16 +61,12 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         [TestCase(RegisterPrefabOverload.Prefab_SpawnHandlerDelegate_NewAssetId)]
         public void Handler_AddsUnSpawnHandlerToDictionaryForRuntimeObject(RegisterPrefabOverload overload)
         {
-            // setup
-            CreateSceneObject(out GameObject runtimeObject, out NetworkIdentity networkIdentity);
+            // create a scene object
+            CreateNetworked(out GameObject runtimeObject, out _);
 
             //test
             CallRegisterPrefab(runtimeObject, overload);
-
             Assert.IsTrue(NetworkClient.unspawnHandlers.ContainsKey(anotherGuid));
-
-            // teardown
-            GameObject.DestroyImmediate(runtimeObject);
         }
     }
 }

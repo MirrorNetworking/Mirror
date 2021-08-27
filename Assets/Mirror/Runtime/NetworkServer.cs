@@ -26,6 +26,11 @@ namespace Mirror
         internal static Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
+        /// <summary>All spawned NetworkIdentities by netId.</summary>
+        // server sees ALL spawned ones.
+        public static readonly Dictionary<uint, NetworkIdentity> spawned =
+            new Dictionary<uint, NetworkIdentity>();
+
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
@@ -88,7 +93,7 @@ namespace Mirror
         // client doesn't get spawn messages for those, so need to call manually.
         public static void ActivateHostScene()
         {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 if (!identity.isClient)
                 {
@@ -115,7 +120,7 @@ namespace Mirror
             if (!dontListen)
             {
                 Transport.activeTransport.ServerStart();
-                Debug.Log("Server started listening");
+                //Debug.Log("Server started listening");
             }
 
             active = true;
@@ -123,12 +128,12 @@ namespace Mirror
         }
 
         // Note: NetworkClient.DestroyAllClientObjects does the same on client.
-        static void CleanupNetworkIdentities()
+        static void CleanupSpawned()
         {
-            // iterate a COPY of NetworkIdentity.spawned.
+            // iterate a COPY of spawned.
             // DestroyObject removes them from the original collection.
             // removing while iterating is not allowed.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values.ToList())
+            foreach (NetworkIdentity identity in spawned.Values.ToList())
             {
                 if (identity != null)
                 {
@@ -150,7 +155,7 @@ namespace Mirror
                 }
             }
 
-            NetworkIdentity.spawned.Clear();
+            spawned.Clear();
         }
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
@@ -176,7 +181,7 @@ namespace Mirror
             active = false;
             handlers.Clear();
 
-            CleanupNetworkIdentities();
+            CleanupSpawned();
             NetworkIdentity.ResetNextNetworkId();
 
             // clear events. someone might have hooked into them before, but
@@ -858,7 +863,7 @@ namespace Mirror
         // players on a single client
         static void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
         {
-            if (!NetworkIdentity.spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
                 Debug.LogWarning("Spawned object not found when handling Command message [netId=" + msg.netId + "]");
                 return;
@@ -893,12 +898,12 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, out int ownerWritten, observersWriter, out int observersWritten);
+            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // convert to ArraySegment to avoid reader allocations
-            // (need to handle null case too)
-            ArraySegment<byte> ownerSegment = ownerWritten > 0 ? ownerWriter.ToArraySegment() : default;
-            ArraySegment<byte> observersSegment = observersWritten > 0 ? observersWriter.ToArraySegment() : default;
+            // if nothing was written, .ToArraySegment returns an empty segment.
+            ArraySegment<byte> ownerSegment = ownerWriter.ToArraySegment();
+            ArraySegment<byte> observersSegment = observersWriter.ToArraySegment();
 
             // use owner segment if 'conn' owns this identity, otherwise
             // use observers segment
@@ -929,7 +934,7 @@ namespace Mirror
                     position = identity.transform.localPosition,
                     rotation = identity.transform.localRotation,
                     scale = identity.transform.localScale,
-                    payload = payload,
+                    payload = payload
                 };
                 conn.Send(message);
             }
@@ -1103,7 +1108,7 @@ namespace Mirror
 
         static void SpawnObserversForConnection(NetworkConnection conn)
         {
-            // Debug.Log("Spawning " + NetworkIdentity.spawned.Count + " objects for conn " + conn);
+            // Debug.Log("Spawning " + spawned.Count + " objects for conn " + conn);
 
             if (!conn.isReady)
             {
@@ -1117,7 +1122,7 @@ namespace Mirror
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 // try with far away ones in ummorpg!
                 if (identity.gameObject.activeSelf) //TODO this is different
@@ -1225,7 +1230,7 @@ namespace Mirror
                 }
             }
             // Debug.Log("DestroyObject instance:" + identity.netId);
-            NetworkIdentity.spawned.Remove(identity.netId);
+            spawned.Remove(identity.netId);
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
@@ -1490,14 +1495,14 @@ namespace Mirror
             if (owned)
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.ownerWritten > 0)
+                if (serialization.ownerWriter.Position > 0)
                     return serialization.ownerWriter;
             }
             // observers writer if not owned
             else
             {
                 // was it dirty / did we actually serialize anything?
-                if (serialization.observersWritten > 0)
+                if (serialization.observersWriter.Position > 0)
                     return serialization.observersWriter;
             }
 
@@ -1515,7 +1520,7 @@ namespace Mirror
             //   clear dirty bits if it has no observers.
             //   we did this before push->pull broadcasting so let's keep
             //   doing this for now.
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity identity in spawned.Values)
             {
                 if (identity.observers == null || identity.observers.Count == 0)
                 {

@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 namespace Mirror.Examples.MultipleMatch
 {
-#pragma warning disable 618
-    [RequireComponent(typeof(NetworkMatchChecker))]
-#pragma warning restore 618
+    [RequireComponent(typeof(NetworkMatch))]
     public class MatchController : NetworkBehaviour
     {
         internal readonly SyncDictionary<NetworkIdentity, MatchPlayerData> matchPlayerData = new SyncDictionary<NetworkIdentity, MatchPlayerData>();
