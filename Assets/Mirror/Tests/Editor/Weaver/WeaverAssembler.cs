@@ -23,7 +23,6 @@ namespace Mirror.Weaver.Tests
         }
         public static string OutputFile;
         public static HashSet<string> SourceFiles { get; private set; }
-        public static HashSet<string> ReferenceAssemblies { get; private set; }
         public static bool AllowUnsafe;
         public static List<CompilerMessage> CompilerMessages { get; private set; }
         public static bool CompilerErrors { get; private set; }
@@ -33,7 +32,6 @@ namespace Mirror.Weaver.Tests
         static WeaverAssembler()
         {
             SourceFiles = new HashSet<string>();
-            ReferenceAssemblies = new HashSet<string>();
             CompilerMessages = new List<CompilerMessage>();
         }
 
@@ -44,55 +42,6 @@ namespace Mirror.Weaver.Tests
             {
                 SourceFiles.Add(Path.Combine(OutputDirectory, src));
             }
-        }
-
-        // Add a range of reference files by full path
-        public static void AddReferencesByFullPath(string[] refAsms)
-        {
-            foreach (string asm in refAsms)
-            {
-                ReferenceAssemblies.Add(asm);
-            }
-        }
-
-        // Add a range of reference files by assembly name only
-        public static void AddReferencesByAssemblyName(string[] refAsms)
-        {
-            foreach (string asm in refAsms)
-            {
-                if (FindReferenceAssemblyPath(asm, out string asmFullPath))
-                {
-                    ReferenceAssemblies.Add(asmFullPath);
-                }
-            }
-        }
-
-        // Find reference assembly specified by asmName and store its full path in asmFullPath
-        // do not pass in paths in asmName, just assembly names
-        public static bool FindReferenceAssemblyPath(string asmName, out string asmFullPath)
-        {
-            asmFullPath = "";
-
-            Assembly[] asms = CompilationPipeline.GetAssemblies();
-            foreach (Assembly asm in asms)
-            {
-                foreach (string asmRef in asm.compiledAssemblyReferences)
-                {
-                    if (asmRef.EndsWith(asmName))
-                    {
-                        asmFullPath = asmRef;
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        // Add reference (not cleared during calls to Clear)
-        public static void ClearReferences()
-        {
-            ReferenceAssemblies.Clear();
         }
 
         // Delete output dll / pdb / mdb
@@ -145,7 +94,8 @@ namespace Mirror.Weaver.Tests
         {
             AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray())
             {
-                additionalReferences = ReferenceAssemblies.ToArray()
+                // "The type 'MonoBehaviour' is defined in an assembly that is not referenced"
+                referencesOptions = ReferencesOptions.UseEngineModules
             };
             if (AllowUnsafe)
             {
