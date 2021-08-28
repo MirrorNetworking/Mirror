@@ -101,7 +101,7 @@ namespace Mirror.Weaver
                                 if (asmDef.MainModule.AssemblyReferences.Any(r => r.Name == asmDef.Name.Name))
                                 {
                                     asmDef.MainModule.AssemblyReferences.Remove(asmDef.MainModule.AssemblyReferences.First(r => r.Name == asmDef.Name.Name));
-                                    Log.Warning($"fixed self referencing Assembly: {asmDef.Name.Name}");
+                                    //Log.Warning($"fixed self referencing Assembly: {asmDef.Name.Name}");
                                 }
 
                                 MemoryStream peOut = new MemoryStream();
