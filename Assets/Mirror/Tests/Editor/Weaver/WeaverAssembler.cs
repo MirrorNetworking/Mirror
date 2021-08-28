@@ -105,6 +105,14 @@ namespace Mirror.Weaver.Tests
 
             assemblyBuilder.buildFinished += delegate (string assemblyPath, CompilerMessage[] compilerMessages)
             {
+#if !UNITY_2020_1_OR_NEWER
+                // CompilerMessages from CompilationFinishedHook for Unity 2019.
+                // on 2020, ILPostProcessor runs after AssemblyBuilder.Build on
+                // windows, but not mac.
+                // => on windows, we would see weaver errors in here.
+                // => this would make tests fail
+                // => simply ignore the first ILPP result.
+                //    we run it manually below AND feed errors to tests.
                 CompilerMessages.AddRange(compilerMessages);
                 foreach (CompilerMessage cm in compilerMessages)
                 {
@@ -114,6 +122,7 @@ namespace Mirror.Weaver.Tests
                         CompilerErrors = true;
                     }
                 }
+#endif
 
 #if UNITY_2020_1_OR_NEWER
                 // on 2018/2019, CompilationFinishedHook weaved after building.
