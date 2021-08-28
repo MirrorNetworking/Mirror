@@ -163,9 +163,9 @@ namespace Mirror.Weaver.Tests
                         }
                     }
 
-                    // TODO save to file. otherwise we still operate on unweaved assembly.
-                    // or not: ILPP already weaves the one for regular rpc tests etc.
-                    // here, we just want to check if weaving succeded or failed?
+                    // save the weaved assembly to file.
+                    // some tests open it and check for certain IL code.
+                    File.WriteAllBytes(assemblyPath, result.InMemoryAssembly.PeData);
                 }
                 else
                 {
