@@ -2,6 +2,9 @@
 // afterwards ILPostProcessor weaves the build.
 // this works on windows, but build() does not run ILPP on mac atm.
 // we need to manually invoke ILPP with an assembly from file.
+//
+// this is in Weaver folder becuase CompilationPipeline can only be accessed
+// from assemblies with the name "Unity.*.CodeGen"
 using System.IO;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 
