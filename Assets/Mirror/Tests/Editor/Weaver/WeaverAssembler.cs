@@ -115,28 +115,23 @@ namespace Mirror.Weaver.Tests
                     }
                 }
 
-#if UNITY_2020_1_OR_NEWER && UNITY_EDITOR_OSX
-                // CompilationFinishedHook weaves test pre Unity 2020.
-                // after Unity 2020, ILPostProcessor is invoked by AssemblyBuilder.
-                // on mac, it is not invoked automatically.
-                // need to do it manually until it's fixed by Unity.
+#if UNITY_2020_1_OR_NEWER
+                // on 2018/2019, CompilationFinishedHook weaved after building.
+                // on 2020, ILPostProcessor weaves after building.
+                //   on windows, it runs after AssemblyBuilder.Build()
+                //   on mac, it does not run after AssemblyBuidler.Build()
+                // => run it manually in all cases
+                // => this way we can feed result.Logs to test results too
 
-                // TODO invoke ILPostProcessor manually
-                // TODO save to file manually, so tests using the DLLs use the waved ones.
-
-
-                //
-                // References needs to be set to something.
-                // otherwise we get NullReferenceException in WillProcess while
-                // checking References.
-                // -> copy the AssemblyBuilder's references
+                // copy references from assemblyBuilder's references
                 List<string> references = new List<string>();
                 if (assemblyBuilder.defaultReferences != null)
                     references.AddRange(assemblyBuilder.defaultReferences);
                 if (assemblyBuilder.additionalReferences != null)
                     references.AddRange(assemblyBuilder.additionalReferences);
 
-                // we COULD Weave() with a test logger manually.
+                // invoke ILPostProcessor with an assembly from file.
+                // we could Weave() with a test logger manually.
                 // but for test result consistency on all platforms,
                 // let's invoke the ILPostProcessor here too.
                 // NOTE: CompilationPipeline can only be imported if this
