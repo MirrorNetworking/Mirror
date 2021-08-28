@@ -45,8 +45,8 @@ namespace Mirror.Weaver.Tests
         [OneTimeSetUp]
         public void FixtureSetup()
         {
-#if UNITY_2020_1_OR_NEWER && UNITY_EDITOR_OSX
-            // we still use CompilationFinishedHook to run tests in 2020+ on mac
+#if !UNITY_2020_1_OR_NEWER
+            // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
             CompilationFinishedHook.UnityLogEnabled = false;
             CompilationFinishedHook.OnWeaverError += HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning += HandleWeaverWarning;
@@ -56,8 +56,8 @@ namespace Mirror.Weaver.Tests
         [OneTimeTearDown]
         public void FixtureCleanup()
         {
-#if UNITY_2020_1_OR_NEWER && UNITY_EDITOR_OSX
-            // we still use CompilationFinishedHook to run tests in 2020+ on mac
+#if !UNITY_2020_1_OR_NEWER
+            // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
             CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;
             CompilationFinishedHook.UnityLogEnabled = true;
