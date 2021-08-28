@@ -152,8 +152,16 @@ namespace Mirror
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
+        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
             OnClientToServerSync(position, rotation, scale);
+            //For client authority, immediately pass on the client snapshot to all other
+            //clients instead of waiting for server to send its snapshots.
+            if (clientAuthority)
+            {
+                RpcServerToClientSync(position, rotation, scale);
+            }
+        }
 
         // local authority client sends sync message to server for broadcasting
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
@@ -269,7 +277,16 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            if (NetworkTime.localTime >= lastServerSendTime + sendInterval)
+            // 
+            // Checks to ensure server only sends snapshots if object is
+            // on server authority(!clientAuthority) mode because on client 
+            // authority mode snapshots are broadcasted right after the authoritative 
+            // client updates server in the command function(see above), OR,
+            // since host does not send anything to update the server, any client
+            // authoritative movement done by the host will have to be broadcasted 
+            // here by checking IsClientWithAuthority.
+            if (NetworkTime.localTime >= lastServerSendTime + sendInterval && 
+                (!clientAuthority || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
