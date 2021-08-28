@@ -119,7 +119,10 @@ namespace Mirror.Weaver
                                 return new ILPostProcessResult(inMemory, Log.Logs);
                             }
                         }
-                        else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
+                        // if anything during Weave() fails, we log an error.
+                        // don't need to indicate 'weaving failed' again.
+                        // in fact, this would break tests only expecting certain errors.
+                        //else Log.Error($"Weaving failed for: {compiledAssembly.Name}");
                     }
                 }
             }
