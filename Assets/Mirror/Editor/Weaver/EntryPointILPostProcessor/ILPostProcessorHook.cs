@@ -86,7 +86,7 @@ namespace Mirror.Weaver
                         Weaver weaver = new Weaver(Log);
                         if (weaver.Weave(asmDef, asmResolver, out bool modified))
                         {
-                            Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
+                            //Log.Warning($"Weaving succeeded for: {compiledAssembly.Name}");
 
                             // write if modified
                             if (modified)
