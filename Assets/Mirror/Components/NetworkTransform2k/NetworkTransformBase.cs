@@ -152,7 +152,7 @@ namespace Mirror
             OnClientToServerSync(position, rotation, scale);
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
-            if(clientAuthority)
+            if (clientAuthority)
             {
                 RpcServerToClientSync(position, rotation, scale);
             }
