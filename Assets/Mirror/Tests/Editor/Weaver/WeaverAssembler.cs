@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Unity.CompilationPipeline.Common.ILPostProcessing;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -138,11 +139,19 @@ namespace Mirror.Weaver.Tests
                     references.AddRange(assemblyBuilder.additionalReferences);
                 assembly.References = references.ToArray();
 
+                // create ILPP and check WillProcess like Unity would.
                 ILPostProcessorHook ilpp = new ILPostProcessorHook();
                 if (ilpp.WillProcess(assembly))
                 {
                     Debug.Log("Will Process: " + assembly.Name);
-                    //ILPostProcessResult result = ilpp.Process(assembly);
+
+                    // process it like Unity would
+                    ILPostProcessResult result = ilpp.Process(assembly);
+
+                    // handle the error messages like Unity would
+                    // TODO need to feed them to weaverWarnings/weaverErrors
+
+                    // TODO save to file. otherwise we still operate on unweaved assembly.
                 }
                 else
                 {
