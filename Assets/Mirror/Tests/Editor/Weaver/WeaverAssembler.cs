@@ -140,7 +140,9 @@ namespace Mirror.Weaver.Tests
                 // => run it manually in all cases
                 // => this way we can feed result.Logs to test results too
                 // NOTE: we could simply call Weaver.Weave() here.
-                //       but using the ILPP pipeline helps catch issues early.
+                //       but let's make all tests run through ILPP.
+                //       just like regular projects would.
+                //       helps catch issues early.
 
                 // copy references from assemblyBuilder's references
                 List<string> references = new List<string>();
