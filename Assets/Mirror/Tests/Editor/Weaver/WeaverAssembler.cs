@@ -122,6 +122,10 @@ namespace Mirror.Weaver.Tests
 
                 // TODO invoke ILPostProcessor manually
                 // TODO save to file manually, so tests using the DLLs use the waved ones.
+
+                // we COULD Weave() with a test logger manually.
+                // but for test result consistency on all platforms,
+                // let's invoke the ILPostProcessor here too.
 #endif
             };
 
