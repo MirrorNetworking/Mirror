@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Unity.CompilationPipeline.Common.Diagnostics;
-using Unity.CompilationPipeline.Common.ILPostProcessing;
 using UnityEditor.Compilation;
 using UnityEngine;
 
@@ -126,10 +124,8 @@ namespace Mirror.Weaver.Tests
                 // TODO invoke ILPostProcessor manually
                 // TODO save to file manually, so tests using the DLLs use the waved ones.
 
-                // we COULD Weave() with a test logger manually.
-                // but for test result consistency on all platforms,
-                // let's invoke the ILPostProcessor here too.
-                CompiledAssemblyFromFile assembly = new CompiledAssemblyFromFile(assemblyPath);
+
+                //
                 // References needs to be set to something.
                 // otherwise we get NullReferenceException in WillProcess while
                 // checking References.
@@ -139,38 +135,15 @@ namespace Mirror.Weaver.Tests
                     references.AddRange(assemblyBuilder.defaultReferences);
                 if (assemblyBuilder.additionalReferences != null)
                     references.AddRange(assemblyBuilder.additionalReferences);
-                assembly.References = references.ToArray();
 
-                // create ILPP and check WillProcess like Unity would.
-                ILPostProcessorHook ilpp = new ILPostProcessorHook();
-                if (ilpp.WillProcess(assembly))
-                {
-                    Debug.Log("Will Process: " + assembly.Name);
-
-                    // process it like Unity would
-                    ILPostProcessResult result = ilpp.Process(assembly);
-
-                    // handle the error messages like Unity would
-                    foreach (DiagnosticMessage message in result.Diagnostics)
-                    {
-                        if (message.DiagnosticType == DiagnosticType.Warning)
-                        {
-                            OnWarning(message.MessageData);
-                        }
-                        else if (message.DiagnosticType == DiagnosticType.Error)
-                        {
-                            OnError(message.MessageData);
-                        }
-                    }
-
-                    // save the weaved assembly to file.
-                    // some tests open it and check for certain IL code.
-                    File.WriteAllBytes(assemblyPath, result.InMemoryAssembly.PeData);
-                }
-                else
-                {
-                    Debug.LogWarning("WONT PROCESS: " + assembly.Name);
-                }
+                // we COULD Weave() with a test logger manually.
+                // but for test result consistency on all platforms,
+                // let's invoke the ILPostProcessor here too.
+                // NOTE: CompilationPipeline can only be imported if this
+                //       assembly's name is 'Unity.*.CodeGen'.
+                // BUT:  then this assembly itself isn't weaved.
+                //       we need it to be weaved for tests too though.
+                ILPostProcessorFromFile.ILPostProcessFile(assemblyPath, references.ToArray(), OnWarning, OnError);
 #endif
             };
 
