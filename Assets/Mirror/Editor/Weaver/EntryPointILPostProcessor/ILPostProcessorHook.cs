@@ -43,13 +43,6 @@ namespace Mirror.Weaver
                    compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
         }
 
-        // searches for Mirror.dll in references.
-        // note that for Mirror.dll itself, it won't find anything.
-        string FindMirrorRuntimeReference(ICompiledAssembly compiledAssembly)
-        {
-            return compiledAssembly.References.ToList().Find(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
-        }
-
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
         {
             //Log.Warning($"Processing {compiledAssembly.Name}");
