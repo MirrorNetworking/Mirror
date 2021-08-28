@@ -133,7 +133,7 @@ namespace Mirror.Weaver.Tests
                 }
 
 #if UNITY_2020_1_OR_NEWER
-                // on 2018/2019, CompilationFinishedHook weaved after building.
+                // on 2018/2019, CompilationFinishedHook weaves after building.
                 // on 2020, ILPostProcessor weaves after building.
                 //   on windows, it runs after AssemblyBuilder.Build()
                 //   on mac, it does not run after AssemblyBuidler.Build()
