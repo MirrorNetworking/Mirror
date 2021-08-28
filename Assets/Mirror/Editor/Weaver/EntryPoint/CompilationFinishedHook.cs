@@ -1,6 +1,5 @@
 // for Unity 2020+ we use ILPostProcessor.
 // only automatically invoke it for older versions.
-#if !UNITY_2020_1_OR_NEWER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +29,7 @@ namespace Mirror.Weaver
         // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool UnityLogEnabled = true;
 
+#if !UNITY_2020_1_OR_NEWER
         [InitializeOnLoadMethod]
         public static void OnInitializeOnLoad()
         {
@@ -63,7 +63,7 @@ namespace Mirror.Weaver
             UnityEditorInternal.InternalEditorUtility.RequestScriptReload();
 #endif
         }
-
+#endif
         static Assembly FindCompilationPipelineAssembly(string assemblyName) =>
             CompilationPipeline.GetAssemblies().First(assembly => assembly.name == assemblyName);
 
@@ -152,7 +152,7 @@ namespace Mirror.Weaver
         }
         // helper function to invoke Weaver with an AssemblyDefinition from a
         // file path, with dependencies added.
-        static bool WeaveFromFile(string assemblyPath, string[] dependencies)
+        public static bool WeaveFromFile(string assemblyPath, string[] dependencies)
         {
             // resolve assembly from stream
             using (DefaultAssemblyResolver asmResolver = new DefaultAssemblyResolver())
@@ -186,4 +186,3 @@ namespace Mirror.Weaver
         }
     }
 }
-#endif

@@ -149,7 +149,8 @@ namespace Mirror.Weaver.Tests
                 //       assembly's name is 'Unity.*.CodeGen'.
                 // BUT:  then this assembly itself isn't weaved.
                 //       we need it to be weaved for tests too though.
-                ILPostProcessorFromFile.ILPostProcessFile(assemblyPath, references.ToArray(), OnWarning, OnError);
+                CompilationFinishedHook.OnCompilationFinished(assemblyPath, new CompilerMessage[0]);
+                //ILPostProcessorFromFile.ILPostProcessFile(assemblyPath, references.ToArray(), OnWarning, OnError);
 #endif
             };
 
