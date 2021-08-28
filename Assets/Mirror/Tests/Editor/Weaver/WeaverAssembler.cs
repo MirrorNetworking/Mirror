@@ -152,13 +152,12 @@ namespace Mirror.Weaver.Tests
                     references.AddRange(assemblyBuilder.additionalReferences);
 
                 // invoke ILPostProcessor with an assembly from file.
-                // we could Weave() with a test logger manually.
-                // but for test result consistency on all platforms,
-                // let's invoke the ILPostProcessor here too.
-                // NOTE: CompilationPipeline can only be imported if this
-                //       assembly's name is 'Unity.*.CodeGen'.
-                // BUT:  then this assembly itself isn't weaved.
-                //       we need it to be weaved for tests too though.
+                // NOTE: code for creating and invoking the ILPostProcessor has
+                //       to be in Weaver.dll where 'CompilationPipeline' is
+                //       available due to name being of form 'Unity.*.CodeGen'.
+                //       => we can't change tests to that Unity.*.CodeGen
+                //          because some tests need to be weaved, but ILPP isn't
+                //          ran on Unity.*.CodeGen assemblies itself.
                 ILPostProcessorFromFile.ILPostProcessFile(assemblyPath, references.ToArray(), OnWarning, OnError);
 #endif
             };
