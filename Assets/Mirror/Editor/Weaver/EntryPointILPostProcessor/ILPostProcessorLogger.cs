@@ -36,7 +36,9 @@ namespace Mirror.Weaver
             // if it's just one line, simply log it
             if (lines.Length == 1)
             {
-                Add($"Weaver: {message}", logType);
+                // tests assume exact message log.
+                // don't include 'Weaver: ...' or similar.
+                Add($"{message}", logType);
             }
             // for multiple lines, log each line separately with start/end indicators
             else
