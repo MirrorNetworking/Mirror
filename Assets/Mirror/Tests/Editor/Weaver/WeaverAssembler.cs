@@ -162,9 +162,10 @@ namespace Mirror.Weaver.Tests
                             OnError(message.MessageData);
                         }
                     }
-                    // TODO need to feed them to weaverWarnings/weaverErrors
 
                     // TODO save to file. otherwise we still operate on unweaved assembly.
+                    // or not: ILPP already weaves the one for regular rpc tests etc.
+                    // here, we just want to check if weaving succeded or failed?
                 }
                 else
                 {
