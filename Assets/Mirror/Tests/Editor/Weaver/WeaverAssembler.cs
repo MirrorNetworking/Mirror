@@ -126,6 +126,28 @@ namespace Mirror.Weaver.Tests
                 // we COULD Weave() with a test logger manually.
                 // but for test result consistency on all platforms,
                 // let's invoke the ILPostProcessor here too.
+                CompiledAssemblyFromFile assembly = new CompiledAssemblyFromFile(assemblyPath);
+                // References needs to be set to something.
+                // otherwise we get NullReferenceException in WillProcess while
+                // checking References.
+                // -> copy the AssemblyBuilder's references
+                List<string> references = new List<string>();
+                if (assemblyBuilder.defaultReferences != null)
+                    references.AddRange(assemblyBuilder.defaultReferences);
+                if (assemblyBuilder.additionalReferences != null)
+                    references.AddRange(assemblyBuilder.additionalReferences);
+                assembly.References = references.ToArray();
+
+                ILPostProcessorHook ilpp = new ILPostProcessorHook();
+                if (ilpp.WillProcess(assembly))
+                {
+                    Debug.Log("Will Process: " + assembly.Name);
+                    //ILPostProcessResult result = ilpp.Process(assembly);
+                }
+                else
+                {
+                    Debug.LogWarning("WONT PROCESS: " + assembly.Name);
+                }
 #endif
             };
 
