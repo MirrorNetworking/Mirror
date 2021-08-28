@@ -114,12 +114,14 @@ namespace Mirror.Weaver.Tests
                     }
                 }
 
-#if UNITY_2020_1_OR_NEWER
-                // AssemblyBuilder doesn't invoke ILPostProcessor after build.
+#if UNITY_2020_1_OR_NEWER && UNITY_EDITOR_OSX
+                // on mac, AssemblyBuilder doesn't invoke ILPostProcessor after
+                // building. it does on windows though.
+                //
                 // we need to weave manually here in 2020+.
                 // -> we have the assemblyPath
                 // -> simply use the from-file Assembly + Resolver from before.
-                // TODO if we drop 2019 support, then move CompilationFinishedHook into WeaverTests folder
+                // TODO invoke ILPostProcessor for consistency with Windows tests
                 CompilationFinishedHook.OnCompilationFinished(assemblyPath, compilerMessages);
 #endif
             };
