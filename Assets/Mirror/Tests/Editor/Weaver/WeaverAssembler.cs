@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -92,7 +93,7 @@ namespace Mirror.Weaver.Tests
             DeleteOutputOnClear = false;
         }
 
-        public static void Build()
+        public static void Build(Action<string> OnWarning, Action<string> OnError)
         {
             AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray())
             {
@@ -154,11 +155,11 @@ namespace Mirror.Weaver.Tests
                     {
                         if (message.DiagnosticType == DiagnosticType.Warning)
                         {
-                            Debug.LogWarning(message.MessageData);
+                            OnWarning(message.MessageData);
                         }
                         else if (message.DiagnosticType == DiagnosticType.Error)
                         {
-                            Debug.LogError(message.MessageData);
+                            OnError(message.MessageData);
                         }
                     }
                     // TODO need to feed them to weaverWarnings/weaverErrors

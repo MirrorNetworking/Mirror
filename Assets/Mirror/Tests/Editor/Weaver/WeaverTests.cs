@@ -32,7 +32,7 @@ namespace Mirror.Weaver.Tests
             string testSourceDirectory = className + "~";
             WeaverAssembler.OutputFile = Path.Combine(testSourceDirectory, testName + ".dll");
             WeaverAssembler.AddSourceFiles(new string[] { Path.Combine(testSourceDirectory, testName + ".cs") });
-            WeaverAssembler.Build();
+            WeaverAssembler.Build(HandleWeaverWarning, HandleWeaverError);
 
             Assert.That(WeaverAssembler.CompilerErrors, Is.False);
             foreach (string error in weaverErrors)
