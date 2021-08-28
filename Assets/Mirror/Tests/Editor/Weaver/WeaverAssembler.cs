@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Unity.CompilationPipeline.Common.Diagnostics;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 using UnityEditor.Compilation;
 using UnityEngine;
@@ -149,6 +150,17 @@ namespace Mirror.Weaver.Tests
                     ILPostProcessResult result = ilpp.Process(assembly);
 
                     // handle the error messages like Unity would
+                    foreach (DiagnosticMessage message in result.Diagnostics)
+                    {
+                        if (message.DiagnosticType == DiagnosticType.Warning)
+                        {
+                            Debug.LogWarning(message.MessageData);
+                        }
+                        else if (message.DiagnosticType == DiagnosticType.Error)
+                        {
+                            Debug.LogError(message.MessageData);
+                        }
+                    }
                     // TODO need to feed them to weaverWarnings/weaverErrors
 
                     // TODO save to file. otherwise we still operate on unweaved assembly.
