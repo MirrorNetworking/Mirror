@@ -103,16 +103,25 @@ namespace Mirror.Weaver.Tests
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;
             }
 
+            // Unity automatically invokes ILPostProcessor after
+            // AssemblyBuilder.Build() (on windows at least. not on mac).
+            // => .buildFinished() below CompilerMessages would already contain
+            //    the weaver messages, failing tests.
+            // => SyncVarTests->SyncVarSyncList fails too if ILPP was
+            //    already applied by Unity, and we apply it again.
+            //
+            // we need to not run ILPP for WeaverTests assemblies here.
+            // -> we can't set member variables because Unity creates a new
+            //    ILPP instance internally and invokes it
+            // -> define is passed through ILPP though, and avoids static state.
+            assemblyBuilder.additionalDefines = new []{ILPostProcessorHook.IgnoreDefine};
+
             assemblyBuilder.buildFinished += delegate (string assemblyPath, CompilerMessage[] compilerMessages)
             {
-#if !UNITY_2020_1_OR_NEWER
-                // CompilerMessages from CompilationFinishedHook for Unity 2019.
-                // on 2020, ILPostProcessor runs after AssemblyBuilder.Build on
-                // windows, but not mac.
-                // => on windows, we would see weaver errors in here.
-                // => this would make tests fail
-                // => simply ignore the first ILPP result.
-                //    we run it manually below AND feed errors to tests.
+                // CompilerMessages from compiling the original test assembly.
+                // note that we can see weaver messages here if Unity runs
+                // ILPostProcessor after AssemblyBuilder.Build().
+                // => that's why we pass the ignore define above.
                 CompilerMessages.AddRange(compilerMessages);
                 foreach (CompilerMessage cm in compilerMessages)
                 {
@@ -122,7 +131,6 @@ namespace Mirror.Weaver.Tests
                         CompilerErrors = true;
                     }
                 }
-#endif
 
 #if UNITY_2020_1_OR_NEWER
                 // on 2018/2019, CompilationFinishedHook weaved after building.

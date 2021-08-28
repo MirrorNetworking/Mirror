@@ -22,11 +22,22 @@ namespace Mirror.Weaver
         // from CompilationFinishedHook
         const string MirrorRuntimeAssemblyName = "Mirror";
 
+        // ILPostProcessor is invoked by Unity.
+        // we can not tell it to ignore certain assemblies before processing.
+        // add a 'ignore' define for convenience.
+        // => WeaverTests/WeaverAssembler need it to avoid Unity running it
+        public const string IgnoreDefine = "ILPP_IGNORE";
+
         // we can't use Debug.Log in ILPP, so we need a custom logger
         ILPostProcessorLogger Log = new ILPostProcessorLogger();
 
         // ???
         public override ILPostProcessor GetInstance() => this;
+
+        // check if assembly has the 'ignore' define
+        bool HasDefine(ICompiledAssembly assembly, string define) =>
+            assembly.Defines != null &&
+            assembly.Defines.Contains(define);
 
         // process Mirror, or anything that references Mirror
         public override bool WillProcess(ICompiledAssembly compiledAssembly)
@@ -39,8 +50,10 @@ namespace Mirror.Weaver
             // log them to see:
             //     foreach (string reference in compiledAssembly.References)
             //         LogDiagnostics($"{compiledAssembly.Name} references {reference}");
-            return compiledAssembly.Name == MirrorRuntimeAssemblyName ||
-                   compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
+            bool relevant = compiledAssembly.Name == MirrorRuntimeAssemblyName ||
+                            compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == MirrorRuntimeAssemblyName);
+            bool ignore = HasDefine(compiledAssembly, IgnoreDefine);
+            return relevant && !ignore;
         }
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
