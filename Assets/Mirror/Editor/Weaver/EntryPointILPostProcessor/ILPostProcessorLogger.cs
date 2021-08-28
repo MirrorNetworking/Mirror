@@ -1,5 +1,3 @@
-// logger for compilation finished hook.
-// where we need a callback and Debug.Log.
 using System.Collections.Generic;
 using Mono.CecilX;
 using Unity.CompilationPipeline.Common.Diagnostics;
