@@ -1,5 +1,5 @@
 {
-    "name": "Mirror.Tests",
+    "name": "Unity.Mirror.Tests.CodeGen",
     "rootNamespace": "",
     "references": [
         "Mirror",
