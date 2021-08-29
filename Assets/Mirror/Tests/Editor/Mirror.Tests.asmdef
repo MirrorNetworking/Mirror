@@ -1,15 +1,15 @@
 {
     "name": "Mirror.Tests",
+    "rootNamespace": "",
     "references": [
         "Mirror",
         "Mirror.Editor",
-        "Mirror.Weaver",
         "Mirror.Components",
         "Mirror.Tests.Common",
-        "Telepathy"
-    ],
-    "optionalUnityReferences": [
-        "TestAssemblies"
+        "Telepathy",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Unity.Mirror.CodeGen"
     ],
     "includePlatforms": [
         "Editor"
@@ -21,8 +21,13 @@
         "NSubstitute.dll",
         "Castle.Core.dll",
         "System.Threading.Tasks.Extensions.dll",
-        "Mono.CecilX.dll"
+        "Mono.CecilX.dll",
+        "nunit.framework.dll"
     ],
-    "autoReferenced": true,
-    "defineConstraints": []
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

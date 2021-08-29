@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -90,7 +91,7 @@ namespace Mirror.Weaver.Tests
             DeleteOutputOnClear = false;
         }
 
-        public static void Build()
+        public static void Build(Action<string> OnWarning, Action<string> OnError)
         {
             AssemblyBuilder assemblyBuilder = new AssemblyBuilder(Path.Combine(OutputDirectory, OutputFile), SourceFiles.ToArray())
             {
@@ -102,8 +103,27 @@ namespace Mirror.Weaver.Tests
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;
             }
 
+#if UNITY_2020_1_OR_NEWER
+            // Unity automatically invokes ILPostProcessor after
+            // AssemblyBuilder.Build() (on windows at least. not on mac).
+            // => .buildFinished() below CompilerMessages would already contain
+            //    the weaver messages, failing tests.
+            // => SyncVarTests->SyncVarSyncList fails too if ILPP was
+            //    already applied by Unity, and we apply it again.
+            //
+            // we need to not run ILPP for WeaverTests assemblies here.
+            // -> we can't set member variables because Unity creates a new
+            //    ILPP instance internally and invokes it
+            // -> define is passed through ILPP though, and avoids static state.
+            assemblyBuilder.additionalDefines = new []{ILPostProcessorHook.IgnoreDefine};
+#endif
+
             assemblyBuilder.buildFinished += delegate (string assemblyPath, CompilerMessage[] compilerMessages)
             {
+                // CompilerMessages from compiling the original test assembly.
+                // note that we can see weaver messages here if Unity runs
+                // ILPostProcessor after AssemblyBuilder.Build().
+                // => that's why we pass the ignore define above.
                 CompilerMessages.AddRange(compilerMessages);
                 foreach (CompilerMessage cm in compilerMessages)
                 {
@@ -113,6 +133,35 @@ namespace Mirror.Weaver.Tests
                         CompilerErrors = true;
                     }
                 }
+
+#if UNITY_2020_1_OR_NEWER
+                // on 2018/2019, CompilationFinishedHook weaves after building.
+                // on 2020, ILPostProcessor weaves after building.
+                //   on windows, it runs after AssemblyBuilder.Build()
+                //   on mac, it does not run after AssemblyBuidler.Build()
+                // => run it manually in all cases
+                // => this way we can feed result.Logs to test results too
+                // NOTE: we could simply call Weaver.Weave() here.
+                //       but let's make all tests run through ILPP.
+                //       just like regular projects would.
+                //       helps catch issues early.
+
+                // copy references from assemblyBuilder's references
+                List<string> references = new List<string>();
+                if (assemblyBuilder.defaultReferences != null)
+                    references.AddRange(assemblyBuilder.defaultReferences);
+                if (assemblyBuilder.additionalReferences != null)
+                    references.AddRange(assemblyBuilder.additionalReferences);
+
+                // invoke ILPostProcessor with an assembly from file.
+                // NOTE: code for creating and invoking the ILPostProcessor has
+                //       to be in Weaver.dll where 'CompilationPipeline' is
+                //       available due to name being of form 'Unity.*.CodeGen'.
+                //       => we can't change tests to that Unity.*.CodeGen
+                //          because some tests need to be weaved, but ILPP isn't
+                //          ran on Unity.*.CodeGen assemblies itself.
+                ILPostProcessorFromFile.ILPostProcessFile(assemblyPath, references.ToArray(), OnWarning, OnError);
+#endif
             };
 
             // Start build of assembly

@@ -1,5 +1,7 @@
 // logger for compilation finished hook.
 // where we need a callback and Debug.Log.
+// for Unity 2020+ we use ILPostProcessor.
+#if !UNITY_2020_1_OR_NEWER
 using Mono.CecilX;
 using UnityEngine;
 
@@ -26,3 +28,4 @@ namespace Mirror.Weaver
         }
     }
 }
+#endif

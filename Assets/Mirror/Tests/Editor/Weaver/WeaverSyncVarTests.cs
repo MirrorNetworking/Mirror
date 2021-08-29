@@ -60,6 +60,12 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsSyncList()
         {
+            // NOTE if this test fails without a warning:
+            // that happens if after WeaverAssembler->AssemblyBuilder.Build(),
+            // Unity invokes ILPostProcessor internally.
+            // and we invoke it from WeaverAssembler buildFinished again.
+            // => make sure that our ILPostProcessor does nto run on
+            //    WeaverAssembler assemblies
             HasNoErrors();
             HasWarning("syncobj has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
                 "WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj");
