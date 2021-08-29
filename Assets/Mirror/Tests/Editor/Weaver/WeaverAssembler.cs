@@ -103,6 +103,7 @@ namespace Mirror.Weaver.Tests
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;
             }
 
+#if UNITY_2020_1_OR_NEWER
             // Unity automatically invokes ILPostProcessor after
             // AssemblyBuilder.Build() (on windows at least. not on mac).
             // => .buildFinished() below CompilerMessages would already contain
@@ -115,6 +116,7 @@ namespace Mirror.Weaver.Tests
             //    ILPP instance internally and invokes it
             // -> define is passed through ILPP though, and avoids static state.
             assemblyBuilder.additionalDefines = new []{ILPostProcessorHook.IgnoreDefine};
+#endif
 
             assemblyBuilder.buildFinished += delegate (string assemblyPath, CompilerMessage[] compilerMessages)
             {
