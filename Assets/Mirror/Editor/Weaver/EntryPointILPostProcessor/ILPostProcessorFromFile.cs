@@ -2,6 +2,7 @@
 // we keep this in Weaver folder because we can access CompilationPipleine here.
 // in tests folder we can't, unless we rename to "Unity.*.CodeGen",
 // but then tests wouldn't be weaved anymore.
+#if UNITY_2020_1_OR_NEWER
 using System;
 using System.IO;
 using Unity.CompilationPipeline.Common.Diagnostics;
@@ -49,3 +50,4 @@ namespace Mirror.Weaver
         }
     }
 }
+#endif
