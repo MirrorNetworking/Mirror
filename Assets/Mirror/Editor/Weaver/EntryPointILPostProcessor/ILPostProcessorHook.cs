@@ -35,7 +35,7 @@ namespace Mirror.Weaver
         public override ILPostProcessor GetInstance() => this;
 
         // check if assembly has the 'ignore' define
-        bool HasDefine(ICompiledAssembly assembly, string define) =>
+        static bool HasDefine(ICompiledAssembly assembly, string define) =>
             assembly.Defines != null &&
             assembly.Defines.Contains(define);
 
