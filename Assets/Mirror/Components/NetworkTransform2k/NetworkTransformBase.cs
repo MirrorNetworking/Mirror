@@ -63,14 +63,14 @@ namespace Mirror
         //       the vast majority of connections.
         //       (a player with 2000ms latency will have issues no matter what)
         [Header("Buffering")]
-        [Tooltip("Snapshots are buffered for sendInterval * multiplier seconds. At 2-5% packet loss, 3x supposedly works best.")]
-        public int bufferTimeMultiplier = 3;
+        [Tooltip("Snapshots are buffered for sendInterval * multiplier seconds. If your expected client base is to run at non-ideal connection quality (2-5% packet loss), 3x supposedly works best.")]
+        public int bufferTimeMultiplier = 1;
         public float bufferTime => sendInterval * bufferTimeMultiplier;
         [Tooltip("Buffer size limit to avoid ever growing list memory consumption attacks.")]
         public int bufferSizeLimit = 64;
 
         [Tooltip("Start to accelerate interpolation if buffer size is >= threshold. Needs to be larger than bufferTimeMultiplier.")]
-        public int catchupThreshold = 6;
+        public int catchupThreshold = 4;
 
         [Tooltip("Once buffer is larger catchupThreshold, accelerate by multiplier % per excess entry.")]
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
