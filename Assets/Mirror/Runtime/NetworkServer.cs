@@ -451,7 +451,8 @@ namespace Mirror
             }
             else
             {
-                Debug.LogError($"Invalid message header for connection: {connection}.");
+                // => WARNING, not error. can happen if attacker sends random data.
+                Debug.LogWarning($"Invalid message header for connection: {connection}.");
                 // simply return false. caller is responsible for disconnecting.
                 //connection.Disconnect();
                 return false;
