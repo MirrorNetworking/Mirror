@@ -864,7 +864,9 @@ namespace Mirror.Tests
             Assert.That(variant1Called, Is.EqualTo(1));
 
             // unregister, send again, should not be called again
+            // error about remaining batches is expected
             NetworkServer.UnregisterHandler<TestMessage1>();
+            LogAssert.Expect(LogType.Error, new Regex("Still had 1 batches remaining after processing.*"));
             NetworkClient.Send(new TestMessage1());
             ProcessMessages();
             Assert.That(variant1Called, Is.EqualTo(1));
@@ -887,7 +889,9 @@ namespace Mirror.Tests
             Assert.That(variant1Called, Is.EqualTo(1));
 
             // clear handlers, send again, should not be called again
+            // error about remaining batches is expected
             NetworkServer.ClearHandlers();
+            LogAssert.Expect(LogType.Error, new Regex("Still had 1 batches remaining after processing.*"));
             NetworkClient.Send(new TestMessage1());
             ProcessMessages();
             Assert.That(variant1Called, Is.EqualTo(1));

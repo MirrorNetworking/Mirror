@@ -364,6 +364,24 @@ namespace Mirror
                         return;
                     }
                 }
+
+                // if we weren't interrupted by a scene change,
+                // then all batched messages should have been processed now.
+                // if not, we need to log an error to avoid debugging hell.
+                // otherwise batches would silently grow.
+                // we need to log an error to avoid debugging hell.
+                //
+                // EXAMPLE: https://github.com/vis2k/Mirror/issues/2882
+                // -> UnpackAndInvoke silently returned because no handler for id
+                // -> Reader would never be read past the end
+                // -> Batch would never be retired because end is never reached
+                //
+                // IMPORTANT: always keep this check to detect memory leaks.
+                //            this took half a day to debug last time.
+                if (!isLoadingScene && unbatcher.BatchesCount > 0)
+                {
+                    Debug.LogError($"Still had {unbatcher.BatchesCount} batches remaining after processing, even though processing was not interrupted by a scene change. This should never happen, as it would cause ever growing batches.");
+                }
             }
             else Debug.LogError("Skipped Data message handling because connection is null.");
         }
