@@ -380,7 +380,8 @@ namespace Mirror
                     // otherwise disconnect
                     else
                     {
-                        Debug.LogError($"NetworkClient: received Message was too short (messages should start with message id)");
+                        // WARNING, not error. can happen if attacker sends random data.
+                        Debug.LogWarning($"NetworkClient: received Message was too short (messages should start with message id)");
                         connection.Disconnect();
                         return;
                     }

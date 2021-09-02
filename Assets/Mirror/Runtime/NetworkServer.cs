@@ -513,7 +513,8 @@ namespace Mirror
                     // otherwise disconnect
                     else
                     {
-                        Debug.LogError($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
+                        // WARNING, not error. can happen if attacker sends random data.
+                        Debug.LogWarning($"NetworkServer: received Message was too short (messages should start with message id). Disconnecting {connectionId}");
                         connection.Disconnect();
                         return;
                     }
