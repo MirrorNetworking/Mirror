@@ -376,6 +376,9 @@ namespace Mirror
                 // -> Reader would never be read past the end
                 // -> Batch would never be retired because end is never reached
                 //
+                // NOTE: prefixing every message in a batch with a length would
+                //       avoid ever not reading to the end. for extra bandwidth.
+                //
                 // IMPORTANT: always keep this check to detect memory leaks.
                 //            this took half a day to debug last time.
                 if (!isLoadingScene && unbatcher.BatchesCount > 0)
