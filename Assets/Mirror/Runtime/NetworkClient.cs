@@ -305,7 +305,13 @@ namespace Mirror
                 }
                 else
                 {
-                    // Debug.Log("Unknown message ID " + msgType + " " + this + ". May be due to no existing RegisterHandler for this message.");
+                    // message in a batch are NOT length prefixed to save bandwidth.
+                    // every message needs to be handled and read until the end.
+                    // otherwise it would overlap into the next message.
+                    // => need to error and disconnect to avoid undefined behaviour.
+                    // => WARNING, not error. can happen if attacker sends random data.
+                    Debug.LogWarning($"Closed connection. Unknown message id: {msgType}. This can happen if no handler was registered for this message.");
+                    connection.Disconnect();
                     return false;
                 }
             }
