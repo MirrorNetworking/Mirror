@@ -441,7 +441,7 @@ namespace Mirror
                     // message in a batch are NOT length prefixed to save bandwidth.
                     // every message needs to be handled and read until the end.
                     // otherwise it would overlap into the next message.
-                    // => need to error and disconnect to avoid undefined behaviour.
+                    // => need to warn and disconnect to avoid undefined behaviour.
                     // => WARNING, not error. can happen if attacker sends random data.
                     Debug.LogWarning($"Closed connection: {connection}. Unknown message id: {msgType}. This can happen if no handler was registered for this message.");
                     connection.Disconnect();
