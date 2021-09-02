@@ -630,6 +630,25 @@ namespace Mirror.Tests
             Assert.That(connectionToClient.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
         }
 
+        // test to avoid https://github.com/vis2k/Mirror/issues/2882
+        // messages in a batch aren't length prefixed.
+        // if we can't read one, we need to warn and disconnect.
+        // otherwise it overlaps to the next message and causes undefined behaviour.
+        [Test]
+        public void Send_ClientToServerMessage_UnknownMessageIdDisconnects()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send a message without a registered handler
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            // should have been disconnected
+            Assert.That(NetworkServer.connections.ContainsKey(connectionToClient.connectionId), Is.False);
+        }
+
         [Test]
         public void Send_ServerToClientMessage_SetsRemoteTimeStamp()
         {
@@ -661,6 +680,25 @@ namespace Mirror.Tests
             //  finish the batch. but the difference should not be > 'waitTime')
             Assert.That(called, Is.EqualTo(1));
             Assert.That(NetworkClient.connection.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
+        }
+
+        // test to avoid https://github.com/vis2k/Mirror/issues/2882
+        // messages in a batch aren't length prefixed.
+        // if we can't read one, we need to warn and disconnect.
+        // otherwise it overlaps to the next message and causes undefined behaviour.
+        [Test]
+        public void Send_ServerToClientMessage_UnknownMessageIdDisconnects()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send a message without a registered handler
+            connectionToClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            // should have been disconnected
+            Assert.That(NetworkClient.active, Is.False);
         }
 
         [Test]
