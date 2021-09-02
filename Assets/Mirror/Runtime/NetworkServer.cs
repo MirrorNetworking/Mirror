@@ -515,7 +515,7 @@ namespace Mirror
                 //            this took half a day to debug last time.
                 if (!isLoadingScene && connection.unbatcher.BatchesCount > 0)
                 {
-                    Debug.LogError($"Still had {connection.unbatcher.BatchesCount} batches remaining after processing, even though processing was not interrupted by a scene change. This should never happen, as it would cause ever growing batches.");
+                    Debug.LogError($"Still had {connection.unbatcher.BatchesCount} batches remaining after processing, even though processing was not interrupted by a scene change. This should never happen, as it would cause ever growing batches.\nPossible reasons:\n* A message didn't deserialize as much as it serialized\n*There was no message handler for a message id, so the reader wasn't read until the end.");
                 }
             }
             else Debug.LogError("HandleData Unknown connectionId:" + connectionId);
