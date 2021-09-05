@@ -7,14 +7,14 @@ namespace WeaverGeneralTests.TestingScriptableObjectArraySerialization
     {
         public static void Writedata(this NetworkWriter writer, Data arg)
         {
-            writer.WriteInt32(arg.Var1);
+            writer.WriteInt(arg.Var1);
         }
 
         public static Data Readdata(this NetworkReader reader)
         {
             return new Data
             {
-                Var1 = reader.ReadInt32()
+                Var1 = reader.ReadInt()
             };
         }
     }
