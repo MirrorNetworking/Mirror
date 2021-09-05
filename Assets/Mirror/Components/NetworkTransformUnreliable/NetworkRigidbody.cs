@@ -15,22 +15,42 @@ namespace Mirror
             // who ever has authority moves the Rigidbody with physics.
             // everyone else simply sets it to kinematic.
             // so that only the Transform component is synced.
-            if (isClient)
+
+            // host mode
+            if (isServer && isClient)
             {
-                // on the client, force kinematic if server has authority.
-                // or if another client (not us) has authority.
+                // in host mode, we own it it if:
+                // clientAuthority is disabled (hence server / we own it)
+                // clientAuthority is enabled and we have authority over this object.
+                bool owned = !clientAuthority || IsClientWithAuthority;
+
+                // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
-                if (!IsClientWithAuthority)
-                    rb.isKinematic = true;
+                if (!owned) rb.isKinematic = true;
             }
+            // client only
+            else if (isClient)
+            {
+                // on the client, we own it only if clientAuthority is enabled,
+                // and we have authority over this object.
+                bool owned = IsClientWithAuthority;
+
+                // only set to kinematic if we don't own it
+                // otherwise don't touch isKinematic.
+                // the authority owner might use it either way.
+                if (!owned) rb.isKinematic = true;
+            }
+            // server only
             else if (isServer)
             {
-                // on the server, force kinematic if a client has authority.
+                // on the server, we always own it if clientAuthority is disabled.
+                bool owned = !clientAuthority;
+
+                // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
-                if (clientAuthority)
-                    rb.isKinematic = true;
+                if (!owned) rb.isKinematic = true;
             }
         }
     }
