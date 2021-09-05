@@ -41,7 +41,7 @@ namespace Mirror.Weaver
                 // TODO
                 // a) .connectionToServer = best solution. no doubt.
                 // b) NetworkClient.connection for now. add TODO to not use static later.
-                worker.Emit(OpCodes.Call, weaverTypes.ReadyConnectionReference);
+                worker.Emit(OpCodes.Call, weaverTypes.NetworkClientConnectionReference);
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection

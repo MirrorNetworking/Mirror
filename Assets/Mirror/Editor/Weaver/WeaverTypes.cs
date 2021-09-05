@@ -14,7 +14,7 @@ namespace Mirror.Weaver
         public MethodReference GetPooledWriterReference;
         public MethodReference RecycleWriterReference;
 
-        public MethodReference ReadyConnectionReference;
+        public MethodReference NetworkClientConnectionReference;
 
         public MethodReference CmdDelegateConstructor;
 
@@ -96,7 +96,7 @@ namespace Mirror.Weaver
             GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "GetWriter", ref WeavingFailed);
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "Recycle", ref WeavingFailed);
 
-            ReadyConnectionReference = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_readyConnection", ref WeavingFailed);
+            NetworkClientConnectionReference = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_connection", ref WeavingFailed);
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SyncVarEqual", ref WeavingFailed);
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SyncVarNetworkIdentityEqual", ref WeavingFailed);

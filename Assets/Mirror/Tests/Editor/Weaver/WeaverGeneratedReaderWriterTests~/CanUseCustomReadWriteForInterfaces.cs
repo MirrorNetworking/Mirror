@@ -25,13 +25,13 @@ namespace GeneratedReaderWriter.CanUseCustomReadWriteForInterfaces
     {
         public static void WriteData(this NetworkWriter writer, IData data)
         {
-            writer.WriteInt32(data.id);
+            writer.WriteInt(data.id);
             // write extra stuff depending on id here
         }
 
         public static IData ReadData(this NetworkReader reader)
         {
-            int id = reader.ReadInt32();
+            int id = reader.ReadInt();
             // do something with id
 
             SomeData someData = new SomeData();
