@@ -32,7 +32,7 @@ namespace Mirror
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsClientWithAuthority => hasAuthority && clientAuthority;
+        protected bool IsClientWithAuthority => hasAuthority && clientAuthority;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -277,15 +277,15 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            // 
+            //
             // Checks to ensure server only sends snapshots if object is
-            // on server authority(!clientAuthority) mode because on client 
-            // authority mode snapshots are broadcasted right after the authoritative 
+            // on server authority(!clientAuthority) mode because on client
+            // authority mode snapshots are broadcasted right after the authoritative
             // client updates server in the command function(see above), OR,
             // since host does not send anything to update the server, any client
-            // authoritative movement done by the host will have to be broadcasted 
+            // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
-            if (NetworkTime.localTime >= lastServerSendTime + sendInterval && 
+            if (NetworkTime.localTime >= lastServerSendTime + sendInterval &&
                 (!clientAuthority || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
@@ -471,10 +471,10 @@ namespace Mirror
             // for a buffer multiplier of '3', we usually have at _least_ 3
             // buffered snapshots. often 4-5 even.
             //
-            // catchUpThreshold should be a minimum of bufferTimeMultiplier + 3, 
-            // to prevent clashes with SnapshotInterpolation looking for at least 
-            // 3 old enough buffers, else catch up will be implemented while there 
-            // is not enough old buffers, and will result in jitter. 
+            // catchUpThreshold should be a minimum of bufferTimeMultiplier + 3,
+            // to prevent clashes with SnapshotInterpolation looking for at least
+            // 3 old enough buffers, else catch up will be implemented while there
+            // is not enough old buffers, and will result in jitter.
             // (validated with several real world tests by ninja & imer)
             catchupThreshold = Mathf.Max(bufferTimeMultiplier + 3, catchupThreshold);
 
