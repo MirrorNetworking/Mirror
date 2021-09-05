@@ -764,6 +764,12 @@ namespace Mirror
                 return;
             }
 
+            if (NetworkServer.isLoadingScene && newSceneName == networkSceneName)
+            {
+                Debug.LogError("ServerChangeScene is already in progress for " + newSceneName);
+                return;
+            }
+
             // Debug.Log("ServerChangeScene " + newSceneName);
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
