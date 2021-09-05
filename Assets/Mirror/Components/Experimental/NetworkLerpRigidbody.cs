@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 namespace Mirror.Experimental
 {
     [AddComponentMenu("Network/ Experimental/Network Lerp Rigidbody")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-lerp-rigidbody")]
+    [Obsolete("Use the new NetworkRigidbody component with Snapshot Interpolation instead.\nSee Components/NetworkTransform2k/NetworkRigidbody")]
     public class NetworkLerpRigidbody : NetworkBehaviour
     {
         [Header("Settings")]
