@@ -15,7 +15,7 @@ namespace MyersDiffX
             // serialize diffs
             //   deletedA means: it was in A, it's deleted in B.
             //   insertedB means: it wasn't in A, it's added to B.
-            Compression.CompressVarInt(result, (ulong)diffs.Count);
+            Compression.CompressVarUInt(result, (ulong)diffs.Count);
 
             // for-int instead of foreach to avoid Enumerator performance.
             // it shows in profiler for heavy delta compression tests.
@@ -24,11 +24,11 @@ namespace MyersDiffX
                 Item change = diffs[i];
 
                 // ApplyPatch 'from scratch' version needs StartA, NOT StartB.
-                Compression.CompressVarInt(result, (ulong)change.StartA);
+                Compression.CompressVarUInt(result, (ulong)change.StartA);
                 // ApplyPatch 'duplicate & apply' version needs StartB, not StartA.
-                //Compression.CompressVarInt(result, (ulong)change.StartB);
-                Compression.CompressVarInt(result, (ulong)change.deletedA);
-                Compression.CompressVarInt(result, (ulong)change.insertedB);
+                //Compression.CompressVarUInt(result, (ulong)change.StartB);
+                Compression.CompressVarUInt(result, (ulong)change.deletedA);
+                Compression.CompressVarUInt(result, (ulong)change.insertedB);
 
                 // need to provide the actual values that were inserted
                 // it means compared to 'A' at 'StartA',
@@ -60,14 +60,14 @@ namespace MyersDiffX
             int indexA = 0;
 
             // reconstruct...
-            int count = (int)Compression.DecompressVarInt(delta);
+            int count = (int)Compression.DecompressVarUInt(delta);
             for (int i = 0; i < count; ++i)
             {
                 // read the next change
-                int StartA = (int)Compression.DecompressVarInt(delta);
-                //int StartB = (int)Compression.DecompressVarInt(delta);
-                int deletedA = (int)Compression.DecompressVarInt(delta);
-                int insertedB = (int)Compression.DecompressVarInt(delta);
+                int StartA = (int)Compression.DecompressVarUInt(delta);
+                //int StartB = (int)Compression.DecompressVarUInt(delta);
+                int deletedA = (int)Compression.DecompressVarUInt(delta);
+                int insertedB = (int)Compression.DecompressVarUInt(delta);
 
                 // we progressed through A until indexA already.
                 // now we have change at StartA.
@@ -112,22 +112,22 @@ namespace MyersDiffX
                 B.Add(ASegment.Array[ASegment.Offset + i]);
 
             // deserialize patch
-            int count = (int)Compression.DecompressVarInt(delta);
+            int count = (int)Compression.DecompressVarUInt(delta);
             // TODO safety..
             for (int i = 0; i < count; ++i)
             {
                 // we only ever need (and serialize) StartB
-                int StartB = (int)Compression.DecompressVarInt(delta);
+                int StartB = (int)Compression.DecompressVarUInt(delta);
 
                 // deleted amount
-                int deletedA = (int)Compression.DecompressVarInt(delta);
+                int deletedA = (int)Compression.DecompressVarUInt(delta);
 
                 // deletedA means: compared to A, 'N' were deleted in B at 'StartB'
                 // TODO we need a linked list or similar data structure for perf
                 B.RemoveRange(StartB, deletedA);
 
                 // inserted amount
-                int insertedB = (int)Compression.DecompressVarInt(delta);
+                int insertedB = (int)Compression.DecompressVarUInt(delta);
                 for (int n = 0; n < insertedB; ++n)
                 {
                     // DO NOT _VARINT_ the actual value.

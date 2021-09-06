@@ -14,7 +14,7 @@ namespace MyersDiffX
             // serialize diffs
             //   deletedA means: it was in A, it's deleted in B.
             //   insertedB means: it wasn't in A, it's added to B.
-            Compression.CompressVarInt(result, (ulong)diffs.Length);
+            Compression.CompressVarUInt(result, (ulong)diffs.Length);
 
             // for-int instead of foreach to avoid Enumerator performance.
             // it shows in profiler for heavy delta compression tests.
@@ -23,11 +23,11 @@ namespace MyersDiffX
                 Item change = diffs[i];
 
                 // ApplyPatch 'from scratch' version needs StartA, NOT StartB.
-                Compression.CompressVarInt(result, (ulong)change.StartA);
+                Compression.CompressVarUInt(result, (ulong)change.StartA);
                 // ApplyPatch 'duplicate & apply' version needs StartB, not StartA.
-                //Compression.CompressVarInt(result, (ulong)change.StartB);
-                Compression.CompressVarInt(result, (ulong)change.deletedA);
-                Compression.CompressVarInt(result, (ulong)change.insertedB);
+                //Compression.CompressVarUInt(result, (ulong)change.StartB);
+                Compression.CompressVarUInt(result, (ulong)change.deletedA);
+                Compression.CompressVarUInt(result, (ulong)change.insertedB);
 
                 // need to provide the actual values that were inserted
                 // it means compared to 'A' at 'StartA',
