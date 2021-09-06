@@ -39,12 +39,6 @@ namespace Mirror
         //      way better for security if we can check states in callbacks
         public static bool ready;
 
-        /// <summary>The NetworkConnection object that is currently "ready".</summary>
-        // TODO this is from UNET. it's redundant and we should probably obsolete it.
-        // Deprecated 2021-03-10
-        [Obsolete("NetworkClient.readyConnection is redundant. Use NetworkClient.connection and use NetworkClient.ready to check if it's ready.")]
-        public static NetworkConnection readyConnection => ready ? connection : null;
-
         /// <summary>NetworkIdentity of the localPlayer </summary>
         public static NetworkIdentity localPlayer { get; internal set; }
 
@@ -68,9 +62,6 @@ namespace Mirror
 
         /// <summary>True if client is running in host mode.</summary>
         public static bool isHostClient => connection is LocalConnectionToServer;
-        // Deprecated 2021-05-26
-        [Obsolete("isLocalClient was renamed to isHostClient because that's what it actually means.")]
-        public static bool isLocalClient => isHostClient;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
@@ -246,23 +237,6 @@ namespace Mirror
             // IMPORTANT: do NOT clear connection here yet.
             // we still need it in OnTransportDisconnected for callbacks.
             // connection = null;
-        }
-
-        /// <summary>Disconnect host mode.</summary>
-        // this is needed to call DisconnectMessage for the host client too.
-        // Deprecated 2021-05-11
-        [Obsolete("Call NetworkClient.Disconnect() instead. Nobody should use DisconnectLocalServer.")]
-        public static void DisconnectLocalServer()
-        {
-            // only if host connection is running
-            if (NetworkServer.localConnection != null)
-            {
-                // TODO ConnectLocalServer manually sends a ConnectMessage to the
-                // local connection. should we send a DisconnectMessage here too?
-                // (if we do then we get an Unknown Message ID log)
-                //NetworkServer.localConnection.Send(new DisconnectMessage());
-                NetworkServer.OnTransportDisconnected(NetworkServer.localConnection.connectionId);
-            }
         }
 
         // transport events ////////////////////////////////////////////////////
@@ -460,20 +434,6 @@ namespace Mirror
         }
 
         // message handlers ////////////////////////////////////////////////////
-        /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
-        // Deprecated 2021-03-13
-        [Obsolete("Use RegisterHandler<T> version without NetworkConnection parameter. It always points to NetworkClient.connection anyway.")]
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
-            where T : struct, NetworkMessage
-        {
-            ushort msgType = MessagePacking.GetId<T>();
-            if (handlers.ContainsKey(msgType))
-            {
-                Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
-            }
-            handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
-        }
-
         /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
@@ -961,10 +921,6 @@ namespace Mirror
             return true;
         }
 
-        // Deprecated 2021-03-13
-        [Obsolete("NetworkClient.Ready doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
-        public static bool Ready(NetworkConnection conn) => Ready();
-
         // add player //////////////////////////////////////////////////////////
         // called from message handler for Owner message
         internal static void InternalAddPlayer(NetworkIdentity identity)
@@ -1016,10 +972,6 @@ namespace Mirror
             connection.Send(new AddPlayerMessage());
             return true;
         }
-
-        // Deprecated 2021-03-13
-        [Obsolete("NetworkClient.AddPlayer doesn't need a NetworkConnection parameter anymore. It always uses NetworkClient.connection anyway.")]
-        public static bool AddPlayer(NetworkConnection readyConn) => AddPlayer();
 
         // spawning ////////////////////////////////////////////////////////////
         internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)
@@ -1397,11 +1349,6 @@ namespace Mirror
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ClientLateUpdate();
         }
-
-        // obsolete to not break people's projects. Update was public.
-        // Deprecated 2021-03-02
-        [Obsolete("NetworkClient.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
-        public static void Update() => NetworkLateUpdate();
 
         // shutdown ////////////////////////////////////////////////////////////
         /// <summary>Destroys all networked objects on the client.</summary>

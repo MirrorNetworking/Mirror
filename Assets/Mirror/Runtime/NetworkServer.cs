@@ -45,14 +45,6 @@ namespace Mirror
         // by default, everyone observes everyone
         public static InterestManagement aoi;
 
-        // Deprecated 2021-05-10
-        [Obsolete("Transport is responsible for timeouts.")]
-        public static bool disconnectInactiveConnections;
-
-        // Deprecated 2021-05-10
-        [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
-        public static float disconnectInactiveTimeout = 60f;
-
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
         // Connected/Disconnected messages over the network causing undefined
@@ -242,10 +234,6 @@ namespace Mirror
                    (connections.Count == 1 && localConnection != null);
         }
 
-        // Deprecated 2021-03-07
-        [Obsolete("NoConnections was renamed to NoExternalConnections because that's what it checks for.")]
-        public static bool NoConnections() => NoExternalConnections();
-
         // send ////////////////////////////////////////////////////////////////
         /// <summary>Send a message to all clients, even those that haven't joined the world yet (non ready)</summary>
         public static void SendToAll<T>(T message, int channelId = Channels.Reliable, bool sendToReadyOnly = false)
@@ -354,22 +342,6 @@ namespace Mirror
                 }
 
                 NetworkDiagnostics.OnSend(message, channelId, segment.Count, identity.observers.Count);
-            }
-        }
-
-        /// <summary>Send this message to the player only</summary>
-        // Deprecated 2021-03-04
-        [Obsolete("Use identity.connectionToClient.Send() instead! Previously Mirror needed this function internally, but not anymore.")]
-        public static void SendToClientOfPlayer<T>(NetworkIdentity identity, T msg, int channelId = Channels.Reliable)
-            where T : struct, NetworkMessage
-        {
-            if (identity != null)
-            {
-                identity.connectionToClient.Send(msg, channelId);
-            }
-            else
-            {
-                Debug.LogError("SendToClientOfPlayer: player has no NetworkIdentity: " + identity);
             }
         }
 
@@ -593,15 +565,6 @@ namespace Mirror
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
-        /// <summary>Register a handler for message type T. Most should require authentication.</summary>
-        // Deprecated 2021-02-24
-        [Obsolete("Use RegisterHandler(Action<NetworkConnection, T), requireAuthentication instead.")]
-        public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
-            where T : struct, NetworkMessage
-        {
-            RegisterHandler<T>((_, value) => { handler(value); }, requireAuthentication);
-        }
-
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
@@ -677,14 +640,6 @@ namespace Mirror
             localConnection = null;
             active = false;
         }
-
-        // Deprecated 2021-05-11
-        [Obsolete("Call NetworkClient.DisconnectAll() instead")]
-        public static void DisconnectAllExternalConnections() => DisconnectAll();
-
-        // Deprecated 2021-05-11
-        [Obsolete("Call NetworkClient.DisconnectAll() instead")]
-        public static void DisconnectAllConnections() => DisconnectAll();
 
         // add/remove/replace player ///////////////////////////////////////////
         /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>
@@ -1620,24 +1575,6 @@ namespace Mirror
             }
         }
 
-        // helper function to check a connection for inactivity
-        // and disconnect if necessary
-        // => returns true if disconnected
-        static bool DisconnectIfInactive(NetworkConnectionToClient connection)
-        {
-            // check for inactivity
-#pragma warning disable 618
-            if (disconnectInactiveConnections &&
-                !connection.IsAlive(disconnectInactiveTimeout))
-            {
-                Debug.LogWarning($"Disconnecting {connection} for inactivity!");
-                connection.Disconnect();
-                return true;
-            }
-#pragma warning restore 618
-            return false;
-        }
-
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
         static readonly List<NetworkConnectionToClient> connectionsCopy =
@@ -1659,10 +1596,6 @@ namespace Mirror
             // go through all connections
             foreach (NetworkConnectionToClient connection in connectionsCopy)
             {
-                // check for inactivity. disconnects if necessary.
-                if (DisconnectIfInactive(connection))
-                    continue;
-
                 // has this connection joined the world yet?
                 // for each READY connection:
                 //   pull in UpdateVarsMessage for each entity it observes
@@ -1710,10 +1643,5 @@ namespace Mirror
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ServerLateUpdate();
         }
-
-        // obsolete to not break people's projects. Update was public.
-        // Deprecated 2021-03-02
-        [Obsolete("NetworkServer.Update is now called internally from our custom update loop. No need to call Update manually anymore.")]
-        public static void Update() => NetworkLateUpdate();
     }
 }
