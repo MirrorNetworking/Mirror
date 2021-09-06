@@ -287,7 +287,18 @@ namespace Mirror.Discovery
         /// <returns>ClientListenAsync Task</returns>
         public async Task ClientListenAsync()
         {
-            while (true)
+            // while clientUpdClient to fix: 
+            // https://github.com/vis2k/Mirror/pull/2908
+            //
+            // If, you cancel discovery the clientUdpClient is set to null.
+            // However, nothing cancels ClientListenAsync. If we change the if(true)
+            // to check if the client is null. You can properly cancel the discovery, 
+            // and kill the listen thread.
+            //
+            // Prior to this fix, if you cancel the discovery search. It crashes the 
+            // thread, and is super noisy in the output. As well as causes issues on 
+            // the quest.
+            while (clientUdpClient != null)
             {
                 try
                 {
