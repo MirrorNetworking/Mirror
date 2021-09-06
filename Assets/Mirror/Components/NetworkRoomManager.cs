@@ -647,7 +647,7 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomClientConnect() {}
 
-        // Deprecated 2021-07-08
+        // Deprecated 2021-09-06
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnRoomClientConnect(NetworkConnection conn) {}
 
@@ -656,7 +656,7 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomClientDisconnect() {}
 
-        // Deprecated 2021-07-08
+        // Deprecated 2021-09-06
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnRoomClientDisconnect(NetworkConnection conn) {}
 
@@ -676,7 +676,7 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomClientSceneChanged() {}
 
-        // Deprecated 2021-07-08
+        // Deprecated 2021-09-06
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnRoomClientSceneChanged(NetworkConnection conn) {}
 
