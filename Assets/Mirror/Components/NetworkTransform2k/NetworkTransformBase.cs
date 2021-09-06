@@ -52,7 +52,7 @@ namespace Mirror
         [Header("Interpolation")]
         public bool interpolatePosition = true;
         public bool interpolateRotation = true;
-        public bool interpolateScale = true;
+        public bool interpolateScale = false;
 
         // "Experimentally I’ve found that the amount of delay that works best
         //  at 2-5% packet loss is 3X the packet send rate"
