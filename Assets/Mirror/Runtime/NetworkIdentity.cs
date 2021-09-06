@@ -858,6 +858,7 @@ namespace Mirror
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
             int headerPosition = writer.Position;
+            // no varint because we don't know the final size yet
             writer.WriteInt(0);
             int contentPosition = writer.Position;
 
