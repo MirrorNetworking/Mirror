@@ -228,7 +228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.1
   clientAuthority: 1
   sendInterval: 0.05
   syncPosition: 1
@@ -237,9 +237,9 @@ MonoBehaviour:
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 0
-  bufferTimeMultiplier: 3
+  bufferTimeMultiplier: 1
   bufferSizeLimit: 64
-  catchupThreshold: 6
+  catchupThreshold: 4
   catchupMultiplier: 0.1
   showGizmos: 0
   showOverlay: 0
