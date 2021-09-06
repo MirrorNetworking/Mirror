@@ -8,7 +8,7 @@ namespace Mirror
     /// Component that controls visibility of networked objects for players.
     /// <para>Any object with this component on it will not be visible to players more than a (configurable) distance away.</para>
     /// </summary>
-    // Deprecated 2021-02-17
+    // Deprecated 2021-07-13
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]

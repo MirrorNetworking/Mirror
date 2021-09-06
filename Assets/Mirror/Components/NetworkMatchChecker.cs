@@ -9,7 +9,7 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to other objects in the same match.</para>
     /// <para>This would be used to isolate players to their respective matches within a single game server instance. </para>
     /// </summary>
-    // Deprecated 2021-02-17
+    // Deprecated 2021-07-16
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/NetworkMatchChecker")]
