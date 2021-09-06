@@ -19,25 +19,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void VariableTest()
-        {
-            Assert.That(manager.dontDestroyOnLoad, Is.True);
-            Assert.That(manager.runInBackground, Is.True);
-            Assert.That(manager.autoStartServerBuild, Is.True);
-            Assert.That(manager.serverTickRate, Is.EqualTo(30));
-            Assert.That(manager.offlineScene, Is.Empty);
-            Assert.That(manager.networkAddress, Is.EqualTo("localhost"));
-            Assert.That(manager.maxConnections, Is.EqualTo(100));
-            Assert.That(manager.autoCreatePlayer, Is.True);
-            Assert.That(manager.spawnPrefabs, Is.Empty);
-            Assert.That(manager.numPlayers, Is.Zero);
-
-            Assert.That(NetworkManager.networkSceneName, Is.Empty);
-            Assert.That(NetworkManager.startPositionIndex, Is.Zero);
-            Assert.That(NetworkManager.startPositions, Is.Empty);
-        }
-
-        [Test]
         public void StartServerTest()
         {
             Assert.That(NetworkServer.active, Is.False);
