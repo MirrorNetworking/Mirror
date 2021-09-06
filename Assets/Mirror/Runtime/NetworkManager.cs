@@ -23,7 +23,7 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
-        // Deprecated 2021-03-10
+           // Deprecated 2021-03-10
         // Temporary bool to allow Network Manager to persist to offline scene
         // Based on Discord convo, BigBox is invoking StopHost in startup sequence, bouncing the server and clients back to offline scene, which resets Network Manager.
         // Request is for a checkbox to persist Network Manager to offline scene, despite the collision and warning.
@@ -31,7 +31,7 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene change to the offline scene?")]
         public bool PersistNetworkManagerToOfflineScene;
 
-        /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
+     /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
         [FormerlySerializedAs("m_RunInBackground")]
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
@@ -73,14 +73,6 @@ namespace Mirror
         [FormerlySerializedAs("m_MaxConnections")]
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
-
-        // Deprecated 2021-05-10
-        [Obsolete("Transport is responsible for timeouts.")]
-        public bool disconnectInactiveConnections;
-
-        // Deprecated 2021-05-10
-        [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
-        public float disconnectInactiveTimeout = 60f;
 
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
@@ -256,12 +248,6 @@ namespace Mirror
             }
 
             ConfigureHeadlessFrameRate();
-
-            // Copy auto-disconnect settings to NetworkServer
-#pragma warning disable 618
-            NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
-            NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
-#pragma warning restore 618
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);
@@ -646,7 +632,7 @@ namespace Mirror
             }
         }
 
-        // DEPRECATED 2021-07-21
+        // Deprecated 2021-07-21
         [Obsolete("Renamed to ConfigureHeadlessFrameRate()")]
         public virtual void ConfigureServerFrameRate() {}
 
@@ -1246,10 +1232,6 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-        // Deprecated 2021-02-13
-        [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
-        public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
-
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
         public virtual void OnServerError(NetworkConnection conn, Exception exception) {}
 
@@ -1285,10 +1267,6 @@ namespace Mirror
         {
             StopClient();
         }
-
-        // Deprecated 2021-02-13
-        [Obsolete("OnClientError was removed because it hasn't been used in a long time.")]
-        public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(Exception exception) {}

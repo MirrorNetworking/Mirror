@@ -14,10 +14,6 @@ namespace Mirror
     {
         NetworkManager manager;
 
-        // Deprecated 2021-02-24
-        [Obsolete("showGUI will be removed unless someone has a valid use case. Simply use or don't use the HUD component.")]
-        public bool showGUI = true;
-
         public int offsetX;
         public int offsetY;
 
@@ -28,10 +24,6 @@ namespace Mirror
 
         void OnGUI()
         {
-#pragma warning disable 618
-            if (!showGUI) return;
-#pragma warning restore 618
-
             GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
             if (!NetworkClient.isConnected && !NetworkServer.active)
             {
