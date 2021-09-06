@@ -86,6 +86,7 @@
 // 2007.09.23 UpVector and DownVector optimization by Jan Stoklasa ().
 // 2008.05.31 Adjusted the testing code that failed because of the Optimize method (not a bug in the diff algorithm).
 // 2008.10.08 Fixing a test case and adding a new test case.
+/*
 using System;
 using Unity.Burst;
 using Unity.Collections;
@@ -455,3 +456,4 @@ namespace MyersDiffX
         }
     }
 }
+*/

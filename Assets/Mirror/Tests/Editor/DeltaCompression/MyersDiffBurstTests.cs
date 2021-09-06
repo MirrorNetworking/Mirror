@@ -1,4 +1,5 @@
 // burst version for MyersDiff tests
+/*
 using System;
 using System.Collections.Generic;
 using MyersDiffX;
@@ -432,3 +433,4 @@ namespace Mirror.Tests.DeltaCompression
         }
     }
 }
+*/

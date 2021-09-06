@@ -1,6 +1,7 @@
 // helper class to convert MyersDiff result to binary patch.
 // and to apply binary patch to another binary.
 // this is framework dependent, so not part of MyersDiffX repo.
+/*
 using Mirror;
 using Unity.Collections;
 
@@ -45,3 +46,4 @@ namespace MyersDiffX
             MyersDiffXPatching.ApplyPatch(A, delta, result);
     }
 }
+*/
