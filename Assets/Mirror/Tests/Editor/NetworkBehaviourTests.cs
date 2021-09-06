@@ -24,66 +24,6 @@ namespace Mirror.Tests
     }
 
     // we need to inherit from networkbehaviour to test protected functions
-    public class NetworkBehaviourSendCommandInternalComponent : NetworkBehaviour
-    {
-        // counter to make sure that it's called exactly once
-        public int called;
-
-        // weaver generates this from [Command]
-        // but for tests we need to add it manually
-        public static void CommandGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
-        {
-            ++((NetworkBehaviourSendCommandInternalComponent)comp).called;
-        }
-
-        // SendCommandInternal is protected. let's expose it so we can test it.
-        public void CallSendCommandInternal(bool requiresAuthority = true)
-        {
-            SendCommandInternal(GetType(), nameof(CommandGenerated), new NetworkWriter(), 0, requiresAuthority);
-        }
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
-    public class NetworkBehaviourSendRPCInternalComponent : NetworkBehaviour
-    {
-        // counter to make sure that it's called exactly once
-        public int called;
-
-        // weaver generates this from [ClientRpc]
-        // but for tests we need to add it manually
-        public static void RPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
-        {
-            ++((NetworkBehaviourSendRPCInternalComponent)comp).called;
-        }
-
-        // SendCommandInternal is protected. let's expose it so we can test it.
-        public void CallSendRPCInternal()
-        {
-            SendRPCInternal(GetType(), nameof(RPCGenerated), new NetworkWriter(), 0, false);
-        }
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
-    public class NetworkBehaviourSendTargetRPCInternalComponent : NetworkBehaviour
-    {
-        // counter to make sure that it's called exactly once
-        public int called;
-
-        // weaver generates this from [TargetRpc]
-        // but for tests we need to add it manually
-        public static void TargetRPCGenerated(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection)
-        {
-            ++((NetworkBehaviourSendTargetRPCInternalComponent)comp).called;
-        }
-
-        // SendCommandInternal is protected. let's expose it so we can test it.
-        public void CallSendTargetRPCInternal(NetworkConnection conn)
-        {
-            SendTargetRPCInternal(conn, GetType(), nameof(TargetRPCGenerated), new NetworkWriter(), 0);
-        }
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
     public class NetworkBehaviourDelegateComponent : NetworkBehaviour
     {
         public static void Delegate(NetworkBehaviour comp, NetworkReader reader, NetworkConnection senderConnection) {}
