@@ -287,7 +287,7 @@ namespace Mirror.Discovery
         /// <returns>ClientListenAsync Task</returns>
         public async Task ClientListenAsync()
         {
-            while (true)
+            while (clientUdpClient != null)
             {
                 try
                 {
