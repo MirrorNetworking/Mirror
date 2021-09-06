@@ -1,3 +1,4 @@
+/* TOO SLOW
 using System.IO;
 using BsDiff;
 
@@ -33,3 +34,4 @@ namespace Mirror.Tests.DeltaCompression
         }
     }
 }
+*/
