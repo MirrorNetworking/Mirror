@@ -1259,10 +1259,6 @@ namespace Mirror.Tests
         public void UpdateWithTimedOutConnection()
         {
             // configure to disconnect with '0' timeout (= immediately)
-#pragma warning disable 618
-            NetworkServer.disconnectInactiveConnections = true;
-            NetworkServer.disconnectInactiveTimeout = 0;
-
             // start
             NetworkServer.Listen(1);
 
@@ -1271,10 +1267,6 @@ namespace Mirror.Tests
 
             // update
             NetworkServer.NetworkLateUpdate();
-
-            // clean up
-            NetworkServer.disconnectInactiveConnections = false;
-#pragma warning restore 618
         }
     }
 }
