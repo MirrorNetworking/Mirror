@@ -15,10 +15,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
-    class VirtualNoOverrideTargetRpc : VirtualTargetRpc
-    {
-
-    }
+    class VirtualNoOverrideTargetRpc : VirtualTargetRpc {}
 
     class VirtualOverrideTargetRpc : VirtualTargetRpc
     {

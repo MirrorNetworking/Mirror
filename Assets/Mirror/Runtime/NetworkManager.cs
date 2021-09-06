@@ -23,7 +23,7 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
-        // Deprecated 2021-03-10
+           // Deprecated 2021-03-10
         // Temporary bool to allow Network Manager to persist to offline scene
         // Based on Discord convo, BigBox is invoking StopHost in startup sequence, bouncing the server and clients back to offline scene, which resets Network Manager.
         // Request is for a checkbox to persist Network Manager to offline scene, despite the collision and warning.
@@ -31,7 +31,7 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene change to the offline scene?")]
         public bool PersistNetworkManagerToOfflineScene;
 
-        /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
+     /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
         [FormerlySerializedAs("m_RunInBackground")]
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
@@ -74,14 +74,6 @@ namespace Mirror
         [Tooltip("Maximum number of concurrent connections.")]
         public int maxConnections = 100;
 
-        // Deprecated 2021-05-10
-        [Obsolete("Transport is responsible for timeouts.")]
-        public bool disconnectInactiveConnections;
-
-        // Deprecated 2021-05-10
-        [Obsolete("Transport is responsible for timeouts. Configure the Transport's timeout setting instead.")]
-        public float disconnectInactiveTimeout = 60f;
-
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
         public NetworkAuthenticator authenticator;
@@ -119,8 +111,7 @@ namespace Mirror
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
 
         /// <summary>True if the server is running or client is connected/connecting.</summary>
-        [NonSerialized]
-        public bool isNetworkActive;
+        public bool isNetworkActive => NetworkServer.active || NetworkClient.active;
 
         // TODO remove this
         static NetworkConnection clientReadyConnection;
@@ -142,6 +133,20 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+            // make sure someone doesn't accidentally add another NetworkManager
+            // need transform.root because when adding to a child, the parent's
+            // OnValidate isn't called.
+            foreach (NetworkManager manager in transform.root.GetComponentsInChildren<NetworkManager>())
+            {
+                if (manager != this)
+                {
+                    Debug.LogError($"{name} detected another component of type {typeof(NetworkManager)} in its hierarchy on {manager.name}. There can only be one, please remove one of them.");
+                    // return early so that transport component isn't auto-added
+                    // to the duplicate NetworkManager.
+                    return;
+                }
+            }
+
             // add transport if there is none yet. makes upgrading easier.
             if (transport == null)
             {
@@ -244,12 +249,6 @@ namespace Mirror
 
             ConfigureHeadlessFrameRate();
 
-            // Copy auto-disconnect settings to NetworkServer
-#pragma warning disable 618
-            NetworkServer.disconnectInactiveTimeout = disconnectInactiveTimeout;
-            NetworkServer.disconnectInactiveConnections = disconnectInactiveConnections;
-#pragma warning restore 618
-
             // start listening to network connections
             NetworkServer.Listen(maxConnections);
 
@@ -265,8 +264,6 @@ namespace Mirror
 
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
-
-            isNetworkActive = true;
         }
 
         /// <summary>Starts the server, listening for incoming connections.</summary>
@@ -332,8 +329,6 @@ namespace Mirror
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
 
-            isNetworkActive = true;
-
             // In case this is a headless client...
             ConfigureHeadlessFrameRate();
 
@@ -372,8 +367,6 @@ namespace Mirror
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
-
-            isNetworkActive = true;
 
             RegisterClientMessages();
 
@@ -557,7 +550,6 @@ namespace Mirror
             OnStopServer();
 
             //Debug.Log("NetworkManager StopServer");
-            isNetworkActive = false;
             NetworkServer.Shutdown();
 
             // set offline mode BEFORE changing scene so that FinishStartScene
@@ -598,7 +590,6 @@ namespace Mirror
             OnStopClient();
 
             //Debug.Log("NetworkManager StopClient");
-            isNetworkActive = false;
 
             // shutdown client
             NetworkClient.Disconnect();
@@ -641,7 +632,7 @@ namespace Mirror
             }
         }
 
-        // DEPRECATED 2021-07-21
+        // Deprecated 2021-07-21
         [Obsolete("Renamed to ConfigureHeadlessFrameRate()")]
         public virtual void ConfigureServerFrameRate() {}
 
@@ -1262,10 +1253,6 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-        // Deprecated 2021-02-13
-        [Obsolete("OnServerError was removed because it hasn't been used in a long time.")]
-        public virtual void OnServerError(NetworkConnection conn, int errorCode) {}
-
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
         public virtual void OnServerError(NetworkConnection conn, Exception exception) {}
 
@@ -1307,10 +1294,6 @@ namespace Mirror
         // Deprecated 2021-07-08
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnClientDisconnect(NetworkConnection conn) => OnClientDisconnect();
-
-        // Deprecated 2021-02-13
-        [Obsolete("OnClientError was removed because it hasn't been used in a long time.")]
-        public virtual void OnClientError(NetworkConnection conn, int errorCode) {}
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(Exception exception) {}

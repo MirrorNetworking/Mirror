@@ -11,12 +11,13 @@ namespace Mirror.Tests
         [SetUp]
         public override void SetUp()
         {
-            GameObject go = new GameObject();
-            aoi = go.AddComponent<SpatialHashingInterestManagement>();
+            base.SetUp();
+
+            // create spatial hashing object & component
+            CreateGameObject(out GameObject go, out aoi);
             aoi.visRange = 10;
             // setup server aoi since InterestManagement Awake isn't called
             NetworkServer.aoi = aoi;
-            base.SetUp();
 
             // rebuild grid once so the two connections are in there
             aoi.Update();
@@ -25,7 +26,6 @@ namespace Mirror.Tests
         [TearDown]
         public override void TearDown()
         {
-            GameObject.DestroyImmediate(aoi.gameObject);
             base.TearDown();
             // clear server aoi again
             NetworkServer.aoi = null;

@@ -8,7 +8,7 @@ namespace Mirror
     /// Component that controls visibility of networked objects for players.
     /// <para>Any object with this component on it will not be visible to players more than a (configurable) distance away.</para>
     /// </summary>
-    // Deprecated 2021-02-17
+    // Deprecated 2021-07-13
     [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [AddComponentMenu("Network/NetworkProximityChecker")]
     [RequireComponent(typeof(NetworkIdentity))]
@@ -26,18 +26,6 @@ namespace Mirror
         /// </summary>
         [Tooltip("How often (in seconds) that this object should update the list of observers that can see it.")]
         public float visUpdateInterval = 1;
-
-        /// <summary>
-        /// Flag to force this object to be hidden for players.
-        /// <para>If this object is a player object, it will not be hidden for that player.</para>
-        /// </summary>
-        // Deprecated 2021-02-17
-        [Obsolete("Use NetworkIdentity.visible mode instead of forceHidden!")]
-        public bool forceHidden
-        {
-            get => netIdentity.visible == Visibility.ForceHidden;
-            set => netIdentity.visible = value ? Visibility.ForceHidden : Visibility.Default;
-        }
 
         public override void OnStartServer()
         {
@@ -61,9 +49,6 @@ namespace Mirror
         /// <returns>True if the player can see this object.</returns>
         public override bool OnCheckObserver(NetworkConnection conn)
         {
-            if (forceHidden)
-                return false;
-
             return Vector3.Distance(conn.identity.transform.position, transform.position) < visRange;
         }
 
@@ -76,9 +61,6 @@ namespace Mirror
         public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
         {
             // if force hidden then return without adding any observers.
-            if (forceHidden)
-                return;
-
             // 'transform.' calls GetComponent, only do it once
             Vector3 position = transform.position;
 

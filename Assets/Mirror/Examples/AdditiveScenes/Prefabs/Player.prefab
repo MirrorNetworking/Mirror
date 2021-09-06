@@ -175,6 +175,7 @@ GameObject:
   - component: {fileID: 3175779197224890082}
   - component: {fileID: 8704659178864205755}
   - component: {fileID: 3086414693581178039}
+  - component: {fileID: -4778368485878020104}
   m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
@@ -212,7 +213,7 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   visible: 0
-  m_AssetId: 
+  m_AssetId: a5bdca0a2315d43499be7dcef473fbc7
   hasSpawned: 0
 --- !u!114 &887491563423388292
 MonoBehaviour:
@@ -227,14 +228,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0
+  syncInterval: 0.1
   clientAuthority: 1
-  localPositionSensitivity: 0.01
-  localRotationSensitivity: 0.01
-  localScaleSensitivity: 0.01
-  compressRotation: 0
-  interpolateScale: 0
+  sendInterval: 0.05
+  syncPosition: 1
+  syncRotation: 1
   syncScale: 0
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 0
+  bufferTimeMultiplier: 1
+  bufferSizeLimit: 64
+  catchupThreshold: 4
+  catchupMultiplier: 0.1
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
 --- !u!143 &8993127209816276930
 CharacterController:
   m_ObjectHideFlags: 0
@@ -325,3 +334,16 @@ MonoBehaviour:
   color:
     serializedVersion: 2
     rgba: 4278190080
+--- !u!114 &-4778368485878020104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8872462076811691049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2e242ee38a14076a39934172a19079b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visRange: 40

@@ -19,68 +19,47 @@ namespace Mirror.Tests.ClientSceneTests
         {
             NetworkIdentity obj1 = CreateSceneObject(10);
             NetworkIdentity obj2 = CreateSceneObject(11);
-            NetworkIdentity obj3 = CreateSceneObject(12);
-            NetworkIdentity obj4 = CreateSceneObject(13);
 
             obj1.gameObject.SetActive(false);
             obj2.gameObject.SetActive(false);
-            obj3.gameObject.SetActive(false);
-            obj4.gameObject.SetActive(false);
-
-            NetworkClient.PrepareToSpawnSceneObjects();
-
-            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(4));
-
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj1));
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj2));
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj3));
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj4));
-        }
-
-        [Test]
-        public void DoesNotAddActiveObjectsToDictionary()
-        {
-            NetworkIdentity active1 = CreateSceneObject(30);
-            NetworkIdentity active2 = CreateSceneObject(31);
-            NetworkIdentity inactive1 = CreateSceneObject(32);
-            NetworkIdentity inactive2 = CreateSceneObject(33);
-
-            active1.gameObject.SetActive(true);
-            active2.gameObject.SetActive(true);
-            inactive1.gameObject.SetActive(false);
-            inactive2.gameObject.SetActive(false);
 
             NetworkClient.PrepareToSpawnSceneObjects();
 
             Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(2));
 
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(inactive1));
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(inactive2));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj1));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(obj2));
+        }
 
-            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(active1));
-            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(active2));
+        [Test]
+        public void DoesNotAddActiveObjectsToDictionary()
+        {
+            NetworkIdentity active = CreateSceneObject(30);
+            NetworkIdentity inactive = CreateSceneObject(32);
+
+            active.gameObject.SetActive(true);
+            inactive.gameObject.SetActive(false);
+
+            NetworkClient.PrepareToSpawnSceneObjects();
+
+            Assert.That(NetworkClient.spawnableObjects, Has.Count.EqualTo(1));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(inactive));
+            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(active));
         }
 
         [Test]
         public void DoesNotAddObjectsWithNoSceneId()
         {
-            NetworkIdentity noId1 = CreateSceneObject(0);
-            NetworkIdentity noId2 = CreateSceneObject(0);
-            NetworkIdentity hasId1 = CreateSceneObject(40);
-            NetworkIdentity hasId2 = CreateSceneObject(41);
+            NetworkIdentity noId = CreateSceneObject(0);
+            NetworkIdentity hasId = CreateSceneObject(40);
 
-            noId1.gameObject.SetActive(false);
-            noId2.gameObject.SetActive(false);
-            hasId1.gameObject.SetActive(false);
-            hasId2.gameObject.SetActive(false);
+            noId.gameObject.SetActive(false);
+            hasId.gameObject.SetActive(false);
 
             NetworkClient.PrepareToSpawnSceneObjects();
 
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId1));
-            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId2));
-
-            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId1));
-            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId2));
+            Assert.IsTrue(NetworkClient.spawnableObjects.ContainsValue(hasId));
+            Assert.IsFalse(NetworkClient.spawnableObjects.ContainsValue(noId));
         }
 
         [Test]

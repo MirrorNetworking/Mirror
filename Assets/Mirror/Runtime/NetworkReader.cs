@@ -129,20 +129,9 @@ namespace Mirror
         public static byte ReadByte(this NetworkReader reader) => reader.ReadByte();
         public static sbyte ReadSByte(this NetworkReader reader) => (sbyte)reader.ReadByte();
         public static char ReadChar(this NetworkReader reader) => (char)reader.ReadUShort();
-
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadBool instead.")]
-        public static bool ReadBoolean(this NetworkReader reader) => reader.ReadBool();
         public static bool ReadBool(this NetworkReader reader) => reader.ReadByte() != 0;
-
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadShort instead.")]
-        public static short ReadInt16(this NetworkReader reader) => reader.ReadShort();
         public static short ReadShort(this NetworkReader reader) => (short)reader.ReadUShort();
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadUShort instead.")]
-        public static ushort ReadUInt16(this NetworkReader reader) => reader.ReadUShort();
         public static ushort ReadUShort(this NetworkReader reader)
         {
             ushort value = 0;
@@ -151,14 +140,8 @@ namespace Mirror
             return value;
         }
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadInt instead.")]
-        public static int ReadInt32(this NetworkReader reader) => reader.ReadInt();
         public static int ReadInt(this NetworkReader reader) => (int)reader.ReadUInt();
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadUInt instead.")]
-        public static uint ReadUInt32(this NetworkReader reader) => reader.ReadUInt();
         public static uint ReadUInt(this NetworkReader reader)
         {
             uint value = 0;
@@ -169,14 +152,8 @@ namespace Mirror
             return value;
         }
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadLong instead.")]
-        public static long ReadInt64(this NetworkReader reader) => reader.ReadLong();
         public static long ReadLong(this NetworkReader reader) => (long)reader.ReadULong();
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadULong instead.")]
-        public static ulong ReadUInt64(this NetworkReader reader) => reader.ReadULong();
         public static ulong ReadULong(this NetworkReader reader)
         {
             ulong value = 0;
@@ -191,9 +168,6 @@ namespace Mirror
             return value;
         }
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use ReadFloat instead.")]
-        public static float ReadSingle(this NetworkReader reader) => reader.ReadFloat();
         public static float ReadFloat(this NetworkReader reader)
         {
             UIntFloat converter = new UIntFloat();
@@ -324,10 +298,15 @@ namespace Mirror
             if (netId == 0)
                 return null;
 
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity;
-            }
+            // look in server spawned
+            if (NetworkServer.active &&
+                NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity serverIdentity))
+                return serverIdentity;
+
+            // look in client spawned
+            if (NetworkClient.active &&
+                NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity clientIdentity))
+                return clientIdentity;
 
             // a netId not being in spawned is common.
             // for example, "[SyncVar] NetworkIdentity target" netId would not
@@ -338,23 +317,19 @@ namespace Mirror
 
         public static NetworkBehaviour ReadNetworkBehaviour(this NetworkReader reader)
         {
-            uint netId = reader.ReadUInt();
-            if (netId == 0)
-                return null;
-
-            // if netId is not 0, then index is also sent to read before returning
-            byte componentIndex = reader.ReadByte();
-
-            if (NetworkIdentity.spawned.TryGetValue(netId, out NetworkIdentity identity))
-            {
-                return identity.NetworkBehaviours[componentIndex];
-            }
+            // reuse ReadNetworkIdentity, get the component at index
+            NetworkIdentity identity = ReadNetworkIdentity(reader);
 
             // a netId not being in spawned is common.
             // for example, "[SyncVar] NetworkBehaviour target" netId would not
             // be known on client if the monster walks out of proximity for a
             // moment. no need to log any error or warning here.
-            return null;
+            if (identity == null)
+                return null;
+
+            // if identity isn't null, then index is also sent to read before returning
+            byte componentIndex = reader.ReadByte();
+            return identity.NetworkBehaviours[componentIndex];
         }
 
         public static T ReadNetworkBehaviour<T>(this NetworkReader reader) where T : NetworkBehaviour

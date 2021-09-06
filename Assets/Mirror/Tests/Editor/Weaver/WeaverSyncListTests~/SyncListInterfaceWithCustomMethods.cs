@@ -21,11 +21,11 @@ namespace WeaverSyncListTests.SyncListInterfaceWithCustomMethods
     {
         static void SerializeItem(this NetworkWriter writer, IMyInterface item)
         {
-            writer.WriteInt32(item.someNumber);
+            writer.WriteInt(item.someNumber);
         }
         static IMyInterface DeserializeItem(this NetworkReader reader)
         {
-            return new MyUser { someNumber = reader.ReadInt32() };
+            return new MyUser { someNumber = reader.ReadInt() };
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Mirror.Weaver.Tests
         public void MonoBehaviourSyncList()
         {
             HasError("potato is a SyncObject and must be inside a NetworkBehaviour.  MonoBehaviourSyncList is not a NetworkBehaviour",
-                "Mirror.SyncListInt WeaverMonoBehaviourTests.MonoBehaviourSyncList.MonoBehaviourSyncList::potato");
+                "Mirror.SyncList`1<System.Int32> WeaverMonoBehaviourTests.MonoBehaviourSyncList.MonoBehaviourSyncList::potato");
         }
 
         [Test]

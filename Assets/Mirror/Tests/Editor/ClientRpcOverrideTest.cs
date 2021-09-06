@@ -9,26 +9,19 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public event Action<int> onVirtualSendInt;
 
         [ClientRpc]
-        public virtual void RpcSendInt(int someInt)
-        {
+        public virtual void RpcSendInt(int someInt) =>
             onVirtualSendInt?.Invoke(someInt);
-        }
     }
 
-    class VirtualNoOverrideClientRpc : VirtualClientRpc
-    {
-
-    }
+    class VirtualNoOverrideClientRpc : VirtualClientRpc {}
 
     class VirtualOverrideClientRpc : VirtualClientRpc
     {
         public event Action<int> onOverrideSendInt;
 
         [ClientRpc]
-        public override void RpcSendInt(int someInt)
-        {
+        public override void RpcSendInt(int someInt) =>
             onOverrideSendInt?.Invoke(someInt);
-        }
     }
 
     class VirtualOverrideClientRpcWithBase : VirtualClientRpc

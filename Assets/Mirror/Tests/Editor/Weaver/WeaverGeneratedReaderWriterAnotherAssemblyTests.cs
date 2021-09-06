@@ -4,14 +4,6 @@ namespace Mirror.Weaver.Tests
 {
     public class WeaverGeneratedReaderWriterAnotherAssemblyTests : WeaverTestsBuildFromTestName
     {
-        [SetUp]
-        public override void TestSetup()
-        {
-            WeaverAssembler.AddReferencesByAssemblyName(new string[] { "WeaverTestExtraAssembly.dll" });
-
-            base.TestSetup();
-        }
-
         [Test]
         public void CreatesForStructFromDifferentAssemblies()
         {

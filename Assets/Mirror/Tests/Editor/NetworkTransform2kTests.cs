@@ -29,9 +29,14 @@ namespace Mirror.Tests.NetworkTransform2k
         public override void SetUp()
         {
             // set up world with server & client
+            // host mode for now.
+            // TODO separate client & server after .spawned split.
+            //      we can use CreateNetworkedAndSpawn that creates on sv & cl.
+            //      then move on server, update, verify client position etc.
             base.SetUp();
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+            connectionToClient = NetworkServer.localConnection;
 
             // create a networked object with NetworkTransform
             CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity _, out component, connectionToClient);
@@ -167,6 +172,9 @@ namespace Mirror.Tests.NetworkTransform2k
             component.syncPosition = false;
             component.syncRotation = true;
             component.syncScale = true;
+            component.interpolatePosition = false;
+            component.interpolateRotation = true;
+            component.interpolateScale = true;
             component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
@@ -187,6 +195,9 @@ namespace Mirror.Tests.NetworkTransform2k
             component.syncPosition = true;
             component.syncRotation = false;
             component.syncScale = true;
+            component.interpolatePosition = true;
+            component.interpolateRotation = false;
+            component.interpolateScale = true;
             component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
@@ -207,6 +218,9 @@ namespace Mirror.Tests.NetworkTransform2k
             component.syncPosition = true;
             component.syncRotation = true;
             component.syncScale = false;
+            component.interpolatePosition = true;
+            component.interpolateRotation = true;
+            component.interpolateScale = false;
             component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?

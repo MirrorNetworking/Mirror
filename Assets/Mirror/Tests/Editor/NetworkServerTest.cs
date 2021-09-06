@@ -630,6 +630,25 @@ namespace Mirror.Tests
             Assert.That(connectionToClient.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
         }
 
+        // test to avoid https://github.com/vis2k/Mirror/issues/2882
+        // messages in a batch aren't length prefixed.
+        // if we can't read one, we need to warn and disconnect.
+        // otherwise it overlaps to the next message and causes undefined behaviour.
+        [Test]
+        public void Send_ClientToServerMessage_UnknownMessageIdDisconnects()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send a message without a registered handler
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            // should have been disconnected
+            Assert.That(NetworkServer.connections.ContainsKey(connectionToClient.connectionId), Is.False);
+        }
+
         [Test]
         public void Send_ServerToClientMessage_SetsRemoteTimeStamp()
         {
@@ -661,6 +680,25 @@ namespace Mirror.Tests
             //  finish the batch. but the difference should not be > 'waitTime')
             Assert.That(called, Is.EqualTo(1));
             Assert.That(NetworkClient.connection.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
+        }
+
+        // test to avoid https://github.com/vis2k/Mirror/issues/2882
+        // messages in a batch aren't length prefixed.
+        // if we can't read one, we need to warn and disconnect.
+        // otherwise it overlaps to the next message and causes undefined behaviour.
+        [Test]
+        public void Send_ServerToClientMessage_UnknownMessageIdDisconnects()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send a message without a registered handler
+            connectionToClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            // should have been disconnected
+            Assert.That(NetworkClient.active, Is.False);
         }
 
         [Test]
@@ -733,19 +771,12 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
-            identity.netId = 42;
-            identity.isLocalPlayer = true;
-            // for authority check
-            identity.connectionToClient = connectionToClient;
-            connectionToClient.identity = identity;
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp, NetworkServer.localConnection);
 
             // call the command
             comp.TestCommand();
@@ -760,19 +791,12 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
-            // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1);
-            identity.netId = 42;
-            identity.isLocalPlayer = true;
-            // for authority check
-            identity.connectionToClient = connectionToClient;
-            connectionToClient.identity = identity;
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // add an identity with two networkbehaviour components.
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp0, out CommandTestNetworkBehaviour comp1, NetworkServer.localConnection);
 
             // call the command
             comp1.TestCommand();
@@ -786,19 +810,12 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
-            identity.netId = 42;
-            identity.isLocalPlayer = true;
-            // for authority check
-            identity.connectionToClient = connectionToClient;
-            connectionToClient.identity = identity;
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITH OWNER = WITH AUTHORITY
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp, NetworkServer.localConnection);
 
             // change identity's owner connection so we can't call [Commands] on it
             identity.connectionToClient = new LocalConnectionToClient();
@@ -814,19 +831,12 @@ namespace Mirror.Tests
         {
             // listen & connect
             NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out CommandTestNetworkBehaviour comp);
-            identity.netId = 42;
-            identity.isLocalPlayer = false; // NO AUTHORITY
-            // for authority check
-            identity.connectionToClient = connectionToClient;
-            connectionToClient.identity = identity;
-
-            // identity needs to be in spawned dict, otherwise command handler
-            // won't find it
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // spawned, otherwise command handler won't find it in .spawned.
+            // WITHOUT OWNER = WITHOUT AUTHORITY for this test
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out CommandTestNetworkBehaviour comp);
 
             // call the command
             comp.TestCommand();
@@ -837,16 +847,23 @@ namespace Mirror.Tests
         [Test]
         public void ActivateHostSceneCallsOnStartClient()
         {
-            // add an identity with a networkbehaviour to .spawned
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStartClientTestNetworkBehaviour comp);
-            identity.netId = 42;
-            NetworkIdentity.spawned[identity.netId] = identity;
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
 
-            // ActivateHostScene
+            // spawn identity with a networkbehaviour.
+            // (needs to be in .spawned for ActivateHostScene)
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out OnStartClientTestNetworkBehaviour serverComp,
+                out _, out _, out _);
+
+            // ActivateHostScene calls OnStartClient for spawned objects where
+            // isClient is still false. set it to false first.
+            serverIdentity.isClient = false;
             NetworkServer.ActivateHostScene();
 
             // was OnStartClient called for all .spawned networkidentities?
-            Assert.That(comp.called, Is.EqualTo(1));
+            Assert.That(serverComp.called, Is.EqualTo(1));
         }
 
         [Test]
@@ -1242,10 +1259,6 @@ namespace Mirror.Tests
         public void UpdateWithTimedOutConnection()
         {
             // configure to disconnect with '0' timeout (= immediately)
-#pragma warning disable 618
-            NetworkServer.disconnectInactiveConnections = true;
-            NetworkServer.disconnectInactiveTimeout = 0;
-
             // start
             NetworkServer.Listen(1);
 
@@ -1254,10 +1267,6 @@ namespace Mirror.Tests
 
             // update
             NetworkServer.NetworkLateUpdate();
-
-            // clean up
-            NetworkServer.disconnectInactiveConnections = false;
-#pragma warning restore 618
         }
     }
 }

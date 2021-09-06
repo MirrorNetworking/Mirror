@@ -44,25 +44,13 @@ namespace Mirror
         /// <summary>Called when client stops, used to unregister message handlers if needed.</summary>
         public virtual void OnStopClient() {}
 
-        // Deprecated 2021-03-13
-        [Obsolete("Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
-        public virtual void OnClientAuthenticate(NetworkConnection conn) => OnClientAuthenticate();
-
         /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
         public abstract void OnClientAuthenticate();
-
-        // Deprecated 2021-03-13
-        [Obsolete("Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
-        protected void ClientAccept(NetworkConnection conn) => ClientAccept();
 
         protected void ClientAccept()
         {
             OnClientAuthenticated.Invoke(NetworkClient.connection);
         }
-
-        // Deprecated 2021-03-13
-        [Obsolete("Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
-        protected void ClientReject(NetworkConnection conn) => ClientReject();
 
         protected void ClientReject()
         {

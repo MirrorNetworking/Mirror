@@ -97,7 +97,7 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   visible: 0
-  m_AssetId: 
+  m_AssetId: 30b8f251d03d84284b70601e691d474f
   hasSpawned: 0
 --- !u!114 &3679374677650722848
 MonoBehaviour:
@@ -119,10 +119,11 @@ MonoBehaviour:
   syncRotation: 0
   syncScale: 0
   interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
-  bufferTimeMultiplier: 3
-  catchupThreshold: 6
+  interpolateRotation: 0
+  interpolateScale: 0
+  bufferTimeMultiplier: 1
+  bufferSizeLimit: 64
+  catchupThreshold: 4
   catchupMultiplier: 0.1
   showGizmos: 0
   showOverlay: 0

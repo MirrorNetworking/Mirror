@@ -16,6 +16,8 @@ namespace Mirror
         // just in case.
         Queue<PooledNetworkWriter> batches = new Queue<PooledNetworkWriter>();
 
+        public int BatchesCount => batches.Count;
+
         // NetworkReader is only created once,
         // then pointed to the first batch.
         NetworkReader reader = new NetworkReader(new byte[0]);

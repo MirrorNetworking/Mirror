@@ -28,9 +28,6 @@ namespace Mirror
         public int tick;
         public NetworkWriter ownerWriter;
         public NetworkWriter observersWriter;
-        // TODO there is probably a more simple way later
-        public int ownerWritten;
-        public int observersWritten;
     }
 
     /// <summary>NetworkIdentity identifies objects across the network.</summary>
@@ -139,8 +136,28 @@ namespace Mirror
         /// <summary>All spawned NetworkIdentities by netId. Available on server and client.</summary>
         // server sees ALL spawned ones.
         // client sees OBSERVED spawned ones.
-        public static readonly Dictionary<uint, NetworkIdentity> spawned =
-            new Dictionary<uint, NetworkIdentity>();
+        // => split into NetworkServer.spawned and NetworkClient.spawned to
+        //    reduce shared state between server & client.
+        // => prepares for NetworkServer/Client as component & better host mode.
+        [Obsolete("NetworkIdentity.spawned is now NetworkServer.spawned on server, NetworkClient.spawned on client.\nPrepares for NetworkServer/Client as component, better host mode, better testing.")]
+        public static Dictionary<uint, NetworkIdentity> spawned
+        {
+            get
+            {
+                // server / host mode: use the one from server.
+                // host mode has access to all spawned.
+                if (NetworkServer.active) return NetworkServer.spawned;
+
+                // client
+                if (NetworkClient.active) return NetworkClient.spawned;
+
+                // neither: then we are testing.
+                // we could default to NetworkServer.spawned.
+                // but from the outside, that's not obvious.
+                // better to throw an exception to make it obvious.
+                throw new Exception("NetworkIdentity.spawned was accessed before NetworkServer/NetworkClient were active.");
+            }
+        }
 
         // get all NetworkBehaviour components
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
@@ -630,7 +647,7 @@ namespace Mirror
 
             // add to spawned (note: the original EnableIsServer isn't needed
             // because we already set m_isServer=true above)
-            spawned[netId] = this;
+            NetworkServer.spawned[netId] = this;
 
             // in host mode we set isClient true before calling OnStartServer,
             // otherwise isClient is false in OnStartServer.
@@ -841,6 +858,7 @@ namespace Mirror
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
             int headerPosition = writer.Position;
+            // no varint because we don't know the final size yet
             writer.WriteInt(0);
             int contentPosition = writer.Position;
 
@@ -871,11 +889,8 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, out int ownerWritten, NetworkWriter observersWriter, out int observersWritten)
+        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
-            // clear 'written' variables
-            ownerWritten = observersWritten = 0;
-
             // check if components are in byte.MaxRange just to be 100% sure
             // that we avoid overflows
             NetworkBehaviour[] components = NetworkBehaviours;
@@ -903,7 +918,6 @@ namespace Mirror
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
                     OnSerializeSafely(comp, ownerWriter, initialState);
-                    ++ownerWritten;
 
                     // copy into observersWriter too if SyncMode.Observers
                     // -> we copy instead of calling OnSerialize again because
@@ -919,7 +933,6 @@ namespace Mirror
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
                         int length = ownerWriter.Position - startPosition;
                         observersWriter.WriteBytes(segment.Array, startPosition, length);
-                        ++observersWritten;
                     }
                 }
             }
@@ -940,9 +953,7 @@ namespace Mirror
                 // serialize
                 OnSerializeAllSafely(false,
                                      lastSerialization.ownerWriter,
-                                     out lastSerialization.ownerWritten,
-                                     lastSerialization.observersWriter,
-                                     out lastSerialization.observersWritten);
+                                     lastSerialization.observersWriter);
 
                 // set tick
                 lastSerialization.tick = tick;

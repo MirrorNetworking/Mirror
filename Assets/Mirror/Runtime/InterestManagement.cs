@@ -12,16 +12,14 @@ namespace Mirror
         void Awake()
         {
             if (NetworkServer.aoi == null)
-            {
                 NetworkServer.aoi = this;
-            }
-            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkServer.aoi.GetType()} has been set up already.");
+            else 
+                Debug.LogError($"Only one InterestManagement component allowed. {NetworkServer.aoi.GetType()} has been set up already.");
 
             if (NetworkClient.aoi == null)
-            {
                 NetworkClient.aoi = this;
-            }
-            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already.");
+            else 
+                Debug.LogError($"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already.");
         }
 
         // Callback used by the visibility system to determine if an observer
@@ -58,10 +56,8 @@ namespace Mirror
         // IMPORTANT: check if NetworkServer.active when using Update()!
         protected void RebuildAll()
         {
-            foreach (NetworkIdentity identity in NetworkIdentity.spawned.Values)
-            {
+            foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
                 NetworkServer.RebuildObservers(identity, false);
-            }
         }
 
         // Callback used by the visibility system for objects on a host.

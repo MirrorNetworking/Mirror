@@ -17,10 +17,10 @@ namespace Mirror
         {
             Guid currentMatch = identity.GetComponent<NetworkMatch>().matchId;
             lastObjectMatch[identity] = currentMatch;
-            
+
             // Guid.Empty is never a valid matchId...do not add to matchObjects collection
             if (currentMatch == Guid.Empty) return;
-            
+
             // Debug.Log($"MatchInterestManagement.OnSpawned({identity.name}) currentMatch: {currentMatch}");
             if (!matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects))
             {
@@ -48,7 +48,7 @@ namespace Mirror
             //   if match changed:
             //     add previous to dirty
             //     add new to dirty
-            foreach (NetworkIdentity netIdentity in NetworkIdentity.spawned.Values)
+            foreach (NetworkIdentity netIdentity in NetworkServer.spawned.Values)
             {
                 Guid currentMatch = lastObjectMatch[netIdentity];
                 Guid newMatch = netIdentity.GetComponent<NetworkMatch>().matchId;
@@ -70,10 +70,10 @@ namespace Mirror
 
                 // Set this to the new match this object just entered
                 lastObjectMatch[netIdentity] = newMatch;
-                
+
                 // Guid.Empty is never a valid matchId...do not add to matchObjects collection
                 if (newMatch == Guid.Empty) continue;
-                
+
 
                 // Make sure this new match is in the dictionary
                 if (!matchObjects.ContainsKey(newMatch))
@@ -109,10 +109,10 @@ namespace Mirror
             bool initialize)
         {
             Guid matchId = identity.GetComponent<NetworkMatch>().matchId;
-            
+
             // Guid.Empty is never a valid matchId
             if (matchId == Guid.Empty) return;
-            
+
             if (!matchObjects.TryGetValue(matchId, out HashSet<NetworkIdentity> objects))
                 return;
 
