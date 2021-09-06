@@ -1,5 +1,6 @@
 // NOTES:
 // - AntiChunk test is too bad for rdiff. all chunks after insertions are dirty.
+/* TOO SLOW
 using System.Collections.Generic;
 using Octodiff.Core;
 
@@ -32,3 +33,4 @@ namespace Mirror.Tests.DeltaCompression
         }
     }
 }
+*/
