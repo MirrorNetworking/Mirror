@@ -23,7 +23,6 @@ namespace Mirror
             XZ_FOR_3D,
             XY_FOR_2D
         }
-
         [Tooltip("Spatial Hashing supports 3D (XZ) and 2D (XY) games.")]
         public CheckMethod checkMethod = CheckMethod.XZ_FOR_3D;
 
