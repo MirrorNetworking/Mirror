@@ -1250,23 +1250,5 @@ namespace Mirror.Tests
             LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
         }
-
-        // NetworkServer.Update iterates all connections.
-        // a timed out connection may call Disconnect, trying to modify the
-        // collection during the loop.
-        // -> test to prevent https://github.com/vis2k/Mirror/pull/2718
-        [Test]
-        public void UpdateWithTimedOutConnection()
-        {
-            // configure to disconnect with '0' timeout (= immediately)
-            // start
-            NetworkServer.Listen(1);
-
-            // add a connection
-            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
-
-            // update
-            NetworkServer.NetworkLateUpdate();
-        }
     }
 }
