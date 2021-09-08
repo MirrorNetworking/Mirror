@@ -177,7 +177,7 @@ namespace Mirror
             // we always need two OLD ENOUGH snapshots to interpolate.
             // otherwise there's nothing to do.
             double threshold = time - bufferTime;
-            if (!HasAmountOlderThan(buffer, threshold, 2, bufferedTime))
+            if (!HasAmountOlderThan(buffer, threshold, 2, bufferTime))
                 return false;
 
             // multiply deltaTime by catchup.
