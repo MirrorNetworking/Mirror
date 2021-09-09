@@ -114,7 +114,7 @@ If you use Mirror in production, consider Mirror LTS to minimize risks!
 * Lives along side **Unity 2019** LTS.
 * Supported from Sept. 2021 to Sept 2022, depending on feedback.
 
-**Mirror 2019 LTS** is available to all [GitHub Sponsors](https://github.com/sponsors/vis2k).
+**Mirror V46 LTS** is available to all [GitHub Sponsors](https://github.com/sponsors/vis2k).
 
 All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/MirrorNetworking/Mirror-46-LTS) automatically.
 
