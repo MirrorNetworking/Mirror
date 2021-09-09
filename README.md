@@ -108,7 +108,7 @@ And [many more](https://mirror-networking.com/showcase/)...
 
 ## Mirror LTS (Long Term Support)
 
-If you use Mirror in production, consider Mirror LTS to minimize risks!
+If you use Mirror in production, consider Mirror LTS!
 * **Bug fixes** only. 
 * **Consistent API**: update any time, without any breaking features.
 * Lives along side **Unity 2019** LTS.
