@@ -106,7 +106,7 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 And [many more](https://mirror-networking.com/showcase/)...
 
-## Mirror LTS (Long Term Support
+## Mirror LTS (Long Term Support)
 
 If you use Mirror in production, consider Mirror LTS to minimize risks!
 * **Bug fixes** only. 
