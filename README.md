@@ -106,17 +106,17 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 
 And [many more](https://mirror-networking.com/showcase/)...
 
-## Long Term Support (LTS)
+## Mirror LTS (Long Term Support
 
 If you use Mirror in production, consider Mirror LTS to minimize risks!
 * **Bug fixes** only. 
-* **Never breaks** your project.
+* **Consistent API**: update any time, without any breaking features.
 * Lives along side **Unity 2019** LTS.
-* Supported from Sept. 2021 to Sept 2021, depending on feedback.
+* Supported from Sept. 2021 to Sept 2022, depending on feedback.
 
 **Mirror 2019 LTS** is available to all [GitHub Sponsors](https://github.com/sponsors/vis2k).
 
-Sponsors are invited to the [Mirror 2019 LTS Repository](https://github.com/MirrorNetworking/Mirror-2019-LTS) automatically.
+All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/MirrorNetworking/Mirror-46-LTS) automatically.
 
 ## Low Level Transports
 * (built in) [KCP](https://app.gitbook.com/@mirror-networking/s/docs/transports/kcp-transport): reliable UDP
