@@ -54,14 +54,14 @@ namespace Mirror
                 Guid newMatch = netIdentity.GetComponent<NetworkMatch>().matchId;
                 if (newMatch == currentMatch) continue;
 
-                // Mark new/old scenes as dirty so they get rebuilt
+                // Mark new/old matches as dirty so they get rebuilt
                 // Guid.Empty is never a valid matchId
                 if (currentMatch != Guid.Empty)
                     dirtyMatches.Add(currentMatch);
                 dirtyMatches.Add(newMatch);
 
                 // This object is in a new match so observers in the prior match
-                // and the new scene need to rebuild their respective observers lists.
+                // and the new match need to rebuild their respective observers lists.
 
                 // Remove this object from the hashset of the match it just left
                 // Guid.Empty is never a valid matchId
