@@ -67,7 +67,8 @@ namespace Mirror
         //   -> spares us from running delta algorithms
         //   -> still supports dynamically sized types
         //
-        // syncVarDirtyBits is a 64 bit mask, tracking up to 64 SyncVars/Lists.
+        // syncVarDirtyBits is a 64 bit mask, tracking up to 64 SyncVars.
+        // (NOT for SyncLists/Dicts/Sets. AnySyncObjectDirty checks them.)
         protected ulong syncVarDirtyBits { get; private set; }
 
         // hook guard to avoid deadlocks when calling hooks in host mode
