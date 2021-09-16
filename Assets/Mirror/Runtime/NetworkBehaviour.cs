@@ -330,6 +330,7 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] GameObjects.
+        // dirtyBit is a mask like 00010
         protected void SetSyncVarGameObject(GameObject newGameObject, ref GameObject gameObjectField, ulong dirtyBit, ref uint netIdField)
         {
             if (GetSyncVarHookGuard(dirtyBit))
@@ -393,6 +394,7 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
+        // dirtyBit is a mask like 00010
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
         {
             if (GetSyncVarHookGuard(dirtyBit))
@@ -450,6 +452,7 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
+        // dirtyBit is a mask like 00010
         protected void SetSyncVarNetworkBehaviour<T>(T newBehaviour, ref T behaviourField, ulong dirtyBit, ref NetworkBehaviourSyncVar syncField) where T : NetworkBehaviour
         {
             if (GetSyncVarHookGuard(dirtyBit))
@@ -533,6 +536,7 @@ namespace Mirror
             return EqualityComparer<T>.Default.Equals(value, fieldValue);
         }
 
+        // dirtyBit is a mask like 00010
         protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
         {
             // Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
