@@ -131,18 +131,8 @@ namespace Mirror
         }
 
         // internal for tests
-        internal bool AnySyncObjectDirty()
-        {
-            // (Linq allocates, use for instead)
-            for (int i = 0; i < syncObjects.Count; ++i)
-            {
-                if (syncObjects[i].IsDirty)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        // reuses DirtyObjectBits for simplicity.
+        internal bool AnySyncObjectDirty() => DirtyObjectBits() != 0UL;
 
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         public bool IsDirty()
