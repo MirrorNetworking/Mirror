@@ -56,6 +56,19 @@ namespace Mirror
         /// <summary>Server's network connection to the client. This is only valid for player objects on the server.</summary>
         public NetworkConnection connectionToClient => netIdentity.connectionToClient;
 
+        // SyncLists, SyncSets, etc.
+        protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
+
+        // NetworkIdentity based values set from NetworkIdentity.Awake(),
+        // which is way more simple and way faster than trying to figure out
+        // component index from in here by searching all NetworkComponents.
+
+        /// <summary>Returns the NetworkIdentity of this object</summary>
+        public NetworkIdentity netIdentity { get; internal set; }
+
+        /// <summary>Returns the index of the component on this object</summary>
+        public int ComponentIndex { get; internal set; }
+
         // to avoid fully serializing entities every time, we have two options:
         // * run a delta compression algorithm
         //   -> for fixed size types this is as easy as varint(b-a) for all
@@ -95,18 +108,55 @@ namespace Mirror
         [Obsolete("Renamed to SetSyncVarHookGuard (uppercase)")]
         protected void setSyncVarHookGuard(ulong dirtyBit, bool value) => SetSyncVarHookGuard(dirtyBit, value);
 
-        // SyncLists, SyncSets, etc.
-        protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
+        /// <summary>Set as dirty so that it's synced to clients again.</summary>
+        // these are masks, not bit numbers, ie. 0x004 not 2
+        public void SetDirtyBit(ulong dirtyBit)
+        {
+            syncVarDirtyBits |= dirtyBit;
+        }
 
-        // NetworkIdentity based values set from NetworkIdentity.Awake(),
-        // which is way more simple and way faster than trying to figure out
-        // component index from in here by searching all NetworkComponents.
+        /// <summary>Clears all the dirty bits that were set by SetDirtyBits()</summary>
+        // automatically invoked when an update is sent for this object, but can
+        // be called manually as well.
+        public void ClearAllDirtyBits()
+        {
+            lastSyncTime = NetworkTime.localTime;
+            syncVarDirtyBits = 0L;
 
-        /// <summary>Returns the NetworkIdentity of this object</summary>
-        public NetworkIdentity netIdentity { get; internal set; }
+            // flush all unsynchronized changes in syncobjects
+            // note: don't use List.ForEach here, this is a hot path
+            //   List.ForEach: 432b/frame
+            //   for: 231b/frame
+            for (int i = 0; i < syncObjects.Count; ++i)
+            {
+                syncObjects[i].Flush();
+            }
+        }
 
-        /// <summary>Returns the index of the component on this object</summary>
-        public int ComponentIndex { get; internal set; }
+        bool AnySyncObjectDirty()
+        {
+            // note: don't use Linq here. 1200 networked objects:
+            //   Linq: 187KB GC/frame;, 2.66ms time
+            //   for: 8KB GC/frame; 1.28ms time
+            for (int i = 0; i < syncObjects.Count; ++i)
+            {
+                if (syncObjects[i].IsDirty)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
+        public bool IsDirty()
+        {
+            if (NetworkTime.localTime - lastSyncTime >= syncInterval)
+            {
+                return syncVarDirtyBits != 0L || AnySyncObjectDirty();
+            }
+            return false;
+        }
 
         // this gets called in the constructor by the weaver
         // for every SyncObject in the component (e.g. SyncLists).
@@ -484,56 +534,6 @@ namespace Mirror
             // Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
             SetDirtyBit(dirtyBit);
             fieldValue = value;
-        }
-
-        /// <summary>Set as dirty so that it's synced to clients again.</summary>
-        // these are masks, not bit numbers, ie. 0x004 not 2
-        public void SetDirtyBit(ulong dirtyBit)
-        {
-            syncVarDirtyBits |= dirtyBit;
-        }
-
-        /// <summary>Clears all the dirty bits that were set by SetDirtyBits()</summary>
-        // automatically invoked when an update is sent for this object, but can
-        // be called manually as well.
-        public void ClearAllDirtyBits()
-        {
-            lastSyncTime = NetworkTime.localTime;
-            syncVarDirtyBits = 0L;
-
-            // flush all unsynchronized changes in syncobjects
-            // note: don't use List.ForEach here, this is a hot path
-            //   List.ForEach: 432b/frame
-            //   for: 231b/frame
-            for (int i = 0; i < syncObjects.Count; ++i)
-            {
-                syncObjects[i].Flush();
-            }
-        }
-
-        bool AnySyncObjectDirty()
-        {
-            // note: don't use Linq here. 1200 networked objects:
-            //   Linq: 187KB GC/frame;, 2.66ms time
-            //   for: 8KB GC/frame; 1.28ms time
-            for (int i = 0; i < syncObjects.Count; ++i)
-            {
-                if (syncObjects[i].IsDirty)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
-        public bool IsDirty()
-        {
-            if (NetworkTime.localTime - lastSyncTime >= syncInterval)
-            {
-                return syncVarDirtyBits != 0L || AnySyncObjectDirty();
-            }
-            return false;
         }
 
         /// <summary>Override to do custom serialization (instead of SyncVars/SyncLists). Use OnDeserialize too.</summary>
