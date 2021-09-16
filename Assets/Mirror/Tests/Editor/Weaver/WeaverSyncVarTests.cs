@@ -80,10 +80,10 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncVarsMoreThan63()
+        public void SyncVarsMoreThanMax()
         {
-            HasError("SyncVarsMoreThan63 has > 64 SyncVars. Consider refactoring your class into multiple components",
-                "WeaverSyncVarTests.SyncVarsMoreThan63.SyncVarsMoreThan63");
+            HasError("SyncVarsMoreThanMax has > 64 SyncVars. Consider refactoring your class into multiple components",
+                "WeaverSyncVarTests.SyncVarsMoreThanMax.SyncVarsMoreThanMax");
         }
     }
 }

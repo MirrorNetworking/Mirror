@@ -1,12 +1,11 @@
 using Mirror;
 
-namespace WeaverSyncVarTests.SyncVarsMoreThan63
+namespace WeaverSyncVarTests.SyncVarsMoreThanMax
 {
-    class SyncVarsMoreThan63 : NetworkBehaviour
+    // SyncVar dirty mask is 64 bit. more than 64 should show an error.
+    class SyncVarsMoreThanMax : NetworkBehaviour
     {
-        [SyncVar(hook = nameof(OnChangeHealth))]
-        int health;
-
+        [SyncVar] int var1;
         [SyncVar] int var2;
         [SyncVar] int var3;
         [SyncVar] int var4;
@@ -70,18 +69,6 @@ namespace WeaverSyncVarTests.SyncVarsMoreThan63
         [SyncVar] int var62;
         [SyncVar] int var63;
         [SyncVar] int var64;
-
-        public void TakeDamage(int amount)
-        {
-            if (!isServer)
-                return;
-
-            health -= amount;
-        }
-
-        void OnChangeHealth(int oldHealth, int newHealth)
-        {
-            // do things with your health bar
-        }
+        [SyncVar] int var65;
     }
 }
