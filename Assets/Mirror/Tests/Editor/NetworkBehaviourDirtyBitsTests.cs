@@ -58,7 +58,7 @@ namespace Mirror.Tests
             comp.InitSyncObjectExposed(cleanList);
 
             // get bits - only first one should be dirty
-            Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b1));
+            Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b01));
 
             // set second one dirty. now we should have two dirty bits
             cleanList.Add(43);
