@@ -1,6 +1,5 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
-using System;
 using UnityEngine;
 
 namespace Mirror
