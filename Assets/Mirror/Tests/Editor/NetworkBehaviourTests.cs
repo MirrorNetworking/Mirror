@@ -974,15 +974,15 @@ namespace Mirror.Tests
                 ulong bit = 1ul << i;
 
                 // should be false by default
-                Assert.That(getSyncVarHookGuard(bit), Is.False);
+                Assert.That(GetSyncVarHookGuard(bit), Is.False);
 
                 // set true
-                setSyncVarHookGuard(bit, true);
-                Assert.That(getSyncVarHookGuard(bit), Is.True);
+                SetSyncVarHookGuard(bit, true);
+                Assert.That(GetSyncVarHookGuard(bit), Is.True);
 
                 // set false again
-                setSyncVarHookGuard(bit, false);
-                Assert.That(getSyncVarHookGuard(bit), Is.False);
+                SetSyncVarHookGuard(bit, false);
+                Assert.That(GetSyncVarHookGuard(bit), Is.False);
             }
         }
     }
