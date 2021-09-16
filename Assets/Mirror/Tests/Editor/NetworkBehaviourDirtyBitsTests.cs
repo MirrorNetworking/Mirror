@@ -83,6 +83,10 @@ namespace Mirror.Tests
             comp.list.Add(42);
             Assert.That(comp.IsDirty(), Is.True);
             comp.ClearAllDirtyBits();
+
+            // it should only be dirty after syncInterval elapsed
+            comp.syncInterval = float.MaxValue;
+            Assert.That(comp.IsDirty(), Is.False);
         }
 
         [Test]
