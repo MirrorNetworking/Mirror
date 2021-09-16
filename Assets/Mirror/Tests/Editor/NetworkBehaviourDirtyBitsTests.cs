@@ -16,8 +16,28 @@ namespace Mirror.Tests
         public SyncDictionary<int, string> dict = new SyncDictionary<int, string>();
     }
 
+    public class NetworkBehaviourSyncVarDirtyBitsExposed : NetworkBehaviour
+    {
+        public ulong syncVarDirtyBitsExposed => syncVarDirtyBits;
+    }
+
     public class NetworkBehaviourDirtyBitsTests : MirrorEditModeTest
     {
+        [Test]
+        public void SetDirtyBit()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSyncVarDirtyBitsExposed comp);
+
+            // set 3rd dirty bit.
+            comp.SetDirtyBit(0b_00000000_00000100);
+            Assert.That(comp.syncVarDirtyBitsExposed, Is.EqualTo(0b_00000000_00000100));
+
+            // set 5th dirty bit.
+            // both 3rd and 5th should be set.
+            comp.SetDirtyBit(0b_00000000_00010000);
+            Assert.That(comp.syncVarDirtyBitsExposed, Is.EqualTo(0b_00000000_00010100));
+        }
+
         [Test]
         public void DirtyObjectBits()
         {
