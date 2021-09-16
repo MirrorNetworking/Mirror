@@ -74,6 +74,12 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
+        public void SyncVarsExactlyMax()
+        {
+            IsSuccess();
+        }
+
+        [Test]
         public void SyncVarsMoreThan63()
         {
             HasError("SyncVarsMoreThan63 has > 64 SyncVars. Consider refactoring your class into multiple components",
