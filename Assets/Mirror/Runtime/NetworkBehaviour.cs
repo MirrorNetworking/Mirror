@@ -109,7 +109,7 @@ namespace Mirror
         protected void setSyncVarHookGuard(ulong dirtyBit, bool value) => SetSyncVarHookGuard(dirtyBit, value);
 
         /// <summary>Set as dirty so that it's synced to clients again.</summary>
-        // these are masks, not bit numbers, ie. 0x004 not 2
+        // these are masks, not bit numbers, ie. 110011b not '2' for 2nd bit.
         public void SetDirtyBit(ulong dirtyBit)
         {
             syncVarDirtyBits |= dirtyBit;
