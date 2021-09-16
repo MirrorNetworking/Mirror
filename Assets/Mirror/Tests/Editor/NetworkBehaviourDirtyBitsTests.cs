@@ -67,6 +67,25 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void IsDirty()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
+
+            // not dirty by default
+            Assert.That(comp.IsDirty(), Is.False);
+
+            // changing a [SyncVar] should set it dirty
+            ++comp.health;
+            Assert.That(comp.IsDirty(), Is.True);
+            comp.ClearAllDirtyBits();
+
+            // changing a SyncCollection should set it dirty
+            comp.list.Add(42);
+            Assert.That(comp.IsDirty(), Is.True);
+            comp.ClearAllDirtyBits();
+        }
+
+        [Test]
         public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity _, out EmptyBehaviour emptyBehaviour);
