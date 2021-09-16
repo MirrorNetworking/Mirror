@@ -614,6 +614,8 @@ namespace Mirror
             return dirtyObjects;
         }
 
+        ////////////////////////////////////////////////////////////////////////
+
         public bool SerializeObjectsAll(NetworkWriter writer)
         {
             bool dirty = false;
