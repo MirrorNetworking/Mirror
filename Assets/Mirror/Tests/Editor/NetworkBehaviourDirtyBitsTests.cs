@@ -60,6 +60,7 @@ namespace Mirror.Tests
             comp.list.Flush();
             Assert.That(comp.AnySyncObjectDirty(), Is.True);
         }
+
         [Test]
         public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
         {
