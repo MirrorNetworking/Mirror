@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
+    class NetworkBehaviourWithSyncCollections : NetworkBehaviour
+    {
+        public SyncList<int> list = new SyncList<int>();
+        public SyncDictionary<int, string> dict = new SyncDictionary<int, string>();
+    }
+
     public class NetworkBehaviourDirtyBitsTests : MirrorEditModeTest
     {
         [Test]
@@ -74,6 +80,27 @@ namespace Mirror.Tests
             // set second one dirty. now we should have two dirty bits
             cleanList.Add(43);
             Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b11));
+        }
+
+        [Test]
+        public void AnySyncObjectDirty()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncCollections comp);
+
+            // not dirty by default
+            Assert.That(comp.AnySyncObjectDirty(), Is.False);
+
+            // change the list. should be dirty now.
+            comp.list.Add(42);
+            Assert.That(comp.AnySyncObjectDirty(), Is.True);
+
+            // change the dict. should still be dirty.
+            comp.dict[42] = null;
+            Assert.That(comp.AnySyncObjectDirty(), Is.True);
+
+            // set list not dirty. dict should still make it dirty.
+            comp.list.Flush();
+            Assert.That(comp.AnySyncObjectDirty(), Is.True);
         }
     }
 

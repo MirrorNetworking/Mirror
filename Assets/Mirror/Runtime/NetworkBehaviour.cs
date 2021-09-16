@@ -131,7 +131,8 @@ namespace Mirror
             }
         }
 
-        bool AnySyncObjectDirty()
+        // internal for tests
+        internal bool AnySyncObjectDirty()
         {
             // (Linq allocates, use for instead)
             for (int i = 0; i < syncObjects.Count; ++i)
