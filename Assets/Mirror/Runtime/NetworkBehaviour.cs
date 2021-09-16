@@ -133,9 +133,7 @@ namespace Mirror
 
         bool AnySyncObjectDirty()
         {
-            // note: don't use Linq here. 1200 networked objects:
-            //   Linq: 187KB GC/frame;, 2.66ms time
-            //   for: 8KB GC/frame; 1.28ms time
+            // (Linq allocates, use for instead)
             for (int i = 0; i < syncObjects.Count; ++i)
             {
                 if (syncObjects[i].IsDirty)
