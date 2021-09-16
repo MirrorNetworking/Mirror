@@ -115,22 +115,6 @@ namespace Mirror
             syncVarDirtyBits |= dirtyBit;
         }
 
-        /// <summary>Clears all the dirty bits that were set by SetDirtyBits()</summary>
-        // automatically invoked when an update is sent for this object, but can
-        // be called manually as well.
-        public void ClearAllDirtyBits()
-        {
-            lastSyncTime = NetworkTime.localTime;
-            syncVarDirtyBits = 0L;
-
-            // flush all unsynchronized changes in syncobjects
-            // (Linq allocates, use for instead)
-            for (int i = 0; i < syncObjects.Count; ++i)
-            {
-                syncObjects[i].Flush();
-            }
-        }
-
         // creates a 64 bit dirty mask for Sync Collections (aka SyncObjects)
         internal ulong DirtyObjectBits()
         {
@@ -168,6 +152,22 @@ namespace Mirror
                 return syncVarDirtyBits != 0L || AnySyncObjectDirty();
             }
             return false;
+        }
+
+        /// <summary>Clears all the dirty bits that were set by SetDirtyBits()</summary>
+        // automatically invoked when an update is sent for this object, but can
+        // be called manually as well.
+        public void ClearAllDirtyBits()
+        {
+            lastSyncTime = NetworkTime.localTime;
+            syncVarDirtyBits = 0L;
+
+            // flush all unsynchronized changes in syncobjects
+            // (Linq allocates, use for instead)
+            for (int i = 0; i < syncObjects.Count; ++i)
+            {
+                syncObjects[i].Flush();
+            }
         }
 
         // this gets called in the constructor by the weaver
