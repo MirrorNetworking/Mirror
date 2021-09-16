@@ -14,48 +14,6 @@ namespace Mirror.Tests
     public class NetworkBehaviourDirtyBitsTests : MirrorEditModeTest
     {
         [Test]
-        public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out EmptyBehaviour emptyBehaviour);
-
-            // set syncinterval so dirtybit works fine
-            emptyBehaviour.syncInterval = 0;
-            Assert.That(emptyBehaviour.IsDirty(), Is.False);
-
-            // set one syncvar dirty bit
-            emptyBehaviour.SetDirtyBit(1);
-            Assert.That(emptyBehaviour.IsDirty(), Is.True);
-
-            // clear it
-            emptyBehaviour.ClearAllDirtyBits();
-            Assert.That(emptyBehaviour.IsDirty(), Is.False);
-        }
-
-        [Test]
-        public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
-
-            // set syncinterval so dirtybit works fine
-            comp.syncInterval = 0;
-            Assert.That(comp.IsDirty(), Is.False);
-
-            // create a synclist and dirty it
-            SyncList<int> obj = new SyncList<int>();
-            obj.Add(42);
-            Assert.That(obj.IsDirty, Is.True);
-
-            // add it
-            comp.InitSyncObjectExposed(obj);
-            Assert.That(comp.IsDirty, Is.True);
-
-            // clear bits should clear synclist bits too
-            comp.ClearAllDirtyBits();
-            Assert.That(comp.IsDirty, Is.False);
-            Assert.That(obj.IsDirty, Is.False);
-        }
-
-        [Test]
         public void DirtyObjectBits()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
@@ -101,6 +59,47 @@ namespace Mirror.Tests
             // set list not dirty. dict should still make it dirty.
             comp.list.Flush();
             Assert.That(comp.AnySyncObjectDirty(), Is.True);
+        }
+        [Test]
+        public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out EmptyBehaviour emptyBehaviour);
+
+            // set syncinterval so dirtybit works fine
+            emptyBehaviour.syncInterval = 0;
+            Assert.That(emptyBehaviour.IsDirty(), Is.False);
+
+            // set one syncvar dirty bit
+            emptyBehaviour.SetDirtyBit(1);
+            Assert.That(emptyBehaviour.IsDirty(), Is.True);
+
+            // clear it
+            emptyBehaviour.ClearAllDirtyBits();
+            Assert.That(emptyBehaviour.IsDirty(), Is.False);
+        }
+
+        [Test]
+        public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
+
+            // set syncinterval so dirtybit works fine
+            comp.syncInterval = 0;
+            Assert.That(comp.IsDirty(), Is.False);
+
+            // create a synclist and dirty it
+            SyncList<int> obj = new SyncList<int>();
+            obj.Add(42);
+            Assert.That(obj.IsDirty, Is.True);
+
+            // add it
+            comp.InitSyncObjectExposed(obj);
+            Assert.That(comp.IsDirty, Is.True);
+
+            // clear bits should clear synclist bits too
+            comp.ClearAllDirtyBits();
+            Assert.That(comp.IsDirty, Is.False);
+            Assert.That(obj.IsDirty, Is.False);
         }
     }
 
