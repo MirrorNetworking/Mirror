@@ -599,6 +599,7 @@ namespace Mirror
             //   read dirty SyncVars
         }
 
+        // creates a 64 bit dirty mask for Sync Collections (aka SyncObjects)
         internal ulong DirtyObjectBits()
         {
             ulong dirtyObjects = 0;
