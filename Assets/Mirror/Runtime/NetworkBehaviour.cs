@@ -124,9 +124,7 @@ namespace Mirror
             syncVarDirtyBits = 0L;
 
             // flush all unsynchronized changes in syncobjects
-            // note: don't use List.ForEach here, this is a hot path
-            //   List.ForEach: 432b/frame
-            //   for: 231b/frame
+            // (Linq allocates, use for instead)
             for (int i = 0; i < syncObjects.Count; ++i)
             {
                 syncObjects[i].Flush();
