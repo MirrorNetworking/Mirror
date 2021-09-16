@@ -69,6 +69,8 @@ namespace Mirror
         //
         // syncVarDirtyBits is a 64 bit mask, tracking up to 64 SyncVars/Lists.
         protected ulong syncVarDirtyBits { get; private set; }
+
+        // hook guard to avoid deadlocks when calling hooks in host mode
         ulong syncVarHookGuard;
 
         // USED BY WEAVER to set syncvars in host mode without deadlocking
