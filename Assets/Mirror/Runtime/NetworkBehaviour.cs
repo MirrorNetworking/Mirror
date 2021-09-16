@@ -98,8 +98,10 @@ namespace Mirror
         // USED BY WEAVER to set syncvars in host mode without deadlocking
         protected void SetSyncVarHookGuard(ulong dirtyBit, bool value)
         {
+            // set the bit
             if (value)
                 syncVarHookGuard |= dirtyBit;
+            // clear the bit
             else
                 syncVarHookGuard &= ~dirtyBit;
         }
