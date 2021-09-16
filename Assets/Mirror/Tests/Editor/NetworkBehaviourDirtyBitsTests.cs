@@ -5,8 +5,13 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    class NetworkBehaviourWithSyncCollections : NetworkBehaviour
+    class NetworkBehaviourWithSyncVarsAndCollections : NetworkBehaviour
     {
+        // SyncVars
+        [SyncVar] public int health;
+        [SyncVar] public int mana;
+
+        // SyncCollections
         public SyncList<int> list = new SyncList<int>();
         public SyncDictionary<int, string> dict = new SyncDictionary<int, string>();
     }
@@ -43,7 +48,7 @@ namespace Mirror.Tests
         [Test]
         public void AnySyncObjectDirty()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncCollections comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // not dirty by default
             Assert.That(comp.AnySyncObjectDirty(), Is.False);
