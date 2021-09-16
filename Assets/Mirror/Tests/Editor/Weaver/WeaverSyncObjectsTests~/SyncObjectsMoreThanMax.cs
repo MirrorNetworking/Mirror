@@ -5,7 +5,7 @@ namespace WeaverSyncObjectsTest.SyncObjectsMoreThanMax
     // SyncObjects mask is 64 bit. we can't have more than 64 SyncObjects.
     public class SyncObjectsMoreThanMax : NetworkBehaviour
     {
-        public SyncList<int> list0 = new SyncList<int>();
+        // from 1..65
         public SyncList<int> list1 = new SyncList<int>();
         public SyncList<int> list2 = new SyncList<int>();
         public SyncList<int> list3 = new SyncList<int>();
