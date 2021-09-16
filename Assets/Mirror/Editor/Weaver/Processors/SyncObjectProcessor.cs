@@ -5,6 +5,9 @@ namespace Mirror.Weaver
 {
     public static class SyncObjectProcessor
     {
+        // ulong = 64 bytes
+        const int SyncObjectsLimit = 64;
+
         // Finds SyncObjects fields in a type
         // Type should be a NetworkBehaviour
         public static List<FieldDefinition> FindSyncObjectsFields(Writers writers, Readers readers, Logger Log, TypeDefinition td, ref bool WeavingFailed)
@@ -26,6 +29,13 @@ namespace Mirror.Weaver
 
                     syncObjects.Add(fd);
                 }
+            }
+
+            // SyncObjects dirty mask is 64 bit. can't sync more than 64.
+            if (syncObjects.Count > 64)
+            {
+                Log.Error($"{td.Name} has > {SyncObjectsLimit} SyncObjects (SyncLists etc). Consider refactoring your class into multiple components", td);
+                WeavingFailed = true;
             }
 
 
