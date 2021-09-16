@@ -131,6 +131,21 @@ namespace Mirror
             }
         }
 
+        // creates a 64 bit dirty mask for Sync Collections (aka SyncObjects)
+        internal ulong DirtyObjectBits()
+        {
+            ulong dirtyObjects = 0;
+            for (int i = 0; i < syncObjects.Count; i++)
+            {
+                SyncObject syncObject = syncObjects[i];
+                if (syncObject.IsDirty)
+                {
+                    dirtyObjects |= 1UL << i;
+                }
+            }
+            return dirtyObjects;
+        }
+
         // internal for tests
         internal bool AnySyncObjectDirty()
         {
@@ -598,23 +613,6 @@ namespace Mirror
             //   read syncVarDirtyBits
             //   read dirty SyncVars
         }
-
-        // creates a 64 bit dirty mask for Sync Collections (aka SyncObjects)
-        internal ulong DirtyObjectBits()
-        {
-            ulong dirtyObjects = 0;
-            for (int i = 0; i < syncObjects.Count; i++)
-            {
-                SyncObject syncObject = syncObjects[i];
-                if (syncObject.IsDirty)
-                {
-                    dirtyObjects |= 1UL << i;
-                }
-            }
-            return dirtyObjects;
-        }
-
-        ////////////////////////////////////////////////////////////////////////
 
         public bool SerializeObjectsAll(NetworkWriter writer)
         {
