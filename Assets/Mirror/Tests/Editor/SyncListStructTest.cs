@@ -16,16 +16,22 @@ namespace Mirror.Tests
         {
             SyncList<TestPlayer> serverList = new SyncList<TestPlayer>();
             SyncList<TestPlayer> clientList = new SyncList<TestPlayer>();
+
+            // set up dirty callback
+            int serverListDirtyCalled = 0;
+            serverList.OnDirty = () => ++serverListDirtyCalled;
+
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestPlayer { item = new TestItem { price = 10 } });
+            Assert.That(serverListDirtyCalled, Is.EqualTo(1));
             SyncListTest.SerializeDeltaTo(serverList, clientList);
-            Assert.That(serverList.IsDirty, Is.False);
+            serverListDirtyCalled = 0;
 
             TestPlayer player = serverList[0];
             player.item.price = 15;
             serverList[0] = player;
 
-            Assert.That(serverList.IsDirty, Is.True);
+            Assert.That(serverListDirtyCalled, Is.EqualTo(1));
         }
 
         [Test]

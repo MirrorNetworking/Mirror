@@ -8,9 +8,8 @@ namespace Mirror.Tests
     public class SyncListTest
     {
         SyncList<string> serverSyncList;
-        int serverSyncListDirtyCalled;
-
         SyncList<string> clientSyncList;
+        int serverSyncListDirtyCalled;
         int clientSyncListDirtyCalled;
 
         public static void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
@@ -44,18 +43,19 @@ namespace Mirror.Tests
         {
             serverSyncList = new SyncList<string>();
             clientSyncList = new SyncList<string>();
-            serverSyncListDirtyCalled = 0;
-            clientSyncListDirtyCalled = 0;
-            serverSyncList.OnDirty = () => ++serverSyncListDirtyCalled;
-            clientSyncList.OnDirty = () => ++clientSyncListDirtyCalled;
-
-            // set up dirty callbacks for testing
 
             // add some data to the list
             serverSyncList.Add("Hello");
             serverSyncList.Add("World");
             serverSyncList.Add("!");
             SerializeAllTo(serverSyncList, clientSyncList);
+
+            // set up dirty callbacks for testing
+            // AFTER adding the example data. we already know we added that data.
+            serverSyncList.OnDirty = () => ++serverSyncListDirtyCalled;
+            clientSyncList.OnDirty = () => ++clientSyncListDirtyCalled;
+            serverSyncListDirtyCalled = 0;
+            clientSyncListDirtyCalled = 0;
         }
 
         [Test]
@@ -342,18 +342,16 @@ namespace Mirror.Tests
         public void DirtyTest()
         {
             // Sync Delta to clear dirty
+            Assert.That(serverSyncListDirtyCalled, Is.EqualTo(0));
             SerializeDeltaTo(serverSyncList, clientSyncList);
 
             // nothing to send
-            Assert.That(serverSyncList.IsDirty, Is.False);
+            Assert.That(serverSyncListDirtyCalled, Is.EqualTo(0));
 
             // something has changed
             serverSyncList.Add("1");
-            Assert.That(serverSyncList.IsDirty, Is.True);
+            Assert.That(serverSyncListDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncList, clientSyncList);
-
-            // data has been flushed,  should go back to clear
-            Assert.That(serverSyncList.IsDirty, Is.False);
         }
 
         [Test]
