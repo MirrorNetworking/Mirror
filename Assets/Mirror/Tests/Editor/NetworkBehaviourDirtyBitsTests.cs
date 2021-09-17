@@ -54,10 +54,6 @@ namespace Mirror.Tests
             // change the dict. should both be dirty.
             comp.dict[42] = null;
             Assert.That(comp.syncObjectDirtyBits, Is.EqualTo(0b11));
-
-            // set list not dirty. dict should still make it dirty.
-            comp.list.ClearChanges();
-            Assert.That(comp.syncObjectDirtyBits, Is.EqualTo(0b10));
         }
 
         [Test]
