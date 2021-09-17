@@ -82,8 +82,9 @@ namespace Mirror
         //
         // 64 bit mask, tracking up to 64 SyncVars.
         protected ulong syncVarDirtyBits { get; private set; }
-        // 64 bit mask, tracking up to 64 sync collections (internal for tests)
-        internal ulong syncObjectDirtyBits { get; private set; }
+        // 64 bit mask, tracking up to 64 sync collections (internal for tests).
+        // internal for tests, field for faster access (instead of property)
+        internal ulong syncObjectDirtyBits;
 
         // hook guard to avoid deadlocks when calling hooks in host mode
         ulong syncVarHookGuard;
