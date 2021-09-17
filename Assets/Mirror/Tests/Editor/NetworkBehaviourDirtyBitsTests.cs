@@ -130,25 +130,19 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // set syncinterval so dirtybit works fine
             comp.syncInterval = 0;
             Assert.That(comp.IsDirty(), Is.False);
 
-            // create a synclist and dirty it
-            SyncList<int> obj = new SyncList<int>();
-            obj.Add(42);
-            Assert.That(obj.IsDirty, Is.True);
-
-            // add it
-            comp.InitSyncObjectExposed(obj);
+            // dirty the synclist
+            comp.list.Add(42);
             Assert.That(comp.IsDirty, Is.True);
 
             // clear bits should clear synclist bits too
             comp.ClearAllDirtyBits();
             Assert.That(comp.IsDirty, Is.False);
-            Assert.That(obj.IsDirty, Is.False);
         }
     }
 
