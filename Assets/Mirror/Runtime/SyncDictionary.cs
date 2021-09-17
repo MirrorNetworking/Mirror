@@ -43,8 +43,6 @@ namespace Mirror
             objects.Clear();
         }
 
-        public bool IsDirty => changes.Count > 0;
-
         public ICollection<TKey> Keys => objects.Keys;
 
         public ICollection<TValue> Values => objects.Values;

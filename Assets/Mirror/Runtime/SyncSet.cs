@@ -47,8 +47,6 @@ namespace Mirror
             objects.Clear();
         }
 
-        public bool IsDirty => changes.Count > 0;
-
         // throw away all the changes
         // this should be called after a successful sync
         public void ClearChanges() => changes.Clear();

@@ -3,9 +3,6 @@ namespace Mirror
     /// <summary>SyncObjects sync state between server and client. E.g. SyncLists.</summary>
     public interface SyncObject
     {
-        /// <summary>True if there are changes since the last flush</summary>
-        bool IsDirty { get; }
-
         /// <summary>Discard all the queued changes</summary>
         // Consider the object fully synchronized with clients
         void ClearChanges();
