@@ -5,8 +5,7 @@ namespace Mirror
     /// <summary>SyncObjects sync state between server and client. E.g. SyncLists.</summary>
     public interface SyncObject
     {
-        // OnDirty callback can be set by owner NetworkBehaviour to set a bit
-        // in the dirty mask.
+        /// <summary>Used internally to set owner NetworkBehaviour's dirty mask bit when changed.</summary>
         Action OnDirty { get; set; }
 
         /// <summary>Discard all the queued changes</summary>
