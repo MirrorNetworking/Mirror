@@ -8,7 +8,7 @@ namespace WeaverSyncVarTests.SyncVarsSyncList
         public class SyncObjImplementer : SyncObject
         {
             public bool IsDirty { get; }
-            public void Flush() { }
+            public void ClearChanges() { }
             public void OnSerializeAll(NetworkWriter writer) { }
             public void OnSerializeDelta(NetworkWriter writer) { }
             public void OnDeserializeAll(NetworkReader reader) { }
