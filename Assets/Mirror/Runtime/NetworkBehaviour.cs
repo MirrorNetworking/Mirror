@@ -118,6 +118,7 @@ namespace Mirror
         }
 
         // creates a 64 bit dirty mask for Sync Collections (aka SyncObjects)
+        // TODO 64 SyncLists are too much. consider smaller mask later.
         internal ulong DirtyObjectBits()
         {
             ulong dirtyObjects = 0;
