@@ -41,27 +41,17 @@ namespace Mirror.Tests
         [Test]
         public void DirtyObjectBits()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // not dirty by default
             Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b0));
 
-            // add a dirty synclist
-            SyncList<int> dirtyList = new SyncList<int>();
-            dirtyList.Add(42);
-            Assert.That(dirtyList.IsDirty, Is.True);
-            comp.InitSyncObjectExposed(dirtyList);
-
-            // add a clean synclist
-            SyncList<int> cleanList = new SyncList<int>();
-            Assert.That(cleanList.IsDirty, Is.False);
-            comp.InitSyncObjectExposed(cleanList);
-
-            // get bits - only first one should be dirty
+            // dirty the list
+            comp.list.Add(42);
             Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b01));
 
-            // set second one dirty. now we should have two dirty bits
-            cleanList.Add(43);
+            // dirty the dict too. now we should have two dirty bits
+            comp.dict[43] = null;
             Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b11));
         }
 
