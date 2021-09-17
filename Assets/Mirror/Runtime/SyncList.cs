@@ -14,10 +14,7 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncListChanged Callback;
-
-        // dirty callback to set dirty mask bits in owner NetworkBehaviour if
-        // anything in there changed.
-        Action OnDirty;
+        public Action OnDirty { get; set; }
 
         public enum Operation : byte
         {

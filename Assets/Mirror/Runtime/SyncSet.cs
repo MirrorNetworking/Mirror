@@ -13,6 +13,7 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncSetChanged Callback;
+        public Action OnDirty { get; set; }
 
         public enum Operation : byte
         {
