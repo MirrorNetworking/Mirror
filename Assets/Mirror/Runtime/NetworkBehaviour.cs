@@ -158,7 +158,11 @@ namespace Mirror
                 return;
             }
             syncObjects.Add(syncObject);
-            // TODO set up dirty mask
+
+            // when the syncObject gets dirty, set the nth bit in our dirty mask
+            // we know the index right now, so calculate the nth bit mask now.
+            ulong nthBit = 1UL << syncObjects.Count;
+            syncObject.OnDirty = () => syncObjectDirtyBits |= nthBit;
         }
 
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requiresAuthority = true)

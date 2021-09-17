@@ -8,7 +8,10 @@ namespace Mirror.Tests
     public class SyncListTest
     {
         SyncList<string> serverSyncList;
+        int serverSyncListDirtyCalled;
+
         SyncList<string> clientSyncList;
+        int clientSyncListDirtyCalled;
 
         public static void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -41,6 +44,12 @@ namespace Mirror.Tests
         {
             serverSyncList = new SyncList<string>();
             clientSyncList = new SyncList<string>();
+            serverSyncListDirtyCalled = 0;
+            clientSyncListDirtyCalled = 0;
+            serverSyncList.OnDirty = () => ++serverSyncListDirtyCalled;
+            clientSyncList.OnDirty = () => ++clientSyncListDirtyCalled;
+
+            // set up dirty callbacks for testing
 
             // add some data to the list
             serverSyncList.Add("Hello");
