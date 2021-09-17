@@ -158,15 +158,11 @@ namespace Mirror
                 return;
             }
 
-            // we will add this syncObject at index...
-            // if Count=0 then index is 0, etc.
+            // add it, remember the index in list (if Count=0, index=0 etc.)
             int index = syncObjects.Count;
-
-            // add it
             syncObjects.Add(syncObject);
 
-            // when the syncObject gets dirty, set the nth bit in our dirty mask
-            // we know the index right now, so calculate the nth bit mask now.
+            // OnDirty needs to set nth bit in our dirty mask
             ulong nthBit = 1UL << index;
             syncObject.OnDirty = () => syncObjectDirtyBits |= nthBit;
         }
