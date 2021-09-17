@@ -82,7 +82,7 @@ namespace Mirror.Tests
             Assert.That(comp.AnySyncObjectDirty(), Is.True);
 
             // set list not dirty. dict should still make it dirty.
-            comp.list.Flush();
+            comp.list.ClearChanges();
             Assert.That(comp.AnySyncObjectDirty(), Is.True);
         }
 

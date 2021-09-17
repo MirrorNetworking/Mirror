@@ -56,7 +56,7 @@ namespace Mirror
 
         // throw away all the changes
         // this should be called after a successful sync
-        public void Flush() => changes.Clear();
+        public void ClearChanges() => changes.Clear();
 
         public void Reset()
         {

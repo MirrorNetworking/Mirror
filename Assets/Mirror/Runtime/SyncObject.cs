@@ -8,7 +8,7 @@ namespace Mirror
 
         /// <summary>Discard all the queued changes</summary>
         // Consider the object fully synchronized with clients
-        void Flush();
+        void ClearChanges();
 
         /// <summary>Write a full copy of the object</summary>
         void OnSerializeAll(NetworkWriter writer);

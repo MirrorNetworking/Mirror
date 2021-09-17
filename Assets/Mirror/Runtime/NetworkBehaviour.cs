@@ -155,11 +155,11 @@ namespace Mirror
             lastSyncTime = NetworkTime.localTime;
             syncVarDirtyBits = 0L;
 
-            // flush all unsynchronized changes in syncobjects
+            // clear all unsynchronized changes in syncobjects
             // (Linq allocates, use for instead)
             for (int i = 0; i < syncObjects.Count; ++i)
             {
-                syncObjects[i].Flush();
+                syncObjects[i].ClearChanges();
             }
         }
 

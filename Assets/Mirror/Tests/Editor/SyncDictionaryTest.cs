@@ -26,7 +26,7 @@ namespace Mirror.Tests
             fromList.OnSerializeDelta(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
-            fromList.Flush();
+            fromList.ClearChanges();
         }
 
         [SetUp]
