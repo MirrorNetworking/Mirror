@@ -157,11 +157,17 @@ namespace Mirror
                 Debug.LogError("Uninitialized SyncObject. Manually call the constructor on your SyncList, SyncSet or SyncDictionary");
                 return;
             }
+
+            // we will add this syncObject at index...
+            // if Count=0 then index is 0, etc.
+            int index = syncObjects.Count;
+
+            // add it
             syncObjects.Add(syncObject);
 
             // when the syncObject gets dirty, set the nth bit in our dirty mask
             // we know the index right now, so calculate the nth bit mask now.
-            ulong nthBit = 1UL << syncObjects.Count;
+            ulong nthBit = 1UL << index;
             syncObject.OnDirty = () => syncObjectDirtyBits |= nthBit;
         }
 
