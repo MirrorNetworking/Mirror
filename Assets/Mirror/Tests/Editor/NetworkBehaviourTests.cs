@@ -83,13 +83,6 @@ namespace Mirror.Tests
     }
 
     // we need to inherit from networkbehaviour to test protected functions
-    public class NetworkBehaviourInitSyncObjectExposed : NetworkBehaviour
-    {
-        public void InitSyncObjectExposed(SyncObject obj) =>
-            InitSyncObject(obj);
-    }
-
-    // we need to inherit from networkbehaviour to test protected functions
     public class OnStopClientComponent : NetworkBehaviour
     {
         public int called;
@@ -840,29 +833,26 @@ namespace Mirror.Tests
         [Test]
         public void SerializeAndDeserializeObjectsDelta()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourInitSyncObjectExposed comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
-            // add a synclist
-            SyncList<int> list = new SyncList<int>();
-            list.Add(42);
-            list.Add(43);
-            Assert.That(list.IsDirty, Is.True);
-            comp.InitSyncObjectExposed(list);
+            // add to synclist
+            comp.list.Add(42);
+            comp.list.Add(43);
 
             // serialize it
             NetworkWriter writer = new NetworkWriter();
             comp.SerializeObjectsDelta(writer);
 
             // clear original list
-            list.Clear();
-            Assert.That(list.Count, Is.EqualTo(0));
+            comp.list.Clear();
+            Assert.That(comp.list.Count, Is.EqualTo(0));
 
             // deserialize it
             NetworkReader reader = new NetworkReader(writer.ToArray());
             comp.DeSerializeObjectsDelta(reader);
-            Assert.That(list.Count, Is.EqualTo(2));
-            Assert.That(list[0], Is.EqualTo(42));
-            Assert.That(list[1], Is.EqualTo(43));
+            Assert.That(comp.list.Count, Is.EqualTo(2));
+            Assert.That(comp.list[0], Is.EqualTo(42));
+            Assert.That(comp.list[1], Is.EqualTo(43));
         }
 
         [Test]
