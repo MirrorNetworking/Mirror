@@ -7,10 +7,8 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncSetTest
     {
-        public class SyncSetString : SyncHashSet<string> {}
-
-        SyncSetString serverSyncSet;
-        SyncSetString clientSyncSet;
+        SyncHashSet<string> serverSyncSet;
+        SyncHashSet<string> clientSyncSet;
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -32,8 +30,8 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            serverSyncSet = new SyncSetString();
-            clientSyncSet = new SyncSetString();
+            serverSyncSet = new SyncHashSet<string>();
+            clientSyncSet = new SyncHashSet<string>();
 
             // add some data to the list
             serverSyncSet.Add("Hello");
@@ -99,7 +97,7 @@ namespace Mirror.Tests
             {
                 called = true;
 
-                Assert.That(op, Is.EqualTo(SyncSetString.Operation.OP_ADD));
+                Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_ADD));
                 Assert.That(item, Is.EqualTo("yay"));
             };
 
@@ -118,7 +116,7 @@ namespace Mirror.Tests
             {
                 called = true;
 
-                Assert.That(op, Is.EqualTo(SyncSetString.Operation.OP_REMOVE));
+                Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_REMOVE));
                 Assert.That(item, Is.EqualTo("World"));
             };
             serverSyncSet.Remove("World");
@@ -263,8 +261,8 @@ namespace Mirror.Tests
             clientSyncSet.Reset();
 
             // make old client the host
-            SyncSetString hostList = clientSyncSet;
-            SyncSetString clientList2 = new SyncSetString();
+            SyncHashSet<string> hostList = clientSyncSet;
+            SyncHashSet<string> clientList2 = new SyncHashSet<string>();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 

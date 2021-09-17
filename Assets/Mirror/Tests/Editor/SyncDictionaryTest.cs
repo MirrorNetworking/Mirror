@@ -7,10 +7,8 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncDictionaryTest
     {
-        public class SyncDictionaryIntString : SyncDictionary<int, string> {}
-
-        SyncDictionaryIntString serverSyncDictionary;
-        SyncDictionaryIntString clientSyncDictionary;
+        SyncDictionary<int, string> serverSyncDictionary;
+        SyncDictionary<int, string> clientSyncDictionary;
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -32,8 +30,8 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            serverSyncDictionary = new SyncDictionaryIntString();
-            clientSyncDictionary = new SyncDictionaryIntString();
+            serverSyncDictionary = new SyncDictionary<int, string>();
+            clientSyncDictionary = new SyncDictionary<int, string>();
 
             // add some data to the list
             serverSyncDictionary.Add(0, "Hello");
@@ -69,7 +67,7 @@ namespace Mirror.Tests
         {
             serverSyncDictionary.Clear();
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-            Assert.That(serverSyncDictionary, Is.EquivalentTo(new SyncDictionaryIntString()));
+            Assert.That(serverSyncDictionary, Is.EquivalentTo(new SyncDictionary<int, string>()));
         }
 
         [Test]
@@ -156,7 +154,7 @@ namespace Mirror.Tests
             {
                 called = true;
 
-                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_ADD));
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
                 Assert.That(index, Is.EqualTo(3));
                 Assert.That(item, Is.EqualTo("yay"));
                 Assert.That(clientSyncDictionary[index], Is.EqualTo("yay"));
@@ -175,7 +173,7 @@ namespace Mirror.Tests
             {
                 called = true;
 
-                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_ADD));
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_ADD));
                 Assert.That(index, Is.EqualTo(3));
                 Assert.That(item, Is.EqualTo("yay"));
                 Assert.That(serverSyncDictionary[index], Is.EqualTo("yay"));
@@ -191,7 +189,7 @@ namespace Mirror.Tests
             clientSyncDictionary.Callback += (op, key, item) =>
             {
                 called = true;
-                Assert.That(op, Is.EqualTo(SyncDictionaryIntString.Operation.OP_REMOVE));
+                Assert.That(op, Is.EqualTo(SyncDictionary<int, string>.Operation.OP_REMOVE));
                 Assert.That(item, Is.EqualTo("World"));
             };
             serverSyncDictionary.Remove(1);
@@ -294,8 +292,8 @@ namespace Mirror.Tests
             clientSyncDictionary.Reset();
 
             // make old client the host
-            SyncDictionaryIntString hostList = clientSyncDictionary;
-            SyncDictionaryIntString clientList2 = new SyncDictionaryIntString();
+            SyncDictionary<int, string> hostList = clientSyncDictionary;
+            SyncDictionary<int, string> clientList2 = new SyncDictionary<int, string>();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 
