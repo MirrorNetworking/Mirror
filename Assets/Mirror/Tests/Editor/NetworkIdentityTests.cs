@@ -606,12 +606,6 @@ namespace Mirror.Tests
             Assert.That(callbackIdentity, Is.EqualTo(identity));
             Assert.That(callbackState, Is.EqualTo(true));
 
-            // assigning authority should respawn the object with proper authority
-            // on the client. that's the best way to sync the new state right now.
-            // process pending messages
-            owner.connectionToServer.Update();
-            Assert.That(spawnCalled, Is.EqualTo(1));
-
             // shouldn't be able to assign authority while already owned by
             // another connection
             // error log is expected

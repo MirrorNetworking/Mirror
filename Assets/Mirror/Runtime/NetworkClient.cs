@@ -117,6 +117,7 @@ namespace Mirror
                 RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
+                RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
                 RegisterHandler<ObjectSpawnStartedMessage>(msg => {});
@@ -131,6 +132,7 @@ namespace Mirror
                 RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
                 RegisterHandler<SpawnMessage>(OnSpawn);
+                RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
@@ -1017,6 +1019,12 @@ namespace Mirror
             }
         }
 
+        internal static void ChangeOwner(NetworkIdentity identity, ChangeOwnerMessage message)
+        {
+            identity.hasAuthority = message.isOwner;
+            identity.NotifyAuthority();
+        }
+
         // Finds Existing Object with NetId or spawns a new one using AssetId or sceneId
         internal static bool FindOrSpawnObject(SpawnMessage message, out NetworkIdentity identity)
         {
@@ -1265,6 +1273,16 @@ namespace Mirror
             {
                 ApplySpawnPayload(identity, message);
             }
+        }
+
+        internal static void OnChangeOwner(ChangeOwnerMessage message)
+        {
+            NetworkIdentity identity = GetExistingObject(message.netId);
+
+            if (identity != null)
+                ChangeOwner(identity, message);
+            else
+                Debug.LogError($"OnChangeOwner: Could not find object with netId {message.netId}");
         }
 
         internal static void CheckForLocalPlayer(NetworkIdentity identity)
