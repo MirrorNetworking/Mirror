@@ -135,8 +135,8 @@ namespace Mirror.Tests
             // without AOI, player connection sees everyone automatically.
             // remove the monster from observing.
             // remvoe player from monster observers.
-            player.connectionToClient.observing.Remove(monster);
-            monster.observers.Remove(player.connectionToClient.connectionId);
+            player.connectionToClient.RemoveFromObservingsObservers();
+            player.connectionToClient.RemoveFromObserving(monster, false);
 
             // modify something in the monster so that dirty bit is set
             monsterComp.syncInterval = 0;
