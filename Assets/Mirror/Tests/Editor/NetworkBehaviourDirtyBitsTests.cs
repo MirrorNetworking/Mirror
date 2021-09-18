@@ -143,7 +143,10 @@ namespace Mirror.Tests
             ++monsterComp.health;
             Assert.That(monsterComp.IsDirty(), Is.True);
 
-            // at the moment, NetworkServer.Update clears dirty bit if no observers
+            // add observer again. update everything. dirty bits should be cleared.
+            // for this test to pass, either AddObserver or NetworkServer.Update
+            // have to clear the dirty bits if we had no observers before.
+            monster.AddObserver(player.connectionToClient);
             ProcessMessages();
             Assert.That(monsterComp.IsDirty(), Is.False);
         }
