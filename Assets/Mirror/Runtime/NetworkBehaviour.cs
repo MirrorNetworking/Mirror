@@ -125,8 +125,8 @@ namespace Mirror
         {
             if (NetworkTime.localTime - lastSyncTime >= syncInterval)
             {
-                // TODO | both masks then compare with 0 might be faster
-                return syncVarDirtyBits != 0L || syncObjectDirtyBits != 0UL;
+                // OR both bitmasks. != 0 if either was dirty.
+                return (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
             }
             return false;
         }
