@@ -1098,6 +1098,38 @@ namespace Mirror.Tests
             Assert.That(identity.netId, Is.Zero);
         }
 
+        [Test]
+        public void UnSpawnAndClearAuthority()
+        {
+            // create scene object with valid netid and set active
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out StartAuthorityCalledNetworkBehaviour compStart, out StopAuthorityCalledNetworkBehaviour compStop);
+            identity.sceneId = 42;
+            identity.netId = 123;
+            go.SetActive(true);
+
+            // set authority from false to true, which should call OnStartAuthority
+            identity.hasAuthority = true;
+            identity.NotifyAuthority();
+
+            // shouldn't be touched
+            Assert.That(identity.hasAuthority, Is.True);
+            // start should be called
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // stop shouldn't
+            Assert.That(compStop.called, Is.EqualTo(0));
+
+            // unspawn should reset netid and remove authority
+            NetworkServer.UnSpawn(go);
+            Assert.That(identity.netId, Is.Zero);
+
+            // should be changed
+            Assert.That(identity.hasAuthority, Is.False);
+            // same as before
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // stop should be called
+            Assert.That(compStop.called, Is.EqualTo(1));
+        }
+
         // test to reproduce a bug where stopping the server would not call
         // OnStopServer on scene objects:
         // https://github.com/vis2k/Mirror/issues/2119
