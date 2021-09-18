@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -12,6 +13,9 @@ namespace Mirror
         public int Count => objects.Count;
         public bool IsReadOnly { get; private set; }
         public event SyncDictionaryChanged Callback;
+
+        // OnDirty sets owner NetworkBehaviour's dirty mask when changed.
+        public Action OnDirty { get; set; }
 
         public enum Operation : byte
         {
@@ -42,8 +46,6 @@ namespace Mirror
             changesAhead = 0;
             objects.Clear();
         }
-
-        public bool IsDirty => changes.Count > 0;
 
         public ICollection<TKey> Keys => objects.Keys;
 
@@ -77,6 +79,7 @@ namespace Mirror
             };
 
             changes.Add(change);
+            OnDirty?.Invoke();
 
             Callback?.Invoke(op, key, item);
         }

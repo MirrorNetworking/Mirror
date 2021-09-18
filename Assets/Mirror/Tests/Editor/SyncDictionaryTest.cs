@@ -9,6 +9,8 @@ namespace Mirror.Tests
     {
         SyncDictionary<int, string> serverSyncDictionary;
         SyncDictionary<int, string> clientSyncDictionary;
+        int serverSyncDictionaryDirtyCalled;
+        int clientSyncDictionaryDirtyCalled;
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -38,6 +40,13 @@ namespace Mirror.Tests
             serverSyncDictionary.Add(1, "World");
             serverSyncDictionary.Add(2, "!");
             SerializeAllTo(serverSyncDictionary, clientSyncDictionary);
+
+            // set up dirty callbacks for testing.
+            // AFTER adding the example data. we already know we added that data.
+            serverSyncDictionaryDirtyCalled = 0;
+            clientSyncDictionaryDirtyCalled = 0;
+            serverSyncDictionary.OnDirty = () => ++serverSyncDictionaryDirtyCalled;
+            clientSyncDictionary.OnDirty = () => ++clientSyncDictionaryDirtyCalled;
         }
 
         [Test]
@@ -275,15 +284,12 @@ namespace Mirror.Tests
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
 
             // nothing to send
-            Assert.That(serverSyncDictionary.IsDirty, Is.False);
+            Assert.That(serverSyncDictionaryDirtyCalled, Is.EqualTo(0));
 
             // something has changed
             serverSyncDictionary.Add(15, "yay");
-            Assert.That(serverSyncDictionary.IsDirty, Is.True);
+            Assert.That(serverSyncDictionaryDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncDictionary, clientSyncDictionary);
-
-            // data has been flushed,  should go back to clear
-            Assert.That(serverSyncDictionary.IsDirty, Is.False);
         }
 
         [Test]

@@ -80,9 +80,12 @@ namespace Mirror
         //   -> spares us from running delta algorithms
         //   -> still supports dynamically sized types
         //
-        // syncVarDirtyBits is a 64 bit mask, tracking up to 64 SyncVars.
-        // (NOT for SyncLists/Dicts/Sets. AnySyncObjectDirty checks them.)
+        // 64 bit mask, tracking up to 64 SyncVars.
         protected ulong syncVarDirtyBits { get; private set; }
+        // 64 bit mask, tracking up to 64 sync collections (internal for tests).
+        // internal for tests, field for faster access (instead of property)
+        // TODO 64 SyncLists are too much. consider smaller mask later.
+        internal ulong syncObjectDirtyBits;
 
         // hook guard to avoid deadlocks when calling hooks in host mode
         ulong syncVarHookGuard;
@@ -117,32 +120,13 @@ namespace Mirror
             syncVarDirtyBits |= dirtyBit;
         }
 
-        // creates a 64 bit dirty mask for Sync Collections (aka SyncObjects)
-        // TODO 64 SyncLists are too much. consider smaller mask later.
-        internal ulong DirtyObjectBits()
-        {
-            ulong dirtyObjects = 0;
-            for (int i = 0; i < syncObjects.Count; i++)
-            {
-                SyncObject syncObject = syncObjects[i];
-                if (syncObject.IsDirty)
-                {
-                    dirtyObjects |= 1UL << i;
-                }
-            }
-            return dirtyObjects;
-        }
-
-        // internal for tests
-        // reuses DirtyObjectBits for simplicity.
-        internal bool AnySyncObjectDirty() => DirtyObjectBits() != 0UL;
-
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         public bool IsDirty()
         {
             if (NetworkTime.localTime - lastSyncTime >= syncInterval)
             {
-                return syncVarDirtyBits != 0L || AnySyncObjectDirty();
+                // TODO | both masks then compare with 0 might be faster
+                return syncVarDirtyBits != 0L || syncObjectDirtyBits != 0UL;
             }
             return false;
         }
@@ -154,6 +138,7 @@ namespace Mirror
         {
             lastSyncTime = NetworkTime.localTime;
             syncVarDirtyBits = 0L;
+            syncObjectDirtyBits = 0L;
 
             // clear all unsynchronized changes in syncobjects
             // (Linq allocates, use for instead)
@@ -173,7 +158,14 @@ namespace Mirror
                 Debug.LogError("Uninitialized SyncObject. Manually call the constructor on your SyncList, SyncSet or SyncDictionary");
                 return;
             }
+
+            // add it, remember the index in list (if Count=0, index=0 etc.)
+            int index = syncObjects.Count;
             syncObjects.Add(syncObject);
+
+            // OnDirty needs to set nth bit in our dirty mask
+            ulong nthBit = 1UL << index;
+            syncObject.OnDirty = () => syncObjectDirtyBits |= nthBit;
         }
 
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requiresAuthority = true)
@@ -629,12 +621,13 @@ namespace Mirror
         {
             bool dirty = false;
             // write the mask
-            writer.WriteULong(DirtyObjectBits());
+            writer.WriteULong(syncObjectDirtyBits);
             // serializable objects, such as synclists
             for (int i = 0; i < syncObjects.Count; i++)
             {
+                // check dirty mask at nth bit
                 SyncObject syncObject = syncObjects[i];
-                if (syncObject.IsDirty)
+                if ((syncObjectDirtyBits & (1UL << i)) != 0)
                 {
                     syncObject.OnSerializeDelta(writer);
                     dirty = true;
@@ -657,6 +650,7 @@ namespace Mirror
             ulong dirty = reader.ReadULong();
             for (int i = 0; i < syncObjects.Count; i++)
             {
+                // check dirty mask at nth bit
                 SyncObject syncObject = syncObjects[i];
                 if ((dirty & (1UL << i)) != 0)
                 {

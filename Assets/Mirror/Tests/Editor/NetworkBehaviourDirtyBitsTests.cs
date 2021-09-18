@@ -38,42 +38,22 @@ namespace Mirror.Tests
             Assert.That(comp.syncVarDirtyBitsExposed, Is.EqualTo(0b_00000000_00010100));
         }
 
+        // changing a SyncObject (collection) should modify the dirty mask.
         [Test]
-        public void DirtyObjectBits()
+        public void SyncObjectsSetDirtyBits()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // not dirty by default
-            Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b0));
-
-            // dirty the list
-            comp.list.Add(42);
-            Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b01));
-
-            // dirty the dict too. now we should have two dirty bits
-            comp.dict[43] = null;
-            Assert.That(comp.DirtyObjectBits(), Is.EqualTo(0b11));
-        }
-
-        [Test]
-        public void AnySyncObjectDirty()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
-
-            // not dirty by default
-            Assert.That(comp.AnySyncObjectDirty(), Is.False);
+            Assert.That(comp.syncObjectDirtyBits, Is.EqualTo(0UL));
 
             // change the list. should be dirty now.
             comp.list.Add(42);
-            Assert.That(comp.AnySyncObjectDirty(), Is.True);
+            Assert.That(comp.syncObjectDirtyBits, Is.EqualTo(0b01));
 
-            // change the dict. should still be dirty.
+            // change the dict. should both be dirty.
             comp.dict[42] = null;
-            Assert.That(comp.AnySyncObjectDirty(), Is.True);
-
-            // set list not dirty. dict should still make it dirty.
-            comp.list.ClearChanges();
-            Assert.That(comp.AnySyncObjectDirty(), Is.True);
+            Assert.That(comp.syncObjectDirtyBits, Is.EqualTo(0b11));
         }
 
         [Test]

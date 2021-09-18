@@ -9,6 +9,8 @@ namespace Mirror.Tests
     {
         SyncHashSet<string> serverSyncSet;
         SyncHashSet<string> clientSyncSet;
+        int serverSyncSetDirtyCalled;
+        int clientSyncSetDirtyCalled;
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -38,6 +40,13 @@ namespace Mirror.Tests
             serverSyncSet.Add("World");
             serverSyncSet.Add("!");
             SerializeAllTo(serverSyncSet, clientSyncSet);
+
+            // set up dirty callbacks for testing
+            // AFTER adding the example data. we already know we added that data.
+            serverSyncSet.OnDirty = () => ++serverSyncSetDirtyCalled;
+            clientSyncSet.OnDirty = () => ++clientSyncSetDirtyCalled;
+            serverSyncSetDirtyCalled = 0;
+            clientSyncSetDirtyCalled = 0;
         }
 
         [Test]
@@ -51,30 +60,26 @@ namespace Mirror.Tests
         public void TestAdd()
         {
             serverSyncSet.Add("yay");
-            Assert.That(serverSyncSet.IsDirty, Is.True);
+            Assert.That(serverSyncSetDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!", "yay" }));
-            Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
         [Test]
         public void TestClear()
         {
             serverSyncSet.Clear();
-            Assert.That(serverSyncSet.IsDirty, Is.True);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new string[] {}));
-            Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
         [Test]
         public void TestRemove()
         {
             serverSyncSet.Remove("World");
-            Assert.That(serverSyncSet.IsDirty, Is.True);
+            Assert.That(serverSyncSetDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "!" }));
-            Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
         [Test]

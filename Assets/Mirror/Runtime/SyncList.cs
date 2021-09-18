@@ -15,6 +15,9 @@ namespace Mirror
         public bool IsReadOnly { get; private set; }
         public event SyncListChanged Callback;
 
+        // OnDirty sets owner NetworkBehaviour's dirty mask when changed.
+        public Action OnDirty { get; set; }
+
         public enum Operation : byte
         {
             OP_ADD,
@@ -52,8 +55,6 @@ namespace Mirror
             this.objects = objects;
         }
 
-        public bool IsDirty => changes.Count > 0;
-
         // throw away all the changes
         // this should be called after a successful sync
         public void ClearChanges() => changes.Clear();
@@ -81,6 +82,7 @@ namespace Mirror
             };
 
             changes.Add(change);
+            OnDirty?.Invoke();
 
             Callback?.Invoke(op, itemIndex, oldItem, newItem);
         }

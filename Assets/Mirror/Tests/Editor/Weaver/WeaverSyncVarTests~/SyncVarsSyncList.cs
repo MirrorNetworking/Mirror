@@ -1,4 +1,5 @@
 using Mirror;
+using System;
 
 namespace WeaverSyncVarTests.SyncVarsSyncList
 {
@@ -7,7 +8,7 @@ namespace WeaverSyncVarTests.SyncVarsSyncList
     {
         public class SyncObjImplementer : SyncObject
         {
-            public bool IsDirty { get; }
+            public Action OnDirty { get; set; }
             public void ClearChanges() { }
             public void OnSerializeAll(NetworkWriter writer) { }
             public void OnSerializeDelta(NetworkWriter writer) { }
