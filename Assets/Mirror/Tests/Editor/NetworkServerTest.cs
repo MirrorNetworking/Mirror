@@ -1270,7 +1270,6 @@ namespace Mirror.Tests
 
             // insert into a synclist, which would add to .changes
             comp.list.Add(42);
-            Assert.That(comp.list.GetChangeCount(), Is.EqualTo(1));
 
             // update everything once
             ProcessMessages();
