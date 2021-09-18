@@ -1626,8 +1626,12 @@ namespace Mirror
             // see test: DirtyBitsAreClearedForSpawnedWithoutObservers()
             // see test: SyncObjectChanges_DontGrowWithoutObservers()
             //
-            // PAUL: we also do this to avoid ever growing SyncList .changes
-            ClearSpawnedDirtyBits();
+            // TODO PAUL: we also do this to avoid ever growing SyncList .changes
+            //ClearSpawnedDirtyBits();
+            //
+            // this was moved to NetworkIdentity.AddObserver!
+            // same result, but no more O(N) loop in here!
+            // TODO remove this comment after moving spawning into Broadcast()!
         }
 
         // update //////////////////////////////////////////////////////////////
