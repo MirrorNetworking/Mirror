@@ -752,7 +752,7 @@ namespace Mirror
 
             if (NetworkServer.isLoadingScene && newSceneName == networkSceneName)
             {
-                Debug.LogError("ServerChangeScene is already in progress for " + newSceneName);
+                Debug.LogError($"Scene change is already in progress for {newSceneName}");
                 return;
             }
 
