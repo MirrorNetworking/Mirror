@@ -1624,6 +1624,7 @@ namespace Mirror
             //      handling spawn separately is why we need this complex magic
             //
             // see test: DirtyBitsAreClearedForSpawnedWithoutObservers()
+            // see test: SyncObjectChanges_DontGrowWithoutObservers()
             //
             // PAUL: we also do this to avoid ever growing SyncList .changes
             ClearSpawnedDirtyBits();

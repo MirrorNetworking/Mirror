@@ -1250,5 +1250,33 @@ namespace Mirror.Tests
             LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in observing list.*"));
             NetworkServer.NetworkLateUpdate();
         }
+
+        // SyncLists/Dict/Set .changes are only flushed when serializing.
+        // if an object has no observers, then serialize is never called.
+        // if we still keep changing the lists, then .changes would grow forever.
+        // => need to make sure that .changes doesn't grow while no observers.
+        [Test]
+        public void SyncObjectChanges_DontGrowWithoutObservers()
+        {
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // one monster
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out NetworkBehaviourWithSyncVarsAndCollections comp);
+
+            // without AOI, connections observer everything.
+            // clear the observers first.
+            identity.ClearObservers();
+
+            // insert into a synclist, which would add to .changes
+            comp.list.Add(42);
+            Assert.That(comp.list.GetChangeCount(), Is.EqualTo(1));
+
+            // update everything once
+            ProcessMessages();
+
+            // changes should be empty since we have no observers
+            Assert.That(comp.list.GetChangeCount(), Is.EqualTo(0));
+        }
     }
 }
