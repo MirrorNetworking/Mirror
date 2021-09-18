@@ -941,7 +941,7 @@ namespace Mirror
         {
             if (identity.serverOnly) return;
 
-            Debug.Log($"Server SendChangeOwnerMessage: name={identity.name} netid={identity.netId}");
+            //Debug.Log($"Server SendChangeOwnerMessage: name={identity.name} netid={identity.netId}");
 
             conn.Send(new ChangeOwnerMessage { netId = identity.netId, isOwner = identity.connectionToClient == conn });
         }
