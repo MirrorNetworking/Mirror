@@ -34,7 +34,12 @@ namespace Mirror
             internal T item;
         }
 
+        // list of changes.
+        // -> insert/delete/clear is only ONE change
+        // -> changing the same slot 10x caues 10 changes.
+        // -> note that this grows until next sync(!)
         readonly List<Change> changes = new List<Change>();
+
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
