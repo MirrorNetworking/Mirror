@@ -283,12 +283,6 @@ namespace Mirror
         /// <summary> A callback that can be populated to be notified when the client-authority state of objects changes.</summary>
         public static event ClientAuthorityCallback clientAuthorityCallback;
 
-        // this is used when a connection is destroyed, since the "observers" property is read-only
-        internal void RemoveObserverInternal(NetworkConnection conn)
-        {
-            observers?.Remove(conn.connectionId);
-        }
-
         // hasSpawned should always be false before runtime
         [SerializeField, HideInInspector] bool hasSpawned;
         public bool SpawnedFromInstantiate { get; private set; }
@@ -1074,19 +1068,6 @@ namespace Mirror
             }
         }
 
-        // Called when NetworkIdentity is destroyed
-        internal void ClearObservers()
-        {
-            if (observers != null)
-            {
-                foreach (NetworkConnection conn in observers.Values)
-                {
-                    conn.RemoveFromObserving(this, true);
-                }
-                observers.Clear();
-            }
-        }
-
         internal void AddObserver(NetworkConnection conn)
         {
             if (observers == null)
@@ -1106,6 +1087,25 @@ namespace Mirror
 
             observers[conn.connectionId] = conn;
             conn.AddToObserving(this);
+        }
+
+        // this is used when a connection is destroyed, since the "observers" property is read-only
+        internal void RemoveObserverInternal(NetworkConnection conn)
+        {
+            observers?.Remove(conn.connectionId);
+        }
+
+        // Called when NetworkIdentity is destroyed
+        internal void ClearObservers()
+        {
+            if (observers != null)
+            {
+                foreach (NetworkConnection conn in observers.Values)
+                {
+                    conn.RemoveFromObserving(this, true);
+                }
+                observers.Clear();
+            }
         }
 
         /// <summary>Assign control of an object to a client via the client's NetworkConnection.</summary>
