@@ -693,7 +693,7 @@ namespace Mirror.Tests
             // set it to false, should call OnStopAuthority
             identity.hasAuthority = false;
             identity.NotifyAuthority();
-            // shouldn't be touched
+            // should be changed
             Assert.That(identity.hasAuthority, Is.False);
             // same as before
             Assert.That(compStart.called, Is.EqualTo(1));
