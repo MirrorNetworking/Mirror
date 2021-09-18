@@ -114,6 +114,39 @@ namespace Mirror.Tests
             comp.ClearAllDirtyBits();
             Assert.That(comp.IsDirty, Is.False);
         }
+
+        // NetworkServer.Broadcast clears all dirty bits in all spawned
+        // identity's components if they have no observers.
+        //
+        // this way dirty bit tracking only starts after first observer.
+        // otherwise first observer would still get dirty update for everything
+        // that was dirty before he observed. even though he already got the
+        // full state in spawn packet.
+        [Test]
+        public void DirtyBitsAreClearedForSpawnedWithoutObservers()
+        {
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // need one player, one monster
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity monster, out NetworkBehaviourWithSyncVarsAndCollections monsterComp);
+
+            // without AOI, player connection sees everyone automatically.
+            // remove the monster from observing.
+            // remvoe player from monster observers.
+            monster.RemoveObserver(player.connectionToClient);
+            Assert.That(monster.observers.Count, Is.EqualTo(0));
+
+            // modify something in the monster so that dirty bit is set
+            monsterComp.syncInterval = 0;
+            ++monsterComp.health;
+            Assert.That(monsterComp.IsDirty(), Is.True);
+
+            // at the moment, NetworkServer.Update clears dirty bit if no observers
+            ProcessMessages();
+            Assert.That(monsterComp.IsDirty(), Is.False);
+        }
     }
 
     // hook tests can only be ran when inheriting from NetworkBehaviour

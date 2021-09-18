@@ -247,7 +247,7 @@ namespace Mirror
         {
             foreach (NetworkIdentity netIdentity in observing)
             {
-                netIdentity.RemoveObserverInternal(this);
+                netIdentity.RemoveObserver(this);
             }
             observing.Clear();
         }

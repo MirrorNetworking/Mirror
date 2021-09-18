@@ -1631,6 +1631,10 @@ namespace Mirror
             //   1. what if a playerB was around the whole time?
             //   2. why don't we handle broadcast and spawn packets both HERE?
             //      handling spawn separately is why we need this complex magic
+            //
+            // see test: DirtyBitsAreClearedForSpawnedWithoutObservers()
+            //
+            // PAUL: we also do this to avoid ever growing SyncList .changes
             ClearSpawnedDirtyBits();
         }
 
