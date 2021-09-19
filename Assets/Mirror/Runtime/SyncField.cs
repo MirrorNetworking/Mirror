@@ -68,6 +68,7 @@ namespace Mirror
         public static implicit operator T(SyncField<T> field) => field.Value;
 
         // implicit conversion: SyncField<T> = value
+        // even if SyncField is readonly, it's still useful: SyncField<int> = 1;
         public static implicit operator SyncField<T>(T value) => new SyncField<T>(value);
 
         // serialization
