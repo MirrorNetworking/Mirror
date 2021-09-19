@@ -13,6 +13,9 @@
 //
 // downsides:
 //   - generic <T> types don't show in Unity Inspector
+//
+// TODO force 'readonly' in Weaver. otherwise 'health--' sets a new field.
+// TODO OnChanged hook
 using System;
 
 namespace Mirror
