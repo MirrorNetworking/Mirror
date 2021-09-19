@@ -1210,6 +1210,10 @@ namespace Mirror
             isServer = false;
             //isLocalPlayer = false; <- cleared AFTER ClearLocalPlayer below!
 
+            // remove authority flag. This object may be unspawned, not destroyed, on client.
+            hasAuthority = false;
+            NotifyAuthority();
+
             netId = 0;
             connectionToServer = null;
             connectionToClient = null;
