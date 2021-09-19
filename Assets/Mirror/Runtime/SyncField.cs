@@ -19,6 +19,7 @@
 //      * struct instead of class, otherwise health++ creates new class
 //        BUT how to store in syncobjects list?
 //      * copy old field's OnDirty callback to the new field
+//      * AND call OnDirty if we reassigned it
 //      * then .health++ works
 // TODO OnChanged hook
 // TODO tests
