@@ -10,6 +10,9 @@
 //   1. develop SyncField<T> along side [SyncVar]
 //   2. internally replace [SyncVar]s with SyncField<T>
 //   3. eventually obsolete [SyncVar]
+//
+// downsides:
+//   - generic <T> types don't show in Unity Inspector
 using System;
 
 namespace Mirror
@@ -47,6 +50,5 @@ namespace Mirror
         {
             _Value = reader.Read<T>();
         }
-
     }
 }
