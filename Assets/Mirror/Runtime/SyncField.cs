@@ -16,6 +16,7 @@
 //
 // TODO force 'readonly' in Weaver. otherwise 'health--' sets a new field.
 // TODO OnChanged hook
+// TODO tests
 using System;
 
 namespace Mirror
@@ -30,11 +31,14 @@ namespace Mirror
             get => _Value;
             set
             {
+                // set value, set dirty bit
+                // TODO only if changed
                 _Value = value;
                 OnDirty();
             }
         }
 
+        // OnDirty sets the owner NetworkBehaviour's dirty bit
         public Action OnDirty { get; set; }
 
         // some SyncObject interface methods are unnecessary here
