@@ -23,10 +23,21 @@ namespace Mirror.Tests
 
     public class NetworkBehaviourDirtyBitsTests : MirrorEditModeTest
     {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            // SyncLists are only set dirty while owner has observers.
+            // need a connection.
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+        }
+
         [Test]
         public void SetDirtyBit()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSyncVarDirtyBitsExposed comp);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSyncVarDirtyBitsExposed comp);
 
             // set 3rd dirty bit.
             comp.SetDirtyBit(0b_00000000_00000100);
@@ -42,11 +53,6 @@ namespace Mirror.Tests
         [Test]
         public void SyncObjectsSetDirtyBits()
         {
-            // SyncLists are only set dirty while owner has observers.
-            // need a connection.
-            NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
-
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // not dirty by default
@@ -64,11 +70,6 @@ namespace Mirror.Tests
         [Test]
         public void IsDirty()
         {
-            // SyncLists are only set dirty while owner has observers.
-            // need a connection.
-            NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
-
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // not dirty by default
@@ -92,7 +93,7 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out EmptyBehaviour emptyBehaviour);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out EmptyBehaviour emptyBehaviour);
 
             // set syncinterval so dirtybit works fine
             emptyBehaviour.syncInterval = 0;
@@ -110,11 +111,6 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
         {
-            // SyncLists are only set dirty while owner has observers.
-            // need a connection.
-            NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
-
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // set syncinterval so dirtybit works fine
@@ -140,9 +136,6 @@ namespace Mirror.Tests
         [Test]
         public void DirtyBitsAreClearedForSpawnedWithoutObservers()
         {
-            NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
-
             // need one player, one monster
             CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player, NetworkServer.localConnection);
             CreateNetworkedAndSpawn(out _, out NetworkIdentity monster, out NetworkBehaviourWithSyncVarsAndCollections monsterComp);
