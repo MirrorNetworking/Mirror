@@ -28,8 +28,9 @@ using System;
 
 namespace Mirror
 {
-    // should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
-    // needs to be a 'class' so that we can track it in SyncObjects list.
+    // * needs to be a 'class' so that we can track it in SyncObjects list, and
+    //   iterate it for de/serialization.
+    // * should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
     public class SyncField<T> : SyncObject
     {
         T _Value;
