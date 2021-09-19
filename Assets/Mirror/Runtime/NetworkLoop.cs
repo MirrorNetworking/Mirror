@@ -40,7 +40,7 @@ using UnityEngine.Experimental.PlayerLoop;
 
 namespace Mirror
 {
-    internal static class NetworkLoop
+    public static class NetworkLoop
     {
         // helper enum to add loop to begin/end of subSystemList
         internal enum AddMode { Beginning, End }
