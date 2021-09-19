@@ -8,6 +8,7 @@ namespace Mirror.Examples.Tanks
         [Header("Components")]
         public NavMeshAgent agent;
         public Animator animator;
+        public TextMesh healthBar;
 
         [Header("Movement")]
         public float rotationSpeed = 100;
@@ -17,25 +18,32 @@ namespace Mirror.Examples.Tanks
         public GameObject projectilePrefab;
         public Transform projectileMount;
 
+        [Header("Stats")]
+        [SyncVar] public int health = 4;
+
         void Update()
         {
+            // update health bar
+            healthBar.text = new string('-', health);
+
             // movement for local player
-            if (!isLocalPlayer) return;
-
-            // rotate
-            float horizontal = Input.GetAxis("Horizontal");
-            transform.Rotate(0, horizontal * rotationSpeed * Time.deltaTime, 0);
-
-            // move
-            float vertical = Input.GetAxis("Vertical");
-            Vector3 forward = transform.TransformDirection(Vector3.forward);
-            agent.velocity = forward * Mathf.Max(vertical, 0) * agent.speed;
-            animator.SetBool("Moving", agent.velocity != Vector3.zero);
-
-            // shoot
-            if (Input.GetKeyDown(shootKey))
+            if (isLocalPlayer)
             {
-                CmdFire();
+                // rotate
+                float horizontal = Input.GetAxis("Horizontal");
+                transform.Rotate(0, horizontal * rotationSpeed * Time.deltaTime, 0);
+
+                // move
+                float vertical = Input.GetAxis("Vertical");
+                Vector3 forward = transform.TransformDirection(Vector3.forward);
+                agent.velocity = forward * Mathf.Max(vertical, 0) * agent.speed;
+                animator.SetBool("Moving", agent.velocity != Vector3.zero);
+
+                // shoot
+                if (Input.GetKeyDown(shootKey))
+                {
+                    CmdFire();
+                }
             }
         }
 
@@ -53,6 +61,17 @@ namespace Mirror.Examples.Tanks
         void RpcOnFire()
         {
             animator.SetTrigger("Shoot");
+        }
+
+        [ServerCallback]
+        void OnTriggerEnter(Collider other)
+        {
+            if (other.GetComponent<Projectile>() != null)
+            {
+                --health;
+                if (health == 0)
+                    NetworkServer.Destroy(gameObject);
+            }
         }
     }
 }
