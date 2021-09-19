@@ -35,17 +35,17 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SetDirtyBit()
+        public void SetSyncVarDirtyBit()
         {
             CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSyncVarDirtyBitsExposed comp);
 
             // set 3rd dirty bit.
-            comp.SetDirtyBit(0b_00000000_00000100);
+            comp.SetSyncVarDirtyBit(0b_00000000_00000100);
             Assert.That(comp.syncVarDirtyBitsExposed, Is.EqualTo(0b_00000000_00000100));
 
             // set 5th dirty bit.
             // both 3rd and 5th should be set.
-            comp.SetDirtyBit(0b_00000000_00010000);
+            comp.SetSyncVarDirtyBit(0b_00000000_00010000);
             Assert.That(comp.syncVarDirtyBitsExposed, Is.EqualTo(0b_00000000_00010100));
         }
 
@@ -100,7 +100,7 @@ namespace Mirror.Tests
             Assert.That(emptyBehaviour.IsDirty(), Is.False);
 
             // set one syncvar dirty bit
-            emptyBehaviour.SetDirtyBit(1);
+            emptyBehaviour.SetSyncVarDirtyBit(1);
             Assert.That(emptyBehaviour.IsDirty(), Is.True);
 
             // clear it
