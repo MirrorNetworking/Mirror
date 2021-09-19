@@ -4,17 +4,23 @@
 //   * set dirty bit
 //   * calling the hook
 //   * hook guard in host mode
+//   * GameObject/NetworkIdentity internal netId storage
 //
 // here is the plan:
 //   1. develop SyncField<T> along side [SyncVar]
 //   2. internally replace [SyncVar]s with SyncField<T>
-//   3. eventuall obsolete [SyncVar]
+//   3. eventually obsolete [SyncVar]
 namespace Mirror
 {
     // should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
     // needs to be a 'class' so that we can track it in SyncObjects list.
     public class SyncField<T>
     {
-        public T Value;
+        public T Value
+        {
+            get;
+            // TODO set dirty on set if !=
+            set;
+        }
     }
 }
