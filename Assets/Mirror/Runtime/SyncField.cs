@@ -54,7 +54,7 @@ namespace Mirror
         public void ClearChanges() {}
         public void Reset() {}
 
-        // ctor
+        // ctor from value <T>
         public SyncField(T value) => _Value = value;
 
         // implicit conversion: int value = SyncField<T>
