@@ -21,6 +21,10 @@ namespace Mirror
         // Consider the object fully synchronized with clients
         void ClearChanges();
 
+        // Deprecated 2021-09-17
+        [Obsolete("Deprecated: Use ClearChanges instead.")]
+        void Flush();
+
         /// <summary>Write a full copy of the object</summary>
         void OnSerializeAll(NetworkWriter writer);
 
