@@ -166,6 +166,13 @@ namespace Mirror
             // OnDirty needs to set nth bit in our dirty mask
             ulong nthBit = 1UL << index;
             syncObject.OnDirty = () => syncObjectDirtyBits |= nthBit;
+
+            // only record changes while we have observers.
+            // prevents ever growing .changes lists:
+            //   if a monster has no observers but we keep modifing a SyncObject,
+            //   then the changes would never be flushed and keep growing,
+            //   because OnSerialize isn't called without observers.
+            syncObject.IsRecording = () => netIdentity.observers?.Count > 0;
         }
 
         protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requiresAuthority = true)

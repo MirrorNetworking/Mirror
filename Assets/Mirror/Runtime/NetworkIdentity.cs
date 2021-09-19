@@ -1085,6 +1085,30 @@ namespace Mirror
 
             // Debug.Log("Added observer " + conn.address + " added for " + gameObject);
 
+            // if we previously had no observers, then clear all dirty bits once.
+            // a monster's health may have changed while it had no observers.
+            // but that change (= the dirty bits) don't matter as soon as the
+            // first observer comes.
+            // -> first observer gets full spawn packet
+            // -> afterwards it gets delta packet
+            //    => if we don't clear previous dirty bits, observer would get
+            //       the health change because the bit was still set.
+            //    => ultimately this happens because spawn doesn't reset dirty
+            //       bits
+            //    => which happens because spawn happens separately, instead of
+            //       in Broadcast() (which will be changed in the future)
+            //
+            // NOTE that NetworkServer.Broadcast previously cleared dirty bits
+            //      for ALL SPAWNED that don't have observers. that was super
+            //      expensive. doing it when adding the first observer has the
+            //      same result, without the O(N) iteration in Broadcast().
+            //
+            // TODO remove this after moving spawning into Broadcast()!
+            if (observers.Count == 0)
+            {
+                ClearAllComponentsDirtyBits();
+            }
+
             observers[conn.connectionId] = conn;
             conn.AddToObserving(this);
         }

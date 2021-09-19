@@ -1507,27 +1507,6 @@ namespace Mirror
             return null;
         }
 
-        // helper function to clear dirty bits of all spawned entities
-        static void ClearSpawnedDirtyBits()
-        {
-            // TODO clear dirty bits when removing the last observer instead!
-            //      no need to do it for ALL entities ALL the time.
-            //
-            // for each spawned:
-            //   clear dirty bits if it has no observers.
-            //   we did this before push->pull broadcasting so let's keep
-            //   doing this for now.
-            foreach (NetworkIdentity identity in spawned.Values)
-            {
-                if (identity.observers == null || identity.observers.Count == 0)
-                {
-                    // clear all component's dirty bits.
-                    // it would be spawned on new observers anyway.
-                    identity.ClearAllComponentsDirtyBits();
-                }
-            }
-        }
-
         // helper function to broadcast the world to a connection
         static void BroadcastToConnection(NetworkConnectionToClient connection)
         {
@@ -1627,7 +1606,11 @@ namespace Mirror
             // see test: SyncObjectChanges_DontGrowWithoutObservers()
             //
             // PAUL: we also do this to avoid ever growing SyncList .changes
-            ClearSpawnedDirtyBits();
+            //ClearSpawnedDirtyBits();
+            //
+            // this was moved to NetworkIdentity.AddObserver!
+            // same result, but no more O(N) loop in here!
+            // TODO remove this comment after moving spawning into Broadcast()!
         }
 
         // update //////////////////////////////////////////////////////////////
