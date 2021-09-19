@@ -23,7 +23,8 @@ namespace Mirror.Examples.Tanks
 
         void Update()
         {
-            // update health bar
+            // always update health bar.
+            // (SyncVar hook would only update on clients, not on server)
             healthBar.text = new string('-', health);
 
             // movement for local player
