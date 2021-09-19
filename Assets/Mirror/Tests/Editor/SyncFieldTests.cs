@@ -40,6 +40,9 @@ namespace Mirror.Tests
             Assert.That(value, Is.EqualTo(42));
         }
 
+        // TODO maybe implicit from shouldn't exist?
+        //      should be readonly.
+        //      or a struct and copy OnDirty hook
         [Test]
         public void ImplicitFrom_SetsValue()
         {
@@ -48,6 +51,9 @@ namespace Mirror.Tests
             Assert.That(field.Value, Is.EqualTo(1337));
         }
 
+        // TODO maybe implicit from shouldn't exist?
+        //      should be readonly.
+        //      or a struct and copy OnDirty hook
         [Test]
         public void ImplicitFrom_CallsOnDirty()
         {
