@@ -298,5 +298,15 @@ namespace Mirror.Tests
             serverSyncSet.Reset();
             Assert.That(serverSyncSet, Is.Empty);
         }
+
+        [Test]
+        public void IsRecording()
+        {
+            // shouldn't record changes if IsRecording() returns false
+            serverSyncSet.ClearChanges();
+            serverSyncSet.IsRecording = () => false;
+            serverSyncSet.Add("42");
+            Assert.That(serverSyncSet.GetChangeCount(), Is.EqualTo(0));
+        }
     }
 }

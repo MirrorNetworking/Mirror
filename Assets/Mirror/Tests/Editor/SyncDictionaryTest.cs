@@ -329,5 +329,15 @@ namespace Mirror.Tests
             serverSyncDictionary.Reset();
             Assert.That(serverSyncDictionary, Is.Empty);
         }
+
+        [Test]
+        public void IsRecording()
+        {
+            // shouldn't record changes if IsRecording() returns false
+            serverSyncDictionary.ClearChanges();
+            serverSyncDictionary.IsRecording = () => false;
+            serverSyncDictionary[42] = null;
+            Assert.That(serverSyncDictionary.GetChangeCount(), Is.EqualTo(0));
+        }
     }
 }

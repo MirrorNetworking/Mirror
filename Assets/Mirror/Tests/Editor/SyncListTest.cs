@@ -394,6 +394,16 @@ namespace Mirror.Tests
 
             Assert.That(serverSyncList, Is.Empty);
         }
+
+        [Test]
+        public void IsRecording()
+        {
+            // shouldn't record changes if IsRecording() returns false
+            serverSyncList.ClearChanges();
+            serverSyncList.IsRecording = () => false;
+            serverSyncList.Add("42");
+            Assert.That(serverSyncList.GetChangeCount(), Is.EqualTo(0));
+        }
     }
 
     public static class SyncObjectTestMethods
