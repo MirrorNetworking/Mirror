@@ -21,6 +21,7 @@
 //      * copy old field's OnDirty callback to the new field
 //      * AND call OnDirty if we reassigned it
 //      * then .health++ works
+//      =========> BUT: serialization iterates SyncObjects. so needs to be class.
 // TODO OnChanged hook
 // TODO tests
 using System;
