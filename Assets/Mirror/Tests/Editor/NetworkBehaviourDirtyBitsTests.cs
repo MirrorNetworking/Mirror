@@ -110,7 +110,12 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
+            // SyncLists are only set dirty while owner has observers.
+            // need a connection.
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             // set syncinterval so dirtybit works fine
             comp.syncInterval = 0;
