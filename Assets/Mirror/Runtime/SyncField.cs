@@ -42,6 +42,10 @@ namespace Mirror
         // ctor
         public SyncField(T value) => _Value = value;
 
+        // implicit conversions to reduce typing
+        public static implicit operator T(SyncField<T> field) => field._Value;
+        public static implicit operator SyncField<T>(T value) => new SyncField<T>(value);
+
         // serialization
         public void OnSerializeAll(NetworkWriter writer) => writer.Write(_Value);
         public void OnSerializeDelta(NetworkWriter writer) => writer.Write(_Value);
