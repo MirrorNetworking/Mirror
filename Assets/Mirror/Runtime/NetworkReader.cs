@@ -64,7 +64,7 @@ namespace Mirror
         {
             if (Position + 1 > buffer.Count)
             {
-                throw new EndOfStreamException("ReadByte out of range:" + ToString());
+                throw new EndOfStreamException($"ReadByte out of range:{ToString()}");
             }
             return buffer.Array[buffer.Offset + Position++];
         }
@@ -76,7 +76,7 @@ namespace Mirror
             // check if passed byte array is big enough
             if (count > bytes.Length)
             {
-                throw new EndOfStreamException("ReadBytes can't read " + count + " + bytes because the passed byte[] only has length " + bytes.Length);
+                throw new EndOfStreamException($"ReadBytes can't read {count} + bytes because the passed byte[] only has length {bytes.Length}");
             }
 
             ArraySegment<byte> data = ReadBytesSegment(count);
@@ -90,7 +90,7 @@ namespace Mirror
             // check if within buffer limits
             if (Position + count > buffer.Count)
             {
-                throw new EndOfStreamException("ReadBytesSegment can't read " + count + " bytes because it would read past the end of the stream. " + ToString());
+                throw new EndOfStreamException($"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}");
             }
 
             // return the segment
@@ -204,7 +204,7 @@ namespace Mirror
             // make sure it's within limits to avoid allocation attacks etc.
             if (realSize >= NetworkWriter.MaxStringLength)
             {
-                throw new EndOfStreamException("ReadString too long: " + realSize + ". Limit is: " + NetworkWriter.MaxStringLength);
+                throw new EndOfStreamException($"ReadString too long: {realSize}. Limit is: {NetworkWriter.MaxStringLength}");
             }
 
             ArraySegment<byte> data = reader.ReadBytesSegment(realSize);

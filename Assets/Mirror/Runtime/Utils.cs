@@ -106,7 +106,7 @@ namespace Mirror
 
             if (prefab == null)
             {
-                Debug.LogError("Failed to find prefab parent for scene object [name:" + gameObject.name + "]");
+                Debug.LogError($"Failed to find prefab parent for scene object [name:{gameObject.name}]");
                 return false;
             }
             return true;

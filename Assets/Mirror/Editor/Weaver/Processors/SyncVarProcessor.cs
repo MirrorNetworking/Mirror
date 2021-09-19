@@ -87,9 +87,9 @@ namespace Mirror.Weaver
         {
             //Create the get method
             MethodDefinition get = new MethodDefinition(
-                    "get_Network" + originalName, MethodAttributes.Public |
-                    MethodAttributes.SpecialName |
-                    MethodAttributes.HideBySig,
+                $"get_Network{originalName}", MethodAttributes.Public |
+                                              MethodAttributes.SpecialName |
+                                              MethodAttributes.HideBySig,
                     fd.FieldType);
 
             ILProcessor worker = get.Body.GetILProcessor();
@@ -151,9 +151,9 @@ namespace Mirror.Weaver
         public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, ref bool WeavingFailed)
         {
             //Create the set method
-            MethodDefinition set = new MethodDefinition("set_Network" + originalName, MethodAttributes.Public |
-                    MethodAttributes.SpecialName |
-                    MethodAttributes.HideBySig,
+            MethodDefinition set = new MethodDefinition($"set_Network{originalName}", MethodAttributes.Public |
+                                                                                      MethodAttributes.SpecialName |
+                                                                                      MethodAttributes.HideBySig,
                     weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = set.Body.GetILProcessor();
@@ -312,7 +312,7 @@ namespace Mirror.Weaver
             // NetworkBehaviour has different field type than other NetworkIdentityFields
             if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
-                netIdField = new FieldDefinition("___" + fd.Name + "NetId",
+                netIdField = new FieldDefinition($"___{fd.Name}NetId",
                    FieldAttributes.Private,
                    weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>());
 
@@ -320,7 +320,7 @@ namespace Mirror.Weaver
             }
             else if (fd.FieldType.IsNetworkIdentityField())
             {
-                netIdField = new FieldDefinition("___" + fd.Name + "NetId",
+                netIdField = new FieldDefinition($"___{fd.Name}NetId",
                     FieldAttributes.Private,
                     weaverTypes.Import<uint>());
 
@@ -332,7 +332,7 @@ namespace Mirror.Weaver
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
-            PropertyDefinition propertyDefinition = new PropertyDefinition("Network" + originalName, PropertyAttributes.None, fd.FieldType)
+            PropertyDefinition propertyDefinition = new PropertyDefinition($"Network{originalName}", PropertyAttributes.None, fd.FieldType)
             {
                 GetMethod = get,
                 SetMethod = set

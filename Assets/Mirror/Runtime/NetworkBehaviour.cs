@@ -240,14 +240,14 @@ namespace Mirror
             // this was in Weaver before
             if (!NetworkServer.active)
             {
-                Debug.LogError("RPC Function " + rpcName + " called on Client.");
+                Debug.LogError($"RPC Function {rpcName} called on Client.");
                 return;
             }
 
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning("ClientRpc " + rpcName + " called on un-spawned object: " + name);
+                Debug.LogWarning($"ClientRpc {rpcName} called on un-spawned object: {name}");
                 return;
             }
 
@@ -327,7 +327,7 @@ namespace Mirror
                     newNetId = identity.netId;
                     if (newNetId == 0)
                     {
-                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
+                        Debug.LogWarning($"SetSyncVarGameObject GameObject {newGameObject} has a zero netId. Maybe it is not spawned yet?");
                     }
                 }
             }
@@ -351,7 +351,7 @@ namespace Mirror
                     newNetId = identity.netId;
                     if (newNetId == 0)
                     {
-                        Debug.LogWarning("SetSyncVarGameObject GameObject " + newGameObject + " has a zero netId. Maybe it is not spawned yet?");
+                        Debug.LogWarning($"SetSyncVarGameObject GameObject {newGameObject} has a zero netId. Maybe it is not spawned yet?");
                     }
                 }
             }
@@ -391,7 +391,7 @@ namespace Mirror
                 newNetId = newIdentity.netId;
                 if (newNetId == 0)
                 {
-                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                    Debug.LogWarning($"SetSyncVarNetworkIdentity NetworkIdentity {newIdentity} has a zero netId. Maybe it is not spawned yet?");
                 }
             }
 
@@ -412,7 +412,7 @@ namespace Mirror
                 newNetId = newIdentity.netId;
                 if (newNetId == 0)
                 {
-                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newIdentity + " has a zero netId. Maybe it is not spawned yet?");
+                    Debug.LogWarning($"SetSyncVarNetworkIdentity NetworkIdentity {newIdentity} has a zero netId. Maybe it is not spawned yet?");
                 }
             }
 
@@ -449,7 +449,7 @@ namespace Mirror
                 newComponentIndex = newBehaviour.ComponentIndex;
                 if (newNetId == 0)
                 {
-                    Debug.LogWarning("SetSyncVarNetworkIdentity NetworkIdentity " + newBehaviour + " has a zero netId. Maybe it is not spawned yet?");
+                    Debug.LogWarning($"SetSyncVarNetworkIdentity NetworkIdentity {newBehaviour} has a zero netId. Maybe it is not spawned yet?");
                 }
             }
 
@@ -472,7 +472,7 @@ namespace Mirror
                 componentIndex = newBehaviour.ComponentIndex;
                 if (newNetId == 0)
                 {
-                    Debug.LogWarning($"{nameof(SetSyncVarNetworkBehaviour)} NetworkIdentity " + newBehaviour + " has a zero netId. Maybe it is not spawned yet?");
+                    Debug.LogWarning($"{nameof(SetSyncVarNetworkBehaviour)} NetworkIdentity {newBehaviour} has a zero netId. Maybe it is not spawned yet?");
                 }
             }
 

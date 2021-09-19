@@ -117,7 +117,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, weaverTypes.NetworkClientGetActive);
             worker.Emit(OpCodes.Brtrue, label);
 
-            worker.Emit(OpCodes.Ldstr, errString + " " + mdName + " called on server.");
+            worker.Emit(OpCodes.Ldstr, $"{errString} {mdName} called on server.");
             worker.Emit(OpCodes.Call, weaverTypes.logErrorReference);
             worker.Emit(OpCodes.Ret);
             worker.Append(label);
@@ -133,7 +133,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, weaverTypes.NetworkServerGetActive);
             worker.Emit(OpCodes.Brtrue, label);
 
-            worker.Emit(OpCodes.Ldstr, errString + " " + mdName + " called on client.");
+            worker.Emit(OpCodes.Ldstr, $"{errString} {mdName} called on client.");
             worker.Emit(OpCodes.Call, weaverTypes.logErrorReference);
             worker.Emit(OpCodes.Ret);
             worker.Append(label);

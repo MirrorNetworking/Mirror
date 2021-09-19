@@ -41,8 +41,8 @@ namespace Mirror.Tests
             // owner & observers should have written something
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
-            Debug.Log("ownerWriter: " + BitConverter.ToString(ownerWriter.ToArray()));
-            Debug.Log("observersWriter: " + BitConverter.ToString(observersWriter.ToArray()));
+            Debug.Log($"ownerWriter: {BitConverter.ToString(ownerWriter.ToArray())}");
+            Debug.Log($"observersWriter: {BitConverter.ToString(observersWriter.ToArray())}");
 
             // reset component values
             comp1.value = 0;

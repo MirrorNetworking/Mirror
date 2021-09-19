@@ -610,7 +610,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
+                Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
             }
 
@@ -660,7 +660,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
+                Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
             }
 
@@ -727,7 +727,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("Could not register handler for '" + prefab.name + "' since it contains no NetworkIdentity component");
+                Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
             }
 
@@ -792,7 +792,7 @@ namespace Mirror
             NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("Could not unregister '" + prefab.name + "' since it contains no NetworkIdentity component");
+                Debug.LogError($"Could not unregister '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
             }
 
@@ -1241,7 +1241,7 @@ namespace Mirror
                 using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(message.payload))
                     localObject.OnDeserializeAllSafely(networkReader, false);
             }
-            else Debug.LogWarning("Did not find target for sync message for " + message.netId + " . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+            else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
         static void OnRPCMessage(RpcMessage message)

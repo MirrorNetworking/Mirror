@@ -87,7 +87,7 @@ namespace Mirror
             else
             {
                 // Connecting
-                GUILayout.Label("Connecting to " + manager.networkAddress + "..");
+                GUILayout.Label($"Connecting to {manager.networkAddress}..");
                 if (GUILayout.Button("Cancel Connection Attempt"))
                 {
                     manager.StopClient();

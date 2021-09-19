@@ -191,7 +191,7 @@ namespace Mirror.Weaver
 
         MethodDefinition GenerateWriterFunc(TypeReference variable)
         {
-            string functionName = "_Write_" + variable.FullName;
+            string functionName = $"_Write_{variable.FullName}";
             // create new writer for this type
             MethodDefinition writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |

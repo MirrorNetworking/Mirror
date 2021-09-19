@@ -120,7 +120,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             Assert.IsTrue(success);
             Assert.IsNotNull(networkIdentity);
-            Assert.That(networkIdentity.name, Is.EqualTo(validPrefab.name + "(Clone)"));
+            Assert.That(networkIdentity.name, Is.EqualTo($"{validPrefab.name}(Clone)"));
 
             // cleanup
             GameObject.DestroyImmediate(networkIdentity.gameObject);
@@ -172,7 +172,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             Assert.IsTrue(success);
             Assert.IsNotNull(networkIdentity);
-            Assert.That(networkIdentity.name, Is.EqualTo(validPrefab.name + "(Clone)"));
+            Assert.That(networkIdentity.name, Is.EqualTo($"{validPrefab.name}(Clone)"));
             Assert.That(handlerCalled, Is.EqualTo(0), "Handler should not have been called");
         }
 
@@ -709,7 +709,7 @@ namespace Mirror.Tests.ClientSceneTests
 
             NetworkIdentity identity = spawned[netId];
             Assert.IsNotNull(identity);
-            Assert.That(identity.name, Is.EqualTo(validPrefab.name + "(Clone)"));
+            Assert.That(identity.name, Is.EqualTo($"{validPrefab.name}(Clone)"));
             Assert.That(identity.transform.position, Is.EqualTo(position));
             // use angle because of floating point numbers
             // only need to check if rotations are approximately equal

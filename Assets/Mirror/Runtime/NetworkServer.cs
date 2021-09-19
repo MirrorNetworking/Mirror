@@ -368,7 +368,7 @@ namespace Mirror
             // hashing which can be < 0 as well, so we need to allow < 0!
             if (connectionId == 0)
             {
-                Debug.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be != 0, because 0 is reserved for local player.");
+                Debug.LogError($"Server.HandleConnect: invalid connectionId: {connectionId} . Needs to be != 0, because 0 is reserved for local player.");
                 Transport.activeTransport.ServerDisconnect(connectionId);
                 return;
             }
@@ -524,7 +524,7 @@ namespace Mirror
                     Debug.LogError($"Still had {connection.unbatcher.BatchesCount} batches remaining after processing, even though processing was not interrupted by a scene change. This should never happen, as it would cause ever growing batches.\nPossible reasons:\n* A message didn't deserialize as much as it serialized\n*There was no message handler for a message id, so the reader wasn't read until the end.");
                 }
             }
-            else Debug.LogError("HandleData Unknown connectionId:" + connectionId);
+            else Debug.LogError($"HandleData Unknown connectionId:{connectionId}");
         }
 
         // called by transport
@@ -666,7 +666,7 @@ namespace Mirror
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogWarning("AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
+                Debug.LogWarning($"AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
                 return false;
             }
 
@@ -724,13 +724,13 @@ namespace Mirror
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to " + player);
+                Debug.LogError($"ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
                 return false;
             }
 
             if (identity.connectionToClient != null && identity.connectionToClient != conn)
             {
-                Debug.LogError("Cannot replace player for connection. New player is already owned by a different connection" + player);
+                Debug.LogError($"Cannot replace player for connection. New player is already owned by a different connection{player}");
                 return false;
             }
 
@@ -874,7 +874,7 @@ namespace Mirror
         {
             if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                Debug.LogWarning("Spawned object not found when handling Command message [netId=" + msg.netId + "]");
+                Debug.LogWarning($"Spawned object not found when handling Command message [netId={msg.netId}]");
                 return;
             }
 
@@ -886,7 +886,7 @@ namespace Mirror
             bool requiresAuthority = commandInfo.requiresAuthority;
             if (requiresAuthority && identity.connectionToClient != conn)
             {
-                Debug.LogWarning("Command for object without authority [netId=" + msg.netId + "]");
+                Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
                 return;
             }
 
@@ -960,14 +960,14 @@ namespace Mirror
 
             if (!active)
             {
-                Debug.LogError("SpawnObject for " + obj + ", NetworkServer is not active. Cannot spawn objects without an active server.");
+                Debug.LogError($"SpawnObject for {obj}, NetworkServer is not active. Cannot spawn objects without an active server.");
                 return;
             }
 
             NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError("SpawnObject " + obj + " has no NetworkIdentity. Please add a NetworkIdentity to " + obj);
+                Debug.LogError($"SpawnObject {obj} has no NetworkIdentity. Please add a NetworkIdentity to {obj}");
                 return;
             }
 
@@ -1563,7 +1563,7 @@ namespace Mirror
                 // always call Remove in OnObjectDestroy everywhere.
                 // if it does have null then someone used
                 // GameObject.Destroy instead of NetworkServer.Destroy.
-                else Debug.LogWarning("Found 'null' entry in observing list for connectionId=" + connection.connectionId + ". Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                else Debug.LogWarning($"Found 'null' entry in observing list for connectionId={connection.connectionId}. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
             }
         }
 

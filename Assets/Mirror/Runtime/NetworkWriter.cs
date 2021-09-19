@@ -189,7 +189,7 @@ namespace Mirror
             // check if within max size
             if (size >= NetworkWriter.MaxStringLength)
             {
-                throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + NetworkWriter.MaxStringLength);
+                throw new IndexOutOfRangeException($"NetworkWriter.Write(string) too long: {size}. Limit: {NetworkWriter.MaxStringLength}");
             }
 
             // write size and bytes
@@ -381,7 +381,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
                 writer.WriteUInt(0);
             }
         }
@@ -400,7 +400,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
                 writer.WriteUInt(0);
             }
         }

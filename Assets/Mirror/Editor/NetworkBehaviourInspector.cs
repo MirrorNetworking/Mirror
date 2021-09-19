@@ -159,7 +159,7 @@ namespace Mirror
                         foreach (object item in synclist)
                         {
                             string itemValue = item != null ? item.ToString() : "NULL";
-                            string itemLabel = "Element " + index;
+                            string itemLabel = $"Element {index}";
                             EditorGUILayout.LabelField(itemLabel, itemValue);
 
                             index++;
@@ -179,7 +179,7 @@ namespace Mirror
             {
                 this.field = field;
                 visible = false;
-                label = field.Name + "  [" + field.FieldType.Name + "]";
+                label = $"{field.Name}  [{field.FieldType.Name}]";
             }
         }
     }

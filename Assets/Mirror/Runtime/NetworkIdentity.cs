@@ -419,7 +419,7 @@ namespace Mirror
                 // => throw an exception to cancel the build and let the user
                 //    know how to fix it!
                 if (BuildPipeline.isBuildingPlayer)
-                    throw new InvalidOperationException("Scene " + gameObject.scene.path + " needs to be opened and resaved before building, because the scene object " + name + " has no valid sceneId yet.");
+                    throw new InvalidOperationException($"Scene {gameObject.scene.path} needs to be opened and resaved before building, because the scene object {name} has no valid sceneId yet.");
 
                 // if we generate the sceneId then we MUST be sure to set dirty
                 // in order to save the scene object properly. otherwise it
@@ -865,7 +865,7 @@ namespace Mirror
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
-                Debug.LogError("OnSerialize failed for: object=" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + "\n\n" + e);
+                Debug.LogError($"OnSerialize failed for: object={name} component={comp.GetType()} sceneId={sceneId:X}\n\n{e}");
             }
             int endPosition = writer.Position;
 
@@ -989,7 +989,7 @@ namespace Mirror
             {
                 // warn the user
                 int bytesRead = reader.Position - chunkStart;
-                Debug.LogWarning("OnDeserialize was expected to read " + contentSize + " instead of " + bytesRead + " bytes for object:" + name + " component=" + comp.GetType() + " sceneId=" + sceneId.ToString("X") + ". Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
+                Debug.LogWarning($"OnDeserialize was expected to read {contentSize} instead of {bytesRead} bytes for object:{name} component={comp.GetType()} sceneId={sceneId:X}. Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
 
                 // fix the position, so the following components don't all fail
                 reader.Position = chunkEnd;
@@ -1072,7 +1072,7 @@ namespace Mirror
         {
             if (observers == null)
             {
-                Debug.LogError("AddObserver for " + gameObject + " observer list is null");
+                Debug.LogError($"AddObserver for {gameObject} observer list is null");
                 return;
             }
 
@@ -1151,13 +1151,13 @@ namespace Mirror
 
             if (conn == null)
             {
-                Debug.LogError("AssignClientAuthority for " + gameObject + " owner cannot be null. Use RemoveClientAuthority() instead.");
+                Debug.LogError($"AssignClientAuthority for {gameObject} owner cannot be null. Use RemoveClientAuthority() instead.");
                 return false;
             }
 
             if (connectionToClient != null && conn != connectionToClient)
             {
-                Debug.LogError("AssignClientAuthority for " + gameObject + " already has an owner. Use RemoveClientAuthority() first.");
+                Debug.LogError($"AssignClientAuthority for {gameObject} already has an owner. Use RemoveClientAuthority() first.");
                 return false;
             }
 

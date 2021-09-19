@@ -211,7 +211,7 @@ namespace Mirror.Weaver
 
         MethodDefinition GenerateReaderFunction(TypeReference variable)
         {
-            string functionName = "_Read_" + variable.FullName;
+            string functionName = $"_Read_{variable.FullName}";
 
             // create new reader for this type
             MethodDefinition readerFunc = new MethodDefinition(functionName,

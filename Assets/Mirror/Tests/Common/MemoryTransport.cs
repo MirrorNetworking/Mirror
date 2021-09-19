@@ -110,7 +110,7 @@ namespace Mirror.Tests
                         OnClientConnected.Invoke();
                         break;
                     case EventType.Data:
-                        Debug.Log("MemoryTransport Client Message: Data: " + BitConverter.ToString(message.data));
+                        Debug.Log($"MemoryTransport Client Message: Data: {BitConverter.ToString(message.data)}");
                         OnClientDataReceived.Invoke(new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
@@ -194,7 +194,7 @@ namespace Mirror.Tests
                         OnServerConnected.Invoke(message.connectionId);
                         break;
                     case EventType.Data:
-                        Debug.Log("MemoryTransport Server Message: Data: " + BitConverter.ToString(message.data));
+                        Debug.Log($"MemoryTransport Server Message: Data: {BitConverter.ToString(message.data)}");
                         OnServerDataReceived.Invoke(message.connectionId, new ArraySegment<byte>(message.data), 0);
                         break;
                     case EventType.Disconnected:
