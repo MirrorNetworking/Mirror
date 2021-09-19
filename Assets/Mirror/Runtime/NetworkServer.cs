@@ -285,7 +285,7 @@ namespace Mirror
 
         /// <summary>Send a message to only clients which are ready with option to include the owner of the object identity</summary>
         // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
-        public static void SendToReady<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.Reliable)
+        public static void SendToReadyObservers<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
             // Debug.Log("Server.SendToReady msgType:" + typeof(T));
@@ -313,15 +313,27 @@ namespace Mirror
             }
         }
 
+        // DEPRECATED 2021-09-19
+        [Obsolete("SendToReady(identity, message, ...) was renamed to SendToReadyObservers because that's what it does.")]
+        public static void SendToReady<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.Reliable)
+            where T : struct, NetworkMessage =>
+                SendToReadyObservers(identity, message, includeOwner, channelId);
+
         /// <summary>Send a message to only clients which are ready including the owner of the NetworkIdentity</summary>
         // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
-        public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
+        public static void SendToReadyObservers<T>(NetworkIdentity identity, T message, int channelId)
             where T : struct, NetworkMessage
         {
-            SendToReady(identity, message, true, channelId);
+            SendToReadyObservers(identity, message, true, channelId);
         }
 
-        // this is like SendToReady - but it doesn't check the ready flag on the connection.
+        // DEPRECATED 2021-09-19
+        [Obsolete("SendToReady(identity, message, ...) was renamed to SendToReadyObservers because that's what it does.")]
+        public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
+            where T : struct, NetworkMessage =>
+                SendToReadyObservers(identity, message, channelId);
+
+        // this is like SendToReadyObservers - but it doesn't check the ready flag on the connection.
         // this is used for ObjectDestroy messages.
         static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
