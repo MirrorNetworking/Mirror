@@ -339,7 +339,7 @@ namespace Mirror
                 Debug.LogError("Must set the Network Address field in the manager");
                 return;
             }
-            // Debug.Log("NetworkManager StartClient address:" + networkAddress);
+            // Debug.Log($"NetworkManager StartClient address:{networkAddress}");
 
             NetworkClient.Connect(networkAddress);
 
@@ -370,7 +370,7 @@ namespace Mirror
 
             RegisterClientMessages();
 
-            // Debug.Log("NetworkManager StartClient address:" + uri);
+            // Debug.Log($"NetworkManager StartClient address:{uri}");
             networkAddress = uri.Host;
 
             NetworkClient.Connect(uri);
@@ -643,7 +643,7 @@ namespace Mirror
         {
 #if UNITY_SERVER
             Application.targetFrameRate = serverTickRate;
-            // Debug.Log("Server Tick Rate set to: " + Application.targetFrameRate + " Hz.");
+            // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
 #endif
 
             // call the obsolete function in case someone did anything important
@@ -756,7 +756,7 @@ namespace Mirror
                 return;
             }
 
-            // Debug.Log("ServerChangeScene " + newSceneName);
+            // Debug.Log($"ServerChangeScene {newSceneName}");
             NetworkServer.SetAllClientsNotReady();
             networkSceneName = newSceneName;
 
@@ -794,7 +794,7 @@ namespace Mirror
                 return;
             }
 
-            // Debug.Log("ClientChangeScene newSceneName:" + newSceneName + " networkSceneName:" + networkSceneName);
+            //Debug.Log($"ClientChangeScene newSceneName: {newSceneName} networkSceneName{networkSceneName}");
 
             // Let client prepare for scene change
             OnClientChangeScene(newSceneName, sceneOperation, customHandling);
@@ -877,12 +877,12 @@ namespace Mirror
                 {
                     // TODO only respawn the server objects from that scene later!
                     NetworkServer.SpawnObjects();
-                    // Debug.Log("Respawned Server objects after additive scene load: " + scene.name);
+                    // Debug.Log($"Respawned Server objects after additive scene load: {scene.name}");
                 }
                 if (NetworkClient.active)
                 {
                     NetworkClient.PrepareToSpawnSceneObjects();
-                    // Debug.Log("Rebuild Client spawnableObjects after additive scene load: " + scene.name);
+                    // Debug.Log($"Rebuild Client spawnableObjects after additive scene load: {scene.name}");
                 }
             }
         }
@@ -891,7 +891,7 @@ namespace Mirror
         {
             if (loadingSceneAsync != null && loadingSceneAsync.isDone)
             {
-                // Debug.Log("ClientChangeScene done readyCon:" + clientReadyConnection);
+                //Debug.Log($"ClientChangeScene done readyConn {clientReadyConnection}");
 
                 // try-finally to guarantee loadingSceneAsync being cleared.
                 // fixes https://github.com/vis2k/Mirror/issues/2517 where if
@@ -1029,7 +1029,7 @@ namespace Mirror
         /// <param name="start">Transform to register.</param>
         public static void RegisterStartPosition(Transform start)
         {
-            // Debug.Log("RegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
+            // Debug.Log($"RegisterStartPosition: {start.gameObject.name} {start.position}");
             startPositions.Add(start);
 
             // reorder the list so that round-robin spawning uses the start positions
@@ -1043,7 +1043,7 @@ namespace Mirror
         // TODO why is this static?
         public static void UnRegisterStartPosition(Transform start)
         {
-            // Debug.Log("UnRegisterStartPosition: (" + start.gameObject.name + ") " + start.position);
+            //Debug.Log($"UnRegisterStartPosition: {start.name} {start.position}");
             startPositions.Remove(start);
         }
 

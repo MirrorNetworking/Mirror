@@ -24,7 +24,7 @@ namespace Mirror.Weaver
 
         static void ProcessSiteClass(WeaverLists weaverLists, TypeDefinition td)
         {
-            //Console.WriteLine("    ProcessSiteClass " + td);
+            //Console.WriteLine($"    ProcessSiteClass {td}");
             foreach (MethodDefinition md in td.Methods)
             {
                 ProcessSiteMethod(weaverLists, md);
@@ -39,7 +39,7 @@ namespace Mirror.Weaver
         static void ProcessSiteMethod(WeaverLists weaverLists, MethodDefinition md)
         {
             // process all references to replaced members with properties
-            //Weaver.DLog(td, "      ProcessSiteMethod " + md);
+            //Log.Warning($"      ProcessSiteMethod {md}");
 
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
@@ -72,10 +72,10 @@ namespace Mirror.Weaver
             if (weaverLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
+                //Log.Warning($"    replacing {md.Name}:{i}", opField);
                 i.OpCode = OpCodes.Call;
                 i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
+                //Log.Warning($"    replaced {md.Name}:{i}", opField);
             }
         }
 
@@ -90,10 +90,10 @@ namespace Mirror.Weaver
             if (weaverLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
+                //Log.Warning($"    replacing {md.Name}:{i}", opField);
                 i.OpCode = OpCodes.Call;
                 i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
+                //Log.Warning($"    replaced {md.Name}:{i}", opField);
             }
         }
 
