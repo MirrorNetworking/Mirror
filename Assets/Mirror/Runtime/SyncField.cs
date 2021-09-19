@@ -57,6 +57,13 @@ namespace Mirror
         // ctor from value <T>
         public SyncField(T value) => _Value = value;
 
+        // copy ctor
+        public SyncField(SyncField<T> field)
+        {
+            // TODO: what should this do?
+            throw new NotImplementedException();
+        }
+
         // implicit conversion: int value = SyncField<T>
         public static implicit operator T(SyncField<T> field) => field.Value;
 
