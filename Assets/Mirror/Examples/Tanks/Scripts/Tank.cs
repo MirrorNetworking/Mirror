@@ -19,7 +19,7 @@ namespace Mirror.Examples.Tanks
         public Transform projectileMount;
 
         [Header("Stats")]
-        [SyncVar] public int health = 4;
+        public readonly SyncField<int> health = 4;
 
         void Update()
         {
@@ -69,8 +69,8 @@ namespace Mirror.Examples.Tanks
         {
             if (other.GetComponent<Projectile>() != null)
             {
-                --health;
-                if (health == 0)
+                --health.Value;
+                if (health.Value == 0)
                     NetworkServer.Destroy(gameObject);
             }
         }
