@@ -31,5 +31,21 @@ namespace Mirror.Tests
             field.Value = 1337;
             Assert.That(dirtyCalled, Is.EqualTo(1));
         }
+
+        [Test]
+        public void ImplicitFrom_SetsValue()
+        {
+            // field = T implicit conversion should set .Value
+            field = 1337;
+            Assert.That(field.Value, Is.EqualTo(1337));
+        }
+
+        [Test]
+        public void ImplicitFrom_CallsOnDirty()
+        {
+            // field = T implicit conversion should call OnDirty
+            field = 1337;
+            Assert.That(dirtyCalled, Is.EqualTo(1));
+        }
     }
 }
