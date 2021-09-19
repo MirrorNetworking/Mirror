@@ -283,6 +283,30 @@ namespace Mirror
             SendToAll(message, channelId, true);
         }
 
+        // this is like SendToReadyObservers - but it doesn't check the ready flag on the connection.
+        // this is used for ObjectDestroy messages.
+        static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.Reliable)
+            where T : struct, NetworkMessage
+        {
+            // Debug.Log("Server.SendToObservers id:" + typeof(T));
+            if (identity == null || identity.observers == null || identity.observers.Count == 0)
+                return;
+
+            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            {
+                // pack message into byte[] once
+                MessagePacking.Pack(message, writer);
+                ArraySegment<byte> segment = writer.ToArraySegment();
+
+                foreach (NetworkConnection conn in identity.observers.Values)
+                {
+                    conn.Send(segment, channelId);
+                }
+
+                NetworkDiagnostics.OnSend(message, channelId, segment.Count, identity.observers.Count);
+            }
+        }
+
         /// <summary>Send a message to only clients which are ready with option to include the owner of the object identity</summary>
         // TODO put rpcs into NetworkServer.Update WorldState packet, then finally remove SendToReady!
         public static void SendToReadyObservers<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.Reliable)
@@ -332,30 +356,6 @@ namespace Mirror
         public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
             where T : struct, NetworkMessage =>
                 SendToReadyObservers(identity, message, channelId);
-
-        // this is like SendToReadyObservers - but it doesn't check the ready flag on the connection.
-        // this is used for ObjectDestroy messages.
-        static void SendToObservers<T>(NetworkIdentity identity, T message, int channelId = Channels.Reliable)
-            where T : struct, NetworkMessage
-        {
-            // Debug.Log("Server.SendToObservers id:" + typeof(T));
-            if (identity == null || identity.observers == null || identity.observers.Count == 0)
-                return;
-
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
-            {
-                // pack message into byte[] once
-                MessagePacking.Pack(message, writer);
-                ArraySegment<byte> segment = writer.ToArraySegment();
-
-                foreach (NetworkConnection conn in identity.observers.Values)
-                {
-                    conn.Send(segment, channelId);
-                }
-
-                NetworkDiagnostics.OnSend(message, channelId, segment.Count, identity.observers.Count);
-            }
-        }
 
         // transport events ////////////////////////////////////////////////////
         // called by transport
