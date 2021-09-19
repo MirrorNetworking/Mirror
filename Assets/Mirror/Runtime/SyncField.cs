@@ -37,7 +37,7 @@ namespace Mirror
             set
             {
                 // set value, set dirty bit
-                // TODO only if changed
+                // TODO only if changed, see NetworkBehaviour.SyncVarEqual<T>
                 _Value = value;
                 OnDirty();
             }
