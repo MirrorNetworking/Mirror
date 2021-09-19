@@ -94,7 +94,7 @@ namespace Mirror
         protected bool GetSyncVarHookGuard(ulong dirtyBit) =>
             (syncVarHookGuard & dirtyBit) != 0UL;
 
-        // DEPRECATED 2021-09-16 (old weavers used it)
+        // Deprecated 2021-09-16 (old weavers used it)
         [Obsolete("Renamed to GetSyncVarHookGuard (uppercase)")]
         protected bool getSyncVarHookGuard(ulong dirtyBit) => GetSyncVarHookGuard(dirtyBit);
 
@@ -109,7 +109,7 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
-        // DEPRECATED 2021-09-16 (old weavers used it)
+        // Deprecated 2021-09-16 (old weavers used it)
         [Obsolete("Renamed to SetSyncVarHookGuard (uppercase)")]
         protected void setSyncVarHookGuard(ulong dirtyBit, bool value) => SetSyncVarHookGuard(dirtyBit, value);
 
@@ -120,7 +120,7 @@ namespace Mirror
             syncVarDirtyBits |= dirtyBit;
         }
 
-        // DEPRECATED 2021-09-19
+        // Deprecated 2021-09-19
         [Obsolete("SetDirtyBit was renamed to SetSyncVarDirtyBit because that's what it does")]
         public void SetDirtyBit(ulong dirtyBit) => SetSyncVarDirtyBit(dirtyBit);
 
