@@ -33,6 +33,14 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void ImplicitTo()
+        {
+            // T = field implicit conversion should get .Value
+            int value = field;
+            Assert.That(value, Is.EqualTo(42));
+        }
+
+        [Test]
         public void ImplicitFrom_SetsValue()
         {
             // field = T implicit conversion should set .Value
