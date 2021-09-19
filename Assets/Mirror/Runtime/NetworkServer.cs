@@ -1098,6 +1098,7 @@ namespace Mirror
                 if (ValidateSceneObject(identity))
                     Spawn(identity.gameObject);
             }
+
             return true;
         }
 
