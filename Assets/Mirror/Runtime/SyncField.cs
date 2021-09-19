@@ -15,6 +15,11 @@
 //   - generic <T> types don't show in Unity Inspector
 //
 // TODO force 'readonly' in Weaver. otherwise 'health--' sets a new field.
+// TODO OR embrace implicit construction:
+//      * struct instead of class, otherwise health++ creates new class
+//        BUT how to store in syncobjects list?
+//      * copy old field's OnDirty callback to the new field
+//      * then .health++ works
 // TODO OnChanged hook
 // TODO tests
 using System;
