@@ -80,8 +80,6 @@ namespace Mirror
         //   -> spares us from running delta algorithms
         //   -> still supports dynamically sized types
         //
-        // 64 bit mask, tracking up to 64 SyncVars.
-        protected ulong syncVarDirtyBits { get; private set; }
         // 64 bit mask, tracking up to 64 sync collections (internal for tests).
         // internal for tests, field for faster access (instead of property)
         // TODO 64 SyncLists are too much. consider smaller mask later.
@@ -109,28 +107,13 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
-        // DEPRECATED 2021-09-16 (old weavers used it)
-        [Obsolete("Renamed to SetSyncVarHookGuard (uppercase)")]
-        protected void setSyncVarHookGuard(ulong dirtyBit, bool value) => SetSyncVarHookGuard(dirtyBit, value);
-
-        /// <summary>Set as dirty so that it's synced to clients again.</summary>
-        // these are masks, not bit numbers, ie. 110011b not '2' for 2nd bit.
-        public void SetSyncVarDirtyBit(ulong dirtyBit)
-        {
-            syncVarDirtyBits |= dirtyBit;
-        }
-
-        // DEPRECATED 2021-09-19
-        [Obsolete("SetDirtyBit was renamed to SetSyncVarDirtyBit because that's what it does")]
-        public void SetDirtyBit(ulong dirtyBit) => SetSyncVarDirtyBit(dirtyBit);
-
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         public bool IsDirty()
         {
             if (NetworkTime.localTime - lastSyncTime >= syncInterval)
             {
                 // OR both bitmasks. != 0 if either was dirty.
-                return (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
+                return syncObjectDirtyBits != 0UL;
             }
             return false;
         }
@@ -141,7 +124,6 @@ namespace Mirror
         public void ClearAllDirtyBits()
         {
             lastSyncTime = NetworkTime.localTime;
-            syncVarDirtyBits = 0L;
             syncObjectDirtyBits = 0L;
 
             // clear all unsynchronized changes in syncobjects
@@ -507,47 +489,10 @@ namespace Mirror
             return behaviourField;
         }
 
-        // backing field for sync NetworkBehaviour
-        public struct NetworkBehaviourSyncVar : IEquatable<NetworkBehaviourSyncVar>
-        {
-            public uint netId;
-            // limited to 255 behaviours per identity
-            public byte componentIndex;
-
-            public NetworkBehaviourSyncVar(uint netId, int componentIndex) : this()
-            {
-                this.netId = netId;
-                this.componentIndex = (byte)componentIndex;
-            }
-
-            public bool Equals(NetworkBehaviourSyncVar other)
-            {
-                return other.netId == netId && other.componentIndex == componentIndex;
-            }
-
-            public bool Equals(uint netId, int componentIndex)
-            {
-                return this.netId == netId && this.componentIndex == componentIndex;
-            }
-
-            public override string ToString()
-            {
-                return $"[netId:{netId} compIndex:{componentIndex}]";
-            }
-        }
-
         protected bool SyncVarEqual<T>(T value, ref T fieldValue)
         {
             // newly initialized or changed value?
             return EqualityComparer<T>.Default.Equals(value, fieldValue);
-        }
-
-        // dirtyBit is a mask like 00010
-        protected void SetSyncVar<T>(T value, ref T fieldValue, ulong dirtyBit)
-        {
-            // Debug.Log("SetSyncVar " + GetType().Name + " bit [" + dirtyBit + "] " + fieldValue + "->" + value);
-            SetSyncVarDirtyBit(dirtyBit);
-            fieldValue = value;
         }
 
         /// <summary>Override to do custom serialization (instead of SyncVars/SyncLists). Use OnDeserialize too.</summary>
@@ -570,9 +515,7 @@ namespace Mirror
                 objectWritten = SerializeObjectsDelta(writer);
             }
 
-            bool syncVarWritten = SerializeSyncVars(writer, initialState);
-
-            return objectWritten || syncVarWritten;
+            return objectWritten;
         }
 
         /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
@@ -586,34 +529,6 @@ namespace Mirror
             {
                 DeSerializeObjectsDelta(reader);
             }
-
-            DeserializeSyncVars(reader, initialState);
-        }
-
-        // USED BY WEAVER
-        protected virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
-        {
-            return false;
-
-            // SyncVar are written here in subclass
-
-            // if initialState
-            //   write all SyncVars
-            // else
-            //   write syncVarDirtyBits
-            //   write dirty SyncVars
-        }
-
-        // USED BY WEAVER
-        protected virtual void DeserializeSyncVars(NetworkReader reader, bool initialState)
-        {
-            // SyncVars are read here in subclass
-
-            // if initialState
-            //   read all SyncVars
-            // else
-            //   read syncVarDirtyBits
-            //   read dirty SyncVars
         }
 
         public bool SerializeObjectsAll(NetworkWriter writer)

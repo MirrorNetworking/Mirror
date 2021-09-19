@@ -20,7 +20,6 @@ namespace Mirror.Weaver
         public const string MirrorAssemblyName = "Mirror";
 
         WeaverTypes weaverTypes;
-        WeaverLists weaverLists;
         IAssemblyResolver Resolver;
         AssemblyDefinition CurrentAssembly;
         Writers writers;
@@ -78,7 +77,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, weaverLists, writers, readers, Log, behaviour).Process(ref WeavingFailed);
+                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, writers, readers, Log, behaviour).Process(ref WeavingFailed);
             }
             return modified;
         }
@@ -158,9 +157,6 @@ namespace Mirror.Weaver
                 // weaverTypes are needed for CreateGeneratedCodeClass
                 CreateGeneratedCodeClass();
 
-                // WeaverList depends on WeaverTypes setup because it uses Import
-                weaverLists = new WeaverLists();
-
                 // initialize readers & writers with this assembly.
                 // we need to do this in every Process() call.
                 // otherwise we would get
@@ -187,8 +183,6 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    PropertySiteProcessor.Process(moduleDefinition, weaverLists);
-
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);
 

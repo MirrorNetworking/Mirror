@@ -4,16 +4,6 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// SyncVars are used to synchronize a variable from the server to all clients automatically.
-    /// <para>Value must be changed on server, not directly by clients.  Hook parameter allows you to define a client-side method to be invoked when the client gets an update from the server.</para>
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Field)]
-    public class SyncVarAttribute : PropertyAttribute
-    {
-        public string hook;
-    }
-
-    /// <summary>
     /// Call this from a client to run this function on the server.
     /// <para>Make sure to validate input etc. It's not possible to call this from a server.</para>
     /// </summary>

@@ -44,11 +44,6 @@ namespace Mirror
             }
         }
 
-        public static bool IsSyncVar(this FieldInfo field)
-        {
-            object[] fieldMarkers = field.GetCustomAttributes(typeof(SyncVarAttribute), true);
-            return fieldMarkers.Length > 0;
-        }
         public static bool IsSerializeField(this FieldInfo field)
         {
             object[] fieldMarkers = field.GetCustomAttributes(typeof(SerializeField), true);
