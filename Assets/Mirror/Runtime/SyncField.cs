@@ -10,17 +10,43 @@
 //   1. develop SyncField<T> along side [SyncVar]
 //   2. internally replace [SyncVar]s with SyncField<T>
 //   3. eventually obsolete [SyncVar]
+using System;
+
 namespace Mirror
 {
     // should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
     // needs to be a 'class' so that we can track it in SyncObjects list.
-    public class SyncField<T>
+    public class SyncField<T> : SyncObject
     {
+        T _Value;
         public T Value
         {
-            get;
-            // TODO set dirty on set if !=
-            set;
+            get => _Value;
+            set
+            {
+                _Value = value;
+                OnDirty();
+            }
         }
+
+        public Action OnDirty { get; set; }
+
+        // some SyncObject interface methods are unnecessary here
+        public Func<bool> IsRecording { get; set; }
+        public void ClearChanges() {}
+        public void Reset() {}
+
+        // serialization
+        public void OnSerializeAll(NetworkWriter writer) => writer.Write(_Value);
+        public void OnSerializeDelta(NetworkWriter writer) => writer.Write(_Value);
+        public void OnDeserializeAll(NetworkReader reader)
+        {
+            _Value = reader.Read<T>();
+        }
+        public void OnDeserializeDelta(NetworkReader reader)
+        {
+            _Value = reader.Read<T>();
+        }
+
     }
 }
