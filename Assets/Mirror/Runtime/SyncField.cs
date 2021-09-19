@@ -58,7 +58,7 @@ namespace Mirror
         public SyncField(T value) => _Value = value;
 
         // implicit conversion: int value = SyncField<T>
-        public static implicit operator T(SyncField<T> field) => field._Value;
+        public static implicit operator T(SyncField<T> field) => field.Value;
 
         // implicit conversion: SyncField<T> = value
         public static implicit operator SyncField<T>(T value) => new SyncField<T>(value);
