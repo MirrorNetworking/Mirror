@@ -79,12 +79,6 @@ namespace Mirror.Weaver
         public static bool IsMultidimensionalArray(this TypeReference tr) =>
             tr is ArrayType arrayType && arrayType.Rank > 1;
 
-        // Does type use netId as backing field
-        public static bool IsNetworkIdentityField(this TypeReference tr) =>
-            tr.Is<UnityEngine.GameObject>() ||
-            tr.Is<NetworkIdentity>() ||
-            tr.IsDerivedFrom<NetworkBehaviour>();
-
         public static bool CanBeResolved(this TypeReference parent)
         {
             while (parent != null)
@@ -154,11 +148,6 @@ namespace Mirror.Weaver
             return module.ImportReference(reference);
         }
 
-        public static CustomAttribute GetCustomAttribute<TAttribute>(this ICustomAttributeProvider method)
-        {
-            return method.CustomAttributes.FirstOrDefault(ca => ca.AttributeType.Is<TAttribute>());
-        }
-
         public static bool HasCustomAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider)
         {
             return attributeProvider.CustomAttributes.Any(attr => attr.AttributeType.Is<TAttribute>());
@@ -175,11 +164,6 @@ namespace Mirror.Weaver
         public static MethodDefinition GetMethod(this TypeDefinition td, string methodName)
         {
             return td.Methods.FirstOrDefault(method => method.Name == methodName);
-        }
-
-        public static List<MethodDefinition> GetMethods(this TypeDefinition td, string methodName)
-        {
-            return td.Methods.Where(method => method.Name == methodName).ToList();
         }
 
         public static MethodDefinition GetMethodInBaseType(this TypeDefinition td, string methodName)

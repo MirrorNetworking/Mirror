@@ -20,7 +20,6 @@ namespace Mirror.Weaver
         public const string MirrorAssemblyName = "Mirror";
 
         WeaverTypes weaverTypes;
-        IAssemblyResolver Resolver;
         AssemblyDefinition CurrentAssembly;
         Writers writers;
         Readers readers;
@@ -137,7 +136,6 @@ namespace Mirror.Weaver
             modified = false;
             try
             {
-                Resolver = resolver;
                 CurrentAssembly = assembly;
 
                 // fix "No writer found for ..." error
