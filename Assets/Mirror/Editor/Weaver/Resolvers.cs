@@ -55,17 +55,5 @@ namespace Mirror.Weaver
             }
             return null;
         }
-
-        public static MethodReference ResolveProperty(TypeReference tr, AssemblyDefinition assembly, string name)
-        {
-            foreach (PropertyDefinition pd in tr.Resolve().Properties)
-            {
-                if (pd.Name == name)
-                {
-                    return assembly.MainModule.ImportReference(pd.GetMethod);
-                }
-            }
-            return null;
-        }
     }
 }
