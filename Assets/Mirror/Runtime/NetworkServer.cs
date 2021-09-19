@@ -337,7 +337,7 @@ namespace Mirror
             }
         }
 
-        // DEPRECATED 2021-09-19
+        // Deprecated 2021-09-19
         [Obsolete("SendToReady(identity, message, ...) was renamed to SendToReadyObservers because that's what it does.")]
         public static void SendToReady<T>(NetworkIdentity identity, T message, bool includeOwner = true, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage =>
@@ -351,7 +351,7 @@ namespace Mirror
             SendToReadyObservers(identity, message, true, channelId);
         }
 
-        // DEPRECATED 2021-09-19
+        // Deprecated 2021-09-19
         [Obsolete("SendToReady(identity, message, ...) was renamed to SendToReadyObservers because that's what it does.")]
         public static void SendToReady<T>(NetworkIdentity identity, T message, int channelId)
             where T : struct, NetworkMessage =>
