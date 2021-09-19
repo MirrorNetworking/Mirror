@@ -171,6 +171,8 @@ namespace Mirror
                 return;
             }
 
+            Debug.Log("InitSyncObject: " + syncObject.GetType() + " on " + GetType());
+
             // add it, remember the index in list (if Count=0, index=0 etc.)
             int index = syncObjects.Count;
             syncObjects.Add(syncObject);

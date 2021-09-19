@@ -39,6 +39,9 @@ namespace Mirror
         public void ClearChanges() {}
         public void Reset() {}
 
+        // ctor
+        public SyncField(T value) => _Value = value;
+
         // serialization
         public void OnSerializeAll(NetworkWriter writer) => writer.Write(_Value);
         public void OnSerializeDelta(NetworkWriter writer) => writer.Write(_Value);
