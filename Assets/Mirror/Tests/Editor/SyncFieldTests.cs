@@ -27,6 +27,18 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SetValue_CallsOnDirty_OnlyIfValueChanged()
+        {
+            SyncField<int> field = 42;
+            int dirtyCalled = 0;
+            field.OnDirty = () => ++dirtyCalled;
+
+            // setting same value should not call OnDirty again
+            field.Value = 42;
+            Assert.That(dirtyCalled, Is.EqualTo(0));
+        }
+
+        [Test]
         public void SetValue_WithoutOnDirty()
         {
             // OnDirty needs to be optional.
@@ -85,6 +97,23 @@ namespace Mirror.Tests
             SyncField<int> field = new SyncField<int>(42, OnChanged);
             field.Value = 1337;
             Assert.That(called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Hook_OnlyCalledIfValueChanged()
+        {
+            int called = 0;
+            void OnChanged(int oldValue, int newValue)
+            {
+                ++called;
+                Assert.That(oldValue, Is.EqualTo(42));
+                Assert.That(newValue, Is.EqualTo(1337));
+            }
+
+            SyncField<int> field = new SyncField<int>(42, OnChanged);
+            // assign same value again. hook shouldn't be called again.
+            field.Value = 42;
+            Assert.That(called, Is.EqualTo(0));
         }
 
         [Test]
