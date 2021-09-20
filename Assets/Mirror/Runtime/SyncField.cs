@@ -29,7 +29,9 @@ namespace Mirror
     // * needs to be a 'class' so that we can track it in SyncObjects list, and
     //   iterate it for de/serialization.
     // * should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
-    public class SyncField<T> : SyncObject
+    public class SyncField<T> : SyncObject, IEquatable<T>
+        // if T is required to be IEquatable then .Equals doesn't need to box
+        where T : IEquatable<T>
     {
         T _Value;
         public T Value
@@ -100,6 +102,10 @@ namespace Mirror
         {
             Value = reader.Read<T>();
         }
+
+        // IEquatable should compare Value. SyncField should act invisibly.
+        // this way we can do SyncField<int> health == 0 etc.
+        public bool Equals(T other) => Value.Equals(other);
 
         // ToString should show Value. SyncField should act invisibly.
         public override string ToString() => Value.ToString();

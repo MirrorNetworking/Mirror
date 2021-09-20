@@ -142,6 +142,22 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void EqualsT()
+        {
+            // .Equals should compare .Value
+            SyncField<int> field = 42;
+            Assert.That(field.Equals(42), Is.True);
+        }
+
+        [Test]
+        public void EqualsEqualsT()
+        {
+            // == should compare .Value
+            SyncField<int> field = 42;
+            Assert.That(field == 42, Is.True);
+        }
+
+        [Test]
         public void ToString_CallsValueToString()
         {
             SyncField<int> field = 42;
