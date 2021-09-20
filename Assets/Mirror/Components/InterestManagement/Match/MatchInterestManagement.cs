@@ -79,7 +79,7 @@ namespace Mirror
             dirtyMatches.Clear();
         }
 
-        void UpdateDirtyMatches(NetworkIdentity netIdentity, Guid newMatch, Guid currentMatch)
+        void UpdateDirtyMatches(Guid newMatch, Guid currentMatch)
         {
             // Guid.Empty is never a valid matchId
             if (currentMatch != Guid.Empty)
