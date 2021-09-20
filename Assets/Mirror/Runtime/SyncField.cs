@@ -42,7 +42,7 @@ namespace Mirror
                 // set value, set dirty bit
                 // TODO only if changed, see NetworkBehaviour.SyncVarEqual<T>
                 _Value = value;
-                OnDirty();
+                OnDirty?.Invoke();
             }
         }
 

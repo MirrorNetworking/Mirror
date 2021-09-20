@@ -33,6 +33,15 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void SetValue_WithoutOnDirty()
+        {
+            // OnDirty needs to be optional.
+            // shouldn't throw exceptions if OnDirty is null.
+            field.OnDirty = null;
+            field.Value = 1337;
+        }
+
+        [Test]
         public void ImplicitTo()
         {
             // T = field implicit conversion should get .Value
