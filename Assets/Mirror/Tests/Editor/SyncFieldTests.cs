@@ -87,6 +87,25 @@ namespace Mirror.Tests
             Assert.That(called, Is.EqualTo(1));
         }
 
+        [Test, Ignore("Deadlocks")]
+        public void Hook_Set_DoesntDeadlock()
+        {
+            // Value.set calls the hook.
+            // calling Value.set inside the hook would deadlock.
+            // this needs to be prevented.
+            SyncField<int> field = null;
+            void OnChanged(int oldValue, int newValue)
+            {
+                UnityEngine.Debug.Log("HOOOOK");
+                // setting a different value calls setter -> hook again
+                field.Value = 0;
+            }
+            field = new SyncField<int>(42, OnChanged);
+
+            // setting a different value should call the hook
+            field.Value = 1337;
+        }
+
         [Test]
         public void DeserializeAll_CallsHook()
         {
