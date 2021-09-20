@@ -77,5 +77,21 @@ namespace Mirror.Tests
             SyncField<int> other = new SyncField<int>(43);
             field = new SyncField<int>(other);
         }
+
+        [Test]
+        public void Hook()
+        {
+            int called = 0;
+            void OnChanged(int oldValue, int newValue)
+            {
+                ++called;
+                Assert.That(oldValue, Is.EqualTo(42));
+                Assert.That(newValue, Is.EqualTo(1337));
+            }
+
+            SyncField<int> fieldWithHook = new SyncField<int>(42, OnChanged);
+            fieldWithHook.Value = 1337;
+            Assert.That(called, Is.EqualTo(1));
+        }
     }
 }

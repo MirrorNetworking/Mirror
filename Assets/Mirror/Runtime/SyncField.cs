@@ -39,12 +39,27 @@ namespace Mirror
             get => _Value;
             set
             {
-                // set value, set dirty bit
                 // TODO only if changed, see NetworkBehaviour.SyncVarEqual<T>
+
+                // set value, set dirty bit
+                T old = _Value;
                 _Value = value;
                 OnDirty?.Invoke();
+                if (hook != null)
+                {
+                    // Weaver also checked localClientActive
+                    // TODO if (NetworkServer.localClientActive)// && !GetSyncVarHookGuard(1uL))
+                    {
+                        //SetSyncVarHookGuard(1uL, value: true);
+                        hook(old, value);
+                        //SetSyncVarHookGuard(1uL, value: false);
+                    }
+                }
             }
         }
+
+        // OnChanged hook
+        Action<T, T> hook;
 
         // OnDirty sets the owner NetworkBehaviour's dirty bit
         public Action OnDirty { get; set; }
@@ -54,8 +69,13 @@ namespace Mirror
         public void ClearChanges() {}
         public void Reset() {}
 
-        // ctor from value <T>
-        public SyncField(T value) => _Value = value;
+        // ctor from value <T> and OnChanged hook.
+        // it was always called 'hook'. let's keep naming for convenience.
+        public SyncField(T value, Action<T, T> hook = null)
+        {
+            _Value = value;
+            this.hook = hook;
+        }
 
         // copy ctor
         public SyncField(SyncField<T> field)
