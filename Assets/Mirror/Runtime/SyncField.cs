@@ -39,23 +39,26 @@ namespace Mirror
             get => _Value;
             set
             {
-                // TODO only if changed, see NetworkBehaviour.SyncVarEqual<T>
-
-                // set value, set dirty bit
-                T old = _Value;
-                _Value = value;
-                OnDirty?.Invoke();
-
-                // Value.set calls the hook if changed.
-                // calling Value.set from within the hook would call the
-                // hook again and deadlock. prevent it with hookGuard.
-                // (see test: Hook_Set_DoesntDeadlock)
-                if (hook != null && !hookGuard)
+                // only if value changed. otherwise don't dirty/hook.
+                // we have .Equals(T), simply reuse it here.
+                if (!Equals(value))
                 {
-                    // TODO if (NetworkServer.localClientActive) like [SyncVar]?
-                    hookGuard = true;
-                    hook(old, value);
-                    hookGuard = false;
+                    // set value, set dirty bit
+                    T old = _Value;
+                    _Value = value;
+                    OnDirty?.Invoke();
+
+                    // Value.set calls the hook if changed.
+                    // calling Value.set from within the hook would call the
+                    // hook again and deadlock. prevent it with hookGuard.
+                    // (see test: Hook_Set_DoesntDeadlock)
+                    if (hook != null && !hookGuard)
+                    {
+                        // TODO if (NetworkServer.localClientActive) like [SyncVar]?
+                        hookGuard = true;
+                        hook(old, value);
+                        hookGuard = false;
+                    }
                 }
             }
         }
