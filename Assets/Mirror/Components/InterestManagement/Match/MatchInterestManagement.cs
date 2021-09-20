@@ -55,6 +55,7 @@ namespace Mirror
             //     add new to dirty
             foreach (NetworkIdentity netIdentity in NetworkServer.spawned.Values)
             {
+                // Ignore objects that don't have a NetworkMatch component
                 if (!netIdentity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                     continue;
 
@@ -62,6 +63,7 @@ namespace Mirror
                 lastObjectMatch.TryGetValue(netIdentity, out Guid currentMatch);
 
                 // Guid.Empty is never a valid matchId
+                // Nothing to do if matchId hasn't changed
                 if (newMatch == Guid.Empty || newMatch == currentMatch)
                     continue;
 
