@@ -47,7 +47,7 @@ namespace Mirror.Weaver
         static void ProcessMethod(SyncVarAccessLists syncVarAccessLists, MethodDefinition md)
         {
             // process all references to replaced members with properties
-            //Weaver.DLog(td, "      ProcessSiteMethod " + md);
+            //Log.Warning($"      ProcessSiteMethod {md}");
 
             // skip static constructor, "MirrorProcessed", "InvokeUserCode_"
             if (md.Name == ".cctor" ||
@@ -110,10 +110,10 @@ namespace Mirror.Weaver
             if (syncVarAccessLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
+                //Log.Warning($"    replacing {md.Name}:{i}", opField);
                 i.OpCode = OpCodes.Call;
                 i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
+                //Log.Warning($"    replaced {md.Name}:{i}", opField);
             }
         }
 
@@ -128,10 +128,10 @@ namespace Mirror.Weaver
             if (syncVarAccessLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
-                //DLog(td, "    replacing "  + md.Name + ":" + i);
+                //Log.Warning($"    replacing {md.Name}:{i}");
                 i.OpCode = OpCodes.Call;
                 i.Operand = replacement;
-                //DLog(td, "    replaced  "  + md.Name + ":" + i);
+                //Log.Warning($"    replaced {md.Name}:{i}");
             }
         }
 
