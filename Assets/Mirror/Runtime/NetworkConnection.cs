@@ -141,7 +141,7 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         internal virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
-            //Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+            //Debug.Log($"ConnectionSend {this} bytes:{BitConverter.ToString(segment.Array, segment.Offset, segment.Count)}");
 
             // add to batch no matter what.
             // batching will try to fit as many as possible into MTU.

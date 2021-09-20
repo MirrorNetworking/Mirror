@@ -99,7 +99,7 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage message)
         {
-            // Debug.Log("OnPingServerMessage  conn=" + conn);
+            // Debug.Log($"OnPingServerMessage conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
                 clientTime = message.clientTime,

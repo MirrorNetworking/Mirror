@@ -67,7 +67,7 @@ namespace Mirror
             //  seeing it in the console directly is way easier to deal with.)
             // => only add \n if stack trace is available (only in debug builds)
             if (isImportant && !string.IsNullOrWhiteSpace(stackTrace))
-                message += "\n" + stackTrace;
+                message += $"\n{stackTrace}";
 
             // add to queue
             log.Enqueue(new LogEntry(message, type));

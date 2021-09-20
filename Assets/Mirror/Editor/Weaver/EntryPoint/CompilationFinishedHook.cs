@@ -126,7 +126,7 @@ namespace Mirror.Weaver
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+                if (UnityLogEnabled) Debug.LogError($"Weaving failed for {assemblyPath}");
             }
         }
 
