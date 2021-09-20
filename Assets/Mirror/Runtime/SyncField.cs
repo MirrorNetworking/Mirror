@@ -103,11 +103,13 @@ namespace Mirror
             Value = reader.Read<T>();
         }
 
-        // IEquatable should compare Value. SyncField should act invisibly.
+        // IEquatable should compare Value.
+        // SyncField should act invisibly like [SyncVar] before.
         // this way we can do SyncField<int> health == 0 etc.
         public bool Equals(T other) => Value.Equals(other);
 
-        // ToString should show Value. SyncField should act invisibly.
+        // ToString should show Value.
+        // SyncField should act invisibly like [SyncVar] before.
         public override string ToString() => Value.ToString();
     }
 }
