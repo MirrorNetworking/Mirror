@@ -16,6 +16,10 @@ namespace WeaverSyncVarTests.SyncVarsSyncList
             public void OnDeserializeAll(NetworkReader reader) { }
             public void OnDeserializeDelta(NetworkReader reader) { }
             public void Reset() { }
+
+            // Deprecated 2021-09-17
+            [Obsolete("Use ClearChanges instead")]
+            public void Flush() { }
         }
 
         [SyncVar]
