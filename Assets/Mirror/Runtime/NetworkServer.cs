@@ -949,6 +949,15 @@ namespace Mirror
             }
         }
 
+        internal static void SendChangeOwnerMessage(NetworkIdentity identity, NetworkConnection conn)
+        {
+            if (identity.serverOnly) return;
+
+            //Debug.Log($"Server SendChangeOwnerMessage: name={identity.name} netid={identity.netId}");
+
+            conn.Send(new ChangeOwnerMessage { netId = identity.netId, isOwner = identity.connectionToClient == conn });
+        }
+
         static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
             // verify if we an spawn this

@@ -65,6 +65,12 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
+    public struct ChangeOwnerMessage : NetworkMessage
+    {
+        public uint netId;
+        public bool isOwner;
+    }
+
     public struct ObjectSpawnStartedMessage : NetworkMessage {}
 
     public struct ObjectSpawnFinishedMessage : NetworkMessage {}

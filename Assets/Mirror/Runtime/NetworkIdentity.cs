@@ -1164,8 +1164,7 @@ namespace Mirror
             SetClientOwner(conn);
 
             // The client will match to the existing object
-            // update all variables and assign authority
-            NetworkServer.SendSpawnMessage(this, conn);
+            NetworkServer.SendChangeOwnerMessage(this, conn);
 
             clientAuthorityCallback?.Invoke(conn, this, true);
 
@@ -1193,20 +1192,9 @@ namespace Mirror
             if (connectionToClient != null)
             {
                 clientAuthorityCallback?.Invoke(connectionToClient, this, false);
-
                 NetworkConnectionToClient previousOwner = connectionToClient;
-
-                // TODO why do we clear this twice?
                 connectionToClient = null;
-
-                // we need to resynchronize the entire object
-                // so just spawn it again,
-                // the client will not create a new instance,  it will simply
-                // reset all variables and remove authority
-                NetworkServer.SendSpawnMessage(this, previousOwner);
-
-                // TODO why do we clear this twice?
-                connectionToClient = null;
+                NetworkServer.SendChangeOwnerMessage(this, previousOwner);
             }
         }
 
