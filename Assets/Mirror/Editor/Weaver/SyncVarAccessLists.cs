@@ -17,6 +17,8 @@ namespace Mirror.Weaver
             new Dictionary<FieldDefinition, MethodDefinition>();
 
         // amount of SyncVars per class. dict<className, amount>
+        // necessary for SyncVar dirty bits, where inheriting classes start
+        // their dirty bits at base class SyncVar amount.
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
 
         public int GetSyncVarStart(string className) =>
