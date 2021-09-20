@@ -68,21 +68,6 @@ namespace Mirror.Tests
             Assert.That(field.Value, Is.EqualTo(1337));
         }
 
-        // TODO maybe implicit from shouldn't exist?
-        //      should be readonly.
-        //      or a struct and copy OnDirty hook
-        [Test]
-        public void ImplicitFrom_CallsOnDirty()
-        {
-            SyncField<int> field = 42;
-            int dirtyCalled = 0;
-            field.OnDirty = () => ++dirtyCalled;
-
-            // field = T implicit conversion should call OnDirty
-            field = 1337;
-            Assert.That(dirtyCalled, Is.EqualTo(1));
-        }
-
         [Test]
         public void Hook_IsCalled()
         {
