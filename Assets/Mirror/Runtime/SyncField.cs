@@ -59,7 +59,7 @@ namespace Mirror
         }
 
         // OnChanged hook
-        Action<T, T> hook;
+        readonly Action<T, T> hook;
 
         // OnDirty sets the owner NetworkBehaviour's dirty bit
         public Action OnDirty { get; set; }
