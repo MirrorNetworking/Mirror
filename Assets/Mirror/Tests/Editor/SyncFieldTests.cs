@@ -71,14 +71,6 @@ namespace Mirror.Tests
             Assert.That(dirtyCalled, Is.EqualTo(1));
         }
 
-        [Test, Ignore("TODO: what should copy ctor do?")]
-        public void CopyConstructor()
-        {
-            SyncField<int> field = 42;
-            SyncField<int> other = new SyncField<int>(43);
-            field = new SyncField<int>(other);
-        }
-
         [Test]
         public void Hook()
         {

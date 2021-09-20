@@ -80,12 +80,8 @@ namespace Mirror
             this.hook = hook;
         }
 
-        // copy ctor
-        public SyncField(SyncField<T> field)
-        {
-            // TODO: what should this do?
-            throw new NotImplementedException();
-        }
+        // NOTE: copy ctor is unnecessary.
+        // SyncFields are readonly and only initialized by 'Value' once.
 
         // implicit conversion: int value = SyncField<T>
         public static implicit operator T(SyncField<T> field) => field.Value;
