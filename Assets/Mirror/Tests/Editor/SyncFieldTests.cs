@@ -4,22 +4,12 @@ namespace Mirror.Tests
 {
     public class SyncFieldTests
     {
-        SyncField<int> field;
-        int dirtyCalled = 0;
-
-        [SetUp]
-        public void SetUp()
-        {
-            field = 42;
-            dirtyCalled = 0;
-            field.OnDirty = () => ++dirtyCalled;
-        }
-
         [Test]
         public void SetValue_SetsValue()
         {
             // .Value is a property which does several things.
             // make sure it .set actually sets the value
+            SyncField<int> field = 42;
             field.Value = 1337;
             Assert.That(field.Value, Is.EqualTo(1337));
         }
@@ -27,6 +17,10 @@ namespace Mirror.Tests
         [Test]
         public void SetValue_CallsOnDirty()
         {
+            SyncField<int> field = 42;
+            int dirtyCalled = 0;
+            field.OnDirty = () => ++dirtyCalled;
+
             // setting SyncField<T>.Value should call dirty
             field.Value = 1337;
             Assert.That(dirtyCalled, Is.EqualTo(1));
@@ -37,7 +31,7 @@ namespace Mirror.Tests
         {
             // OnDirty needs to be optional.
             // shouldn't throw exceptions if OnDirty is null.
-            field.OnDirty = null;
+            SyncField<int> field = 42;
             field.Value = 1337;
         }
 
@@ -45,6 +39,7 @@ namespace Mirror.Tests
         public void ImplicitTo()
         {
             // T = field implicit conversion should get .Value
+            SyncField<int> field = 42;
             int value = field;
             Assert.That(value, Is.EqualTo(42));
         }
@@ -56,6 +51,7 @@ namespace Mirror.Tests
         public void ImplicitFrom_SetsValue()
         {
             // field = T implicit conversion should set .Value
+            SyncField<int> field = 42;
             field = 1337;
             Assert.That(field.Value, Is.EqualTo(1337));
         }
@@ -66,6 +62,10 @@ namespace Mirror.Tests
         [Test]
         public void ImplicitFrom_CallsOnDirty()
         {
+            SyncField<int> field = 42;
+            int dirtyCalled = 0;
+            field.OnDirty = () => ++dirtyCalled;
+
             // field = T implicit conversion should call OnDirty
             field = 1337;
             Assert.That(dirtyCalled, Is.EqualTo(1));
@@ -74,6 +74,7 @@ namespace Mirror.Tests
         [Test, Ignore("TODO: what should copy ctor do?")]
         public void CopyConstructor()
         {
+            SyncField<int> field = 42;
             SyncField<int> other = new SyncField<int>(43);
             field = new SyncField<int>(other);
         }
@@ -89,8 +90,8 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(1337));
             }
 
-            SyncField<int> fieldWithHook = new SyncField<int>(42, OnChanged);
-            fieldWithHook.Value = 1337;
+            SyncField<int> field = new SyncField<int>(42, OnChanged);
+            field.Value = 1337;
             Assert.That(called, Is.EqualTo(1));
         }
 
@@ -105,7 +106,7 @@ namespace Mirror.Tests
                 Assert.That(oldValue, Is.EqualTo(42));
                 Assert.That(newValue, Is.EqualTo(1337));
             }
-            SyncField<int> fieldWithHook = new SyncField<int>(42, OnChanged);
+            SyncField<int> field = new SyncField<int>(42, OnChanged);
 
             // create reader with data
             NetworkWriter writer = new NetworkWriter();
@@ -113,7 +114,7 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             // deserialize
-            fieldWithHook.OnDeserializeAll(reader);
+            field.OnDeserializeAll(reader);
             Assert.That(called, Is.EqualTo(1));
         }
 
