@@ -14,17 +14,17 @@ namespace Mirror.Weaver
 
         AssemblyDefinition assembly;
         WeaverTypes weaverTypes;
-        WeaverLists weaverLists;
+        SyncVarAccessLists syncVarAccessLists;
         Logger Log;
 
         string HookParameterMessage(string hookName, TypeReference ValueType) =>
             $"void {hookName}({ValueType} oldValue, {ValueType} newValue)";
 
-        public SyncVarProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, WeaverLists weaverLists, Logger Log)
+        public SyncVarProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, SyncVarAccessLists syncVarAccessLists, Logger Log)
         {
             this.assembly = assembly;
             this.weaverTypes = weaverTypes;
-            this.weaverLists = weaverLists;
+            this.syncVarAccessLists = syncVarAccessLists;
             this.Log = Log;
         }
 
@@ -342,7 +342,7 @@ namespace Mirror.Weaver
             td.Methods.Add(get);
             td.Methods.Add(set);
             td.Properties.Add(propertyDefinition);
-            weaverLists.replacementSetterProperties[fd] = set;
+            syncVarAccessLists.replacementSetterProperties[fd] = set;
 
             // replace getter field if GameObject/NetworkIdentity so it uses
             // netId instead
@@ -350,7 +350,7 @@ namespace Mirror.Weaver
             //    end up in recursion.
             if (fd.FieldType.IsNetworkIdentityField())
             {
-                weaverLists.replacementGetterProperties[fd] = get;
+                syncVarAccessLists.replacementGetterProperties[fd] = get;
             }
         }
 
@@ -361,7 +361,7 @@ namespace Mirror.Weaver
 
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
-            int dirtyBitCounter = weaverLists.GetSyncVarStart(td.BaseType.FullName);
+            int dirtyBitCounter = syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName);
 
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
@@ -408,7 +408,7 @@ namespace Mirror.Weaver
             {
                 td.Fields.Add(fd);
             }
-            weaverLists.SetNumSyncVars(td.FullName, syncVars.Count);
+            syncVarAccessLists.SetNumSyncVars(td.FullName, syncVars.Count);
 
             return (syncVars, syncVarNetIds);
         }
