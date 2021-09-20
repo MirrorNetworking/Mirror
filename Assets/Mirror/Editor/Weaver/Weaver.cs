@@ -187,7 +187,7 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    PropertySiteProcessor.Process(moduleDefinition, weaverLists);
+                    SyncVarAccessReplacer.Process(moduleDefinition, weaverLists);
 
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);

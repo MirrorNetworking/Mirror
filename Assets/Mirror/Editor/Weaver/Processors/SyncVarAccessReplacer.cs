@@ -1,56 +1,67 @@
+// [SyncVar] int health;
+// is replaced with:
+// public int Networkhealth { get; set; } properties.
+// this class processes all access to 'health' and replaces it with 'Networkhealth'
 using System;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class PropertySiteProcessor
+    public static class SyncVarAccessReplacer
     {
+        // process the module
         public static void Process(ModuleDefinition moduleDef, WeaverLists weaverLists)
         {
             DateTime startTime = DateTime.Now;
 
-            // search through the types
+            // process all classes in this module
             foreach (TypeDefinition td in moduleDef.Types)
             {
                 if (td.IsClass)
                 {
-                    ProcessSiteClass(weaverLists, td);
+                    ProcessClass(weaverLists, td);
                 }
             }
 
             Console.WriteLine($"  ProcessSitesModule {moduleDef.Name} elapsed time:{(DateTime.Now - startTime)}");
         }
 
-        static void ProcessSiteClass(WeaverLists weaverLists, TypeDefinition td)
+        static void ProcessClass(WeaverLists weaverLists, TypeDefinition td)
         {
-            //Console.WriteLine("    ProcessSiteClass " + td);
+            //Console.WriteLine("    ProcessClass " + td);
+
+            // process all methods in this class
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessSiteMethod(weaverLists, md);
+                ProcessMethod(weaverLists, md);
             }
 
+            // processes all nested classes in this class recursively
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                ProcessSiteClass(weaverLists, nested);
+                ProcessClass(weaverLists, nested);
             }
         }
 
-        static void ProcessSiteMethod(WeaverLists weaverLists, MethodDefinition md)
+        static void ProcessMethod(WeaverLists weaverLists, MethodDefinition md)
         {
             // process all references to replaced members with properties
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
 
+            // skip static constructor, "MirrorProcessed", "InvokeUserCode_"
             if (md.Name == ".cctor" ||
                 md.Name == NetworkBehaviourProcessor.ProcessedFunctionName ||
                 md.Name.StartsWith(Weaver.InvokeRpcPrefix))
                 return;
 
+            // skip abstract
             if (md.IsAbstract)
             {
                 return;
             }
 
+            // go through all instructions of this method
             if (md.Body != null && md.Body.Instructions != null)
             {
                 for (int i = 0; i < md.Body.Instructions.Count;)
@@ -61,8 +72,35 @@ namespace Mirror.Weaver
             }
         }
 
-        // replaces syncvar write access with the NetworkXYZ.get property calls
-        static void ProcessInstructionSetterField(WeaverLists weaverLists, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static int ProcessInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction instr, int iCount)
+        {
+            // stfld (sets value of a field)?
+            if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
+            {
+                ProcessSetInstruction(weaverLists, md, instr, opFieldst);
+            }
+
+            // ldfld (load value of a field)?
+            if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
+            {
+                // this instruction gets the value of a field. cache the field reference.
+                ProcessGetInstruction(weaverLists, md, instr, opFieldld);
+            }
+
+            // ldflda (load field address aka reference)
+            if (instr.OpCode == OpCodes.Ldflda && instr.Operand is FieldDefinition opFieldlda)
+            {
+                // watch out for initobj instruction
+                // see https://github.com/vis2k/Mirror/issues/696
+                return ProcessLoadAddressInstruction(weaverLists, md, instr, opFieldlda, iCount);
+            }
+
+            // we processed one instruction (instr)
+            return 1;
+        }
+
+        // replaces syncvar write access with the NetworkXYZ.set property calls
+        static void ProcessSetInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // don't replace property call sites in constructors
             if (md.Name == ".ctor")
@@ -80,7 +118,7 @@ namespace Mirror.Weaver
         }
 
         // replaces syncvar read access with the NetworkXYZ.get property calls
-        static void ProcessInstructionGetterField(WeaverLists weaverLists, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessGetInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // don't replace property call sites in constructors
             if (md.Name == ".ctor")
@@ -97,31 +135,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static int ProcessInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction instr, int iCount)
-        {
-            if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
-            {
-                // this instruction sets the value of a field. cache the field reference.
-                ProcessInstructionSetterField(weaverLists, md, instr, opFieldst);
-            }
-
-            if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
-            {
-                // this instruction gets the value of a field. cache the field reference.
-                ProcessInstructionGetterField(weaverLists, md, instr, opFieldld);
-            }
-
-            if (instr.OpCode == OpCodes.Ldflda && instr.Operand is FieldDefinition opFieldlda)
-            {
-                // loading a field by reference,  watch out for initobj instruction
-                // see https://github.com/vis2k/Mirror/issues/696
-                return ProcessInstructionLoadAddress(weaverLists, md, instr, opFieldlda, iCount);
-            }
-
-            return 1;
-        }
-
-        static int ProcessInstructionLoadAddress(WeaverLists weaverLists, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
+        static int ProcessLoadAddressInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
         {
             // don't replace property call sites in constructors
             if (md.Name == ".ctor")
