@@ -100,5 +100,8 @@ namespace Mirror
         {
             Value = reader.Read<T>();
         }
+
+        // ToString should show Value. SyncField should act invisibly.
+        public override string ToString() => Value.ToString();
     }
 }

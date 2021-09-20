@@ -140,5 +140,12 @@ namespace Mirror.Tests
             fieldWithHook.OnDeserializeDelta(reader);
             Assert.That(called, Is.EqualTo(1));
         }
+
+        [Test]
+        public void ToString_CallsValueToString()
+        {
+            SyncField<int> field = 42;
+            Assert.That(field.ToString(), Is.EqualTo("42"));
+        }
     }
 }
