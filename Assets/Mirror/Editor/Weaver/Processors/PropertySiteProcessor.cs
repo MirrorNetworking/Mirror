@@ -53,10 +53,10 @@ namespace Mirror.Weaver
 
             if (md.Body != null && md.Body.Instructions != null)
             {
-                for (int iCount = 0; iCount < md.Body.Instructions.Count;)
+                for (int i = 0; i < md.Body.Instructions.Count;)
                 {
-                    Instruction instr = md.Body.Instructions[iCount];
-                    iCount += ProcessInstruction(weaverLists, md, instr, iCount);
+                    Instruction instr = md.Body.Instructions[i];
+                    i += ProcessInstruction(weaverLists, md, instr, i);
                 }
             }
         }
