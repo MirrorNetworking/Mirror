@@ -72,7 +72,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void Hook()
+        public void Hook_IsCalled()
         {
             int called = 0;
             void OnChanged(int oldValue, int newValue)
