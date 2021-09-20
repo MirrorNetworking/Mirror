@@ -93,5 +93,51 @@ namespace Mirror.Tests
             fieldWithHook.Value = 1337;
             Assert.That(called, Is.EqualTo(1));
         }
+
+        [Test]
+        public void DeserializeAll_CallsHook()
+        {
+            // create field with hook
+            int called = 0;
+            void OnChanged(int oldValue, int newValue)
+            {
+                ++called;
+                Assert.That(oldValue, Is.EqualTo(42));
+                Assert.That(newValue, Is.EqualTo(1337));
+            }
+            SyncField<int> fieldWithHook = new SyncField<int>(42, OnChanged);
+
+            // create reader with data
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteInt(1337);
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+
+            // deserialize
+            fieldWithHook.OnDeserializeAll(reader);
+            Assert.That(called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void DeserializeDelta_CallsHook()
+        {
+            // create field with hook
+            int called = 0;
+            void OnChanged(int oldValue, int newValue)
+            {
+                ++called;
+                Assert.That(oldValue, Is.EqualTo(42));
+                Assert.That(newValue, Is.EqualTo(1337));
+            }
+            SyncField<int> fieldWithHook = new SyncField<int>(42, OnChanged);
+
+            // create reader with data
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteInt(1337);
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+
+            // deserialize
+            fieldWithHook.OnDeserializeDelta(reader);
+            Assert.That(called, Is.EqualTo(1));
+        }
     }
 }

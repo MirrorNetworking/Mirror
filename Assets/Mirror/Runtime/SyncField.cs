@@ -91,16 +91,16 @@ namespace Mirror
         // even if SyncField is readonly, it's still useful: SyncField<int> = 1;
         public static implicit operator SyncField<T>(T value) => new SyncField<T>(value);
 
-        // serialization
+        // serialization (use .Value instead of _Value so hook is called!)
         public void OnSerializeAll(NetworkWriter writer) => writer.Write(Value);
         public void OnSerializeDelta(NetworkWriter writer) => writer.Write(Value);
         public void OnDeserializeAll(NetworkReader reader)
         {
-            _Value = reader.Read<T>();
+            Value = reader.Read<T>();
         }
         public void OnDeserializeDelta(NetworkReader reader)
         {
-            _Value = reader.Read<T>();
+            Value = reader.Read<T>();
         }
     }
 }
