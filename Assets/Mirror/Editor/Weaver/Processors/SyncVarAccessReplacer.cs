@@ -29,7 +29,7 @@ namespace Mirror.Weaver
 
         static void ProcessClass(SyncVarAccessLists syncVarAccessLists, TypeDefinition td)
         {
-            //Console.WriteLine("    ProcessClass " + td);
+            //Console.WriteLine($"    ProcessClass {td}");
 
             // process all methods in this class
             foreach (MethodDefinition md in td.Methods)
