@@ -45,21 +45,28 @@ namespace Mirror
                 T old = _Value;
                 _Value = value;
                 OnDirty?.Invoke();
-                if (hook != null)
+
+                // Value.set calls the hook if changed.
+                // calling Value.set from within the hook would call the
+                // hook again and deadlock. prevent it with hookGuard.
+                // (see test: Hook_Set_DoesntDeadlock)
+                if (hook != null && !hookGuard)
                 {
-                    // Weaver also checked localClientActive
-                    // TODO if (NetworkServer.localClientActive)// && !GetSyncVarHookGuard(1uL))
-                    {
-                        //SetSyncVarHookGuard(1uL, value: true);
-                        hook(old, value);
-                        //SetSyncVarHookGuard(1uL, value: false);
-                    }
+                    // TODO if (NetworkServer.localClientActive) like [SyncVar]?
+                    hookGuard = true;
+                    hook(old, value);
+                    hookGuard = false;
                 }
             }
         }
 
         // OnChanged hook
         readonly Action<T, T> hook;
+
+        // Value.set calls the hook if changed.
+        // calling Value.set from within the hook would call the hook again and
+        // deadlock. prevent it with a simple 'are we inside the hook' bool.
+        bool hookGuard;
 
         // OnDirty sets the owner NetworkBehaviour's dirty bit
         public Action OnDirty { get; set; }
