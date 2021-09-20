@@ -1,3 +1,5 @@
+// tracks SyncVar read/write access when processing NetworkBehaviour,
+// to later be replaced by SyncVarAccessReplacer.
 using System.Collections.Generic;
 using Mono.CecilX;
 
