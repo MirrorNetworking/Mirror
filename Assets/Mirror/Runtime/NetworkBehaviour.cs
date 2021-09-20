@@ -87,7 +87,11 @@ namespace Mirror
         // TODO 64 SyncLists are too much. consider smaller mask later.
         internal ulong syncObjectDirtyBits;
 
-        // hook guard to avoid deadlocks when calling hooks in host mode
+        // Weaver replaces '[SyncVar] int health' with 'Networkhealth' property.
+        // setter calls the hook if value changed.
+        // if we then modify the [SyncVar] from inside the setter,
+        // the setter would call the hook and we deadlock.
+        // hook guard prevents that.
         ulong syncVarHookGuard;
 
         // USED BY WEAVER to set syncvars in host mode without deadlocking
