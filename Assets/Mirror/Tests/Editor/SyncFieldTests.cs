@@ -150,6 +150,14 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void EqualsNull()
+        {
+            // .Equals(null) should always be false. so that == null works.
+            SyncField<int> field = 42;
+            Assert.That(field.Equals(null), Is.False);
+        }
+
+        [Test]
         public void EqualsEqualsT()
         {
             // == should compare .Value
