@@ -67,6 +67,9 @@ namespace Mirror
         // some SyncObject interface methods are unnecessary here
         public Func<bool> IsRecording { get; set; }
         public void ClearChanges() {}
+        // Deprecated 2021-09-17
+        [Obsolete("Deprecated: Use ClearChanges instead.")]
+        public void Flush() => ClearChanges();
         public void Reset() {}
 
         // ctor from value <T> and OnChanged hook.
