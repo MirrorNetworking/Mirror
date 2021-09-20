@@ -19,12 +19,8 @@ namespace Mirror.Weaver
         // amount of SyncVars per class. dict<className, amount>
         public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
 
-        public int GetSyncVarStart(string className)
-        {
-            return numSyncVars.ContainsKey(className)
-                ? numSyncVars[className]
-                : 0;
-        }
+        public int GetSyncVarStart(string className) =>
+            numSyncVars.TryGetValue(className, out int value) ? value : 0;
 
         public void SetNumSyncVars(string className, int num)
         {
