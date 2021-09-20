@@ -23,6 +23,7 @@
 //      * then .health++ works
 //      =========> BUT: serialization iterates SyncObjects. so needs to be class.
 using System;
+using System.Collections.Generic;
 
 namespace Mirror
 {
@@ -30,8 +31,6 @@ namespace Mirror
     //   iterate it for de/serialization.
     // * should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
     public class SyncField<T> : SyncObject, IEquatable<T>
-        // if T is required to be IEquatable then .Equals doesn't need to box
-        where T : IEquatable<T>
     {
         T _Value;
         public T Value
@@ -106,7 +105,11 @@ namespace Mirror
         // IEquatable should compare Value.
         // SyncField should act invisibly like [SyncVar] before.
         // this way we can do SyncField<int> health == 0 etc.
-        public bool Equals(T other) => Value.Equals(other);
+        public bool Equals(T other) =>
+            // from NetworkBehaviour.SyncVarEquals:
+            // EqualityComparer method avoids allocations.
+            // otherwise <T> would have to be :IEquatable (not all structs are)
+            EqualityComparer<T>.Default.Equals(Value, other);
 
         // ToString should show Value.
         // SyncField should act invisibly like [SyncVar] before.
