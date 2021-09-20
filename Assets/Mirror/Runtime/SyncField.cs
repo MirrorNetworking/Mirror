@@ -103,14 +103,8 @@ namespace Mirror
         // serialization (use .Value instead of _Value so hook is called!)
         public void OnSerializeAll(NetworkWriter writer) => writer.Write(Value);
         public void OnSerializeDelta(NetworkWriter writer) => writer.Write(Value);
-        public void OnDeserializeAll(NetworkReader reader)
-        {
-            Value = reader.Read<T>();
-        }
-        public void OnDeserializeDelta(NetworkReader reader)
-        {
-            Value = reader.Read<T>();
-        }
+        public void OnDeserializeAll(NetworkReader reader) => Value = reader.Read<T>();
+        public void OnDeserializeDelta(NetworkReader reader) => Value = reader.Read<T>();
 
         // IEquatable should compare Value.
         // SyncField should act invisibly like [SyncVar] before.
