@@ -65,7 +65,7 @@ namespace Mirror
                     continue;
 
                 // Mark new/old matches as dirty so they get rebuilt
-                UpdateDirtyMatches(netIdentity, newMatch, currentMatch);
+                UpdateDirtyMatches(newMatch, currentMatch);
 
                 // This object is in a new match so observers in the prior match
                 // and the new match need to rebuild their respective observers lists.
