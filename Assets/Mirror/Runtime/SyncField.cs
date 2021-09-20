@@ -27,10 +27,11 @@ using System.Collections.Generic;
 
 namespace Mirror
 {
-    // * needs to be a 'class' so that we can track it in SyncObjects list, and
-    //   iterate it for de/serialization.
-    // * should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
-    public class SyncField<T> : SyncObject, IEquatable<T>
+    // 'class' so that we can track it in SyncObjects list, and iterate it for
+    //   de/serialization.
+    // 'readonly' so nobody assigns monsterA.field = monsterB.field.
+    // 'sealed' for now. prevents IEqualityComparer warning.
+    public sealed class SyncField<T> : SyncObject, IEquatable<T>
     {
         T _Value;
         public T Value
