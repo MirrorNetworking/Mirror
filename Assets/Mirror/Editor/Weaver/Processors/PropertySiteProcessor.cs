@@ -10,7 +10,7 @@ namespace Mirror.Weaver
         {
             DateTime startTime = DateTime.Now;
 
-            //Search through the types
+            // search through the types
             foreach (TypeDefinition td in moduleDef.Types)
             {
                 if (td.IsClass)
