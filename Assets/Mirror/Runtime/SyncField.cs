@@ -92,8 +92,8 @@ namespace Mirror
         public static implicit operator SyncField<T>(T value) => new SyncField<T>(value);
 
         // serialization
-        public void OnSerializeAll(NetworkWriter writer) => writer.Write(_Value);
-        public void OnSerializeDelta(NetworkWriter writer) => writer.Write(_Value);
+        public void OnSerializeAll(NetworkWriter writer) => writer.Write(Value);
+        public void OnSerializeDelta(NetworkWriter writer) => writer.Write(Value);
         public void OnDeserializeAll(NetworkReader reader)
         {
             _Value = reader.Read<T>();
