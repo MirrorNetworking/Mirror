@@ -16,7 +16,7 @@ namespace Mirror.Weaver
     {
         AssemblyDefinition assembly;
         WeaverTypes weaverTypes;
-        WeaverLists weaverLists;
+        SyncVarAccessLists syncVarAccessLists;
         SyncVarProcessor syncVarProcessor;
         Writers writers;
         Readers readers;
@@ -47,15 +47,15 @@ namespace Mirror.Weaver
             public bool includeOwner;
         }
 
-        public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, WeaverLists weaverLists, Writers writers, Readers readers, Logger Log, TypeDefinition td)
+        public NetworkBehaviourProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, SyncVarAccessLists syncVarAccessLists, Writers writers, Readers readers, Logger Log, TypeDefinition td)
         {
             this.assembly = assembly;
             this.weaverTypes = weaverTypes;
-            this.weaverLists = weaverLists;
+            this.syncVarAccessLists = syncVarAccessLists;
             this.writers = writers;
             this.readers = readers;
             this.Log = Log;
-            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes, weaverLists, Log);
+            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes, syncVarAccessLists, Log);
             netBehaviourSubclass = td;
         }
 
@@ -453,7 +453,7 @@ namespace Mirror.Weaver
             // generate a writer call for any dirty variable in this class
 
             // start at number of syncvars in parent
-            int dirtyBit = weaverLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = worker.Create(OpCodes.Nop);
@@ -865,7 +865,7 @@ namespace Mirror.Weaver
 
             // conditionally read each syncvar
             // start at number of syncvars in parent
-            int dirtyBit = weaverLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
+            int dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVar in syncVars)
             {
                 Instruction varLabel = serWorker.Create(OpCodes.Nop);

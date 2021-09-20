@@ -11,7 +11,7 @@ namespace Mirror.Weaver
     public static class SyncVarAccessReplacer
     {
         // process the module
-        public static void Process(ModuleDefinition moduleDef, WeaverLists weaverLists)
+        public static void Process(ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists)
         {
             DateTime startTime = DateTime.Now;
 
@@ -20,31 +20,31 @@ namespace Mirror.Weaver
             {
                 if (td.IsClass)
                 {
-                    ProcessClass(weaverLists, td);
+                    ProcessClass(syncVarAccessLists, td);
                 }
             }
 
             Console.WriteLine($"  ProcessSitesModule {moduleDef.Name} elapsed time:{(DateTime.Now - startTime)}");
         }
 
-        static void ProcessClass(WeaverLists weaverLists, TypeDefinition td)
+        static void ProcessClass(SyncVarAccessLists syncVarAccessLists, TypeDefinition td)
         {
             //Console.WriteLine("    ProcessClass " + td);
 
             // process all methods in this class
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessMethod(weaverLists, md);
+                ProcessMethod(syncVarAccessLists, md);
             }
 
             // processes all nested classes in this class recursively
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                ProcessClass(weaverLists, nested);
+                ProcessClass(syncVarAccessLists, nested);
             }
         }
 
-        static void ProcessMethod(WeaverLists weaverLists, MethodDefinition md)
+        static void ProcessMethod(SyncVarAccessLists syncVarAccessLists, MethodDefinition md)
         {
             // process all references to replaced members with properties
             //Weaver.DLog(td, "      ProcessSiteMethod " + md);
@@ -67,24 +67,24 @@ namespace Mirror.Weaver
                 for (int i = 0; i < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[i];
-                    i += ProcessInstruction(weaverLists, md, instr, i);
+                    i += ProcessInstruction(syncVarAccessLists, md, instr, i);
                 }
             }
         }
 
-        static int ProcessInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction instr, int iCount)
+        static int ProcessInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount)
         {
             // stfld (sets value of a field)?
             if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
             {
-                ProcessSetInstruction(weaverLists, md, instr, opFieldst);
+                ProcessSetInstruction(syncVarAccessLists, md, instr, opFieldst);
             }
 
             // ldfld (load value of a field)?
             if (instr.OpCode == OpCodes.Ldfld && instr.Operand is FieldDefinition opFieldld)
             {
                 // this instruction gets the value of a field. cache the field reference.
-                ProcessGetInstruction(weaverLists, md, instr, opFieldld);
+                ProcessGetInstruction(syncVarAccessLists, md, instr, opFieldld);
             }
 
             // ldflda (load field address aka reference)
@@ -92,7 +92,7 @@ namespace Mirror.Weaver
             {
                 // watch out for initobj instruction
                 // see https://github.com/vis2k/Mirror/issues/696
-                return ProcessLoadAddressInstruction(weaverLists, md, instr, opFieldlda, iCount);
+                return ProcessLoadAddressInstruction(syncVarAccessLists, md, instr, opFieldlda, iCount);
             }
 
             // we processed one instruction (instr)
@@ -100,14 +100,14 @@ namespace Mirror.Weaver
         }
 
         // replaces syncvar write access with the NetworkXYZ.set property calls
-        static void ProcessSetInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessSetInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // don't replace property call sites in constructors
             if (md.Name == ".ctor")
                 return;
 
             // does it set a field that we replaced?
-            if (weaverLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            if (syncVarAccessLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
@@ -118,14 +118,14 @@ namespace Mirror.Weaver
         }
 
         // replaces syncvar read access with the NetworkXYZ.get property calls
-        static void ProcessGetInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction i, FieldDefinition opField)
+        static void ProcessGetInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction i, FieldDefinition opField)
         {
             // don't replace property call sites in constructors
             if (md.Name == ".ctor")
                 return;
 
             // does it set a field that we replaced?
-            if (weaverLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            if (syncVarAccessLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 //replace with property
                 //DLog(td, "    replacing "  + md.Name + ":" + i);
@@ -135,14 +135,14 @@ namespace Mirror.Weaver
             }
         }
 
-        static int ProcessLoadAddressInstruction(WeaverLists weaverLists, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
+        static int ProcessLoadAddressInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
         {
             // don't replace property call sites in constructors
             if (md.Name == ".ctor")
                 return 1;
 
             // does it set a field that we replaced?
-            if (weaverLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            if (syncVarAccessLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
             {
                 // we have a replacement for this property
                 // is the next instruction a initobj?

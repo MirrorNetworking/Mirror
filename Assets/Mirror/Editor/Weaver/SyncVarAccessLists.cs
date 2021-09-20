@@ -4,7 +4,7 @@ using Mono.CecilX;
 namespace Mirror.Weaver
 {
     // This data is flushed each time - if we are run multiple times in the same process/domain
-    public class WeaverLists
+    public class SyncVarAccessLists
     {
         // setter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementSetterProperties =
