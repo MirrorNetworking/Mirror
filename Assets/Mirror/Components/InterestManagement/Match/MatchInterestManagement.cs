@@ -43,12 +43,9 @@ namespace Mirror
                 RebuildMatchObservers(currentMatch);
         }
 
+        [ServerCallback]
         void Update()
         {
-            // only on server
-            if (!NetworkServer.active) 
-                return;
-
             // for each spawned:
             //   if match changed:
             //     add previous to dirty
@@ -68,32 +65,11 @@ namespace Mirror
                     continue;
 
                 // Mark new/old matches as dirty so they get rebuilt
-                // Guid.Empty is never a valid matchId
-                if (currentMatch != Guid.Empty)
-                    dirtyMatches.Add(currentMatch);
-
-                dirtyMatches.Add(newMatch);
+                UpdateDirtyMatches(newMatch, currentMatch);
 
                 // This object is in a new match so observers in the prior match
                 // and the new match need to rebuild their respective observers lists.
-
-                // Remove this object from the hashset of the match it just left
-                // Guid.Empty is never a valid matchId
-                if (currentMatch != Guid.Empty)
-                    matchObjects[currentMatch].Remove(netIdentity);
-
-                // Set this to the new match this object just entered
-                lastObjectMatch[netIdentity] = newMatch;
-
-                // Guid.Empty is never a valid matchId...do not add to matchObjects collection
-                if (newMatch == Guid.Empty) continue;
-
-                // Make sure this new match is in the dictionary
-                if (!matchObjects.ContainsKey(newMatch))
-                    matchObjects.Add(newMatch, new HashSet<NetworkIdentity>());
-
-                // Add this object to the hashset of the new match
-                matchObjects[newMatch].Add(netIdentity);
+                UpdateMatchObjects(netIdentity, newMatch, currentMatch);
             }
 
             // rebuild all dirty matchs
@@ -101,6 +77,33 @@ namespace Mirror
                 RebuildMatchObservers(dirtyMatch);
 
             dirtyMatches.Clear();
+        }
+
+        void UpdateDirtyMatches(Guid newMatch, Guid currentMatch)
+        {
+            // Guid.Empty is never a valid matchId
+            if (currentMatch != Guid.Empty)
+                dirtyMatches.Add(currentMatch);
+
+            dirtyMatches.Add(newMatch);
+        }
+
+        void UpdateMatchObjects(NetworkIdentity netIdentity, Guid newMatch, Guid currentMatch)
+        {
+            // Remove this object from the hashset of the match it just left
+            // Guid.Empty is never a valid matchId
+            if (currentMatch != Guid.Empty)
+                matchObjects[currentMatch].Remove(netIdentity);
+
+            // Set this to the new match this object just entered
+            lastObjectMatch[netIdentity] = newMatch;
+
+            // Make sure this new match is in the dictionary
+            if (!matchObjects.ContainsKey(newMatch))
+                matchObjects.Add(newMatch, new HashSet<NetworkIdentity>());
+
+            // Add this object to the hashset of the new match
+            matchObjects[newMatch].Add(netIdentity);
         }
 
         void RebuildMatchObservers(Guid matchId)
