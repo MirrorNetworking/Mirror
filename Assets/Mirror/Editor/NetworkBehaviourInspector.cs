@@ -11,10 +11,6 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkBehaviourInspector : Editor
     {
-        /// <summary>
-        /// List of all visible syncVars in target class
-        /// </summary>
-        protected List<string> syncVarNames = new List<string>();
         bool syncsAnything;
         SyncListDrawer syncListDrawer;
 
@@ -59,15 +55,6 @@ namespace Mirror
             if (!(target is NetworkBehaviour)) { return; }
 
             Type scriptClass = target.GetType();
-
-            syncVarNames = new List<string>();
-            foreach (FieldInfo field in InspectorHelper.GetAllFields(scriptClass, typeof(NetworkBehaviour)))
-            {
-                if (field.IsSyncVar() && field.IsVisibleField())
-                {
-                    syncVarNames.Add(field.Name);
-                }
-            }
 
             syncListDrawer = new SyncListDrawer(serializedObject.targetObject);
 
