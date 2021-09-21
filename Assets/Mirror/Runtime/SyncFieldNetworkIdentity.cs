@@ -50,6 +50,7 @@ namespace Mirror
             get
             {
                 // server: use field directly. server knows all NetworkIdentities
+                // (faster than a spawned dictionary lookup)
                 if (NetworkServer.active)
                 {
                     return base.Value;
@@ -79,6 +80,11 @@ namespace Mirror
 
         // ctor
         public SyncFieldNetworkIdentity(NetworkIdentity value, Action<NetworkIdentity, NetworkIdentity> hook = null)
-            : base(value, hook) {}
+            : base(value, hook)
+        {
+            // store the NetworkIdentity's netId
+            if (value != null)
+                netId = value.netId;
+        }
     }
 }
