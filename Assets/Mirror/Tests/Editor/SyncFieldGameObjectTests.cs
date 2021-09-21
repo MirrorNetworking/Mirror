@@ -60,6 +60,22 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void PersistenceThroughDisappearance()
+        {
+            // field with identity
+            SyncFieldGameObject field = new SyncFieldGameObject(go);
+
+            // remove from spawned, shouldn't be found anymore
+            NetworkServer.spawned.Remove(identity.netId);
+            Assert.That(field.Value, Is.EqualTo(null));
+
+            // add to spawned again
+            // add to spawned again, should be found again
+            NetworkServer.spawned[identity.netId] = identity;
+            Assert.That(field.Value, Is.EqualTo(go));
+        }
+
+        [Test]
         public void SerializeAllWritesNetId()
         {
             SyncFieldGameObject field = new SyncFieldGameObject(go);

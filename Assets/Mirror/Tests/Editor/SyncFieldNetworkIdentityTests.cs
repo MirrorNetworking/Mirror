@@ -40,6 +40,22 @@ namespace Mirror.Tests
             Assert.That(field.Value, Is.EqualTo(identity));
         }
 
+        [Test]
+        public void PersistenceThroughDisappearance()
+        {
+            // field with identity
+            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+
+            // remove from spawned, shouldn't be found anymore
+            NetworkServer.spawned.Remove(identity.netId);
+            Assert.That(field.Value, Is.EqualTo(null));
+
+            // add to spawned again
+            // add to spawned again, should be found again
+            NetworkServer.spawned[identity.netId] = identity;
+            Assert.That(field.Value, Is.EqualTo(identity));
+        }
+
         // make sure the NetworkIdentity hook works, even though base is uint.
         [Test]
         public void Hook()
