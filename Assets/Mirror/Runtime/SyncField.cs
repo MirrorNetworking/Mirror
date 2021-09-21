@@ -14,19 +14,22 @@
 // downsides:
 //   - generic <T> types don't show in Unity Inspector
 //
-// TODO force 'readonly' in Weaver. otherwise 'health--' sets a new field.
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mirror
 {
     // 'class' so that we can track it in SyncObjects list, and iterate it for
     //   de/serialization.
     // 'sealed' for now. prevents IEqualityComparer warning.
-    // should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
+    [Serializable]
     public sealed class SyncField<T> : SyncObject, IEquatable<T>
     {
-        T _Value;
+        // '[SerializeField] T' shows in Inspector if SyncField isn't readonly.
+        [SerializeField] T _Value;
+
+        // Value property with hooks
         public T Value
         {
             get => _Value;
