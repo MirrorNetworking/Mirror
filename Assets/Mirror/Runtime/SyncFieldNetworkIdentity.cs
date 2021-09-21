@@ -39,57 +39,25 @@ using System;
 
 namespace Mirror
 {
-    public class SyncFieldNetworkIdentity : SyncField<NetworkIdentity>
+    // SyncField<NetworkIdentity> only stores an uint netId.
+    // while providing .spawned lookup for convenience.
+    // NOTE: server always knows all spawned. consider caching the field again.
+    public class SyncFieldNetworkIdentity : SyncField<uint>
     {
-        // persistent netId field of the Value's NetworkIdentity
-        uint netId;
-
-        // overwrite .Value to get/set NetworkIdentity with our stored netId
-        public override NetworkIdentity Value
+        // .spawned lookup from netId overwrites base uint .Value
+        public new NetworkIdentity Value
         {
-            get
-            {
-                // server: use field directly. server knows all NetworkIdentities
-                // (faster than a spawned dictionary lookup)
-                if (NetworkServer.active)
-                {
-                    return base.Value;
-                }
-
-                // client: look up in spawned by netId
-                if (NetworkClient.active)
-                {
-                    NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity entry);
-                    return entry;
-                }
-
-                return null;
-            }
-            set
-            {
-                // only if value changed. otherwise don't dirty/hook.
-                // we have SyncVarNetworkIdentityEqual, simply reuse it here.
-                if (!NetworkBehaviour.SyncVarNetworkIdentityEqual(value, netId))
-                {
-                    /*NetworkIdentity networktarget = Networktarget;
-                    SetSyncVarNetworkIdentity(value, ref target, 1uL, ref netId);
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(1uL))
-                    {
-                        SetSyncVarHookGuard(1uL, value: true);
-                        OnTargetChanged(networktarget, value);
-                        SetSyncVarHookGuard(1uL, value: false);
-                    }*/
-                }
-            }
+            get => Utils.GetSpawnedInServerOrClient(base.Value);
+            set => base.Value = value != null ? value.netId : 0;
         }
 
         // ctor
         public SyncFieldNetworkIdentity(NetworkIdentity value, Action<NetworkIdentity, NetworkIdentity> hook = null)
-            : base(value, hook)
-        {
-            // store the NetworkIdentity's netId
-            if (value != null)
-                netId = value.netId;
-        }
+            : base(value != null ? value.netId : 0,
+                hook != null ? WrapHook(hook) : null) {}
+
+        // wrap <NetworkIdentity> hook within base <uint> hook
+        static Action<uint, uint> WrapHook(Action<NetworkIdentity, NetworkIdentity> hook) =>
+            (oldValue, newValue) => { hook(Utils.GetSpawnedInServerOrClient(oldValue), Utils.GetSpawnedInServerOrClient(newValue)); };
     }
 }
