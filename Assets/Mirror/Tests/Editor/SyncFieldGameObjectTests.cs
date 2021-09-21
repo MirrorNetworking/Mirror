@@ -19,6 +19,7 @@ namespace Mirror.Tests
 
             // need a spawned GameObject with a netId (we store by netId)
             CreateNetworkedAndSpawn(out go, out identity);
+            Assert.That(identity.netId, !Is.EqualTo(0));
         }
 
         [TearDown]
