@@ -16,9 +16,20 @@ namespace Mirror
         {
             get
             {
-                // ORIGINAL WEAVER:
-                //return GetSyncVarNetworkIdentity(netId, ref target);
-                throw new NotImplementedException();
+                // server: use field directly. server knows all NetworkIdentities
+                if (NetworkServer.active)
+                {
+                    return base.Value;
+                }
+
+                // client: look up in spawned by netId
+                if (NetworkClient.active)
+                {
+                    NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity entry);
+                    return entry;
+                }
+
+                return null;
             }
             set
             {
