@@ -17,7 +17,7 @@ namespace Mirror.Tests
 
     class SyncVarNetworkIdentityEqualExposedBehaviour : NetworkBehaviour
     {
-        public bool SyncVarNetworkIdentityEqualExposed(NetworkIdentity newNetworkIdentity, uint netIdField)
+        public static bool SyncVarNetworkIdentityEqualExposed(NetworkIdentity newNetworkIdentity, uint netIdField)
         {
             return SyncVarNetworkIdentityEqual(newNetworkIdentity, netIdField);
         }
@@ -377,7 +377,7 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarNetworkIdentityEqualZeroNetIdNullIsTrue()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             // null and identity.netid==0 returns true (=equal)
             //
@@ -385,7 +385,7 @@ namespace Mirror.Tests
             // better to return false here.
             // => we possibly return false so that resync doesn't happen when
             //    GO disappears? or not?
-            bool result = comp.SyncVarNetworkIdentityEqualExposed(null, identity.netId);
+            bool result = SyncVarNetworkIdentityEqualExposedBehaviour.SyncVarNetworkIdentityEqualExposed(null, identity.netId);
             Assert.That(result, Is.True);
         }
 
@@ -393,13 +393,13 @@ namespace Mirror.Tests
         [Test]
         public void SyncVarNetworkIdentityEqualNull()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             // our identity should have a netid for comparing
             identity.netId = 42;
 
             // null should return false
-            bool result = comp.SyncVarNetworkIdentityEqualExposed(null, identity.netId);
+            bool result = SyncVarNetworkIdentityEqualExposedBehaviour.SyncVarNetworkIdentityEqualExposed(null, identity.netId);
             Assert.That(result, Is.False);
         }
 
@@ -413,9 +413,9 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             ni.netId = 43;
-            bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
+            bool result = SyncVarNetworkIdentityEqualExposedBehaviour.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.False);
         }
 
@@ -429,9 +429,9 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // gameobject with valid networkidentity and netid that is different
-            CreateNetworked(out GameObject _, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+            CreateNetworked(out GameObject _, out NetworkIdentity ni);
             ni.netId = 42;
-            bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
+            bool result = SyncVarNetworkIdentityEqualExposedBehaviour.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.True);
         }
 
@@ -445,9 +445,9 @@ namespace Mirror.Tests
             identity.netId = 42;
 
             // gameobject with valid networkidentity and 0 netid that is unspawned
-            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             LogAssert.Expect(LogType.Warning, $"SetSyncVarNetworkIdentity NetworkIdentity {ni} has a zero netId. Maybe it is not spawned yet?");
-            bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
+            bool result = SyncVarNetworkIdentityEqualExposedBehaviour.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.False);
         }
 
@@ -458,9 +458,9 @@ namespace Mirror.Tests
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
             // unspawned go and identity.netid==0 returns true (=equal)
-            CreateNetworked(out GameObject go, out NetworkIdentity ni, out SyncVarNetworkIdentityEqualExposedBehaviour comp);
+            CreateNetworked(out GameObject go, out NetworkIdentity ni);
             LogAssert.Expect(LogType.Warning, $"SetSyncVarNetworkIdentity NetworkIdentity {ni} has a zero netId. Maybe it is not spawned yet?");
-            bool result = comp.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
+            bool result = SyncVarNetworkIdentityEqualExposedBehaviour.SyncVarNetworkIdentityEqualExposed(ni, identity.netId);
             Assert.That(result, Is.True);
         }
 
