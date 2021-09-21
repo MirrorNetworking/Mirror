@@ -26,7 +26,8 @@ namespace Mirror
     [Serializable]
     public sealed class SyncField<T> : SyncObject, IEquatable<T>
     {
-        // '[SerializeField] T' shows in Inspector if SyncField isn't readonly.
+        // Unity 2020+ can show [SerializeField]<T> in inspector.
+        // (only if SyncField<T> isn't readonly though)
         [SerializeField] T _Value;
 
         // Value property with hooks
