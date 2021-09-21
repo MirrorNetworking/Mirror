@@ -56,5 +56,27 @@ namespace Mirror.Tests
             field.Value = identity;
             Assert.That(called, Is.EqualTo(1));
         }
+
+        [Test]
+        public void SerializeAllWritesNetId()
+        {
+            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            NetworkWriter writer = new NetworkWriter();
+            field.OnSerializeAll(writer);
+
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+            Assert.That(reader.ReadUInt(), Is.EqualTo(identity.netId));
+        }
+
+        [Test]
+        public void SerializeDeltaWritesNetId()
+        {
+            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            NetworkWriter writer = new NetworkWriter();
+            field.OnSerializeDelta(writer);
+
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+            Assert.That(reader.ReadUInt(), Is.EqualTo(identity.netId));
+        }
     }
 }
