@@ -22,8 +22,8 @@ namespace Mirror
 {
     // 'class' so that we can track it in SyncObjects list, and iterate it for
     //   de/serialization.
-    // 'readonly' so nobody assigns monsterA.field = monsterB.field.
     // 'sealed' for now. prevents IEqualityComparer warning.
+    // should be 'readonly' so nobody assigns monsterA.field = monsterB.field.
     public sealed class SyncField<T> : SyncObject, IEquatable<T>
     {
         T _Value;
