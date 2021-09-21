@@ -161,15 +161,16 @@ namespace Mirror.Weaver
             // if (!SyncVarEqual(value, ref playerData))
             Instruction endOfMethod = worker.Create(OpCodes.Nop);
 
+            // NOTE: SyncVar...Equal functions are static.
+            // don't Emit Ldarg_0 aka 'this'.
+
+            // new value to set
+            worker.Emit(OpCodes.Ldarg_1);
+
             // reference to field to set
             // make generic version of SetSyncVar with field type
             if (fd.FieldType.Is<UnityEngine.GameObject>())
             {
-                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
-
-                // new value to set
-                worker.Emit(OpCodes.Ldarg_1);
-
                 // reference to netId Field to set
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
@@ -178,11 +179,6 @@ namespace Mirror.Weaver
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {
-                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
-
-                // new value to set
-                worker.Emit(OpCodes.Ldarg_1);
-
                 // reference to netId Field to set
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
@@ -191,11 +187,6 @@ namespace Mirror.Weaver
             }
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
-                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
-
-                // new value to set
-                worker.Emit(OpCodes.Ldarg_1);
-
                 // reference to netId Field to set
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
@@ -205,11 +196,6 @@ namespace Mirror.Weaver
             }
             else
             {
-                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
-
-                // new value to set
-                worker.Emit(OpCodes.Ldarg_1);
-
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
 
