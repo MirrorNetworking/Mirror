@@ -47,7 +47,10 @@ namespace Mirror
                     // (see test: Hook_Set_DoesntDeadlock)
                     if (hook != null && !hookGuard)
                     {
-                        // TODO if (NetworkServer.localClientActive) like [SyncVar]?
+                        // Note that unlike [SyncVar], SyncField<T> hook is
+                        // called on server & clients.
+                        // use 'isServer' / 'isClient' early returns in the hook
+                        // if necessary.
                         hookGuard = true;
                         hook(old, value);
                         hookGuard = false;
