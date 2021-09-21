@@ -446,7 +446,7 @@ namespace Mirror
             return identityField;
         }
 
-        protected bool SyncVarNetworkBehaviourEqual<T>(T newBehaviour, NetworkBehaviourSyncVar syncField) where T : NetworkBehaviour
+        protected static bool SyncVarNetworkBehaviourEqual<T>(T newBehaviour, NetworkBehaviourSyncVar syncField) where T : NetworkBehaviour
         {
             uint newNetId = 0;
             int newComponentIndex = 0;

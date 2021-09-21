@@ -191,8 +191,8 @@ namespace Mirror.Weaver
             }
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
-                // this
-                worker.Emit(OpCodes.Ldarg_0);
+                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
+
                 // new value to set
                 worker.Emit(OpCodes.Ldarg_1);
 
