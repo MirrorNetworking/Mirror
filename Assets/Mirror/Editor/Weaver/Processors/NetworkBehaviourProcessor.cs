@@ -602,8 +602,8 @@ namespace Mirror.Weaver
                 // Generates: if (!SyncVarEqual);
                 Instruction syncVarEqualLabel = worker.Create(OpCodes.Nop);
 
-                // 'this.' for 'this.SyncVarEqual'
-                worker.Emit(OpCodes.Ldarg_0);
+                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
+
                 // 'oldNetId'
                 worker.Emit(OpCodes.Ldloc, oldNetId);
                 // 'ref this.__netId'
@@ -703,8 +703,8 @@ namespace Mirror.Weaver
                 // Generates: if (!SyncVarEqual);
                 Instruction syncVarEqualLabel = worker.Create(OpCodes.Nop);
 
-                // 'this.' for 'this.SyncVarEqual'
-                worker.Emit(OpCodes.Ldarg_0);
+                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
+
                 // 'oldNetId'
                 worker.Emit(OpCodes.Ldloc, oldNetId);
                 // 'ref this.__netId'
@@ -784,8 +784,8 @@ namespace Mirror.Weaver
                 // Generates: if (!SyncVarEqual);
                 Instruction syncVarEqualLabel = serWorker.Create(OpCodes.Nop);
 
-                // 'this.' for 'this.SyncVarEqual'
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
+                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
+
                 // 'oldValue'
                 serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
                 // 'ref this.syncVar'

@@ -542,7 +542,7 @@ namespace Mirror
             }
         }
 
-        protected bool SyncVarEqual<T>(T value, ref T fieldValue)
+        protected static bool SyncVarEqual<T>(T value, ref T fieldValue)
         {
             // newly initialized or changed value?
             // value.Equals(fieldValue) allocates without 'where T : IEquatable'
