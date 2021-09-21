@@ -22,9 +22,8 @@ namespace Mirror
 {
     // 'class' so that we can track it in SyncObjects list, and iterate it for
     //   de/serialization.
-    // 'sealed' for now. prevents IEqualityComparer warning.
     [Serializable]
-    public sealed class SyncField<T> : SyncObject, IEquatable<T>
+    public class SyncField<T> : SyncObject, IEquatable<T>
     {
         // Unity 2020+ can show [SerializeField]<T> in inspector.
         // (only if SyncField<T> isn't readonly though)
