@@ -67,14 +67,19 @@ namespace Mirror
             }
             set
             {
-                throw new NotImplementedException();
-                /* ORIGINAL WEAVER:
-                if (!SyncVarNetworkIdentityEqual(value, netId))
+                // only if value changed. otherwise don't dirty/hook.
+                // we have SyncVarNetworkIdentityEqual, simply reuse it here.
+                if (!NetworkBehaviour.SyncVarNetworkIdentityEqual(value, netId))
                 {
-                    NetworkIdentity networktarget = Networktarget;
+                    /*NetworkIdentity networktarget = Networktarget;
                     SetSyncVarNetworkIdentity(value, ref target, 1uL, ref netId);
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(1uL))
+                    {
+                        SetSyncVarHookGuard(1uL, value: true);
+                        OnTargetChanged(networktarget, value);
+                        SetSyncVarHookGuard(1uL, value: false);
+                    }*/
                 }
-                */
             }
         }
 
