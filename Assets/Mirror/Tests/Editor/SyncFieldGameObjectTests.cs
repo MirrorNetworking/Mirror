@@ -80,5 +80,29 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
             Assert.That(reader.ReadUInt(), Is.EqualTo(identity.netId));
         }
+
+        [Test]
+        public void DeserializeAllReadsNetId()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteUInt(identity.netId);
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+
+            SyncFieldGameObject field = new SyncFieldGameObject(null);
+            field.OnDeserializeAll(reader);
+            Assert.That(field.Value, Is.EqualTo(go));
+        }
+
+        [Test]
+        public void DeserializeDeltaReadsNetId()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteUInt(identity.netId);
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+
+            SyncFieldGameObject field = new SyncFieldGameObject(null);
+            field.OnDeserializeDelta(reader);
+            Assert.That(field.Value, Is.EqualTo(go));
+        }
     }
 }
