@@ -40,10 +40,7 @@ namespace Mirror
             // search for SyncObjects manually.
             // Any SyncObject should be added to syncObjects when unity creates an
             // object so we can check length of list so see if sync objects exists
-            FieldInfo syncObjectsField = scriptClass.GetField("syncObjects", BindingFlags.NonPublic | BindingFlags.Instance);
-            List<SyncObject> syncObjects = (List<SyncObject>)syncObjectsField.GetValue(serializedObject.targetObject);
-
-            return syncObjects.Count > 0;
+            return ((NetworkBehaviour)serializedObject.targetObject).HasSyncObjects();
         }
 
         void OnEnable()
