@@ -4,6 +4,8 @@ namespace Mirror.Tests
 {
     public class SyncFieldNetworkIdentityTests : MirrorTest
     {
+        NetworkIdentity identity;
+
         [SetUp]
         public override void SetUp()
         {
@@ -12,6 +14,9 @@ namespace Mirror.Tests
             // need a connected client & server so we can have spawned identities
             NetworkServer.Listen(1);
             ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // need a spawned NetworkIdentity with a netId (we store by netId)
+            CreateNetworkedAndSpawn(out _, out identity);
         }
 
         [TearDown]
@@ -21,8 +26,6 @@ namespace Mirror.Tests
         [Test]
         public void Constructor_NetworkIdentity()
         {
-            // need a spawned NetworkIdentity with a netId (we store by netId)
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity);
             SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
             Assert.That(field.Value, Is.EqualTo(identity));
         }
@@ -31,9 +34,6 @@ namespace Mirror.Tests
         [Test]
         public void Value_NetworkIdentity()
         {
-            // need a spawned NetworkIdentity with a netId (we store by netId)
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity);
-
             SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(null);
             field.Value = identity;
             Assert.That(field.Value, Is.EqualTo(identity));
@@ -43,9 +43,6 @@ namespace Mirror.Tests
         [Test]
         public void Hook()
         {
-            // need a spawned NetworkIdentity with a netId (we store by netId)
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity);
-
             int called = 0;
             void OnChanged(NetworkIdentity oldValue, NetworkIdentity newValue)
             {
