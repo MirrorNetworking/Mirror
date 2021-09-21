@@ -36,6 +36,5 @@ namespace Mirror
         // ctor
         public SyncFieldNetworkIdentity(NetworkIdentity value, Action<NetworkIdentity, NetworkIdentity> hook = null)
             : base(value, hook) {}
-
     }
 }
