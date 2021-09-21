@@ -30,7 +30,8 @@ namespace Mirror
         [SerializeField] T _Value;
 
         // Value property with hooks
-        public T Value
+        // virtual for SyncFieldNetworkIdentity netId trick etc.
+        public virtual T Value
         {
             get => _Value;
             set
