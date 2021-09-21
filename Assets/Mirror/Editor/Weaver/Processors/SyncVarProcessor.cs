@@ -161,14 +161,15 @@ namespace Mirror.Weaver
             // if (!SyncVarEqual(value, ref playerData))
             Instruction endOfMethod = worker.Create(OpCodes.Nop);
 
-            // this
-            worker.Emit(OpCodes.Ldarg_0);
-            // new value to set
-            worker.Emit(OpCodes.Ldarg_1);
             // reference to field to set
             // make generic version of SetSyncVar with field type
             if (fd.FieldType.Is<UnityEngine.GameObject>())
             {
+                // this
+                worker.Emit(OpCodes.Ldarg_0);
+                // new value to set
+                worker.Emit(OpCodes.Ldarg_1);
+
                 // reference to netId Field to set
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
@@ -177,6 +178,11 @@ namespace Mirror.Weaver
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {
+                // this
+                worker.Emit(OpCodes.Ldarg_0);
+                // new value to set
+                worker.Emit(OpCodes.Ldarg_1);
+
                 // reference to netId Field to set
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
@@ -185,6 +191,11 @@ namespace Mirror.Weaver
             }
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
+                // this
+                worker.Emit(OpCodes.Ldarg_0);
+                // new value to set
+                worker.Emit(OpCodes.Ldarg_1);
+
                 // reference to netId Field to set
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, netFieldId);
@@ -194,6 +205,11 @@ namespace Mirror.Weaver
             }
             else
             {
+                // this
+                worker.Emit(OpCodes.Ldarg_0);
+                // new value to set
+                worker.Emit(OpCodes.Ldarg_1);
+
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, fd);
 
