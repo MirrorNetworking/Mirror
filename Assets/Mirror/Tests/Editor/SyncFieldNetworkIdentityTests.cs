@@ -50,7 +50,6 @@ namespace Mirror.Tests
             NetworkServer.spawned.Remove(identity.netId);
             Assert.That(field.Value, Is.EqualTo(null));
 
-            // add to spawned again
             // add to spawned again, should be found again
             NetworkServer.spawned[identity.netId] = identity;
             Assert.That(field.Value, Is.EqualTo(identity));
