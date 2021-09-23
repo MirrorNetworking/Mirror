@@ -56,6 +56,13 @@ namespace Mirror
             : base(value != null ? value.netId : 0,
                 hook != null ? WrapHook(hook) : null) {}
 
+        // implicit conversion: NetworkIdentity value = SyncFieldNetworkIdentity
+        public static implicit operator NetworkIdentity(SyncFieldNetworkIdentity field) => field.Value;
+
+        // implicit conversion: SyncFieldNetworkIdentity = value
+        // even if SyncField is readonly, it's still useful: SyncFieldNetworkIdentity = target;
+        public static implicit operator SyncFieldNetworkIdentity(NetworkIdentity value) => new SyncFieldNetworkIdentity(value);
+
         // wrap <NetworkIdentity> hook within base <uint> hook
         static Action<uint, uint> WrapHook(Action<NetworkIdentity, NetworkIdentity> hook) =>
             (oldValue, newValue) => { hook(Utils.GetSpawnedInServerOrClient(oldValue), Utils.GetSpawnedInServerOrClient(newValue)); };

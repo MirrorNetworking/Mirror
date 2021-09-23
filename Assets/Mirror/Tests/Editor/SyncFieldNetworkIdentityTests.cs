@@ -55,6 +55,23 @@ namespace Mirror.Tests
             Assert.That(field.Value, Is.EqualTo(identity));
         }
 
+        [Test]
+        public void ImplicitTo()
+        {
+            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            // T = field implicit conversion should get .Value
+            NetworkIdentity value = field;
+            Assert.That(value, Is.EqualTo(identity));
+        }
+
+        [Test]
+        public void ImplicitFrom_SetsValue()
+        {
+            // field = T implicit conversion should set .Value
+            SyncFieldNetworkIdentity field = identity;
+            Assert.That(field.Value, Is.EqualTo(identity));
+        }
+
         // make sure the NetworkIdentity hook works, even though base is uint.
         [Test]
         public void Hook()
