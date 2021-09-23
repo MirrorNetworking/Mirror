@@ -50,8 +50,8 @@ namespace Mirror.Tests
         [Test]
         public void ImplicitTo()
         {
+            SyncField<int> field = new SyncField<int>(42);
             // T = field implicit conversion should get .Value
-            SyncField<int> field = 42;
             int value = field;
             Assert.That(value, Is.EqualTo(42));
         }
@@ -61,8 +61,7 @@ namespace Mirror.Tests
         {
             // field = T implicit conversion should set .Value
             SyncField<int> field = 42;
-            field = 1337;
-            Assert.That(field.Value, Is.EqualTo(1337));
+            Assert.That(field.Value, Is.EqualTo(42));
         }
 
         [Test]
