@@ -28,6 +28,13 @@ namespace Mirror
             : base(NetworkBehaviourToULong(value),
                    hook != null ? WrapHook(hook) : null) {}
 
+        // implicit conversion: NetworkBehaviour value = SyncFieldNetworkBehaviour
+        public static implicit operator NetworkBehaviour(SyncFieldNetworkBehaviour field) => field.Value;
+
+        // implicit conversion: SyncFieldNetworkBehaviour = value
+        // even if SyncField is readonly, it's still useful: SyncFieldNetworkBehaviour = target;
+        public static implicit operator SyncFieldNetworkBehaviour(NetworkBehaviour value) => new SyncFieldNetworkBehaviour(value);
+
         // wrap <NetworkIdentity> hook within base <uint> hook
         static Action<ulong, ulong> WrapHook(Action<NetworkBehaviour, NetworkBehaviour> hook) =>
             (oldValue, newValue) => { hook(ULongToNetworkBehaviour(oldValue), ULongToNetworkBehaviour(newValue)); };

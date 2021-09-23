@@ -71,6 +71,23 @@ namespace Mirror.Tests
             Assert.That(field.Value, Is.EqualTo(component));
         }
 
+        [Test]
+        public void ImplicitTo()
+        {
+            SyncFieldNetworkBehaviour field = new SyncFieldNetworkBehaviour(component);
+            // T = field implicit conversion should get .Value
+            NetworkBehaviour value = field;
+            Assert.That(value, Is.EqualTo(component));
+        }
+
+        [Test]
+        public void ImplicitFrom_SetsValue()
+        {
+            // field = T implicit conversion should set .Value
+            SyncFieldNetworkBehaviour field = component;
+            Assert.That(field.Value, Is.EqualTo(component));
+        }
+
         // make sure the NetworkBehaviour hook works, even though base is uint.
         [Test]
         public void Hook()
