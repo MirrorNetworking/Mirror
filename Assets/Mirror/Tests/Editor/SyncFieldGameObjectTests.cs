@@ -42,6 +42,23 @@ namespace Mirror.Tests
             Assert.That(field.Value, Is.EqualTo(go));
         }
 
+        [Test]
+        public void ImplicitTo()
+        {
+            SyncFieldGameObject field = new SyncFieldGameObject(go);
+            // T = field implicit conversion should get .Value
+            GameObject value = field;
+            Assert.That(value, Is.EqualTo(go));
+        }
+
+        [Test]
+        public void ImplicitFrom_SetsValue()
+        {
+            // field = T implicit conversion should set .Value
+            SyncFieldGameObject field = go;
+            Assert.That(field.Value, Is.EqualTo(go));
+        }
+
         // make sure the GameObject hook works, even though base is uint.
         [Test]
         public void Hook()

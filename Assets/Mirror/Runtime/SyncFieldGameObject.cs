@@ -81,6 +81,13 @@ namespace Mirror
             return spawned != null ? spawned.gameObject : null;
         }
 
+        // implicit conversion: GameObject value = SyncFieldGameObject
+        public static implicit operator GameObject(SyncFieldGameObject field) => field.Value;
+
+        // implicit conversion: SyncFieldGameObject = value
+        // even if SyncField is readonly, it's still useful: SyncFieldGameObject = target;
+        public static implicit operator SyncFieldGameObject(GameObject value) => new SyncFieldGameObject(value);
+
         // wrap <GameObject> hook within base <uint> hook
         static Action<uint, uint> WrapHook(Action<GameObject, GameObject> hook) =>
             (oldValue, newValue) => {
