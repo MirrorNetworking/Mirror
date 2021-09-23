@@ -96,10 +96,8 @@ namespace Mirror.Tests
             field.OnSerializeAll(writer);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            ulong value = reader.ReadULong();
-            SyncFieldNetworkBehaviour.Unpack(value, out uint netId, out byte componentIndex);
-            Assert.That(netId, Is.EqualTo(component.netId));
-            Assert.That(componentIndex, Is.EqualTo(component.ComponentIndex));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(component.netId));
+            Assert.That(reader.ReadByte(), Is.EqualTo(component.ComponentIndex));
         }
 
         [Test]
@@ -110,18 +108,16 @@ namespace Mirror.Tests
             field.OnSerializeDelta(writer);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            ulong value = reader.ReadULong();
-            SyncFieldNetworkBehaviour.Unpack(value, out uint netId, out byte componentIndex);
-            Assert.That(netId, Is.EqualTo(component.netId));
-            Assert.That(componentIndex, Is.EqualTo(component.ComponentIndex));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(component.netId));
+            Assert.That(reader.ReadByte(), Is.EqualTo(component.ComponentIndex));
         }
 
         [Test]
         public void DeserializeAllReadsNetIdAndComponentIndex()
         {
             NetworkWriter writer = new NetworkWriter();
-            ulong value = SyncFieldNetworkBehaviour.Pack(component.netId, (byte)component.ComponentIndex);
-            writer.WriteULong(value);
+            writer.WriteUInt(component.netId);
+            writer.WriteByte((byte)component.ComponentIndex);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncFieldNetworkBehaviour field = new SyncFieldNetworkBehaviour(null);
@@ -133,8 +129,8 @@ namespace Mirror.Tests
         public void DeserializeDeltaReadsNetIdAndComponentIndex()
         {
             NetworkWriter writer = new NetworkWriter();
-            ulong value = SyncFieldNetworkBehaviour.Pack(component.netId, (byte)component.ComponentIndex);
-            writer.WriteULong(value);
+            writer.WriteUInt(component.netId);
+            writer.WriteByte((byte)component.ComponentIndex);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncFieldNetworkBehaviour field = new SyncFieldNetworkBehaviour(null);

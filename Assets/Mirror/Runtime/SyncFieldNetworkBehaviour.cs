@@ -64,6 +64,26 @@ namespace Mirror
             return value != null ? Pack(value.netId, (byte)value.ComponentIndex) : 0;
         }
 
-        // TODO De/Serialize should only write 4+1 bytes, not 8
+        // Serialize should only write 4+1 bytes, not 8 bytes ulong
+        public override void OnSerializeAll(NetworkWriter writer)
+        {
+            Unpack(base.Value, out uint netId, out byte componentIndex);
+            writer.WriteUInt(netId);
+            writer.WriteByte(componentIndex);
+        }
+
+        public override void OnSerializeDelta(NetworkWriter writer) =>
+            OnSerializeAll(writer);
+
+        // Deserialize should only write 4+1 bytes, not 8 bytes ulong
+        public override void OnDeserializeAll(NetworkReader reader)
+        {
+            uint netId = reader.ReadUInt();
+            byte componentIndex = reader.ReadByte();
+            base.Value = Pack(netId, componentIndex);
+        }
+
+        public override void OnDeserializeDelta(NetworkReader reader) =>
+            OnDeserializeAll(reader);
     }
 }
