@@ -59,6 +59,18 @@ namespace Mirror.Tests
             Assert.That(called, Is.EqualTo(1));
         }
 
+        // SyncField should check .Value for equality.
+        // two syncfields with same GameObject should be equal.
+        [Test]
+        public void EqualsTest()
+        {
+            SyncFieldGameObject fieldA = new SyncFieldGameObject(go);
+            SyncFieldGameObject fieldB = new SyncFieldGameObject(go);
+            SyncFieldGameObject fieldC = new SyncFieldGameObject(null);
+            Assert.That(fieldA.Equals(fieldB), Is.True);
+            Assert.That(fieldA.Equals(fieldC), Is.False);
+        }
+
         [Test]
         public void PersistenceThroughDisappearance()
         {

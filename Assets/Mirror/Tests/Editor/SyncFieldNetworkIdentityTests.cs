@@ -72,6 +72,18 @@ namespace Mirror.Tests
             Assert.That(called, Is.EqualTo(1));
         }
 
+        // SyncField should check .Value for equality.
+        // two syncfields with same NetworkIdentity should be equal.
+        [Test]
+        public void EqualsTest()
+        {
+            SyncFieldNetworkIdentity fieldA = new SyncFieldNetworkIdentity(identity);
+            SyncFieldNetworkIdentity fieldB = new SyncFieldNetworkIdentity(identity);
+            SyncFieldNetworkIdentity fieldC = new SyncFieldNetworkIdentity(null);
+            Assert.That(fieldA.Equals(fieldB), Is.True);
+            Assert.That(fieldA.Equals(fieldC), Is.False);
+        }
+
         [Test]
         public void SerializeAllWritesNetId()
         {

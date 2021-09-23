@@ -88,6 +88,18 @@ namespace Mirror.Tests
             Assert.That(called, Is.EqualTo(1));
         }
 
+        // SyncField should check .Value for equality.
+        // two syncfields with same NetworkBehaviour should be equal.
+        [Test]
+        public void EqualsTest()
+        {
+            SyncFieldNetworkBehaviour fieldA = new SyncFieldNetworkBehaviour(component);
+            SyncFieldNetworkBehaviour fieldB = new SyncFieldNetworkBehaviour(component);
+            SyncFieldNetworkBehaviour fieldC = new SyncFieldNetworkBehaviour(null);
+            Assert.That(fieldA.Equals(fieldB), Is.True);
+            Assert.That(fieldA.Equals(fieldC), Is.False);
+        }
+
         [Test]
         public void SerializeAllWritesNetIdAndComponentIndex()
         {
