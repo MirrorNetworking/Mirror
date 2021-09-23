@@ -86,6 +86,17 @@ namespace Mirror
         // it was always called 'hook'. let's keep naming for convenience.
         public SyncField(T value, Action<T, T> hook = null)
         {
+            // recommend explicit GameObject, NetworkIdentity, NetworkBehaviour
+            // with persistent netId method
+            if (this is SyncField<GameObject>)
+                Debug.LogWarning($"Use explicit {nameof(SyncFieldGameObject)} class instead of {nameof(SyncField<T>)}<GameObject>. It stores netId internally for persistence.");
+
+            if (this is SyncField<NetworkIdentity>)
+                Debug.LogWarning($"Use explicit {nameof(SyncFieldNetworkIdentity)} class instead of {nameof(SyncField<T>)}<NetworkIdentity>. It stores netId internally for persistence.");
+
+            if (this is SyncField<NetworkBehaviour>)
+                Debug.LogWarning($"Use explicit {nameof(SyncFieldNetworkBehaviour)} class instead of {nameof(SyncField<T>)}<NetworkBehaviour>. It stores netId internally for persistence.");
+
             _Value = value;
             this.hook = hook;
         }

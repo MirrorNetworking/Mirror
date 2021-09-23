@@ -1,9 +1,39 @@
+using System.Text.RegularExpressions;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
     public class SyncFieldTests
     {
+        // SyncField<GameObject> should recommend SyncFielGameObject instead
+        [Test]
+        public void SyncFieldGameObject_Recommendation()
+        {
+            // should show even if value is null since T is <GameObject>
+            LogAssert.Expect(LogType.Warning, new Regex($"Use explicit {nameof(SyncFieldGameObject)}.*"));
+            SyncField<GameObject> _ = new SyncField<GameObject>(null);
+        }
+
+        // SyncField<NetworkIdentity> should recommend SyncFielNetworkIdentity instead
+        [Test]
+        public void SyncFieldNetworkIdentity_Recommendation()
+        {
+            // should show even if value is null since T is <NetworkIdentity>
+            LogAssert.Expect(LogType.Warning, new Regex($"Use explicit {nameof(SyncFieldNetworkIdentity)}.*"));
+            SyncField<NetworkIdentity> _ = new SyncField<NetworkIdentity>(null);
+        }
+
+        // SyncField<NetworkBehaviour> should recommend SyncFielNetworkBehaviour instead
+        [Test]
+        public void SyncFieldNetworkBehaviour_Recommendation()
+        {
+            // should show even if value is null since T is <NetworkBehaviour>
+            LogAssert.Expect(LogType.Warning, new Regex($"Use explicit {nameof(SyncFieldNetworkBehaviour)}.*"));
+            SyncField<NetworkBehaviour> _ = new SyncField<NetworkBehaviour>(null);
+        }
+
         [Test]
         public void SetValue_SetsValue()
         {
