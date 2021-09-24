@@ -337,7 +337,7 @@ namespace Mirror.Tests
 
             // assign a guid
             Guid guid2 = Guid.NewGuid();
-            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{guid1:N}', attempted new assetId '{guid2:N}'");
             identity.assetId = guid2;
 
             // guid was changed
@@ -358,7 +358,7 @@ namespace Mirror.Tests
 
             // assign a guid
             Guid guid2 = new Guid();
-            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}'");
+            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1:N}'");
             identity.assetId = guid2;
 
             // guid was NOT changed
