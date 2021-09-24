@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class SyncVarTestBase : MirrorEditModeTest
+    public class SyncVarAttributeTestBase : MirrorEditModeTest
     {
         // returns If data was written by OnSerialize
         public static bool SyncToClient<T>(T serverObject, T clientObject, bool initialState) where T : NetworkBehaviour

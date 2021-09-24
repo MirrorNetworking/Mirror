@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverSyncVarTests : WeaverTestsBuildFromTestName
+    public class WeaverSyncVarAttributeTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void SyncVarsValid()

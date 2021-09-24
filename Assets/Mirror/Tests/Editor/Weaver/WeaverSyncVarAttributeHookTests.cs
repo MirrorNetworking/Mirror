@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Weaver.Tests
 {
-    public class WeaverSyncVarHookTests : WeaverTestsBuildFromTestName
+    public class WeaverSyncVarAttributeHookTests : WeaverTestsBuildFromTestName
     {
         [Test]
         public void FindsPrivateHook()

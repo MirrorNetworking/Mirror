@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.SyncVarTests
+namespace Mirror.Tests.SyncVarAttributeTests
 {
     class MockPlayer : NetworkBehaviour
     {
@@ -59,7 +59,7 @@ namespace Mirror.Tests.SyncVarTests
         public MockMonsterBase monster2;
     }
 
-    public class SyncVarTest : SyncVarTestBase
+    public class SyncVarAttributeTest : SyncVarAttributeTestBase
     {
         [SetUp]
         public override void SetUp()

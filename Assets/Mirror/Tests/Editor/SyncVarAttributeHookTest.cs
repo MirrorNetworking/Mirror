@@ -2,7 +2,7 @@ using System;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Mirror.Tests.SyncVarTests
+namespace Mirror.Tests.SyncVarAttributeTests
 {
     class HookBehaviour : NetworkBehaviour
     {
@@ -110,7 +110,7 @@ namespace Mirror.Tests.SyncVarTests
         }
     }
 
-    public class SyncVarHookTest : SyncVarTestBase
+    public class SyncVarAttributeHookTest : SyncVarAttributeTestBase
     {
         [SetUp]
         public override void SetUp()
