@@ -49,7 +49,7 @@ namespace Mirror
     // SyncField<GameObject> only stores an uint netId.
     // while providing .spawned lookup for convenience.
     // NOTE: server always knows all spawned. consider caching the field again.
-    public class SyncFieldGameObject : SyncField<uint>
+    public class SyncVarGameObject : SyncVar<uint>
     {
         // .spawned lookup from netId overwrites base uint .Value
         public new GameObject Value
@@ -59,7 +59,7 @@ namespace Mirror
         }
 
         // ctor
-        public SyncFieldGameObject(GameObject value, Action<GameObject, GameObject> hook = null)
+        public SyncVarGameObject(GameObject value, Action<GameObject, GameObject> hook = null)
             : base(GetNetId(value),
                    hook != null ? WrapHook(hook) : null) {}
 
@@ -82,11 +82,11 @@ namespace Mirror
         }
 
         // implicit conversion: GameObject value = SyncFieldGameObject
-        public static implicit operator GameObject(SyncFieldGameObject field) => field.Value;
+        public static implicit operator GameObject(SyncVarGameObject field) => field.Value;
 
         // implicit conversion: SyncFieldGameObject = value
         // even if SyncField is readonly, it's still useful: SyncFieldGameObject = target;
-        public static implicit operator SyncFieldGameObject(GameObject value) => new SyncFieldGameObject(value);
+        public static implicit operator SyncVarGameObject(GameObject value) => new SyncVarGameObject(value);
 
         // wrap <GameObject> hook within base <uint> hook
         static Action<uint, uint> WrapHook(Action<GameObject, GameObject> hook) =>

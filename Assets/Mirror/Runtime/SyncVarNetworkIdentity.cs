@@ -42,7 +42,7 @@ namespace Mirror
     // SyncField<NetworkIdentity> only stores an uint netId.
     // while providing .spawned lookup for convenience.
     // NOTE: server always knows all spawned. consider caching the field again.
-    public class SyncFieldNetworkIdentity : SyncField<uint>
+    public class SyncVarNetworkIdentity : SyncVar<uint>
     {
         // .spawned lookup from netId overwrites base uint .Value
         public new NetworkIdentity Value
@@ -52,16 +52,16 @@ namespace Mirror
         }
 
         // ctor
-        public SyncFieldNetworkIdentity(NetworkIdentity value, Action<NetworkIdentity, NetworkIdentity> hook = null)
+        public SyncVarNetworkIdentity(NetworkIdentity value, Action<NetworkIdentity, NetworkIdentity> hook = null)
             : base(value != null ? value.netId : 0,
                 hook != null ? WrapHook(hook) : null) {}
 
         // implicit conversion: NetworkIdentity value = SyncFieldNetworkIdentity
-        public static implicit operator NetworkIdentity(SyncFieldNetworkIdentity field) => field.Value;
+        public static implicit operator NetworkIdentity(SyncVarNetworkIdentity field) => field.Value;
 
         // implicit conversion: SyncFieldNetworkIdentity = value
         // even if SyncField is readonly, it's still useful: SyncFieldNetworkIdentity = target;
-        public static implicit operator SyncFieldNetworkIdentity(NetworkIdentity value) => new SyncFieldNetworkIdentity(value);
+        public static implicit operator SyncVarNetworkIdentity(NetworkIdentity value) => new SyncVarNetworkIdentity(value);
 
         // wrap <NetworkIdentity> hook within base <uint> hook
         static Action<uint, uint> WrapHook(Action<NetworkIdentity, NetworkIdentity> hook) =>

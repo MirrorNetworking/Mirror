@@ -14,7 +14,7 @@ namespace Mirror
     // we use an ulong SyncField internally to store both.
     // while providing .spawned lookup for convenience.
     // NOTE: server always knows all spawned. consider caching the field again.
-    public class SyncFieldNetworkBehaviour : SyncField<ulong>
+    public class SyncVarNetworkBehaviour : SyncVar<ulong>
     {
         // .spawned lookup from netId overwrites base uint .Value
         public new NetworkBehaviour Value
@@ -24,16 +24,16 @@ namespace Mirror
         }
 
         // ctor
-        public SyncFieldNetworkBehaviour(NetworkBehaviour value, Action<NetworkBehaviour, NetworkBehaviour> hook = null)
+        public SyncVarNetworkBehaviour(NetworkBehaviour value, Action<NetworkBehaviour, NetworkBehaviour> hook = null)
             : base(NetworkBehaviourToULong(value),
                    hook != null ? WrapHook(hook) : null) {}
 
         // implicit conversion: NetworkBehaviour value = SyncFieldNetworkBehaviour
-        public static implicit operator NetworkBehaviour(SyncFieldNetworkBehaviour field) => field.Value;
+        public static implicit operator NetworkBehaviour(SyncVarNetworkBehaviour field) => field.Value;
 
         // implicit conversion: SyncFieldNetworkBehaviour = value
         // even if SyncField is readonly, it's still useful: SyncFieldNetworkBehaviour = target;
-        public static implicit operator SyncFieldNetworkBehaviour(NetworkBehaviour value) => new SyncFieldNetworkBehaviour(value);
+        public static implicit operator SyncVarNetworkBehaviour(NetworkBehaviour value) => new SyncVarNetworkBehaviour(value);
 
         // wrap <NetworkIdentity> hook within base <uint> hook
         static Action<ulong, ulong> WrapHook(Action<NetworkBehaviour, NetworkBehaviour> hook) =>

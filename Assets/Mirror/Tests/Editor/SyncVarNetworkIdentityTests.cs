@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class SyncFieldNetworkIdentityTests : MirrorTest
+    public class SyncVarNetworkIdentityTests : MirrorTest
     {
         NetworkIdentity identity;
 
@@ -27,7 +27,7 @@ namespace Mirror.Tests
         [Test]
         public void Constructor_NetworkIdentity()
         {
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(identity);
             Assert.That(field.Value, Is.EqualTo(identity));
         }
 
@@ -35,7 +35,7 @@ namespace Mirror.Tests
         [Test]
         public void Value_NetworkIdentity()
         {
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(null);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null);
             field.Value = identity;
             Assert.That(field.Value, Is.EqualTo(identity));
         }
@@ -44,7 +44,7 @@ namespace Mirror.Tests
         public void PersistenceThroughDisappearance()
         {
             // field with identity
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(identity);
 
             // remove from spawned, shouldn't be found anymore
             NetworkServer.spawned.Remove(identity.netId);
@@ -58,7 +58,7 @@ namespace Mirror.Tests
         [Test]
         public void ImplicitTo()
         {
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(identity);
             // T = field implicit conversion should get .Value
             NetworkIdentity value = field;
             Assert.That(value, Is.EqualTo(identity));
@@ -68,7 +68,7 @@ namespace Mirror.Tests
         public void ImplicitFrom_SetsValue()
         {
             // field = T implicit conversion should set .Value
-            SyncFieldNetworkIdentity field = identity;
+            SyncVarNetworkIdentity field = identity;
             Assert.That(field.Value, Is.EqualTo(identity));
         }
 
@@ -84,7 +84,7 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(identity));
             }
 
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(null, OnChanged);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null, OnChanged);
             field.Value = identity;
             Assert.That(called, Is.EqualTo(1));
         }
@@ -94,9 +94,9 @@ namespace Mirror.Tests
         [Test]
         public void EqualsTest()
         {
-            SyncFieldNetworkIdentity fieldA = new SyncFieldNetworkIdentity(identity);
-            SyncFieldNetworkIdentity fieldB = new SyncFieldNetworkIdentity(identity);
-            SyncFieldNetworkIdentity fieldC = new SyncFieldNetworkIdentity(null);
+            SyncVarNetworkIdentity fieldA = new SyncVarNetworkIdentity(identity);
+            SyncVarNetworkIdentity fieldB = new SyncVarNetworkIdentity(identity);
+            SyncVarNetworkIdentity fieldC = new SyncVarNetworkIdentity(null);
             Assert.That(fieldA.Equals(fieldB), Is.True);
             Assert.That(fieldA.Equals(fieldC), Is.False);
         }
@@ -104,7 +104,7 @@ namespace Mirror.Tests
         [Test]
         public void SerializeAllWritesNetId()
         {
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(identity);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeAll(writer);
 
@@ -115,7 +115,7 @@ namespace Mirror.Tests
         [Test]
         public void SerializeDeltaWritesNetId()
         {
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(identity);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(identity);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeDelta(writer);
 
@@ -130,7 +130,7 @@ namespace Mirror.Tests
             writer.WriteUInt(identity.netId);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(null);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null);
             field.OnDeserializeAll(reader);
             Assert.That(field.Value, Is.EqualTo(identity));
         }
@@ -142,7 +142,7 @@ namespace Mirror.Tests
             writer.WriteUInt(identity.netId);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
-            SyncFieldNetworkIdentity field = new SyncFieldNetworkIdentity(null);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null);
             field.OnDeserializeDelta(reader);
             Assert.That(field.Value, Is.EqualTo(identity));
         }

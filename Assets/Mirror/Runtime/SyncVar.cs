@@ -1,4 +1,4 @@
-// SyncField<T> to make [SyncVar] weaving easier.
+// SyncVar<T> to make [SyncVar] weaving easier.
 //
 // we can possibly move a lot of complex logic out of weaver:
 //   * set dirty bit
@@ -7,8 +7,8 @@
 //   * GameObject/NetworkIdentity internal netId storage
 //
 // here is the plan:
-//   1. develop SyncField<T> along side [SyncVar]
-//   2. internally replace [SyncVar]s with SyncField<T>
+//   1. develop SyncVar<T> along side [SyncVar]
+//   2. internally replace [SyncVar]s with SyncVar<T>
 //   3. eventually obsolete [SyncVar]
 //
 // downsides:
@@ -23,10 +23,10 @@ namespace Mirror
     // 'class' so that we can track it in SyncObjects list, and iterate it for
     //   de/serialization.
     [Serializable]
-    public class SyncField<T> : SyncObject, IEquatable<T>
+    public class SyncVar<T> : SyncObject, IEquatable<T>
     {
         // Unity 2020+ can show [SerializeField]<T> in inspector.
-        // (only if SyncField<T> isn't readonly though)
+        // (only if SyncVar<T> isn't readonly though)
         [SerializeField] T _Value;
 
         // Value property with hooks
@@ -51,7 +51,7 @@ namespace Mirror
                     // (see test: Hook_Set_DoesntDeadlock)
                     if (hook != null && !hookGuard)
                     {
-                        // Note that unlike [SyncVar], SyncField<T> hook is
+                        // Note that unlike [SyncVar], SyncVar<T> hook is
                         // called on server & clients.
                         // use 'isServer' / 'isClient' early returns in the hook
                         // if necessary.
@@ -84,32 +84,32 @@ namespace Mirror
 
         // ctor from value <T> and OnChanged hook.
         // it was always called 'hook'. let's keep naming for convenience.
-        public SyncField(T value, Action<T, T> hook = null)
+        public SyncVar(T value, Action<T, T> hook = null)
         {
             // recommend explicit GameObject, NetworkIdentity, NetworkBehaviour
             // with persistent netId method
-            if (this is SyncField<GameObject>)
-                Debug.LogWarning($"Use explicit {nameof(SyncFieldGameObject)} class instead of {nameof(SyncField<T>)}<GameObject>. It stores netId internally for persistence.");
+            if (this is SyncVar<GameObject>)
+                Debug.LogWarning($"Use explicit {nameof(SyncVarGameObject)} class instead of {nameof(SyncVar<T>)}<GameObject>. It stores netId internally for persistence.");
 
-            if (this is SyncField<NetworkIdentity>)
-                Debug.LogWarning($"Use explicit {nameof(SyncFieldNetworkIdentity)} class instead of {nameof(SyncField<T>)}<NetworkIdentity>. It stores netId internally for persistence.");
+            if (this is SyncVar<NetworkIdentity>)
+                Debug.LogWarning($"Use explicit {nameof(SyncVarNetworkIdentity)} class instead of {nameof(SyncVar<T>)}<NetworkIdentity>. It stores netId internally for persistence.");
 
-            if (this is SyncField<NetworkBehaviour>)
-                Debug.LogWarning($"Use explicit {nameof(SyncFieldNetworkBehaviour)} class instead of {nameof(SyncField<T>)}<NetworkBehaviour>. It stores netId internally for persistence.");
+            if (this is SyncVar<NetworkBehaviour>)
+                Debug.LogWarning($"Use explicit {nameof(SyncVarNetworkBehaviour)} class instead of {nameof(SyncVar<T>)}<NetworkBehaviour>. It stores netId internally for persistence.");
 
             _Value = value;
             this.hook = hook;
         }
 
         // NOTE: copy ctor is unnecessary.
-        // SyncFields are readonly and only initialized by 'Value' once.
+        // SyncVar<T>s are readonly and only initialized by 'Value' once.
 
-        // implicit conversion: int value = SyncField<T>
-        public static implicit operator T(SyncField<T> field) => field.Value;
+        // implicit conversion: int value = SyncVar<T>
+        public static implicit operator T(SyncVar<T> field) => field.Value;
 
-        // implicit conversion: SyncField<T> = value
-        // even if SyncField is readonly, it's still useful: SyncField<int> = 1;
-        public static implicit operator SyncField<T>(T value) => new SyncField<T>(value);
+        // implicit conversion: SyncVar<T> = value
+        // even if SyncVar<T> is readonly, it's still useful: SyncVar<int> = 1;
+        public static implicit operator SyncVar<T>(T value) => new SyncVar<T>(value);
 
         // serialization (use .Value instead of _Value so hook is called!)
         public virtual void OnSerializeAll(NetworkWriter writer) => writer.Write(Value);
@@ -118,8 +118,8 @@ namespace Mirror
         public virtual void OnDeserializeDelta(NetworkReader reader) => Value = reader.Read<T>();
 
         // IEquatable should compare Value.
-        // SyncField should act invisibly like [SyncVar] before.
-        // this way we can do SyncField<int> health == 0 etc.
+        // SyncVar<T> should act invisibly like [SyncVar] before.
+        // this way we can do SyncVar<int> health == 0 etc.
         public bool Equals(T other) =>
             // from NetworkBehaviour.SyncVarEquals:
             // EqualityComparer method avoids allocations.
@@ -127,7 +127,7 @@ namespace Mirror
             EqualityComparer<T>.Default.Equals(Value, other);
 
         // ToString should show Value.
-        // SyncField should act invisibly like [SyncVar] before.
+        // SyncVar<T> should act invisibly like [SyncVar] before.
         public override string ToString() => Value.ToString();
     }
 }

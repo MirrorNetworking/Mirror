@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class SyncFieldGameObjectTests : MirrorTest
+    public class SyncVarGameObjectTests : MirrorTest
     {
         GameObject go;
         NetworkIdentity identity;
@@ -29,7 +29,7 @@ namespace Mirror.Tests
         [Test]
         public void Constructor_GameObject()
         {
-            SyncFieldGameObject field = new SyncFieldGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(go);
             Assert.That(field.Value, Is.EqualTo(go));
         }
 
@@ -37,7 +37,7 @@ namespace Mirror.Tests
         [Test]
         public void Value_GameObject()
         {
-            SyncFieldGameObject field = new SyncFieldGameObject(null);
+            SyncVarGameObject field = new SyncVarGameObject(null);
             field.Value = go;
             Assert.That(field.Value, Is.EqualTo(go));
         }
@@ -45,7 +45,7 @@ namespace Mirror.Tests
         [Test]
         public void ImplicitTo()
         {
-            SyncFieldGameObject field = new SyncFieldGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(go);
             // T = field implicit conversion should get .Value
             GameObject value = field;
             Assert.That(value, Is.EqualTo(go));
@@ -55,7 +55,7 @@ namespace Mirror.Tests
         public void ImplicitFrom_SetsValue()
         {
             // field = T implicit conversion should set .Value
-            SyncFieldGameObject field = go;
+            SyncVarGameObject field = go;
             Assert.That(field.Value, Is.EqualTo(go));
         }
 
@@ -71,7 +71,7 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(go));
             }
 
-            SyncFieldGameObject field = new SyncFieldGameObject(null, OnChanged);
+            SyncVarGameObject field = new SyncVarGameObject(null, OnChanged);
             field.Value = go;
             Assert.That(called, Is.EqualTo(1));
         }
@@ -81,9 +81,9 @@ namespace Mirror.Tests
         [Test]
         public void EqualsTest()
         {
-            SyncFieldGameObject fieldA = new SyncFieldGameObject(go);
-            SyncFieldGameObject fieldB = new SyncFieldGameObject(go);
-            SyncFieldGameObject fieldC = new SyncFieldGameObject(null);
+            SyncVarGameObject fieldA = new SyncVarGameObject(go);
+            SyncVarGameObject fieldB = new SyncVarGameObject(go);
+            SyncVarGameObject fieldC = new SyncVarGameObject(null);
             Assert.That(fieldA.Equals(fieldB), Is.True);
             Assert.That(fieldA.Equals(fieldC), Is.False);
         }
@@ -92,7 +92,7 @@ namespace Mirror.Tests
         public void PersistenceThroughDisappearance()
         {
             // field with identity
-            SyncFieldGameObject field = new SyncFieldGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(go);
 
             // remove from spawned, shouldn't be found anymore
             NetworkServer.spawned.Remove(identity.netId);
@@ -107,7 +107,7 @@ namespace Mirror.Tests
         [Test]
         public void SerializeAllWritesNetId()
         {
-            SyncFieldGameObject field = new SyncFieldGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(go);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeAll(writer);
 
@@ -118,7 +118,7 @@ namespace Mirror.Tests
         [Test]
         public void SerializeDeltaWritesNetId()
         {
-            SyncFieldGameObject field = new SyncFieldGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(go);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeDelta(writer);
 
@@ -133,7 +133,7 @@ namespace Mirror.Tests
             writer.WriteUInt(identity.netId);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
-            SyncFieldGameObject field = new SyncFieldGameObject(null);
+            SyncVarGameObject field = new SyncVarGameObject(null);
             field.OnDeserializeAll(reader);
             Assert.That(field.Value, Is.EqualTo(go));
         }
@@ -145,7 +145,7 @@ namespace Mirror.Tests
             writer.WriteUInt(identity.netId);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
-            SyncFieldGameObject field = new SyncFieldGameObject(null);
+            SyncVarGameObject field = new SyncVarGameObject(null);
             field.OnDeserializeDelta(reader);
             Assert.That(field.Value, Is.EqualTo(go));
         }
