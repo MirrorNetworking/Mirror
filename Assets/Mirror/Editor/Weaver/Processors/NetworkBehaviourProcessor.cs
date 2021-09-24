@@ -17,7 +17,7 @@ namespace Mirror.Weaver
         AssemblyDefinition assembly;
         WeaverTypes weaverTypes;
         SyncVarAccessLists syncVarAccessLists;
-        SyncVarProcessor syncVarProcessor;
+        SyncVarAttributeProcessor syncVarAttributeProcessor;
         Writers writers;
         Readers readers;
         Logger Log;
@@ -55,7 +55,7 @@ namespace Mirror.Weaver
             this.writers = writers;
             this.readers = readers;
             this.Log = Log;
-            syncVarProcessor = new SyncVarProcessor(assembly, weaverTypes, syncVarAccessLists, Log);
+            syncVarAttributeProcessor = new SyncVarAttributeProcessor(assembly, weaverTypes, syncVarAccessLists, Log);
             netBehaviourSubclass = td;
         }
 
@@ -79,7 +79,7 @@ namespace Mirror.Weaver
             MarkAsProcessed(netBehaviourSubclass);
 
             // deconstruct tuple and set fields
-            (syncVars, syncVarNetIds) = syncVarProcessor.ProcessSyncVars(netBehaviourSubclass, ref WeavingFailed);
+            (syncVars, syncVarNetIds) = syncVarAttributeProcessor.ProcessSyncVars(netBehaviourSubclass, ref WeavingFailed);
 
             syncObjects = SyncObjectProcessor.FindSyncObjectsFields(writers, readers, Log, netBehaviourSubclass, ref WeavingFailed);
 
@@ -508,7 +508,7 @@ namespace Mirror.Weaver
         void DeserializeField(WeaverTypes weaverTypes, FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, ref bool WeavingFailed)
         {
             // check for Hook function
-            MethodDefinition hookMethod = syncVarProcessor.GetHookMethod(netBehaviourSubclass, syncVar, ref WeavingFailed);
+            MethodDefinition hookMethod = syncVarAttributeProcessor.GetHookMethod(netBehaviourSubclass, syncVar, ref WeavingFailed);
 
             if (syncVar.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
@@ -617,7 +617,7 @@ namespace Mirror.Weaver
 
                 // call the hook
                 // Generates: OnValueChanged(oldValue, this.syncVar);
-                syncVarProcessor.WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar, ref WeavingFailed);
+                syncVarAttributeProcessor.WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar, ref WeavingFailed);
 
                 // Generates: end if (!SyncVarEqual);
                 worker.Append(syncVarEqualLabel);
@@ -718,7 +718,7 @@ namespace Mirror.Weaver
 
                 // call the hook
                 // Generates: OnValueChanged(oldValue, this.syncVar);
-                syncVarProcessor.WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar, ref WeavingFailed);
+                syncVarAttributeProcessor.WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar, ref WeavingFailed);
 
                 // Generates: end if (!SyncVarEqual);
                 worker.Append(syncVarEqualLabel);
@@ -799,7 +799,7 @@ namespace Mirror.Weaver
 
                 // call the hook
                 // Generates: OnValueChanged(oldValue, this.syncVar);
-                syncVarProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldValue, syncVar, ref WeavingFailed);
+                syncVarAttributeProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldValue, syncVar, ref WeavingFailed);
 
                 // Generates: end if (!SyncVarEqual);
                 serWorker.Append(syncVarEqualLabel);

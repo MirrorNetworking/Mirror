@@ -8,7 +8,7 @@ using Mono.CecilX.Cil;
 
 namespace Mirror.Weaver
 {
-    public static class SyncVarAccessReplacer
+    public static class SyncVarAttributeAccessReplacer
     {
         // process the module
         public static void Process(ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists)
