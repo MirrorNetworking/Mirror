@@ -669,7 +669,13 @@ namespace Mirror
                 }
                 //Debug.Log("NetworkManager created singleton (DontDestroyOnLoad)");
                 singleton = this;
-                if (Application.isPlaying) DontDestroyOnLoad(gameObject);
+                if (Application.isPlaying)
+                {
+                    // Force the object to scene root, in case user made it a child of something
+                    // in the scene since DDOL is only allowed for scene root objects
+                    transform.SetParent(null);
+                    DontDestroyOnLoad(gameObject);
+                }
             }
             else
             {
