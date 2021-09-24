@@ -320,6 +320,7 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] GameObjects.
+        // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver can't resolve it
         protected static bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
             uint newNetId = 0;
@@ -385,6 +386,7 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
+        // IMPORTANT: keep as 'protected', not 'internal', otherwise Weaver can't resolve it
         protected static bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
             uint newNetId = 0;
