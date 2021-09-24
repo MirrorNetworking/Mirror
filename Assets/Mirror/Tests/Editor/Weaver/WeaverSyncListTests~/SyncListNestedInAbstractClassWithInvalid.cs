@@ -5,8 +5,7 @@ namespace WeaverSyncListTests.SyncListNestedInAbstractClassWithInvalid
 {
     class SyncListNestedStructWithInvalid : NetworkBehaviour
     {
-        SomeAbstractClass.MyNestedStructList Foo;
-
+        readonly SomeAbstractClass.MyNestedStructList Foo;
 
         public abstract class SomeAbstractClass
         {

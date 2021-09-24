@@ -5,8 +5,7 @@ namespace WeaverSyncListTests.SyncListNestedInStructWithInvalid
 {
     class SyncListNestedInStructWithInvalid : NetworkBehaviour
     {
-        SomeData.SyncList Foo;
-
+        readonly SomeData.SyncList Foo;
 
         public struct SomeData
         {

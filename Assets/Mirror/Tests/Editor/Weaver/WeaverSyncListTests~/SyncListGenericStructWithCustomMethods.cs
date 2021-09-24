@@ -4,9 +4,9 @@ namespace WeaverSyncListTests.SyncListGenericStructWithCustomMethods
 {
     class SyncListGenericStructWithCustomMethods : NetworkBehaviour
     {
-        SyncList<MyGenericStruct<float>> harpseals;
-
+        readonly SyncList<MyGenericStruct<float>> harpseals;
     }
+
     struct MyGenericStruct<T>
     {
         public T genericpotato;

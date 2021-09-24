@@ -6,7 +6,6 @@ namespace WeaverSyncDictionaryTests.GenericSyncDictionaryCanBeUsed
     {
         readonly SomeSyncDictionary<int, string> someDictionary;
 
-
         public class SomeSyncDictionary<TKey, TItem> : SyncDictionary<TKey, TItem> { }
     }
 }

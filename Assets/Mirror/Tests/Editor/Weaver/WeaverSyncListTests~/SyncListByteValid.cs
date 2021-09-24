@@ -6,6 +6,6 @@ namespace WeaverSyncListTests.SyncListByteValid
     {
         class MyByteClass : SyncList<byte> { };
 
-        MyByteClass Foo;
+        readonly MyByteClass Foo;
     }
 }

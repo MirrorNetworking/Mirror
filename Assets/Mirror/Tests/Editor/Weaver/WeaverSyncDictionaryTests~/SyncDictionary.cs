@@ -6,7 +6,7 @@ namespace WeaverSyncDictionaryTests.SyncDictionary
     {
         public class SyncDictionaryIntString : SyncDictionary<int, string> { }
 
-        public SyncDictionaryIntString Foo;
+        public readonly SyncDictionaryIntString Foo;
     }
 
 

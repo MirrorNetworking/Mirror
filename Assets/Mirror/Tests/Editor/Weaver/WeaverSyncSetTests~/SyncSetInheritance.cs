@@ -6,7 +6,6 @@ namespace WeaverSyncSetTests.SyncSetInheritance
     {
         readonly SuperSet superSet = new SuperSet();
 
-
         public class SomeSet : SyncHashSet<string> { }
 
         public class SuperSet : SomeSet { }

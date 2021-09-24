@@ -4,7 +4,7 @@ namespace WeaverSyncListTests.SyncListInterfaceWithCustomMethods
 {
     class SyncListInterfaceWithCustomMethods : NetworkBehaviour
     {
-        SyncList<IMyInterface> Foo;
+        readonly SyncList<IMyInterface> Foo;
     }
 
     interface IMyInterface
