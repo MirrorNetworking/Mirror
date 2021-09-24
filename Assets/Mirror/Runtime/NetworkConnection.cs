@@ -11,7 +11,7 @@ namespace Mirror
 
         // NetworkIdentities that this connection can see
         // TODO move to server's NetworkConnectionToClient?
-        internal readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
+        public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
         // assigned by transport, this id is unique for every connection on server.
