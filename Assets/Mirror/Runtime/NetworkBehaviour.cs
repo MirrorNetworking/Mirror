@@ -167,7 +167,7 @@ namespace Mirror
         {
             if (syncObject == null)
             {
-                Debug.LogError("Uninitialized SyncObject. Manually call the constructor on your SyncList, SyncSet or SyncDictionary");
+                Debug.LogError("Uninitialized SyncObject. Manually call the constructor on your SyncList, SyncSet, SyncDictionary or SyncField<T>");
                 return;
             }
 
