@@ -320,7 +320,7 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] GameObjects.
-        internal static bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        protected static bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
             uint newNetId = 0;
             if (newGameObject != null)
@@ -385,7 +385,7 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
-        internal static bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        protected static bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
             uint newNetId = 0;
             if (newIdentity != null)
