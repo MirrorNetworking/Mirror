@@ -34,7 +34,7 @@ namespace Mirror
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
                 // only draw SyncObjects that are IEnumerable (SyncList/Set/Dictionary)
-                if (field.IsVisibleInInspector() &&
+                if (field.IsVisibleSyncObject() &&
                     field.ImplementsInterface<SyncObject>() &&
                     field.ImplementsInterface<IEnumerable>())
                 {

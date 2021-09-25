@@ -68,7 +68,8 @@ namespace Mirror
             return fieldMarkers.Length > 0;
         }
 
-        public static bool IsVisibleInInspector(this FieldInfo field)
+        // checks if SyncObject is public or has our custom [ShowInInspector] field
+        public static bool IsVisibleSyncObject(this FieldInfo field)
         {
             return field.IsPublic || HasShowInInspector(field);
         }
