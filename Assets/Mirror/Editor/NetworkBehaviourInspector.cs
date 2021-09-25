@@ -12,7 +12,7 @@ namespace Mirror
     public class NetworkBehaviourInspector : Editor
     {
         bool syncsAnything;
-        SyncListDrawer syncListDrawer;
+        SyncObjectDrawer syncObjectDrawer;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
@@ -53,7 +53,7 @@ namespace Mirror
 
             Type scriptClass = target.GetType();
 
-            syncListDrawer = new SyncListDrawer(serializedObject.targetObject);
+            syncObjectDrawer = new SyncObjectDrawer(serializedObject.targetObject);
 
             syncsAnything = SyncsAnything(scriptClass);
         }
@@ -61,17 +61,17 @@ namespace Mirror
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            DrawDefaultSyncLists();
+            DrawDefaultSyncObjects();
             DrawDefaultSyncSettings();
         }
 
         // Draws Sync Objects that are IEnumerable
-        protected void DrawDefaultSyncLists()
+        protected void DrawDefaultSyncObjects()
         {
             // Need this check in case OnEnable returns early
-            if (syncListDrawer == null) { return; }
+            if (syncObjectDrawer == null) return;
 
-            syncListDrawer.Draw();
+            syncObjectDrawer.Draw();
         }
 
         // Draws SyncSettings if the NetworkBehaviour has anything to sync
@@ -94,45 +94,46 @@ namespace Mirror
             serializedObject.ApplyModifiedProperties();
         }
     }
-    public class SyncListDrawer
+
+    public class SyncObjectDrawer
     {
         readonly UnityEngine.Object targetObject;
-        readonly List<SyncListField> syncListFields;
+        readonly List<SyncObjectField> syncObjectFields;
 
-        public SyncListDrawer(UnityEngine.Object targetObject)
+        public SyncObjectDrawer(UnityEngine.Object targetObject)
         {
             this.targetObject = targetObject;
-            syncListFields = new List<SyncListField>();
+            syncObjectFields = new List<SyncObjectField>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
                 if (field.IsSyncObject() && field.IsVisibleSyncObject())
                 {
-                    syncListFields.Add(new SyncListField(field));
+                    syncObjectFields.Add(new SyncObjectField(field));
                 }
             }
         }
 
         public void Draw()
         {
-            if (syncListFields.Count == 0) { return; }
+            if (syncObjectFields.Count == 0) { return; }
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Sync Lists", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Sync Objects", EditorStyles.boldLabel);
 
-            for (int i = 0; i < syncListFields.Count; i++)
+            for (int i = 0; i < syncObjectFields.Count; i++)
             {
-                DrawSyncList(syncListFields[i]);
+                DrawSyncList(syncObjectFields[i]);
             }
         }
 
-        void DrawSyncList(SyncListField syncListField)
+        void DrawSyncList(SyncObjectField syncObjectField)
         {
-            syncListField.visible = EditorGUILayout.Foldout(syncListField.visible, syncListField.label);
-            if (syncListField.visible)
+            syncObjectField.visible = EditorGUILayout.Foldout(syncObjectField.visible, syncObjectField.label);
+            if (syncObjectField.visible)
             {
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    object fieldValue = syncListField.field.GetValue(targetObject);
+                    object fieldValue = syncObjectField.field.GetValue(targetObject);
                     if (fieldValue is IEnumerable synclist)
                     {
                         int index = 0;
@@ -149,13 +150,13 @@ namespace Mirror
             }
         }
 
-        class SyncListField
+        class SyncObjectField
         {
             public bool visible;
             public readonly FieldInfo field;
             public readonly string label;
 
-            public SyncListField(FieldInfo field)
+            public SyncObjectField(FieldInfo field)
             {
                 this.field = field;
                 visible = false;
