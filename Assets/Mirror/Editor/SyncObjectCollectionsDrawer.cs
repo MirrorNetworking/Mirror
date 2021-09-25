@@ -33,7 +33,10 @@ namespace Mirror
             syncObjectCollectionFields = new List<SyncObjectCollectionField>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
-                if (field.ImplementsInterface<SyncObject>() && field.IsVisibleInInspector())
+                // only draw SyncObjects that are IEnumerable (SyncList/Set/Dictionary)
+                if (field.IsVisibleInInspector() &&
+                    field.ImplementsInterface<SyncObject>() &&
+                    field.ImplementsInterface<IEnumerable>())
                 {
                     syncObjectCollectionFields.Add(new SyncObjectCollectionField(field));
                 }
