@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Mirror.RemoteCalls;
 using UnityEngine;
 
@@ -320,7 +321,10 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] GameObjects.
-        internal static bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
+        // needs to be public so that tests & NetworkBehaviours from other
+        // assemblies both find it
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static bool SyncVarGameObjectEqual(GameObject newGameObject, uint netIdField)
         {
             uint newNetId = 0;
             if (newGameObject != null)
@@ -385,7 +389,10 @@ namespace Mirror
         }
 
         // helper function for [SyncVar] NetworkIdentities.
-        internal static bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
+        // needs to be public so that tests & NetworkBehaviours from other
+        // assemblies both find it
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static bool SyncVarNetworkIdentityEqual(NetworkIdentity newIdentity, uint netIdField)
         {
             uint newNetId = 0;
             if (newIdentity != null)
