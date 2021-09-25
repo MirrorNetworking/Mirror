@@ -4,6 +4,6 @@ namespace WeaverSyncSetTests.SyncSet
 {
     class SyncSet : NetworkBehaviour
     {
-        public SyncList<int> Foo;
+        public readonly SyncList<int> Foo;
     }
 }

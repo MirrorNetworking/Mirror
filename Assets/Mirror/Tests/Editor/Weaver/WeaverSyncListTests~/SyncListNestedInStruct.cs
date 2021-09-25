@@ -4,13 +4,11 @@ namespace WeaverSyncListTests.SyncListNestedInStruct
 {
     class SyncListNestedStruct : NetworkBehaviour
     {
-        SomeData.SyncList Foo;
-
+        readonly SomeData.SyncList Foo;
 
         public struct SomeData
         {
             public int usefulNumber;
-
             public class SyncList : Mirror.SyncList<SomeData> { }
         }
     }

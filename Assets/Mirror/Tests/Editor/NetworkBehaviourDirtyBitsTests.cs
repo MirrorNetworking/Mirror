@@ -12,8 +12,8 @@ namespace Mirror.Tests
         [SyncVar] public int mana;
 
         // SyncCollections
-        public SyncList<int> list = new SyncList<int>();
-        public SyncDictionary<int, string> dict = new SyncDictionary<int, string>();
+        public readonly SyncList<int> list = new SyncList<int>();
+        public readonly SyncDictionary<int, string> dict = new SyncDictionary<int, string>();
     }
 
     public class NetworkBehaviourSyncVarDirtyBitsExposed : NetworkBehaviour

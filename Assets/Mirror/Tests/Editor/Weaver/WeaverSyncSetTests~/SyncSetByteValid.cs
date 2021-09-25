@@ -6,6 +6,6 @@ namespace WeaverSyncSetTests.SyncSetByteValid
     {
         class MyByteClass : SyncHashSet<byte> { };
 
-        MyByteClass Foo;
+        readonly MyByteClass Foo;
     }
 }
