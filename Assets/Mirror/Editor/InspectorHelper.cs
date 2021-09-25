@@ -68,7 +68,7 @@ namespace Mirror
             return fieldMarkers.Length > 0;
         }
 
-        public static bool IsVisibleSyncObject(this FieldInfo field)
+        public static bool IsVisibleInInspector(this FieldInfo field)
         {
             return field.IsPublic || HasShowInInspector(field);
         }

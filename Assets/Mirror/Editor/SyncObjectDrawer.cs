@@ -31,7 +31,7 @@ namespace Mirror
             syncObjectFields = new List<SyncObjectField>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
-                if (field.ImplementsInterface<SyncObject>() && field.IsVisibleSyncObject())
+                if (field.ImplementsInterface<SyncObject>() && field.IsVisibleInInspector())
                 {
                     syncObjectFields.Add(new SyncObjectField(field));
                 }
