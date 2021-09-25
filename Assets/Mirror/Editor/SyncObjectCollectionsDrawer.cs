@@ -22,34 +22,34 @@ namespace Mirror
         }
     }
 
-    public class SyncObjectCollectionDrawer
+    public class SyncObjectCollectionsDrawer
     {
         readonly UnityEngine.Object targetObject;
-        readonly List<SyncObjectCollectionField> enumerableSyncObjectFields;
+        readonly List<SyncObjectCollectionField> syncObjectCollectionFields;
 
-        public SyncObjectCollectionDrawer(UnityEngine.Object targetObject)
+        public SyncObjectCollectionsDrawer(UnityEngine.Object targetObject)
         {
             this.targetObject = targetObject;
-            enumerableSyncObjectFields = new List<SyncObjectCollectionField>();
+            syncObjectCollectionFields = new List<SyncObjectCollectionField>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
                 if (field.ImplementsInterface<SyncObject>() && field.IsVisibleInInspector())
                 {
-                    enumerableSyncObjectFields.Add(new SyncObjectCollectionField(field));
+                    syncObjectCollectionFields.Add(new SyncObjectCollectionField(field));
                 }
             }
         }
 
         public void Draw()
         {
-            if (enumerableSyncObjectFields.Count == 0) { return; }
+            if (syncObjectCollectionFields.Count == 0) { return; }
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sync Collections", EditorStyles.boldLabel);
 
-            for (int i = 0; i < enumerableSyncObjectFields.Count; i++)
+            for (int i = 0; i < syncObjectCollectionFields.Count; i++)
             {
-                DrawSyncObjectCollection(enumerableSyncObjectFields[i]);
+                DrawSyncObjectCollection(syncObjectCollectionFields[i]);
             }
         }
 
