@@ -1,4 +1,5 @@
-// helper class for NetworkBehaviourInspector
+// helper class for NetworkBehaviourInspector to draw all enumerable SyncObjects
+// (SyncList/Set/Dictionary)
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,13 +7,13 @@ using UnityEditor;
 
 namespace Mirror
 {
-    class SyncObjectField
+    class EnuerableSyncObjectField
     {
         public bool visible;
         public readonly FieldInfo field;
         public readonly string label;
 
-        public SyncObjectField(FieldInfo field)
+        public EnuerableSyncObjectField(FieldInfo field)
         {
             this.field = field;
             visible = false;
@@ -20,49 +21,49 @@ namespace Mirror
         }
     }
 
-    public class SyncObjectDrawer
+    public class EnumerableSyncObjectDrawer
     {
         readonly UnityEngine.Object targetObject;
-        readonly List<SyncObjectField> syncObjectFields;
+        readonly List<EnuerableSyncObjectField> enumerableSyncObjectFields;
 
-        public SyncObjectDrawer(UnityEngine.Object targetObject)
+        public EnumerableSyncObjectDrawer(UnityEngine.Object targetObject)
         {
             this.targetObject = targetObject;
-            syncObjectFields = new List<SyncObjectField>();
+            enumerableSyncObjectFields = new List<EnuerableSyncObjectField>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
                 if (field.ImplementsInterface<SyncObject>() && field.IsVisibleInInspector())
                 {
-                    syncObjectFields.Add(new SyncObjectField(field));
+                    enumerableSyncObjectFields.Add(new EnuerableSyncObjectField(field));
                 }
             }
         }
 
         public void Draw()
         {
-            if (syncObjectFields.Count == 0) { return; }
+            if (enumerableSyncObjectFields.Count == 0) { return; }
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sync Objects", EditorStyles.boldLabel);
 
-            for (int i = 0; i < syncObjectFields.Count; i++)
+            for (int i = 0; i < enumerableSyncObjectFields.Count; i++)
             {
-                DrawSyncObject(syncObjectFields[i]);
+                DrawEnumerableSyncObject(enumerableSyncObjectFields[i]);
             }
         }
 
-        void DrawSyncObject(SyncObjectField syncObjectField)
+        void DrawEnumerableSyncObject(EnuerableSyncObjectField enuerableSyncObjectField)
         {
-            syncObjectField.visible = EditorGUILayout.Foldout(syncObjectField.visible, syncObjectField.label);
-            if (syncObjectField.visible)
+            enuerableSyncObjectField.visible = EditorGUILayout.Foldout(enuerableSyncObjectField.visible, enuerableSyncObjectField.label);
+            if (enuerableSyncObjectField.visible)
             {
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    object fieldValue = syncObjectField.field.GetValue(targetObject);
-                    if (fieldValue is IEnumerable synclist)
+                    object fieldValue = enuerableSyncObjectField.field.GetValue(targetObject);
+                    if (fieldValue is IEnumerable syncObject)
                     {
                         int index = 0;
-                        foreach (object item in synclist)
+                        foreach (object item in syncObject)
                         {
                             string itemValue = item != null ? item.ToString() : "NULL";
                             string itemLabel = $"Element {index}";
