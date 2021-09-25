@@ -7,13 +7,13 @@ using UnityEditor;
 
 namespace Mirror
 {
-    class EnuerableSyncObjectField
+    class EnumerableSyncObjectField
     {
         public bool visible;
         public readonly FieldInfo field;
         public readonly string label;
 
-        public EnuerableSyncObjectField(FieldInfo field)
+        public EnumerableSyncObjectField(FieldInfo field)
         {
             this.field = field;
             visible = false;
@@ -24,17 +24,17 @@ namespace Mirror
     public class EnumerableSyncObjectDrawer
     {
         readonly UnityEngine.Object targetObject;
-        readonly List<EnuerableSyncObjectField> enumerableSyncObjectFields;
+        readonly List<EnumerableSyncObjectField> enumerableSyncObjectFields;
 
         public EnumerableSyncObjectDrawer(UnityEngine.Object targetObject)
         {
             this.targetObject = targetObject;
-            enumerableSyncObjectFields = new List<EnuerableSyncObjectField>();
+            enumerableSyncObjectFields = new List<EnumerableSyncObjectField>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
                 if (field.ImplementsInterface<SyncObject>() && field.IsVisibleInInspector())
                 {
-                    enumerableSyncObjectFields.Add(new EnuerableSyncObjectField(field));
+                    enumerableSyncObjectFields.Add(new EnumerableSyncObjectField(field));
                 }
             }
         }
@@ -52,14 +52,14 @@ namespace Mirror
             }
         }
 
-        void DrawEnumerableSyncObject(EnuerableSyncObjectField enuerableSyncObjectField)
+        void DrawEnumerableSyncObject(EnumerableSyncObjectField enumerableSyncObjectField)
         {
-            enuerableSyncObjectField.visible = EditorGUILayout.Foldout(enuerableSyncObjectField.visible, enuerableSyncObjectField.label);
-            if (enuerableSyncObjectField.visible)
+            enumerableSyncObjectField.visible = EditorGUILayout.Foldout(enumerableSyncObjectField.visible, enumerableSyncObjectField.label);
+            if (enumerableSyncObjectField.visible)
             {
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    object fieldValue = enuerableSyncObjectField.field.GetValue(targetObject);
+                    object fieldValue = enumerableSyncObjectField.field.GetValue(targetObject);
                     if (fieldValue is IEnumerable syncObject)
                     {
                         int index = 0;
