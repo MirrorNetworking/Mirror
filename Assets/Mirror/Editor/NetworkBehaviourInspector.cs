@@ -65,9 +65,7 @@ namespace Mirror
             DrawDefaultSyncSettings();
         }
 
-        /// <summary>
-        /// Draws Sync Objects that are IEnumerable
-        /// </summary>
+        // Draws Sync Objects that are IEnumerable
         protected void DrawDefaultSyncLists()
         {
             // Need this check in case OnEnable returns early
@@ -76,9 +74,7 @@ namespace Mirror
             syncListDrawer.Draw();
         }
 
-        /// <summary>
-        /// Draws SyncSettings if the NetworkBehaviour has anything to sync
-        /// </summary>
+        // Draws SyncSettings if the NetworkBehaviour has anything to sync
         protected void DrawDefaultSyncSettings()
         {
             // does it sync anything? then show extra properties
