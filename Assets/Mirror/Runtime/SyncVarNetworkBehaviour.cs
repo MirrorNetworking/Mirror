@@ -24,7 +24,11 @@ namespace Mirror
         }
 
         // ctor
-        public SyncVarNetworkBehaviour(NetworkBehaviour value, Action<NetworkBehaviour, NetworkBehaviour> hook = null)
+        // 'value = null' so we can do:
+        //   SyncVarNetworkBehaviour = new SyncVarNetworkBehaviour()
+        // instead of
+        //   SyncVarNetworkBehaviour = new SyncVarNetworkBehaviour(null);
+        public SyncVarNetworkBehaviour(NetworkBehaviour value = null, Action<NetworkBehaviour, NetworkBehaviour> hook = null)
             : base(NetworkBehaviourToULong(value),
                    hook != null ? WrapHook(hook) : null) {}
 

@@ -59,7 +59,11 @@ namespace Mirror
         }
 
         // ctor
-        public SyncVarGameObject(GameObject value, Action<GameObject, GameObject> hook = null)
+        // 'value = null' so we can do:
+        //   SyncVarGameObject = new SyncVarGameObject()
+        // instead of
+        //   SyncVarGameObject = new SyncVarGameObject(null);
+        public SyncVarGameObject(GameObject value = null, Action<GameObject, GameObject> hook = null)
             : base(GetNetId(value),
                    hook != null ? WrapHook(hook) : null) {}
 

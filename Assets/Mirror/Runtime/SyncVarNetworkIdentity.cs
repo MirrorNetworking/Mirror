@@ -52,7 +52,11 @@ namespace Mirror
         }
 
         // ctor
-        public SyncVarNetworkIdentity(NetworkIdentity value, Action<NetworkIdentity, NetworkIdentity> hook = null)
+        // 'value = null' so we can do:
+        //   SyncVarNetworkIdentity = new SyncVarNetworkIdentity()
+        // instead of
+        //   SyncVarNetworkIdentity = new SyncVarNetworkIdentity(null);
+        public SyncVarNetworkIdentity(NetworkIdentity value = null, Action<NetworkIdentity, NetworkIdentity> hook = null)
             : base(value != null ? value.netId : 0,
                 hook != null ? WrapHook(hook) : null) {}
 
