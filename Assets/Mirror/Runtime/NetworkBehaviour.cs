@@ -177,11 +177,7 @@ namespace Mirror
 
             // OnDirty needs to set nth bit in our dirty mask
             ulong nthBit = 1UL << index;
-            syncObject.OnDirty = () =>
-            {
-                syncObjectDirtyBits |= nthBit;
-                Debug.LogWarning(name + " " + index + "th bit became dirty");
-            };
+            syncObject.OnDirty = () => syncObjectDirtyBits |= nthBit;
 
             // only record changes while we have observers.
             // prevents ever growing .changes lists:
