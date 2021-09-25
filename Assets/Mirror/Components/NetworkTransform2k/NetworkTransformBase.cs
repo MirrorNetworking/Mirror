@@ -389,6 +389,10 @@ namespace Mirror
 
         void Update()
         {
+            // NetworkTransformChild may not be assigned at design-time but instead
+            // later assigned to something that's instantiated at runtime.
+            if (targetComponent == null) return;
+
             // if server then always sync to others.
             if (isServer) UpdateServer();
             // 'else if' because host mode shouldn't send anything to server.
@@ -418,6 +422,10 @@ namespace Mirror
         [ClientRpc]
         public void RpcTeleport(Vector3 destination)
         {
+            // NetworkTransformChild may not be assigned at design-time but instead
+            // later assigned to something that's instantiated at runtime.
+            if (targetComponent == null) return;
+
             // NOTE: even in client authority mode, the server is always allowed
             //       to teleport the player. for example:
             //       * CmdEnterPortal() might teleport the player
@@ -434,6 +442,10 @@ namespace Mirror
         [Command]
         public void CmdTeleport(Vector3 destination)
         {
+            // NetworkTransformChild may not be assigned at design-time but instead
+            // later assigned to something that's instantiated at runtime.
+            if (targetComponent == null) return;
+
             // client can only teleport objects that it has authority over.
             if (!clientAuthority) return;
 
@@ -487,7 +499,9 @@ namespace Mirror
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
         {
-            if (!showOverlay) return;
+            // NetworkTransformChild may not be assigned at design-time but instead
+            // later assigned to something that's instantiated at runtime.
+            if (targetComponent == null || !showOverlay) return;
 
             // show data next to player for easier debugging. this is very useful!
             // IMPORTANT: this is basically an ESP hack for shooter games.
@@ -554,6 +568,10 @@ namespace Mirror
 
         protected virtual void OnDrawGizmos()
         {
+// NetworkTransformChild may not be assigned at design-time but instead
+// later assigned to something that's instantiated at runtime.
+if (targetComponent == null) return;
+
             // This fires in edit mode but that spams NRE's so check isPlaying
             if (!Application.isPlaying) return;
             if (!showGizmos) return;
