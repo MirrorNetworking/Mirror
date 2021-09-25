@@ -1,5 +1,6 @@
 // helper class for NetworkBehaviourInspector to draw all enumerable SyncObjects
 // (SyncList/Set/Dictionary)
+// 'SyncObjectCollectionsDrawer' is a nicer name than 'IEnumerableSyncObjectsDrawer'
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -7,13 +8,13 @@ using UnityEditor;
 
 namespace Mirror
 {
-    class EnumerableSyncObjectField
+    class SyncObjectCollectionField
     {
         public bool visible;
         public readonly FieldInfo field;
         public readonly string label;
 
-        public EnumerableSyncObjectField(FieldInfo field)
+        public SyncObjectCollectionField(FieldInfo field)
         {
             this.field = field;
             visible = false;
@@ -21,20 +22,20 @@ namespace Mirror
         }
     }
 
-    public class EnumerableSyncObjectDrawer
+    public class SyncObjectCollectionDrawer
     {
         readonly UnityEngine.Object targetObject;
-        readonly List<EnumerableSyncObjectField> enumerableSyncObjectFields;
+        readonly List<SyncObjectCollectionField> enumerableSyncObjectFields;
 
-        public EnumerableSyncObjectDrawer(UnityEngine.Object targetObject)
+        public SyncObjectCollectionDrawer(UnityEngine.Object targetObject)
         {
             this.targetObject = targetObject;
-            enumerableSyncObjectFields = new List<EnumerableSyncObjectField>();
+            enumerableSyncObjectFields = new List<SyncObjectCollectionField>();
             foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
             {
                 if (field.ImplementsInterface<SyncObject>() && field.IsVisibleInInspector())
                 {
-                    enumerableSyncObjectFields.Add(new EnumerableSyncObjectField(field));
+                    enumerableSyncObjectFields.Add(new SyncObjectCollectionField(field));
                 }
             }
         }
@@ -48,18 +49,18 @@ namespace Mirror
 
             for (int i = 0; i < enumerableSyncObjectFields.Count; i++)
             {
-                DrawEnumerableSyncObject(enumerableSyncObjectFields[i]);
+                DrawSyncObjectCollection(enumerableSyncObjectFields[i]);
             }
         }
 
-        void DrawEnumerableSyncObject(EnumerableSyncObjectField enumerableSyncObjectField)
+        void DrawSyncObjectCollection(SyncObjectCollectionField syncObjectCollectionField)
         {
-            enumerableSyncObjectField.visible = EditorGUILayout.Foldout(enumerableSyncObjectField.visible, enumerableSyncObjectField.label);
-            if (enumerableSyncObjectField.visible)
+            syncObjectCollectionField.visible = EditorGUILayout.Foldout(syncObjectCollectionField.visible, syncObjectCollectionField.label);
+            if (syncObjectCollectionField.visible)
             {
                 using (new EditorGUI.IndentLevelScope())
                 {
-                    object fieldValue = enumerableSyncObjectField.field.GetValue(targetObject);
+                    object fieldValue = syncObjectCollectionField.field.GetValue(targetObject);
                     if (fieldValue is IEnumerable syncObject)
                     {
                         int index = 0;

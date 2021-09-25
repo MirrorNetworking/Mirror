@@ -10,7 +10,7 @@ namespace Mirror
     public class NetworkBehaviourInspector : Editor
     {
         bool syncsAnything;
-        EnumerableSyncObjectDrawer enumerableSyncObjectDrawer;
+        SyncObjectCollectionDrawer syncObjectCollectionDrawer;
 
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
@@ -51,7 +51,7 @@ namespace Mirror
 
             Type scriptClass = target.GetType();
 
-            enumerableSyncObjectDrawer = new EnumerableSyncObjectDrawer(serializedObject.targetObject);
+            syncObjectCollectionDrawer = new SyncObjectCollectionDrawer(serializedObject.targetObject);
 
             syncsAnything = SyncsAnything(scriptClass);
         }
@@ -59,17 +59,17 @@ namespace Mirror
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            DrawDefaultEnumerableSyncObjects();
+            DrawSyncObjectCollections();
             DrawDefaultSyncSettings();
         }
 
         // Draws Sync Objects that are IEnumerable
-        protected void DrawDefaultEnumerableSyncObjects()
+        protected void DrawSyncObjectCollections()
         {
             // Need this check in case OnEnable returns early
-            if (enumerableSyncObjectDrawer == null) return;
+            if (syncObjectCollectionDrawer == null) return;
 
-            enumerableSyncObjectDrawer.Draw();
+            syncObjectCollectionDrawer.Draw();
         }
 
         // Draws SyncSettings if the NetworkBehaviour has anything to sync
