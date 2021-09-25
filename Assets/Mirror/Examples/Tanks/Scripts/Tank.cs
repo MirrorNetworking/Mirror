@@ -19,8 +19,8 @@ namespace Mirror.Examples.Tanks
         public Transform projectileMount;
 
         [Header("Stats")]
-        public readonly SyncVar<int> health = 4;
-        public readonly SyncVar<int> mana = 4; // TODO doesn't show in Inspector yet
+        public SyncVar<int> health = 4;
+        public readonly SyncVarGameObject target = new SyncVarGameObject();
 
         void Update()
         {
