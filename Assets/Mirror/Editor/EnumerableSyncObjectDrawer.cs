@@ -44,7 +44,7 @@ namespace Mirror
             if (enumerableSyncObjectFields.Count == 0) { return; }
 
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Sync Objects", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Sync Collections", EditorStyles.boldLabel);
 
             for (int i = 0; i < enumerableSyncObjectFields.Count; i++)
             {
