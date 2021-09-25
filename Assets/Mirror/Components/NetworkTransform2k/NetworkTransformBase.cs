@@ -568,9 +568,9 @@ namespace Mirror
 
         protected virtual void OnDrawGizmos()
         {
-// NetworkTransformChild may not be assigned at design-time but instead
-// later assigned to something that's instantiated at runtime.
-if (targetComponent == null) return;
+            // NetworkTransformChild may not be assigned at design-time but instead
+            // later assigned to something that's instantiated at runtime.
+            if (targetComponent == null) return;
 
             // This fires in edit mode but that spams NRE's so check isPlaying
             if (!Application.isPlaying) return;
