@@ -15,9 +15,6 @@ namespace Mirror
         public bool IsReadOnly { get; private set; }
         public event SyncListChanged Callback;
 
-        // OnDirty sets owner NetworkBehaviour's dirty mask when changed.
-        public override Action OnDirty { get; set; }
-
         public enum Operation : byte
         {
             OP_ADD,

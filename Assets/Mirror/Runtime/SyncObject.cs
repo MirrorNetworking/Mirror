@@ -12,7 +12,7 @@ namespace Mirror
     public abstract class SyncObject
     {
         /// <summary>Used internally to set owner NetworkBehaviour's dirty mask bit when changed.</summary>
-        public abstract Action OnDirty { get; set; }
+        public virtual Action OnDirty { get; set; }
 
         /// <summary>Used internally to check if we are currently tracking changes.</summary>
         // prevents ever growing .changes lists:
