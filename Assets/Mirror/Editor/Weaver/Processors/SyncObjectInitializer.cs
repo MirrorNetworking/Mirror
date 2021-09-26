@@ -21,7 +21,7 @@ namespace Mirror.Weaver
                     return false;
                 }
 
-                return typeRef.Resolve().ImplementsInterface<SyncObject>();
+                return typeRef.Resolve().IsDerivedFrom<SyncObject>();
             }
             catch
             {
