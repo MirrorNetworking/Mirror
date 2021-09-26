@@ -9,7 +9,6 @@ namespace WeaverSyncVarTests.SyncVarsSyncList
         public class SyncObjImplementer : SyncObject
         {
             public override Action OnDirty { get; set; }
-            public override Func<bool> IsRecording { get; set; } = () => true;
             public override void ClearChanges() { }
             public override void OnSerializeAll(NetworkWriter writer) { }
             public override void OnSerializeDelta(NetworkWriter writer) { }

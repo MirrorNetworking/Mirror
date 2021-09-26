@@ -21,7 +21,8 @@ namespace Mirror
         // because OnSerialize isn't called without observers.
         // => Func so we can set it to () => observers.Count > 0
         //    without depending on NetworkComponent/NetworkIdentity here.
-        public abstract Func<bool> IsRecording { get; set; }
+        // => virtual so it sipmly always records by default
+        public virtual Func<bool> IsRecording { get; set; } = () => true;
 
         /// <summary>Discard all the queued changes</summary>
         // Consider the object fully synchronized with clients
