@@ -16,7 +16,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.FieldType.Resolve().ImplementsInterface<SyncObject>())
+                if (fd.FieldType.Resolve().IsDerivedFrom<SyncObject>())
                 {
                     if (fd.IsStatic)
                     {
