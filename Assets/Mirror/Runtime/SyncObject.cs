@@ -4,7 +4,8 @@ namespace Mirror
 {
     /// <summary>SyncObjects sync state between server and client. E.g. SyncLists.</summary>
     // SyncObject should be a class (instead of an interface) for a few reasons:
-    // * NetworkBehaviour stores SyncObjects in a list. structs would be a copy.
+    // * NetworkBehaviour stores SyncObjects in a list. structs would be a copy
+    //   and OnSerialize would use the copy instead of the original struct.
     // * Obsolete functions like Flush() don't need to be defined by each type
     // * OnDirty/IsRecording etc. default functions can be defined once here
     //   for example, handling 'OnDirty wasn't initialized' with a default
