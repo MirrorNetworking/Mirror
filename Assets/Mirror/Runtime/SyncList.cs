@@ -67,10 +67,6 @@ namespace Mirror
         // this should be called after a successful sync
         public override void ClearChanges() => changes.Clear();
 
-        // Deprecated 2021-09-17
-        [Obsolete("Deprecated: Use ClearChanges instead.")]
-        public override void Flush() => changes.Clear();
-
         public override void Reset()
         {
             IsReadOnly = false;

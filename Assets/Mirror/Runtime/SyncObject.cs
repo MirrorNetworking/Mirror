@@ -29,7 +29,7 @@ namespace Mirror
 
         // Deprecated 2021-09-17
         [Obsolete("Deprecated: Use ClearChanges instead.")]
-        public abstract void Flush();
+        public void Flush() => ClearChanges();
 
         /// <summary>Write a full copy of the object</summary>
         public abstract void OnSerializeAll(NetworkWriter writer);
