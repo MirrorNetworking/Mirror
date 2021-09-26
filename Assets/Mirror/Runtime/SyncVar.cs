@@ -71,16 +71,8 @@ namespace Mirror
         // deadlock. prevent it with a simple 'are we inside the hook' bool.
         bool hookGuard;
 
-        // OnDirty sets the owner NetworkBehaviour's dirty bit
-        public Action OnDirty { get; set; }
-
-        // some SyncObject interface methods are unnecessary here
-        public Func<bool> IsRecording { get; set; }
-        public void ClearChanges() {}
-        // Deprecated 2021-09-17
-        [Obsolete("Deprecated: Use ClearChanges instead.")]
-        public void Flush() => ClearChanges();
-        public void Reset() {}
+        public override void ClearChanges() {}
+        public override void Reset() {}
 
         // ctor from value <T> and OnChanged hook.
         // it was always called 'hook'. let's keep naming for convenience.
@@ -112,10 +104,10 @@ namespace Mirror
         public static implicit operator SyncVar<T>(T value) => new SyncVar<T>(value);
 
         // serialization (use .Value instead of _Value so hook is called!)
-        public virtual void OnSerializeAll(NetworkWriter writer) => writer.Write(Value);
-        public virtual void OnSerializeDelta(NetworkWriter writer) => writer.Write(Value);
-        public virtual void OnDeserializeAll(NetworkReader reader) => Value = reader.Read<T>();
-        public virtual void OnDeserializeDelta(NetworkReader reader) => Value = reader.Read<T>();
+        public override void OnSerializeAll(NetworkWriter writer) => writer.Write(Value);
+        public override void OnSerializeDelta(NetworkWriter writer) => writer.Write(Value);
+        public override void OnDeserializeAll(NetworkReader reader) => Value = reader.Read<T>();
+        public override void OnDeserializeDelta(NetworkReader reader) => Value = reader.Read<T>();
 
         // IEquatable should compare Value.
         // SyncVar<T> should act invisibly like [SyncVar] before.
