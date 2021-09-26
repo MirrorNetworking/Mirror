@@ -18,9 +18,6 @@ namespace Mirror
         // OnDirty sets owner NetworkBehaviour's dirty mask when changed.
         public override Action OnDirty { get; set; }
 
-        // used to stop recording ever growing changes while we have no observers
-        public override Func<bool> IsRecording { get; set; } = () => true;
-
         public enum Operation : byte
         {
             OP_ADD,
