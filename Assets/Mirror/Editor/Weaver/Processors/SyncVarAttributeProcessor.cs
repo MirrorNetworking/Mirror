@@ -369,6 +369,13 @@ namespace Mirror.Weaver
                 syncVarNetIds[fd] = netIdField;
             }
 
+
+            // make generic instance of SyncVar<T> type for the type of 'value'
+            TypeReference syncVarT_ForValue = weaverTypes.SyncVarT_Type.MakeGenericInstanceType(fd.FieldType);
+            FieldDefinition syncVarTField = new FieldDefinition($"___{fd.Name}SyncVarT", FieldAttributes.Public, syncVarT_ForValue);
+            // TODO ctor
+            addedFields.Add(syncVarTField);
+
             // create SyncVar<T> class
             // TODO needs to be SyncVar<fd.fieldType> hmm
             //TypeReference SyncVarT_Type = weaverTypes.Import(typeof(SyncVar<int>));
