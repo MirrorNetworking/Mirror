@@ -149,24 +149,6 @@ namespace Mirror.Weaver
             return get;
         }
 
-        // generates 'new SyncVar<T>(...)', with 'T' coming from 'variable's type
-        /*MethodDefinition GenerateNewSyncVar_T(TypeReference variable, ref bool WeavingFailed)
-        {
-            // get type from 'variable'
-            GenericInstanceType genericInstance = (GenericInstanceType)variable;
-            TypeReference elementType = genericInstance.GenericArguments[0];
-
-            // $array = reader.Read<[T]>()
-            ArrayType arrayType = elementType.MakeArrayType();
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Call, GetReadFunc(arrayType, ref WeavingFailed));
-
-            // return new ArraySegment<T>($array);
-            worker.Emit(OpCodes.Newobj, weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
-            worker.Emit(OpCodes.Ret);
-            return readerFunc;
-        }*/
-
         public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, ref bool WeavingFailed)
         {
             //Create the set method
@@ -375,21 +357,6 @@ namespace Mirror.Weaver
             FieldDefinition syncVarTField = new FieldDefinition($"___{fd.Name}SyncVarT", FieldAttributes.Public, syncVarT_ForValue);
             // TODO ctor
             addedFields.Add(syncVarTField);
-
-            // create SyncVar<T> class
-            // TODO needs to be SyncVar<fd.fieldType> hmm
-            //TypeReference SyncVarT_Type = weaverTypes.Import(typeof(SyncVar<int>));
-            //Log.Warning("SyncVar<int>=" + SyncVarT_Type.Name);
-
-            //FieldDefinition syncVarT_Field = new FieldDefinition($"SyncVarT_{originalName}", FieldAttributes.Public, SyncVarT_Type);
-            //addedFields.Add(syncVarT_Field);
-            //Log.Warning("ADD: " + syncVarT_Field.Name + " to " + td.Name);
-
-            // create & add our extra field
-            /*FieldDefinition extraField = new FieldDefinition($"___{fd.Name}Extra",
-                FieldAttributes.Private,
-                weaverTypes.Import<uint>());
-            addedFields.Add(extraField);*/
 
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
             MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, ref WeavingFailed);
