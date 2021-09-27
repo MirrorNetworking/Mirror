@@ -20,7 +20,7 @@ namespace Mirror
         // => Weaver calls InitSyncObject and replaces it
         // => if it was not replaced, then it was a runtime change which is not allowed.
         // ===> this way we can show SyncVar<T> in the Inspector!
-        public virtual Action OnDirty { get; set; } = () =>
+        public Action OnDirty = () =>
             throw new Exception("SyncObject was not initialized. Do not create 'new SyncObject's at runtime. Define them once, then Weaver will initialize them.");
 
         /// <summary>Used internally to check if we are currently tracking changes.</summary>
