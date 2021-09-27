@@ -148,7 +148,7 @@ namespace Mirror.Weaver
             return get;
         }
 
-        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, ref bool WeavingFailed)
+        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, FieldDefinition extraField, ref bool WeavingFailed)
         {
             //Create the set method
             MethodDefinition set = new MethodDefinition($"set_Network{originalName}", MethodAttributes.Public |
@@ -213,6 +213,11 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldfld, fd);
             worker.Emit(OpCodes.Stloc, oldValue);
+
+            // extraField = 42 for testing
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldc_I4, 42);
+            worker.Emit(OpCodes.Stfld, extraField);
 
             // this
             worker.Emit(OpCodes.Ldarg_0);
@@ -333,8 +338,19 @@ namespace Mirror.Weaver
                 syncVarNetIds[fd] = netIdField;
             }
 
+            // create SyncVar<T> class
+            // TODO needs to be SyncVar<fd.fieldType> hmm
+            /*TypeReference SyncVarT_Type = weaverTypes.Import(typeof(SyncVar<>));
+            FieldDefinition syncVarT_Field = new FieldDefinition($"SyncVarT_{originalName}", FieldAttributes.Public, SyncVarT_Type);
+            addedFields.Add(syncVarT_Field);
+            Log.Warning("ADD: " + syncVarT_Field.Name + " to " + td.Name);*/
+
+            FieldDefinition extraField = new FieldDefinition($"___{fd.Name}Extra",
+                FieldAttributes.Private,
+                weaverTypes.Import<uint>());
+
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
-            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, ref WeavingFailed);
+            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, extraField, ref WeavingFailed);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
@@ -349,13 +365,6 @@ namespace Mirror.Weaver
             td.Methods.Add(set);
             td.Properties.Add(propertyDefinition);
             syncVarAccessLists.replacementSetterProperties[fd] = set;
-
-            // create SyncVar<T> class
-            // TODO needs to be SyncVar<fd.fieldType> hmm
-            TypeReference SyncVarT_Type = weaverTypes.Import(typeof(SyncVar<>));
-            FieldDefinition syncVarT_Field = new FieldDefinition($"SyncVarT_{originalName}", FieldAttributes.Public, SyncVarT_Type);
-            addedFields.Add(syncVarT_Field);
-            Log.Warning("ADD: " + syncVarT_Field.Name + " to " + td.Name);
 
             // replace getter field if GameObject/NetworkIdentity so it uses
             // netId instead
