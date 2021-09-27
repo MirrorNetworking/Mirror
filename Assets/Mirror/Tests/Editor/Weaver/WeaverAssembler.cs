@@ -103,7 +103,7 @@ namespace Mirror.Weaver.Tests
                 assemblyBuilder.compilerOptions.AllowUnsafeCode = true;
             }
 
-#if UNITY_2020_1_OR_NEWER
+#if UNITY_2020_3_OR_NEWER
             // Unity automatically invokes ILPostProcessor after
             // AssemblyBuilder.Build() (on windows at least. not on mac).
             // => .buildFinished() below CompilerMessages would already contain
@@ -134,7 +134,7 @@ namespace Mirror.Weaver.Tests
                     }
                 }
 
-#if UNITY_2020_1_OR_NEWER
+#if UNITY_2020_3_OR_NEWER
                 // on 2018/2019, CompilationFinishedHook weaves after building.
                 // on 2020, ILPostProcessor weaves after building.
                 //   on windows, it runs after AssemblyBuilder.Build()
