@@ -148,7 +148,25 @@ namespace Mirror.Weaver
             return get;
         }
 
-        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, FieldDefinition extraField, ref bool WeavingFailed)
+        // generates 'new SyncVar<T>(...)', with 'T' coming from 'variable's type
+        /*MethodDefinition GenerateNewSyncVar_T(TypeReference variable, ref bool WeavingFailed)
+        {
+            // get type from 'variable'
+            GenericInstanceType genericInstance = (GenericInstanceType)variable;
+            TypeReference elementType = genericInstance.GenericArguments[0];
+
+            // $array = reader.Read<[T]>()
+            ArrayType arrayType = elementType.MakeArrayType();
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Call, GetReadFunc(arrayType, ref WeavingFailed));
+
+            // return new ArraySegment<T>($array);
+            worker.Emit(OpCodes.Newobj, weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+            worker.Emit(OpCodes.Ret);
+            return readerFunc;
+        }*/
+
+        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, ref bool WeavingFailed)
         {
             //Create the set method
             MethodDefinition set = new MethodDefinition($"set_Network{originalName}", MethodAttributes.Public |
@@ -214,10 +232,20 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldfld, fd);
             worker.Emit(OpCodes.Stloc, oldValue);
 
-            // extraField = 42 for testing
+            // SyncVar<> test = null;
+            TypeReference syncVar_T_Type = weaverTypes.Import(typeof(SyncVar<>));
+            VariableDefinition testSyncVar_T = new VariableDefinition(syncVar_T_Type);
+            set.Body.Variables.Add(testSyncVar_T);
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldc_I4, 42);
-            worker.Emit(OpCodes.Stfld, extraField);
+            worker.Emit(OpCodes.Ldnull);
+            worker.Emit(OpCodes.Stloc, testSyncVar_T);
+            //worker.Emit(OpCodes.Newobj, weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+
+            // extraField = null for testing
+            // TODO 'defined in another module': need to add to fields first?
+            /*worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldnull);
+            worker.Emit(OpCodes.Stfld, extraField);*/
 
             // this
             worker.Emit(OpCodes.Ldarg_0);
@@ -340,17 +368,21 @@ namespace Mirror.Weaver
 
             // create SyncVar<T> class
             // TODO needs to be SyncVar<fd.fieldType> hmm
-            /*TypeReference SyncVarT_Type = weaverTypes.Import(typeof(SyncVar<>));
-            FieldDefinition syncVarT_Field = new FieldDefinition($"SyncVarT_{originalName}", FieldAttributes.Public, SyncVarT_Type);
-            addedFields.Add(syncVarT_Field);
-            Log.Warning("ADD: " + syncVarT_Field.Name + " to " + td.Name);*/
+            //TypeReference SyncVarT_Type = weaverTypes.Import(typeof(SyncVar<int>));
+            //Log.Warning("SyncVar<int>=" + SyncVarT_Type.Name);
 
-            FieldDefinition extraField = new FieldDefinition($"___{fd.Name}Extra",
+            //FieldDefinition syncVarT_Field = new FieldDefinition($"SyncVarT_{originalName}", FieldAttributes.Public, SyncVarT_Type);
+            //addedFields.Add(syncVarT_Field);
+            //Log.Warning("ADD: " + syncVarT_Field.Name + " to " + td.Name);
+
+            // create & add our extra field
+            /*FieldDefinition extraField = new FieldDefinition($"___{fd.Name}Extra",
                 FieldAttributes.Private,
                 weaverTypes.Import<uint>());
+            addedFields.Add(extraField);*/
 
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
-            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, extraField, ref WeavingFailed);
+            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, ref WeavingFailed);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
