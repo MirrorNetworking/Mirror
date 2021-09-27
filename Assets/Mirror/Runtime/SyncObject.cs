@@ -23,7 +23,7 @@ namespace Mirror
         // => Func so we can set it to () => observers.Count > 0
         //    without depending on NetworkComponent/NetworkIdentity here.
         // => virtual so it sipmly always records by default
-        public virtual Func<bool> IsRecording { get; set; } = () => true;
+        public Func<bool> IsRecording = () => true;
 
         /// <summary>Discard all the queued changes</summary>
         // Consider the object fully synchronized with clients
