@@ -43,7 +43,7 @@ namespace Mirror
                     // set value, set dirty bit
                     T old = _Value;
                     _Value = value;
-                    OnDirty?.Invoke();
+                    OnDirty();
 
                     // Value.set calls the hook if changed.
                     // calling Value.set from within the hook would call the

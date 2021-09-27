@@ -20,8 +20,8 @@ namespace Mirror.Examples.Tanks
 
         [Header("Stats")]
         public SyncVar<int> health = 4;
-        public readonly SyncVarGameObject target = new SyncVarGameObject();
-        public readonly SyncList<int> list = new SyncList<int>{1,2,3};
+        public SyncVarGameObject target = new SyncVarGameObject();
+        public SyncList<int> list = new SyncList<int>{1,2,3};
 
         void Update()
         {

@@ -38,6 +38,10 @@ namespace Mirror.Tests
         public void Value_GameObject()
         {
             SyncVarGameObject field = new SyncVarGameObject(null);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.Value = go;
             Assert.That(field.Value, Is.EqualTo(go));
         }
@@ -72,6 +76,10 @@ namespace Mirror.Tests
             }
 
             SyncVarGameObject field = new SyncVarGameObject(null, OnChanged);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.Value = go;
             Assert.That(called, Is.EqualTo(1));
         }
@@ -134,6 +142,10 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarGameObject field = new SyncVarGameObject(null);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.OnDeserializeAll(reader);
             Assert.That(field.Value, Is.EqualTo(go));
         }
@@ -146,6 +158,10 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarGameObject field = new SyncVarGameObject(null);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.OnDeserializeDelta(reader);
             Assert.That(field.Value, Is.EqualTo(go));
         }

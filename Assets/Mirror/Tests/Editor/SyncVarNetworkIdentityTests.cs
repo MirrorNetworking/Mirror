@@ -36,6 +36,10 @@ namespace Mirror.Tests
         public void Value_NetworkIdentity()
         {
             SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.Value = identity;
             Assert.That(field.Value, Is.EqualTo(identity));
         }
@@ -85,6 +89,10 @@ namespace Mirror.Tests
             }
 
             SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null, OnChanged);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.Value = identity;
             Assert.That(called, Is.EqualTo(1));
         }
@@ -131,6 +139,10 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.OnDeserializeAll(reader);
             Assert.That(field.Value, Is.EqualTo(identity));
         }
@@ -143,6 +155,10 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.OnDeserializeDelta(reader);
             Assert.That(field.Value, Is.EqualTo(identity));
         }

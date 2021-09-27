@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -40,6 +41,10 @@ namespace Mirror.Tests
             // .Value is a property which does several things.
             // make sure it .set actually sets the value
             SyncVar<int> field = 42;
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.Value = 1337;
             Assert.That(field.Value, Is.EqualTo(1337));
         }
@@ -66,15 +71,6 @@ namespace Mirror.Tests
             // setting same value should not call OnDirty again
             field.Value = 42;
             Assert.That(dirtyCalled, Is.EqualTo(0));
-        }
-
-        [Test]
-        public void SetValue_WithoutOnDirty()
-        {
-            // OnDirty needs to be optional.
-            // shouldn't throw exceptions if OnDirty is null.
-            SyncVar<int> field = 42;
-            field.Value = 1337;
         }
 
         [Test]
@@ -106,6 +102,10 @@ namespace Mirror.Tests
             }
 
             SyncVar<int> field = new SyncVar<int>(42, OnChanged);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             field.Value = 1337;
             Assert.That(called, Is.EqualTo(1));
         }
@@ -143,6 +143,9 @@ namespace Mirror.Tests
             }
             field = new SyncVar<int>(42, OnChanged);
 
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
+
             // setting a different value will call the hook
             field.Value = 1337;
             // in the end, hook should've been called exactly once
@@ -161,6 +164,9 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(1337));
             }
             SyncVar<int> field = new SyncVar<int>(42, OnChanged);
+
+            // avoid 'not initialized' exception
+            field.OnDirty = () => {};
 
             // create reader with data
             NetworkWriter writer = new NetworkWriter();
@@ -184,6 +190,9 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(1337));
             }
             SyncVar<int> fieldWithHook = new SyncVar<int>(42, OnChanged);
+
+            // avoid 'not initialized' exception
+            fieldWithHook.OnDirty = () => {};
 
             // create reader with data
             NetworkWriter writer = new NetworkWriter();
@@ -224,6 +233,16 @@ namespace Mirror.Tests
         {
             SyncVar<int> field = 42;
             Assert.That(field.ToString(), Is.EqualTo("42"));
+        }
+
+        [Test]
+        public void ThrowsIfNotInitializedFromInitSyncObject()
+        {
+            SyncVar<int> field = new SyncVar<int>(42);
+
+            // if Weaver->NetworkBehaviour never calls InitSyncObject,
+            // then OnDirty should throw as soon as we modify anything.
+            Assert.Throws<Exception>(() => { field.Value = 1337; });
         }
     }
 }
