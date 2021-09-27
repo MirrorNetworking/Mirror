@@ -232,23 +232,18 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldfld, fd);
             worker.Emit(OpCodes.Stloc, oldValue);
 
-            // make ctor for SyncVar<T> with this field's type
-            MethodReference SyncVarT_GenericCtor = weaverTypes.SyncVarT_GenericConstructor.MakeGeneric(assembly.MainModule, fd.FieldType);
-
-            // SyncVar<> test = null;
-            //Log.Warning("[SyncVar] " + fd.Name + " type=" + fd.FieldType);
+            // SyncVar<T> test = SyncVar.Create(value);
+            Log.Warning("[SyncVar] " + fd.Name + " type=" + fd.FieldType);
             VariableDefinition testSyncVar_T = new VariableDefinition(weaverTypes.SyncVarT_Type);
-            Log.Warning("[SyncVar] " + fd.Name + " type=" + fd.FieldType + " ctor=" + SyncVarT_GenericCtor);
             set.Body.Variables.Add(testSyncVar_T);
-            worker.Emit(OpCodes.Ldnull);
-            worker.Emit(OpCodes.Stloc, testSyncVar_T);
-            //worker.Emit(OpCodes.Newobj, weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+            worker.Emit(OpCodes.Ldarg_0);   // 'this'
+            worker.Emit(OpCodes.Ldfld, fd); // value = fd
+            // SyncVar<'value type'>.Create()
+            MethodReference SyncVarT_CreateGeneric = weaverTypes.SyncVarCreateReference.MakeGeneric(assembly.MainModule,  fd.FieldType);
+            worker.Emit(OpCodes.Call, SyncVarT_CreateGeneric);
 
-            // extraField = null for testing
-            // TODO 'defined in another module': need to add to fields first?
-            /*worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldnull);
-            worker.Emit(OpCodes.Stfld, extraField);*/
+            // store result in our test variable
+            worker.Emit(OpCodes.Stloc, testSyncVar_T);
 
             // this
             worker.Emit(OpCodes.Ldarg_0);

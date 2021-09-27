@@ -121,5 +121,8 @@ namespace Mirror
         // ToString should show Value.
         // SyncVar<T> should act invisibly like [SyncVar] before.
         public override string ToString() => Value.ToString();
+
+        // helper function for weaver to avoid MakeGeneric ctor insanity
+        public static SyncVar<T> Create(T value) => new SyncVar<T>(value);
     }
 }
