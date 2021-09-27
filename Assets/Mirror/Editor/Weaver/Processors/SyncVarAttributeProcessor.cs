@@ -348,7 +348,6 @@ namespace Mirror.Weaver
         public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit, List<FieldDefinition> addedFields, ref bool WeavingFailed)
         {
             string originalName = fd.Name;
-            addedFields = new List<FieldDefinition>();
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
