@@ -305,9 +305,13 @@ namespace Mirror.Weaver
             return set;
         }
 
-        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit, ref bool WeavingFailed)
+        // ProcessSyncVar is called while iterating td.Fields.
+        // can't add to it while iterating.
+        // new fields are added to 'addedFields'
+        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit, List<FieldDefinition> addedFields, ref bool WeavingFailed)
         {
             string originalName = fd.Name;
+            addedFields = new List<FieldDefinition>();
 
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
@@ -346,6 +350,13 @@ namespace Mirror.Weaver
             td.Properties.Add(propertyDefinition);
             syncVarAccessLists.replacementSetterProperties[fd] = set;
 
+            // create SyncVar<T> class
+            // TODO needs to be SyncVar<fd.fieldType> hmm
+            TypeReference SyncVarT_Type = weaverTypes.Import(typeof(SyncVar<>));
+            FieldDefinition syncVarT_Field = new FieldDefinition($"SyncVarT_{originalName}", FieldAttributes.Public, SyncVarT_Type);
+            addedFields.Add(syncVarT_Field);
+            Log.Warning("ADD: " + syncVarT_Field.Name + " to " + td.Name);
+
             // replace getter field if GameObject/NetworkIdentity so it uses
             // netId instead
             // -> only for GameObjects, otherwise an int syncvar's getter would
@@ -364,6 +375,10 @@ namespace Mirror.Weaver
             // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
             // start assigning syncvars at the place the base class stopped, if any
             int dirtyBitCounter = syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName);
+
+            // separate list for added fields.
+            // can't add while we iterate 'td.Fields' otherwise.
+            List<FieldDefinition> addedFields = new List<FieldDefinition>();
 
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
@@ -392,7 +407,7 @@ namespace Mirror.Weaver
                     {
                         syncVars.Add(fd);
 
-                        ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter, ref WeavingFailed);
+                        ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter, addedFields, ref WeavingFailed);
                         dirtyBitCounter += 1;
 
                         if (dirtyBitCounter > SyncVarLimit)
@@ -403,6 +418,12 @@ namespace Mirror.Weaver
                         }
                     }
                 }
+            }
+
+            // add all added fields
+            foreach (FieldDefinition fd in addedFields)
+            {
+                td.Fields.Add(fd);
             }
 
             // add all the new SyncVar __netId fields

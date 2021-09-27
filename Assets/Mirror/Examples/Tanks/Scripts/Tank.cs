@@ -19,9 +19,10 @@ namespace Mirror.Examples.Tanks
         public Transform projectileMount;
 
         [Header("Stats")]
-        public SyncVar<int> health = 4;
-        public SyncVarGameObject target = new SyncVarGameObject();
-        public SyncList<int> list = new SyncList<int>{1,2,3};
+        [SyncVar] public int health = 4;
+        //public SyncVar<int> health = 4;
+        //public SyncVarGameObject target = new SyncVarGameObject();
+        //public SyncList<int> list = new SyncList<int>{1,2,3};
 
         void Update()
         {
@@ -71,8 +72,8 @@ namespace Mirror.Examples.Tanks
         {
             if (other.GetComponent<Projectile>() != null)
             {
-                --health.Value;
-                if (health.Value == 0)
+                --health;
+                if (health == 0)
                     NetworkServer.Destroy(gameObject);
             }
         }
