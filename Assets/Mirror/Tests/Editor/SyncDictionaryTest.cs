@@ -35,18 +35,19 @@ namespace Mirror.Tests
             serverSyncDictionary = new SyncDictionary<int, string>();
             clientSyncDictionary = new SyncDictionary<int, string>();
 
+            // set up dirty callbacks for testing.
+            serverSyncDictionary.OnDirty = () => ++serverSyncDictionaryDirtyCalled;
+            clientSyncDictionary.OnDirty = () => ++clientSyncDictionaryDirtyCalled;
+
             // add some data to the list
             serverSyncDictionary.Add(0, "Hello");
             serverSyncDictionary.Add(1, "World");
             serverSyncDictionary.Add(2, "!");
             SerializeAllTo(serverSyncDictionary, clientSyncDictionary);
 
-            // set up dirty callbacks for testing.
-            // AFTER adding the example data. we already know we added that data.
+            // don't count the example data as dirty
             serverSyncDictionaryDirtyCalled = 0;
             clientSyncDictionaryDirtyCalled = 0;
-            serverSyncDictionary.OnDirty = () => ++serverSyncDictionaryDirtyCalled;
-            clientSyncDictionary.OnDirty = () => ++clientSyncDictionaryDirtyCalled;
         }
 
         [Test]
@@ -348,6 +349,16 @@ namespace Mirror.Tests
             serverSyncDictionary.IsRecording = () => false;
             serverSyncDictionary[42] = null;
             Assert.That(serverSyncDictionary.GetChangeCount(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ThrowsIfNotInitializedFromInitSyncObject()
+        {
+            SyncDictionary<int, string> dict = new SyncDictionary<int, string>();
+
+            // if Weaver->NetworkBehaviour never calls InitSyncObject,
+            // then OnDirty should throw as soon as we modify anything.
+            Assert.Throws<Exception>(() => { dict[42] = null; });
         }
     }
 }
