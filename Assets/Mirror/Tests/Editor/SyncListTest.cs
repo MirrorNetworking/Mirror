@@ -44,17 +44,16 @@ namespace Mirror.Tests
             serverSyncList = new SyncList<string>();
             clientSyncList = new SyncList<string>();
 
-            // set up dirty callbacks for testing
-            serverSyncList.OnDirty = () => ++serverSyncListDirtyCalled;
-            clientSyncList.OnDirty = () => ++clientSyncListDirtyCalled;
-
             // add some data to the list
             serverSyncList.Add("Hello");
             serverSyncList.Add("World");
             serverSyncList.Add("!");
             SerializeAllTo(serverSyncList, clientSyncList);
 
-            // don't count the above example data as dirty
+            // set up dirty callbacks for testing
+            // AFTER adding the example data. we already know we added that data.
+            serverSyncList.OnDirty = () => ++serverSyncListDirtyCalled;
+            clientSyncList.OnDirty = () => ++clientSyncListDirtyCalled;
             serverSyncListDirtyCalled = 0;
             clientSyncListDirtyCalled = 0;
         }
@@ -220,10 +219,6 @@ namespace Mirror.Tests
             SyncList<int> serverList = new SyncList<int>();
             SyncList<int> clientList = new SyncList<int>();
 
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
-
             serverList.Add(1);
             serverList.Add(2);
             serverList.Add(3);
@@ -237,10 +232,6 @@ namespace Mirror.Tests
         {
             SyncList<bool> serverList = new SyncList<bool>();
             SyncList<bool> clientList = new SyncList<bool>();
-
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
 
             serverList.Add(true);
             serverList.Add(false);
@@ -256,10 +247,6 @@ namespace Mirror.Tests
             SyncList<uint> serverList = new SyncList<uint>();
             SyncList<uint> clientList = new SyncList<uint>();
 
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
-
             serverList.Add(1U);
             serverList.Add(2U);
             serverList.Add(3U);
@@ -273,10 +260,6 @@ namespace Mirror.Tests
         {
             SyncList<float> serverList = new SyncList<float>();
             SyncList<float> clientList = new SyncList<float>();
-
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
 
             serverList.Add(1.0F);
             serverList.Add(2.0F);
@@ -430,16 +413,6 @@ namespace Mirror.Tests
             serverSyncList.IsRecording = () => false;
             serverSyncList.Add("42");
             Assert.That(serverSyncList.GetChangeCount(), Is.EqualTo(0));
-        }
-
-        [Test]
-        public void ThrowsIfNotInitializedFromInitSyncObject()
-        {
-            SyncList<int> list = new SyncList<int>();
-
-            // if Weaver->NetworkBehaviour never calls InitSyncObject,
-            // then OnDirty should throw as soon as we modify anything.
-            Assert.Throws<Exception>(() => { list.Add(42); });
         }
     }
 

@@ -17,10 +17,6 @@ namespace Mirror.Tests
             SyncList<TestPlayer> serverList = new SyncList<TestPlayer>();
             SyncList<TestPlayer> clientList = new SyncList<TestPlayer>();
 
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
-
             // set up dirty callback
             int serverListDirtyCalled = 0;
             serverList.OnDirty = () => ++serverListDirtyCalled;
@@ -43,11 +39,6 @@ namespace Mirror.Tests
         {
             SyncList<TestPlayer> serverList = new SyncList<TestPlayer>();
             SyncList<TestPlayer> clientList = new SyncList<TestPlayer>();
-
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
-
             SyncListTest.SerializeAllTo(serverList, clientList);
             serverList.Add(new TestPlayer { item = new TestItem { price = 10 } });
             SyncListTest.SerializeDeltaTo(serverList, clientList);

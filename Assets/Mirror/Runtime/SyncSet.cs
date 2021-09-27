@@ -73,7 +73,7 @@ namespace Mirror
             if (IsRecording())
             {
                 changes.Add(change);
-                OnDirty();
+                OnDirty?.Invoke();
             }
 
             Callback?.Invoke(op, item);

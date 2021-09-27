@@ -234,15 +234,5 @@ namespace Mirror.Tests
             SyncVar<int> field = 42;
             Assert.That(field.ToString(), Is.EqualTo("42"));
         }
-
-        [Test]
-        public void ThrowsIfNotInitializedFromInitSyncObject()
-        {
-            SyncVar<int> field = new SyncVar<int>(42);
-
-            // if Weaver->NetworkBehaviour never calls InitSyncObject,
-            // then OnDirty should throw as soon as we modify anything.
-            Assert.Throws<Exception>(() => { field.Value = 1337; });
-        }
     }
 }

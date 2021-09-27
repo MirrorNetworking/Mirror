@@ -18,10 +18,6 @@ namespace Mirror.Tests
             SyncList<TestObject> serverList = new SyncList<TestObject>();
             SyncList<TestObject> clientList = new SyncList<TestObject>();
 
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
-
             SyncListTest.SerializeAllTo(serverList, clientList);
 
             // add some items
@@ -48,10 +44,6 @@ namespace Mirror.Tests
         {
             SyncList<TestObject> serverList = new SyncList<TestObject>();
             SyncList<TestObject> clientList = new SyncList<TestObject>();
-
-            // avoid 'not initialized' exception
-            serverList.OnDirty = () => {};
-            clientList.OnDirty = () => {};
 
             SyncListTest.SerializeAllTo(serverList, clientList);
 

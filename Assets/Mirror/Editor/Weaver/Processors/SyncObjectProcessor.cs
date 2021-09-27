@@ -25,10 +25,6 @@ namespace Mirror.Weaver
                         continue;
                     }
 
-                    // IMPORTANT: ideally Weaver would force SyncObjects as readonly.
-                    // unfortunately readonly objects aren't shown in Inspector (bug #1368395).
-                    // SyncObject detects runtime changes via default OnDirty() for now.
-                    /*
                     // SyncObjects always needs to be readonly to guarantee.
                     // Weaver calls InitSyncObject on them for dirty bits etc.
                     // Reassigning at runtime would cause undefined behaviour.
@@ -46,7 +42,6 @@ namespace Mirror.Weaver
                         // only log, but keep weaving. no need to break projects.
                         //WeavingFailed = true;
                     }
-                    */
 
                     GenerateReadersAndWriters(writers, readers, fd.FieldType, ref WeavingFailed);
 
