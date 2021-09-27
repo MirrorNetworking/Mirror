@@ -64,6 +64,16 @@ namespace Mirror.Tests
             Assert.That(clientSyncList, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
         }
 
+        // test the '= List<int>{1,2,3}' constructor.
+        // it calls .Add(1); .Add(2); .Add(3) in the constructor.
+        // (the OnDirty change broke this and we didn't have a test before)
+        [Test]
+        public void CurlyBracesConstructor()
+        {
+            SyncList<int> list = new SyncList<int>{1,2,3};
+            Assert.That(list.Count, Is.EqualTo(3));
+        }
+
         [Test]
         public void TestAdd()
         {
