@@ -6,7 +6,7 @@ namespace Mirror.Examples.Tanks
 
         void Fun()
         {
-            SyncVar<int> test = SyncVar<int>.Create(health);
+            SyncVar<int> test = new SyncVar<int>(health);
         }
     }
 }
