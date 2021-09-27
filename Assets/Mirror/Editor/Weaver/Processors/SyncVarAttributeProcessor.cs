@@ -233,8 +233,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Stloc, oldValue);
 
             // SyncVar<> test = null;
-            TypeReference syncVar_T_Type = weaverTypes.Import(typeof(SyncVar<>));
-            VariableDefinition testSyncVar_T = new VariableDefinition(syncVar_T_Type);
+            VariableDefinition testSyncVar_T = new VariableDefinition(weaverTypes.SyncVarT_Type);
             set.Body.Variables.Add(testSyncVar_T);
             worker.Emit(OpCodes.Ldnull);
             worker.Emit(OpCodes.Stloc, testSyncVar_T);
