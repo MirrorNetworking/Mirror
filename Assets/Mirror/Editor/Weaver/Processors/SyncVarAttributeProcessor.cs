@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
@@ -232,9 +233,12 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldfld, fd);
             worker.Emit(OpCodes.Stloc, oldValue);
 
+            // make generic instance of SyncVar<T> type for the type of 'value'
+            TypeReference syncVarT_ForValue = weaverTypes.SyncVarT_Type.MakeGenericInstanceType(fd.FieldType);
+
             // SyncVar<T> test = SyncVar.Create(value);
-            Log.Warning("[SyncVar] " + fd.Name + " type=" + fd.FieldType);
-            VariableDefinition testSyncVar_T = new VariableDefinition(weaverTypes.SyncVarT_Type);
+            Log.Warning("[SyncVar] " + fd.Name + " type=" + fd.FieldType + " SyncVar<type> = " + syncVarT_ForValue);
+            VariableDefinition testSyncVar_T = new VariableDefinition(syncVarT_ForValue);
             set.Body.Variables.Add(testSyncVar_T);
             worker.Emit(OpCodes.Ldarg_0);   // 'this'
             worker.Emit(OpCodes.Ldfld, fd); // value = fd
