@@ -54,7 +54,7 @@ namespace Mirror.Weaver
         public MethodReference readNetworkBehaviourGeneric;
 
         public TypeReference SyncVarT_Type;
-        public MethodReference SyncVarT_GenericConstrctor;
+        public MethodReference SyncVarT_GenericConstructor;
 
         // attributes
         public TypeDefinition initializeOnLoadMethodAttribute;
@@ -76,7 +76,7 @@ namespace Mirror.Weaver
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, assembly, Log, ".ctor", ref WeavingFailed);
 
             SyncVarT_Type = Import(typeof(SyncVar<>));
-            SyncVarT_GenericConstrctor = Resolvers.ResolveMethod(SyncVarT_Type, assembly, Log, ".ctor", ref WeavingFailed);
+            SyncVarT_GenericConstructor = Resolvers.ResolveMethod(SyncVarT_Type, assembly, Log, ".ctor", ref WeavingFailed);
 
             TypeReference NetworkServerType = Import(typeof(NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, assembly, Log, "get_active", ref WeavingFailed);

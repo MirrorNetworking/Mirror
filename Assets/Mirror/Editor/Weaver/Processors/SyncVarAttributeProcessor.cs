@@ -232,8 +232,13 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldfld, fd);
             worker.Emit(OpCodes.Stloc, oldValue);
 
+            // make ctor for SyncVar<T> with this field's type
+            MethodReference SyncVarT_GenericCtor = weaverTypes.SyncVarT_GenericConstructor.MakeGeneric(assembly.MainModule, fd.FieldType);
+
             // SyncVar<> test = null;
+            //Log.Warning("[SyncVar] " + fd.Name + " type=" + fd.FieldType);
             VariableDefinition testSyncVar_T = new VariableDefinition(weaverTypes.SyncVarT_Type);
+            Log.Warning("[SyncVar] " + fd.Name + " type=" + fd.FieldType + " ctor=" + SyncVarT_GenericCtor);
             set.Body.Variables.Add(testSyncVar_T);
             worker.Emit(OpCodes.Ldnull);
             worker.Emit(OpCodes.Stloc, testSyncVar_T);
