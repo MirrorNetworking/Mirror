@@ -236,7 +236,6 @@ namespace Mirror.Weaver
             TypeReference syncVar_T_Type = weaverTypes.Import(typeof(SyncVar<>));
             VariableDefinition testSyncVar_T = new VariableDefinition(syncVar_T_Type);
             set.Body.Variables.Add(testSyncVar_T);
-            worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Ldnull);
             worker.Emit(OpCodes.Stloc, testSyncVar_T);
             //worker.Emit(OpCodes.Newobj, weaverTypes.ArraySegmentConstructorReference.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
