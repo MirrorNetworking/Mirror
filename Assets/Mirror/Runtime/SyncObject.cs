@@ -13,7 +13,15 @@ namespace Mirror
     public abstract class SyncObject
     {
         /// <summary>Used internally to set owner NetworkBehaviour's dirty mask bit when changed.</summary>
-        public virtual Action OnDirty { get; set; }
+        // IMPORTANT: ideally Weaver would force SyncObjects as readonly.
+        // unfortunately readonly objects aren't shown in Inspector (bug #1368395).
+        // additionally, it's also a bit verbose.
+        // => instead, OnDirty default implementation will throw an exception.
+        // => Weaver calls InitSyncObject and replaces it
+        // => if it was not replaced, then it was a runtime change which is not allowed.
+        // ===> this way we can show SyncVar<T> in the Inspector!
+        public virtual Action OnDirty { get; set; } = () =>
+            throw new Exception("SyncObject was not initialized. Do not create 'new SyncObject's at runtime. Define them once, then Weaver will initialize them.");
 
         /// <summary>Used internally to check if we are currently tracking changes.</summary>
         // prevents ever growing .changes lists:

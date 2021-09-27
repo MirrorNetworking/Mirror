@@ -35,16 +35,17 @@ namespace Mirror.Tests
             serverSyncSet = new SyncHashSet<string>();
             clientSyncSet = new SyncHashSet<string>();
 
+            // set up dirty callbacks for testing
+            serverSyncSet.OnDirty = () => ++serverSyncSetDirtyCalled;
+            clientSyncSet.OnDirty = () => ++clientSyncSetDirtyCalled;
+
             // add some data to the list
             serverSyncSet.Add("Hello");
             serverSyncSet.Add("World");
             serverSyncSet.Add("!");
             SerializeAllTo(serverSyncSet, clientSyncSet);
 
-            // set up dirty callbacks for testing
-            // AFTER adding the example data. we already know we added that data.
-            serverSyncSet.OnDirty = () => ++serverSyncSetDirtyCalled;
-            clientSyncSet.OnDirty = () => ++clientSyncSetDirtyCalled;
+            // don't count the above example data as dirty
             serverSyncSetDirtyCalled = 0;
             clientSyncSetDirtyCalled = 0;
         }
@@ -307,6 +308,16 @@ namespace Mirror.Tests
             serverSyncSet.IsRecording = () => false;
             serverSyncSet.Add("42");
             Assert.That(serverSyncSet.GetChangeCount(), Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ThrowsIfNotInitializedFromInitSyncObject()
+        {
+            SyncHashSet<int> set = new SyncHashSet<int>();
+
+            // if Weaver->NetworkBehaviour never calls InitSyncObject,
+            // then OnDirty should throw as soon as we modify anything.
+            Assert.Throws<Exception>(() => { set.Add(42); });
         }
     }
 }
