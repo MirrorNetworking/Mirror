@@ -294,12 +294,8 @@ namespace Mirror.Weaver
                 return;
             }
 
-            Instruction ret = ctor.Body.Instructions[ctor.Body.Instructions.Count - 1];
-            if (ret.OpCode == OpCodes.Ret)
-            {
-                ctor.Body.Instructions.RemoveAt(ctor.Body.Instructions.Count - 1);
-            }
-            else
+            // remove the return opcode from end of function. will add our own later.
+            if (!RemoveFinalRetInstruction(ctor))
             {
                 Log.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
                 WeavingFailed = true;
