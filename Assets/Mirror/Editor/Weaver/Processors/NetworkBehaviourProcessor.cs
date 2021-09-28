@@ -749,7 +749,6 @@ namespace Mirror.Weaver
             }
         }
 
-
         // [SyncVar] int/float/struct/etc.?
         void DeserializeNormalField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, MethodDefinition hookMethod, ref bool WeavingFailed)
         {
