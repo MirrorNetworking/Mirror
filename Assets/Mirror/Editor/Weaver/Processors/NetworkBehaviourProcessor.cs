@@ -90,7 +90,9 @@ namespace Mirror.Weaver
                 // maybe return false here in the future.
                 return true;
             }
-            GenerateConstants(ref WeavingFailed);
+
+            // inject initializations into constructor
+            InjectIntoConstructor(ref WeavingFailed);
 
             GenerateSerialization(ref WeavingFailed);
             if (WeavingFailed)
@@ -251,11 +253,9 @@ namespace Mirror.Weaver
             return true;
         }
 
-        // C# variable initializations like 'int health = 42' are actually
-        // assigned in the constructor behind the scenes.
-        // we need to do the same for several Mirror types.
-        // => GenerateConstants creates / populates a NetworkBehaviour's ctor
-        void GenerateConstants(ref bool WeavingFailed)
+        // we need to inject several initializations into NetworkBehaviour
+        // static and regular constructors
+        void InjectIntoConstructor(ref bool WeavingFailed)
         {
             if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && syncObjects.Count == 0)
                 return;
