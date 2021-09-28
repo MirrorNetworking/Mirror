@@ -306,35 +306,40 @@ namespace Mirror.Weaver
             ILProcessor ctorWorker = ctor.Body.GetILProcessor();
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();
 
+            // register all commands in cctor
             for (int i = 0; i < commands.Count; ++i)
             {
                 CmdResult cmdResult = commands[i];
                 GenerateRegisterCommandDelegate(cctorWorker, weaverTypes, weaverTypes.registerCommandDelegateReference, commandInvocationFuncs[i], cmdResult);
             }
 
+            // register all client rpcs in cctor
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
                 GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes, weaverTypes.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.Name);
             }
 
+            // register all target rpcs in cctor
             for (int i = 0; i < targetRpcs.Count; ++i)
             {
                 GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes, weaverTypes.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
             }
 
+            // initialize all sync objects in ctor
             foreach (FieldDefinition fd in syncObjects)
             {
                 SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, weaverTypes, fd);
             }
 
+            // add final 'Ret' instruction to cctor
             cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
             if (!cctorFound)
             {
                 netBehaviourSubclass.Methods.Add(cctor);
             }
 
-            // finish ctor
+            // add final 'Ret' instruction to ctor
             ctorWorker.Append(ctorWorker.Create(OpCodes.Ret));
 
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
