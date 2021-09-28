@@ -356,7 +356,13 @@ namespace Mirror.Weaver
             TypeReference syncVarT_ForValue = weaverTypes.SyncVarT_Type.MakeGenericInstanceType(fd.FieldType);
             FieldDefinition syncVarTField = new FieldDefinition($"___{fd.Name}SyncVarT", FieldAttributes.Public, syncVarT_ForValue);
             // TODO ctor
+            //syncVarTField.InitialValue = fd.InitialValue;
             addedFields.Add(syncVarTField);
+
+            // try test field with initial  value
+            FieldDefinition test = new FieldDefinition($"__{fd.Name}TEST", FieldAttributes.Public, fd.FieldType);
+            test.InitialValue = fd.InitialValue;
+            addedFields.Add(test);
 
             MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
             MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, ref WeavingFailed);
