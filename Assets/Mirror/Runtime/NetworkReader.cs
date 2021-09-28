@@ -395,5 +395,12 @@ namespace Mirror
             string uriString = reader.ReadString();
             return (string.IsNullOrEmpty(uriString) ? null : new Uri(uriString));
         }
+
+        public static NetworkBehaviourCache ReadNetworkBehaviourCache(this NetworkReader reader)
+        {
+            uint netId = reader.ReadUInt();
+            byte componentIndex = netId == 0 ? (byte)0 : reader.ReadByte();
+            return new NetworkBehaviourCache(netId, componentIndex);
+        }
     }
 }

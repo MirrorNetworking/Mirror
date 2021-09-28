@@ -443,5 +443,12 @@ namespace Mirror
                 writer.Write(segment.Array[segment.Offset + i]);
             }
         }
+
+        public static void WriteNetworkBehaviourCache(this NetworkWriter writer, NetworkBehaviourCache cache)
+        {
+            writer.WriteUInt(cache.netId);
+            if (cache.netId != 0)
+                writer.WriteByte(cache.componentIndex);
+        }
     }
 }
