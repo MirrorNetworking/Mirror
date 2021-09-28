@@ -230,6 +230,27 @@ namespace Mirror.Weaver
         }
         #endregion
 
+        // helper function to remove 'Ret' from the end of the method if 'Ret'
+        // is the last instruction.
+        // returns false if there was an issue
+        static bool RemoveFinalRetInstruction(MethodDefinition method)
+        {
+            // remove the return opcode from end of function. will add our own later.
+            if (method.Body.Instructions.Count != 0)
+            {
+                Instruction retInstr = method.Body.Instructions[method.Body.Instructions.Count - 1];
+                if (retInstr.OpCode == OpCodes.Ret)
+                {
+                    method.Body.Instructions.RemoveAt(method.Body.Instructions.Count - 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // we did nothing, but there was no error.
+            return true;
+        }
+
         // C# variable initializations like 'int health = 42' are actually
         // assigned in the constructor behind the scenes.
         // we need to do the same for several Mirror types.
@@ -245,19 +266,11 @@ namespace Mirror.Weaver
             if (cctor != null)
             {
                 // remove the return opcode from end of function. will add our own later.
-                if (cctor.Body.Instructions.Count != 0)
+                if (!RemoveFinalRetInstruction(cctor))
                 {
-                    Instruction retInstr = cctor.Body.Instructions[cctor.Body.Instructions.Count - 1];
-                    if (retInstr.OpCode == OpCodes.Ret)
-                    {
-                        cctor.Body.Instructions.RemoveAt(cctor.Body.Instructions.Count - 1);
-                    }
-                    else
-                    {
-                        Log.Error($"{netBehaviourSubclass.Name} has invalid class constructor", cctor);
-                        WeavingFailed = true;
-                        return;
-                    }
+                    Log.Error($"{netBehaviourSubclass.Name} has invalid class constructor", cctor);
+                    WeavingFailed = true;
+                    return;
                 }
             }
             else
