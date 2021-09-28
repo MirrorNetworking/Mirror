@@ -230,6 +230,10 @@ namespace Mirror.Weaver
         }
         #endregion
 
+        // C# variable initializations like 'int health = 42' are actually
+        // assigned in the constructor behind the scenes.
+        // we need to do the same for several Mirror types.
+        // => GenerateConstants creates / populates a NetworkBehaviour's ctor
         void GenerateConstants(ref bool WeavingFailed)
         {
             if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && syncObjects.Count == 0)
