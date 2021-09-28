@@ -91,8 +91,9 @@ namespace Mirror.Weaver
                 return true;
             }
 
-            // inject initializations into constructor
-            InjectIntoConstructor(ref WeavingFailed);
+            // inject initializations into static & instance constructor
+            InjectIntoStaticConstructor(ref WeavingFailed);
+            InjectIntoInstanceConstructor(ref WeavingFailed);
 
             GenerateSerialization(ref WeavingFailed);
             if (WeavingFailed)
@@ -253,11 +254,10 @@ namespace Mirror.Weaver
             return true;
         }
 
-        // we need to inject several initializations into NetworkBehaviour
-        // static and regular constructors
-        void InjectIntoConstructor(ref bool WeavingFailed)
+        // we need to inject several initializations into NetworkBehaviour cctor
+        void InjectIntoStaticConstructor(ref bool WeavingFailed)
         {
-            if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0 && syncObjects.Count == 0)
+            if (commands.Count == 0 && clientRpcs.Count == 0 && targetRpcs.Count == 0)
                 return;
 
             // find static constructor
@@ -284,26 +284,6 @@ namespace Mirror.Weaver
                         weaverTypes.Import(typeof(void)));
             }
 
-            // find instance constructor
-            MethodDefinition ctor = netBehaviourSubclass.GetMethod(".ctor");
-
-            if (ctor == null)
-            {
-                Log.Error($"{netBehaviourSubclass.Name} has invalid constructor", netBehaviourSubclass);
-                WeavingFailed = true;
-                return;
-            }
-
-            // remove the return opcode from end of function. will add our own later.
-            if (!RemoveFinalRetInstruction(ctor))
-            {
-                Log.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
-                WeavingFailed = true;
-                return;
-            }
-
-            // TODO: find out if the order below matters. If it doesn't split code below into 2 functions
-            ILProcessor ctorWorker = ctor.Body.GetILProcessor();
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();
 
             // register all commands in cctor
@@ -326,12 +306,6 @@ namespace Mirror.Weaver
                 GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes, weaverTypes.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
             }
 
-            // initialize all sync objects in ctor
-            foreach (FieldDefinition fd in syncObjects)
-            {
-                SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, weaverTypes, fd);
-            }
-
             // add final 'Ret' instruction to cctor
             cctorWorker.Append(cctorWorker.Create(OpCodes.Ret));
             if (!cctorFound)
@@ -339,11 +313,43 @@ namespace Mirror.Weaver
                 netBehaviourSubclass.Methods.Add(cctor);
             }
 
-            // add final 'Ret' instruction to ctor
-            ctorWorker.Append(ctorWorker.Create(OpCodes.Ret));
-
             // in case class had no cctor, it might have BeforeFieldInit, so injected cctor would be called too late
             netBehaviourSubclass.Attributes &= ~TypeAttributes.BeforeFieldInit;
+        }
+
+        // we need to inject several initializations into NetworkBehaviour ctor
+        void InjectIntoInstanceConstructor(ref bool WeavingFailed)
+        {
+            if (syncObjects.Count == 0)
+                return;
+
+            // find instance constructor
+            MethodDefinition ctor = netBehaviourSubclass.GetMethod(".ctor");
+            if (ctor == null)
+            {
+                Log.Error($"{netBehaviourSubclass.Name} has invalid constructor", netBehaviourSubclass);
+                WeavingFailed = true;
+                return;
+            }
+
+            // remove the return opcode from end of function. will add our own later.
+            if (!RemoveFinalRetInstruction(ctor))
+            {
+                Log.Error($"{netBehaviourSubclass.Name} has invalid constructor", ctor);
+                WeavingFailed = true;
+                return;
+            }
+
+            ILProcessor ctorWorker = ctor.Body.GetILProcessor();
+
+            // initialize all sync objects in ctor
+            foreach (FieldDefinition fd in syncObjects)
+            {
+                SyncObjectInitializer.GenerateSyncObjectInitializer(ctorWorker, weaverTypes, fd);
+            }
+
+            // add final 'Ret' instruction to ctor
+            ctorWorker.Append(ctorWorker.Create(OpCodes.Ret));
         }
 
         /*
