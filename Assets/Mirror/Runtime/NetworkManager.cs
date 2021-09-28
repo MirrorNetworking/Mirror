@@ -1092,7 +1092,7 @@ namespace Mirror
 
         // called after successful authentication
         // TODO do the NetworkServer.OnAuthenticated thing from x branch
-        void OnServerAuthenticated(NetworkConnection conn)
+        protected virtual void OnServerAuthenticated(NetworkConnection conn)
         {
             //Debug.Log("NetworkManager.OnServerAuthenticated");
 
