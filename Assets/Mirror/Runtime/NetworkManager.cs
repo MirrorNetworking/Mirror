@@ -593,6 +593,8 @@ namespace Mirror
 
             // set offline mode BEFORE changing scene so that FinishStartScene
             // doesn't think we need initialize anything.
+            // set offline mode BEFORE NetworkClient.Disconnect so StopClient
+            // only runs once.
             mode = NetworkManagerMode.Offline;
 
             // shutdown client
@@ -1278,10 +1280,7 @@ namespace Mirror
 
         /// <summary>Called on clients when disconnected from a server.</summary>
         // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
-        public virtual void OnClientDisconnect(NetworkConnection conn)
-        {
-            StopClient();
-        }
+        public virtual void OnClientDisconnect(NetworkConnection conn) {}
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(Exception exception) {}
