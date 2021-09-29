@@ -1184,9 +1184,6 @@ namespace Mirror
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
-            if (mode == NetworkManagerMode.Offline)
-                return;
-
             OnClientDisconnect(NetworkClient.connection);
         }
 
@@ -1282,6 +1279,9 @@ namespace Mirror
         // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
+            if (mode == NetworkManagerMode.Offline)
+                return;
+
             StopClient();
         }
 
