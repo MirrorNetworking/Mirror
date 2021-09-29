@@ -1280,7 +1280,10 @@ namespace Mirror
 
         /// <summary>Called on clients when disconnected from a server.</summary>
         // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
-        public virtual void OnClientDisconnect(NetworkConnection conn) {}
+        public virtual void OnClientDisconnect(NetworkConnection conn)
+        {
+            StopClient();
+        }
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(Exception exception) {}
@@ -1329,10 +1332,7 @@ namespace Mirror
         public virtual void OnStopServer() {}
 
         /// <summary>This is called when a client is stopped.</summary>
-        public virtual void OnStopClient()
-        {
-            Debug.Log("OnStopClient");
-        }
+        public virtual void OnStopClient() {}
 
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() {}
