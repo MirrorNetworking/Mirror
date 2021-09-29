@@ -591,13 +591,13 @@ namespace Mirror
 
             //Debug.Log("NetworkManager StopClient");
 
-            // shutdown client
-            NetworkClient.Disconnect();
-            NetworkClient.Shutdown();
-
             // set offline mode BEFORE changing scene so that FinishStartScene
             // doesn't think we need initialize anything.
             mode = NetworkManagerMode.Offline;
+
+            // shutdown client
+            NetworkClient.Disconnect();
+            NetworkClient.Shutdown();
 
             // If this is the host player, StopServer will already be changing scenes.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
@@ -1182,6 +1182,9 @@ namespace Mirror
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
+            if (mode == NetworkManagerMode.Offline)
+                return;
+
             OnClientDisconnect(NetworkClient.connection);
         }
 
@@ -1327,7 +1330,10 @@ namespace Mirror
         public virtual void OnStopServer() {}
 
         /// <summary>This is called when a client is stopped.</summary>
-        public virtual void OnStopClient() {}
+        public virtual void OnStopClient()
+        {
+            Debug.Log("OnStopClient");
+        }
 
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() {}
