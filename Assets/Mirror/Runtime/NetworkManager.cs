@@ -569,6 +569,9 @@ namespace Mirror
         /// <summary>Stops and disconnects the client.</summary>
         public void StopClient()
         {
+            if (mode == NetworkManagerMode.Offline)
+                return;
+
             if (authenticator != null)
             {
                 authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
@@ -591,13 +594,15 @@ namespace Mirror
 
             //Debug.Log("NetworkManager StopClient");
 
+            // set offline mode BEFORE changing scene so that FinishStartScene
+            // doesn't think we need initialize anything.
+            // set offline mode BEFORE NetworkClient.Disconnect so StopClient
+            // only runs once.
+            mode = NetworkManagerMode.Offline;
+
             // shutdown client
             NetworkClient.Disconnect();
             NetworkClient.Shutdown();
-
-            // set offline mode BEFORE changing scene so that FinishStartScene
-            // doesn't think we need initialize anything.
-            mode = NetworkManagerMode.Offline;
 
             // If this is the host player, StopServer will already be changing scenes.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
@@ -1277,6 +1282,9 @@ namespace Mirror
         // TODO client only ever uses NetworkClient.connection. this parameter is redundant.
         public virtual void OnClientDisconnect(NetworkConnection conn)
         {
+            if (mode == NetworkManagerMode.Offline)
+                return;
+
             StopClient();
         }
 
