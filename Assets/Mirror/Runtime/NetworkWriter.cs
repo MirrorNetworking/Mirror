@@ -268,7 +268,7 @@ namespace Mirror
             writer.WriteInt(value.z);
         }
 
-         public static void WriteColor(this NetworkWriter writer, Color value)
+        public static void WriteColor(this NetworkWriter writer, Color value)
         {
             writer.WriteFloat(value.r);
             writer.WriteFloat(value.g);
