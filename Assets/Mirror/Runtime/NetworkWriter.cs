@@ -275,6 +275,14 @@ namespace Mirror
             writer.WriteFloat(value.b);
             writer.WriteFloat(value.a);
         }
+        
+        // TODO add nullable support to weaver instead
+        public static void WriteColorNullable(this NetworkWriter writer, Color? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteColor(value.Value);
+        }
 
         public static void WriteColor32(this NetworkWriter writer, Color32 value)
         {
@@ -282,6 +290,14 @@ namespace Mirror
             writer.WriteByte(value.g);
             writer.WriteByte(value.b);
             writer.WriteByte(value.a);
+        }
+        
+        // TODO add nullable support to weaver instead
+        public static void WriteColor32Nullable(this NetworkWriter writer, Color32? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteColor32(value.Value);
         }
 
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value)
