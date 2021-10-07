@@ -228,7 +228,7 @@ namespace Mirror
             CommandMessage message = new CommandMessage
             {
                 netId = netId,
-                componentIndex = ComponentIndex,
+                componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = RemoteCallHelper.GetMethodHash(invokeClass, cmdName),
                 // segment to avoid reader allocations
@@ -263,7 +263,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage
             {
                 netId = netId,
-                componentIndex = ComponentIndex,
+                componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = RemoteCallHelper.GetMethodHash(invokeClass, rpcName),
                 // segment to avoid reader allocations
@@ -310,7 +310,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage
             {
                 netId = netId,
-                componentIndex = ComponentIndex,
+                componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = RemoteCallHelper.GetMethodHash(invokeClass, rpcName),
                 // segment to avoid reader allocations
