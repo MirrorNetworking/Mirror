@@ -312,7 +312,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Log.Error($"{variable.Name} can't be deserialized because it has no default constructor", variable);
+                    Log.Error($"{variable.Name} can't be deserialized because it has no default constructor. Don't use {variable.Name} in [SyncVar]s, Rpcs, Cmds, etc.", variable);
                     WeavingFailed = true;
                     return;
                 }
