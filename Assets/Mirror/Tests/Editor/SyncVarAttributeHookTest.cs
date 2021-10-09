@@ -183,6 +183,32 @@ namespace Mirror.Tests.SyncVarAttributeTests
         [Test]
         [TestCase(true)]
         [TestCase(false)]
+        public void Hook_OnlyCalledOnClient(bool intialState)
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out HookBehaviour serverObject,
+                out _, out _, out HookBehaviour clientObject);
+
+            // set up hooks on server and client
+            int clientCalled = 0;
+            int serverCalled = 0;
+            clientObject.HookCalled += (oldValue, newValue) => ++clientCalled;
+            serverObject.HookCalled += (oldValue, newValue) => ++serverCalled;
+
+            // change on server
+            ++serverObject.value;
+            //++clientObject.value;
+
+            // sync. hook should've only been called on client.
+            bool written = SyncToClient(serverObject, clientObject, intialState);
+            Assert.IsTrue(written);
+            Assert.That(clientCalled, Is.EqualTo(1));
+            Assert.That(serverCalled, Is.EqualTo(0));
+        }
+
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
         public void StaticMethod_HookCalledWhenSyncingChangedValue(bool intialState)
         {
             CreateNetworkedAndSpawn(
