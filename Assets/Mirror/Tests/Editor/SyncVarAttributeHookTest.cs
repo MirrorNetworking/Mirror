@@ -131,19 +131,17 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 out _, out _, out HookBehaviour serverObject,
                 out _, out _, out HookBehaviour clientObject);
 
-            const int clientValue = 10;
             const int serverValue = 24;
 
             // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
 
             // hook should change it on client
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
+                Assert.That(oldValue, Is.EqualTo(0));
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
@@ -215,19 +213,17 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 out _, out _, out StaticHookBehaviour serverObject,
                 out _, out _, out StaticHookBehaviour clientObject);
 
-            const int clientValue = 10;
             const int serverValue = 24;
 
             // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
 
             // hook should change it on client
             int hookcallCount = 0;
             StaticHookBehaviour.HookCalled += (oldValue, newValue) =>
             {
                 hookcallCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
+                Assert.That(oldValue, Is.EqualTo(0));
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
