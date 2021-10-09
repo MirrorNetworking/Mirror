@@ -368,12 +368,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 out _, out _, out VirtualOverrideHook serverObject,
                 out _, out _, out VirtualOverrideHook clientObject);
 
-            const int clientValue = 10;
             const int serverValue = 24;
 
             // change it on server
             serverObject.value = serverValue;
-            clientObject.value = clientValue;
 
             // hook should change it on client
             int overrideCallCount = 0;
@@ -381,7 +379,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
             clientObject.OverrideHookCalled += (oldValue, newValue) =>
             {
                 overrideCallCount++;
-                Assert.That(oldValue, Is.EqualTo(clientValue));
+                Assert.That(oldValue, Is.EqualTo(0));
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
             clientObject.BaseHookCalled += (oldValue, newValue) =>
