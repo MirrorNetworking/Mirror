@@ -87,7 +87,7 @@ namespace Mirror
                 Debug.LogWarning($"Use explicit {nameof(SyncVarNetworkIdentity)} class instead of {nameof(SyncVar<T>)}<NetworkIdentity>. It stores netId internally for persistence.");
 
             if (this is SyncVar<NetworkBehaviour>)
-                Debug.LogWarning($"Use explicit {nameof(SyncVarNetworkBehaviour)} class instead of {nameof(SyncVar<T>)}<NetworkBehaviour>. It stores netId internally for persistence.");
+                Debug.LogWarning($"Use explicit SyncVarNetworkBehaviour class instead of {nameof(SyncVar<T>)}<NetworkBehaviour>. It stores netId internally for persistence.");
 
             _Value = value;
             this.hook = hook;

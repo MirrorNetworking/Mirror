@@ -14,10 +14,15 @@ namespace Mirror
     // we use an ulong SyncField internally to store both.
     // while providing .spawned lookup for convenience.
     // NOTE: server always knows all spawned. consider caching the field again.
-    public class SyncVarNetworkBehaviour : SyncVar<ulong>
+    // <T> to support abstract NetworkBehaviour and classes inheriting from it.
+    //  => hooks can be OnHook(Monster, Monster) instead of OnHook(NB, NB)
+    //  => implicit cast can be to/from Monster instead of only NetworkBehaviour
+    //  => Weaver needs explicit types for hooks too, not just OnHook(NB, NB)
+    public class SyncVarNetworkBehaviour<T> : SyncVar<ulong>
+        where T : NetworkBehaviour
     {
         // .spawned lookup from netId overwrites base uint .Value
-        public new NetworkBehaviour Value
+        public new T Value
         {
             get => ULongToNetworkBehaviour(base.Value);
             set => base.Value = NetworkBehaviourToULong(value);
@@ -28,19 +33,19 @@ namespace Mirror
         //   SyncVarNetworkBehaviour = new SyncVarNetworkBehaviour()
         // instead of
         //   SyncVarNetworkBehaviour = new SyncVarNetworkBehaviour(null);
-        public SyncVarNetworkBehaviour(NetworkBehaviour value = null, Action<NetworkBehaviour, NetworkBehaviour> hook = null)
+        public SyncVarNetworkBehaviour(T value = null, Action<T, T> hook = null)
             : base(NetworkBehaviourToULong(value),
                    hook != null ? WrapHook(hook) : null) {}
 
         // implicit conversion: NetworkBehaviour value = SyncFieldNetworkBehaviour
-        public static implicit operator NetworkBehaviour(SyncVarNetworkBehaviour field) => field.Value;
+        public static implicit operator T(SyncVarNetworkBehaviour<T> field) => field.Value;
 
         // implicit conversion: SyncFieldNetworkBehaviour = value
         // even if SyncField is readonly, it's still useful: SyncFieldNetworkBehaviour = target;
-        public static implicit operator SyncVarNetworkBehaviour(NetworkBehaviour value) => new SyncVarNetworkBehaviour(value);
+        public static implicit operator SyncVarNetworkBehaviour<T>(T value) => new SyncVarNetworkBehaviour<T>(value);
 
         // wrap <NetworkIdentity> hook within base <uint> hook
-        static Action<ulong, ulong> WrapHook(Action<NetworkBehaviour, NetworkBehaviour> hook) =>
+        static Action<ulong, ulong> WrapHook(Action<T, T> hook) =>
             (oldValue, newValue) => { hook(ULongToNetworkBehaviour(oldValue), ULongToNetworkBehaviour(newValue)); };
 
         // helper functions to get/set netId, componentIndex from ulong
@@ -57,7 +62,7 @@ namespace Mirror
         }
 
         // helper function to find/get NetworkBehaviour to ulong (netId/compIndex)
-        static NetworkBehaviour ULongToNetworkBehaviour(ulong value)
+        static T ULongToNetworkBehaviour(ulong value)
         {
             // unpack ulong to netId, componentIndex
             Unpack(value, out uint netId, out byte componentIndex);
@@ -66,10 +71,10 @@ namespace Mirror
             NetworkIdentity identity = Utils.GetSpawnedInServerOrClient(netId);
 
             // get the nth component
-            return identity != null ? identity.NetworkBehaviours[componentIndex] : null;
+            return identity != null ? (T)identity.NetworkBehaviours[componentIndex] : null;
         }
 
-        static ulong NetworkBehaviourToULong(NetworkBehaviour value)
+        static ulong NetworkBehaviourToULong(T value)
         {
             // pack netId, componentIndex to ulong
             return value != null ? Pack(value.netId, (byte)value.ComponentIndex) : 0;

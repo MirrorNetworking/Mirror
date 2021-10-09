@@ -30,7 +30,7 @@ namespace Mirror.Tests
         public void SyncFieldNetworkBehaviour_Recommendation()
         {
             // should show even if value is null since T is <NetworkBehaviour>
-            LogAssert.Expect(LogType.Warning, new Regex($"Use explicit {nameof(SyncVarNetworkBehaviour)}.*"));
+            LogAssert.Expect(LogType.Warning, new Regex($"Use explicit SyncVarNetworkBehaviour.*"));
             SyncVar<NetworkBehaviour> _ = new SyncVar<NetworkBehaviour>(null);
         }
 
