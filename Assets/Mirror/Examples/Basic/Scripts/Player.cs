@@ -11,7 +11,7 @@ namespace Mirror.Examples.Basic
         public event System.Action<int> OnPlayerDataChanged;
 
         // Players List to manage playerNumber
-        internal static readonly List<Player> playersList = new List<Player>();
+        static readonly List<Player> playersList = new List<Player>();
 
         internal static void ResetPlayerNumbers()
         {
