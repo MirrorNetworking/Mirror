@@ -17,9 +17,7 @@ namespace Mirror.Examples.Basic
         {
             int playerNumber = 0;
             foreach (Player player in playersList)
-            {
                 player.playerNumber = playerNumber++;
-            }
         }
 
         [Header("Player UI")]
