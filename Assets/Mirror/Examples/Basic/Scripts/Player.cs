@@ -114,9 +114,9 @@ namespace Mirror.Examples.Basic
             playerUI.GetComponent<PlayerUI>().SetPlayer(this, isLocalPlayer);
 
             // Invoke all event handlers with the current data
-            OnPlayerNumberChanged.Invoke(playerNumber);
-            OnPlayerColorChanged.Invoke(playerColor);
-            OnPlayerDataChanged.Invoke(playerData);
+            OnPlayerNumberChanged?.Invoke(playerNumber);
+            OnPlayerColorChanged?.Invoke(playerColor);
+            OnPlayerDataChanged?.Invoke(playerData);
         }
 
         /// <summary>
