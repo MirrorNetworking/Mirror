@@ -5,8 +5,25 @@ using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
-    public class SyncVarTests
+    public class SyncVarTests : MirrorTest
     {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            // SyncVar<T> hooks are only called while client is active for now.
+            // so we need an active client.
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+        }
+
+        [TearDown]
+        public override void TearDown()
+        {
+            base.TearDown();
+        }
+
         // SyncField<GameObject> should recommend SyncFielGameObject instead
         [Test]
         public void SyncFieldGameObject_Recommendation()

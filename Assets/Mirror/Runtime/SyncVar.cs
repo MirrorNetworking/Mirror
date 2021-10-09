@@ -49,12 +49,13 @@ namespace Mirror
                     // calling Value.set from within the hook would call the
                     // hook again and deadlock. prevent it with hookGuard.
                     // (see test: Hook_Set_DoesntDeadlock)
-                    if (hook != null && !hookGuard)
+                    if (hook != null && !hookGuard &&
+                        // original [SyncVar] only calls hook on clients.
+                        // let's keep it for consistency for now
+                        // TODO remove check & dependency in the future.
+                        //      use isClient/isServer in the hook instead.
+                        NetworkClient.active)
                     {
-                        // Note that unlike [SyncVar], SyncVar<T> hook is
-                        // called on server & clients.
-                        // use 'isServer' / 'isClient' early returns in the hook
-                        // if necessary.
                         hookGuard = true;
                         hook(old, value);
                         hookGuard = false;
