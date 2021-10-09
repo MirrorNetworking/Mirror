@@ -162,17 +162,18 @@ namespace Mirror.Tests.SyncVarAttributeTests
             const int clientValue = 16;
             const int serverValue = 16;
 
-            // change it on server
+            // set both to same values once
             serverObject.value = serverValue;
             clientObject.value = clientValue;
 
-            // hook should change it on client
+            // client hook
             int callCount = 0;
             clientObject.HookCalled += (oldValue, newValue) =>
             {
                 callCount++;
             };
 
+            // hook shouldn't be called because both already have same value
             bool written = SyncToClient(serverObject, clientObject, intialState);
             Assert.IsTrue(written);
             Assert.That(callCount, Is.EqualTo(0));
