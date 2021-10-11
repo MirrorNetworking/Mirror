@@ -13,7 +13,7 @@ namespace Mirror
     [CustomPropertyDrawer(typeof(SyncVar<>))]
     public class SyncVarDrawer : PropertyDrawer
     {
-        static readonly GUIContent syncVarIndicatorContent = new GUIContent("SyncVar", "This variable is a SyncVar<T>.");
+        static readonly GUIContent syncVarIndicatorContent = new GUIContent("SyncVar<T>", "This variable is a SyncVar<T>.");
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
