@@ -109,7 +109,7 @@ namespace Mirror
 
         internal static void RegisterSystemHandlers(bool hostMode)
         {
-            // host mode client / regular client react to some messages differently.
+            // host mode client / remote client react to some messages differently.
             // but we still need to add handlers for all of them to avoid
             // 'message id not found' errors.
             if (hostMode)
@@ -117,7 +117,6 @@ namespace Mirror
                 RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
                 RegisterHandler<NetworkPongMessage>(msg => {}, false);
-                RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
                 RegisterHandler<ObjectSpawnStartedMessage>(msg => {});
@@ -132,11 +131,13 @@ namespace Mirror
                 RegisterHandler<ObjectHideMessage>(OnObjectHide);
                 RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
                 RegisterHandler<SpawnMessage>(OnSpawn);
-                RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
                 RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
                 RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
                 RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
             }
+
+            // These handlers are the same for host and remote clients
+            RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
 
