@@ -17,7 +17,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 characterController = GetComponent<CharacterController>();
 
             characterController.enabled = false;
-            GetComponent<Rigidbody>().isKinematic = false;
+            GetComponent<Rigidbody>().isKinematic = true;
             GetComponent<NetworkTransform>().clientAuthority = true;
         }
 
