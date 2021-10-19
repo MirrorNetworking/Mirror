@@ -15,6 +15,7 @@ namespace Mirror
 
         public int offsetX;
         public int offsetY;
+        public int areaWidth = 215;
         public int buttonHeight = 20;
         public int fontSize = 14;
 
@@ -39,7 +40,7 @@ namespace Mirror
             GUI.skin.button.fontSize = fontSize;
             GUI.skin.textField.fontSize = fontSize;
             
-            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
+            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, areaWidth, 9999));
             if (!NetworkClient.isConnected && !NetworkServer.active)
             {
                 StartButtons();
