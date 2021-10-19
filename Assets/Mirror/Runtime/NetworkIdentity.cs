@@ -338,11 +338,19 @@ namespace Mirror
             hasSpawned = false;
 
 #if UNITY_EDITOR
-            SetupIDs();
+            EditorApplication.delayCall += OnValidateLater;
 #endif
         }
 
 #if UNITY_EDITOR
+        void OnValidateLater()
+        {
+            if(this != null)
+            {
+                SetupIDs();
+            }
+        }
+
         void AssignAssetID(string path)
         {
             // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
