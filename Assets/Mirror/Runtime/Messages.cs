@@ -69,6 +69,7 @@ namespace Mirror
     {
         public uint netId;
         public bool isOwner;
+        public bool isLocalPlayer;
     }
 
     public struct ObjectSpawnStartedMessage : NetworkMessage {}
