@@ -811,13 +811,10 @@ namespace Mirror
             OnClientChangeScene(newSceneName, sceneOperation, customHandling);
 
             // After calling OnClientChangeScene, exit if server since server is already doing
-            // the actual scene change, and we don't need to do it for the host client.
-            // Host client still needs OnClientSceneChanged called because it's virtual and may be overridden.
+            // the actual scene change, and we don't need to do it for the host client
             if (NetworkServer.active)
-            {
-                OnClientSceneChanged(NetworkClient.connection);
                 return;
-            }
+
             // set client flag to stop processing messages while loading scenes.
             // otherwise we would process messages and then lose all the state
             // as soon as the load is finishing, causing all kinds of bugs
