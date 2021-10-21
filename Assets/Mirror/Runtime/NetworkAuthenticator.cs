@@ -61,15 +61,15 @@ namespace Mirror
             NetworkClient.connection.Disconnect();
         }
 
-        void OnValidate()
+        void Reset()
         {
 #if UNITY_EDITOR
             // automatically assign authenticator field if we add this to NetworkManager
             NetworkManager manager = GetComponent<NetworkManager>();
             if (manager != null && manager.authenticator == null)
             {
+                UnityEditor.Undo.RecordObject(manager, "Assigned NetworkManager authenticator");
                 manager.authenticator = this;
-                UnityEditor.Undo.RecordObject(gameObject, "Assigned NetworkManager authenticator");
             }
 #endif
         }
