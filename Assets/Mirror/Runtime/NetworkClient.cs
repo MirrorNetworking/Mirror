@@ -1020,12 +1020,6 @@ namespace Mirror
             }
         }
 
-        internal static void ChangeOwner(NetworkIdentity identity, ChangeOwnerMessage message)
-        {
-            identity.hasAuthority = message.isOwner;
-            identity.NotifyAuthority();
-        }
-
         // Finds Existing Object with NetId or spawns a new one using AssetId or sceneId
         internal static bool FindOrSpawnObject(SpawnMessage message, out NetworkIdentity identity)
         {
@@ -1284,6 +1278,24 @@ namespace Mirror
                 ChangeOwner(identity, message);
             else
                 Debug.LogError($"OnChangeOwner: Could not find object with netId {message.netId}");
+        }
+
+        internal static void ChangeOwner(NetworkIdentity identity, ChangeOwnerMessage message)
+        {
+            identity.hasAuthority = message.isOwner;
+            identity.NotifyAuthority();
+
+            identity.isLocalPlayer = message.isLocalPlayer;
+            if (identity.isLocalPlayer)
+                localPlayer = identity;
+            else if (localPlayer == identity)
+            {
+                // localPlayer may already be assigned to something else
+                // so only make it null if it's this identity.
+                localPlayer = null;
+            }
+
+            CheckForLocalPlayer(identity);
         }
 
         internal static void CheckForLocalPlayer(NetworkIdentity identity)
