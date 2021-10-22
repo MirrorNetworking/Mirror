@@ -60,7 +60,13 @@ namespace Mirror
             // disconnect the client
             NetworkClient.connection.Disconnect();
         }
-
+        
+        // Reset() instead of OnValidate():
+        // Any NetworkAuthenticator assigns itself to the NetworkManager, this is fine on first adding it, 
+        // but if someone intentionally sets Authenticator to null on the NetworkManager again then the 
+        // Authenticator will reassign itself if a value in the inspector is changed.
+        // My change switches OnValidate to Reset since Reset is only called when the component is first 
+        // added (or reset is pressed).
         void Reset()
         {
 #if UNITY_EDITOR
@@ -68,6 +74,7 @@ namespace Mirror
             NetworkManager manager = GetComponent<NetworkManager>();
             if (manager != null && manager.authenticator == null)
             {
+                // undo has to be called before the change happens
                 UnityEditor.Undo.RecordObject(manager, "Assigned NetworkManager authenticator");
                 manager.authenticator = this;
             }
