@@ -1245,6 +1245,8 @@ namespace Mirror
 
         static void DestroyObject(NetworkIdentity identity, DestroyMode mode)
         {
+            // Debug.Log($"DestroyObject instance:{identity.netId}");
+
             if (aoi)
             {
                 // This calls user code which might throw exceptions
@@ -1258,7 +1260,8 @@ namespace Mirror
                     Debug.LogException(e);
                 }
             }
-            // Debug.Log($"DestroyObject instance:{identity.netId}");
+
+            // remove from NetworkServer (this) dictionary
             spawned.Remove(identity.netId);
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
@@ -1276,6 +1279,9 @@ namespace Mirror
                 // NotifyAuthority which invokes OnStopAuthority if hasAuthority.
                 identity.hasAuthority = false;
                 identity.NotifyAuthority();
+
+                // remove from NetworkClient dictionary
+                NetworkClient.spawned.Remove(identity.netId);
             }
 
             // we are on the server. call OnStopServer.
