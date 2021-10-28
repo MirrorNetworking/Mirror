@@ -22,12 +22,18 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return false;
+
             int range = GetVisRange(identity);
             return Vector3.Distance(identity.transform.position, newObserver.identity.transform.position) < range;
         }
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             // cache range and .transform because both call GetComponent.
             int range = GetVisRange(identity);
             Vector3 position = identity.transform.position;
@@ -55,7 +61,7 @@ namespace Mirror
 
         void Update()
         {
-            // only on server
+            // Do nothing if server has shut down (or not started)
             if (!NetworkServer.active) return;
 
             // rebuild all spawned NetworkIdentity's observers every interval

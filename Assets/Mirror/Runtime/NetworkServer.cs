@@ -1247,7 +1247,8 @@ namespace Mirror
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
-            if (aoi)
+            // Do nothing if server has shut down (or not started) or no interest mgmt
+            if (active && aoi != null)
             {
                 // This calls user code which might throw exceptions
                 // We don't want this to leave us in bad state
@@ -1484,6 +1485,9 @@ namespace Mirror
         // both worlds without any worrying now!
         public static void RebuildObservers(NetworkIdentity identity, bool initialize)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!active) return;
+
             // observers are null until OnStartServer creates them
             if (identity.observers == null)
                 return;

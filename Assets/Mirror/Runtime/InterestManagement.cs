@@ -58,6 +58,9 @@ namespace Mirror
         // IMPORTANT: check if NetworkServer.active when using Update()!
         protected void RebuildAll()
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
             {
                 NetworkServer.RebuildObservers(identity, false);

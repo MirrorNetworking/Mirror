@@ -37,6 +37,9 @@ namespace Mirror
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             lastObjectMatch.TryGetValue(identity, out Guid currentMatch);
             lastObjectMatch.Remove(identity);
             if (currentMatch != Guid.Empty && matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
@@ -108,6 +111,9 @@ namespace Mirror
 
         void RebuildMatchObservers(Guid matchId)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             foreach (NetworkIdentity netIdentity in matchObjects[matchId])
                 if (netIdentity != null)
                     NetworkServer.RebuildObservers(netIdentity, false);
@@ -115,6 +121,9 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return false;
+
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch identityNetworkMatch))
                 return false;
 
@@ -126,6 +135,9 @@ namespace Mirror
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                 return;
 

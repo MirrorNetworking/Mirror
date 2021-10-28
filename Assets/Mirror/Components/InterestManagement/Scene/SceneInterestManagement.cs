@@ -31,6 +31,9 @@ namespace Mirror
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             Scene currentScene = lastObjectScene[identity];
             lastObjectScene.Remove(identity);
             if (sceneObjects.TryGetValue(currentScene, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
@@ -84,6 +87,9 @@ namespace Mirror
 
         void RebuildSceneObservers(Scene scene)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             foreach (NetworkIdentity netIdentity in sceneObjects[scene])
                 if (netIdentity != null)
                     NetworkServer.RebuildObservers(netIdentity, false);
@@ -91,12 +97,17 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return false;
+
             return identity.gameObject.scene == newObserver.identity.gameObject.scene;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers,
-            bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             if (!sceneObjects.TryGetValue(identity.gameObject.scene, out HashSet<NetworkIdentity> objects))
                 return;
 
