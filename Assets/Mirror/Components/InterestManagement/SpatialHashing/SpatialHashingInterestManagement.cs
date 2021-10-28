@@ -40,6 +40,9 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return false;
+
             // calculate projected positions
             Vector2Int projected = ProjectToGrid(identity.transform.position);
             Vector2Int observerProjected = ProjectToGrid(newObserver.identity.transform.position);
@@ -53,6 +56,9 @@ namespace Mirror
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
         {
+            // Do nothing if server has shut down (or not started)
+            if (!NetworkServer.active) return;
+
             // add everyone in 9 neighbour grid
             // -> pass observers to GetWithNeighbours directly to avoid allocations
             //    and expensive .UnionWith computations.
@@ -64,7 +70,7 @@ namespace Mirror
         // (internal so we can update from tests)
         internal void Update()
         {
-            // only on server
+            // Do nothing if server has shut down (or not started)
             if (!NetworkServer.active) return;
 
             // NOTE: unlike Scene/MatchInterestManagement, this rebuilds ALL
