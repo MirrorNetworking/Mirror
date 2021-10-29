@@ -137,27 +137,38 @@ namespace Mirror
             // Do nothing if server has shut down (or not started)
             if (!NetworkServer.active) return;
 
-            if (identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam) && !networkTeam.forceShown)
-                {
-                    string teamId = networkTeam.teamId;
-
-                    // string.Empty is never a valid teamId
-                    if (!networkTeam.forceShown && teamId == string.Empty)
-                        return;
-
-                    if (!teamObjects.TryGetValue(teamId, out HashSet<NetworkIdentity> objects))
-                        return;
-
-                    // Add everything in the hashset for this object's current team
-                    foreach (NetworkIdentity networkIdentity in objects)
-                        if (networkIdentity != null && networkIdentity.connectionToClient != null)
-                            newObservers.Add(networkIdentity.connectionToClient);
-
-                    return;
-                }
-
             // If this object doesn't have a NetworkTeam then it's visible to all clients
+            if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam))
+            {
+                AddAllConnections(newObservers);
+                return;
+            }
+
             // If this object has NetworkTeam and forceShown == true then it's visible to all clients
+            if (networkTeam.forceShown)
+            {
+                AddAllConnections(newObservers);
+                return;
+            }
+
+            string teamId = networkTeam.teamId;
+
+            // string.Empty is never a valid teamId
+            if (teamId == string.Empty)
+                return;
+
+            // Abort if this team hasn't been created yet by OnSpawned or UpdateTeamObjects
+            if (!teamObjects.TryGetValue(teamId, out HashSet<NetworkIdentity> objects))
+                return;
+
+            // Add everything in the hashset for this object's current team
+            foreach (NetworkIdentity networkIdentity in objects)
+                if (networkIdentity != null && networkIdentity.connectionToClient != null)
+                    newObservers.Add(networkIdentity.connectionToClient);
+        }
+
+        void AddAllConnections(HashSet<NetworkConnection> newObservers)
+        {
             foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
             {
                 // authenticated and joined world with a player?
