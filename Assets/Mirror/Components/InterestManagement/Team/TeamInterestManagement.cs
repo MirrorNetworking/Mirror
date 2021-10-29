@@ -11,7 +11,7 @@ namespace Mirror
         readonly Dictionary<NetworkIdentity, string> lastObjectTeam =
             new Dictionary<NetworkIdentity, string>();
 
-        HashSet<string> dirtyTeams = new HashSet<string>();
+        readonly HashSet<string> dirtyTeams = new HashSet<string>();
 
         public override void OnSpawned(NetworkIdentity identity)
         {
@@ -25,7 +25,6 @@ namespace Mirror
             if (currentTeam == string.Empty)
                 return;
 
-            // Debug.Log($"TeamInterestManagement.OnSpawned({identity.name}) currentTeam: {currentTeam}");
             if (!teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects))
             {
                 objects = new HashSet<NetworkIdentity>();
@@ -138,10 +137,7 @@ namespace Mirror
             // Do nothing if server has shut down (or not started)
             if (!NetworkServer.active) return;
 
-            if (identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam))
-            {
-                // If forceShown == false, this object is only shown to clients on same team
-                if (!networkTeam.forceShown)
+            if (identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam) && !networkTeam.forceShown)
                 {
                     string teamId = networkTeam.teamId;
 
@@ -159,7 +155,6 @@ namespace Mirror
 
                     return;
                 }
-            }
 
             // If this object doesn't have a NetworkTeam then it's visible to all clients
             // If this object has NetworkTeam and forceShown == true then it's visible to all clients
