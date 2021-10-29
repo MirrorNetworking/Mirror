@@ -151,14 +151,12 @@ namespace Mirror
                 return;
             }
 
-            string teamId = networkTeam.teamId;
-
             // string.Empty is never a valid teamId
-            if (teamId == string.Empty)
+            if (networkTeam.teamId == string.Empty)
                 return;
 
             // Abort if this team hasn't been created yet by OnSpawned or UpdateTeamObjects
-            if (!teamObjects.TryGetValue(teamId, out HashSet<NetworkIdentity> objects))
+            if (!teamObjects.TryGetValue(networkTeam.teamId, out HashSet<NetworkIdentity> objects))
                 return;
 
             // Add everything in the hashset for this object's current team
