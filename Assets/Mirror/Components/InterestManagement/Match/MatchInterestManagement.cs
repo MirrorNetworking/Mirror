@@ -11,7 +11,7 @@ namespace Mirror
         readonly Dictionary<NetworkIdentity, Guid> lastObjectMatch =
             new Dictionary<NetworkIdentity, Guid>();
 
-        HashSet<Guid> dirtyMatches = new HashSet<Guid>();
+        readonly HashSet<Guid> dirtyMatches = new HashSet<Guid>();
 
         public override void OnSpawned(NetworkIdentity identity)
         {
