@@ -130,7 +130,7 @@ namespace Mirror
                 return true;
 
             // Observed only if teamId's match
-            return identityNetworkTeam.teamId == newObserverNetworkTeam.teamId;
+            return identityNetworkTeam.forceShown || identityNetworkTeam.teamId == newObserverNetworkTeam.teamId;
         }
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
@@ -140,24 +140,29 @@ namespace Mirror
 
             if (identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam))
             {
-                string teamId = networkTeam.teamId;
+                // If forceShown == false, this object is only shown to clients on same team
+                if (!networkTeam.forceShown)
+                {
+                    string teamId = networkTeam.teamId;
 
-                // string.Empty is never a valid teamId
-                if (teamId == string.Empty)
+                    // string.Empty is never a valid teamId
+                    if (!networkTeam.forceShown && teamId == string.Empty)
+                        return;
+
+                    if (!teamObjects.TryGetValue(teamId, out HashSet<NetworkIdentity> objects))
+                        return;
+
+                    // Add everything in the hashset for this object's current team
+                    foreach (NetworkIdentity networkIdentity in objects)
+                        if (networkIdentity != null && networkIdentity.connectionToClient != null)
+                            newObservers.Add(networkIdentity.connectionToClient);
+
                     return;
-
-                if (!teamObjects.TryGetValue(teamId, out HashSet<NetworkIdentity> objects))
-                    return;
-
-                // Add everything in the hashset for this object's current team
-                foreach (NetworkIdentity networkIdentity in objects)
-                    if (networkIdentity != null && networkIdentity.connectionToClient != null)
-                        newObservers.Add(networkIdentity.connectionToClient);
-
-                return;
+                }
             }
 
-            // if this object doesn't have a NetworkTeam then it's visible to all clients
+            // If this object doesn't have a NetworkTeam then it's visible to all clients
+            // If this object has NetworkTeam and forceShown == true then it's visible to all clients
             foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
             {
                 // authenticated and joined world with a player?
