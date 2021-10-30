@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -471,7 +472,9 @@ namespace Mirror
         /// <param name="conn">Connection to the server.</param>
         public override void OnClientConnect(NetworkConnection conn)
         {
+#pragma warning disable 618
             OnRoomClientConnect(conn);
+#pragma warning restore 618
             base.OnClientConnect(conn);
         }
 
@@ -482,7 +485,9 @@ namespace Mirror
         /// <param name="conn">Connection to the server.</param>
         public override void OnClientDisconnect(NetworkConnection conn)
         {
+#pragma warning disable 618
             OnRoomClientDisconnect(conn);
+#pragma warning restore 618
             base.OnClientDisconnect(conn);
         }
 
@@ -512,7 +517,9 @@ namespace Mirror
                 CallOnClientExitRoom();
 
             base.OnClientSceneChanged(conn);
+#pragma warning disable 618
             OnRoomClientSceneChanged(conn);
+#pragma warning restore 618
         }
 
         #endregion
@@ -638,19 +645,24 @@ namespace Mirror
         /// <summary>
         /// This is called on the client when it connects to server.
         /// </summary>
-        /// <param name="conn">The connection that connected.</param>
-        public virtual void OnRoomClientConnect(NetworkConnection conn) {}
+        public virtual void OnRoomClientConnect() {}
+
+        // Deprecated 2021-10-30
+        [Obsolete("Remove NetworkConnection from your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientConnect(NetworkConnection conn) => OnRoomClientConnect();
 
         /// <summary>
         /// This is called on the client when disconnected from a server.
         /// </summary>
-        /// <param name="conn">The connection that disconnected.</param>
-        public virtual void OnRoomClientDisconnect(NetworkConnection conn) {}
+        public virtual void OnRoomClientDisconnect() {}
+
+        // Deprecated 2021-10-30
+        [Obsolete("Remove NetworkConnection from your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientDisconnect(NetworkConnection conn) => OnRoomClientDisconnect();
 
         /// <summary>
         /// This is called on the client when a client is started.
         /// </summary>
-        /// <param name="roomClient">The connection for the room.</param>
         public virtual void OnRoomStartClient() {}
 
         /// <summary>
@@ -661,8 +673,11 @@ namespace Mirror
         /// <summary>
         /// This is called on the client when the client is finished loading a new networked scene.
         /// </summary>
-        /// <param name="conn">The connection that finished loading a new networked scene.</param>
-        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) {}
+        public virtual void OnRoomClientSceneChanged() {}
+
+        // Deprecated 2021-10-30
+        [Obsolete("Remove NetworkConnection from your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) => OnRoomClientSceneChanged();
 
         /// <summary>
         /// Called on the client when adding a player to the room fails.
