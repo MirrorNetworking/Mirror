@@ -11,11 +11,8 @@ namespace Mirror
     /// <para>This would be used when the server has multiple additive subscenes loaded to isolate players to their respective subscenes</para>
     /// </summary>
     // Deprecated 2021-07-13
-    [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/NetworkSceneChecker")]
-    [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-scene-checker")]
+    [Obsolete("This component has been deprecated. Remove this component and add Scene Interest Management component to the same object as your Network Manager.")]
     public class NetworkSceneChecker : NetworkVisibility
     {
         /// <summary>

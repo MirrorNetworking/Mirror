@@ -163,7 +163,7 @@ namespace Mirror
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
 
 #pragma warning disable 618
-        [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
+        [Obsolete("Network Visibility has been deprecated. Use Global Interest Management instead.")]
         public NetworkVisibility visibility { get; private set; }
 #pragma warning restore 618
 

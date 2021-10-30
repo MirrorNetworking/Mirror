@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public abstract class InterestManagement : MonoBehaviour
     {
         // Awake configures InterestManagement in NetworkServer/Client

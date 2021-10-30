@@ -1,5 +1,4 @@
 ﻿// simple component that holds team information
-using System;
 using UnityEngine;
 
 namespace Mirror
