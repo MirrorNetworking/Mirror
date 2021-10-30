@@ -11,7 +11,7 @@ namespace Mirror
     // note: we inherit from NetworkBehaviour so we can reuse .netIdentity, etc.
     // note: unlike UNET, we only allow 1 proximity checker per NetworkIdentity.
 
-    // Deprecated 2021-02-17
+    // Deprecated 2021-10-30
     [DisallowMultipleComponent]
     [Obsolete("Network Visibility has been deprecated. Use Global Interest Management instead. Click ? button on this component for details.")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
