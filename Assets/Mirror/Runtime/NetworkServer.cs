@@ -1247,7 +1247,7 @@ namespace Mirror
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
-            if (aoi)
+            if (active && aoi)
             {
                 // This calls user code which might throw exceptions
                 // We don't want this to leave us in bad state
