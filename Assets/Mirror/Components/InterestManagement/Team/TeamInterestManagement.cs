@@ -35,17 +35,15 @@ namespace Mirror
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            // Do nothing if server has shut down (or not started)
-            if (!NetworkServer.active) return;
-
             lastObjectTeam.TryGetValue(identity, out string currentTeam);
             lastObjectTeam.Remove(identity);
             if (currentTeam != string.Empty && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
                 RebuildTeamObservers(currentTeam);
         }
 
+        // internal so we can update from tests
         [ServerCallback]
-        void Update()
+        internal void Update()
         {
             // for each spawned:
             //   if team changed:
@@ -116,9 +114,6 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
-            // Do nothing if server has shut down (or not started)
-            if (!NetworkServer.active) return false;
-
             // Always observed if no NetworkTeam component
             if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam identityNetworkTeam))
                 return true;
@@ -133,9 +128,6 @@ namespace Mirror
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
         {
-            // Do nothing if server has shut down (or not started)
-            if (!NetworkServer.active) return;
-
             // If this object doesn't have a NetworkTeam then it's visible to all clients
             if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam))
             {
