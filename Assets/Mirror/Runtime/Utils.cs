@@ -117,5 +117,26 @@ namespace Mirror
         public static bool IsPointInScreen(Vector2 point) =>
             0 <= point.x && point.x < Screen.width &&
             0 <= point.y && point.y < Screen.height;
+
+        // universal .spawned function
+        public static NetworkIdentity GetSpawnedInServerOrClient(uint netId)
+        {
+            // server / host mode: use the one from server.
+            // host mode has access to all spawned.
+            if (NetworkServer.active)
+            {
+                NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity entry);
+                return entry;
+            }
+
+            // client
+            if (NetworkClient.active)
+            {
+                NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity entry);
+                return entry;
+            }
+
+            return null;
+        }
     }
 }
