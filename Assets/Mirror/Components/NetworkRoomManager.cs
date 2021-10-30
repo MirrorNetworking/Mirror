@@ -444,9 +444,9 @@ namespace Mirror
             OnRoomStopHost();
         }
 
-#endregion
+        #endregion
 
-#region client handlers
+        #region client handlers
 
         /// <summary>
         /// This is invoked when the client is started.
@@ -515,9 +515,9 @@ namespace Mirror
             OnRoomClientSceneChanged(conn);
         }
 
-#endregion
+        #endregion
 
-#region room server virtuals
+        #region room server virtuals
 
         /// <summary>
         /// This is called on the host when a host is started.
@@ -621,9 +621,9 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomServerPlayersNotReady() {}
 
-#endregion
+        #endregion
 
-#region room client virtuals
+        #region room client virtuals
 
         /// <summary>
         /// This is a hook to allow custom behaviour when the game client enters the room.
@@ -670,9 +670,9 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomClientAddPlayerFailed() {}
 
-#endregion
+        #endregion
 
-#region optional UI
+        #region optional UI
 
         /// <summary>
         /// virtual so inheriting classes can roll their own
@@ -694,6 +694,6 @@ namespace Mirror
                 GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
 
-#endregion
+        #endregion
     }
 }
