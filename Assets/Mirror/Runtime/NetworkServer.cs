@@ -1247,7 +1247,10 @@ namespace Mirror
         {
             // Debug.Log($"DestroyObject instance:{identity.netId}");
 
-            if (aoi)
+            // only call OnRebuildObservers while active,
+            // not while shutting down
+            // (https://github.com/vis2k/Mirror/issues/2977)
+            if (active && aoi)
             {
                 // This calls user code which might throw exceptions
                 // We don't want this to leave us in bad state
