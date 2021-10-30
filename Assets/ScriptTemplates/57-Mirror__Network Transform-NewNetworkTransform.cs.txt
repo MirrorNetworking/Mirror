@@ -12,7 +12,7 @@ public class #SCRIPTNAME# : NetworkTransformBase
     protected override Transform targetComponent => transform;
 
     // If you need this template to reference a child target, 
-    // replace the line above with the code below
+    // replace the line above with the code below.
 
     /*
     [Header("Target")]
@@ -45,7 +45,6 @@ public class #SCRIPTNAME# : NetworkTransformBase
     }
 
     /// <summary>
-    /// <summary>
     /// Buffers are cleared and interpolation times are reset to zero here.
     /// This may be called when you are implementing some system of not sending
     /// if nothing changed, or just plain resetting if you have not received data
@@ -53,7 +52,6 @@ public class #SCRIPTNAME# : NetworkTransformBase
     /// and just received data, as it will look like a lag. Reset() should also be 
     /// called when authority is changed to another client or server, to prevent 
     /// old buffers bugging out the interpolation if authority is changed back.
-    /// </summary>
     /// </summary>
     protected override void Reset()
     {
