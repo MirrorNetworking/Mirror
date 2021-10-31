@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Authenticators
@@ -7,11 +8,15 @@ namespace Mirror.Authenticators
     [AddComponentMenu("Network/Authenticators/BasicAuthenticator")]
     public class BasicAuthenticator : NetworkAuthenticator
     {
-        [Header("Custom Properties")]
+        [Header("Server Credentials")]
+        public string serverUsername;
+        public string serverPassword;
 
-        // set these in the inspector
+        [Header("Client Credentials")]
         public string username;
         public string password;
+
+        readonly HashSet<NetworkConnection> connectionsPendingDisconnect = new HashSet<NetworkConnection>();
 
         #region Messages
 
@@ -71,8 +76,10 @@ namespace Mirror.Authenticators
         {
             // Debug.LogFormat(LogType.Log, "Authentication Request: {0} {1}", msg.authUsername, msg.authPassword);
 
+            if (connectionsPendingDisconnect.Contains(conn)) return;
+
             // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-            if (msg.authUsername == username && msg.authPassword == password)
+            if (msg.authUsername == serverUsername && msg.authPassword == serverPassword)
             {
                 // create and send msg to client so it knows to proceed
                 AuthResponseMessage authResponseMessage = new AuthResponseMessage
@@ -88,6 +95,8 @@ namespace Mirror.Authenticators
             }
             else
             {
+                connectionsPendingDisconnect.Add(conn);
+
                 // create and send msg to client so it knows to disconnect
                 AuthResponseMessage authResponseMessage = new AuthResponseMessage
                 {
@@ -111,6 +120,11 @@ namespace Mirror.Authenticators
 
             // Reject the unsuccessful authentication
             ServerReject(conn);
+
+            yield return null;
+
+            // remove conn from pending connections
+            connectionsPendingDisconnect.Remove(conn);
         }
 
         #endregion
