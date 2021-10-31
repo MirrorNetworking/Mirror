@@ -8,8 +8,6 @@ namespace Mirror.Authenticators
     [AddComponentMenu("Network/Authenticators/BasicAuthenticator")]
     public class BasicAuthenticator : NetworkAuthenticator
     {
-        [Multiline, SerializeField] string instructions = "Set Server Credentials in OnStartServer.\nSet Client Credentials from UI handler\nbefore calling StartClient.";
-
         [Header("Server Credentials")]
         public string serverUsername;
         public string serverPassword;
@@ -18,7 +16,7 @@ namespace Mirror.Authenticators
         public string username;
         public string password;
 
-        HashSet<NetworkConnection> connectionsPendingDisconnect = new HashSet<NetworkConnection>();
+        readonly HashSet<NetworkConnection> connectionsPendingDisconnect = new HashSet<NetworkConnection>();
 
         #region Messages
 
