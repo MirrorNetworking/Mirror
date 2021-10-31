@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -444,9 +445,9 @@ namespace Mirror
             OnRoomStopHost();
         }
 
-#endregion
+        #endregion
 
-#region client handlers
+        #region client handlers
 
         /// <summary>
         /// This is invoked when the client is started.
@@ -471,7 +472,9 @@ namespace Mirror
         /// <param name="conn">Connection to the server.</param>
         public override void OnClientConnect(NetworkConnection conn)
         {
+#pragma warning disable 618
             OnRoomClientConnect(conn);
+#pragma warning restore 618
             base.OnClientConnect(conn);
         }
 
@@ -482,7 +485,9 @@ namespace Mirror
         /// <param name="conn">Connection to the server.</param>
         public override void OnClientDisconnect(NetworkConnection conn)
         {
+#pragma warning disable 618
             OnRoomClientDisconnect(conn);
+#pragma warning restore 618
             base.OnClientDisconnect(conn);
         }
 
@@ -512,12 +517,14 @@ namespace Mirror
                 CallOnClientExitRoom();
 
             base.OnClientSceneChanged(conn);
+#pragma warning disable 618
             OnRoomClientSceneChanged(conn);
+#pragma warning restore 618
         }
 
-#endregion
+        #endregion
 
-#region room server virtuals
+        #region room server virtuals
 
         /// <summary>
         /// This is called on the host when a host is started.
@@ -621,9 +628,9 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomServerPlayersNotReady() {}
 
-#endregion
+        #endregion
 
-#region room client virtuals
+        #region room client virtuals
 
         /// <summary>
         /// This is a hook to allow custom behaviour when the game client enters the room.
@@ -638,19 +645,24 @@ namespace Mirror
         /// <summary>
         /// This is called on the client when it connects to server.
         /// </summary>
-        /// <param name="conn">The connection that connected.</param>
-        public virtual void OnRoomClientConnect(NetworkConnection conn) {}
+        public virtual void OnRoomClientConnect() {}
+
+        // Deprecated 2021-10-30
+        [Obsolete("Remove NetworkConnection from your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientConnect(NetworkConnection conn) => OnRoomClientConnect();
 
         /// <summary>
         /// This is called on the client when disconnected from a server.
         /// </summary>
-        /// <param name="conn">The connection that disconnected.</param>
-        public virtual void OnRoomClientDisconnect(NetworkConnection conn) {}
+        public virtual void OnRoomClientDisconnect() {}
+
+        // Deprecated 2021-10-30
+        [Obsolete("Remove NetworkConnection from your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientDisconnect(NetworkConnection conn) => OnRoomClientDisconnect();
 
         /// <summary>
         /// This is called on the client when a client is started.
         /// </summary>
-        /// <param name="roomClient">The connection for the room.</param>
         public virtual void OnRoomStartClient() {}
 
         /// <summary>
@@ -661,8 +673,11 @@ namespace Mirror
         /// <summary>
         /// This is called on the client when the client is finished loading a new networked scene.
         /// </summary>
-        /// <param name="conn">The connection that finished loading a new networked scene.</param>
-        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) {}
+        public virtual void OnRoomClientSceneChanged() {}
+
+        // Deprecated 2021-10-30
+        [Obsolete("Remove NetworkConnection from your override and use NetworkClient.connection instead.")]
+        public virtual void OnRoomClientSceneChanged(NetworkConnection conn) => OnRoomClientSceneChanged();
 
         /// <summary>
         /// Called on the client when adding a player to the room fails.
@@ -670,9 +685,9 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomClientAddPlayerFailed() {}
 
-#endregion
+        #endregion
 
-#region optional UI
+        #region optional UI
 
         /// <summary>
         /// virtual so inheriting classes can roll their own
@@ -694,6 +709,6 @@ namespace Mirror
                 GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
 
-#endregion
+        #endregion
     }
 }

@@ -9,7 +9,7 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to other objects in the same match.</para>
     /// <para>This would be used to isolate players to their respective matches within a single game server instance. </para>
     /// </summary>
-    // Deprecated 2021-07-16
+    // Deprecated 2021-10-30
     [DisallowMultipleComponent]
     [Obsolete("This component has been replaced with Network Match component. Remove this component and add Match Interest Management component to the same object as your Network Manager.")]
     [RequireComponent(typeof(NetworkMatch))]

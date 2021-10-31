@@ -8,7 +8,7 @@ namespace Mirror
     /// Component that controls visibility of networked objects for players.
     /// <para>Any object with this component on it will not be visible to players more than a (configurable) distance away.</para>
     /// </summary>
-    // Deprecated 2021-07-13
+    // Deprecated 2021-10-30
     [DisallowMultipleComponent]
     [Obsolete("This component has been replaced with Distance Interest Management Custom Range component. Remove this component and add Distance Interest Management component to the same object as your Network Manager.")]
     [RequireComponent(typeof(DistanceInterestManagementCustomRange))]

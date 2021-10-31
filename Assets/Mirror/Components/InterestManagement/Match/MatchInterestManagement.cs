@@ -43,8 +43,9 @@ namespace Mirror
                 RebuildMatchObservers(currentMatch);
         }
 
+        // internal so we can update from tests
         [ServerCallback]
-        void Update()
+        internal void Update()
         {
             // for each spawned:
             //   if match changed:
