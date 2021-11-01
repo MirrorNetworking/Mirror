@@ -119,9 +119,9 @@ If you use Mirror in production, consider Mirror LTS!
 All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/MirrorNetworking/Mirror-46-LTS) automatically.
 
 ## Low Level Transports
-* (built in) [KCP](https://app.gitbook.com/@mirror-networking/s/docs/transports/kcp-transport): reliable UDP
-* (built in) [Telepathy](https://app.gitbook.com/@mirror-networking/s/docs/transports/telepathy-transport): TCP
-* (built in) [Websockets](https://app.gitbook.com/@mirror-networking/s/docs/transports/websockets-transport): Websockets
+* (built in) [KCP](https://github.com/vis2k/kcp2k): reliable UDP
+* (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
+* (built in) [Websockets](https://github.com/MirrorNetworking/SimpleWebTransport): Websockets
 * [Ignorance](https://github.com/SoftwareGuy/Ignorance/): ENET UDP
 * [LiteNetLib](https://github.com/MirrorNetworking/LiteNetLibTransport/) UDP
 * [FizzySteam](https://github.com/Chykary/FizzySteamworks/): SteamNetwork
