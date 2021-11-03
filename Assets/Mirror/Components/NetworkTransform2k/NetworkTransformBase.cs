@@ -413,7 +413,7 @@ namespace Mirror
         }
 
         // common Teleport code for client->server and server->client
-        protected virtual void OnTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
         {
             // reset any in-progress interpolation & buffers
             Reset();
@@ -458,7 +458,7 @@ namespace Mirror
             //         so the server should be able to reset position if needed.
 
             // TODO what about host mode?
-            OnTeleportAndRotate(destination, rotation);
+            OnTeleport(destination, rotation);
         }
 
         // client->server teleport to force position without interpolation.
@@ -493,7 +493,7 @@ namespace Mirror
             if (!clientAuthority) return;
 
             // TODO what about host mode?
-            OnTeleportAndRotate(destination, rotation);
+            OnTeleport(destination, rotation);
 
             // if a client teleports, we need to broadcast to everyone else too
             // TODO the teleported client should ignore the rpc though.
