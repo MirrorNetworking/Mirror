@@ -95,6 +95,16 @@ public class #SCRIPTNAME# : NetworkTransformBase
     }
 
     /// <summary>
+    /// Called by both CmdTeleportAndRotate and RpcTeleportAndRotate on server and clients, respectively.
+    /// Here you can disable a Character Controller before calling the base method, 
+    /// and re-enabling it after the base method call to avoid conflicting with it.
+    /// </summary>
+    protected override void OnTeleport(Vector3 destination, Quaternion rotation)
+    {
+        base.OnTeleport(destination, rotation);
+    }
+
+    /// <summary>
     /// NTSnapshot struct is created here
     /// </summary>
     protected override NTSnapshot ConstructSnapshot()
