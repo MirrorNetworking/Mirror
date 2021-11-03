@@ -445,7 +445,7 @@ namespace Mirror
             OnTeleport(destination);
         }
 
-        // server->client teleport to force position without interpolation.
+        // server->client teleport to force position and rotation without interpolation.
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [ClientRpc]
@@ -483,7 +483,7 @@ namespace Mirror
             RpcTeleport(destination);
         }
 
-        // client->server teleport to force position without interpolation.
+        // client->server teleport to force position and rotation without interpolation.
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [Command]
