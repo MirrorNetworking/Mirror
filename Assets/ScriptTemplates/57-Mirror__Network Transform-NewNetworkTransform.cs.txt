@@ -99,9 +99,9 @@ public class #SCRIPTNAME# : NetworkTransformBase
     /// Here you can disable a Character Controller before calling the base method, 
     /// and re-enabling it after the base method call to avoid conflicting with it.
     /// </summary>
-    protected override void OnTeleport(Vector3 destination, Quaternion rotation)
+    protected override void OnTeleportAndRotate(Vector3 destination, Quaternion rotation)
     {
-        base.OnTeleport(destination, rotation);
+        base.OnTeleportAndRotate(destination, rotation);
     }
 
     /// <summary>

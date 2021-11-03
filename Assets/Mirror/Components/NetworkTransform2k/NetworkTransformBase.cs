@@ -413,7 +413,7 @@ namespace Mirror
         }
 
         // common Teleport code for client->server and server->client
-        protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
+        protected virtual void OnTeleportAndRotate(Vector3 destination, Quaternion rotation)
         {
             // reset any in-progress interpolation & buffers
             Reset();
@@ -449,7 +449,7 @@ namespace Mirror
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [ClientRpc]
-        public void RpcTeleport(Vector3 destination, Quaternion rotation)
+        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
         {
             // NOTE: even in client authority mode, the server is always allowed
             //       to teleport the player. for example:
@@ -458,7 +458,7 @@ namespace Mirror
             //         so the server should be able to reset position if needed.
 
             // TODO what about host mode?
-            OnTeleport(destination, rotation);
+            OnTeleportAndRotate(destination, rotation);
         }
 
         // client->server teleport to force position without interpolation.
@@ -487,13 +487,13 @@ namespace Mirror
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [Command]
-        public void CmdTeleport(Vector3 destination, Quaternion rotation)
+        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
         {
             // client can only teleport objects that it has authority over.
             if (!clientAuthority) return;
 
             // TODO what about host mode?
-            OnTeleport(destination, rotation);
+            OnTeleportAndRotate(destination, rotation);
 
             // if a client teleports, we need to broadcast to everyone else too
             // TODO the teleported client should ignore the rpc though.
@@ -502,7 +502,7 @@ namespace Mirror
             // TODO or not? if client ONLY calls Teleport(pos), the position
             //      would only be set after the rpc. unless the client calls
             //      BOTH Teleport(pos) and targetComponent.position=pos
-            RpcTeleport(destination, rotation);
+            RpcTeleportAndRotate(destination, rotation);
         }
 
         protected virtual void Reset()
