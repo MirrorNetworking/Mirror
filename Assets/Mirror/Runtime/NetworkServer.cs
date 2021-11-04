@@ -1115,7 +1115,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in identities)
             {
                 if (ValidateSceneObject(identity))
-                    Spawn(identity.gameObject);
+                    Spawn(identity.gameObject, identity.connectionToClient);
             }
 
             return true;
