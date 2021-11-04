@@ -1115,6 +1115,8 @@ namespace Mirror
             foreach (NetworkIdentity identity in identities)
             {
                 if (ValidateSceneObject(identity))
+                    // pass connection so that authority is not lost when server loads a scene
+                    // https://github.com/vis2k/Mirror/pull/2987
                     Spawn(identity.gameObject, identity.connectionToClient);
             }
 
