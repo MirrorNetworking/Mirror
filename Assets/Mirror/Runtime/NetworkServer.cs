@@ -956,7 +956,12 @@ namespace Mirror
 
         internal static void SendChangeOwnerMessage(NetworkIdentity identity, NetworkConnection conn)
         {
-            if (identity.serverOnly) return;
+            // Don't send if identity isn't spawned or only exists on server
+            if (identity.netId == 0 || identity.serverOnly) return;
+
+            // Don't send if conn doesn't have the identity spawned yet
+            // May be excluded from the client by interest management
+            if (!conn.observing.Contains(identity)) return;
 
             //Debug.Log($"Server SendChangeOwnerMessage: name={identity.name} netid={identity.netId}");
 
