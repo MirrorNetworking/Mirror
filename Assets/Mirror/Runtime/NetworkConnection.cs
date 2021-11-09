@@ -9,7 +9,7 @@ namespace Mirror
     {
         public const int LocalConnectionId = 0;
 
-        // NetworkIdentities that this connection can see
+        /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
         public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
