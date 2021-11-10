@@ -151,6 +151,9 @@ namespace Mirror
         }
 
         // virtual so that inheriting classes' Reset() can call base.Reset() too
+        // Reset only gets called when the component is added or the user resets the component
+        // Thats why we validate these things that only need to be validated on adding the NetworkManager here
+        // If we would do it in OnValidate() then it would run this everytime a value changes
         public virtual void Reset()
         {
             // make sure someone doesn't accidentally add another NetworkManager
@@ -171,6 +174,7 @@ namespace Mirror
             if (transport == null)
             {
 #if UNITY_EDITOR
+                // RecordObject needs to be called before we make the change
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
 #endif
                 
