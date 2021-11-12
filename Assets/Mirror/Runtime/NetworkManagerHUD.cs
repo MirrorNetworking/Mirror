@@ -55,6 +55,9 @@ namespace Mirror
         {
             if (!NetworkClient.active)
             {
+                // Update networkAddress every frame from the TextField value
+                manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+
                 // Server + Client
                 if (Application.platform != RuntimePlatform.WebGLPlayer)
                 {
@@ -70,7 +73,6 @@ namespace Mirror
                 {
                     manager.StartClient();
                 }
-                manager.networkAddress = GUILayout.TextField(manager.networkAddress);
                 GUILayout.EndHorizontal();
 
                 // Server Only
