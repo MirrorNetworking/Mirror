@@ -1242,6 +1242,8 @@ namespace Mirror
                 if (NetworkClient.localPlayer == this)
                     NetworkClient.localPlayer = null;
             }
+
+            previousLocalPlayer = null;
             isLocalPlayer = false;
         }
 
