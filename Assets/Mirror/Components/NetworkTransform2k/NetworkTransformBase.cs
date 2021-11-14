@@ -331,6 +331,8 @@ namespace Mirror
             // client authority, and local player (= allowed to move myself)?
             if (IsClientWithAuthority)
             {
+                if (!NetworkClient.ready) return;
+
                 // send to server each 'sendInterval'
                 // NetworkTime.localTime for double precision until Unity has it too
                 //
