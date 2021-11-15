@@ -331,6 +331,9 @@ namespace Mirror
             // client authority, and local player (= allowed to move myself)?
             if (IsClientWithAuthority)
             {
+                // https://github.com/vis2k/Mirror/pull/2992/
+                if (!NetworkClient.ready) return;
+
                 // send to server each 'sendInterval'
                 // NetworkTime.localTime for double precision until Unity has it too
                 //
