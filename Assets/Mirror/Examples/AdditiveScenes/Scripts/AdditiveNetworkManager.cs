@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Mirror.Examples.Additive
+namespace Mirror.Examples.AdditiveScenes
 {
     [AddComponentMenu("")]
     public class AdditiveNetworkManager : NetworkManager

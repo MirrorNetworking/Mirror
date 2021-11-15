@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.Examples.Additive
+namespace Mirror.Examples.AdditiveScenes
 {
     // This script is attached to a prefab called Zone that is on the Player layer
     // AdditiveNetworkManager, in OnStartServer, instantiates the prefab only on the server.
