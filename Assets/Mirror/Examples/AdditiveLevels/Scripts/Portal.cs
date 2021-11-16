@@ -15,11 +15,19 @@ namespace Mirror.Examples.AdditiveLevels
         [Tooltip("Reference to child TMP label")]
         public TMPro.TextMeshPro label;
 
+        WaitForSeconds waitForSeconds;
+
+        public override void OnStartServer()
+        {
+            // This is aproximately the fade time
+            waitForSeconds = new WaitForSeconds(((AdditiveLevelsNetworkManager)NetworkManager.singleton).fadeInOut.speed + 0.3f);
+        }
+
         /// <summary>
         /// Called on every NetworkBehaviour when it is activated on a client.
         /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
         /// </summary>
-        public override void OnStartClient() 
+        public override void OnStartClient()
         {
             label.text = SceneManager.GetSceneByPath(destinationScene).name;
         }
@@ -52,9 +60,7 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to unload previous subscene. No custom handling for this.
                 conn.Send(new SceneMessage { sceneName = gameObject.scene.path, sceneOperation = SceneOperation.UnloadAdditive, customHandling = true });
 
-                // This is aproximately the fade time
-                // TODO: needs to be calculated instead of hard coded
-                yield return new WaitForSeconds(1.3f);
+                yield return waitForSeconds;
 
                 NetworkServer.RemovePlayerForConnection(conn, false);
                 yield return null;
