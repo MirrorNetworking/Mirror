@@ -237,9 +237,9 @@ MonoBehaviour:
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 0
-  bufferTimeMultiplier: 1
+  bufferTimeMultiplier: 0
   bufferSizeLimit: 64
-  catchupThreshold: 4
+  catchupThreshold: 3
   catchupMultiplier: 0.1
   showGizmos: 0
   showOverlay: 0
@@ -346,4 +346,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2e242ee38a14076a39934172a19079b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
   visRange: 40
