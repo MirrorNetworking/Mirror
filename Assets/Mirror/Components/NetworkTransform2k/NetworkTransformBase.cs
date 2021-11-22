@@ -35,7 +35,7 @@ namespace Mirror
         protected bool IsClientWithAuthority => hasAuthority && clientAuthority;
 
         // target transform to sync. can be on a child.
-        protected abstract Transform targetComponent { get; }
+        protected abstract Transform targetComponent { get; set; }
 
         [Header("Synchronization")]
         [Range(0, 1)] public float sendInterval = 0.050f;
@@ -102,6 +102,10 @@ namespace Mirror
         public bool showGizmos;
         public bool showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
+
+        [Header("Target")]
+        [Tooltip("False will leave target as null, for later assignment if needed.")]
+        public bool setThisTransformAsTarget = true;
 
         // snapshot functions //////////////////////////////////////////////////
         // construct a snapshot of the current state

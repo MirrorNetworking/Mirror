@@ -8,6 +8,18 @@ namespace Mirror
     {
         [Header("Target")]
         public Transform target;
-        protected override Transform targetComponent => target;
+        protected override Transform targetComponent
+        {
+            get
+            {
+                if (target == null && setThisTransformAsTarget) { target = this.transform; }
+                return target;
+            }
+            set
+            {
+                targetComponent = target;
+                Reset();
+            }
+        }
     }
 }

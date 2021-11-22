@@ -11,6 +11,20 @@ namespace Mirror
     [DisallowMultipleComponent]
     public class NetworkTransform : NetworkTransformBase
     {
-        protected override Transform targetComponent => transform;
+        [Tooltip("Target transform to sync. target can be on a child, but this component needs to remain on parent/root networked object.")]
+        public Transform target;
+        protected override Transform targetComponent
+        {
+            get
+            {
+                if (target == null && setThisTransformAsTarget) { target = this.transform; }
+                return target;
+            }
+            set
+            {
+                targetComponent = target;
+                Reset();
+            }
+        }
     }
 }
