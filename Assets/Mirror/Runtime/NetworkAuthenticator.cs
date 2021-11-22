@@ -44,25 +44,13 @@ namespace Mirror
         /// <summary>Called when client stops, used to unregister message handlers if needed.</summary>
         public virtual void OnStopClient() {}
 
-        // Deprecated 2021-03-13
-        [Obsolete("Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
-        public virtual void OnClientAuthenticate(NetworkConnection conn) => OnClientAuthenticate();
-
         /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
         public abstract void OnClientAuthenticate();
-
-        // Deprecated 2021-03-13
-        [Obsolete("Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
-        protected void ClientAccept(NetworkConnection conn) => ClientAccept();
 
         protected void ClientAccept()
         {
             OnClientAuthenticated.Invoke(NetworkClient.connection);
         }
-
-        // Deprecated 2021-03-13
-        [Obsolete("Remove the NetworkConnection parameter from your override and use NetworkClient.connection instead")]
-        protected void ClientReject(NetworkConnection conn) => ClientReject();
 
         protected void ClientReject()
         {
@@ -72,16 +60,23 @@ namespace Mirror
             // disconnect the client
             NetworkClient.connection.Disconnect();
         }
-
-        void OnValidate()
+        
+        // Reset() instead of OnValidate():
+        // Any NetworkAuthenticator assigns itself to the NetworkManager, this is fine on first adding it, 
+        // but if someone intentionally sets Authenticator to null on the NetworkManager again then the 
+        // Authenticator will reassign itself if a value in the inspector is changed.
+        // My change switches OnValidate to Reset since Reset is only called when the component is first 
+        // added (or reset is pressed).
+        void Reset()
         {
 #if UNITY_EDITOR
             // automatically assign authenticator field if we add this to NetworkManager
             NetworkManager manager = GetComponent<NetworkManager>();
             if (manager != null && manager.authenticator == null)
             {
+                // undo has to be called before the change happens
+                UnityEditor.Undo.RecordObject(manager, "Assigned NetworkManager authenticator");
                 manager.authenticator = this;
-                UnityEditor.Undo.RecordObject(gameObject, "Assigned NetworkManager authenticator");
             }
 #endif
         }

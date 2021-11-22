@@ -4,8 +4,7 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructKey
 {
     class SyncDictionaryErrorForGenericStructKey : NetworkBehaviour
     {
-        MyGenericStructDictionary harpseals;
-
+        readonly MyGenericStructDictionary harpseals;
 
         struct MyGenericStruct<T>
         {

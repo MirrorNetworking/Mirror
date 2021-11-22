@@ -1,0 +1,21 @@
+{
+    "name": "Unity.Mirror.CodeGen",
+    "rootNamespace": "",
+    "references": [
+        "Mirror"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.CecilX.dll",
+        "Mono.CecilX.Rocks.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

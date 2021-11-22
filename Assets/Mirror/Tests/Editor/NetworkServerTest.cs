@@ -630,6 +630,25 @@ namespace Mirror.Tests
             Assert.That(connectionToClient.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
         }
 
+        // test to avoid https://github.com/vis2k/Mirror/issues/2882
+        // messages in a batch aren't length prefixed.
+        // if we can't read one, we need to warn and disconnect.
+        // otherwise it overlaps to the next message and causes undefined behaviour.
+        [Test]
+        public void Send_ClientToServerMessage_UnknownMessageIdDisconnects()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send a message without a registered handler
+            NetworkClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            // should have been disconnected
+            Assert.That(NetworkServer.connections.ContainsKey(connectionToClient.connectionId), Is.False);
+        }
+
         [Test]
         public void Send_ServerToClientMessage_SetsRemoteTimeStamp()
         {
@@ -661,6 +680,25 @@ namespace Mirror.Tests
             //  finish the batch. but the difference should not be > 'waitTime')
             Assert.That(called, Is.EqualTo(1));
             Assert.That(NetworkClient.connection.remoteTimeStamp, Is.EqualTo(sendTime).Within(waitTime / 10));
+        }
+
+        // test to avoid https://github.com/vis2k/Mirror/issues/2882
+        // messages in a batch aren't length prefixed.
+        // if we can't read one, we need to warn and disconnect.
+        // otherwise it overlaps to the next message and causes undefined behaviour.
+        [Test]
+        public void Send_ServerToClientMessage_UnknownMessageIdDisconnects()
+        {
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
+
+            // send a message without a registered handler
+            connectionToClient.Send(new TestMessage1());
+            ProcessMessages();
+
+            // should have been disconnected
+            Assert.That(NetworkClient.active, Is.False);
         }
 
         [Test]
@@ -1060,6 +1098,38 @@ namespace Mirror.Tests
             Assert.That(identity.netId, Is.Zero);
         }
 
+        [Test]
+        public void UnSpawnAndClearAuthority()
+        {
+            // create scene object with valid netid and set active
+            CreateNetworked(out GameObject go, out NetworkIdentity identity, out StartAuthorityCalledNetworkBehaviour compStart, out StopAuthorityCalledNetworkBehaviour compStop);
+            identity.sceneId = 42;
+            identity.netId = 123;
+            go.SetActive(true);
+
+            // set authority from false to true, which should call OnStartAuthority
+            identity.hasAuthority = true;
+            identity.NotifyAuthority();
+
+            // shouldn't be touched
+            Assert.That(identity.hasAuthority, Is.True);
+            // start should be called
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // stop shouldn't
+            Assert.That(compStop.called, Is.EqualTo(0));
+
+            // unspawn should reset netid and remove authority
+            NetworkServer.UnSpawn(go);
+            Assert.That(identity.netId, Is.Zero);
+
+            // should be changed
+            Assert.That(identity.hasAuthority, Is.False);
+            // same as before
+            Assert.That(compStart.called, Is.EqualTo(1));
+            // stop should be called
+            Assert.That(compStop.called, Is.EqualTo(1));
+        }
+
         // test to reproduce a bug where stopping the server would not call
         // OnStopServer on scene objects:
         // https://github.com/vis2k/Mirror/issues/2119
@@ -1213,30 +1283,31 @@ namespace Mirror.Tests
             NetworkServer.NetworkLateUpdate();
         }
 
-        // NetworkServer.Update iterates all connections.
-        // a timed out connection may call Disconnect, trying to modify the
-        // collection during the loop.
-        // -> test to prevent https://github.com/vis2k/Mirror/pull/2718
+        // SyncLists/Dict/Set .changes are only flushed when serializing.
+        // if an object has no observers, then serialize is never called.
+        // if we still keep changing the lists, then .changes would grow forever.
+        // => need to make sure that .changes doesn't grow while no observers.
         [Test]
-        public void UpdateWithTimedOutConnection()
+        public void SyncObjectChanges_DontGrowWithoutObservers()
         {
-            // configure to disconnect with '0' timeout (= immediately)
-#pragma warning disable 618
-            NetworkServer.disconnectInactiveConnections = true;
-            NetworkServer.disconnectInactiveTimeout = 0;
-
-            // start
             NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
 
-            // add a connection
-            NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
+            // one monster
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
-            // update
-            NetworkServer.NetworkLateUpdate();
+            // without AOI, connections observer everything.
+            // clear the observers first.
+            identity.ClearObservers();
 
-            // clean up
-            NetworkServer.disconnectInactiveConnections = false;
-#pragma warning restore 618
+            // insert into a synclist, which would add to .changes
+            comp.list.Add(42);
+
+            // update everything once
+            ProcessMessages();
+
+            // changes should be empty since we have no observers
+            Assert.That(comp.list.GetChangeCount(), Is.EqualTo(0));
         }
     }
 }

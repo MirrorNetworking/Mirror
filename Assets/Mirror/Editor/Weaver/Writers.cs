@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+// to use Mono.CecilX.Rocks here, we need to 'override references' in the
+// Unity.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.Rocks.
+// otherwise we get an unknown import exception.
 using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
@@ -35,7 +38,7 @@ namespace Mirror.Weaver
                 // TODO enable this again later.
                 // Writer has some obsolete functions that were renamed.
                 // Don't want weaver warnings for all of them.
-                //Weaver.Warning($"Registering a Write method for {dataType.FullName} when one already exists", methodReference);
+                //Log.Warning($"Registering a Write method for {dataType.FullName} when one already exists", methodReference);
             }
 
             // we need to import type when we Initialize Writers so import here in case it is used anywhere else
@@ -188,7 +191,7 @@ namespace Mirror.Weaver
 
         MethodDefinition GenerateWriterFunc(TypeReference variable)
         {
-            string functionName = "_Write_" + variable.FullName;
+            string functionName = $"_Write_{variable.FullName}";
             // create new writer for this type
             MethodDefinition writerFunc = new MethodDefinition(functionName,
                     MethodAttributes.Public |

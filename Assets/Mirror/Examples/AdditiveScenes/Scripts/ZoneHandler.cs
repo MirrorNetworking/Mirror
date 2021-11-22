@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.Examples.Additive
+namespace Mirror.Examples.AdditiveScenes
 {
     // This script is attached to a prefab called Zone that is on the Player layer
     // AdditiveNetworkManager, in OnStartServer, instantiates the prefab only on the server.
@@ -14,22 +14,20 @@ namespace Mirror.Examples.Additive
         [Tooltip("Assign the sub-scene to load for this zone")]
         public string subScene;
 
+        [ServerCallback]
         void OnTriggerEnter(Collider other)
         {
-            if (!NetworkServer.active) return;
-
-            // Debug.LogFormat(LogType.Log, "Loading {0}", subScene);
+            // Debug.Log($"Loading {subScene}");
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
             SceneMessage message = new SceneMessage{ sceneName = subScene, sceneOperation = SceneOperation.LoadAdditive };
             networkIdentity.connectionToClient.Send(message);
         }
 
+        [ServerCallback]
         void OnTriggerExit(Collider other)
         {
-            if (!NetworkServer.active) return;
-
-            // Debug.LogFormat(LogType.Log, "Unloading {0}", subScene);
+            // Debug.Log($"Unloading {subScene}");
 
             NetworkIdentity networkIdentity = other.gameObject.GetComponent<NetworkIdentity>();
             SceneMessage message = new SceneMessage{ sceneName = subScene, sceneOperation = SceneOperation.UnloadAdditive };

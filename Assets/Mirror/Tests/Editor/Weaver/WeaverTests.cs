@@ -32,7 +32,7 @@ namespace Mirror.Weaver.Tests
             string testSourceDirectory = className + "~";
             WeaverAssembler.OutputFile = Path.Combine(testSourceDirectory, testName + ".dll");
             WeaverAssembler.AddSourceFiles(new string[] { Path.Combine(testSourceDirectory, testName + ".cs") });
-            WeaverAssembler.Build();
+            WeaverAssembler.Build(HandleWeaverWarning, HandleWeaverError);
 
             Assert.That(WeaverAssembler.CompilerErrors, Is.False);
             foreach (string error in weaverErrors)
@@ -45,20 +45,23 @@ namespace Mirror.Weaver.Tests
         [OneTimeSetUp]
         public void FixtureSetup()
         {
-            // TextRenderingModule is only referenced to use TextMesh type to throw errors about types from another module
-            WeaverAssembler.AddReferencesByAssemblyName(new string[] { "UnityEngine.dll", "UnityEngine.CoreModule.dll", "UnityEngine.TextRenderingModule.dll", "Mirror.dll" });
-
+#if !UNITY_2020_3_OR_NEWER
+            // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
             CompilationFinishedHook.UnityLogEnabled = false;
             CompilationFinishedHook.OnWeaverError += HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning += HandleWeaverWarning;
+#endif
         }
 
         [OneTimeTearDown]
         public void FixtureCleanup()
         {
+#if !UNITY_2020_3_OR_NEWER
+            // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
             CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;
             CompilationFinishedHook.UnityLogEnabled = true;
+#endif
         }
 
         [TearDown]

@@ -27,22 +27,22 @@ namespace GeneratedReaderWriter.CanUseCustomReadWriteForAbstractClass
     {
         public static void WriteData(this NetworkWriter writer, DataBase data)
         {
-            writer.WriteInt32(data.id);
+            writer.WriteInt(data.id);
             // write extra stuff depending on id here
-            writer.WriteInt32(data.someField);
+            writer.WriteInt(data.someField);
 
             if (data.id == 1)
             {
                 SomeData someData = (SomeData)data;
-                writer.WriteSingle(someData.anotherField);
+                writer.WriteFloat(someData.anotherField);
             }
         }
 
         public static DataBase ReadData(this NetworkReader reader)
         {
-            int id = reader.ReadInt32();
+            int id = reader.ReadInt();
 
-            int someField = reader.ReadInt32();
+            int someField = reader.ReadInt();
             DataBase data = null;
             if (data.id == 1)
             {
@@ -52,7 +52,7 @@ namespace GeneratedReaderWriter.CanUseCustomReadWriteForAbstractClass
                 };
                 // read extra stuff depending on id here
 
-                someData.anotherField = reader.ReadSingle();
+                someData.anotherField = reader.ReadFloat();
 
                 data = someData;
             }

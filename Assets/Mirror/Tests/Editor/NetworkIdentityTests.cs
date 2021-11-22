@@ -337,7 +337,7 @@ namespace Mirror.Tests
 
             // assign a guid
             Guid guid2 = Guid.NewGuid();
-            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{guid1.ToString("N")}', attempted new assetId '{guid2.ToString("N")}'");
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{guid1:N}', attempted new assetId '{guid2:N}'");
             identity.assetId = guid2;
 
             // guid was changed
@@ -358,7 +358,7 @@ namespace Mirror.Tests
 
             // assign a guid
             Guid guid2 = new Guid();
-            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1.ToString("N")}'");
+            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1:N}'");
             identity.assetId = guid2;
 
             // guid was NOT changed
@@ -400,7 +400,7 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void RemoveObserverInternal()
+        public void RemoveObserver()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
@@ -411,12 +411,12 @@ namespace Mirror.Tests
             NetworkConnectionToClient connection = new NetworkConnectionToClient(42);
             identity.observers[connection.connectionId] = connection;
 
-            // RemoveObserverInternal with invalid connection should do nothing
-            identity.RemoveObserverInternal(new NetworkConnectionToClient(43));
+            // RemoveObserver with invalid connection should do nothing
+            identity.RemoveObserver(new NetworkConnectionToClient(43));
             Assert.That(identity.observers.Count, Is.EqualTo(1));
 
-            // RemoveObserverInternal with existing connection should remove it
-            identity.RemoveObserverInternal(connection);
+            // RemoveObserver with existing connection should remove it
+            identity.RemoveObserver(connection);
             Assert.That(identity.observers.Count, Is.EqualTo(0));
         }
 
@@ -606,12 +606,6 @@ namespace Mirror.Tests
             Assert.That(callbackIdentity, Is.EqualTo(identity));
             Assert.That(callbackState, Is.EqualTo(true));
 
-            // assigning authority should respawn the object with proper authority
-            // on the client. that's the best way to sync the new state right now.
-            // process pending messages
-            owner.connectionToServer.Update();
-            Assert.That(spawnCalled, Is.EqualTo(1));
-
             // shouldn't be able to assign authority while already owned by
             // another connection
             // error log is expected
@@ -693,7 +687,7 @@ namespace Mirror.Tests
             // set it to false, should call OnStopAuthority
             identity.hasAuthority = false;
             identity.NotifyAuthority();
-            // shouldn't be touched
+            // should be changed
             Assert.That(identity.hasAuthority, Is.False);
             // same as before
             Assert.That(compStart.called, Is.EqualTo(1));
@@ -914,8 +908,8 @@ namespace Mirror.Tests
             compB.syncInterval = Mathf.Infinity;
 
             // set components dirty bits
-            compA.SetDirtyBit(0x0001);
-            compB.SetDirtyBit(0x1001);
+            compA.SetSyncVarDirtyBit(0x0001);
+            compB.SetSyncVarDirtyBit(0x1001);
             // dirty because interval reached and mask != 0
             Assert.That(compA.IsDirty(), Is.True);
             // not dirty because syncinterval not reached
@@ -946,8 +940,8 @@ namespace Mirror.Tests
             compB.syncInterval = Mathf.Infinity;
 
             // set components dirty bits
-            compA.SetDirtyBit(0x0001);
-            compB.SetDirtyBit(0x1001);
+            compA.SetSyncVarDirtyBit(0x0001);
+            compB.SetSyncVarDirtyBit(0x1001);
             // dirty because interval reached and mask != 0
             Assert.That(compA.IsDirty(), Is.True);
             // not dirty because syncinterval not reached

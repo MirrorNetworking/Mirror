@@ -4,7 +4,7 @@ namespace WeaverSyncSetTests.SyncSetStruct
 {
     class SyncSetStruct : NetworkBehaviour
     {
-        MyStructSet Foo;
+        readonly MyStructSet Foo;
 
         struct MyStruct
         {

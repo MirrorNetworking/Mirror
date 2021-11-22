@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Mirror.Examples.Additive
+namespace Mirror.Examples.AdditiveScenes
 {
     [AddComponentMenu("")]
     public class AdditiveNetworkManager : NetworkManager
@@ -25,6 +25,16 @@ namespace Mirror.Examples.Additive
             Instantiate(Zone);
         }
 
+        public override void OnStopServer()
+        {
+            StartCoroutine(UnloadScenes());
+        }
+
+        public override void OnStopClient()
+        {
+            StartCoroutine(UnloadScenes());
+        }
+
         IEnumerator LoadSubScenes()
         {
             Debug.Log("Loading Scenes");
@@ -34,16 +44,6 @@ namespace Mirror.Examples.Additive
                 yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
                 // Debug.Log($"Loaded {sceneName}");
             }
-        }
-
-        public override void OnStopServer()
-        {
-            StartCoroutine(UnloadScenes());
-        }
-
-        public override void OnStopClient()
-        {
-            StartCoroutine(UnloadScenes());
         }
 
         IEnumerator UnloadScenes()

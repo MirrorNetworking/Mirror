@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+// to use Mono.CecilX.Rocks here, we need to 'override references' in the
+// Unity.Mirror.CodeGen assembly definition file in the Editor, and add CecilX.Rocks.
+// otherwise we get an unknown import exception.
 using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
@@ -35,7 +38,7 @@ namespace Mirror.Weaver
                 // TODO enable this again later.
                 // Reader has some obsolete functions that were renamed.
                 // Don't want weaver warnings for all of them.
-                //Weaver.Warning($"Registering a Read method for {dataType.FullName} when one already exists", methodReference);
+                //Log.Warning($"Registering a Read method for {dataType.FullName} when one already exists", methodReference);
             }
 
             // we need to import type when we Initialize Readers so import here in case it is used anywhere else
@@ -208,7 +211,7 @@ namespace Mirror.Weaver
 
         MethodDefinition GenerateReaderFunction(TypeReference variable)
         {
-            string functionName = "_Read_" + variable.FullName;
+            string functionName = $"_Read_{variable.FullName}";
 
             // create new reader for this type
             MethodDefinition readerFunc = new MethodDefinition(functionName,
@@ -309,7 +312,7 @@ namespace Mirror.Weaver
                 MethodDefinition ctor = Resolvers.ResolveDefaultPublicCtor(variable);
                 if (ctor == null)
                 {
-                    Log.Error($"{variable.Name} can't be deserialized because it has no default constructor", variable);
+                    Log.Error($"{variable.Name} can't be deserialized because it has no default constructor. Don't use {variable.Name} in [SyncVar]s, Rpcs, Cmds, etc.", variable);
                     WeavingFailed = true;
                     return;
                 }

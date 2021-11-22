@@ -1,5 +1,7 @@
 using System;
 using Mono.CecilX;
+using UnityEditor;
+using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -12,7 +14,7 @@ namespace Mirror.Weaver
         public MethodReference GetPooledWriterReference;
         public MethodReference RecycleWriterReference;
 
-        public MethodReference ReadyConnectionReference;
+        public MethodReference NetworkClientConnectionReference;
 
         public MethodReference CmdDelegateConstructor;
 
@@ -50,6 +52,10 @@ namespace Mirror.Weaver
         public MethodReference sendTargetRpcInternal;
 
         public MethodReference readNetworkBehaviourGeneric;
+
+        // attributes
+        public TypeDefinition initializeOnLoadMethodAttribute;
+        public TypeDefinition runtimeInitializeOnLoadMethodAttribute;
 
         AssemblyDefinition assembly;
 
@@ -90,14 +96,14 @@ namespace Mirror.Weaver
             GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "GetWriter", ref WeavingFailed);
             RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "Recycle", ref WeavingFailed);
 
-            ReadyConnectionReference = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_readyConnection", ref WeavingFailed);
+            NetworkClientConnectionReference = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_connection", ref WeavingFailed);
 
             syncVarEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SyncVarEqual", ref WeavingFailed);
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SyncVarNetworkIdentityEqual", ref WeavingFailed);
             syncVarGameObjectEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SyncVarGameObjectEqual", ref WeavingFailed);
             setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVar", ref WeavingFailed);
-            setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "setSyncVarHookGuard", ref WeavingFailed);
-            getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "getSyncVarHookGuard", ref WeavingFailed);
+            setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVarHookGuard", ref WeavingFailed);
+            getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GetSyncVarHookGuard", ref WeavingFailed);
 
             setSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVarGameObject", ref WeavingFailed);
             getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GetSyncVarGameObject", ref WeavingFailed);
@@ -139,6 +145,19 @@ namespace Mirror.Weaver
                        md.HasGenericParameters;
             }),
             ref WeavingFailed);
+
+            // [InitializeOnLoadMethod]
+            // 'UnityEditor' is not available in builds.
+            // we can only import this attribute if we are in an Editor assembly.
+            if (Helpers.IsEditorAssembly(assembly))
+            {
+                TypeReference initializeOnLoadMethodAttributeRef = Import(typeof(InitializeOnLoadMethodAttribute));
+                initializeOnLoadMethodAttribute = initializeOnLoadMethodAttributeRef.Resolve();
+            }
+
+            // [RuntimeInitializeOnLoadMethod]
+            TypeReference runtimeInitializeOnLoadMethodAttributeRef = Import(typeof(RuntimeInitializeOnLoadMethodAttribute));
+            runtimeInitializeOnLoadMethodAttribute = runtimeInitializeOnLoadMethodAttributeRef.Resolve();
         }
     }
 }

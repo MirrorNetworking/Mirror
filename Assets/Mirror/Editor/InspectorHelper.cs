@@ -7,12 +7,8 @@ namespace Mirror
 {
     public static class InspectorHelper
     {
-        /// <summary>
-        /// Gets all public and private fields for a type
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="deepestBaseType">Stops at this base type (exclusive)</param>
-        /// <returns></returns>
+        /// <summary>Gets all public and private fields for a type</summary>
+        // deepestBaseType: Stops at this base type (exclusive)
         public static IEnumerable<FieldInfo> GetAllFields(Type type, Type deepestBaseType)
         {
             const BindingFlags publicFields = BindingFlags.Public | BindingFlags.Instance;
@@ -49,25 +45,30 @@ namespace Mirror
             object[] fieldMarkers = field.GetCustomAttributes(typeof(SyncVarAttribute), true);
             return fieldMarkers.Length > 0;
         }
+
         public static bool IsSerializeField(this FieldInfo field)
         {
             object[] fieldMarkers = field.GetCustomAttributes(typeof(SerializeField), true);
             return fieldMarkers.Length > 0;
         }
+
         public static bool IsVisibleField(this FieldInfo field)
         {
             return field.IsPublic || IsSerializeField(field);
         }
 
-        public static bool IsSyncObject(this FieldInfo field)
+        public static bool ImplementsInterface<T>(this FieldInfo field)
         {
-            return typeof(SyncObject).IsAssignableFrom(field.FieldType);
+            return typeof(T).IsAssignableFrom(field.FieldType);
         }
+
         public static bool HasShowInInspector(this FieldInfo field)
         {
             object[] fieldMarkers = field.GetCustomAttributes(typeof(ShowInInspectorAttribute), true);
             return fieldMarkers.Length > 0;
         }
+
+        // checks if SyncObject is public or has our custom [ShowInInspector] field
         public static bool IsVisibleSyncObject(this FieldInfo field)
         {
             return field.IsPublic || HasShowInInspector(field);

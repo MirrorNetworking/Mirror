@@ -4,6 +4,6 @@ namespace WeaverSyncListTests.SyncList
 {
     class SyncList : NetworkBehaviour
     {
-        public SyncListInt Foo;
+        public readonly SyncList<int> Foo;
     }
 }

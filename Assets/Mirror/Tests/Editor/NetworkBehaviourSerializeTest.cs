@@ -136,13 +136,24 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
             }
         }
 
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            // SyncLists are only set dirty while owner has observers.
+            // need a connection.
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+        }
+
         [Test]
         [TestCase(true)]
         [TestCase(false)]
         public void BehaviourWithSyncVarTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVar target);
 
             source.SyncField = 10;
             source.syncList.Add(true);
@@ -159,8 +170,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourFromSyncVarTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVar target);
 
             source.SyncFieldInAbstract = 12;
             source.syncListInAbstract.Add(true);
@@ -179,8 +190,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourWithSyncVarFromSyncVarTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVar target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -208,8 +219,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void SubClassTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClass source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClass target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out SubClass source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out SubClass target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -230,8 +241,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void SubClassFromSyncVarTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out SubClassFromSyncVar target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);
@@ -254,8 +265,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void BehaviourWithSyncVarWithOnSerializeTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out BehaviourWithSyncVarWithOnSerialize target);
 
             source.SyncField = 10;
             source.syncList.Add(true);
@@ -276,8 +287,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourFromSyncVarWithOnSerializeTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourFromSyncVarWithOnSerialize target);
 
             source.SyncFieldInAbstract = 12;
             source.syncListInAbstract.Add(true);
@@ -300,8 +311,8 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
         [TestCase(false)]
         public void OverrideBehaviourWithSyncVarFromSyncVarWithOnSerializeTest(bool initialState)
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize source);
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize target);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize source);
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out OverrideBehaviourWithSyncVarFromSyncVarWithOnSerialize target);
 
             source.SyncFieldInAbstract = 10;
             source.syncListInAbstract.Add(true);

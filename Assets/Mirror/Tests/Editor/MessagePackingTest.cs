@@ -28,7 +28,7 @@ namespace Mirror.Tests
 
                 int id = networkReader.ReadUShort();
                 if (id != msgType)
-                    throw new FormatException("Invalid message,  could not unpack " + typeof(T).FullName);
+                    throw new FormatException($"Invalid message,  could not unpack {typeof(T).FullName}");
 
                 return networkReader.Read<T>();
             }

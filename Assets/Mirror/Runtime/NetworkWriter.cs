@@ -105,28 +105,16 @@ namespace Mirror
 
         public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteUShort(value);
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteBool instead.")]
-        public static void WriteBoolean(this NetworkWriter writer, bool value) => writer.WriteBool(value);
         public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteByte((byte)(value ? 1 : 0));
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteUShort instead.")]
-        public static void WriteUInt16(this NetworkWriter writer, ushort value) => writer.WriteUShort(value);
         public static void WriteUShort(this NetworkWriter writer, ushort value)
         {
             writer.WriteByte((byte)value);
             writer.WriteByte((byte)(value >> 8));
         }
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteShort instead.")]
-        public static void WriteInt16(this NetworkWriter writer, short value) => writer.WriteShort(value);
         public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteUShort((ushort)value);
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteUInt instead.")]
-        public static void WriteUInt32(this NetworkWriter writer, uint value) => writer.WriteUInt(value);
         public static void WriteUInt(this NetworkWriter writer, uint value)
         {
             writer.WriteByte((byte)value);
@@ -135,14 +123,8 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 24));
         }
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteInt instead.")]
-        public static void WriteInt32(this NetworkWriter writer, int value) => writer.WriteInt(value);
         public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteUInt((uint)value);
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteULong instead.")]
-        public static void WriteUInt64(this NetworkWriter writer, ulong value) => writer.WriteULong(value);
         public static void WriteULong(this NetworkWriter writer, ulong value)
         {
             writer.WriteByte((byte)value);
@@ -155,14 +137,8 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 56));
         }
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteLong instead.")]
-        public static void WriteInt64(this NetworkWriter writer, long value) => writer.WriteLong(value);
         public static void WriteLong(this NetworkWriter writer, long value) => writer.WriteULong((ulong)value);
 
-        // Deprecated 2021-05-18
-        [Obsolete("We've cleaned up the API. Use WriteFloat instead.")]
-        public static void WriteSingle(this NetworkWriter writer, float value) => writer.WriteFloat(value);
         public static void WriteFloat(this NetworkWriter writer, float value)
         {
             UIntFloat converter = new UIntFloat
@@ -213,7 +189,7 @@ namespace Mirror
             // check if within max size
             if (size >= NetworkWriter.MaxStringLength)
             {
-                throw new IndexOutOfRangeException("NetworkWriter.Write(string) too long: " + size + ". Limit: " + NetworkWriter.MaxStringLength);
+                throw new IndexOutOfRangeException($"NetworkWriter.Write(string) too long: {size}. Limit: {NetworkWriter.MaxStringLength}");
             }
 
             // write size and bytes
@@ -299,6 +275,14 @@ namespace Mirror
             writer.WriteFloat(value.b);
             writer.WriteFloat(value.a);
         }
+        
+        // TODO add nullable support to weaver instead
+        public static void WriteColorNullable(this NetworkWriter writer, Color? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteColor(value.Value);
+        }
 
         public static void WriteColor32(this NetworkWriter writer, Color32 value)
         {
@@ -306,6 +290,14 @@ namespace Mirror
             writer.WriteByte(value.g);
             writer.WriteByte(value.b);
             writer.WriteByte(value.a);
+        }
+        
+        // TODO add nullable support to weaver instead
+        public static void WriteColor32Nullable(this NetworkWriter writer, Color32? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteColor32(value.Value);
         }
 
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value)
@@ -405,7 +397,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
                 writer.WriteUInt(0);
             }
         }
@@ -424,7 +416,7 @@ namespace Mirror
             }
             else
             {
-                Debug.LogWarning("NetworkWriter " + value + " has no NetworkIdentity");
+                Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
                 writer.WriteUInt(0);
             }
         }

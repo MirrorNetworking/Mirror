@@ -32,7 +32,7 @@ namespace Mirror
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        bool IsClientWithAuthority => hasAuthority && clientAuthority;
+        protected bool IsClientWithAuthority => hasAuthority && clientAuthority;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -52,7 +52,7 @@ namespace Mirror
         [Header("Interpolation")]
         public bool interpolatePosition = true;
         public bool interpolateRotation = true;
-        public bool interpolateScale = true;
+        public bool interpolateScale = false;
 
         // "Experimentally I’ve found that the amount of delay that works best
         //  at 2-5% packet loss is 3X the packet send rate"
@@ -63,14 +63,14 @@ namespace Mirror
         //       the vast majority of connections.
         //       (a player with 2000ms latency will have issues no matter what)
         [Header("Buffering")]
-        [Tooltip("Snapshots are buffered for sendInterval * multiplier seconds. At 2-5% packet loss, 3x supposedly works best.")]
-        public int bufferTimeMultiplier = 3;
+        [Tooltip("Snapshots are buffered for sendInterval * multiplier seconds. If your expected client base is to run at non-ideal connection quality (2-5% packet loss), 3x supposedly works best.")]
+        public int bufferTimeMultiplier = 1;
         public float bufferTime => sendInterval * bufferTimeMultiplier;
         [Tooltip("Buffer size limit to avoid ever growing list memory consumption attacks.")]
         public int bufferSizeLimit = 64;
 
         [Tooltip("Start to accelerate interpolation if buffer size is >= threshold. Needs to be larger than bufferTimeMultiplier.")]
-        public int catchupThreshold = 6;
+        public int catchupThreshold = 4;
 
         [Tooltip("Once buffer is larger catchupThreshold, accelerate by multiplier % per excess entry.")]
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
@@ -152,8 +152,16 @@ namespace Mirror
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
+        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
             OnClientToServerSync(position, rotation, scale);
+            //For client authority, immediately pass on the client snapshot to all other
+            //clients instead of waiting for server to send its snapshots.
+            if (clientAuthority)
+            {
+                RpcServerToClientSync(position, rotation, scale);
+            }
+        }
 
         // local authority client sends sync message to server for broadcasting
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
@@ -269,7 +277,16 @@ namespace Mirror
             // DO NOT send nulls if not changed 'since last send' either. we
             // send unreliable and don't know which 'last send' the other end
             // received successfully.
-            if (NetworkTime.localTime >= lastServerSendTime + sendInterval)
+            //
+            // Checks to ensure server only sends snapshots if object is
+            // on server authority(!clientAuthority) mode because on client
+            // authority mode snapshots are broadcasted right after the authoritative
+            // client updates server in the command function(see above), OR,
+            // since host does not send anything to update the server, any client
+            // authoritative movement done by the host will have to be broadcasted
+            // here by checking IsClientWithAuthority.
+            if (NetworkTime.localTime >= lastServerSendTime + sendInterval &&
+                (!clientAuthority || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -277,7 +294,7 @@ namespace Mirror
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
                     syncPosition ? snapshot.position : new Vector3?(),
-                    syncRotation? snapshot.rotation : new Quaternion?(),
+                    syncRotation ? snapshot.rotation : new Quaternion?(),
                     syncScale ? snapshot.scale : new Vector3?()
                 );
 
@@ -314,6 +331,9 @@ namespace Mirror
             // client authority, and local player (= allowed to move myself)?
             if (IsClientWithAuthority)
             {
+                // https://github.com/vis2k/Mirror/pull/2992/
+                if (!NetworkClient.ready) return;
+
                 // send to server each 'sendInterval'
                 // NetworkTime.localTime for double precision until Unity has it too
                 //
@@ -342,7 +362,7 @@ namespace Mirror
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
                         syncPosition ? snapshot.position : new Vector3?(),
-                        syncRotation? snapshot.rotation : new Quaternion?(),
+                        syncRotation ? snapshot.rotation : new Quaternion?(),
                         syncScale ? snapshot.scale : new Vector3?()
                     );
 
@@ -395,6 +415,23 @@ namespace Mirror
             // -> maybe add destionation as first entry?
         }
 
+        // common Teleport code for client->server and server->client
+        protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
+        {
+            // reset any in-progress interpolation & buffers
+            Reset();
+
+            // set the new position.
+            // interpolation will automatically continue.
+            targetComponent.position = destination;
+            targetComponent.rotation = rotation;
+
+            // TODO
+            // what if we still receive a snapshot from before the interpolation?
+            // it could easily happen over unreliable.
+            // -> maybe add destionation as first entry?
+        }
+
         // server->client teleport to force position without interpolation.
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
@@ -409,6 +446,22 @@ namespace Mirror
 
             // TODO what about host mode?
             OnTeleport(destination);
+        }
+
+        // server->client teleport to force position and rotation without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [ClientRpc]
+        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
+            // NOTE: even in client authority mode, the server is always allowed
+            //       to teleport the player. for example:
+            //       * CmdEnterPortal() might teleport the player
+            //       * Some people use client authority with server sided checks
+            //         so the server should be able to reset position if needed.
+
+            // TODO what about host mode?
+            OnTeleport(destination, rotation);
         }
 
         // client->server teleport to force position without interpolation.
@@ -433,6 +486,28 @@ namespace Mirror
             RpcTeleport(destination);
         }
 
+        // client->server teleport to force position and rotation without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [Command]
+        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
+            // client can only teleport objects that it has authority over.
+            if (!clientAuthority) return;
+
+            // TODO what about host mode?
+            OnTeleport(destination, rotation);
+
+            // if a client teleports, we need to broadcast to everyone else too
+            // TODO the teleported client should ignore the rpc though.
+            //      otherwise if it already moved again after teleporting,
+            //      the rpc would come a little bit later and reset it once.
+            // TODO or not? if client ONLY calls Teleport(pos), the position
+            //      would only be set after the rpc. unless the client calls
+            //      BOTH Teleport(pos) and targetComponent.position=pos
+            RpcTeleportAndRotate(destination, rotation);
+        }
+
         protected virtual void Reset()
         {
             // disabled objects aren't updated anymore.
@@ -454,10 +529,10 @@ namespace Mirror
             // for a buffer multiplier of '3', we usually have at _least_ 3
             // buffered snapshots. often 4-5 even.
             //
-            // catchUpThreshold should be a minimum of bufferTimeMultiplier + 3, 
-            // to prevent clashes with SnapshotInterpolation looking for at least 
-            // 3 old enough buffers, else catch up will be implemented while there 
-            // is not enough old buffers, and will result in jitter. 
+            // catchUpThreshold should be a minimum of bufferTimeMultiplier + 3,
+            // to prevent clashes with SnapshotInterpolation looking for at least
+            // 3 old enough buffers, else catch up will be implemented while there
+            // is not enough old buffers, and will result in jitter.
             // (validated with several real world tests by ninja & imer)
             catchupThreshold = Mathf.Max(bufferTimeMultiplier + 3, catchupThreshold);
 
@@ -465,7 +540,7 @@ namespace Mirror
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
+        // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
@@ -496,11 +571,11 @@ namespace Mirror
                 // obvious if we accidentally populate both.
                 GUILayout.Label($"Server Buffer:{serverBuffer.Count}");
                 if (serverCatchup > 0)
-                    GUILayout.Label($"Server Catchup:{serverCatchup*100:F2}%");
+                    GUILayout.Label($"Server Catchup:{serverCatchup * 100:F2}%");
 
                 GUILayout.Label($"Client Buffer:{clientBuffer.Count}");
                 if (clientCatchup > 0)
-                    GUILayout.Label($"Client Catchup:{clientCatchup*100:F2}%");
+                    GUILayout.Label($"Client Catchup:{clientCatchup * 100:F2}%");
 
                 GUILayout.EndArea();
                 GUI.color = Color.white;

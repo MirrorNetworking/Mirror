@@ -11,7 +11,7 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryErrorForGenericStructItem
 
         class MyGenericStructDictionary : SyncDictionary<int, MyGenericStruct<float>> { };
 
-        MyGenericStructDictionary harpseals;
+        readonly MyGenericStructDictionary harpseals;
     }
 
 }

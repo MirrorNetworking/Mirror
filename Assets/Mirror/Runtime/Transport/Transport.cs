@@ -64,17 +64,7 @@ namespace Mirror
 
         /// <summary>Sends a message to the server over the given channel.</summary>
         // The ArraySegment is only valid until returning. Copy if needed.
-        // TODO make second version abstract after removing the obsolete version
-        // Deprecated 2021-05-17
-        [Obsolete("Use ClientSend(segment, channelId) instead. channelId is now the last parameter.")]
-        public virtual void ClientSend(int channelId, ArraySegment<byte> segment) {}
-        public virtual void ClientSend(ArraySegment<byte> segment, int channelId)
-        {
-            // defaults to obsolete version to not force break transports.
-#pragma warning disable 618
-            ClientSend(channelId, segment);
-#pragma warning restore 618
-        }
+        public abstract void ClientSend(ArraySegment<byte> segment, int channelId);
 
         /// <summary>Disconnects the client from the server</summary>
         public abstract void ClientDisconnect();
@@ -103,17 +93,7 @@ namespace Mirror
         public abstract void ServerStart();
 
         /// <summary>Send a message to a client over the given channel.</summary>
-        // TODO make second version abstract after removing the obsolete version
-        // Deprecated 2021-05-17
-        [Obsolete("Use ServerSend(connectionId, segment, channelId) instead. channelId is now the last parameter.")]
-        public virtual void ServerSend(int connectionId, int channelId, ArraySegment<byte> segment) {}
-        public virtual void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
-        {
-            // defaults to obsolete version to not force break transports.
-#pragma warning disable 618
-            ServerSend(connectionId, channelId, segment);
-#pragma warning restore 618
-        }
+        public abstract void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId);
 
         /// <summary>Disconnect a client from the server.</summary>
         public abstract void ServerDisconnect(int connectionId);
@@ -140,16 +120,8 @@ namespace Mirror
         // slow (head of line blocking etc.).
         public virtual int GetBatchThreshold(int channelId)
         {
-            // change to GetMaxPacketSize by default after removing obsolete
-#pragma warning disable 618
-            return GetMaxBatchSize(channelId);
-#pragma warning restore 618
+            return GetMaxPacketSize(channelId);
         }
-
-        // Deprecated 2021-06-17
-        [Obsolete("GetMaxBatchSize was renamed to GetBatchThreshold.")]
-        public virtual int GetMaxBatchSize(int channelId) =>
-            GetMaxPacketSize(channelId);
 
         // block Update & LateUpdate to show warnings if Transports still use
         // them instead of using

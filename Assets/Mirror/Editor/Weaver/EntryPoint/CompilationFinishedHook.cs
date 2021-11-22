@@ -1,3 +1,6 @@
+// for Unity 2020+ we use ILPostProcessor.
+// only automatically invoke it for older versions.
+#if !UNITY_2020_3_OR_NEWER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -67,7 +70,7 @@ namespace Mirror.Weaver
         static bool CompilerMessagesContainError(CompilerMessage[] messages) =>
             messages.Any(msg => msg.type == CompilerMessageType.Error);
 
-        static void OnCompilationFinished(string assemblyPath, CompilerMessage[] messages)
+        public static void OnCompilationFinished(string assemblyPath, CompilerMessage[] messages)
         {
             // Do nothing if there were compile errors on the target
             if (CompilerMessagesContainError(messages))
@@ -123,7 +126,7 @@ namespace Mirror.Weaver
             {
                 // Set false...will be checked in \Editor\EnterPlayModeSettingsCheck.CheckSuccessfulWeave()
                 SessionState.SetBool("MIRROR_WEAVE_SUCCESS", false);
-                if (UnityLogEnabled) Debug.LogError("Weaving failed for: " + assemblyPath);
+                if (UnityLogEnabled) Debug.LogError($"Weaving failed for {assemblyPath}");
             }
         }
 
@@ -183,3 +186,4 @@ namespace Mirror.Weaver
         }
     }
 }
+#endif

@@ -4,7 +4,7 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryStructKey
 {
     class SyncDictionaryStructKey : NetworkBehaviour
     {
-        MyStructDictionary Foo;
+        readonly MyStructDictionary Foo;
 
         struct MyStruct
         {

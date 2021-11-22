@@ -4,10 +4,10 @@ namespace WeaverSyncListTests.SyncListInheritance
 {
     class SyncListInheritance : NetworkBehaviour
     {
-        readonly SuperSyncListString superSyncListString = new SuperSyncListString();
+        readonly SuperSyncList<string> superSyncListString = new SuperSyncList<string>();
 
 
-        public class SuperSyncListString : SyncListString
+        public class SuperSyncList<T> : SyncList<T>
         {
 
         }

@@ -138,7 +138,7 @@ namespace Mirror.Tests
             // compare them. Quaternion.Angle is easiest to get the angle
             // between them. using .eulerAngles would give 0, 90, 360 which is
             // hard to compare.
-            Debug.Log("euler=" + decompressed.eulerAngles);
+            Debug.Log($"euler={decompressed.eulerAngles}");
             float angle = Quaternion.Angle(value, decompressed);
             // 1 degree tolerance
             Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));
@@ -150,7 +150,7 @@ namespace Mirror.Tests
         {
             // we need a normalized value
             Quaternion value = Quaternion.Euler(338.850037f, 170.609955f, 182.979996f).normalized;
-            Debug.Log("original=" + value.eulerAngles);
+            Debug.Log($"original={value.eulerAngles}");
 
             // compress
             uint data = Compression.CompressQuaternion(value);
@@ -163,7 +163,7 @@ namespace Mirror.Tests
             // hard to compare.
 
             //  (51.6, 355.5, 348.1)
-            Debug.Log("euler=" + decompressed.eulerAngles);
+            Debug.Log($"euler={decompressed.eulerAngles}");
             float angle = Quaternion.Angle(value, decompressed);
             // 1 degree tolerance
             Assert.That(Mathf.Abs(angle), Is.LessThanOrEqualTo(1));

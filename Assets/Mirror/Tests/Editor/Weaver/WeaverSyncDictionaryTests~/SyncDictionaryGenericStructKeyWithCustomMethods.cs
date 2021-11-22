@@ -4,8 +4,7 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryGenericStructKeyWithCustomMeth
 {
     class SyncDictionaryGenericStructKeyWithCustomMethods : NetworkBehaviour
     {
-        SyncDictionary<MyGenericStruct<float>, int> harpseals;
-
+        readonly SyncDictionary<MyGenericStruct<float>, int> harpseals;
     }
 
     public struct MyGenericStruct<T>
@@ -17,12 +16,12 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryGenericStructKeyWithCustomMeth
     {
         public static void WriteKey(this NetworkWriter writer, MyGenericStruct<float> item)
         {
-            writer.WriteSingle(item.genericpotato);
+            writer.WriteFloat(item.genericpotato);
         }
 
         public static MyGenericStruct<float> ReadKey(this NetworkReader reader)
         {
-            return new MyGenericStruct<float>() { genericpotato = reader.ReadSingle() };
+            return new MyGenericStruct<float>() { genericpotato = reader.ReadFloat() };
         }
     }
 }

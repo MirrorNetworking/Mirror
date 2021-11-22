@@ -55,17 +55,9 @@ namespace Mirror
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double timeVariance => _offset.Var;
 
-        // Deprecated 2021-03-10
-        [Obsolete("NetworkTime.timeVar was renamed to timeVariance")]
-        public static double timeVar => timeVariance;
-
         /// <summary>Time standard deviation. The highe, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double timeStandardDeviation => Math.Sqrt(timeVariance);
-
-        // Deprecated 2021-03-10
-        [Obsolete("NetworkTime.timeSd was renamed to timeStandardDeviation")]
-        public static double timeSd => timeStandardDeviation;
 
         /// <summary>Clock difference in seconds between the client and the server. Always 0 on server.</summary>
         public static double offset => _offset.Value;
@@ -77,17 +69,9 @@ namespace Mirror
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double rttVariance => _rtt.Var;
 
-        // Deprecated 2021-03-02
-        [Obsolete("NetworkTime.rttVar was renamed to rttVariance")]
-        public static double rttVar => rttVariance;
-
         /// <summary>Round trip time standard deviation. The higher, the less accurate the rtt is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double rttStandardDeviation => Math.Sqrt(rttVariance);
-
-        // Deprecated 2021-03-02
-        [Obsolete("NetworkTime.rttSd was renamed to rttStandardDeviation")]
-        public static double rttSd => rttStandardDeviation;
 
         public static void Reset()
         {
@@ -115,7 +99,7 @@ namespace Mirror
         // and time from the server
         internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage message)
         {
-            // Debug.Log("OnPingServerMessage  conn=" + conn);
+            // Debug.Log($"OnPingServerMessage conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
                 clientTime = message.clientTime,
