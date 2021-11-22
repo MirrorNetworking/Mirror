@@ -11,6 +11,10 @@ namespace Mirror
         [Tooltip("The maximum range that objects will be visible at.")]
         public int visRange = 30;
 
+        public enum HostVisibilityOptions : byte { DisableRenderers, DeactivateObject }
+
+        public HostVisibilityOptions hostVisibilityOptions = HostVisibilityOptions.DisableRenderers;
+
         // if we see 8 neighbors then 1 entry is visRange/3
         public int resolution => visRange / 3;
 
@@ -58,6 +62,17 @@ namespace Mirror
             //    and expensive .UnionWith computations.
             Vector2Int current = ProjectToGrid(identity.transform.position);
             grid.GetWithNeighbours(current, newObservers);
+        }
+
+        public override void SetHostVisibility(NetworkIdentity identity, bool visible)
+        {
+            if (hostVisibilityOptions == HostVisibilityOptions.DisableRenderers)
+            {
+                foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
+                    rend.enabled = visible;
+            }
+            else
+                identity.gameObject.SetActive(visible);
         }
 
         // update everyone's position in the grid
@@ -111,7 +126,7 @@ namespace Mirror
             }
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
+        // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // slider from dotsnet. it's nice to play around with in the benchmark
         // demo.
