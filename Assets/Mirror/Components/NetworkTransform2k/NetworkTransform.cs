@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [DisallowMultipleComponent]
     public class NetworkTransform : NetworkTransformBase
     {
         [Tooltip("Target transform to sync. target can be on a child, but this component needs to remain on parent/root networked object.")]
