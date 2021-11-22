@@ -294,7 +294,7 @@ namespace Mirror
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
                     syncPosition ? snapshot.position : new Vector3?(),
-                    syncRotation? snapshot.rotation : new Quaternion?(),
+                    syncRotation ? snapshot.rotation : new Quaternion?(),
                     syncScale ? snapshot.scale : new Vector3?()
                 );
 
@@ -362,7 +362,7 @@ namespace Mirror
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
                         syncPosition ? snapshot.position : new Vector3?(),
-                        syncRotation? snapshot.rotation : new Quaternion?(),
+                        syncRotation ? snapshot.rotation : new Quaternion?(),
                         syncScale ? snapshot.scale : new Vector3?()
                     );
 
@@ -540,7 +540,7 @@ namespace Mirror
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
+        // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
@@ -571,11 +571,11 @@ namespace Mirror
                 // obvious if we accidentally populate both.
                 GUILayout.Label($"Server Buffer:{serverBuffer.Count}");
                 if (serverCatchup > 0)
-                    GUILayout.Label($"Server Catchup:{serverCatchup*100:F2}%");
+                    GUILayout.Label($"Server Catchup:{serverCatchup * 100:F2}%");
 
                 GUILayout.Label($"Client Buffer:{clientBuffer.Count}");
                 if (clientCatchup > 0)
-                    GUILayout.Label($"Client Catchup:{clientCatchup*100:F2}%");
+                    GUILayout.Label($"Client Catchup:{clientCatchup * 100:F2}%");
 
                 GUILayout.EndArea();
                 GUI.color = Color.white;
