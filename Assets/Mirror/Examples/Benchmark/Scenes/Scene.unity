@@ -373,7 +373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visRange: 200
-  hostVisibilityOptions: 0
+  hostVisibility: 0
   rebuildInterval: 1
   checkMethod: 0
   showSlider: 1
