@@ -13,7 +13,7 @@ namespace Mirror
 
         public enum HostVisibilityOptions : byte { DisableRenderers, DeactivateObject }
 
-        public HostVisibilityOptions hostVisibilityOptions = HostVisibilityOptions.DisableRenderers;
+        public HostVisibilityOptions hostVisibility = HostVisibilityOptions.DisableRenderers;
 
         // if we see 8 neighbors then 1 entry is visRange/3
         public int resolution => visRange / 3;
@@ -66,7 +66,7 @@ namespace Mirror
 
         public override void SetHostVisibility(NetworkIdentity identity, bool visible)
         {
-            if (hostVisibilityOptions == HostVisibilityOptions.DisableRenderers)
+            if (hostVisibility == HostVisibilityOptions.DisableRenderers)
             {
                 foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
                     rend.enabled = visible;
