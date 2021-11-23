@@ -645,10 +645,6 @@ namespace Mirror
             }
         }
 
-        // Deprecated 2021-07-21
-        [Obsolete("Renamed to ConfigureHeadlessFrameRate()")]
-        public virtual void ConfigureServerFrameRate() {}
-
         /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
         // useful for dedicated servers.
         // useful for headless benchmark clients.
@@ -660,9 +656,7 @@ namespace Mirror
 #endif
 
             // call the obsolete function in case someone did anything important
-#pragma warning disable 618
-            ConfigureServerFrameRate();
-#pragma warning restore 618
+            ConfigureHeadlessFrameRate();
         }
 
         bool InitializeSingleton()
