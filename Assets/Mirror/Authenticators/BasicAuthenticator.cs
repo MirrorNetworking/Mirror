@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Mirror.Authenticators
 {
     [AddComponentMenu("Network/Authenticators/BasicAuthenticator")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators/basic-authenticator")]
     public class BasicAuthenticator : NetworkAuthenticator
     {
         [Header("Server Credentials")]
