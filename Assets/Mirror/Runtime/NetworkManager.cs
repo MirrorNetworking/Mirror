@@ -654,9 +654,6 @@ namespace Mirror
             Application.targetFrameRate = serverTickRate;
             // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
 #endif
-
-            // call the obsolete function in case someone did anything important
-            ConfigureHeadlessFrameRate();
         }
 
         bool InitializeSingleton()
