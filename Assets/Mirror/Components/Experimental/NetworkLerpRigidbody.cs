@@ -85,7 +85,7 @@ namespace Mirror.Experimental
             target.velocity = Vector3.Lerp(target.velocity, targetVelocity, lerpVelocityAmount);
             target.position = Vector3.Lerp(target.position, targetPosition, lerpPositionAmount);
             // add velocity to position as position would have moved on server at that velocity
-            targetPosition += target.velocity * Time.fixedDeltaTime;
+            target.position += target.velocity * Time.fixedDeltaTime;
 
             // TODO does this also need to sync acceleration so and update velocity?
         }
