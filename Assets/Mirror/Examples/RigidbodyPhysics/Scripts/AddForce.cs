@@ -19,9 +19,10 @@ namespace Mirror.Examples.RigidbodyPhysics
             rigidbody3d.isKinematic = false;
         }
 
+        [ServerCallback]
         void Update()
         {
-            if (isServer && Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space))
                 rigidbody3d.AddForce(Vector3.up * force);
         }
     }
