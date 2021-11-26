@@ -127,19 +127,19 @@ namespace Mirror
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
         public static byte ReadByte(this NetworkReader reader) => reader.ReadByte();
-        public static byte ReadByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadByte(reader) : default;
+        //public static byte ReadByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadByte(reader) : default;
 
         public static sbyte ReadSByte(this NetworkReader reader) => (sbyte)reader.ReadByte();
-        public static sbyte ReadSByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadSByte(reader) : default;
+        //public static sbyte ReadSByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadSByte(reader) : default;
 
         public static char ReadChar(this NetworkReader reader) => (char)reader.ReadUShort();
-        public static char ReadCharNullable(this NetworkReader reader) => reader.ReadBool() ? ReadChar(reader) : default;
+        //public static char ReadCharNullable(this NetworkReader reader) => reader.ReadBool() ? ReadChar(reader) : default;
 
         public static bool ReadBool(this NetworkReader reader) => reader.ReadByte() != 0;
-        public static bool ReadBoolNullable(this NetworkReader reader) => reader.ReadBool() ? ReadBool(reader) : default;
+        //public static bool ReadBoolNullable(this NetworkReader reader) => reader.ReadBool() ? ReadBool(reader) : default;
 
         public static short ReadShort(this NetworkReader reader) => (short)reader.ReadUShort();
-        public static short ReadShortNullable(this NetworkReader reader) => reader.ReadBool() ? ReadShort(reader) : default;
+        //public static short ReadShortNullable(this NetworkReader reader) => reader.ReadBool() ? ReadShort(reader) : default;
 
         public static ushort ReadUShort(this NetworkReader reader)
         {
@@ -148,10 +148,10 @@ namespace Mirror
             value |= (ushort)(reader.ReadByte() << 8);
             return value;
         }
-        public static ushort ReadUShortNullable(this NetworkReader reader) => reader.ReadBool()?  ReadUShort(reader) : default;
+        //public static ushort ReadUShortNullable(this NetworkReader reader) => reader.ReadBool() ? ReadUShort(reader) : default;
 
         public static int ReadInt(this NetworkReader reader) => (int)reader.ReadUInt();
-        public static int ReadIntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadInt(reader) : default;
+        //public static int ReadIntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadInt(reader) : default;
 
         public static uint ReadUInt(this NetworkReader reader)
         {
@@ -162,10 +162,10 @@ namespace Mirror
             value |= (uint)(reader.ReadByte() << 24);
             return value;
         }
-        public static uint ReadUIntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadUInt(reader) : default;
+        //public static uint ReadUIntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadUInt(reader) : default;
 
         public static long ReadLong(this NetworkReader reader) => (long)reader.ReadULong();
-        public static long ReadLongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadLong(reader) : default;
+        //public static long ReadLongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadLong(reader) : default;
 
         public static ulong ReadULong(this NetworkReader reader)
         {
@@ -180,7 +180,7 @@ namespace Mirror
             value |= ((ulong)reader.ReadByte()) << 56;
             return value;
         }
-        public static ulong ReadULongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadULong(reader) : default;
+        //public static ulong ReadULongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadULong(reader) : default;
 
         public static float ReadFloat(this NetworkReader reader)
         {
@@ -188,7 +188,7 @@ namespace Mirror
             converter.intValue = reader.ReadUInt();
             return converter.floatValue;
         }
-        public static float ReadFloatNullable(this NetworkReader reader) => reader.ReadBool() ? ReadFloat(reader) : default;
+        //public static float ReadFloatNullable(this NetworkReader reader) => reader.ReadBool() ? ReadFloat(reader) : default;
 
         public static double ReadDouble(this NetworkReader reader)
         {
@@ -196,7 +196,7 @@ namespace Mirror
             converter.longValue = reader.ReadULong();
             return converter.doubleValue;
         }
-        public static double ReadDoubleNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDouble(reader) : default;
+        //public static double ReadDoubleNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDouble(reader) : default;
 
         public static decimal ReadDecimal(this NetworkReader reader)
         {
@@ -205,7 +205,7 @@ namespace Mirror
             converter.longValue2 = reader.ReadULong();
             return converter.decimalValue;
         }
-        public static decimal ReadDecimalNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDecimal(reader) : default;
+        //public static decimal ReadDecimalNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDecimal(reader) : default;
 
         /// <exception cref="T:System.ArgumentException">if an invalid utf8 string is sent</exception>
         public static string ReadString(this NetworkReader reader)
@@ -240,6 +240,14 @@ namespace Mirror
             // Use checked() to force it to throw OverflowException if data is invalid
             return count == 0 ? null : reader.ReadBytes(checked((int)(count - 1u)));
         }
+
+        public static byte[] ReadBytes(this NetworkReader reader, int count)
+        {
+            byte[] bytes = new byte[count];
+            reader.ReadBytes(bytes, count);
+            return bytes;
+        }
+        //public static byte[] ReadBytesNullable(this NetworkReader reader, int count) => reader.ReadBool() ? ReadBytes(reader, count) : default;
 
         /// <exception cref="T:OverflowException">if count is invalid</exception>
         public static ArraySegment<byte> ReadBytesAndSizeSegment(this NetworkReader reader)
@@ -308,30 +316,8 @@ namespace Mirror
         }
         public static Matrix4x4 ReadMatrix4x4Nullable(this NetworkReader reader) => reader.ReadBool() ? ReadMatrix4x4(reader) : default;
 
-        public static byte[] ReadBytes(this NetworkReader reader, int count)
-        {
-            byte[] bytes = new byte[count];
-            reader.ReadBytes(bytes, count);
-            return bytes;
-        }
-        public static byte[] ReadBytesNullable(this NetworkReader reader, int count) => reader.ReadBool() ? ReadBytes(reader, count) : default;
-
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
-        public static Guid ReadGuidNullable(this NetworkReader reader) => reader.ReadBool() ? ReadGuid(reader) : Guid.Empty;
-
-        public static Transform ReadTransform(this NetworkReader reader)
-        {
-            // Don't use null propagation here as it could lead to MissingReferenceException
-            NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
-            return networkIdentity != null ? networkIdentity.transform : null;
-        }
-
-        public static GameObject ReadGameObject(this NetworkReader reader)
-        {
-            // Don't use null propagation here as it could lead to MissingReferenceException
-            NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
-            return networkIdentity != null ? networkIdentity.gameObject : null;
-        }
+        //public static Guid ReadGuidNullable(this NetworkReader reader) => reader.ReadBool() ? ReadGuid(reader) : Guid.Empty;
 
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)
         {
@@ -390,6 +376,20 @@ namespace Mirror
             }
 
             return new NetworkBehaviour.NetworkBehaviourSyncVar(netId, componentIndex);
+        }
+
+        public static Transform ReadTransform(this NetworkReader reader)
+        {
+            // Don't use null propagation here as it could lead to MissingReferenceException
+            NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
+            return networkIdentity != null ? networkIdentity.transform : null;
+        }
+
+        public static GameObject ReadGameObject(this NetworkReader reader)
+        {
+            // Don't use null propagation here as it could lead to MissingReferenceException
+            NetworkIdentity networkIdentity = reader.ReadNetworkIdentity();
+            return networkIdentity != null ? networkIdentity.gameObject : null;
         }
 
         public static List<T> ReadList<T>(this NetworkReader reader)
