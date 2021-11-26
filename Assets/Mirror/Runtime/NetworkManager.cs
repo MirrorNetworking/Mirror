@@ -23,7 +23,7 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
-     /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
+        /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
         [FormerlySerializedAs("m_RunInBackground")]
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
@@ -169,7 +169,7 @@ namespace Mirror
                 // RecordObject needs to be called before we make the change
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
 #endif
-                
+
                 transport = GetComponent<Transport>();
 
                 // was a transport added yet? if not, add one
@@ -543,7 +543,7 @@ namespace Mirror
                 && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
-                    SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
             OnStopServer();
 
@@ -584,7 +584,7 @@ namespace Mirror
                 && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
-                    SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
             OnStopClient();
 
