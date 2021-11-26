@@ -366,7 +366,7 @@ namespace Mirror
         {
             writer.WriteBool(value.HasValue);
             if (value.HasValue)
-                writer.WriteVector4Nullable(value.Value);
+                writer.WriteVector4(value.Value);
         }
 
         public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value)
