@@ -317,7 +317,7 @@ namespace Mirror
         public static byte[] ReadBytesNullable(this NetworkReader reader, int count) => reader.ReadBool() ? ReadBytes(reader, count) : default;
 
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
-        public static Guid ReadGuidNullable(this NetworkReader reader) => reader.ReadBool() ? ReadGuid(reader) : default;
+        public static Guid ReadGuidNullable(this NetworkReader reader) => reader.ReadBool() ? ReadGuid(reader) : Guid.Empty;
 
         public static Transform ReadTransform(this NetworkReader reader)
         {

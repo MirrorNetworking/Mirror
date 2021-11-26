@@ -288,17 +288,17 @@ namespace Mirror
             writer.WriteBytes(stringBuffer, 0, size);
         }
 
+        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
+        {
+            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
+        }
+
         // Weaver needs a write function with just one byte[] parameter
         // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer)
         {
             // buffer might be null, so we can't use .Length in that case
             writer.WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
-        }
-
-        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
-        {
-            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
         }
 
         // for byte arrays with dynamic size, where the reader doesn't know how many will come
