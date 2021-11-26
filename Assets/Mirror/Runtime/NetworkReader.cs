@@ -165,7 +165,7 @@ namespace Mirror
         //public static uint ReadUIntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadUInt(reader) : default;
 
         public static long ReadLong(this NetworkReader reader) => (long)reader.ReadULong();
-        //public static long ReadLongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadLong(reader) : default;
+        public static long ReadLongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadLong(reader) : default;
 
         public static ulong ReadULong(this NetworkReader reader)
         {
@@ -205,7 +205,7 @@ namespace Mirror
             converter.longValue2 = reader.ReadULong();
             return converter.decimalValue;
         }
-        //public static decimal ReadDecimalNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDecimal(reader) : default;
+        public static decimal ReadDecimalNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDecimal(reader) : default;
 
         /// <exception cref="T:System.ArgumentException">if an invalid utf8 string is sent</exception>
         public static string ReadString(this NetworkReader reader)

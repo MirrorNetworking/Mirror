@@ -183,12 +183,12 @@ namespace Mirror
 
         public static void WriteLong(this NetworkWriter writer, long value) => writer.WriteULong((ulong)value);
 
-        //public static void WriteLongNullable(this NetworkWriter writer, long? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteLong(value.Value);
-        //}
+        public static void WriteLongNullable(this NetworkWriter writer, long? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteLong(value.Value);
+        }
 
         public static void WriteULong(this NetworkWriter writer, ulong value)
         {
@@ -254,12 +254,12 @@ namespace Mirror
             writer.WriteULong(converter.longValue2);
         }
 
-        //public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteDecimal(value.Value);
-        //}
+        public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteDecimal(value.Value);
+        }
 
         public static void WriteString(this NetworkWriter writer, string value)
         {
