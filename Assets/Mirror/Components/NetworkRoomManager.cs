@@ -501,11 +501,6 @@ namespace Mirror
             roomSlots.Clear();
         }
 
-        public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling)
-        {
-            base.OnClientChangeScene(newSceneName, sceneOperation, customHandling);
-        }
-
         /// <summary>
         /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
         /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
