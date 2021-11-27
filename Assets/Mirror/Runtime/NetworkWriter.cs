@@ -101,11 +101,48 @@ namespace Mirror
 
         public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteByte(value);
 
+        public static void WriteByteNullable(this NetworkWriter writer, byte? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteByte(value.Value);
+        }
+
         public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteByte((byte)value);
+
+        public static void WriteSByteNullable(this NetworkWriter writer, sbyte? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteSByte(value.Value);
+        }
 
         public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteUShort(value);
 
+        public static void WriteCharNullable(this NetworkWriter writer, char? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteChar(value.Value);
+        }
+
         public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteByte((byte)(value ? 1 : 0));
+
+        public static void WriteBoolNullable(this NetworkWriter writer, bool? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteBool(value.Value);
+        }
+
+        public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteUShort((ushort)value);
+
+        public static void WriteShortNullable(this NetworkWriter writer, short? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteShort(value.Value);
+        }
 
         public static void WriteUShort(this NetworkWriter writer, ushort value)
         {
@@ -113,7 +150,21 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 8));
         }
 
-        public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteUShort((ushort)value);
+        public static void WriteUShortNullable(this NetworkWriter writer, ushort? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteUShort(value.Value);
+        }
+
+        public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteUInt((uint)value);
+
+        public static void WriteIntNullable(this NetworkWriter writer, int? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteInt(value.Value);
+        }
 
         public static void WriteUInt(this NetworkWriter writer, uint value)
         {
@@ -123,7 +174,21 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 24));
         }
 
-        public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteUInt((uint)value);
+        public static void WriteUIntNullable(this NetworkWriter writer, uint? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteUInt(value.Value);
+        }
+
+        public static void WriteLong(this NetworkWriter writer, long value) => writer.WriteULong((ulong)value);
+
+        public static void WriteLongNullable(this NetworkWriter writer, long? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteLong(value.Value);
+        }
 
         public static void WriteULong(this NetworkWriter writer, ulong value)
         {
@@ -137,7 +202,12 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 56));
         }
 
-        public static void WriteLong(this NetworkWriter writer, long value) => writer.WriteULong((ulong)value);
+        public static void WriteULongNullable(this NetworkWriter writer, ulong? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteULong(value.Value);
+        }
 
         public static void WriteFloat(this NetworkWriter writer, float value)
         {
@@ -148,6 +218,13 @@ namespace Mirror
             writer.WriteUInt(converter.intValue);
         }
 
+        public static void WriteFloatNullable(this NetworkWriter writer, float? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteFloat(value.Value);
+        }
+
         public static void WriteDouble(this NetworkWriter writer, double value)
         {
             UIntDouble converter = new UIntDouble
@@ -155,6 +232,13 @@ namespace Mirror
                 doubleValue = value
             };
             writer.WriteULong(converter.longValue);
+        }
+
+        public static void WriteDoubleNullable(this NetworkWriter writer, double? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteDouble(value.Value);
         }
 
         public static void WriteDecimal(this NetworkWriter writer, decimal value)
@@ -168,6 +252,13 @@ namespace Mirror
             };
             writer.WriteULong(converter.longValue1);
             writer.WriteULong(converter.longValue2);
+        }
+
+        public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteDecimal(value.Value);
         }
 
         public static void WriteString(this NetworkWriter writer, string value)
@@ -197,6 +288,19 @@ namespace Mirror
             writer.WriteBytes(stringBuffer, 0, size);
         }
 
+        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
+        {
+            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
+        }
+
+        // Weaver needs a write function with just one byte[] parameter
+        // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
+        public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer)
+        {
+            // buffer might be null, so we can't use .Length in that case
+            writer.WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
+        }
+
         // for byte arrays with dynamic size, where the reader doesn't know how many will come
         // (like an inventory with different items etc.)
         public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer, int offset, int count)
@@ -213,23 +317,27 @@ namespace Mirror
             writer.WriteBytes(buffer, offset, count);
         }
 
-        // Weaver needs a write function with just one byte[] parameter
-        // (we don't name it .Write(byte[]) because it's really a WriteBytesAndSize since we write size / null info too)
-        public static void WriteBytesAndSize(this NetworkWriter writer, byte[] buffer)
+        public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
         {
-            // buffer might be null, so we can't use .Length in that case
-            writer.WriteBytesAndSize(buffer, 0, buffer != null ? buffer.Length : 0);
-        }
-
-        public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
-        {
-            writer.WriteBytesAndSize(buffer.Array, buffer.Offset, buffer.Count);
+            int length = segment.Count;
+            writer.WriteInt(length);
+            for (int i = 0; i < length; i++)
+            {
+                writer.Write(segment.Array[segment.Offset + i]);
+            }
         }
 
         public static void WriteVector2(this NetworkWriter writer, Vector2 value)
         {
             writer.WriteFloat(value.x);
             writer.WriteFloat(value.y);
+        }
+
+        public static void WriteVector2Nullable(this NetworkWriter writer, Vector2? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteVector2(value.Value);
         }
 
         public static void WriteVector3(this NetworkWriter writer, Vector3 value)
@@ -239,7 +347,6 @@ namespace Mirror
             writer.WriteFloat(value.z);
         }
 
-        // TODO add nullable support to weaver instead
         public static void WriteVector3Nullable(this NetworkWriter writer, Vector3? value)
         {
             writer.WriteBool(value.HasValue);
@@ -255,10 +362,24 @@ namespace Mirror
             writer.WriteFloat(value.w);
         }
 
+        public static void WriteVector4Nullable(this NetworkWriter writer, Vector4? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteVector4(value.Value);
+        }
+
         public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value)
         {
             writer.WriteInt(value.x);
             writer.WriteInt(value.y);
+        }
+
+        public static void WriteVector2IntNullable(this NetworkWriter writer, Vector2Int? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteVector2Int(value.Value);
         }
 
         public static void WriteVector3Int(this NetworkWriter writer, Vector3Int value)
@@ -268,6 +389,13 @@ namespace Mirror
             writer.WriteInt(value.z);
         }
 
+        public static void WriteVector3IntNullable(this NetworkWriter writer, Vector3Int? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteVector3Int(value.Value);
+        }
+
         public static void WriteColor(this NetworkWriter writer, Color value)
         {
             writer.WriteFloat(value.r);
@@ -275,8 +403,7 @@ namespace Mirror
             writer.WriteFloat(value.b);
             writer.WriteFloat(value.a);
         }
-        
-        // TODO add nullable support to weaver instead
+
         public static void WriteColorNullable(this NetworkWriter writer, Color? value)
         {
             writer.WriteBool(value.HasValue);
@@ -291,8 +418,7 @@ namespace Mirror
             writer.WriteByte(value.b);
             writer.WriteByte(value.a);
         }
-        
-        // TODO add nullable support to weaver instead
+
         public static void WriteColor32Nullable(this NetworkWriter writer, Color32? value)
         {
             writer.WriteBool(value.HasValue);
@@ -308,7 +434,6 @@ namespace Mirror
             writer.WriteFloat(value.w);
         }
 
-        // TODO add nullable support to weaver instead
         public static void WriteQuaternionNullable(this NetworkWriter writer, Quaternion? value)
         {
             writer.WriteBool(value.HasValue);
@@ -324,16 +449,37 @@ namespace Mirror
             writer.WriteFloat(value.height);
         }
 
+        public static void WriteRectNullable(this NetworkWriter writer, Rect? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteRect(value.Value);
+        }
+
         public static void WritePlane(this NetworkWriter writer, Plane value)
         {
             writer.WriteVector3(value.normal);
             writer.WriteFloat(value.distance);
         }
 
+        public static void WritePlaneNullable(this NetworkWriter writer, Plane? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WritePlane(value.Value);
+        }
+
         public static void WriteRay(this NetworkWriter writer, Ray value)
         {
             writer.WriteVector3(value.origin);
             writer.WriteVector3(value.direction);
+        }
+
+        public static void WriteRayNullable(this NetworkWriter writer, Ray? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteRay(value.Value);
         }
 
         public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value)
@@ -356,10 +502,24 @@ namespace Mirror
             writer.WriteFloat(value.m33);
         }
 
+        public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteMatrix4x4(value.Value);
+        }
+
         public static void WriteGuid(this NetworkWriter writer, Guid value)
         {
             byte[] data = value.ToByteArray();
             writer.WriteBytes(data, 0, data.Length);
+        }
+
+        public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteGuid(value.Value);
         }
 
         public static void WriteNetworkIdentity(this NetworkWriter writer, NetworkIdentity value)
@@ -421,11 +581,6 @@ namespace Mirror
             }
         }
 
-        public static void WriteUri(this NetworkWriter writer, Uri uri)
-        {
-            writer.WriteString(uri?.ToString());
-        }
-
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
             if (list is null)
@@ -450,14 +605,9 @@ namespace Mirror
                 writer.Write(array[i]);
         }
 
-        public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
+        public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
-            int length = segment.Count;
-            writer.WriteInt(length);
-            for (int i = 0; i < length; i++)
-            {
-                writer.Write(segment.Array[segment.Offset + i]);
-            }
+            writer.WriteString(uri?.ToString());
         }
     }
 }
