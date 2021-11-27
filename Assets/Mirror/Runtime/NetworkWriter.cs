@@ -101,12 +101,12 @@ namespace Mirror
 
         public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteByte(value);
 
-        //public static void WriteByteNullable(this NetworkWriter writer, byte? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteByte(value.Value);
-        //}
+        public static void WriteByteNullable(this NetworkWriter writer, byte? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteByte(value.Value);
+        }
 
         public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteByte((byte)value);
 
@@ -128,21 +128,21 @@ namespace Mirror
 
         public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteByte((byte)(value ? 1 : 0));
 
-        //public static void WriteBoolNullable(this NetworkWriter writer, bool? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteBool(value.Value);
-        //}
+        public static void WriteBoolNullable(this NetworkWriter writer, bool? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteBool(value.Value);
+        }
 
         public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteUShort((ushort)value);
 
-        //public static void WriteShortNullable(this NetworkWriter writer, short? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteShort(value.Value);
-        //}
+        public static void WriteShortNullable(this NetworkWriter writer, short? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteShort(value.Value);
+        }
 
         public static void WriteUShort(this NetworkWriter writer, ushort value)
         {
@@ -150,21 +150,21 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 8));
         }
 
-        //public static void WriteUShortNullable(this NetworkWriter writer, ushort? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteUShort(value.Value);
-        //}
+        public static void WriteUShortNullable(this NetworkWriter writer, ushort? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteUShort(value.Value);
+        }
 
         public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteUInt((uint)value);
 
-        //public static void WriteIntNullable(this NetworkWriter writer, int? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteInt(value.Value);
-        //}
+        public static void WriteIntNullable(this NetworkWriter writer, int? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteInt(value.Value);
+        }
 
         public static void WriteUInt(this NetworkWriter writer, uint value)
         {
@@ -174,12 +174,12 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 24));
         }
 
-        //public static void WriteUIntNullable(this NetworkWriter writer, uint? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteUInt(value.Value);
-        //}
+        public static void WriteUIntNullable(this NetworkWriter writer, uint? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteUInt(value.Value);
+        }
 
         public static void WriteLong(this NetworkWriter writer, long value) => writer.WriteULong((ulong)value);
 
@@ -202,12 +202,12 @@ namespace Mirror
             writer.WriteByte((byte)(value >> 56));
         }
 
-        //public static void WriteULongNullable(this NetworkWriter writer, ulong? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteULong(value.Value);
-        //}
+        public static void WriteULongNullable(this NetworkWriter writer, ulong? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteULong(value.Value);
+        }
 
         public static void WriteFloat(this NetworkWriter writer, float value)
         {
@@ -218,12 +218,12 @@ namespace Mirror
             writer.WriteUInt(converter.intValue);
         }
 
-        //public static void WriteFloatNullable(this NetworkWriter writer, float? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteFloat(value.Value);
-        //}
+        public static void WriteFloatNullable(this NetworkWriter writer, float? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteFloat(value.Value);
+        }
 
         public static void WriteDouble(this NetworkWriter writer, double value)
         {
@@ -234,12 +234,12 @@ namespace Mirror
             writer.WriteULong(converter.longValue);
         }
 
-        //public static void WriteDoubleNullable(this NetworkWriter writer, double? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteDouble(value.Value);
-        //}
+        public static void WriteDoubleNullable(this NetworkWriter writer, double? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteDouble(value.Value);
+        }
 
         public static void WriteDecimal(this NetworkWriter writer, decimal value)
         {
@@ -515,12 +515,12 @@ namespace Mirror
             writer.WriteBytes(data, 0, data.Length);
         }
 
-        //public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteGuid(value.Value);
-        //}
+        public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteGuid(value.Value);
+        }
 
         public static void WriteNetworkIdentity(this NetworkWriter writer, NetworkIdentity value)
         {
