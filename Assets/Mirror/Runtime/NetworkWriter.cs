@@ -110,21 +110,21 @@ namespace Mirror
 
         public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteByte((byte)value);
 
-        //public static void WriteSByteNullable(this NetworkWriter writer, sbyte? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteSByte(value.Value);
-        //}
+        public static void WriteSByteNullable(this NetworkWriter writer, sbyte? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteSByte(value.Value);
+        }
 
         public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteUShort(value);
 
-        //public static void WriteCharNullable(this NetworkWriter writer, char? value)
-        //{
-        //    writer.WriteBool(value.HasValue);
-        //    if (value.HasValue)
-        //        writer.WriteChar(value.Value);
-        //}
+        public static void WriteCharNullable(this NetworkWriter writer, char? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteChar(value.Value);
+        }
 
         public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteByte((byte)(value ? 1 : 0));
 

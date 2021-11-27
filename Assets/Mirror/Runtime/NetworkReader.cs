@@ -130,10 +130,10 @@ namespace Mirror
         //public static byte ReadByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadByte(reader) : default;
 
         public static sbyte ReadSByte(this NetworkReader reader) => (sbyte)reader.ReadByte();
-        //public static sbyte ReadSByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadSByte(reader) : default;
+        public static sbyte ReadSByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadSByte(reader) : default;
 
         public static char ReadChar(this NetworkReader reader) => (char)reader.ReadUShort();
-        //public static char ReadCharNullable(this NetworkReader reader) => reader.ReadBool() ? ReadChar(reader) : default;
+        public static char ReadCharNullable(this NetworkReader reader) => reader.ReadBool() ? ReadChar(reader) : default;
 
         public static bool ReadBool(this NetworkReader reader) => reader.ReadByte() != 0;
         //public static bool ReadBoolNullable(this NetworkReader reader) => reader.ReadBool() ? ReadBool(reader) : default;
