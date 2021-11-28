@@ -17,7 +17,7 @@ namespace kcp2k
         KcpState state = KcpState.Disconnected;
 
         public Action OnAuthenticated;
-        public Action<ArraySegment<byte>> OnData;
+        public Action<ArraySegment<byte>, KcpChannel> OnData;
         public Action OnDisconnected;
 
         // Mirror needs a way to stop the kcp message processing while loop
@@ -43,19 +43,20 @@ namespace kcp2k
         const int CHANNEL_HEADER_SIZE = 1;
 
         // reliable channel (= kcp) MaxMessageSize so the outside knows largest
-        // allowed message to send the calculation in Send() is not obvious at
+        // allowed message to send. the calculation in Send() is not obvious at
         // all, so let's provide the helper here.
         //
         // kcp does fragmentation, so max message is way larger than MTU.
         //
         // -> runtime MTU changes are disabled: mss is always MTU_DEF-OVERHEAD
-        // -> Send() checks if fragment count < WND_RCV, so we use WND_RCV - 1.
-        //    note that Send() checks WND_RCV instead of wnd_rcv which may or
-        //    may not be a bug in original kcp. but since it uses the define, we
-        //    can use that here too.
+        // -> Send() checks if fragment count < rcv_wnd, so we use rcv_wnd - 1.
+        //    NOTE that original kcp has a bug where WND_RCV default is used
+        //    instead of configured rcv_wnd, limiting max message size to 144 KB
+        //    https://github.com/skywind3000/kcp/pull/291
+        //    we fixed this in kcp2k.
         // -> we add 1 byte KcpHeader enum to each message, so -1
         //
-        // IMPORTANT: max message is MTU * WND_RCV, in other words it completely
+        // IMPORTANT: max message is MTU * rcv_wnd, in other words it completely
         //            fills the receive window! due to head of line blocking,
         //            all other messages have to wait while a maxed size message
         //            is being delivered.
@@ -63,7 +64,7 @@ namespace kcp2k
         //               for batching.
         //            => sending UNRELIABLE max message size most of the time is
         //               best for performance (use that one for batching!)
-        public const int ReliableMaxMessageSize = (Kcp.MTU_DEF - Kcp.OVERHEAD - CHANNEL_HEADER_SIZE) * (Kcp.WND_RCV - 1) - 1;
+        public static int ReliableMaxMessageSize(uint rcv_wnd) => (Kcp.MTU_DEF - Kcp.OVERHEAD - CHANNEL_HEADER_SIZE) * ((int)rcv_wnd - 1) - 1;
 
         // unreliable max message size is simply MTU - channel header size
         public const int UnreliableMaxMessageSize = Kcp.MTU_DEF - CHANNEL_HEADER_SIZE;
@@ -71,13 +72,13 @@ namespace kcp2k
         // buffer to receive kcp's processed messages (avoids allocations).
         // IMPORTANT: this is for KCP messages. so it needs to be of size:
         //            1 byte header + MaxMessageSize content
-        byte[] kcpMessageBuffer = new byte[1 + ReliableMaxMessageSize];
+        byte[] kcpMessageBuffer;// = new byte[1 + ReliableMaxMessageSize];
 
         // send buffer for handing user messages to kcp for processing.
         // (avoids allocations).
         // IMPORTANT: needs to be of size:
         //            1 byte header + MaxMessageSize content
-        byte[] kcpSendBuffer = new byte[1 + ReliableMaxMessageSize];
+        byte[] kcpSendBuffer;// = new byte[1 + ReliableMaxMessageSize];
 
         // raw send buffer is exactly MTU.
         byte[] rawSendBuffer = new byte[Kcp.MTU_DEF];
@@ -142,6 +143,11 @@ namespace kcp2k
             // tell kcp to use MTU-1 so we can still put the header into the
             // message afterwards.
             kcp.SetMtu(Kcp.MTU_DEF - CHANNEL_HEADER_SIZE);
+
+            // create message buffers AFTER window size is set
+            // see comments on buffer definition for the "+1" part
+            kcpMessageBuffer = new byte[1 + ReliableMaxMessageSize(receiveWindowSize)];
+            kcpSendBuffer = new byte[1 + ReliableMaxMessageSize(receiveWindowSize)];
 
             this.timeout = timeout;
             state = KcpState.Connected;
@@ -328,7 +334,7 @@ namespace kcp2k
                         if (message.Count > 0)
                         {
                             //Log.Warning($"Kcp recv msg: {BitConverter.ToString(message.Array, message.Offset, message.Count)}");
-                            OnData?.Invoke(message);
+                            OnData?.Invoke(message, KcpChannel.Reliable);
                         }
                         // empty data = attacker, or something went wrong
                         else
@@ -489,7 +495,7 @@ namespace kcp2k
                             if (!paused)
                             {
                                 ArraySegment<byte> message = new ArraySegment<byte>(buffer, 1, msgLength - 1);
-                                OnData?.Invoke(message);
+                                OnData?.Invoke(message, KcpChannel.Unreliable);
                             }
 
                             // set last receive time to avoid timeout.
@@ -551,7 +557,7 @@ namespace kcp2k
                 }
             }
             // otherwise content is larger than MaxMessageSize. let user know!
-            else Log.Error($"Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={ReliableMaxMessageSize}");
+            else Log.Error($"Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={ReliableMaxMessageSize(kcp.rcv_wnd)}");
         }
 
         void SendUnreliable(ArraySegment<byte> message)

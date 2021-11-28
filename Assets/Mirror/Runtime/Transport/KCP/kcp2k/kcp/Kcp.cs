@@ -262,10 +262,12 @@ namespace kcp2k
             if (len <= mss) count = 1;
             else count = (int)((len + mss - 1) / mss);
 
-            // original kcp uses WND_RCV const even though rcv_wnd is the
-            // runtime variable. may or may not be correct, see also:
-            // see also: https://github.com/skywind3000/kcp/pull/291/files
-            if (count >= WND_RCV) return -2;
+            // original kcp uses WND_RCV const instead of rcv_wnd runtime:
+            // https://github.com/skywind3000/kcp/pull/291/files
+            // which always limits max message size to 144 KB:
+            //if (count >= WND_RCV) return -2;
+            // using configured rcv_wnd uncorks max message size to 'any':
+            if (count >= rcv_wnd) return -2;
 
             if (count == 0) count = 1;
 

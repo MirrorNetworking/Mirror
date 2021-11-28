@@ -1,10 +1,19 @@
+V1.13 [2021-11-28]
+- fix: perf: uncork max message size from 144 KB to as much as we want based on
+  receive window size.
+    fixes https://github.com/vis2k/kcp2k/issues/22
+    fixes https://github.com/skywind3000/kcp/pull/291
+- feature: OnData now includes channel it was received on
+
 V1.12 [2021-07-16]
-- where-allocation removed. will be optional in the future.
 - Tests: don't depend on Unity anymore
 - fix: #26 - Kcp now catches exception if host couldn't be resolved, and calls
   OnDisconnected to let the user now.
 - fix: KcpServer.DualMode is now configurable in the constructor instead of
   using #if UNITY_SWITCH. makes it run on all other non dual mode platforms too.
+- fix: where-allocation made optional via virtuals and inheriting
+  KcpServer/Client/Connection NonAlloc classes. fixes a bug where some platforms
+  might not support where-allocation.
 
 V1.11 rollback [2021-06-01]
 - perf: Segment MemoryStream initial capacity set to MTU to avoid early runtime
