@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using UnityEngine;
 using Mirror;
+using Unity.Collections;
 
 namespace kcp2k
 {
@@ -33,10 +34,16 @@ namespace kcp2k
         public bool CongestionWindow = false; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
         [Tooltip("KCP window size can be modified to support higher loads.")]
         public uint SendWindowSize = 4096; //Kcp.WND_SND; 32 by default. Mirror sends a lot, so we need a lot more.
-        [Tooltip("KCP window size can be modified to support higher loads.")]
+        [Tooltip("KCP window size can be modified to support higher loads. This also increases max message size.")]
         public uint ReceiveWindowSize = 4096; //Kcp.WND_RCV; 128 by default. Mirror sends a lot, so we need a lot more.
         [Tooltip("Enable to use where-allocation NonAlloc KcpServer/Client/Connection versions. Highly recommended on all Unity platforms.")]
         public bool NonAlloc = true;
+
+        [Header("Calculated Max (based on Receive Window Size)")]
+        [Tooltip("KCP reliable max message size shown for convenience. Can be changed via ReceiveWindowSize.")]
+        [ReadOnly] public int ReliableMaxMessageSize = 0; // readonly, displayed from OnValidate
+        [Tooltip("KCP unreliable channel max message size for convenience. Not changeable.")]
+        [ReadOnly] public int UnreliableMaxMessageSize = 0; // readonly, displayed from OnValidate
 
         // server & client (where-allocation NonAlloc versions)
         KcpServer server;
@@ -111,6 +118,13 @@ namespace kcp2k
                 InvokeRepeating(nameof(OnLogStatistics), 1, 1);
 
             Debug.Log("KcpTransport initialized!");
+        }
+
+        private void OnValidate()
+        {
+            // show max message sizes in inspector for convenience
+            ReliableMaxMessageSize = KcpConnection.ReliableMaxMessageSize(ReceiveWindowSize);
+            UnreliableMaxMessageSize = KcpConnection.UnreliableMaxMessageSize;
         }
 
         // all except WebGL
