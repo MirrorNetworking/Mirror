@@ -58,10 +58,10 @@ namespace kcp2k
         public bool statisticsLog;
 
         // translate Kcp <-> Mirror channels
-        static int KcpToMirrorChannel(KcpChannel channel) =>
+        static int FromKcpChannel(KcpChannel channel) =>
             channel == KcpChannel.Reliable ? Channels.Reliable : Channels.Unreliable;
 
-        static KcpChannel MirrorToKcpChannel(int channel) =>
+        static KcpChannel ToKcpChannel(int channel) =>
             channel == Channels.Reliable ? KcpChannel.Reliable : KcpChannel.Unreliable;
 
         void Awake()
@@ -80,18 +80,18 @@ namespace kcp2k
             client = NonAlloc
                 ? new KcpClientNonAlloc(
                       () => OnClientConnected.Invoke(),
-                      (message, channel) => OnClientDataReceived.Invoke(message, KcpToMirrorChannel(channel)),
+                      (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
                       () => OnClientDisconnected.Invoke())
                 : new KcpClient(
                       () => OnClientConnected.Invoke(),
-                      (message, channel) => OnClientDataReceived.Invoke(message, KcpToMirrorChannel(channel)),
+                      (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
                       () => OnClientDisconnected.Invoke());
 
             // server
             server = NonAlloc
                 ? new KcpServerNonAlloc(
                       (connectionId) => OnServerConnected.Invoke(connectionId),
-                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, KcpToMirrorChannel(channel)),
+                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
                       DualMode,
                       NoDelay,
@@ -103,7 +103,7 @@ namespace kcp2k
                       Timeout)
                 : new KcpServer(
                       (connectionId) => OnServerConnected.Invoke(connectionId),
-                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, KcpToMirrorChannel(channel)),
+                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
                       DualMode,
                       NoDelay,
@@ -147,7 +147,7 @@ namespace kcp2k
         }
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
-            client.Send(segment, MirrorToKcpChannel(channelId));
+            client.Send(segment, ToKcpChannel(channelId));
         }
         public override void ClientDisconnect() => client.Disconnect();
         // process incoming in early update
@@ -195,7 +195,7 @@ namespace kcp2k
         public override void ServerStart() => server.Start(Port);
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
-            server.Send(connectionId, segment, MirrorToKcpChannel(channelId));
+            server.Send(connectionId, segment, ToKcpChannel(channelId));
         }
         public override void ServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
