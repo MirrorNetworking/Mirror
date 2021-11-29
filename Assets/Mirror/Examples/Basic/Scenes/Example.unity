@@ -176,6 +176,8 @@ MonoBehaviour:
   SendWindowSize: 4096
   ReceiveWindowSize: 4096
   NonAlloc: 0
+  ReliableMaxMessageSize: 4811624
+  UnreliableMaxMessageSize: 1199
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
@@ -192,7 +194,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 0
-  PersistNetworkManagerToOfflineScene: 0
   runInBackground: 1
   autoStartServerBuild: 1
   serverTickRate: 30
@@ -207,8 +208,6 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 1
   spawnPrefabs: []
-  mainPanel: {fileID: 1712119861}
-  playersPanel: {fileID: 379082679}
 --- !u!4 &249891957
 Transform:
   m_ObjectHideFlags: 0
@@ -421,6 +420,7 @@ GameObject:
   - component: {fileID: 533055204}
   - component: {fileID: 533055203}
   - component: {fileID: 533055202}
+  - component: {fileID: 533055201}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -428,6 +428,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &533055201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 533055200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266fac335be17a243af86e88de84766d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainPanel: {fileID: 1712119861}
+  playersPanel: {fileID: 379082679}
 --- !u!114 &533055202
 MonoBehaviour:
   m_ObjectHideFlags: 0

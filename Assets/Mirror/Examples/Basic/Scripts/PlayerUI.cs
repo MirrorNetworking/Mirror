@@ -59,6 +59,5 @@ namespace Mirror.Examples.Basic
             // Show the data in the UI
             playerDataText.text = string.Format("Data: {0:000}", newPlayerData);
         }
-
     }
 }
