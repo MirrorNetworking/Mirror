@@ -888,11 +888,16 @@ namespace Mirror
         // remote calls ////////////////////////////////////////////////////////
         // Handle command from specific player, this could be one of multiple
         // players on a single client
-        static void OnCommandMessage(NetworkConnection conn, CommandMessage msg)
+        static void OnCommandMessage(NetworkConnection conn, CommandMessage msg, int channelId)
         {
             if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
-                Debug.LogWarning($"Spawned object not found when handling Command message [netId={msg.netId}]");
+                // over reliable channel, commands should always come after spawn.
+                // over unreliable, they might come in before the object was spawned.
+                // for example, NetworkTransform.
+                // let's not spam the console for unreliable out of order messages.
+                if (channelId == Channels.Reliable)
+                    Debug.LogWarning($"Spawned object not found when handling Command message [netId={msg.netId}]");
                 return;
             }
 
