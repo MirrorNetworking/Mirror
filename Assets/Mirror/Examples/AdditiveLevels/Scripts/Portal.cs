@@ -36,7 +36,7 @@ namespace Mirror.Examples.AdditiveLevels
         // up in the Physics collision matrix so only Player collides with Portal.
         void OnTriggerEnter(Collider other)
         {
-            //Debug.Log($"Portal::OnTriggerEnter {gameObject.name} in {gameObject.scene.name}");
+            Debug.Log($"Portal::OnTriggerEnter {gameObject.name} in {gameObject.scene.name}");
 
             // tag check in case you didn't set up the layers and matrix as noted above
             if (!other.CompareTag("Player")) return;
@@ -62,6 +62,7 @@ namespace Mirror.Examples.AdditiveLevels
 
                 yield return waitForSeconds;
 
+                Debug.Log($"SendPlayerToNewScene RemovePlayerForConnection {conn} netId:{conn.identity.netId}");
                 NetworkServer.RemovePlayerForConnection(conn, false);
                 yield return null;
 
@@ -76,11 +77,15 @@ namespace Mirror.Examples.AdditiveLevels
                 player.transform.LookAt(Vector3.up);
 
                 NetworkServer.AddPlayerForConnection(conn, player);
+                Debug.Log($"SendPlayerToNewScene AddPlayerForConnection {conn} netId:{conn.identity.netId}");
+                yield return null;
 
                 // host client would have been disabled by OnTriggerEnter above
-                PlayerController playerController = null;
-                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<PlayerController>(out playerController))
+                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<PlayerController>(out PlayerController playerController))
                     playerController.enabled = true;
+
+                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<NetworkTransform>(out NetworkTransform networkTransform))
+                    networkTransform.enabled = true;
             }
         }
     }
