@@ -577,6 +577,19 @@ namespace Mirror
             handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
         }
 
+        /// <summary>Register a handler for message type T. Most should require authentication.</summary>
+        // This version passes channelId to the handler.
+        public static void RegisterHandler<T>(Action<NetworkConnection, T, int> handler, bool requireAuthentication = true)
+            where T : struct, NetworkMessage
+        {
+            ushort msgType = MessagePacking.GetId<T>();
+            if (handlers.ContainsKey(msgType))
+            {
+                Debug.LogWarning($"NetworkServer.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
+            }
+            handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
+        }
+
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
