@@ -29,7 +29,7 @@ namespace Mirror.Examples.AdditiveLevels
         /// </summary>
         public override void OnStartClient()
         {
-            label.text = SceneManager.GetSceneByPath(destinationScene).name;
+            label.text = System.IO.Path.GetFileNameWithoutExtension(destinationScene);
         }
 
         // Note that I have created layers called Player(8) and Portal(9) and set them
