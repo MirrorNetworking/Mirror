@@ -83,9 +83,6 @@ namespace Mirror.Examples.AdditiveLevels
                 // host client would have been disabled by OnTriggerEnter above
                 if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<PlayerController>(out PlayerController playerController))
                     playerController.enabled = true;
-
-                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<NetworkTransform>(out NetworkTransform networkTransform))
-                    networkTransform.enabled = true;
             }
         }
     }
