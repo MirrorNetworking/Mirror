@@ -1,3 +1,7 @@
+V1.14 [2021-11-30]
+- fix: Send() now throws an exception for messages which require > 255 fragments
+- fix: ReliableMaxMessageSize is now limited to messages which require <= 255 fragments
+
 V1.13 [2021-11-28]
 - fix: perf: uncork max message size from 144 KB to as much as we want based on
   receive window size.

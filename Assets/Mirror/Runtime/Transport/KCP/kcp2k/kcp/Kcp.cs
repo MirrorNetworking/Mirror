@@ -26,6 +26,7 @@ namespace kcp2k
         public const int ACK_FAST = 3;
         public const int INTERVAL = 100;
         public const int OVERHEAD = 24;
+        public const int FRG_MAX = byte.MaxValue;  // kcp encodes 'frg' as byte. so we can only ever send up to 255 fragments.
         public const int DEADLINK = 20;
         public const int THRESH_INIT = 2;
         public const int THRESH_MIN = 2;
@@ -261,6 +262,13 @@ namespace kcp2k
             // calculate amount of fragments necessary for 'len'
             if (len <= mss) count = 1;
             else count = (int)((len + mss - 1) / mss);
+
+            // IMPORTANT kcp encodes 'frg' as 1 byte.
+            // so we can only support up to 255 fragments.
+            // (which limits max message size to around 288 KB)
+            // this is really nasty to debug. let's make this 100% obvious.
+            if (count > FRG_MAX)
+                throw new Exception($"Send len={len} requires {count} fragments, but kcp can only handle up to {FRG_MAX} fragments.");
 
             // original kcp uses WND_RCV const instead of rcv_wnd runtime:
             // https://github.com/skywind3000/kcp/pull/291/files
@@ -513,6 +521,9 @@ namespace kcp2k
                 if (conv_ != conv) return -1;
 
                 offset += Utils.Decode8u(data, offset, ref cmd);
+                // IMPORTANT kcp encodes 'frg' as 1 byte.
+                // so we can only support up to 255 fragments.
+                // (which limits max message size to around 288 KB)
                 offset += Utils.Decode8u(data, offset, ref frg);
                 offset += Utils.Decode16U(data, offset, ref wnd);
                 offset += Utils.Decode32U(data, offset, ref ts);
