@@ -60,6 +60,12 @@ namespace Mirror
             grid.GetWithNeighbours(current, newObservers);
         }
 
+        [ServerCallback]
+        public override void Reset()
+        {
+            lastRebuildTime = 0D;
+        }
+
         // update everyone's position in the grid
         // (internal so we can update from tests)
         [ServerCallback]
