@@ -508,7 +508,7 @@ namespace Mirror
             RpcTeleportAndRotate(destination, rotation);
         }
 
-        protected virtual void Reset()
+        public virtual void Reset()
         {
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
