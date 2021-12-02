@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Mirror
 {
-    public class SyncList<T> : IList<T>, IReadOnlyList<T>, SyncObject
+    public class SyncList<T> : SyncObject, IList<T>, IReadOnlyList<T>
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
 
@@ -31,7 +31,12 @@ namespace Mirror
             internal T item;
         }
 
+        // list of changes.
+        // -> insert/delete/clear is only ONE change
+        // -> changing the same slot 10x caues 10 changes.
+        // -> note that this grows until next sync(!)
         readonly List<Change> changes = new List<Change>();
+
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
@@ -52,13 +57,11 @@ namespace Mirror
             this.objects = objects;
         }
 
-        public bool IsDirty => changes.Count > 0;
-
         // throw away all the changes
         // this should be called after a successful sync
-        public void Flush() => changes.Clear();
+        public override void ClearChanges() => changes.Clear();
 
-        public void Reset()
+        public override void Reset()
         {
             IsReadOnly = false;
             changes.Clear();
@@ -80,12 +83,16 @@ namespace Mirror
                 item = newItem
             };
 
-            changes.Add(change);
+            if (IsRecording())
+            {
+                changes.Add(change);
+                OnDirty?.Invoke();
+            }
 
             Callback?.Invoke(op, itemIndex, oldItem, newItem);
         }
 
-        public void OnSerializeAll(NetworkWriter writer)
+        public override void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
             writer.WriteUInt((uint)objects.Count);
@@ -103,7 +110,7 @@ namespace Mirror
             writer.WriteUInt((uint)changes.Count);
         }
 
-        public void OnSerializeDelta(NetworkWriter writer)
+        public override void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
             writer.WriteUInt((uint)changes.Count);
@@ -135,7 +142,7 @@ namespace Mirror
             }
         }
 
-        public void OnDeserializeAll(NetworkReader reader)
+        public override void OnDeserializeAll(NetworkReader reader)
         {
             // This list can now only be modified by synchronization
             IsReadOnly = true;
@@ -158,7 +165,7 @@ namespace Mirror
             changesAhead = (int)reader.ReadUInt();
         }
 
-        public void OnDeserializeDelta(NetworkReader reader)
+        public override void OnDeserializeDelta(NetworkReader reader)
         {
             // This list can now only be modified by synchronization
             IsReadOnly = true;

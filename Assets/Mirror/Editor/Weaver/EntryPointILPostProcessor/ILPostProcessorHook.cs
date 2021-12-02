@@ -1,5 +1,6 @@
-// hook via ILPostProcessor from Unity 2020+
-#if UNITY_2020_1_OR_NEWER
+// hook via ILPostProcessor from Unity 2020.3+
+// (2020.1 has errors https://github.com/vis2k/Mirror/issues/2912)
+#if UNITY_2020_3_OR_NEWER
 // Unity.CompilationPipeline reference is only resolved if assembly name is
 // Unity.*.CodeGen:
 // https://forum.unity.com/threads/how-does-unity-do-codegen-and-why-cant-i-do-it-myself.853867/#post-5646937

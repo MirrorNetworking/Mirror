@@ -6,7 +6,7 @@ namespace kcp2k
 {
     public class KcpClientNonAlloc : KcpClient
     {
-        public KcpClientNonAlloc(Action OnConnected, Action<ArraySegment<byte>> OnData, Action OnDisconnected)
+        public KcpClientNonAlloc(Action OnConnected, Action<ArraySegment<byte>, KcpChannel> OnData, Action OnDisconnected)
             : base(OnConnected, OnData, OnDisconnected)
         {
         }

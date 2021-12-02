@@ -4,8 +4,7 @@ namespace WeaverSyncListTests.SyncListNestedInAbstractClass
 {
     class SyncListNestedStruct : NetworkBehaviour
     {
-        SomeAbstractClass.MyNestedStructList Foo;
-
+        readonly SomeAbstractClass.MyNestedStructList Foo;
 
         public abstract class SomeAbstractClass
         {

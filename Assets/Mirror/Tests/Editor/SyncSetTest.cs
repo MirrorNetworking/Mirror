@@ -7,10 +7,10 @@ namespace Mirror.Tests
     [TestFixture]
     public class SyncSetTest
     {
-        public class SyncSetString : SyncHashSet<string> {}
-
-        SyncSetString serverSyncSet;
-        SyncSetString clientSyncSet;
+        SyncHashSet<string> serverSyncSet;
+        SyncHashSet<string> clientSyncSet;
+        int serverSyncSetDirtyCalled;
+        int clientSyncSetDirtyCalled;
 
         void SerializeAllTo<T>(T fromList, T toList) where T : SyncObject
         {
@@ -26,20 +26,27 @@ namespace Mirror.Tests
             fromList.OnSerializeDelta(writer);
             NetworkReader reader = new NetworkReader(writer.ToArray());
             toList.OnDeserializeDelta(reader);
-            fromList.Flush();
+            fromList.ClearChanges();
         }
 
         [SetUp]
         public void SetUp()
         {
-            serverSyncSet = new SyncSetString();
-            clientSyncSet = new SyncSetString();
+            serverSyncSet = new SyncHashSet<string>();
+            clientSyncSet = new SyncHashSet<string>();
 
             // add some data to the list
             serverSyncSet.Add("Hello");
             serverSyncSet.Add("World");
             serverSyncSet.Add("!");
             SerializeAllTo(serverSyncSet, clientSyncSet);
+
+            // set up dirty callbacks for testing
+            // AFTER adding the example data. we already know we added that data.
+            serverSyncSet.OnDirty = () => ++serverSyncSetDirtyCalled;
+            clientSyncSet.OnDirty = () => ++clientSyncSetDirtyCalled;
+            serverSyncSetDirtyCalled = 0;
+            clientSyncSetDirtyCalled = 0;
         }
 
         [Test]
@@ -49,34 +56,40 @@ namespace Mirror.Tests
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!" }));
         }
 
+        // test the '= List<int>{1,2,3}' constructor.
+        // it calls .Add(1); .Add(2); .Add(3) in the constructor.
+        // (the OnDirty change broke this and we didn't have a test before)
+        [Test]
+        public void CurlyBracesConstructor()
+        {
+            SyncHashSet<int> set = new SyncHashSet<int>{1,2,3};
+            Assert.That(set.Count, Is.EqualTo(3));
+        }
+
         [Test]
         public void TestAdd()
         {
             serverSyncSet.Add("yay");
-            Assert.That(serverSyncSet.IsDirty, Is.True);
+            Assert.That(serverSyncSetDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "World", "!", "yay" }));
-            Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
         [Test]
         public void TestClear()
         {
             serverSyncSet.Clear();
-            Assert.That(serverSyncSet.IsDirty, Is.True);
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new string[] {}));
-            Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
         [Test]
         public void TestRemove()
         {
             serverSyncSet.Remove("World");
-            Assert.That(serverSyncSet.IsDirty, Is.True);
+            Assert.That(serverSyncSetDirtyCalled, Is.EqualTo(1));
             SerializeDeltaTo(serverSyncSet, clientSyncSet);
             Assert.That(clientSyncSet, Is.EquivalentTo(new[] { "Hello", "!" }));
-            Assert.That(serverSyncSet.IsDirty, Is.False);
         }
 
         [Test]
@@ -99,7 +112,7 @@ namespace Mirror.Tests
             {
                 called = true;
 
-                Assert.That(op, Is.EqualTo(SyncSetString.Operation.OP_ADD));
+                Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_ADD));
                 Assert.That(item, Is.EqualTo("yay"));
             };
 
@@ -118,7 +131,7 @@ namespace Mirror.Tests
             {
                 called = true;
 
-                Assert.That(op, Is.EqualTo(SyncSetString.Operation.OP_REMOVE));
+                Assert.That(op, Is.EqualTo(SyncHashSet<string>.Operation.OP_REMOVE));
                 Assert.That(item, Is.EqualTo("World"));
             };
             serverSyncSet.Remove("World");
@@ -263,8 +276,8 @@ namespace Mirror.Tests
             clientSyncSet.Reset();
 
             // make old client the host
-            SyncSetString hostList = clientSyncSet;
-            SyncSetString clientList2 = new SyncSetString();
+            SyncHashSet<string> hostList = clientSyncSet;
+            SyncHashSet<string> clientList2 = new SyncHashSet<string>();
 
             Assert.That(hostList.IsReadOnly, Is.False);
 
@@ -294,6 +307,16 @@ namespace Mirror.Tests
         {
             serverSyncSet.Reset();
             Assert.That(serverSyncSet, Is.Empty);
+        }
+
+        [Test]
+        public void IsRecording()
+        {
+            // shouldn't record changes if IsRecording() returns false
+            serverSyncSet.ClearChanges();
+            serverSyncSet.IsRecording = () => false;
+            serverSyncSet.Add("42");
+            Assert.That(serverSyncSet.GetChangeCount(), Is.EqualTo(0));
         }
     }
 }

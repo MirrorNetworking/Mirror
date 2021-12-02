@@ -4,8 +4,7 @@ namespace WeaverSyncDictionaryTests.SyncDictionaryGenericStructItemWithCustomMet
 {
     class SyncDictionaryGenericStructItemWithCustomMethods : NetworkBehaviour
     {
-        SyncDictionary<int, MyGenericStruct<float>> harpseals;
-
+        readonly SyncDictionary<int, MyGenericStruct<float>> harpseals;
     }
 
     public struct MyGenericStruct<T>

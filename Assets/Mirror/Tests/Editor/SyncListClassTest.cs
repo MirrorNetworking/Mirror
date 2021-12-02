@@ -7,7 +7,7 @@ namespace Mirror.Tests
     {
         // note synclists must be a property of a NetworkBehavior so that
         // the weaver generates the reader and writer for the object
-        public SyncList<TestObject> myList = new SyncList<TestObject>();
+        public readonly SyncList<TestObject> myList = new SyncList<TestObject>();
     }
 
     public class SyncListClassTest
@@ -29,7 +29,7 @@ namespace Mirror.Tests
             // sync
             SyncListTest.SerializeDeltaTo(serverList, clientList);
 
-            // clear all items            
+            // clear all items
             serverList.Remove(item1);
 
             // sync
@@ -56,7 +56,7 @@ namespace Mirror.Tests
             // sync
             SyncListTest.SerializeDeltaTo(serverList, clientList);
 
-            // clear all items            
+            // clear all items
             serverList.Clear();
 
             // sync

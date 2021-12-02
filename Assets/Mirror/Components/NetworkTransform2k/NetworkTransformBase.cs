@@ -294,7 +294,7 @@ namespace Mirror
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
                     syncPosition ? snapshot.position : new Vector3?(),
-                    syncRotation? snapshot.rotation : new Quaternion?(),
+                    syncRotation ? snapshot.rotation : new Quaternion?(),
                     syncScale ? snapshot.scale : new Vector3?()
                 );
 
@@ -331,6 +331,9 @@ namespace Mirror
             // client authority, and local player (= allowed to move myself)?
             if (IsClientWithAuthority)
             {
+                // https://github.com/vis2k/Mirror/pull/2992/
+                if (!NetworkClient.ready) return;
+
                 // send to server each 'sendInterval'
                 // NetworkTime.localTime for double precision until Unity has it too
                 //
@@ -359,7 +362,7 @@ namespace Mirror
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
                         syncPosition ? snapshot.position : new Vector3?(),
-                        syncRotation? snapshot.rotation : new Quaternion?(),
+                        syncRotation ? snapshot.rotation : new Quaternion?(),
                         syncScale ? snapshot.scale : new Vector3?()
                     );
 
@@ -412,6 +415,23 @@ namespace Mirror
             // -> maybe add destionation as first entry?
         }
 
+        // common Teleport code for client->server and server->client
+        protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
+        {
+            // reset any in-progress interpolation & buffers
+            Reset();
+
+            // set the new position.
+            // interpolation will automatically continue.
+            targetComponent.position = destination;
+            targetComponent.rotation = rotation;
+
+            // TODO
+            // what if we still receive a snapshot from before the interpolation?
+            // it could easily happen over unreliable.
+            // -> maybe add destionation as first entry?
+        }
+
         // server->client teleport to force position without interpolation.
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
@@ -426,6 +446,22 @@ namespace Mirror
 
             // TODO what about host mode?
             OnTeleport(destination);
+        }
+
+        // server->client teleport to force position and rotation without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [ClientRpc]
+        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
+            // NOTE: even in client authority mode, the server is always allowed
+            //       to teleport the player. for example:
+            //       * CmdEnterPortal() might teleport the player
+            //       * Some people use client authority with server sided checks
+            //         so the server should be able to reset position if needed.
+
+            // TODO what about host mode?
+            OnTeleport(destination, rotation);
         }
 
         // client->server teleport to force position without interpolation.
@@ -450,7 +486,29 @@ namespace Mirror
             RpcTeleport(destination);
         }
 
-        protected virtual void Reset()
+        // client->server teleport to force position and rotation without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [Command]
+        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
+            // client can only teleport objects that it has authority over.
+            if (!clientAuthority) return;
+
+            // TODO what about host mode?
+            OnTeleport(destination, rotation);
+
+            // if a client teleports, we need to broadcast to everyone else too
+            // TODO the teleported client should ignore the rpc though.
+            //      otherwise if it already moved again after teleporting,
+            //      the rpc would come a little bit later and reset it once.
+            // TODO or not? if client ONLY calls Teleport(pos), the position
+            //      would only be set after the rpc. unless the client calls
+            //      BOTH Teleport(pos) and targetComponent.position=pos
+            RpcTeleportAndRotate(destination, rotation);
+        }
+
+        public virtual void Reset()
         {
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
@@ -482,7 +540,7 @@ namespace Mirror
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
+        // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
         protected virtual void OnGUI()
@@ -513,11 +571,11 @@ namespace Mirror
                 // obvious if we accidentally populate both.
                 GUILayout.Label($"Server Buffer:{serverBuffer.Count}");
                 if (serverCatchup > 0)
-                    GUILayout.Label($"Server Catchup:{serverCatchup*100:F2}%");
+                    GUILayout.Label($"Server Catchup:{serverCatchup * 100:F2}%");
 
                 GUILayout.Label($"Client Buffer:{clientBuffer.Count}");
                 if (clientCatchup > 0)
-                    GUILayout.Label($"Client Catchup:{clientCatchup*100:F2}%");
+                    GUILayout.Label($"Client Catchup:{clientCatchup * 100:F2}%");
 
                 GUILayout.EndArea();
                 GUI.color = Color.white;

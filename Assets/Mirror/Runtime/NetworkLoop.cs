@@ -40,7 +40,7 @@ using UnityEngine.Experimental.PlayerLoop;
 
 namespace Mirror
 {
-    internal static class NetworkLoop
+    public static class NetworkLoop
     {
         // helper enum to add loop to begin/end of subSystemList
         internal enum AddMode { Beginning, End }
@@ -181,7 +181,7 @@ namespace Mirror
 
         static void NetworkEarlyUpdate()
         {
-            //Debug.Log("NetworkEarlyUpdate @ " + Time.time);
+            //Debug.Log($"NetworkEarlyUpdate {Time.time}");
             NetworkServer.NetworkEarlyUpdate();
             NetworkClient.NetworkEarlyUpdate();
             // invoke event after mirror has done it's early updating.
@@ -190,7 +190,7 @@ namespace Mirror
 
         static void NetworkLateUpdate()
         {
-            //Debug.Log("NetworkLateUpdate @ " + Time.time);
+            //Debug.Log($"NetworkLateUpdate {Time.time}");
             // invoke event before mirror does its final late updating.
             OnLateUpdate?.Invoke();
             NetworkServer.NetworkLateUpdate();

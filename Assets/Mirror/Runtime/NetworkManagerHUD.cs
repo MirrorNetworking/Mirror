@@ -1,6 +1,5 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
-using System;
 using UnityEngine;
 
 namespace Mirror
@@ -71,6 +70,7 @@ namespace Mirror
                 {
                     manager.StartClient();
                 }
+                // This updates networkAddress every frame from the TextField
                 manager.networkAddress = GUILayout.TextField(manager.networkAddress);
                 GUILayout.EndHorizontal();
 
@@ -88,7 +88,7 @@ namespace Mirror
             else
             {
                 // Connecting
-                GUILayout.Label("Connecting to " + manager.networkAddress + "..");
+                GUILayout.Label($"Connecting to {manager.networkAddress}..");
                 if (GUILayout.Button("Cancel Connection Attempt"))
                 {
                     manager.StopClient();

@@ -9,9 +9,9 @@ namespace Mirror
     {
         public const int LocalConnectionId = 0;
 
-        // NetworkIdentities that this connection can see
+        /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
-        internal readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
+        public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
         // assigned by transport, this id is unique for every connection on server.
@@ -141,7 +141,7 @@ namespace Mirror
         // the client. they would be detected as a message. send messages instead.
         internal virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
-            //Debug.Log("ConnectionSend " + this + " bytes:" + BitConverter.ToString(segment.Array, segment.Offset, segment.Count));
+            //Debug.Log($"ConnectionSend {this} bytes:{BitConverter.ToString(segment.Array, segment.Offset, segment.Count)}");
 
             // add to batch no matter what.
             // batching will try to fit as many as possible into MTU.
@@ -247,7 +247,7 @@ namespace Mirror
         {
             foreach (NetworkIdentity netIdentity in observing)
             {
-                netIdentity.RemoveObserverInternal(this);
+                netIdentity.RemoveObserver(this);
             }
             observing.Clear();
         }

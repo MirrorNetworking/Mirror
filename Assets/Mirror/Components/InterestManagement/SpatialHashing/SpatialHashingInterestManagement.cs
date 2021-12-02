@@ -23,7 +23,6 @@ namespace Mirror
             XZ_FOR_3D,
             XY_FOR_2D
         }
-
         [Tooltip("Spatial Hashing supports 3D (XZ) and 2D (XY) games.")]
         public CheckMethod checkMethod = CheckMethod.XZ_FOR_3D;
 
@@ -63,11 +62,9 @@ namespace Mirror
 
         // update everyone's position in the grid
         // (internal so we can update from tests)
+        [ServerCallback]
         internal void Update()
         {
-            // only on server
-            if (!NetworkServer.active) return;
-
             // NOTE: unlike Scene/MatchInterestManagement, this rebuilds ALL
             //       entities every INTERVAL. consider the other approach later.
 

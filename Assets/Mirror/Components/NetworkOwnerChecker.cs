@@ -9,12 +9,10 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to the client that has been assigned authority for it.</para>
     /// <para>This would be used for spawning a non-player networked object for single client to interact with, e.g. in-game puzzles.</para>
     /// </summary>
-    // Deprecated 2021-09-06
-    [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
+    // Deprecated 2021-10-30
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/NetworkOwnerChecker")]
-    [RequireComponent(typeof(NetworkIdentity))]
-    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-owner-checker")]
+    [Obsolete("This component has been replaced with Network Team component. Remove this component and add Team Interest Management component to the same object as your Network Manager.")]
+    [RequireComponent(typeof(NetworkTeam))]
     public class NetworkOwnerChecker : NetworkVisibility
     {
         /// <summary>

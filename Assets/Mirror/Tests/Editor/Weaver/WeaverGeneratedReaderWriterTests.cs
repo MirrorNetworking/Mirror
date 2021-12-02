@@ -31,7 +31,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorForClassWithNoValidConstructor()
         {
-            HasError("SomeOtherData can't be deserialized because it has no default constructor",
+            HasError("SomeOtherData can't be deserialized because it has no default constructor. Don't use SomeOtherData in [SyncVar]s, Rpcs, Cmds, etc.",
                 "GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor.SomeOtherData");
         }
 
@@ -44,7 +44,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void GivesErrorWhenUsingUnityAsset()
         {
-            HasError("Material can't be deserialized because it has no default constructor",
+            HasError("Material can't be deserialized because it has no default constructor. Don't use Material in [SyncVar]s, Rpcs, Cmds, etc.",
                 "UnityEngine.Material");
         }
 

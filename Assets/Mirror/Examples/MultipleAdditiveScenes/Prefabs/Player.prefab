@@ -157,9 +157,9 @@ MonoBehaviour:
   interpolatePosition: 1
   interpolateRotation: 1
   interpolateScale: 0
-  bufferTimeMultiplier: 1
+  bufferTimeMultiplier: 0
   bufferSizeLimit: 64
-  catchupThreshold: 4
+  catchupThreshold: 3
   catchupMultiplier: 0.1
   showGizmos: 0
   showOverlay: 0

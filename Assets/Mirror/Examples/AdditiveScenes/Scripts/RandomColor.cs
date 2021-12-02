@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.Examples.Additive
+namespace Mirror.Examples.AdditiveScenes
 {
     public class RandomColor : NetworkBehaviour
     {

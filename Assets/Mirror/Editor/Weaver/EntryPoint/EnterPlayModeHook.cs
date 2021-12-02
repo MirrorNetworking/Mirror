@@ -1,4 +1,4 @@
-#if !UNITY_2020_1_OR_NEWER
+#if !UNITY_2020_3_OR_NEWER
 // make sure we weaved successfully when entering play mode.
 using UnityEditor;
 using UnityEngine;

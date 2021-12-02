@@ -13,22 +13,36 @@ namespace Mirror.Examples.Chat
         public void Awake()
         {
             Player.OnMessage += OnPlayerMessage;
+            chatMessage.onEndEdit.AddListener(OnEndEdit);
+        }
+
+        void OnEndEdit(string input)
+        {
+            if (Input.GetKeyDown(KeyCode.Return)
+                || Input.GetKeyDown(KeyCode.KeypadEnter)
+                || Input.GetButtonDown("Submit"))
+            {
+                //Debug.Log($"OnEndEdit {input}");
+                SendMessage();
+                chatMessage.text = string.Empty;
+                chatMessage.ActivateInputField();
+            }
         }
 
         void OnPlayerMessage(Player player, string message)
         {
             string prettyMessage = player.isLocalPlayer ?
-                $"<color=red>{player.playerName}: </color> {message}" :
-                $"<color=blue>{player.playerName}: </color> {message}";
+                $"<color=red>{player.playerName}:</color> {message}" :
+                $"<color=blue>{player.playerName}:</color> {message}";
             AppendMessage(prettyMessage);
 
             Debug.Log(message);
         }
 
         // Called by UI element SendButton.OnClick
-        public void OnSend()
+        public void SendMessage()
         {
-            if (chatMessage.text.Trim() == "")
+            if (chatMessage.text.Trim() == string.Empty)
                 return;
 
             // get our player
@@ -36,8 +50,6 @@ namespace Mirror.Examples.Chat
 
             // send a message
             player.CmdSend(chatMessage.text.Trim());
-
-            chatMessage.text = "";
         }
 
         internal void AppendMessage(string message)

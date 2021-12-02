@@ -9,13 +9,10 @@ namespace Mirror
     /// <para>Any object with this component on it will only be visible to other objects in the same match.</para>
     /// <para>This would be used to isolate players to their respective matches within a single game server instance. </para>
     /// </summary>
-    // Deprecated 2021-07-16
-    [Obsolete(NetworkVisibilityObsoleteMessage.Message)]
+    // Deprecated 2021-10-30
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/NetworkMatchChecker")]
-    [RequireComponent(typeof(NetworkIdentity))]
+    [Obsolete("This component has been replaced with Network Match component. Remove this component and add Match Interest Management component to the same object as your Network Manager.")]
     [RequireComponent(typeof(NetworkMatch))]
-    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-match-checker")]
     public class NetworkMatchChecker : NetworkVisibility
     {
         // internal for tests

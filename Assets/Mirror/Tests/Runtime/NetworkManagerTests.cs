@@ -34,7 +34,7 @@ namespace Mirror.Tests.Runtime
         [UnityTest]
         public IEnumerator IsActiveSceneIsFalseForScenesWithSameNameButDifferentPath()
         {
-            yield return RunIsActiveSceneTest("Another/Path/To/" + activeScene.path, false);
+            yield return RunIsActiveSceneTest($"Another/Path/To/{activeScene.path}", false);
         }
         [UnityTest]
         public IEnumerator IsActiveSceneIsFalseForEmptyString()

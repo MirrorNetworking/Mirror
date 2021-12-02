@@ -45,7 +45,7 @@ namespace Mirror.Weaver.Tests
         [OneTimeSetUp]
         public void FixtureSetup()
         {
-#if !UNITY_2020_1_OR_NEWER
+#if !UNITY_2020_3_OR_NEWER
             // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
             CompilationFinishedHook.UnityLogEnabled = false;
             CompilationFinishedHook.OnWeaverError += HandleWeaverError;
@@ -56,7 +56,7 @@ namespace Mirror.Weaver.Tests
         [OneTimeTearDown]
         public void FixtureCleanup()
         {
-#if !UNITY_2020_1_OR_NEWER
+#if !UNITY_2020_3_OR_NEWER
             // CompilationFinishedHook is used for tests pre-2020 ILPostProcessor
             CompilationFinishedHook.OnWeaverError -= HandleWeaverError;
             CompilationFinishedHook.OnWeaverWarning -= HandleWeaverWarning;

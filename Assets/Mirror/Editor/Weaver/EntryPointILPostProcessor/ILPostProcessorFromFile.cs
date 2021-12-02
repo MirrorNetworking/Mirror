@@ -2,7 +2,7 @@
 // we keep this in Weaver folder because we can access CompilationPipleine here.
 // in tests folder we can't, unless we rename to "Unity.*.CodeGen",
 // but then tests wouldn't be weaved anymore.
-#if UNITY_2020_1_OR_NEWER
+#if UNITY_2020_3_OR_NEWER
 using System;
 using System.IO;
 using Unity.CompilationPipeline.Common.Diagnostics;
@@ -25,7 +25,7 @@ namespace Mirror.Weaver
             ILPostProcessorHook ilpp = new ILPostProcessorHook();
             if (ilpp.WillProcess(assembly))
             {
-                //Debug.Log("Will Process: " + assembly.Name);
+                //Debug.Log($"Will Process: {assembly.Name}");
 
                 // process it like Unity would
                 ILPostProcessResult result = ilpp.Process(assembly);

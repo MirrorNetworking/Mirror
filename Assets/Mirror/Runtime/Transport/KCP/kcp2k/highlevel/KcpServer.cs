@@ -11,7 +11,7 @@ namespace kcp2k
     {
         // events
         public Action<int> OnConnected;
-        public Action<int, ArraySegment<byte>> OnData;
+        public Action<int, ArraySegment<byte>, KcpChannel> OnData;
         public Action<int> OnDisconnected;
 
         // configuration
@@ -57,7 +57,7 @@ namespace kcp2k
         public Dictionary<int, KcpServerConnection> connections = new Dictionary<int, KcpServerConnection>();
 
         public KcpServer(Action<int> OnConnected,
-                         Action<int, ArraySegment<byte>> OnData,
+                         Action<int, ArraySegment<byte>, KcpChannel> OnData,
                          Action<int> OnDisconnected,
                          bool DualMode,
                          bool NoDelay,
@@ -226,11 +226,11 @@ namespace kcp2k
                                 // internet.
 
                                 // setup data event
-                                connection.OnData = (message) =>
+                                connection.OnData = (message, channel) =>
                                 {
                                     // call mirror event
                                     //Log.Info($"KCP: OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
-                                    OnData.Invoke(connectionId, message);
+                                    OnData.Invoke(connectionId, message, channel);
                                 };
 
                                 // setup disconnected event

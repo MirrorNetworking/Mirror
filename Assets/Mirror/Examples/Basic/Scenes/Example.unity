@@ -152,7 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showGUI: 1
   offsetX: 0
   offsetY: 0
 --- !u!114 &249891955
@@ -176,7 +175,9 @@ MonoBehaviour:
   CongestionWindow: 0
   SendWindowSize: 4096
   ReceiveWindowSize: 4096
-  NonAlloc: 1
+  NonAlloc: 0
+  ReliableMaxMessageSize: 4811624
+  UnreliableMaxMessageSize: 1199
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
@@ -193,7 +194,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 0
-  PersistNetworkManagerToOfflineScene: 0
   runInBackground: 1
   autoStartServerBuild: 1
   serverTickRate: 30
@@ -202,16 +202,12 @@ MonoBehaviour:
   transport: {fileID: 249891955}
   networkAddress: localhost
   maxConnections: 100
-  disconnectInactiveConnections: 0
-  disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 897184729387425976, guid: dc2c4328591bef748abb8df795c17202,
     type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
   spawnPrefabs: []
-  mainPanel: {fileID: 1712119861}
-  playersPanel: {fileID: 379082679}
 --- !u!4 &249891957
 Transform:
   m_ObjectHideFlags: 0
@@ -441,14 +437,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 533055200}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Script: {fileID: 11500000, guid: 266fac335be17a243af86e88de84766d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
+  mainPanel: {fileID: 1712119861}
+  playersPanel: {fileID: 379082679}
 --- !u!114 &533055202
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -2,22 +2,28 @@ using UnityEngine;
 
 namespace Mirror.Examples.RigidbodyPhysics
 {
+    [RequireComponent(typeof(Rigidbody))]
     public class AddForce : NetworkBehaviour
     {
         public Rigidbody rigidbody3d;
         public float force = 500f;
 
-        void Start()
+        void OnValidate()
         {
-            rigidbody3d.isKinematic = !isServer;
+            rigidbody3d = GetComponent<Rigidbody>();
+            rigidbody3d.isKinematic = true;
         }
 
+        public override void OnStartServer()
+        {
+            rigidbody3d.isKinematic = false;
+        }
+
+        [ServerCallback]
         void Update()
         {
-            if (isServer && Input.GetKeyDown(KeyCode.Space))
-            {
+            if (Input.GetKeyDown(KeyCode.Space))
                 rigidbody3d.AddForce(Vector3.up * force);
-            }
         }
     }
 }

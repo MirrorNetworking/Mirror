@@ -10,9 +10,9 @@ namespace Mirror.Tests
         GameObject player1;
         GameObject player2;
         GameObject player3;
-#pragma warning disable 618
         NetworkMatch player1Match;
         NetworkMatch player2Match;
+#pragma warning disable 618
         NetworkMatchChecker player1MatchChecker;
         NetworkMatchChecker player2MatchChecker;
 #pragma warning restore 618

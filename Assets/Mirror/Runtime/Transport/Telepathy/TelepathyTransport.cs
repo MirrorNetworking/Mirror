@@ -244,11 +244,11 @@ namespace Mirror
                 //   incompatible with the requested protocol was used at
                 //   System.Net.Sockets.Socket.get_LocalEndPoint ()
                 // so let's use the regular port instead.
-                return "Telepathy Server port: " + port;
+                return $"Telepathy Server port: {port}";
             }
             else if (client != null && (client.Connecting || client.Connected))
             {
-                return "Telepathy Client port: " + port;
+                return $"Telepathy Client port: {port}";
             }
             return "Telepathy (inactive/disconnected)";
         }

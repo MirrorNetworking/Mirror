@@ -4,7 +4,7 @@ namespace WeaverSyncListTests.SyncListStruct
 {
     class SyncListStruct : NetworkBehaviour
     {
-        MyStructList Foo;
+        readonly MyStructList Foo;
 
         struct MyStruct
         {

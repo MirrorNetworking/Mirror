@@ -37,11 +37,10 @@ namespace Mirror
                 RebuildSceneObservers(currentScene);
         }
 
-        void Update()
+        // internal so we can update from tests
+        [ServerCallback]
+        internal void Update()
         {
-            // only on server
-            if (!NetworkServer.active) return;
-
             // for each spawned:
             //   if scene changed:
             //     add previous to dirty

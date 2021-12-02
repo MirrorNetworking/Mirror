@@ -20,7 +20,7 @@ namespace Mirror.Weaver
         public const string MirrorAssemblyName = "Mirror";
 
         WeaverTypes weaverTypes;
-        WeaverLists weaverLists;
+        SyncVarAccessLists syncVarAccessLists;
         IAssemblyResolver Resolver;
         AssemblyDefinition CurrentAssembly;
         Writers writers;
@@ -78,7 +78,7 @@ namespace Mirror.Weaver
             bool modified = false;
             foreach (TypeDefinition behaviour in behaviourClasses)
             {
-                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, weaverLists, writers, readers, Log, behaviour).Process(ref WeavingFailed);
+                modified |= new NetworkBehaviourProcessor(CurrentAssembly, weaverTypes, syncVarAccessLists, writers, readers, Log, behaviour).Process(ref WeavingFailed);
             }
             return modified;
         }
@@ -100,7 +100,7 @@ namespace Mirror.Weaver
             }
 
             watch.Stop();
-            Console.WriteLine("Weave behaviours and messages took " + watch.ElapsedMilliseconds + " milliseconds");
+            Console.WriteLine($"Weave behaviours and messages took {watch.ElapsedMilliseconds} milliseconds");
 
             return modified;
         }
@@ -159,7 +159,7 @@ namespace Mirror.Weaver
                 CreateGeneratedCodeClass();
 
                 // WeaverList depends on WeaverTypes setup because it uses Import
-                weaverLists = new WeaverLists();
+                syncVarAccessLists = new SyncVarAccessLists();
 
                 // initialize readers & writers with this assembly.
                 // we need to do this in every Process() call.
@@ -187,7 +187,7 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    PropertySiteProcessor.Process(moduleDefinition, weaverLists);
+                    SyncVarAttributeAccessReplacer.Process(moduleDefinition, syncVarAccessLists);
 
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);
@@ -205,7 +205,7 @@ namespace Mirror.Weaver
             }
             catch (Exception e)
             {
-                Log.Error("Exception :" + e);
+                Log.Error($"Exception :{e}");
                 WeavingFailed = true;
                 return false;
             }

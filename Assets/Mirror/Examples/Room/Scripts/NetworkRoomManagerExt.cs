@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/*
+	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
+	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
+*/
+
 namespace Mirror.Examples.NetworkRoom
 {
     [AddComponentMenu("")]
@@ -17,9 +22,7 @@ namespace Mirror.Examples.NetworkRoom
         {
             // spawn the initial batch of Rewards
             if (sceneName == GameplayScene)
-            {
                 Spawner.InitialSpawn();
-            }
         }
 
         /// <summary>

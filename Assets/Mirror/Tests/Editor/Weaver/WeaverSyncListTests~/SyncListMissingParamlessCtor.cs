@@ -4,8 +4,7 @@ namespace WeaverSyncListTests.SyncListMissingParamlessCtor
 {
     class SyncListMissingParamlessCtor : NetworkBehaviour
     {
-        public SyncListString2 Foo;
-
+        public readonly SyncListString2 Foo;
 
         public class SyncListString2 : SyncList<string>
         {

@@ -14,11 +14,10 @@ namespace Mirror.Examples.NetworkRoom
         {
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
-        }
 
-        void Start()
-        {
-            characterController.enabled = isLocalPlayer;
+            characterController.enabled = false;
+            GetComponent<Rigidbody>().isKinematic = true;
+            GetComponent<NetworkTransform>().clientAuthority = true;
         }
 
         public override void OnStartLocalPlayer()
@@ -27,6 +26,8 @@ namespace Mirror.Examples.NetworkRoom
             Camera.main.transform.SetParent(transform);
             Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
             Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
+
+            characterController.enabled = true;
         }
 
         void OnDisable()
@@ -56,7 +57,7 @@ namespace Mirror.Examples.NetworkRoom
 
         void Update()
         {
-            if (!isLocalPlayer)
+            if (!isLocalPlayer || characterController == null || !characterController.enabled)
                 return;
 
             horizontal = Input.GetAxis("Horizontal");
@@ -88,7 +89,7 @@ namespace Mirror.Examples.NetworkRoom
 
         void FixedUpdate()
         {
-            if (!isLocalPlayer || characterController == null)
+            if (!isLocalPlayer || characterController == null || !characterController.enabled)
                 return;
 
             transform.Rotate(0f, turn * Time.fixedDeltaTime, 0f);

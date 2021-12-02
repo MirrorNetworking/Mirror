@@ -1,10 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace Mirror
 {
-    public class SyncIDictionary<TKey, TValue> : IDictionary<TKey, TValue>, SyncObject, IReadOnlyDictionary<TKey, TValue>
+    public class SyncIDictionary<TKey, TValue> : SyncObject, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
     {
         public delegate void SyncDictionaryChanged(Operation op, TKey key, TValue item);
 
@@ -29,22 +28,26 @@ namespace Mirror
             internal TValue item;
         }
 
+        // list of changes.
+        // -> insert/delete/clear is only ONE change
+        // -> changing the same slot 10x caues 10 changes.
+        // -> note that this grows until next sync(!)
+        // TODO Dictionary<key, change> to avoid ever growing changes / redundant changes!
         readonly List<Change> changes = new List<Change>();
+
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
         // so we need to skip them
         int changesAhead;
 
-        public void Reset()
+        public override void Reset()
         {
             IsReadOnly = false;
             changes.Clear();
             changesAhead = 0;
             objects.Clear();
         }
-
-        public bool IsDirty => changes.Count > 0;
 
         public ICollection<TKey> Keys => objects.Keys;
 
@@ -56,7 +59,7 @@ namespace Mirror
 
         // throw away all the changes
         // this should be called after a successful sync
-        public void Flush() => changes.Clear();
+        public override void ClearChanges() => changes.Clear();
 
         public SyncIDictionary(IDictionary<TKey, TValue> objects)
         {
@@ -77,12 +80,16 @@ namespace Mirror
                 item = item
             };
 
-            changes.Add(change);
+            if (IsRecording())
+            {
+                changes.Add(change);
+                OnDirty?.Invoke();
+            }
 
             Callback?.Invoke(op, key, item);
         }
 
-        public void OnSerializeAll(NetworkWriter writer)
+        public override void OnSerializeAll(NetworkWriter writer)
         {
             // if init, write the full list content
             writer.WriteUInt((uint)objects.Count);
@@ -100,7 +107,7 @@ namespace Mirror
             writer.WriteUInt((uint)changes.Count);
         }
 
-        public void OnSerializeDelta(NetworkWriter writer)
+        public override void OnSerializeDelta(NetworkWriter writer)
         {
             // write all the queued up changes
             writer.WriteUInt((uint)changes.Count);
@@ -124,7 +131,7 @@ namespace Mirror
             }
         }
 
-        public void OnDeserializeAll(NetworkReader reader)
+        public override void OnDeserializeAll(NetworkReader reader)
         {
             // This list can now only be modified by synchronization
             IsReadOnly = true;
@@ -148,7 +155,7 @@ namespace Mirror
             changesAhead = (int)reader.ReadUInt();
         }
 
-        public void OnDeserializeDelta(NetworkReader reader)
+        public override void OnDeserializeDelta(NetworkReader reader)
         {
             // This list can now only be modified by synchronization
             IsReadOnly = true;
@@ -257,7 +264,7 @@ namespace Mirror
             return TryGetValue(item.Key, out TValue val) && EqualityComparer<TValue>.Default.Equals(val, item.Value);
         }
 
-        public void CopyTo([NotNull] KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
@@ -295,9 +302,9 @@ namespace Mirror
     {
         public SyncDictionary() : base(new Dictionary<TKey, TValue>()) {}
         public SyncDictionary(IEqualityComparer<TKey> eq) : base(new Dictionary<TKey, TValue>(eq)) {}
+        public SyncDictionary(IDictionary<TKey, TValue> d) : base(new Dictionary<TKey, TValue>(d)) {}
         public new Dictionary<TKey, TValue>.ValueCollection Values => ((Dictionary<TKey, TValue>)objects).Values;
         public new Dictionary<TKey, TValue>.KeyCollection Keys => ((Dictionary<TKey, TValue>)objects).Keys;
         public new Dictionary<TKey, TValue>.Enumerator GetEnumerator() => ((Dictionary<TKey, TValue>)objects).GetEnumerator();
-
     }
 }
