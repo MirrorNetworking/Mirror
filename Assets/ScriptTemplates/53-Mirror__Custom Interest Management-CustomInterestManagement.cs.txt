@@ -47,20 +47,14 @@ public class #SCRIPTNAME# : InterestManagement
     /// </summary>
     /// <param name="identity">NetworkIdentity of the object being spawned</param>
     [ServerCallback]
-    public override void OnSpawned(NetworkIdentity identity)
-    {
-        base.OnSpawned(identity);
-    }
+    public override void OnSpawned(NetworkIdentity identity) { }
 
     /// <summary>
     /// Called on the server when a networked object is destroyed.
     /// </summary>
     /// <param name="identity">NetworkIdentity of the object being destroyed</param>
     [ServerCallback]
-    public override void OnDestroyed(NetworkIdentity identity)
-    {
-        base.OnDestroyed(identity);
-    }
+    public override void OnDestroyed(NetworkIdentity identity) { }
 
     /// <summary>
     /// Callback used by the visibility system for objects on a host.
@@ -82,10 +76,7 @@ public class #SCRIPTNAME# : InterestManagement
     /// Called by NetworkServer in Initialize and Shutdown
     /// </summary>
     [ServerCallback]
-    public override void Reset()
-    {
-        base.Reset();
-    }
+    public override void Reset() { }
 
     [ServerCallback]
     void Update()
