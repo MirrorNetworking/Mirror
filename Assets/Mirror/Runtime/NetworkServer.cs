@@ -65,7 +65,8 @@ namespace Mirror
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
 
-            // reset Interest Management
+            // reset Interest Management so that rebuild intervals
+            // start at 0 when starting again.
             if (aoi != null) aoi.Reset();
 
             // reset NetworkTime
