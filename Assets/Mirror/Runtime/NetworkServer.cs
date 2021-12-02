@@ -897,6 +897,16 @@ namespace Mirror
         // players on a single client
         static void OnCommandMessage(NetworkConnection conn, CommandMessage msg, int channelId)
         {
+            if (!conn.isReady)
+            {
+                // Clients may be set NotReady due to scene change or other game logic by user, e.g. respawning.
+                // Ignore commands that may have been in flight before client received NotReadyMessage message.
+                // Unreliable messages may be out of order, so don't spam warnings for those.
+                if (channelId == Channels.Reliable)
+                    Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                return;
+            }
+
             if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
             {
                 // over reliable channel, commands should always come after spawn.
