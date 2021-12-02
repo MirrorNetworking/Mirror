@@ -25,6 +25,8 @@ namespace Mirror
             else Debug.LogError($"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already.");
         }
 
+        public virtual void Reset() {}
+
         // Callback used by the visibility system to determine if an observer
         // (player) can see the NetworkIdentity. If this function returns true,
         // the network connection will be added as an observer.

@@ -20,6 +20,12 @@ namespace Mirror
             return custom != null ? custom.visRange : visRange;
         }
 
+        [ServerCallback]
+        public override void Reset()
+        {
+            lastRebuildTime = 0D;
+        }
+
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
             int range = GetVisRange(identity);

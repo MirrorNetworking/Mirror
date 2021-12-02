@@ -60,17 +60,22 @@ namespace Mirror
             if (initialized)
                 return;
 
-            initialized = true;
             // Debug.Log($"NetworkServer Created version {Version.Current}");
 
             //Make sure connections are cleared in case any old connections references exist from previous sessions
             connections.Clear();
+
+            // reset Interest Management so that rebuild intervals
+            // start at 0 when starting again.
+            if (aoi != null) aoi.Reset();
 
             // reset NetworkTime
             NetworkTime.Reset();
 
             Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
             AddTransportHandlers();
+
+            initialized = true;
         }
 
         static void AddTransportHandlers()
@@ -180,6 +185,8 @@ namespace Mirror
             // we don't want to use those hooks after Shutdown anymore.
             OnConnectedEvent = null;
             OnDisconnectedEvent = null;
+
+            if (aoi != null) aoi.Reset();
         }
 
         // connections /////////////////////////////////////////////////////////

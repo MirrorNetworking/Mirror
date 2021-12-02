@@ -78,6 +78,15 @@ public class #SCRIPTNAME# : InterestManagement
         base.SetHostVisibility(identity, visible);
     }
 
+    /// <summary>
+    /// Called by NetworkServer in Initialize and Shutdown
+    /// </summary>
+    [ServerCallback]
+    public override void Reset()
+    {
+        base.Reset();
+    }
+
     [ServerCallback]
     void Update()
     {
