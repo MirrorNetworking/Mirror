@@ -17,6 +17,7 @@
 //      -> client gets Cmd() and X at the same time, but buffers X for bufferTime
 //      -> for unreliable, it would get X before the reliable Cmd(), still
 //         buffer for bufferTime but end up closer to the original time
+#define EXPERIMENTAL_BANDWIDTH_SAVING
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -75,6 +76,7 @@ namespace Mirror
         [Tooltip("Once buffer is larger catchupThreshold, accelerate by multiplier % per excess entry.")]
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
         [Header("Send Only If Moved")]
         [Tooltip("When true, data is not sent when object does not move, refer to internal comments.")]
         public bool onlySendOnMove = true;
@@ -86,6 +88,12 @@ namespace Mirror
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity = 0.01f;
+
+        // Used to store last sent snapshots
+        protected NTSnapshot lastSnapshot;
+        protected bool cachedSnapshotComparison;
+        protected bool hasSentUnchangedPosition;
+#endif
 
         // snapshots sorted by timestamp
         // in the original article, glenn fiedler drops any snapshots older than
@@ -109,11 +117,6 @@ namespace Mirror
         // only convert the static Interpolation function to Func<T> once to
         // avoid allocations
         Func<NTSnapshot, NTSnapshot, double, NTSnapshot> Interpolate = NTSnapshot.Interpolate;
-
-        // Used to store last sent snapshots
-        protected NTSnapshot lastSnapshot;
-        protected bool cachedSnapshotComparison;
-        protected bool hasSentUnchangedPosition;
 
         [Header("Debug")]
         public bool showGizmos;
@@ -166,6 +169,7 @@ namespace Mirror
                 targetComponent.localScale = interpolateScale ? interpolated.scale : goal.scale;
         }
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
         protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot)
         {
             if (Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity)
@@ -185,6 +189,7 @@ namespace Mirror
                 return true;
             }
         }
+#endif
 
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
@@ -213,6 +218,7 @@ namespace Mirror
             // server. we can get the timestamp from the connection.
             double timestamp = connectionToClient.remoteTimeStamp;
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
             if (onlySendOnMove)
             {
                 double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
@@ -222,6 +228,8 @@ namespace Mirror
                     Reset();
                 }
             }
+#endif
+
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
             // but we still need to feed it to snapshot interpolation. we can't
@@ -275,6 +283,7 @@ namespace Mirror
             // we can get the timestamp from there.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
             if (onlySendOnMove)
             {
                 double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
@@ -284,6 +293,7 @@ namespace Mirror
                     Reset();
                 }
             }
+#endif
 
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
@@ -348,10 +358,11 @@ namespace Mirror
                 // receiver gets it from batch timestamp to save bandwidth.
                 NTSnapshot snapshot = ConstructSnapshot();
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
                 cachedSnapshotComparison = CompareSnapshots(snapshot);
 
                 if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
-
+#endif
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
                     syncPosition ? snapshot.position : new Vector3?(),
@@ -361,6 +372,7 @@ namespace Mirror
 
                 lastServerSendTime = NetworkTime.localTime;
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
                     hasSentUnchangedPosition = true;
@@ -370,6 +382,8 @@ namespace Mirror
                     hasSentUnchangedPosition = false;
                     lastSnapshot = snapshot;
                 }
+#endif
+
             }
 
             // apply buffered snapshots IF client authority
@@ -431,9 +445,11 @@ namespace Mirror
                     // receiver gets it from batch timestamp to save bandwidth.
                     NTSnapshot snapshot = ConstructSnapshot();
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
                     cachedSnapshotComparison = CompareSnapshots(snapshot);
 
                     if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
+#endif
 
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
@@ -444,6 +460,7 @@ namespace Mirror
 
                     lastClientSendTime = NetworkTime.localTime;
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
                     if (cachedSnapshotComparison)
                     {
                         hasSentUnchangedPosition = true;
@@ -453,6 +470,8 @@ namespace Mirror
                         hasSentUnchangedPosition = false;
                         lastSnapshot = snapshot;
                     }
+#endif
+
                 }
             }
             // for all other clients (and for local player if !authority),
