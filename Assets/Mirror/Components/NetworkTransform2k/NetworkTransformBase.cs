@@ -112,6 +112,7 @@ namespace Mirror
 
         // Used to store last sent snapshots
         protected NTSnapshot lastSnapshot;
+        protected bool cachedSnapshotComparison;
         protected bool hasSentUnchangedPosition;
 
         [Header("Debug")]
@@ -347,7 +348,9 @@ namespace Mirror
                 // receiver gets it from batch timestamp to save bandwidth.
                 NTSnapshot snapshot = ConstructSnapshot();
 
-                if (CompareSnapshots(snapshot) && hasSentUnchangedPosition && onlySendOnMove) { return; }
+                cachedSnapshotComparison = CompareSnapshots(snapshot);
+
+                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
 
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
@@ -358,7 +361,7 @@ namespace Mirror
 
                 lastServerSendTime = NetworkTime.localTime;
 
-                if (CompareSnapshots(snapshot))
+                if (cachedSnapshotComparison)
                 {
                     hasSentUnchangedPosition = true;
                 }
@@ -428,7 +431,9 @@ namespace Mirror
                     // receiver gets it from batch timestamp to save bandwidth.
                     NTSnapshot snapshot = ConstructSnapshot();
 
-                    if (CompareSnapshots(snapshot) && hasSentUnchangedPosition && onlySendOnMove) { return; }
+                    cachedSnapshotComparison = CompareSnapshots(snapshot);
+
+                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
 
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
@@ -439,7 +444,7 @@ namespace Mirror
 
                     lastClientSendTime = NetworkTime.localTime;
 
-                    if (CompareSnapshots(snapshot))
+                    if (cachedSnapshotComparison)
                     {
                         hasSentUnchangedPosition = true;
                     }
