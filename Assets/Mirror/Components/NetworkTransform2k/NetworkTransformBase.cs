@@ -81,8 +81,9 @@ namespace Mirror
         [Tooltip("When true, data is not sent when object does not move, refer to internal comments.")]
         public bool onlySendOnMove = true;
 
+        // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
-        public float timeMultiplierToResetBuffers = 3;
+        public float timeMultiplierToResetBuffers = 5;
 
         [Tooltip("Set sensitivity of change needed before a state is considered to 'have moved'")]
         public float positionSensitivity = 0.01f;
@@ -223,7 +224,7 @@ namespace Mirror
             {
                 double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
 
-                if (serverBuffer.Count == 2 && serverBuffer.Values[1].remoteTimestamp + timeIntervalCheck < timestamp)
+                if (serverBuffer.Count > 0 && serverBuffer.Values[serverBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
                 {
                     Reset();
                 }
@@ -288,7 +289,7 @@ namespace Mirror
             {
                 double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
 
-                if (clientBuffer.Count == 2 && clientBuffer.Values[1].remoteTimestamp + timeIntervalCheck < timestamp)
+                if (clientBuffer.Count > 0 && clientBuffer.Values[clientBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
                 {
                     Reset();
                 }
