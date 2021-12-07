@@ -511,8 +511,8 @@ namespace Mirror
 
         public static void WriteGuid(this NetworkWriter writer, Guid value)
         {
-            byte[] data = value.ToByteArray();
-            writer.WriteBytes(data, 0, data.Length);
+            // Guid.ToByteArray always returns a 16-byte array
+            writer.WriteBytes(value.ToByteArray(), 0, 16);
         }
 
         public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
