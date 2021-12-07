@@ -17,6 +17,7 @@
 //      -> client gets Cmd() and X at the same time, but buffers X for bufferTime
 //      -> for unreliable, it would get X before the reliable Cmd(), still
 //         buffer for bufferTime but end up closer to the original time
+#define EXPERIMENTAL_BANDWIDTH_SAVING
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -74,6 +75,26 @@ namespace Mirror
 
         [Tooltip("Once buffer is larger catchupThreshold, accelerate by multiplier % per excess entry.")]
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
+
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+        [Header("Send Only If Moved")]
+        [Tooltip("When true, data is not sent when object does not move, refer to internal comments.")]
+        public bool onlySendOnMove = true;
+
+        // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
+        [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
+        public float timeMultiplierToResetBuffers = 5;
+
+        [Tooltip("Set sensitivity of change needed before a state is considered to 'have moved'")]
+        public float positionSensitivity = 0.01f;
+        public float rotationSensitivity = 0.01f;
+        public float scaleSensitivity = 0.01f;
+
+        // Used to store last sent snapshots
+        protected NTSnapshot lastSnapshot;
+        protected bool cachedSnapshotComparison;
+        protected bool hasSentUnchangedPosition;
+#endif
 
         // snapshots sorted by timestamp
         // in the original article, glenn fiedler drops any snapshots older than
@@ -149,6 +170,14 @@ namespace Mirror
                 targetComponent.localScale = interpolateScale ? interpolated.scale : goal.scale;
         }
 
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
+        protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot) =>
+            Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) <= positionSensitivity * positionSensitivity &&
+            Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) <= rotationSensitivity &&
+            Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) <= scaleSensitivity * scaleSensitivity;
+#endif
+
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
@@ -175,6 +204,18 @@ namespace Mirror
             // only player owned objects (with a connection) can send to
             // server. we can get the timestamp from the connection.
             double timestamp = connectionToClient.remoteTimeStamp;
+
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+            if (onlySendOnMove)
+            {
+                double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
+
+                if (serverBuffer.Count > 0 && serverBuffer.Values[serverBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
+                {
+                    Reset();
+                }
+            }
+#endif
 
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
@@ -228,6 +269,18 @@ namespace Mirror
             // but all of them go through NetworkClient.connection.
             // we can get the timestamp from there.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
+
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+            if (onlySendOnMove)
+            {
+                double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
+
+                if (clientBuffer.Count > 0 && clientBuffer.Values[clientBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
+                {
+                    Reset();
+                }
+            }
+#endif
 
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
@@ -291,6 +344,12 @@ namespace Mirror
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
                 NTSnapshot snapshot = ConstructSnapshot();
+
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+                cachedSnapshotComparison = CompareSnapshots(snapshot);
+
+                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
+#endif
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
                     syncPosition ? snapshot.position : new Vector3?(),
@@ -299,6 +358,19 @@ namespace Mirror
                 );
 
                 lastServerSendTime = NetworkTime.localTime;
+
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+                if (cachedSnapshotComparison)
+                {
+                    hasSentUnchangedPosition = true;
+                }
+                else
+                {
+                    hasSentUnchangedPosition = false;
+                    lastSnapshot = snapshot;
+                }
+#endif
+
             }
 
             // apply buffered snapshots IF client authority
@@ -359,6 +431,13 @@ namespace Mirror
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     NTSnapshot snapshot = ConstructSnapshot();
+
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+                    cachedSnapshotComparison = CompareSnapshots(snapshot);
+
+                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
+#endif
+
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
                         syncPosition ? snapshot.position : new Vector3?(),
@@ -367,6 +446,19 @@ namespace Mirror
                     );
 
                     lastClientSendTime = NetworkTime.localTime;
+
+#if EXPERIMENTAL_BANDWIDTH_SAVING
+                    if (cachedSnapshotComparison)
+                    {
+                        hasSentUnchangedPosition = true;
+                    }
+                    else
+                    {
+                        hasSentUnchangedPosition = false;
+                        lastSnapshot = snapshot;
+                    }
+#endif
+
                 }
             }
             // for all other clients (and for local player if !authority),
