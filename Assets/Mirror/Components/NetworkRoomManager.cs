@@ -469,10 +469,10 @@ namespace Mirror
         /// Called on the client when connected to a server.
         /// <para>The default implementation of this function sets the client as ready and adds a player. Override the function to dictate what happens when the client connects.</para>
         /// </summary>
-        public override void OnClientConnect(NetworkConnection conn)
+        public override void OnClientConnect()
         {
 #pragma warning disable 618
-            OnRoomClientConnect(conn);
+            OnRoomClientConnect(NetworkClient.connection);
 #pragma warning restore 618
         }
 
@@ -480,10 +480,10 @@ namespace Mirror
         /// Called on clients when disconnected from a server.
         /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
         /// </summary>
-        public override void OnClientDisconnect(NetworkConnection conn)
+        public override void OnClientDisconnect()
         {
 #pragma warning disable 618
-            OnRoomClientDisconnect(conn);
+            OnRoomClientDisconnect(NetworkClient.connection);
 #pragma warning restore 618
         }
 
@@ -501,7 +501,7 @@ namespace Mirror
         /// Called on clients when a scene has completed loaded, when the scene load was initiated by the server.
         /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
         /// </summary>
-        public override void OnClientSceneChanged(NetworkConnection conn)
+        public override void OnClientSceneChanged()
         {
             if (IsSceneActive(RoomScene))
             {
@@ -512,7 +512,7 @@ namespace Mirror
                 CallOnClientExitRoom();
 
 #pragma warning disable 618
-            OnRoomClientSceneChanged(conn);
+            OnRoomClientSceneChanged(NetworkClient.connection);
 #pragma warning restore 618
         }
 
