@@ -126,6 +126,8 @@ namespace Mirror
         };
 
         // version for handlers without channelId
+        // TODO obsolete this some day to always use the channelId version.
+        //      all handlers in this version are wrapped with 1 extra action.
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
