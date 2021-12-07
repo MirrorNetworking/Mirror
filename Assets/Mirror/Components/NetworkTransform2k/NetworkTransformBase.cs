@@ -171,25 +171,11 @@ namespace Mirror
         }
 
 #if EXPERIMENTAL_BANDWIDTH_SAVING
-        protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot)
-        {
-            if (Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity)
-            {
-                return false;
-            }
-            else if (Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity)
-            {
-                return false;
-            }
-            else if (Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
+        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
+        protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot) =>
+            Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) <= positionSensitivity * positionSensitivity &&
+            Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) <= rotationSensitivity &&
+            Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) <= scaleSensitivity * scaleSensitivity;
 #endif
 
         // cmd /////////////////////////////////////////////////////////////////
