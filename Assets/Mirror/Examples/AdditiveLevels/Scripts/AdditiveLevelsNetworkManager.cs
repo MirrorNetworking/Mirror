@@ -89,7 +89,7 @@ namespace Mirror.Examples.AdditiveLevels
             NetworkClient.isLoadingScene = false;
             isInTransition = false;
 
-            OnClientSceneChanged(NetworkClient.connection);
+            OnClientSceneChanged();
             yield return fadeInOut.FadeOut();
         }
 
@@ -109,7 +109,7 @@ namespace Mirror.Examples.AdditiveLevels
 
             isInTransition = false;
 
-            OnClientSceneChanged(NetworkClient.connection);
+            OnClientSceneChanged();
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Mirror.Examples.AdditiveLevels
         /// <para>Scene changes can cause player objects to be destroyed. The default implementation of OnClientSceneChanged in the NetworkManager is to add a player object for the connection if no player object exists.</para>
         /// </summary>
         /// <param name="conn">The network connection that the scene change message arrived on.</param>
-        public override void OnClientSceneChanged(NetworkConnection conn)
+        public override void OnClientSceneChanged()
         {
             //Debug.Log($"OnClientSceneChanged {isInTransition}");
 
@@ -125,7 +125,7 @@ namespace Mirror.Examples.AdditiveLevels
             // This will be called from DoTransition after setting doingTransition to false
             // but will also be called first by Mirror when the scene loading finishes.
             if (!isInTransition)
-                base.OnClientSceneChanged(conn);
+                base.OnClientSceneChanged();
         }
 
         #endregion

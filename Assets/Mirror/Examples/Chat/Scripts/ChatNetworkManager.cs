@@ -62,7 +62,7 @@ namespace Mirror.Examples.Chat
 
         public override void OnClientConnect()
         {
-            base.OnClientConnect(NetworkClient.connection);
+            base.OnClientConnect();
 
             // tell the server to create a player with this name
             NetworkClient.connection.Send(new CreatePlayerMessage { name = PlayerName });
