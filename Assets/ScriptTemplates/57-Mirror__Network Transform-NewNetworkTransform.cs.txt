@@ -122,6 +122,14 @@ public class #SCRIPTNAME# : NetworkTransformBase
         base.ApplySnapshot(start, goal, interpolated);
     }
 
+    /// <summary>
+    /// Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
+    /// </summary>
+    protected override void CompareSnapshots(NTSnapshot currentSnapshot)
+    {
+        base.CompareSnapshots(currentSnapshot);
+    }
+
     #endregion
 
     #region GUI
