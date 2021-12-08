@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace Mirror.Examples.AdditiveLevels
 {
+    [AddComponentMenu("")]
     public class AdditiveLevelsNetworkManager : NetworkManager
     {
         [Header("Additive Scenes - First is start scene")]

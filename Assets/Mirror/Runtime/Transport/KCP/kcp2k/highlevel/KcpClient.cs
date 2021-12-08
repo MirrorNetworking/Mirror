@@ -8,14 +8,14 @@ namespace kcp2k
     {
         // events
         public Action OnConnected;
-        public Action<ArraySegment<byte>> OnData;
+        public Action<ArraySegment<byte>, KcpChannel> OnData;
         public Action OnDisconnected;
 
         // state
         public KcpClientConnection connection;
         public bool connected;
 
-        public KcpClient(Action OnConnected, Action<ArraySegment<byte>> OnData, Action OnDisconnected)
+        public KcpClient(Action OnConnected, Action<ArraySegment<byte>, KcpChannel> OnData, Action OnDisconnected)
         {
             this.OnConnected = OnConnected;
             this.OnData = OnData;
@@ -45,10 +45,10 @@ namespace kcp2k
                 connected = true;
                 OnConnected.Invoke();
             };
-            connection.OnData = (message) =>
+            connection.OnData = (message, channel) =>
             {
                 //Log.Debug($"KCP: OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
-                OnData.Invoke(message);
+                OnData.Invoke(message, channel);
             };
             connection.OnDisconnected = () =>
             {

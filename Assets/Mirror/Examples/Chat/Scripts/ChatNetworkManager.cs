@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/*
+	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
+	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
+*/
+
 namespace Mirror.Examples.Chat
 {
     [AddComponentMenu("")]
@@ -8,32 +13,23 @@ namespace Mirror.Examples.Chat
         [Header("Chat GUI")]
         public ChatWindow chatWindow;
 
-        // Set by UI element UsernameInput OnValueChanged
-        public string PlayerName { get; set; }
+        public string PlayerName;
 
-        // Called by UI element NetworkAddressInput.OnValueChanged
-        public void SetHostname(string hostname)
-        {
-            networkAddress = hostname;
-        }
+        #region Messages
 
         public struct CreatePlayerMessage : NetworkMessage
         {
             public string name;
         }
 
+        #endregion
+
+        #region Server
+
         public override void OnStartServer()
         {
             base.OnStartServer();
             NetworkServer.RegisterHandler<CreatePlayerMessage>(OnCreatePlayer);
-        }
-
-        public override void OnClientConnect(NetworkConnection conn)
-        {
-            base.OnClientConnect(conn);
-
-            // tell the server to create a player with this name
-            conn.Send(new CreatePlayerMessage { name = PlayerName });
         }
 
         void OnCreatePlayer(NetworkConnection connection, CreatePlayerMessage createPlayerMessage)
@@ -47,5 +43,31 @@ namespace Mirror.Examples.Chat
 
             chatWindow.gameObject.SetActive(true);
         }
+
+        #endregion
+
+        #region Client
+
+        // Called by UI element UsernameInput.OnValueChanged
+        public void SetPlayername(string playerName)
+        {
+            PlayerName = playerName;
+        }
+
+        // Called by UI element NetworkAddressInput.OnValueChanged
+        public void SetHostname(string hostname)
+        {
+            networkAddress = hostname;
+        }
+
+        public override void OnClientConnect(NetworkConnection conn)
+        {
+            base.OnClientConnect(conn);
+
+            // tell the server to create a player with this name
+            conn.Send(new CreatePlayerMessage { name = PlayerName });
+        }
+
+        #endregion
     }
 }

@@ -475,7 +475,6 @@ namespace Mirror
 #pragma warning disable 618
             OnRoomClientConnect(conn);
 #pragma warning restore 618
-            base.OnClientConnect(conn);
         }
 
         /// <summary>
@@ -488,7 +487,6 @@ namespace Mirror
 #pragma warning disable 618
             OnRoomClientDisconnect(conn);
 #pragma warning restore 618
-            base.OnClientDisconnect(conn);
         }
 
         /// <summary>
@@ -516,7 +514,6 @@ namespace Mirror
             else
                 CallOnClientExitRoom();
 
-            base.OnClientSceneChanged(conn);
 #pragma warning disable 618
             OnRoomClientSceneChanged(conn);
 #pragma warning restore 618

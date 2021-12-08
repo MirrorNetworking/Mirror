@@ -29,7 +29,7 @@ namespace Mirror.Examples.AdditiveLevels
         /// </summary>
         public override void OnStartClient()
         {
-            label.text = SceneManager.GetSceneByPath(destinationScene).name;
+            label.text = System.IO.Path.GetFileNameWithoutExtension(destinationScene);
         }
 
         // Note that I have created layers called Player(8) and Portal(9) and set them
@@ -62,6 +62,7 @@ namespace Mirror.Examples.AdditiveLevels
 
                 yield return waitForSeconds;
 
+                //Debug.Log($"SendPlayerToNewScene RemovePlayerForConnection {conn} netId:{conn.identity.netId}");
                 NetworkServer.RemovePlayerForConnection(conn, false);
                 yield return null;
 
@@ -76,10 +77,11 @@ namespace Mirror.Examples.AdditiveLevels
                 player.transform.LookAt(Vector3.up);
 
                 NetworkServer.AddPlayerForConnection(conn, player);
+                //Debug.Log($"SendPlayerToNewScene AddPlayerForConnection {conn} netId:{conn.identity.netId}");
+                yield return null;
 
                 // host client would have been disabled by OnTriggerEnter above
-                PlayerController playerController = null;
-                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<PlayerController>(out playerController))
+                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<PlayerController>(out PlayerController playerController))
                     playerController.enabled = true;
             }
         }

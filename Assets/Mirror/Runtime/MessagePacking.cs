@@ -62,7 +62,8 @@ namespace Mirror
             }
         }
 
-        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
+        // version for handlers with channelId
+        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T, int> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
             => (conn, reader, channelId) =>
@@ -115,7 +116,7 @@ namespace Mirror
             try
             {
                 // user implemented handler
-                handler((C)conn, message);
+                handler((C)conn, message, channelId);
             }
             catch (Exception e)
             {
@@ -123,5 +124,17 @@ namespace Mirror
                 conn.Disconnect();
             }
         };
+
+        // version for handlers without channelId
+        // TODO obsolete this some day to always use the channelId version.
+        //      all handlers in this version are wrapped with 1 extra action.
+        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
+            where T : struct, NetworkMessage
+            where C : NetworkConnection
+        {
+            // wrap action as channelId version, call original
+            void Wrapped(C conn, T msg, int _) => handler(conn, msg);
+            return WrapHandler((Action<C, T, int>) Wrapped, requireAuthentication);
+        }
     }
 }

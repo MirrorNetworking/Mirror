@@ -5,7 +5,7 @@ namespace Mirror.Examples.Basic
 {
     public class Player : NetworkBehaviour
     {
-        // Events that the UI will subscribe to
+        // Events that the PlayerUI will subscribe to
         public event System.Action<int> OnPlayerNumberChanged;
         public event System.Action<Color32> OnPlayerColorChanged;
         public event System.Action<int> OnPlayerDataChanged;
@@ -13,16 +13,11 @@ namespace Mirror.Examples.Basic
         // Players List to manage playerNumber
         static readonly List<Player> playersList = new List<Player>();
 
-        internal static void ResetPlayerNumbers()
-        {
-            int playerNumber = 0;
-            foreach (Player player in playersList)
-                player.playerNumber = playerNumber++;
-        }
-
         [Header("Player UI")]
         public GameObject playerUIPrefab;
         GameObject playerUI;
+
+        #region SyncVars
 
         [Header("SyncVars")]
 
@@ -62,6 +57,10 @@ namespace Mirror.Examples.Basic
             OnPlayerColorChanged?.Invoke(newPlayerColor);
         }
 
+        #endregion
+
+        #region Server
+
         /// <summary>
         /// This is invoked for NetworkBehaviour objects when they become active on the server.
         /// <para>This could be triggered by NetworkServer.Listen() for objects in the scene, or by NetworkServer.Spawn() for objects that are dynamically created.</para>
@@ -81,14 +80,14 @@ namespace Mirror.Examples.Basic
             InvokeRepeating(nameof(UpdateData), 1, 1);
         }
 
-        /// <summary>
-        /// Invoked on the server when the object is unspawned
-        /// <para>Useful for saving object data in persistent storage</para>
-        /// </summary>
-        public override void OnStopServer()
+        // This is called from BasicNetManager OnServerAddPlayer and OnServerDisconnect
+        // Player numbers are reset whenever a player joins / leaves
+        [ServerCallback]
+        internal static void ResetPlayerNumbers()
         {
-            CancelInvoke();
-            playersList.Remove(this);
+            int playerNumber = 0;
+            foreach (Player player in playersList)
+                player.playerNumber = playerNumber++;
         }
 
         // This only runs on the server, called from OnStartServer via InvokeRepeating
@@ -99,16 +98,37 @@ namespace Mirror.Examples.Basic
         }
 
         /// <summary>
+        /// Invoked on the server when the object is unspawned
+        /// <para>Useful for saving object data in persistent storage</para>
+        /// </summary>
+        public override void OnStopServer()
+        {
+            CancelInvoke();
+            playersList.Remove(this);
+        }
+
+        #endregion
+
+        #region Client
+
+        /// <summary>
+        /// Called when the local player object has been set up.
+        /// <para>This happens after OnStartClient(), as it is triggered by an ownership message from the server. This is an appropriate place to activate components or functionality that should only be active for the local player, such as cameras and input.</para>
+        /// </summary>
+        public override void OnStartLocalPlayer()
+        {
+            // Activate the main panel
+            CanvasUI.instance.mainPanel.gameObject.SetActive(true);
+        }
+
+        /// <summary>
         /// Called on every NetworkBehaviour when it is activated on a client.
         /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
         /// </summary>
         public override void OnStartClient()
         {
-            // Activate the main panel
-            ((BasicNetManager)NetworkManager.singleton).mainPanel.gameObject.SetActive(true);
-
             // Instantiate the player UI as child of the Players Panel
-            playerUI = Instantiate(playerUIPrefab, ((BasicNetManager)NetworkManager.singleton).playersPanel);
+            playerUI = Instantiate(playerUIPrefab, CanvasUI.instance.playersPanel);
 
             // Set this player object in PlayerUI to wire up event handlers
             playerUI.GetComponent<PlayerUI>().SetPlayer(this, isLocalPlayer);
@@ -130,7 +150,9 @@ namespace Mirror.Examples.Basic
 
             // Disable the main panel for local player
             if (isLocalPlayer)
-                ((BasicNetManager)NetworkManager.singleton).mainPanel.gameObject.SetActive(false);
+                CanvasUI.instance.mainPanel.gameObject.SetActive(false);
         }
+
+        #endregion
     }
 }

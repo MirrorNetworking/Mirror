@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using UnityEngine;
 using Mirror;
+using Unity.Collections;
 
 namespace kcp2k
 {
@@ -33,10 +34,16 @@ namespace kcp2k
         public bool CongestionWindow = false; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
         [Tooltip("KCP window size can be modified to support higher loads.")]
         public uint SendWindowSize = 4096; //Kcp.WND_SND; 32 by default. Mirror sends a lot, so we need a lot more.
-        [Tooltip("KCP window size can be modified to support higher loads.")]
+        [Tooltip("KCP window size can be modified to support higher loads. This also increases max message size.")]
         public uint ReceiveWindowSize = 4096; //Kcp.WND_RCV; 128 by default. Mirror sends a lot, so we need a lot more.
         [Tooltip("Enable to use where-allocation NonAlloc KcpServer/Client/Connection versions. Highly recommended on all Unity platforms.")]
         public bool NonAlloc = true;
+
+        [Header("Calculated Max (based on Receive Window Size)")]
+        [Tooltip("KCP reliable max message size shown for convenience. Can be changed via ReceiveWindowSize.")]
+        [ReadOnly] public int ReliableMaxMessageSize = 0; // readonly, displayed from OnValidate
+        [Tooltip("KCP unreliable channel max message size for convenience. Not changeable.")]
+        [ReadOnly] public int UnreliableMaxMessageSize = 0; // readonly, displayed from OnValidate
 
         // server & client (where-allocation NonAlloc versions)
         KcpServer server;
@@ -49,6 +56,13 @@ namespace kcp2k
         public bool statisticsGUI;
         // log statistics for headless servers that can't show them in GUI
         public bool statisticsLog;
+
+        // translate Kcp <-> Mirror channels
+        static int FromKcpChannel(KcpChannel channel) =>
+            channel == KcpChannel.Reliable ? Channels.Reliable : Channels.Unreliable;
+
+        static KcpChannel ToKcpChannel(int channel) =>
+            channel == Channels.Reliable ? KcpChannel.Reliable : KcpChannel.Unreliable;
 
         void Awake()
         {
@@ -66,18 +80,18 @@ namespace kcp2k
             client = NonAlloc
                 ? new KcpClientNonAlloc(
                       () => OnClientConnected.Invoke(),
-                      (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
+                      (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
                       () => OnClientDisconnected.Invoke())
                 : new KcpClient(
                       () => OnClientConnected.Invoke(),
-                      (message) => OnClientDataReceived.Invoke(message, Channels.Reliable),
+                      (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
                       () => OnClientDisconnected.Invoke());
 
             // server
             server = NonAlloc
                 ? new KcpServerNonAlloc(
                       (connectionId) => OnServerConnected.Invoke(connectionId),
-                      (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
+                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
                       DualMode,
                       NoDelay,
@@ -89,7 +103,7 @@ namespace kcp2k
                       Timeout)
                 : new KcpServer(
                       (connectionId) => OnServerConnected.Invoke(connectionId),
-                      (connectionId, message) => OnServerDataReceived.Invoke(connectionId, message, Channels.Reliable),
+                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
                       DualMode,
                       NoDelay,
@@ -104,6 +118,13 @@ namespace kcp2k
                 InvokeRepeating(nameof(OnLogStatistics), 1, 1);
 
             Debug.Log("KcpTransport initialized!");
+        }
+
+        private void OnValidate()
+        {
+            // show max message sizes in inspector for convenience
+            ReliableMaxMessageSize = KcpConnection.ReliableMaxMessageSize(ReceiveWindowSize);
+            UnreliableMaxMessageSize = KcpConnection.UnreliableMaxMessageSize;
         }
 
         // all except WebGL
@@ -126,18 +147,7 @@ namespace kcp2k
         }
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
-            // switch to kcp channel.
-            // unreliable or reliable.
-            // default to reliable just to be sure.
-            switch (channelId)
-            {
-                case Channels.Unreliable:
-                    client.Send(segment, KcpChannel.Unreliable);
-                    break;
-                default:
-                    client.Send(segment, KcpChannel.Reliable);
-                    break;
-            }
+            client.Send(segment, ToKcpChannel(channelId));
         }
         public override void ClientDisconnect() => client.Disconnect();
         // process incoming in early update
@@ -185,18 +195,7 @@ namespace kcp2k
         public override void ServerStart() => server.Start(Port);
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
-            // switch to kcp channel.
-            // unreliable or reliable.
-            // default to reliable just to be sure.
-            switch (channelId)
-            {
-                case Channels.Unreliable:
-                    server.Send(connectionId, segment, KcpChannel.Unreliable);
-                    break;
-                default:
-                    server.Send(connectionId, segment, KcpChannel.Reliable);
-                    break;
-            }
+            server.Send(connectionId, segment, ToKcpChannel(channelId));
         }
         public override void ServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
@@ -227,7 +226,7 @@ namespace kcp2k
                 case Channels.Unreliable:
                     return KcpConnection.UnreliableMaxMessageSize;
                 default:
-                    return KcpConnection.ReliableMaxMessageSize;
+                    return KcpConnection.ReliableMaxMessageSize(ReceiveWindowSize);
             }
         }
 

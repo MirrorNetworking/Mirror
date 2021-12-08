@@ -12,7 +12,7 @@ namespace Mirror.Examples.Chat
         [Command]
         public void CmdSend(string message)
         {
-            if (message.Trim() != "")
+            if (message.Trim() != string.Empty)
                 RpcReceive(message.Trim());
         }
 

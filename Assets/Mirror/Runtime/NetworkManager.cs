@@ -23,15 +23,7 @@ namespace Mirror
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
 
-           // Deprecated 2021-03-10
-        // Temporary bool to allow Network Manager to persist to offline scene
-        // Based on Discord convo, BigBox is invoking StopHost in startup sequence, bouncing the server and clients back to offline scene, which resets Network Manager.
-        // Request is for a checkbox to persist Network Manager to offline scene, despite the collision and warning.
-        [Obsolete("This was added temporarily and will be removed in a future release.")]
-        [Tooltip("Should the Network Manager object be persisted through scene change to the offline scene?")]
-        public bool PersistNetworkManagerToOfflineScene;
-
-     /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
+        /// <summary>Multiplayer games should always run in the background so the network doesn't time out.</summary>
         [FormerlySerializedAs("m_RunInBackground")]
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
@@ -177,7 +169,7 @@ namespace Mirror
                 // RecordObject needs to be called before we make the change
                 UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
 #endif
-                
+
                 transport = GetComponent<Transport>();
 
                 // was a transport added yet? if not, add one
@@ -547,13 +539,11 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-#pragma warning disable 618
-            if (gameObject != null && !PersistNetworkManagerToOfflineScene &&
-                gameObject.scene.name == "DontDestroyOnLoad"
+            if (gameObject != null
+                && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
-#pragma warning restore 618
 
             OnStopServer();
 
@@ -590,13 +580,11 @@ namespace Mirror
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
             //            OnApplicationQuit or from tests!
-#pragma warning disable 618
-            if (gameObject != null && !PersistNetworkManagerToOfflineScene &&
-                gameObject.scene.name == "DontDestroyOnLoad"
+            if (gameObject != null
+                && gameObject.scene.name == "DontDestroyOnLoad"
                 && !string.IsNullOrEmpty(offlineScene)
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
-#pragma warning restore 618
 
             OnStopClient();
 
@@ -645,10 +633,6 @@ namespace Mirror
             }
         }
 
-        // Deprecated 2021-07-21
-        [Obsolete("Renamed to ConfigureHeadlessFrameRate()")]
-        public virtual void ConfigureServerFrameRate() {}
-
         /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
         // useful for dedicated servers.
         // useful for headless benchmark clients.
@@ -658,11 +642,6 @@ namespace Mirror
             Application.targetFrameRate = serverTickRate;
             // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
 #endif
-
-            // call the obsolete function in case someone did anything important
-#pragma warning disable 618
-            ConfigureServerFrameRate();
-#pragma warning restore 618
         }
 
         bool InitializeSingleton()
@@ -1275,14 +1254,13 @@ namespace Mirror
             // clientLoadedScene flag to prevent it.
             if (!clientLoadedScene)
             {
-                // Ready/AddPlayer is usually triggered by a scene load
-                // completing. if no scene was loaded, then Ready/AddPlayer it
-                // here instead.
-                if (!NetworkClient.ready) NetworkClient.Ready();
+                // Ready/AddPlayer is usually triggered by a scene load completing.
+                // if no scene was loaded, then Ready/AddPlayer it here instead.
+                if (!NetworkClient.ready)
+                    NetworkClient.Ready();
+
                 if (autoCreatePlayer)
-                {
                     NetworkClient.AddPlayer();
-                }
             }
         }
 
