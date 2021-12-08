@@ -77,15 +77,15 @@ namespace Mirror
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
 
 #if EXPERIMENTAL_BANDWIDTH_SAVING
-        [Header("Send Only If Moved")]
-        [Tooltip("When true, data is not sent when object does not move, refer to internal comments.")]
-        public bool onlySendOnMove = true;
+        [Header("Sync Only If Changed")]
+        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
+        public bool onlySyncOnChange = true;
 
         // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
         public float bufferResetMultiplier = 5;
 
-        [Tooltip("Set sensitivity of change needed before a state is considered to 'have moved'")]
+        [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity = 0.01f;
@@ -206,7 +206,7 @@ namespace Mirror
             double timestamp = connectionToClient.remoteTimeStamp;
 
 #if EXPERIMENTAL_BANDWIDTH_SAVING
-            if (onlySendOnMove)
+            if (onlySyncOnChange)
             {
                 double timeIntervalCheck = bufferResetMultiplier * sendInterval;
 
@@ -271,7 +271,7 @@ namespace Mirror
             double timestamp = NetworkClient.connection.remoteTimeStamp;
 
 #if EXPERIMENTAL_BANDWIDTH_SAVING
-            if (onlySendOnMove)
+            if (onlySyncOnChange)
             {
                 double timeIntervalCheck = bufferResetMultiplier * sendInterval;
 
@@ -348,7 +348,7 @@ namespace Mirror
 #if EXPERIMENTAL_BANDWIDTH_SAVING
                 cachedSnapshotComparison = CompareSnapshots(snapshot);
 
-                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
+                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
 #endif
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
@@ -435,7 +435,7 @@ namespace Mirror
 #if EXPERIMENTAL_BANDWIDTH_SAVING
                     cachedSnapshotComparison = CompareSnapshots(snapshot);
 
-                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySendOnMove) { return; }
+                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
 #endif
 
                     CmdClientToServerSync(
