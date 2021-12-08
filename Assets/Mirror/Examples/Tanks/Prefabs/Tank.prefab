@@ -106,10 +106,10 @@ MonoBehaviour:
   syncInterval: 0.1
   clientAuthority: 1
   sendInterval: 0.05
-  syncPosition: 1
+  syncPosition: 0
   syncRotation: 1
   syncScale: 0
-  interpolatePosition: 1
+  interpolatePosition: 0
   interpolateRotation: 1
   interpolateScale: 0
   bufferTimeMultiplier: 0
