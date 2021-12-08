@@ -83,7 +83,7 @@ namespace Mirror
 
         // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
         [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
-        public float timeMultiplierToResetBuffers = 5;
+        public float bufferResetMultiplier = 5;
 
         [Tooltip("Set sensitivity of change needed before a state is considered to 'have moved'")]
         public float positionSensitivity = 0.01f;
@@ -208,7 +208,7 @@ namespace Mirror
 #if EXPERIMENTAL_BANDWIDTH_SAVING
             if (onlySendOnMove)
             {
-                double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * sendInterval;
 
                 if (serverBuffer.Count > 0 && serverBuffer.Values[serverBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
                 {
@@ -273,7 +273,7 @@ namespace Mirror
 #if EXPERIMENTAL_BANDWIDTH_SAVING
             if (onlySendOnMove)
             {
-                double timeIntervalCheck = timeMultiplierToResetBuffers * sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * sendInterval;
 
                 if (clientBuffer.Count > 0 && clientBuffer.Values[clientBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
                 {
