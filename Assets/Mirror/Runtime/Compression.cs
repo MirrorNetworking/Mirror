@@ -279,7 +279,6 @@ namespace Mirror
             }
         }
 
-
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
         public static void CompressVarInt(NetworkWriter writer, long i)
         {
