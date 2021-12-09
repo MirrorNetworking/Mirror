@@ -360,9 +360,9 @@ namespace Mirror
 #endif
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : new Vector3?(),
-                    syncRotation && rotationChanged ? snapshot.rotation : new Quaternion?(),
-                    syncScale && scaleChanged ? snapshot.scale : new Vector3?()
+                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                 );
 
                 lastServerSendTime = NetworkTime.localTime;
@@ -448,9 +448,9 @@ namespace Mirror
 
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
-                        syncPosition && positionChanged ? snapshot.position : new Vector3?(),
-                        syncRotation && rotationChanged ? snapshot.rotation : new Quaternion?(),
-                        syncScale && scaleChanged ? snapshot.scale : new Vector3?()
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                     );
 
                     lastClientSendTime = NetworkTime.localTime;
