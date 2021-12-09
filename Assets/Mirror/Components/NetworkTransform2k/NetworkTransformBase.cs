@@ -90,6 +90,10 @@ namespace Mirror
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity = 0.01f;
 
+        protected bool positionChanged;
+        protected bool rotationChanged;
+        protected bool scaleChanged;
+
         // Used to store last sent snapshots
         protected NTSnapshot lastSnapshot;
         protected bool cachedSnapshotComparison;
@@ -172,10 +176,14 @@ namespace Mirror
 
 #if EXPERIMENTAL_BANDWIDTH_SAVING
         // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-        protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot) =>
-            Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) <= positionSensitivity * positionSensitivity &&
-            Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) <= rotationSensitivity &&
-            Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) <= scaleSensitivity * scaleSensitivity;
+        protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot)
+        {
+            positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
+            rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
+            scaleChanged = Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity;
+
+            return (!positionChanged && !rotationChanged && !scaleChanged);
+        }
 #endif
 
         // cmd /////////////////////////////////////////////////////////////////
@@ -352,9 +360,9 @@ namespace Mirror
 #endif
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
-                    syncPosition ? snapshot.position : new Vector3?(),
-                    syncRotation ? snapshot.rotation : new Quaternion?(),
-                    syncScale ? snapshot.scale : new Vector3?()
+                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                 );
 
                 lastServerSendTime = NetworkTime.localTime;
@@ -440,9 +448,9 @@ namespace Mirror
 
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
-                        syncPosition ? snapshot.position : new Vector3?(),
-                        syncRotation ? snapshot.rotation : new Quaternion?(),
-                        syncScale ? snapshot.scale : new Vector3?()
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                     );
 
                     lastClientSendTime = NetworkTime.localTime;
