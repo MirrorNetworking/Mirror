@@ -747,7 +747,7 @@ namespace Mirror.Tests
         [Test]
         public void TestGuidNullable()
         {
-            Guid? input = Guid.Empty;
+            Guid? input = null;
             NetworkWriter writer = new NetworkWriter();
             writer.WriteGuidNullable(input);
             NetworkReader reader = new NetworkReader(writer.ToArray());
