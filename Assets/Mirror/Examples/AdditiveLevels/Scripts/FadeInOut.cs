@@ -25,7 +25,7 @@ namespace Mirror.Examples.AdditiveLevels
 
         public IEnumerator FadeIn()
         {
-            //Debug.Log($"FadeIn - fading image in");
+            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeIn - fading image in {fadeImage.color.a}");
 
             float alpha = fadeImage.color.a;
 
@@ -37,12 +37,12 @@ namespace Mirror.Examples.AdditiveLevels
                 fadeImage.color = fadeColor;
             }
 
-            //Debug.Log($"FadeIn - done fading");
+            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeIn - done fading");
         }
 
         public IEnumerator FadeOut()
         {
-            //Debug.Log($"FadeOut - fading image out");
+            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeOut - fading image out {fadeImage.color.a}");
 
             float alpha = fadeImage.color.a;
 
@@ -54,7 +54,7 @@ namespace Mirror.Examples.AdditiveLevels
                 fadeImage.color = fadeColor;
             }
 
-            //Debug.Log($"FadeOut - done fading");
+            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} FadeOut - done fading");
         }
     }
 }

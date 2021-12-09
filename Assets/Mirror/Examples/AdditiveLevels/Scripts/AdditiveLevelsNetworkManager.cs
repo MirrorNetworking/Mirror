@@ -58,7 +58,7 @@ namespace Mirror.Examples.AdditiveLevels
         /// <param name="customHandling">true to indicate that scene loading will be handled through overrides</param>
         public override void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
         {
-            //Debug.Log($"OnClientChangeScene {sceneName} {sceneOperation}");
+            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} OnClientChangeScene {sceneName} {sceneOperation}");
 
             if (sceneOperation == SceneOperation.UnloadAdditive)
                 StartCoroutine(UnloadAdditive(sceneName));
@@ -71,7 +71,7 @@ namespace Mirror.Examples.AdditiveLevels
         {
             isInTransition = true;
 
-            // this will return immediately if already faded in
+            // This will return immediately if already faded in
             // e.g. by UnloadAdditive above or by default startup state
             yield return fadeInOut.FadeIn();
 
@@ -90,12 +90,16 @@ namespace Mirror.Examples.AdditiveLevels
             isInTransition = false;
 
             OnClientSceneChanged(NetworkClient.connection);
+
             yield return fadeInOut.FadeOut();
         }
 
         IEnumerator UnloadAdditive(string sceneName)
         {
             isInTransition = true;
+
+            // This will return immediately if already faded in
+            // e.g. by LoadAdditive above or by default startup state
             yield return fadeInOut.FadeIn();
 
             if (mode == NetworkManagerMode.ClientOnly)
@@ -110,6 +114,10 @@ namespace Mirror.Examples.AdditiveLevels
             isInTransition = false;
 
             OnClientSceneChanged(NetworkClient.connection);
+
+            // There is no call to FadeOut here on purpose.
+            // Expectation is that a LoadAdditive will follow
+            // that will call FadeOut after that scene loads.
         }
 
         /// <summary>
@@ -119,7 +127,7 @@ namespace Mirror.Examples.AdditiveLevels
         /// <param name="conn">The network connection that the scene change message arrived on.</param>
         public override void OnClientSceneChanged(NetworkConnection conn)
         {
-            //Debug.Log($"OnClientSceneChanged {isInTransition}");
+            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} OnClientSceneChanged {isInTransition}");
 
             // Only call the base method if not in a transition.
             // This will be called from DoTransition after setting doingTransition to false
