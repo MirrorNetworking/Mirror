@@ -286,7 +286,7 @@ namespace Mirror
         public static Rect? ReadRectNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRect(reader) : default(Rect?);
 
         public static Plane ReadPlane(this NetworkReader reader) => new Plane(reader.ReadVector3(), reader.ReadFloat());
-        public static Plane? ReadPlaneNullable(this NetworkReader reader) => reader.ReadBool() ? ReadPlane(reader) : default(Plane);
+        public static Plane? ReadPlaneNullable(this NetworkReader reader) => reader.ReadBool() ? ReadPlane(reader) : default(Plane?);
 
         public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());
         public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRay(reader) : default(Ray?);
