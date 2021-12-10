@@ -12,49 +12,31 @@ namespace Mirror.Examples.Basic
         public Text playerNameText;
         public Text playerDataText;
 
-        Player player;
-
         /// <summary>
         /// Caches the controlling Player object, subscribes to its events
         /// </summary>
         /// <param name="player">Player object that controls this UI</param>
         /// <param name="isLocalPlayer">true if the Player object is the Local Player</param>
-        public void SetPlayer(Player player, bool isLocalPlayer)
+        public void SetLocalPlayer()
         {
-            // cache reference to the player that controls this UI object
-            this.player = player;
-
-            // subscribe to the events raised by SyncVar Hooks on the Player object
-            player.OnPlayerNumberChanged += OnPlayerNumberChanged;
-            player.OnPlayerColorChanged += OnPlayerColorChanged;
-            player.OnPlayerDataChanged += OnPlayerDataChanged;
-
             // add a visual background for the local player in the UI
-            if (isLocalPlayer)
-                image.color = new Color(1f, 1f, 1f, 0.1f);
-        }
-
-        void OnDisable()
-        {
-            player.OnPlayerNumberChanged -= OnPlayerNumberChanged;
-            player.OnPlayerColorChanged -= OnPlayerColorChanged;
-            player.OnPlayerDataChanged -= OnPlayerDataChanged;
+            image.color = new Color(1f, 1f, 1f, 0.1f);
         }
 
         // This value can change as clients leave and join
-        void OnPlayerNumberChanged(int newPlayerNumber)
+        public void OnPlayerNumberChanged(byte newPlayerNumber)
         {
             playerNameText.text = string.Format("Player {0:00}", newPlayerNumber);
         }
 
         // Random color set by Player::OnStartServer
-        void OnPlayerColorChanged(Color32 newPlayerColor)
+        public void OnPlayerColorChanged(Color32 newPlayerColor)
         {
             playerNameText.color = newPlayerColor;
         }
 
         // This updates from Player::UpdateData via InvokeRepeating on server
-        void OnPlayerDataChanged(int newPlayerData)
+        public void OnPlayerDataChanged(ushort newPlayerData)
         {
             // Show the data in the UI
             playerDataText.text = string.Format("Data: {0:000}", newPlayerData);
