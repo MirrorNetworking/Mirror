@@ -24,6 +24,8 @@ namespace Mirror
         // [REMOTE TIME, NOT LOCAL TIME]
         // => DOUBLE for long term accuracy & batching gives us double anyway
         public double remoteTimestamp { get; set; }
+        // the local timestamp (when we received it)
+        // used to know if the first two snapshots are old enough to start.
         public double localTimestamp { get; set; }
 
         public Vector3 position;
