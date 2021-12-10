@@ -19,8 +19,8 @@ namespace Mirror.Examples.AdditiveLevels
 
         public override void OnStartServer()
         {
-            // This is aproximately the fade time
-            waitForSeconds = new WaitForSeconds(((AdditiveLevelsNetworkManager)NetworkManager.singleton).fadeInOut.speed + 0.3f);
+            // This is approximately the fade time
+            waitForSeconds = new WaitForSeconds(3f);
         }
 
         /// <summary>
@@ -36,10 +36,10 @@ namespace Mirror.Examples.AdditiveLevels
         // up in the Physics collision matrix so only Player collides with Portal.
         void OnTriggerEnter(Collider other)
         {
-            //Debug.Log($"Portal::OnTriggerEnter {gameObject.name} in {gameObject.scene.name}");
-
             // tag check in case you didn't set up the layers and matrix as noted above
             if (!other.CompareTag("Player")) return;
+
+            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} Portal::OnTriggerEnter {gameObject.name} in {gameObject.scene.name}");
 
             // applies to host client on server or remote client
             if (other.TryGetComponent<PlayerController>(out PlayerController playerController))
@@ -66,15 +66,15 @@ namespace Mirror.Examples.AdditiveLevels
                 NetworkServer.RemovePlayerForConnection(conn, false);
                 yield return null;
 
+                // reposition player on server and client
+                player.transform.position = startPosition;
+                player.transform.LookAt(Vector3.up);
+
                 // Move player to new subscene.
                 SceneManager.MoveGameObjectToScene(player, SceneManager.GetSceneByPath(destinationScene));
 
                 // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
                 conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
-
-                // reposition player on server and client
-                player.transform.position = startPosition;
-                player.transform.LookAt(Vector3.up);
 
                 NetworkServer.AddPlayerForConnection(conn, player);
                 //Debug.Log($"SendPlayerToNewScene AddPlayerForConnection {conn} netId:{conn.identity.netId}");

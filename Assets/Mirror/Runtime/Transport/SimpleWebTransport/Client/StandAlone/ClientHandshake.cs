@@ -55,7 +55,7 @@ namespace Mirror.SimpleWeb
                 string responseString = Encoding.ASCII.GetString(responseBuffer, 0, lengthOrNull.Value);
 
                 string acceptHeader = "Sec-WebSocket-Accept: ";
-                int startIndex = responseString.IndexOf(acceptHeader) + acceptHeader.Length;
+                int startIndex = responseString.IndexOf(acceptHeader, StringComparison.InvariantCultureIgnoreCase) + acceptHeader.Length;
                 int endIndex = responseString.IndexOf("\r\n", startIndex);
                 string responseKey = responseString.Substring(startIndex, endIndex - startIndex);
 

@@ -90,7 +90,6 @@ GameObject:
   - component: {fileID: 962190737825349125}
   - component: {fileID: 8168211270351413936}
   - component: {fileID: 5601443051240418659}
-  - component: {fileID: 2969446984207550776}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -160,20 +159,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!136 &2969446984207550776
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5620029719931856626}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7619140271685878370
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,6 +240,11 @@ MonoBehaviour:
   bufferSizeLimit: 64
   catchupThreshold: 3
   catchupMultiplier: 0.1
+  onlySyncOnChange: 1
+  bufferResetMultiplier: 5
+  positionSensitivity: 0.01
+  rotationSensitivity: 0.01
+  scaleSensitivity: 0.01
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
@@ -287,7 +277,7 @@ CapsuleCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5
-  m_Height: 1
+  m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &1763152038191860132

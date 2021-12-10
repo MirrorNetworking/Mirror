@@ -207,6 +207,81 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestBool()
+        {
+            bool[] inputs = { true, false };
+            foreach (bool input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WriteBool(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                bool output = reader.ReadBool();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestBoolNullable()
+        {
+            bool? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteBoolNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            bool? output = reader.ReadBoolNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
+        public void TestByte()
+        {
+            byte[] inputs = { 1, 2, 3, 4 };
+            foreach (byte input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WriteByte(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                byte output = reader.ReadByte();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestByteNullable()
+        {
+            byte? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteByteNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            byte? output = reader.ReadByteNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
+        public void TestSByte()
+        {
+            sbyte[] inputs = { 1, 2, 3, 4 };
+            foreach (sbyte input in inputs)
+            {
+                NetworkWriter writer = new NetworkWriter();
+                writer.WriteSByte(input);
+                NetworkReader reader = new NetworkReader(writer.ToArray());
+                sbyte output = reader.ReadSByte();
+                Assert.That(output, Is.EqualTo(input));
+            }
+        }
+
+        [Test]
+        public void TestSByteNullable()
+        {
+            sbyte? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteSByteNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            sbyte? output = reader.ReadSByteNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestVector2()
         {
             Vector2[] inputs = {
@@ -225,6 +300,17 @@ namespace Mirror.Tests
                 Vector2 output = reader.ReadVector2();
                 Assert.That(output, Is.EqualTo(input));
             }
+        }
+
+        [Test]
+        public void TestVector2Nullable()
+        {
+            Vector2? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteVector2Nullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Vector2? output = reader.ReadVector2Nullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -250,6 +336,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestVector3Nullable()
+        {
+            Vector3? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteVector3Nullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Vector3? output = reader.ReadVector3Nullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestVector4()
         {
             Vector4[] inputs = {
@@ -268,6 +365,17 @@ namespace Mirror.Tests
                 Vector4 output = reader.ReadVector4();
                 Assert.That(output, Is.EqualTo(input));
             }
+        }
+
+        [Test]
+        public void TestVector4Nullable()
+        {
+            Vector4? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteVector4Nullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Vector4? output = reader.ReadVector4Nullable();
+            Assert.That(output, Is.EqualTo(output));
         }
 
         [Test]
@@ -290,6 +398,17 @@ namespace Mirror.Tests
                 Vector2Int output = reader.ReadVector2Int();
                 Assert.That(output, Is.EqualTo(input));
             }
+        }
+
+        [Test]
+        public void TestVector2IntNullable()
+        {
+            Vector2Int? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteVector2IntNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Vector2Int? output = reader.ReadVector2IntNullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -316,6 +435,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestVector3IntNullable()
+        {
+            Vector3Int? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteVector3IntNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Vector3Int? output = reader.ReadVector3IntNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestColor()
         {
             Color[] inputs = {
@@ -335,6 +465,17 @@ namespace Mirror.Tests
                 Color output = reader.ReadColor();
                 Assert.That(output, Is.EqualTo(input));
             }
+        }
+
+        [Test]
+        public void TestColorNullable()
+        {
+            Color? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteColorNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Color? output = reader.ReadColorNullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -361,6 +502,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestColor32Nullable()
+        {
+            Color32? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteColor32Nullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Color32? output = reader.ReadColor32Nullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestQuaternion()
         {
             Quaternion[] inputs = {
@@ -377,6 +529,17 @@ namespace Mirror.Tests
                 Quaternion output = reader.ReadQuaternion();
                 Assert.That(output, Is.EqualTo(input));
             }
+        }
+
+        [Test]
+        public void TestQuaternionNullable()
+        {
+            Quaternion? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteQuaternionNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Quaternion? output = reader.ReadQuaternionNullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -397,6 +560,17 @@ namespace Mirror.Tests
                 Rect output = reader.ReadRect();
                 Assert.That(output, Is.EqualTo(input));
             }
+        }
+
+        [Test]
+        public void TestRectNullable()
+        {
+            Rect? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteRectNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Rect? output = reader.ReadRectNullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -423,6 +597,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestPlaneNullable()
+        {
+            Plane? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WritePlaneNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Plane? output = reader.ReadPlaneNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestRay()
         {
             Ray[] inputs = {
@@ -439,6 +624,17 @@ namespace Mirror.Tests
                 Assert.That((output.direction - input.direction).magnitude, Is.LessThan(1e-6f));
                 Assert.That(output.origin, Is.EqualTo(input.origin));
             }
+        }
+
+        [Test]
+        public void TestRayNullable()
+        {
+            Ray? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteRayNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Ray? output = reader.ReadRayNullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -459,6 +655,17 @@ namespace Mirror.Tests
                 Matrix4x4 output = reader.ReadMatrix4x4();
                 Assert.That(output, Is.EqualTo(input));
             }
+        }
+
+        [Test]
+        public void TestMatrix4x4Nullable()
+        {
+            Matrix4x4? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteMatrix4x4Nullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Matrix4x4? output = reader.ReadMatrix4x4Nullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -550,6 +757,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestCharNullable()
+        {
+            char? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteCharNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            char? output = reader.ReadCharNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestUnicodeString()
         {
             string[] weirdUnicode = {
@@ -613,6 +831,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestGuidNullable()
+        {
+            Guid? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteGuidNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Guid? output = reader.ReadGuidNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestFloats()
         {
             float[] weirdFloats = {
@@ -641,6 +870,17 @@ namespace Mirror.Tests
                 float readFloat = reader.ReadFloat();
                 Assert.That(readFloat, Is.EqualTo(weird));
             }
+        }
+
+        [Test]
+        public void TestFloatNullable()
+        {
+            float? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteFloatNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            float? output = reader.ReadFloatNullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
@@ -675,6 +915,17 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TestDoubleNullable()
+        {
+            double? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteDoubleNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            double? output = reader.ReadDoubleNullable();
+            Assert.That(output, Is.EqualTo(input));
+        }
+
+        [Test]
         public void TestDecimals()
         {
             decimal[] weirdDecimals = {
@@ -693,6 +944,17 @@ namespace Mirror.Tests
                 decimal readDecimal = reader.ReadDecimal();
                 Assert.That(readDecimal, Is.EqualTo(weird));
             }
+        }
+
+        [Test]
+        public void TestDecimalNullable()
+        {
+            decimal? input = null;
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteDecimalNullable(input);
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            decimal? output = reader.ReadDecimalNullable();
+            Assert.That(output, Is.EqualTo(input));
         }
 
         [Test]
