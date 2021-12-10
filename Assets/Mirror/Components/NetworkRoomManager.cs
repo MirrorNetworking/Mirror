@@ -472,6 +472,7 @@ namespace Mirror
         public override void OnClientConnect()
         {
 #pragma warning disable 618
+            // obsolete method calls new method
             OnRoomClientConnect(NetworkClient.connection);
 #pragma warning restore 618
         }
@@ -512,6 +513,7 @@ namespace Mirror
                 CallOnClientExitRoom();
 
 #pragma warning disable 618
+            // obsolete method calls new method
             OnRoomClientSceneChanged(NetworkClient.connection);
 #pragma warning restore 618
         }
