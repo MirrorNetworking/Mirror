@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace Mirror
@@ -58,6 +59,52 @@ namespace Mirror
         {
             buffer = segment;
             Position = 0;
+        }
+
+        // ReadBlittable<T> from DOTSNET
+        // this is extremely fast, but only works for blittable types.
+        // => private to make sure nobody accidentally uses it for non-blittable
+        //
+        // Benchmark: see NetworkWriter.WriteBlittable!
+        //
+        // Note:
+        //   ReadBlittable assumes same endianness for server & client.
+        //   All Unity 2018+ platforms are little endian.
+        unsafe T ReadBlittable<T>()
+            where T : unmanaged
+        {
+            // check if blittable for safety
+#if UNITY_EDITOR
+            if (!UnsafeUtility.IsBlittable(typeof(T)))
+            {
+                throw new ArgumentException(typeof(T) + " is not blittable!");
+            }
+#endif
+
+            // calculate size
+            //   sizeof(T) gets the managed size at compile time.
+            //   Marshal.SizeOf<T> gets the unmanaged size at runtime (slow).
+            // => our 1mio writes benchmark is 6x slower with Marshal.SizeOf<T>
+            // => for blittable types, sizeof(T) is even recommended:
+            // https://docs.microsoft.com/en-us/dotnet/standard/native-interop/best-practices
+            int size = sizeof(T);
+
+            // enough data to read?
+            if (Position + size > buffer.Count)
+            {
+                throw new EndOfStreamException($"ReadBlittable<{typeof(T)}> out of range: {ToString()}");
+            }
+
+            // read blittable
+            T value;
+            fixed (byte* ptr = &buffer.Array[buffer.Offset + Position])
+            {
+                // cast buffer to a T* pointer and then read from it.
+                // TODO *(T*) failed on android before. consider PtrToStructure
+                value = *(T*)ptr;
+            }
+            Position += size;
+            return value;
         }
 
         public byte ReadByte()
