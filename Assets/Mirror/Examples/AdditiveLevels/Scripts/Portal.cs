@@ -15,13 +15,8 @@ namespace Mirror.Examples.AdditiveLevels
         [Tooltip("Reference to child TMP label")]
         public TMPro.TextMeshPro label;
 
-        WaitForSeconds waitForSeconds;
-
-        public override void OnStartServer()
-        {
-            // This is approximately the fade time
-            waitForSeconds = new WaitForSeconds(3f);
-        }
+        // This is approximately the fade time
+        WaitForSeconds waitForFade = new WaitForSeconds(1f);
 
         /// <summary>
         /// Called on every NetworkBehaviour when it is activated on a client.
@@ -60,11 +55,10 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to unload previous subscene. No custom handling for this.
                 conn.Send(new SceneMessage { sceneName = gameObject.scene.path, sceneOperation = SceneOperation.UnloadAdditive, customHandling = true });
 
-                yield return waitForSeconds;
+                yield return waitForFade;
 
                 //Debug.Log($"SendPlayerToNewScene RemovePlayerForConnection {conn} netId:{conn.identity.netId}");
                 NetworkServer.RemovePlayerForConnection(conn, false);
-                yield return null;
 
                 // reposition player on server and client
                 player.transform.position = startPosition;
@@ -76,9 +70,8 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
                 conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
 
-                NetworkServer.AddPlayerForConnection(conn, player);
                 //Debug.Log($"SendPlayerToNewScene AddPlayerForConnection {conn} netId:{conn.identity.netId}");
-                yield return null;
+                NetworkServer.AddPlayerForConnection(conn, player);
 
                 // host client would have been disabled by OnTriggerEnter above
                 if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<PlayerController>(out PlayerController playerController))
