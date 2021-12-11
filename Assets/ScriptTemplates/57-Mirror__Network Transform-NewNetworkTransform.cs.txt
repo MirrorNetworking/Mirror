@@ -1,3 +1,4 @@
+#define onlySyncOnChange_BANDWIDTH_SAVING
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
@@ -121,6 +122,16 @@ public class #SCRIPTNAME# : NetworkTransformBase
     {
         base.ApplySnapshot(start, goal, interpolated);
     }
+
+#if onlySyncOnChange_BANDWIDTH_SAVING
+    /// <summary>
+    /// Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
+    /// </summary>
+    protected override bool CompareSnapshots(NTSnapshot currentSnapshot)
+    {
+        return base.CompareSnapshots(currentSnapshot);
+    }
+#endif
 
     #endregion
 
