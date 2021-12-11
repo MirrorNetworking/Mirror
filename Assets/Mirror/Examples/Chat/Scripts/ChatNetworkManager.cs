@@ -60,12 +60,12 @@ namespace Mirror.Examples.Chat
             networkAddress = hostname;
         }
 
-        public override void OnClientConnect(NetworkConnection conn)
+        public override void OnClientConnect()
         {
-            base.OnClientConnect(conn);
+            base.OnClientConnect();
 
             // tell the server to create a player with this name
-            conn.Send(new CreatePlayerMessage { name = PlayerName });
+            NetworkClient.connection.Send(new CreatePlayerMessage { name = PlayerName });
         }
 
         #endregion
