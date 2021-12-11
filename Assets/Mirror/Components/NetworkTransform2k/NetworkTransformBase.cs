@@ -75,6 +75,28 @@ namespace Mirror
         [Tooltip("Once buffer is larger catchupThreshold, accelerate by multiplier % per excess entry.")]
         [Range(0, 1)] public float catchupMultiplier = 0.10f;
 
+        [Header("Sync Only If Changed")]
+        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
+        public bool onlySyncOnChange = true;
+
+        // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
+        [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
+        public float bufferResetMultiplier = 5;
+
+        [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
+        public float positionSensitivity = 0.01f;
+        public float rotationSensitivity = 0.01f;
+        public float scaleSensitivity = 0.01f;
+
+        protected bool positionChanged;
+        protected bool rotationChanged;
+        protected bool scaleChanged;
+
+        // Used to store last sent snapshots
+        protected NTSnapshot lastSnapshot;
+        protected bool cachedSnapshotComparison;
+        protected bool hasSentUnchangedPosition;
+
         // snapshots sorted by timestamp
         // in the original article, glenn fiedler drops any snapshots older than
         // the last received snapshot.
@@ -149,6 +171,16 @@ namespace Mirror
                 targetComponent.localScale = interpolateScale ? interpolated.scale : goal.scale;
         }
 
+        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
+        protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot)
+        {
+            positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
+            rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
+            scaleChanged = Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity;
+
+            return (!positionChanged && !rotationChanged && !scaleChanged);
+        }
+
         // cmd /////////////////////////////////////////////////////////////////
         // only unreliable. see comment above of this file.
         [Command(channel = Channels.Unreliable)]
@@ -176,6 +208,16 @@ namespace Mirror
             // server. we can get the timestamp from the connection.
             double timestamp = connectionToClient.remoteTimeStamp;
 
+            if (onlySyncOnChange)
+            {
+                double timeIntervalCheck = bufferResetMultiplier * sendInterval;
+
+                if (serverBuffer.Count > 0 && serverBuffer.Values[serverBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
+                {
+                    Reset();
+                }
+            }
+
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
             // but we still need to feed it to snapshot interpolation. we can't
@@ -185,9 +227,9 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (!position.HasValue) position = targetComponent.localPosition;
-            if (!rotation.HasValue) rotation = targetComponent.localRotation;
-            if (!scale.HasValue) scale = targetComponent.localScale;
+            if (!position.HasValue) position = serverBuffer.Count > 0 ? serverBuffer.Values[serverBuffer.Count - 1].position : targetComponent.localPosition;
+            if (!rotation.HasValue) rotation = serverBuffer.Count > 0 ? serverBuffer.Values[serverBuffer.Count - 1].rotation : targetComponent.localRotation;
+            if (!scale.HasValue) scale = serverBuffer.Count > 0 ? serverBuffer.Values[serverBuffer.Count - 1].scale : targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
@@ -229,6 +271,16 @@ namespace Mirror
             // we can get the timestamp from there.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
 
+            if (onlySyncOnChange)
+            {
+                double timeIntervalCheck = bufferResetMultiplier * sendInterval;
+
+                if (clientBuffer.Count > 0 && clientBuffer.Values[clientBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
+                {
+                    Reset();
+                }
+            }
+
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
             // but we still need to feed it to snapshot interpolation. we can't
@@ -238,9 +290,9 @@ namespace Mirror
             //   client sends snapshot at t=10
             // then the server would assume that it's one super slow move and
             // replay it for 10 seconds.
-            if (!position.HasValue) position = targetComponent.localPosition;
-            if (!rotation.HasValue) rotation = targetComponent.localRotation;
-            if (!scale.HasValue) scale = targetComponent.localScale;
+            if (!position.HasValue) position = clientBuffer.Count > 0 ? clientBuffer.Values[clientBuffer.Count - 1].position : targetComponent.localPosition;
+            if (!rotation.HasValue) rotation = clientBuffer.Count > 0 ? clientBuffer.Values[clientBuffer.Count - 1].rotation : targetComponent.localRotation;
+            if (!scale.HasValue) scale = clientBuffer.Count > 0 ? clientBuffer.Values[clientBuffer.Count - 1].scale : targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
@@ -291,14 +343,29 @@ namespace Mirror
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
                 NTSnapshot snapshot = ConstructSnapshot();
+
+                cachedSnapshotComparison = CompareSnapshots(snapshot);
+
+                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
+
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
-                    syncPosition ? snapshot.position : new Vector3?(),
-                    syncRotation ? snapshot.rotation : new Quaternion?(),
-                    syncScale ? snapshot.scale : new Vector3?()
+                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                 );
 
                 lastServerSendTime = NetworkTime.localTime;
+
+                if (cachedSnapshotComparison)
+                {
+                    hasSentUnchangedPosition = true;
+                }
+                else
+                {
+                    hasSentUnchangedPosition = false;
+                    lastSnapshot = snapshot;
+                }
             }
 
             // apply buffered snapshots IF client authority
@@ -359,14 +426,29 @@ namespace Mirror
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
                     NTSnapshot snapshot = ConstructSnapshot();
+
+                    cachedSnapshotComparison = CompareSnapshots(snapshot);
+
+                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
+
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
-                        syncPosition ? snapshot.position : new Vector3?(),
-                        syncRotation ? snapshot.rotation : new Quaternion?(),
-                        syncScale ? snapshot.scale : new Vector3?()
+                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
+                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
+                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
                     );
 
                     lastClientSendTime = NetworkTime.localTime;
+
+                    if (cachedSnapshotComparison)
+                    {
+                        hasSentUnchangedPosition = true;
+                    }
+                    else
+                    {
+                        hasSentUnchangedPosition = false;
+                        lastSnapshot = snapshot;
+                    }
                 }
             }
             // for all other clients (and for local player if !authority),
