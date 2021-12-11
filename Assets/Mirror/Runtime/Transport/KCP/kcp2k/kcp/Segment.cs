@@ -15,7 +15,7 @@ namespace kcp2k
         internal uint resendts; // resend timestamp
         internal int rto;
         internal uint fastack;
-        internal uint xmit;
+        internal uint xmit;     // retransmit count
 
         // we need an auto scaling byte[] with a WriteBytes function.
         // MemoryStream does that perfectly, no need to reinvent the wheel.

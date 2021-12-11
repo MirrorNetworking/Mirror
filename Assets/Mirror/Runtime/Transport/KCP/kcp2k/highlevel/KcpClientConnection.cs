@@ -37,7 +37,7 @@ namespace kcp2k
         protected virtual int ReceiveFrom(byte[] buffer) =>
             socket.ReceiveFrom(buffer, ref remoteEndPoint);
 
-        public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT)
+        public void Connect(string host, ushort port, bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT, uint maxRetransmits = Kcp.DEADLINK)
         {
             Log.Info($"KcpClient: connect to {host}:{port}");
 
@@ -52,7 +52,7 @@ namespace kcp2k
                 socket.Connect(remoteEndPoint);
 
                 // set up kcp
-                SetupKcp(noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout);
+                SetupKcp(noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout, maxRetransmits);
 
                 // client should send handshake to server as very first message
                 SendHandshake();
@@ -62,7 +62,6 @@ namespace kcp2k
             // otherwise call OnDisconnected to let the user know.
             else OnDisconnected();
         }
-
 
         // call from transport update
         public void RawReceive()

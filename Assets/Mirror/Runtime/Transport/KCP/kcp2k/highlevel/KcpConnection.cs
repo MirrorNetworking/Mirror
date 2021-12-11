@@ -137,7 +137,7 @@ namespace kcp2k
         // => useful to start from a fresh state every time the client connects
         // => NoDelay, interval, wnd size are the most important configurations.
         //    let's force require the parameters so we don't forget it anywhere.
-        protected void SetupKcp(bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT)
+        protected void SetupKcp(bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT, uint maxRetransmits = Kcp.DEADLINK)
         {
             // set up kcp over reliable channel (that's what kcp is for)
             kcp = new Kcp(0, RawSendReliable);
@@ -151,6 +151,9 @@ namespace kcp2k
             // tell kcp to use MTU-1 so we can still put the header into the
             // message afterwards.
             kcp.SetMtu(Kcp.MTU_DEF - CHANNEL_HEADER_SIZE);
+
+            // set maximum retransmits (aka dead_link)
+            kcp.dead_link = maxRetransmits;
 
             // create message buffers AFTER window size is set
             // see comments on buffer definition for the "+1" part
@@ -179,7 +182,7 @@ namespace kcp2k
             // kcp has 'dead_link' detection. might as well use it.
             if (kcp.state == -1)
             {
-                Log.Warning("KCP Connection dead_link detected. Disconnecting.");
+                Log.Warning($"KCP Connection dead_link detected: a message was retransmitted {kcp.dead_link} times without ack. Disconnecting.");
                 Disconnect();
             }
         }

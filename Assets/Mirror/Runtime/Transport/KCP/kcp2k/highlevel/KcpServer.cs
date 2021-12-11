@@ -41,6 +41,8 @@ namespace kcp2k
         public uint ReceiveWindowSize;
         // timeout in milliseconds
         public int Timeout;
+        // maximum retransmission attempts until dead_link
+        public uint MaxRetransmits;
 
         // state
         protected Socket socket;
@@ -66,7 +68,8 @@ namespace kcp2k
                          bool CongestionWindow = true,
                          uint SendWindowSize = Kcp.WND_SND,
                          uint ReceiveWindowSize = Kcp.WND_RCV,
-                         int Timeout = KcpConnection.DEFAULT_TIMEOUT)
+                         int Timeout = KcpConnection.DEFAULT_TIMEOUT,
+                         uint MaxRetransmits = Kcp.DEADLINK)
         {
             this.OnConnected = OnConnected;
             this.OnData = OnData;
@@ -79,6 +82,7 @@ namespace kcp2k
             this.SendWindowSize = SendWindowSize;
             this.ReceiveWindowSize = ReceiveWindowSize;
             this.Timeout = Timeout;
+            this.MaxRetransmits = MaxRetransmits;
 
             // create newClientEP either IPv4 or IPv6
             newClientEP = DualMode
@@ -162,7 +166,7 @@ namespace kcp2k
         }
 
         protected virtual KcpServerConnection CreateConnection() =>
-            new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout);
+            new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
 
         // process incoming messages. should be called before updating the world.
         HashSet<int> connectionsToRemove = new HashSet<int>();

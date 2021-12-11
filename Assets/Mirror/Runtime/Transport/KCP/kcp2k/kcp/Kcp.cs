@@ -27,7 +27,7 @@ namespace kcp2k
         public const int INTERVAL = 100;
         public const int OVERHEAD = 24;
         public const int FRG_MAX = byte.MaxValue;  // kcp encodes 'frg' as byte. so we can only ever send up to 255 fragments.
-        public const int DEADLINK = 20;
+        public const int DEADLINK = 20;            // default maximum amount of 'xmit' retransmissions until a message is considered lost
         public const int THRESH_INIT = 2;
         public const int THRESH_MIN = 2;
         public const int PROBE_INIT = 7000;        // 7 secs to probe window size
@@ -65,7 +65,7 @@ namespace kcp2k
         internal bool updated;
         internal uint ts_probe;      // timestamp probe
         internal uint probe_wait;
-        internal uint dead_link;
+        internal uint dead_link;     // maximum amount of 'xmit' retransmissions until a message is considered lost
         internal uint incr;
         internal uint current;       // current time (milliseconds). set by Update.
 
@@ -853,6 +853,8 @@ namespace kcp2k
                         offset += (int)segment.data.Position;
                     }
 
+                    // dead link happens if a message was resent N times, but an
+                    // ack was still not received.
                     if (segment.xmit >= dead_link)
                     {
                         state = -1;
