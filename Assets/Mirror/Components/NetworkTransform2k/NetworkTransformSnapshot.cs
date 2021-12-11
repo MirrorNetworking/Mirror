@@ -24,18 +24,14 @@ namespace Mirror
         // [REMOTE TIME, NOT LOCAL TIME]
         // => DOUBLE for long term accuracy & batching gives us double anyway
         public double remoteTimestamp { get; set; }
-        // the local timestamp (when we received it)
-        // used to know if the first two snapshots are old enough to start.
-        public double localTimestamp { get; set; }
 
         public Vector3 position;
         public Quaternion rotation;
         public Vector3 scale;
 
-        public NTSnapshot(double remoteTimestamp, double localTimestamp, Vector3 position, Quaternion rotation, Vector3 scale)
+        public NTSnapshot(double remoteTimestamp, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             this.remoteTimestamp = remoteTimestamp;
-            this.localTimestamp = localTimestamp;
             this.position = position;
             this.rotation = rotation;
             this.scale = scale;
@@ -47,8 +43,8 @@ namespace Mirror
             // Vector3 & Quaternion components are float anyway, so we can
             // keep using the functions with 't' as float instead of double.
             return new NTSnapshot(
-                // interpolated snapshot is applied directly. don't need timestamps.
-                0, 0,
+                // interpolated snapshot is applied directly. don't need timestamp.
+                0,
                 // lerp position/rotation/scale unclamped in case we ever need
                 // to extrapolate. atm SnapshotInterpolation never does.
                 Vector3.LerpUnclamped(from.position, to.position, (float)t),

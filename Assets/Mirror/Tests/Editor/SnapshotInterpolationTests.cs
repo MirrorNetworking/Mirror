@@ -10,20 +10,18 @@ namespace Mirror.Tests
     struct SimpleSnapshot : Snapshot
     {
         public double remoteTimestamp { get; set; }
-        public double localTimestamp { get; set; }
         public double value;
 
-        public SimpleSnapshot(double remoteTimestamp, double localTimestamp, double value)
+        public SimpleSnapshot(double remoteTimestamp, double value)
         {
             this.remoteTimestamp = remoteTimestamp;
-            this.localTimestamp = localTimestamp;
             this.value = value;
         }
 
         public static SimpleSnapshot Interpolate(SimpleSnapshot from, SimpleSnapshot to, double t) =>
             new SimpleSnapshot(
-                // interpolated snapshot is applied directly. don't need timestamps.
-                0, 0,
+                // interpolated snapshot is applied directly. don't need timestamp.
+                0,
                 // lerp unclamped in case we ever need to extrapolate.
                 // atm SnapshotInterpolation never does.
                 Mathd.LerpUnclamped(from.value, to.value, t));
@@ -44,24 +42,24 @@ namespace Mirror.Tests
         public void InsertIfNewEnough()
         {
             // inserting a first value should always work
-            SimpleSnapshot first = new SimpleSnapshot(1, 1, 0);
+            SimpleSnapshot first = new SimpleSnapshot(1, 0);
             SnapshotInterpolation.InsertIfNewEnough(first, buffer);
             Assert.That(buffer.Count, Is.EqualTo(1));
 
             // insert before first should not work
-            SimpleSnapshot before = new SimpleSnapshot(0.5, 0.5, 0);
+            SimpleSnapshot before = new SimpleSnapshot(0.5, 0);
             SnapshotInterpolation.InsertIfNewEnough(before, buffer);
             Assert.That(buffer.Count, Is.EqualTo(1));
 
             // insert after first should work
-            SimpleSnapshot second = new SimpleSnapshot(2, 2, 0);
+            SimpleSnapshot second = new SimpleSnapshot(2,0);
             SnapshotInterpolation.InsertIfNewEnough(second, buffer);
             Assert.That(buffer.Count, Is.EqualTo(2));
             Assert.That(buffer.Values[0], Is.EqualTo(first));
             Assert.That(buffer.Values[1], Is.EqualTo(second));
 
             // insert after second should work
-            SimpleSnapshot after = new SimpleSnapshot(2.5, 2.5, 0);
+            SimpleSnapshot after = new SimpleSnapshot(2.5, 0);
             SnapshotInterpolation.InsertIfNewEnough(after, buffer);
             Assert.That(buffer.Count, Is.EqualTo(3));
             Assert.That(buffer.Values[0], Is.EqualTo(first));
@@ -79,9 +77,9 @@ namespace Mirror.Tests
         [Test]
         public void InsertIfNewEnough_ACB_Problem()
         {
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 0);
+            SimpleSnapshot c = new SimpleSnapshot(2, 0);
 
             // insert A and C
             SnapshotInterpolation.InsertIfNewEnough(a, buffer);
@@ -102,8 +100,8 @@ namespace Mirror.Tests
         [Test]
         public void InsertIfNewEnough_FirstIsLagging_Problem()
         {
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 0);
 
             // insert B. A is still delayed.
             SnapshotInterpolation.InsertIfNewEnough(b, buffer);
@@ -117,47 +115,95 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void HasAmountOlderThan_NotEnough()
+        public void BufferSpansDelta_NotEnough()
         {
-            // only add two
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
+            // only add one - should never be enough
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
             buffer.Add(a.remoteTimestamp, a);
-            buffer.Add(b.remoteTimestamp, b);
 
             // shouldn't have more old enough than two
             // because we don't have more than two
-            Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 0, 3), Is.False);
+            Assert.That(SnapshotInterpolation.BufferSpansDelta(buffer, 0), Is.False);
         }
 
         [Test]
-        public void HasAmountOlderThan_EnoughButNotOldEnough()
+        public void BufferSpansDelta_EnoughButNotOldEnough_2()
         {
-            // add three
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+            // add two, but delta not >= buffer time yet
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+
+            Assert.That(SnapshotInterpolation.BufferSpansDelta(buffer, 1.1), Is.False);
+        }
+
+        [Test]
+        public void BufferSpansDelta_EnoughButNotOldEnough_3()
+        {
+            // add three, but delta not >= buffer time yet
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2);
             buffer.Add(a.remoteTimestamp, a);
             buffer.Add(b.remoteTimestamp, b);
             buffer.Add(c.remoteTimestamp, c);
 
-            // check at time = 1.9, where third one would not be old enough.
-            Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 1.9, 3), Is.False);
+            Assert.That(SnapshotInterpolation.BufferSpansDelta(buffer, 2.1), Is.False);
         }
 
         [Test]
-        public void HasAmountOlderThan_EnoughAndOldEnough()
+        public void BufferSpansDelta_EnoughAndOldEnough_2()
+        {
+            // add two
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+
+            Assert.That(SnapshotInterpolation.BufferSpansDelta(buffer, 1), Is.True);
+        }
+
+        [Test]
+        public void BufferSpansDelta_EnoughAndOldEnough_3()
         {
             // add three
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2);
             buffer.Add(a.remoteTimestamp, a);
             buffer.Add(b.remoteTimestamp, b);
             buffer.Add(c.remoteTimestamp, c);
 
-            // check at time = 2.1, where third one would be old enough.
-            Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 2.1, 3), Is.True);
+            Assert.That(SnapshotInterpolation.BufferSpansDelta(buffer, 1.9), Is.True);
+        }
+
+        [Test]
+        public void BufferWithoutFirstSpansDelta_NotOldEnough()
+        {
+            // add three. first should be ignored for check.
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+            buffer.Add(c.remoteTimestamp, c);
+
+            Assert.That(SnapshotInterpolation.BufferWithoutFirstSpansDelta(buffer, 1.1), Is.False);
+        }
+
+        [Test]
+        public void BufferWithoutFirstSpansDelta_OldEnough()
+        {
+            // add three. first should be ignored for check.
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 1);
+            SimpleSnapshot c = new SimpleSnapshot(2, 2);
+            buffer.Add(a.remoteTimestamp, a);
+            buffer.Add(b.remoteTimestamp, b);
+            buffer.Add(c.remoteTimestamp, c);
+
+            Assert.That(SnapshotInterpolation.BufferWithoutFirstSpansDelta(buffer, 1), Is.True);
         }
 
         // UDP messages might arrive twice sometimes.
@@ -165,9 +211,9 @@ namespace Mirror.Tests
         [Test]
         public void InsertIfNewEnough_Duplicate()
         {
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
+            SimpleSnapshot a = new SimpleSnapshot(0, 0);
+            SimpleSnapshot b = new SimpleSnapshot(1, 0);
+            SimpleSnapshot c = new SimpleSnapshot(2, 0);
 
             // add two valid snapshots first.
             // we can't add 'duplicates' before 3rd and 4th anyway.
@@ -204,9 +250,9 @@ namespace Mirror.Tests
         public void GetFirstSecondAndDelta()
         {
             // add three
-            SimpleSnapshot a = new SimpleSnapshot(0, 1, 0);
-            SimpleSnapshot b = new SimpleSnapshot(2, 3, 0);
-            SimpleSnapshot c = new SimpleSnapshot(10, 20, 0);
+            SimpleSnapshot a = new SimpleSnapshot(0, 1);
+            SimpleSnapshot b = new SimpleSnapshot(2, 3);
+            SimpleSnapshot c = new SimpleSnapshot(10, 20);
             buffer.Add(a.remoteTimestamp, a);
             buffer.Add(b.remoteTimestamp, b);
             buffer.Add(c.remoteTimestamp, c);
@@ -257,11 +303,11 @@ namespace Mirror.Tests
         public void Compute_Step3_WaitsUntilBufferTime()
         {
             // add two snapshots that are barely not old enough
-            // (localTime - bufferTime)
+            // (delta >= bufferTime)
             // IMPORTANT: use a 'definitely old enough' remoteTime to make sure
             //            that compute() actually checks LOCAL, not REMOTE time!
-            SimpleSnapshot first = new SimpleSnapshot(0.1, 0.1, 0);
-            SimpleSnapshot second = new SimpleSnapshot(0.9, 1.1, 0);
+            SimpleSnapshot first = new SimpleSnapshot(0.1, 0.1);
+            SimpleSnapshot second = new SimpleSnapshot(0.9, 1.1);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
 
@@ -290,7 +336,7 @@ namespace Mirror.Tests
         public void Compute_Step3_WaitsForSecondSnapshot()
         {
             // add a snapshot at t = 0
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 0);
+            SimpleSnapshot first = new SimpleSnapshot(0, 0);
             buffer.Add(first.remoteTimestamp, first);
 
             // compute at localTime = 2 with bufferTime = 1
@@ -316,13 +362,13 @@ namespace Mirror.Tests
         public void Compute_Step4_InterpolateWithTwoOldEnoughSnapshots()
         {
             // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
+            // (delta >= bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 1);
             // IMPORTANT: second snapshot delta is != 1 so we can be sure that
             //            interpolationTime result is actual time, not 't' ratio.
             //            for a delta of 1, absolute and relative values would
             //            return the same results.
-            SimpleSnapshot second = new SimpleSnapshot(2, 2, 2);
+            SimpleSnapshot second = new SimpleSnapshot(2, 2);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
 
@@ -355,10 +401,10 @@ namespace Mirror.Tests
         public void Compute_Step4_InterpolateWithThreeOldEnoughSnapshots()
         {
             // add three old enough snapshots.
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
-            SimpleSnapshot third = new SimpleSnapshot(2, 2, 2);
+            // (delta >= bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 1);
+            SimpleSnapshot second = new SimpleSnapshot(1, 2);
+            SimpleSnapshot third = new SimpleSnapshot(2, 2);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
             buffer.Add(third.remoteTimestamp, third);
@@ -392,10 +438,10 @@ namespace Mirror.Tests
         public void Compute_Step4_InterpolateAfterLongPause()
         {
             // add two immediate, and one that arrives 100s later
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 1);
-            SimpleSnapshot third = new SimpleSnapshot(101, 2, 101);
+            // (delta >= bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 0);
+            SimpleSnapshot second = new SimpleSnapshot(1, 1);
+            SimpleSnapshot third = new SimpleSnapshot(101, 101);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
             buffer.Add(third.remoteTimestamp, third);
@@ -436,9 +482,9 @@ namespace Mirror.Tests
         public void Compute_Step4_InterpolateWithCatchup()
         {
             // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
+            // (delta >= bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 1);
+            SimpleSnapshot second = new SimpleSnapshot(1, 2);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
 
@@ -447,8 +493,8 @@ namespace Mirror.Tests
             float catchupMultiplier = 0.25f;
 
             // two excess snapshots to make sure that multiplier is accumulated
-            SimpleSnapshot excess1 = new SimpleSnapshot(2, 2, 3);
-            SimpleSnapshot excess2 = new SimpleSnapshot(3, 3, 4);
+            SimpleSnapshot excess1 = new SimpleSnapshot(2, 3);
+            SimpleSnapshot excess2 = new SimpleSnapshot(3, 4);
             buffer.Add(excess1.remoteTimestamp, excess1);
             buffer.Add(excess2.remoteTimestamp, excess2);
 
@@ -501,10 +547,9 @@ namespace Mirror.Tests
         [Test]
         public void Compute_Step5_OvershootWithoutEnoughSnapshots()
         {
-            // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
+            // add two old enough snapshots (delta >= buffer time)
+            SimpleSnapshot first = new SimpleSnapshot(0, 1);
+            SimpleSnapshot second = new SimpleSnapshot(1, 2);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
 
@@ -516,7 +561,7 @@ namespace Mirror.Tests
             double localTime = 3;
             double deltaTime = 0.5;
             double interpolationTime = 1;
-            float bufferTime = 2;
+            float bufferTime = 1;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
             bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
@@ -551,14 +596,14 @@ namespace Mirror.Tests
         public void Compute_Step5_OvershootWithEnoughSnapshots_NextIsntOldEnough()
         {
             // add two old enough snapshots
-            // (localTime - bufferTime)
+            // (delta >= bufferTime)
             //
             // IMPORTANT: second.time needs to be != second.time-first.time
             //            to guarantee that we cap interpolationTime (which is
             //            RELATIVE from 0..delta) at delta, not at second.time.
             //            this was a bug before.
-            SimpleSnapshot first = new SimpleSnapshot(1, 1, 1);
-            SimpleSnapshot second = new SimpleSnapshot(2, 2, 2);
+            SimpleSnapshot first = new SimpleSnapshot(1, 1);
+            SimpleSnapshot second = new SimpleSnapshot(2, 2);
             // IMPORTANT: third snapshot needs to be:
             // - a different time delta
             //   to test if overflow is correct if deltas are different.
@@ -567,7 +612,7 @@ namespace Mirror.Tests
             //   that's not the same delta, since t is a ratio.
             // - a different value delta to check if it really _interpolates_,
             //   not just extrapolates further after A,B
-            SimpleSnapshot third = new SimpleSnapshot(4, 4, 4);
+            SimpleSnapshot third = new SimpleSnapshot(2.9, 4);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
             buffer.Add(third.remoteTimestamp, third);
@@ -584,7 +629,7 @@ namespace Mirror.Tests
             double localTime = 4;
             double deltaTime = 0.5;
             double interpolationTime = 1;
-            float bufferTime = 2;
+            float bufferTime = 1;
             int catchupThreshold = Int32.MaxValue;
             float catchupMultiplier = 0;
             bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed);
@@ -616,9 +661,9 @@ namespace Mirror.Tests
         public void Compute_Step5_OvershootWithEnoughSnapshots_MovesToNextSnapshotIfOldEnough()
         {
             // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
+            // (delta >= bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 1);
+            SimpleSnapshot second = new SimpleSnapshot(1, 2);
             // IMPORTANT: third snapshot needs to be:
             // - a different time delta
             //   to test if overflow is correct if deltas are different.
@@ -627,7 +672,7 @@ namespace Mirror.Tests
             //   that's not the same delta, since t is a ratio.
             // - a different value delta to check if it really _interpolates_,
             //   not just extrapolates further after A,B
-            SimpleSnapshot third = new SimpleSnapshot(3, 3, 4);
+            SimpleSnapshot third = new SimpleSnapshot(3, 4);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
             buffer.Add(third.remoteTimestamp, third);
@@ -670,9 +715,9 @@ namespace Mirror.Tests
         public void Compute_Step5_OvershootWithEnoughSnapshots_2x_MovesToSecondNextSnapshot()
         {
             // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
+            // (delta >= bufferTime)
+            SimpleSnapshot first = new SimpleSnapshot(0, 1);
+            SimpleSnapshot second = new SimpleSnapshot(1, 2);
             // IMPORTANT: third snapshot needs to be:
             // - a different time delta
             //   to test if overflow is correct if deltas are different.
@@ -681,8 +726,8 @@ namespace Mirror.Tests
             //   that's not the same delta, since t is a ratio.
             // - a different value delta to check if it really _interpolates_,
             //   not just extrapolates further after A,B
-            SimpleSnapshot third = new SimpleSnapshot(3, 3, 4);
-            SimpleSnapshot fourth = new SimpleSnapshot(5, 5, 6);
+            SimpleSnapshot third = new SimpleSnapshot(3, 4);
+            SimpleSnapshot fourth = new SimpleSnapshot(5, 6);
             buffer.Add(first.remoteTimestamp, first);
             buffer.Add(second.remoteTimestamp, second);
             buffer.Add(third.remoteTimestamp, third);

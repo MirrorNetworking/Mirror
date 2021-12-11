@@ -46,16 +46,33 @@ namespace Mirror
                 buffer.Add(timestamp, snapshot);
         }
 
-        // helper function to check if we have >= n old enough snapshots.
-        // NOTE: we check LOCAL timestamp here.
-        //       not REMOTE timestamp.
-        //       we buffer for 'bufferTime' locally.
-        //       it has nothing to do with remote timestamp.
-        //       and we wouldn't know the current remoteTime either.
-        public static bool HasAmountOlderThan<T>(SortedList<double, T> buffer, double threshold, int amount)
+        // helper function to check if the buffer spans at least 'delta'.
+        // we need this to check if we can start interpolating already.
+        // => if bufferTime is 1s
+        // => then we want to buffer at least 1s worth of snapshots
+        // => StartIndex as parameter for BufferWithoutFirstSpansDelta
+        public static bool BufferSpansDelta<T>(SortedList<double, T> buffer, double delta, int startIndex = 0)
+            where T : Snapshot
+        {
+            // we need at least two values after 'startIndex' to check delta
+            if (buffer.Count - startIndex >= 2)
+            {
+                // check timespan of 'end - beginning'
+                // (where first starts at startIndex)
+                T end = buffer.Values[buffer.Count - 1];
+                T beginning = buffer.Values[startIndex];
+                return end.remoteTimestamp - beginning.remoteTimestamp >= delta;
+            }
+            return false;
+        }
+
+        // helper function to check if buffer still spans at least 'delta'
+        // IF we remove the first value from it.
+        // this is necessary in Compute() to know if we can skip more values.
+        public static bool BufferWithoutFirstSpansDelta<T>(SortedList<double, T> buffer, double delta)
             where T : Snapshot =>
-                buffer.Count >= amount &&
-                buffer.Values[amount - 1].localTimestamp <= threshold;
+                // reuse but ignore first entry (= start at 1)
+                BufferSpansDelta(buffer, delta, 1);
 
         // calculate catchup.
         // the goal is to buffer 'bufferTime' snapshots.
@@ -164,8 +181,7 @@ namespace Mirror
 
             // we always need two OLD ENOUGH snapshots to interpolate.
             // otherwise there's nothing to do.
-            double threshold = time - bufferTime;
-            if (!HasAmountOlderThan(buffer, threshold, 2))
+            if (!BufferSpansDelta(buffer, bufferTime))
                 return false;
 
             // multiply deltaTime by catchup.
@@ -216,7 +232,8 @@ namespace Mirror
             //            and then in next compute() wait again because it
             //            wasn't old enough yet.
             while (interpolationTime >= delta &&
-                   HasAmountOlderThan(buffer, threshold, 3))
+                   // check if snapshots WITHOUT FIRST would still be old enough
+                   BufferWithoutFirstSpansDelta(buffer, bufferTime))
             {
                 // subtract exactly delta from interpolation time
                 // instead of setting to '0', where we would lose the
@@ -283,8 +300,9 @@ namespace Mirror
             // * once we have more snapshots, we would skip most of them
             //   instantly instead of actually interpolating through them.
             //
-            // in other words, if we DON'T have >= 3 old enough.
-            if (!HasAmountOlderThan(buffer, threshold, 3))
+            // in other words, cap interpolationTime if snapshots WITHOUT FIRST
+            // are NOT old enough
+            if (!BufferWithoutFirstSpansDelta(buffer, bufferTime))
             {
                 // interpolationTime is always from 0..delta.
                 // so we cap it at delta.

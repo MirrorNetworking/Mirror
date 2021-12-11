@@ -59,14 +59,12 @@ namespace Mirror.Tests.NetworkTransform2k
         {
             NTSnapshot from = new NTSnapshot(
                 1,
-                1,
                 new Vector3(1, 1, 1),
                 Quaternion.Euler(new Vector3(0, 0, 0)),
                 new Vector3(3, 3, 3)
             );
 
             NTSnapshot to = new NTSnapshot(
-                2,
                 2,
                 new Vector3(2, 2, 2),
                 Quaternion.Euler(new Vector3(0, 90, 0)),
@@ -129,7 +127,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.interpolatePosition = true;
             component.interpolateRotation = true;
             component.interpolateScale = true;
-            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(default, default, new NTSnapshot(0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
@@ -152,7 +150,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.interpolatePosition = false;
             component.interpolateRotation = false;
             component.interpolateScale = false;
-            component.ApplySnapshot(default, new NTSnapshot(0, 0, position, rotation, scale), default);
+            component.ApplySnapshot(default, new NTSnapshot(0, position, rotation, scale), default);
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
@@ -175,7 +173,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.interpolatePosition = false;
             component.interpolateRotation = true;
             component.interpolateScale = true;
-            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(default, default, new NTSnapshot(0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(Vector3.zero));
@@ -198,7 +196,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.interpolatePosition = true;
             component.interpolateRotation = false;
             component.interpolateScale = true;
-            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(default, default, new NTSnapshot(0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
@@ -221,7 +219,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.interpolatePosition = true;
             component.interpolateRotation = true;
             component.interpolateScale = false;
-            component.ApplySnapshot(default, default, new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(default, default, new NTSnapshot(0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));

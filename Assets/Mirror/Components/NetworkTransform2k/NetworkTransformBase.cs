@@ -112,8 +112,6 @@ namespace Mirror
             return new NTSnapshot(
                 // our local time is what the other end uses as remote time
                 NetworkTime.localTime,
-                // the other end fills out local time itself
-                0,
                 targetComponent.localPosition,
                 targetComponent.localRotation,
                 targetComponent.localScale
@@ -192,7 +190,6 @@ namespace Mirror
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
                 timestamp,
-                NetworkTime.localTime,
                 position.Value, rotation.Value, scale.Value
             );
 
@@ -245,7 +242,6 @@ namespace Mirror
             // construct snapshot with batch timestamp to save bandwidth
             NTSnapshot snapshot = new NTSnapshot(
                 timestamp,
-                NetworkTime.localTime,
                 position.Value, rotation.Value, scale.Value
             );
 
@@ -587,19 +583,13 @@ namespace Mirror
             // only draw if we have at least two entries
             if (buffer.Count < 2) return;
 
-            // calcluate threshold for 'old enough' snapshots
-            double threshold = NetworkTime.localTime - bufferTime;
-            Color oldEnoughColor = new Color(0, 1, 0, 0.5f);
-            Color notOldEnoughColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
-
             // draw the whole buffer for easier debugging.
             // it's worth seeing how much we have buffered ahead already
             for (int i = 0; i < buffer.Count; ++i)
             {
                 // color depends on if old enough or not
                 NTSnapshot entry = buffer.Values[i];
-                bool oldEnough = entry.localTimestamp <= threshold;
-                Gizmos.color = oldEnough ? oldEnoughColor : notOldEnoughColor;
+                Gizmos.color = Color.green;
                 Gizmos.DrawCube(entry.position, Vector3.one);
             }
 
