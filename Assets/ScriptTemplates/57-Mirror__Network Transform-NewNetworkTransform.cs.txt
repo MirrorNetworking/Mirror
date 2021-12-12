@@ -124,6 +124,7 @@ public class #SCRIPTNAME# : NetworkTransformBase
     }
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
+
     /// <summary>
     /// Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
     /// </summary>
@@ -131,6 +132,7 @@ public class #SCRIPTNAME# : NetworkTransformBase
     {
         return base.CompareSnapshots(currentSnapshot);
     }
+
 #endif
 
     #endregion
