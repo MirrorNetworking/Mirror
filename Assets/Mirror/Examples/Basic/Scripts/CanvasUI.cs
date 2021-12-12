@@ -1,18 +1,21 @@
 ﻿using UnityEngine;
 
-public class CanvasUI : MonoBehaviour
+namespace Mirror.Examples.Basic
 {
-    [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
-    public RectTransform mainPanel;
-
-    [Tooltip("Assign Players Panel for instantiating PlayerUI as child")]
-    public RectTransform playersPanel;
-
-    // static instance that can be referenced directly from Player script
-    public static CanvasUI instance;
-
-    void Awake()
+    public class CanvasUI : MonoBehaviour
     {
-        instance = this;
+        [Tooltip("Assign Main Panel so it can be turned on from Player:OnStartClient")]
+        public RectTransform mainPanel;
+
+        [Tooltip("Assign Players Panel for instantiating PlayerUI as child")]
+        public RectTransform playersPanel;
+
+        // static instance that can be referenced directly from Player script
+        public static CanvasUI instance;
+
+        void Awake()
+        {
+            instance = this;
+        }
     }
 }
