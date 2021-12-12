@@ -16,7 +16,7 @@ namespace Mirror.Examples.AdditiveLevels
         public TMPro.TextMeshPro label;
 
         // This is approximately the fade time
-        WaitForSeconds waitForFade = new WaitForSeconds(1f);
+        WaitForSeconds waitForFade = new WaitForSeconds(2f);
 
         /// <summary>
         /// Called on every NetworkBehaviour when it is activated on a client.
