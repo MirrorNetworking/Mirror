@@ -1284,7 +1284,7 @@ namespace Mirror
             }
         }
 
-        // Deprecated 2021-09-06
+        // Deprecated 2021-12-11
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnClientConnect(NetworkConnection conn) => OnClientConnect();
 
@@ -1297,7 +1297,7 @@ namespace Mirror
             StopClient();
         }
 
-        // Deprecated 2021-09-06
+        // Deprecated 2021-12-11
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnClientDisconnect(NetworkConnection conn) => OnClientDisconnect();
 
@@ -1307,7 +1307,7 @@ namespace Mirror
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         public virtual void OnClientNotReady() {}
 
-        // Deprecated 2021-09-06
+        // Deprecated 2021-12-11
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnClientNotReady(NetworkConnection conn) {}
 
@@ -1332,7 +1332,7 @@ namespace Mirror
             }
         }
 
-        // Deprecated 2021-09-06
+        // Deprecated 2021-12-11
         [Obsolete("Remove the NetworkConnection parameter in your override and use NetworkClient.connection instead.")]
         public virtual void OnClientSceneChanged(NetworkConnection conn) => OnClientSceneChanged();
 
