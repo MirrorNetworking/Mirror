@@ -100,7 +100,7 @@ namespace Mirror
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
-        static void Reset()
+        static void ResetStatics()
         {
             localPlayer = null;
             connection = null;

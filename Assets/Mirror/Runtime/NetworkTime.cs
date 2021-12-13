@@ -75,7 +75,7 @@ namespace Mirror
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [UnityEngine.RuntimeInitializeOnLoadMethod]
-        public static void Reset()
+        public static void ResetStatics()
         {
             PingFrequency = 2.0f;
             PingWindowSize = 10;

@@ -34,7 +34,7 @@ namespace Mirror
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [UnityEngine.RuntimeInitializeOnLoadMethod]
-        static void Reset()
+        static void ResetStatics()
         {
             InMessageEvent = null;
             OutMessageEvent = null;

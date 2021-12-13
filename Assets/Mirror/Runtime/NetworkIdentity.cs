@@ -256,7 +256,7 @@ namespace Mirror
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
-        static void Init()
+        static void ResetStatics()
         {
             nextNetworkId = 1;
             clientAuthorityCallback = null;

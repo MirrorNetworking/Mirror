@@ -11,7 +11,7 @@ namespace Mirror.Examples.Chat
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [UnityEngine.RuntimeInitializeOnLoadMethod]
-        static void Init()
+        static void ResetStatics()
         {
             OnMessage = null;
         }

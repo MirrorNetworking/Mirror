@@ -69,7 +69,7 @@ namespace Mirror.Examples.MultipleMatch
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
-        static void Init()
+        static void ResetStatics()
         {
             playerMatches.Clear();
             openMatches.Clear();
