@@ -1037,6 +1037,8 @@ namespace Mirror
         /// <para>This is done automatically by NetworkStartPosition components, but can be done manually from user script code.</para>
         /// </summary>
         /// <param name="start">Transform to register.</param>
+        // Static because it's called from NetworkStartPosition::Awake
+        // and singleton may not exist yet
         public static void RegisterStartPosition(Transform start)
         {
             // Debug.Log($"RegisterStartPosition: {start.gameObject.name} {start.position}");
@@ -1050,7 +1052,8 @@ namespace Mirror
         }
 
         /// <summary>Unregister a Transform from start positions.</summary>
-        // TODO why is this static?
+        // Static because it's called from NetworkStartPosition::OnDestroy
+        // and singleton may not exist yet
         public static void UnRegisterStartPosition(Transform start)
         {
             //Debug.Log($"UnRegisterStartPosition: {start.name} {start.position}");
