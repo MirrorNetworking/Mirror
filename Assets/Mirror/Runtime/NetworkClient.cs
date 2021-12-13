@@ -102,7 +102,6 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         static void Init()
         {
-            aoi = null;
             localPlayer = null;
             connection = null;
 

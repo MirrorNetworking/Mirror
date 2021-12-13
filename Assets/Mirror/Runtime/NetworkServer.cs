@@ -58,7 +58,6 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod]
         static void Init()
         {
-            aoi = null;
             localConnection = null;
 
             OnConnectedEvent = null;
