@@ -56,7 +56,7 @@ namespace Mirror
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
-        static void Init()
+        static void Reset()
         {
             localConnection = null;
 
