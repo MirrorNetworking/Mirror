@@ -54,6 +54,29 @@ namespace Mirror
         public static Action<NetworkConnection> OnDisconnectedEvent;
         public static Action<NetworkConnection, Exception> OnErrorEvent;
 
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            aoi = null;
+            localConnection = null;
+
+            OnConnectedEvent = null;
+            OnDisconnectedEvent = null;
+            OnErrorEvent = null;
+
+            initialized = false;
+            dontListen = false;
+            active = false;
+            isLoadingScene = false;
+
+            connections.Clear();
+            connectionsCopy.Clear();
+            handlers.Clear();
+            spawned.Clear();
+
+            newObservers.Clear();
+        }
+
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
         {

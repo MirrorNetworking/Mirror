@@ -254,6 +254,14 @@ namespace Mirror
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
 
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            nextNetworkId = 1;
+            clientAuthorityCallback = null;
+            previousLocalPlayer = null;
+        }
+
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 

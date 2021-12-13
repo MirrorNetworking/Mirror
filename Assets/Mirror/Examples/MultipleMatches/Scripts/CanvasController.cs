@@ -67,6 +67,16 @@ namespace Mirror.Examples.MultipleMatch
         public RoomGUI roomGUI;
         public ToggleGroup toggleGroup;
 
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            playerMatches.Clear();
+            openMatches.Clear();
+            matchConnections.Clear();
+            playerInfos.Clear();
+            waitingConnections.Clear();
+        }
+
         #region UI Functions
 
         // Called from several places to ensure a clean reset

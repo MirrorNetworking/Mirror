@@ -49,6 +49,13 @@ namespace Mirror
         public static Action OnEarlyUpdate;
         public static Action OnLateUpdate;
 
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            OnEarlyUpdate = null;
+            OnLateUpdate = null;
+        }
+
         // helper function to find an update function's index in a player loop
         // type. this is used for testing to guarantee our functions are added
         // at the beginning/end properly.

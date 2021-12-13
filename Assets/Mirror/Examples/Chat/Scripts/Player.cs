@@ -9,6 +9,12 @@ namespace Mirror.Examples.Chat
 
         public static event Action<Player, string> OnMessage;
 
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            OnMessage = null;
+        }
+
         [Command]
         public void CmdSend(string message)
         {

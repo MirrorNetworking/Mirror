@@ -32,6 +32,12 @@ namespace Mirror.RemoteCalls
     {
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            cmdHandlerDelegates.Clear();
+        }
+
         internal static int GetMethodHash(Type invokeClass, string methodName)
         {
             // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.

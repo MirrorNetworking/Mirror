@@ -122,6 +122,18 @@ namespace Mirror
         //    during FinishLoadScene.
         public NetworkManagerMode mode { get; private set; }
 
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            clientReadyConnection = null;
+
+            startPositionIndex = 0;
+            startPositions.Clear();
+
+            networkSceneName = string.Empty;
+            loadingSceneAsync = null;
+        }
+
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
