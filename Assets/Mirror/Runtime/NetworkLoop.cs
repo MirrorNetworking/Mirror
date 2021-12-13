@@ -49,6 +49,7 @@ namespace Mirror
         public static Action OnEarlyUpdate;
         public static Action OnLateUpdate;
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
         static void Init()
         {

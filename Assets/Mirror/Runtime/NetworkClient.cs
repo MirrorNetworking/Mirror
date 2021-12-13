@@ -98,6 +98,7 @@ namespace Mirror
         // scene loading
         public static bool isLoadingScene;
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
         static void Init()
         {

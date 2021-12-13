@@ -9,6 +9,7 @@ namespace Mirror.Examples.Chat
 
         public static event Action<Player, string> OnMessage;
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [UnityEngine.RuntimeInitializeOnLoadMethod]
         static void Init()
         {

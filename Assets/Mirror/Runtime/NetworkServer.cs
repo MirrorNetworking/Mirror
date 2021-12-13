@@ -54,6 +54,7 @@ namespace Mirror
         public static Action<NetworkConnection> OnDisconnectedEvent;
         public static Action<NetworkConnection, Exception> OnErrorEvent;
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod]
         static void Init()
         {

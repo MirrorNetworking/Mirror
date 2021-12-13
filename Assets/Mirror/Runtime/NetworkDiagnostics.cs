@@ -32,6 +32,7 @@ namespace Mirror
         /// <summary>Event for when Mirror receives a message. Can be subscribed to.</summary>
         public static event Action<MessageInfo> InMessageEvent;
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [UnityEngine.RuntimeInitializeOnLoadMethod]
         static void Init()
         {

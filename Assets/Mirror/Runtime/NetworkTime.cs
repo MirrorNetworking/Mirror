@@ -73,6 +73,7 @@ namespace Mirror
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double rttStandardDeviation => Math.Sqrt(rttVariance);
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [UnityEngine.RuntimeInitializeOnLoadMethod]
         public static void Reset()
         {
