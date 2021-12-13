@@ -46,12 +46,22 @@ namespace Mirror
                 buffer.Add(timestamp, snapshot);
         }
 
-        // helper function to check if we have >= n old enough snapshots.
-        // NOTE: we check LOCAL timestamp here.
-        //       not REMOTE timestamp.
-        //       we buffer for 'bufferTime' locally.
-        //       it has nothing to do with remote timestamp.
-        //       and we wouldn't know the current remoteTime either.
+        // helper function to check if we have 'bufferTime' worth of snapshots
+        // to start.
+        //
+        // glenn fiedler article:
+        // "Now for the trick with snapshots. What we do is instead of
+        //  immediately rendering snapshot data received is that we buffer
+        //  snapshots for a short amount of time in an interpolation buffer.
+        //  This interpolation buffer holds on to snapshots for a period of time
+        //  such that you have not only the snapshot you want to render but also,
+        //  statistically speaking, you are very likely to have the next snapshot
+        //  as well."
+        //
+        // => 'statistically' implies that we always wait for a fixed amount
+        //    aka LOCAL TIME has passed.
+        // => it does NOT imply to wait for a remoteTime span of bufferTime.
+        //    that would not be 'statistically'. it would be 'exactly'.
         public static bool HasAmountOlderThan<T>(SortedList<double, T> buffer, double threshold, int amount)
             where T : Snapshot =>
                 buffer.Count >= amount &&
