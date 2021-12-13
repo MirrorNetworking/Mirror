@@ -1159,12 +1159,12 @@ namespace Mirror
             else
             {
                 // authenticate immediately
-                OnClientAuthenticated(NetworkClient.connection);
+                OnClientAuthenticated();
             }
         }
 
         // called after successful authentication
-        void OnClientAuthenticated(NetworkConnection conn)
+        void OnClientAuthenticated()
         {
             //Debug.Log("NetworkManager.OnClientAuthenticated");
 

@@ -17,7 +17,7 @@ namespace Mirror
 
         /// <summary>Notify subscribers on the client when the client is authenticated</summary>
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
-        public UnityEventNetworkConnection OnClientAuthenticated = new UnityEventNetworkConnection();
+        public UnityEvent OnClientAuthenticated = new UnityEvent();
 
         /// <summary>Called when server starts, used to register message handlers if needed.</summary>
         public virtual void OnStartServer() {}
@@ -49,7 +49,7 @@ namespace Mirror
 
         protected void ClientAccept()
         {
-            OnClientAuthenticated.Invoke(NetworkClient.connection);
+            OnClientAuthenticated.Invoke();
         }
 
         protected void ClientReject()
