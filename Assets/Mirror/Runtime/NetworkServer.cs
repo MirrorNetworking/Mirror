@@ -54,29 +54,6 @@ namespace Mirror
         public static Action<NetworkConnection> OnDisconnectedEvent;
         public static Action<NetworkConnection, Exception> OnErrorEvent;
 
-        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod]
-        static void ResetStatics()
-        {
-            localConnection = null;
-
-            OnConnectedEvent = null;
-            OnDisconnectedEvent = null;
-            OnErrorEvent = null;
-
-            initialized = false;
-            dontListen = false;
-            active = false;
-            isLoadingScene = false;
-
-            connections.Clear();
-            connectionsCopy.Clear();
-            handlers.Clear();
-            spawned.Clear();
-
-            newObservers.Clear();
-        }
-
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
         {
@@ -179,6 +156,8 @@ namespace Mirror
         }
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
         public static void Shutdown()
         {
             if (initialized)
@@ -198,6 +177,7 @@ namespace Mirror
                 initialized = false;
             }
 
+            // Reset all statics here....
             dontListen = false;
             active = false;
             isLoadingScene = false;
