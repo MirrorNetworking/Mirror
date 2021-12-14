@@ -70,7 +70,7 @@ namespace Mirror
             if (aoi != null) aoi.Reset();
 
             // reset NetworkTime
-            NetworkTime.Reset();
+            NetworkTime.ResetStatics();
 
             Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
             AddTransportHandlers();
