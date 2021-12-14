@@ -67,6 +67,21 @@ namespace Mirror
                 buffer.Count >= amount &&
                 buffer.Values[amount - 1].localTimestamp <= threshold;
 
+        // for convenience, hide the 'bufferTime worth of snapshots' check in an
+        // easy to use function. this way we can have several conditions etc.
+        public static bool HasEnough<T>(SortedList<double, T> buffer, double time, double bufferTime)
+            where T : Snapshot =>
+                // two snapshots with local time older than threshold?
+                HasAmountOlderThan(buffer, time - bufferTime, 2);
+
+        // sometimes we need to know if it's still safe to skip past the first
+        // snapshot.
+        public static bool HasEnoughWithoutFirst<T>(SortedList<double, T> buffer, double time, double bufferTime)
+            where T : Snapshot =>
+                // still two snapshots with local time older than threshold if
+                // we remove the first one? (in other words, need three older)
+                HasAmountOlderThan(buffer, time - bufferTime, 3);
+
         // calculate catchup.
         // the goal is to buffer 'bufferTime' snapshots.
         // for whatever reason, we might see growing buffers.
@@ -172,10 +187,8 @@ namespace Mirror
             computed = default;
             //Debug.Log($"{name} snapshotbuffer={buffer.Count}");
 
-            // we always need two OLD ENOUGH snapshots to interpolate.
-            // otherwise there's nothing to do.
-            double threshold = time - bufferTime;
-            if (!HasAmountOlderThan(buffer, threshold, 2))
+            // do we have enough buffered to start interpolating?
+            if (!HasEnough(buffer, time, bufferTime))
                 return false;
 
             // multiply deltaTime by catchup.
@@ -226,7 +239,7 @@ namespace Mirror
             //            and then in next compute() wait again because it
             //            wasn't old enough yet.
             while (interpolationTime >= delta &&
-                   HasAmountOlderThan(buffer, threshold, 3))
+                   HasEnoughWithoutFirst(buffer, time, bufferTime))
             {
                 // subtract exactly delta from interpolation time
                 // instead of setting to '0', where we would lose the
@@ -293,8 +306,8 @@ namespace Mirror
             // * once we have more snapshots, we would skip most of them
             //   instantly instead of actually interpolating through them.
             //
-            // in other words, if we DON'T have >= 3 old enough.
-            if (!HasAmountOlderThan(buffer, threshold, 3))
+            // in other words: cap time if we WOULDN'T have enough after removing
+            if (!HasEnoughWithoutFirst(buffer, time, bufferTime))
             {
                 // interpolationTime is always from 0..delta.
                 // so we cap it at delta.

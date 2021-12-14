@@ -64,7 +64,7 @@ namespace Mirror
 
         /// <summary>Sends a message to the server over the given channel.</summary>
         // The ArraySegment is only valid until returning. Copy if needed.
-        public abstract void ClientSend(ArraySegment<byte> segment, int channelId);
+        public abstract void ClientSend(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         /// <summary>Disconnects the client from the server</summary>
         public abstract void ClientDisconnect();
@@ -93,7 +93,7 @@ namespace Mirror
         public abstract void ServerStart();
 
         /// <summary>Send a message to a client over the given channel.</summary>
-        public abstract void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId);
+        public abstract void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         /// <summary>Disconnect a client from the server.</summary>
         public abstract void ServerDisconnect(int connectionId);
@@ -118,7 +118,7 @@ namespace Mirror
         // Some transports like kcp support large max packet sizes which should
         // not be used for batching all the time because they end up being too
         // slow (head of line blocking etc.).
-        public virtual int GetBatchThreshold(int channelId)
+        public virtual int GetBatchThreshold(int channelId = Channels.Reliable)
         {
             return GetMaxPacketSize(channelId);
         }
