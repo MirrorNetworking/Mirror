@@ -1184,6 +1184,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.connectionsCopy.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.handlers.Count, Is.EqualTo(0));
             Assert.That(NetworkServer.newObservers.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.spawned.Count, Is.EqualTo(0));
 
             Assert.That(NetworkServer.localConnection, Is.Null);
             Assert.That(NetworkServer.localClientActive, Is.False);
