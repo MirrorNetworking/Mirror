@@ -174,11 +174,21 @@ namespace Mirror
                 Transport.activeTransport.ServerStop();
                 initialized = false;
             }
+
             dontListen = false;
             active = false;
+            isLoadingScene = false;
+
+            connections.Clear();
+            connectionsCopy.Clear();
             handlers.Clear();
 
+            newObservers.Clear();
+
+            // this calls spawned.Clear()
             CleanupSpawned();
+
+            // sets nextNetworkId = 1
             NetworkIdentity.ResetNextNetworkId();
 
             // clear events. someone might have hooked into them before, but
