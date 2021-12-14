@@ -78,6 +78,11 @@ namespace kcp2k
             Log.Warning = Debug.LogWarning;
             Log.Error = Debug.LogError;
 
+#if ENABLE_IL2CPP
+            // NonAlloc doesn't work with IL2CPP builds
+            NonAlloc = false;
+#endif
+
             // client
             client = NonAlloc
                 ? new KcpClientNonAlloc(
