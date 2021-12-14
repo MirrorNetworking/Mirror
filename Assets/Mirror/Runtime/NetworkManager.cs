@@ -106,7 +106,8 @@ namespace Mirror
         public bool isNetworkActive => NetworkServer.active || NetworkClient.active;
 
         // TODO remove this
-        static NetworkConnection clientReadyConnection;
+        // internal for tests
+        internal static NetworkConnection clientReadyConnection;
 
         /// <summary>True if the client loaded a new scene when connecting to the server.</summary>
         // This is set before OnClientConnect is called, so it can be checked
