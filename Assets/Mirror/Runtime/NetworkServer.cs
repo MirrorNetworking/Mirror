@@ -192,9 +192,9 @@ namespace Mirror
             // this calls spawned.Clear()
             CleanupSpawned();
 
-            // sets nextNetworkId = 1;
-            // sets clientAuthorityCallback = null;
-            // sets previousLocalPlayer = null;
+            // sets nextNetworkId to 1
+            // sets clientAuthorityCallback to null
+            // sets previousLocalPlayer to null
             NetworkIdentity.ResetStatics();
 
             // clear events. someone might have hooked into them before, but
