@@ -185,6 +185,7 @@ namespace Mirror
             // we don't want to use those hooks after Shutdown anymore.
             OnConnectedEvent = null;
             OnDisconnectedEvent = null;
+            OnErrorEvent = null;
 
             if (aoi != null) aoi.Reset();
         }
