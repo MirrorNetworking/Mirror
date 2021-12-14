@@ -71,3 +71,4 @@ docs/.sass-cache
 ehthumbs.db
 Thumbs.db
 /VisRepo.txt
+*.vsconfig
