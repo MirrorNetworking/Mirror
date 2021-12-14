@@ -632,7 +632,7 @@ namespace Mirror
                 //Debug.Log("OnApplicationQuit: stopped server");
             }
 
-            // Call Shutdown to reset statics and singleton
+            // Call ResetStatics to reset statics and singleton
             ResetStatics();
         }
 
