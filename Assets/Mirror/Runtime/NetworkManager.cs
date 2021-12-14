@@ -122,19 +122,6 @@ namespace Mirror
         //    during FinishLoadScene.
         public NetworkManagerMode mode { get; private set; }
 
-        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod]
-        static void ResetStatics()
-        {
-            clientReadyConnection = null;
-
-            startPositionIndex = 0;
-            startPositions.Clear();
-
-            networkSceneName = string.Empty;
-            loadingSceneAsync = null;
-        }
-
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
@@ -644,6 +631,9 @@ namespace Mirror
                 StopServer();
                 //Debug.Log("OnApplicationQuit: stopped server");
             }
+
+            // Call Shutdown to reset statics and singleton
+            ResetStatics();
         }
 
         /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
@@ -721,16 +711,22 @@ namespace Mirror
         }
 
         // This is the only way to clear the singleton, so another instance can be created.
-        public static void Shutdown()
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
+        public static void ResetStatics()
         {
-            if (singleton == null)
-                return;
+            // call StopHost if we have a singleton
+            if (singleton)
+                singleton.StopHost();
 
+            // reset all statics
             startPositions.Clear();
             startPositionIndex = 0;
             clientReadyConnection = null;
+            loadingSceneAsync = null;
+            networkSceneName = string.Empty;
 
-            singleton.StopHost();
+            // and finally (in case it isn't null already)...
             singleton = null;
         }
 
