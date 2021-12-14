@@ -255,7 +255,7 @@ namespace Mirror
             new Dictionary<ulong, NetworkIdentity>();
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        // internal so it can be called from NetworkServer
+        // internal so it can be called from NetworkServer & NetworkClient
         [RuntimeInitializeOnLoadMethod]
         internal static void ResetStatics()
         {
