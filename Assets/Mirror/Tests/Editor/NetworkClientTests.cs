@@ -107,8 +107,22 @@ namespace Mirror.Tests
 
             NetworkClient.Shutdown();
 
+            Assert.That(NetworkClient.handlers.Count, Is.EqualTo(0));
+            Assert.That(NetworkClient.spawned.Count, Is.EqualTo(0));
+            Assert.That(NetworkClient.spawnableObjects.Count, Is.EqualTo(0));
+
+            Assert.That(NetworkClient.connectState, Is.EqualTo(ConnectState.None));
+
+            Assert.That(NetworkClient.connection, Is.Null);
+            Assert.That(NetworkClient.localPlayer, Is.Null);
+
+            Assert.That(NetworkClient.ready, Is.False);
+            Assert.That(NetworkClient.isSpawnFinished, Is.False);
+            Assert.That(NetworkClient.isLoadingScene, Is.False);
+
             Assert.That(NetworkClient.OnConnectedEvent, Is.Null);
             Assert.That(NetworkClient.OnDisconnectedEvent, Is.Null);
+            Assert.That(NetworkClient.OnErrorEvent, Is.Null);
         }
     }
 }

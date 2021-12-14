@@ -83,7 +83,8 @@ namespace Mirror
             new Dictionary<Guid, UnSpawnDelegate>();
 
         // spawning
-        static bool isSpawnFinished;
+        // internal for tests
+        internal static bool isSpawnFinished;
 
         // Disabled scene objects that can be spawned again, by sceneId.
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
@@ -1458,6 +1459,7 @@ namespace Mirror
             ready = false;
             isSpawnFinished = false;
             isLoadingScene = false;
+
             unbatcher = new Unbatcher();
 
             // clear events. someone might have hooked into them before, but
