@@ -182,10 +182,11 @@ namespace Mirror
             active = false;
             isLoadingScene = false;
 
+            localConnection = null;
+
             connections.Clear();
             connectionsCopy.Clear();
             handlers.Clear();
-
             newObservers.Clear();
 
             // this calls spawned.Clear()
@@ -1405,7 +1406,8 @@ namespace Mirror
         }
 
         // allocate newObservers helper HashSet only once
-        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+        // internal for tests
+        internal static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
 
         // rebuild observers default method (no AOI) - adds all connections
         static void RebuildObserversDefault(NetworkIdentity identity, bool initialize)
@@ -1657,7 +1659,8 @@ namespace Mirror
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        static readonly List<NetworkConnectionToClient> connectionsCopy =
+        // internal for tests
+        internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
         static void Broadcast()
