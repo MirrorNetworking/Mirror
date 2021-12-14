@@ -98,35 +98,6 @@ namespace Mirror
         // scene loading
         public static bool isLoadingScene;
 
-        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod]
-        static void ResetStatics()
-        {
-            localPlayer = null;
-            connection = null;
-
-            connectState = ConnectState.None;
-
-            OnConnectedEvent = null;
-            OnDisconnectedEvent = null;
-            OnErrorEvent = null;
-
-            prefabs.Clear();
-            spawnableObjects.Clear();
-            spawned.Clear();
-            removeFromSpawned.Clear();
-
-            handlers.Clear();
-            spawnHandlers.Clear();
-            unspawnHandlers.Clear();
-
-            unbatcher = new Unbatcher();
-
-            ready = false;
-            isSpawnFinished = false;
-            isLoadingScene = false;
-        }
-
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
@@ -1455,6 +1426,8 @@ namespace Mirror
         }
 
         /// <summary>Shutdown the client.</summary>
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
         public static void Shutdown()
         {
             //Debug.Log("Shutting down client.");
