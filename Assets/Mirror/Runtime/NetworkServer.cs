@@ -191,8 +191,10 @@ namespace Mirror
             // this calls spawned.Clear()
             CleanupSpawned();
 
-            // sets nextNetworkId = 1
-            NetworkIdentity.ResetNextNetworkId();
+            // sets nextNetworkId = 1;
+            // sets clientAuthorityCallback = null;
+            // sets previousLocalPlayer = null;
+            NetworkIdentity.ResetStatics();
 
             // clear events. someone might have hooked into them before, but
             // we don't want to use those hooks after Shutdown anymore.
