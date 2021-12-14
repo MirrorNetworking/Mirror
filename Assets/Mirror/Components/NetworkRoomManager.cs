@@ -475,6 +475,7 @@ namespace Mirror
             // obsolete method calls new method
             OnRoomClientConnect(NetworkClient.connection);
 #pragma warning restore 618
+            base.OnClientConnect();
         }
 
         /// <summary>
@@ -486,6 +487,7 @@ namespace Mirror
 #pragma warning disable 618
             OnRoomClientDisconnect(NetworkClient.connection);
 #pragma warning restore 618
+            base.OnClientDisconnect();
         }
 
         /// <summary>
@@ -512,6 +514,7 @@ namespace Mirror
             else
                 CallOnClientExitRoom();
 
+            base.OnClientSceneChanged();
 #pragma warning disable 618
             // obsolete method calls new method
             OnRoomClientSceneChanged(NetworkClient.connection);
