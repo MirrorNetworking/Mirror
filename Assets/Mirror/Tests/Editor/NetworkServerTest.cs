@@ -1176,12 +1176,22 @@ namespace Mirror.Tests
             NetworkServer.Shutdown();
 
             // state cleared?
-            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.dontListen, Is.False);
             Assert.That(NetworkServer.active, Is.False);
+            Assert.That(NetworkServer.isLoadingScene, Is.False);
+
+            Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.connectionsCopy.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.handlers.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.newObservers.Count, Is.EqualTo(0));
+            Assert.That(NetworkServer.spawned.Count, Is.EqualTo(0));
+
             Assert.That(NetworkServer.localConnection, Is.Null);
             Assert.That(NetworkServer.localClientActive, Is.False);
+
             Assert.That(NetworkServer.OnConnectedEvent, Is.Null);
             Assert.That(NetworkServer.OnDisconnectedEvent, Is.Null);
+            Assert.That(NetworkServer.OnErrorEvent, Is.Null);
         }
 
         [Test]

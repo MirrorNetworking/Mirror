@@ -254,6 +254,16 @@ namespace Mirror
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        // internal so it can be called from NetworkServer & NetworkClient
+        [RuntimeInitializeOnLoadMethod]
+        internal static void ResetStatics()
+        {
+            nextNetworkId = 1;
+            clientAuthorityCallback = null;
+            previousLocalPlayer = null;
+        }
+
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 

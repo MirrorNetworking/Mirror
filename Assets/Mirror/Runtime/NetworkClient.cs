@@ -83,7 +83,8 @@ namespace Mirror
             new Dictionary<Guid, UnSpawnDelegate>();
 
         // spawning
-        static bool isSpawnFinished;
+        // internal for tests
+        internal static bool isSpawnFinished;
 
         // Disabled scene objects that can be spawned again, by sceneId.
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
@@ -249,7 +250,7 @@ namespace Mirror
             if (connection != null)
             {
                 // reset network time stats
-                NetworkTime.Reset();
+                NetworkTime.ResetStatics();
 
                 // reset unbatcher in case any batches from last session remain.
                 unbatcher = new Unbatcher();
@@ -1426,6 +1427,8 @@ namespace Mirror
         }
 
         /// <summary>Shutdown the client.</summary>
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
         public static void Shutdown()
         {
             //Debug.Log("Shutting down client.");
@@ -1442,6 +1445,11 @@ namespace Mirror
             handlers.Clear();
             spawnableObjects.Clear();
 
+            // sets nextNetworkId to 1
+            // sets clientAuthorityCallback to null
+            // sets previousLocalPlayer to null
+            NetworkIdentity.ResetStatics();
+
             // disconnect the client connection.
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
@@ -1456,6 +1464,7 @@ namespace Mirror
             ready = false;
             isSpawnFinished = false;
             isLoadingScene = false;
+
             unbatcher = new Unbatcher();
 
             // clear events. someone might have hooked into them before, but

@@ -106,7 +106,8 @@ namespace Mirror
         public bool isNetworkActive => NetworkServer.active || NetworkClient.active;
 
         // TODO remove this
-        static NetworkConnection clientReadyConnection;
+        // internal for tests
+        internal static NetworkConnection clientReadyConnection;
 
         /// <summary>True if the client loaded a new scene when connecting to the server.</summary>
         // This is set before OnClientConnect is called, so it can be checked
@@ -631,6 +632,9 @@ namespace Mirror
                 StopServer();
                 //Debug.Log("OnApplicationQuit: stopped server");
             }
+
+            // Call ResetStatics to reset statics and singleton
+            ResetStatics();
         }
 
         /// <summary>Set the frame rate for a headless builds. Override to disable or modify.</summary>
@@ -708,16 +712,22 @@ namespace Mirror
         }
 
         // This is the only way to clear the singleton, so another instance can be created.
-        public static void Shutdown()
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
+        public static void ResetStatics()
         {
-            if (singleton == null)
-                return;
+            // call StopHost if we have a singleton
+            if (singleton)
+                singleton.StopHost();
 
+            // reset all statics
             startPositions.Clear();
             startPositionIndex = 0;
             clientReadyConnection = null;
+            loadingSceneAsync = null;
+            networkSceneName = string.Empty;
 
-            singleton.StopHost();
+            // and finally (in case it isn't null already)...
             singleton = null;
         }
 

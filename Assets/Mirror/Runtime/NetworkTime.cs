@@ -73,14 +73,18 @@ namespace Mirror
         // TODO does this need to be public? user should only need NetworkTime.time
         public static double rttStandardDeviation => Math.Sqrt(rttVariance);
 
-        public static void Reset()
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        public static void ResetStatics()
         {
-            stopwatch.Restart();
+            PingFrequency = 2.0f;
+            PingWindowSize = 10;
+            lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
             _offset = new ExponentialMovingAverage(PingWindowSize);
             offsetMin = double.MinValue;
             offsetMax = double.MaxValue;
-            lastPingTime = 0;
+            stopwatch.Restart();
         }
 
         internal static void UpdateClient()

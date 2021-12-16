@@ -70,7 +70,7 @@ namespace Mirror
             if (aoi != null) aoi.Reset();
 
             // reset NetworkTime
-            NetworkTime.Reset();
+            NetworkTime.ResetStatics();
 
             Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
             AddTransportHandlers();
@@ -156,6 +156,8 @@ namespace Mirror
         }
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
         public static void Shutdown()
         {
             if (initialized)
@@ -175,21 +177,25 @@ namespace Mirror
                 initialized = false;
             }
 
+            // Reset all statics here....
             dontListen = false;
             active = false;
             isLoadingScene = false;
 
+            localConnection = null;
+
             connections.Clear();
             connectionsCopy.Clear();
             handlers.Clear();
-
             newObservers.Clear();
 
             // this calls spawned.Clear()
             CleanupSpawned();
 
-            // sets nextNetworkId = 1
-            NetworkIdentity.ResetNextNetworkId();
+            // sets nextNetworkId to 1
+            // sets clientAuthorityCallback to null
+            // sets previousLocalPlayer to null
+            NetworkIdentity.ResetStatics();
 
             // clear events. someone might have hooked into them before, but
             // we don't want to use those hooks after Shutdown anymore.
@@ -1400,7 +1406,8 @@ namespace Mirror
         }
 
         // allocate newObservers helper HashSet only once
-        static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+        // internal for tests
+        internal static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
 
         // rebuild observers default method (no AOI) - adds all connections
         static void RebuildObserversDefault(NetworkIdentity identity, bool initialize)
@@ -1652,7 +1659,8 @@ namespace Mirror
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
         // (we add this to the UnityEngine in NetworkLoop)
-        static readonly List<NetworkConnectionToClient> connectionsCopy =
+        // internal for tests
+        internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
         static void Broadcast()

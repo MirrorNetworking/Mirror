@@ -67,6 +67,17 @@ namespace Mirror.Examples.MultipleMatch
         public RoomGUI roomGUI;
         public ToggleGroup toggleGroup;
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
+        static void ResetStatics()
+        {
+            playerMatches.Clear();
+            openMatches.Clear();
+            matchConnections.Clear();
+            playerInfos.Clear();
+            waitingConnections.Clear();
+        }
+
         #region UI Functions
 
         // Called from several places to ensure a clean reset
