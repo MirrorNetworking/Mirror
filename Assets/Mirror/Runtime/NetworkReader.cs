@@ -433,7 +433,7 @@ namespace Mirror
         public static Uri ReadUri(this NetworkReader reader)
         {
             string uriString = reader.ReadString();
-            return (string.IsNullOrEmpty(uriString) ? null : new Uri(uriString));
+            return (string.IsNullOrWhiteSpace(uriString) ? null : new Uri(uriString));
         }
     }
 }

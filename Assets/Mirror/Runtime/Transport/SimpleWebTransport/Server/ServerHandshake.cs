@@ -54,7 +54,7 @@ namespace Mirror.SimpleWeb
 
             string msg = ReadToEndForHandshake(stream);
 
-            if (string.IsNullOrEmpty(msg))
+            if (string.IsNullOrWhiteSpace(msg))
                 return false;
 
             try

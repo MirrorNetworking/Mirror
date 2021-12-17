@@ -61,7 +61,7 @@ namespace Mirror
 
                 // string.Empty is never a valid teamId
                 // Nothing to do if teamId hasn't changed
-                if (string.IsNullOrEmpty(newTeam) || newTeam == currentTeam)
+                if (string.IsNullOrWhiteSpace(newTeam) || newTeam == currentTeam)
                     continue;
 
                 // Mark new/old Teams as dirty so they get rebuilt
@@ -92,7 +92,7 @@ namespace Mirror
         {
             // Remove this object from the hashset of the team it just left
             // string.Empty is never a valid teamId
-            if (!string.IsNullOrEmpty(currentTeam))
+            if (!string.IsNullOrWhiteSpace(currentTeam))
                 teamObjects[currentTeam].Remove(netIdentity);
 
             // Set this to the new team this object just entered

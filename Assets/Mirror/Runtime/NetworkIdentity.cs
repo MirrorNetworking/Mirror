@@ -211,12 +211,12 @@ namespace Mirror
             {
 #if UNITY_EDITOR
                 // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (string.IsNullOrEmpty(m_AssetId))
+                if (string.IsNullOrWhiteSpace(m_AssetId))
                     SetupIDs();
 #endif
                 // convert string to Guid and use .Empty to avoid exception if
                 // we would use 'new Guid("")'
-                return string.IsNullOrEmpty(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
+                return string.IsNullOrWhiteSpace(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
             }
             internal set
             {
@@ -230,14 +230,14 @@ namespace Mirror
                 }
 
                 // new is empty
-                if (string.IsNullOrEmpty(newAssetIdString))
+                if (string.IsNullOrWhiteSpace(newAssetIdString))
                 {
                     Debug.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdString}'");
                     return;
                 }
 
                 // old not empty
-                if (!string.IsNullOrEmpty(oldAssetIdString))
+                if (!string.IsNullOrWhiteSpace(oldAssetIdString))
                 {
                     Debug.LogError($"Can not Set AssetId on NetworkIdentity '{name}' because it already had an assetId, current assetId '{oldAssetIdString}', attempted new assetId '{newAssetIdString}'");
                     return;
@@ -356,7 +356,7 @@ namespace Mirror
         void AssignAssetID(string path)
         {
             // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
-            if (!string.IsNullOrEmpty(path))
+            if (!string.IsNullOrWhiteSpace(path))
                 m_AssetId = AssetDatabase.AssetPathToGUID(path);
         }
 

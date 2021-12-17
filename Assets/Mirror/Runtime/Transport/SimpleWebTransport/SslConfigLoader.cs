@@ -33,11 +33,11 @@ namespace Mirror.SimpleWeb
             string json = File.ReadAllText(certJsonPath);
             Cert cert = JsonUtility.FromJson<Cert>(json);
 
-            if (string.IsNullOrEmpty(cert.path))
+            if (string.IsNullOrWhiteSpace(cert.path))
             {
                 throw new InvalidDataException("Cert Json didn't not contain \"path\"");
             }
-            if (string.IsNullOrEmpty(cert.password))
+            if (string.IsNullOrWhiteSpace(cert.password))
             {
                 // password can be empty
                 cert.password = string.Empty;
