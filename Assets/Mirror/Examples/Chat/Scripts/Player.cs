@@ -19,5 +19,12 @@ namespace Mirror.Examples.Chat
         {
             ChatUI.instance.localPlayerName = playerName;
         }
+
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        static void ResetStatics()
+        {
+            playerNames.Clear();
+        }
     }
 }
