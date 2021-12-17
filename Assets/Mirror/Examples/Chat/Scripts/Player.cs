@@ -1,25 +1,23 @@
 using System;
+using System.Collections.Generic;
 
 namespace Mirror.Examples.Chat
 {
     public class Player : NetworkBehaviour
     {
-        [SyncVar]
-        public string playerName;
+        public static readonly HashSet<string> playerNames = new HashSet<string>();
 
-        public static event Action<Player, string> OnMessage;
-
-        [Command]
-        public void CmdSend(string message)
+        public override void OnStartServer()
         {
-            if (message.Trim() != string.Empty)
-                RpcReceive(message.Trim());
+            playerName = (string)connectionToClient.authenticationData;
         }
 
-        [ClientRpc]
-        public void RpcReceive(string message)
+        [SyncVar(hook = nameof(OnPlayerNameChanged))]
+        public string playerName;
+
+        void OnPlayerNameChanged(string _, string newName)
         {
-            OnMessage?.Invoke(this, message);
+            ChatUI.instance.localPlayerName = playerName;
         }
     }
 }
