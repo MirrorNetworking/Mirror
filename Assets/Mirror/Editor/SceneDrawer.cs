@@ -12,12 +12,12 @@ namespace Mirror
             {
                 SceneAsset sceneObject = AssetDatabase.LoadAssetAtPath<SceneAsset>(property.stringValue);
 
-                if (sceneObject == null && !string.IsNullOrEmpty(property.stringValue))
+                if (sceneObject == null && !string.IsNullOrWhiteSpace(property.stringValue))
                 {
                     // try to load it from the build settings for legacy compatibility
                     sceneObject = GetBuildSettingsSceneObject(property.stringValue);
                 }
-                if (sceneObject == null && !string.IsNullOrEmpty(property.stringValue))
+                if (sceneObject == null && !string.IsNullOrWhiteSpace(property.stringValue))
                 {
                     Debug.LogError($"Could not find scene {property.stringValue} in {property.propertyPath}, assign the proper scenes in your NetworkManager");
                 }
