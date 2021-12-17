@@ -111,7 +111,7 @@ namespace Mirror.Authenticators
                 conn.isAuthenticated = false;
 
                 // disconnect the client after 1 second so that response message gets delivered
-                StartCoroutine(DelayedDisconnect(conn, 1));
+                StartCoroutine(DelayedDisconnect(conn, 1f));
             }
         }
 
