@@ -435,5 +435,18 @@ namespace Mirror
             string uriString = reader.ReadString();
             return (string.IsNullOrWhiteSpace(uriString) ? null : new Uri(uriString));
         }
+
+        public static Texture2D ReadTexture2D(this NetworkReader reader)
+        {
+            Texture2D texture2D = new Texture2D(32, 32);
+            texture2D.SetPixels32(reader.Read<Color32[]>());
+            texture2D.Apply();
+            return texture2D;
+        }
+
+        public static Sprite ReadSprite(this NetworkReader reader)
+        {
+            return Sprite.Create(reader.ReadTexture2D(), reader.ReadRect(), reader.ReadVector2());
+        }
     }
 }

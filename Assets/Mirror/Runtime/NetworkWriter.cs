@@ -609,5 +609,17 @@ namespace Mirror
         {
             writer.WriteString(uri?.ToString());
         }
+
+        public static void WriteTexture2D(this NetworkWriter writer, Texture2D texture2D)
+        {
+            writer.Write(texture2D.GetPixels32());
+        }
+
+        public static void WriteSprite(this NetworkWriter writer, Sprite sprite)
+        {
+            writer.WriteTexture2D(sprite.texture);
+            writer.WriteRect(sprite.rect);
+            writer.WriteVector2(sprite.pivot);
+        }
     }
 }
