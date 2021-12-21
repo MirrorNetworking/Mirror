@@ -119,6 +119,18 @@ namespace Mirror
             Position += size;
         }
 
+        // blittable'?' template for code reuse
+        internal void WriteBlittableNullable<T>(T? value)
+            where T : unmanaged
+        {
+            // bool isn't blittable. write as byte.
+            WriteByte((byte)(value.HasValue ? 0x01 : 0x00));
+
+            // only write value if exists. saves bandwidth.
+            if (value.HasValue)
+                WriteBlittable(value.Value);
+        }
+
         public void WriteByte(byte value) => WriteBlittable(value);
 
         // for byte arrays with consistent size, where the reader knows how many to read
@@ -156,123 +168,45 @@ namespace Mirror
         static readonly byte[] stringBuffer = new byte[NetworkWriter.MaxStringLength];
 
         public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteBlittable(value);
-
-        public static void WriteByteNullable(this NetworkWriter writer, byte? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteByte(value.Value);
-        }
+        public static void WriteByteNullable(this NetworkWriter writer, byte? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteBlittable(value);
-
-        public static void WriteSByteNullable(this NetworkWriter writer, sbyte? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteSByte(value.Value);
-        }
+        public static void WriteSByteNullable(this NetworkWriter writer, sbyte? value) => writer.WriteBlittableNullable(value);
 
         // char is not blittable. convert to ushort.
         public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteBlittable((ushort)value);
-
-        public static void WriteCharNullable(this NetworkWriter writer, char? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteChar(value.Value);
-        }
+        public static void WriteCharNullable(this NetworkWriter writer, char? value) => writer.WriteBlittableNullable((ushort?)value);
 
         // bool is not blittable. convert to byte.
         public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteBlittable((byte)(value ? 1 : 0));
-
-        public static void WriteBoolNullable(this NetworkWriter writer, bool? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteBool(value.Value);
-        }
+        public static void WriteBoolNullable(this NetworkWriter writer, bool? value) => writer.WriteBlittableNullable(value.HasValue ? ((byte)(value.Value ? 1 : 0)) : new byte?());
 
         public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteBlittable(value);
-
-        public static void WriteShortNullable(this NetworkWriter writer, short? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteShort(value.Value);
-        }
+        public static void WriteShortNullable(this NetworkWriter writer, short? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteUShort(this NetworkWriter writer, ushort value) => writer.WriteBlittable(value);
-
-        public static void WriteUShortNullable(this NetworkWriter writer, ushort? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteUShort(value.Value);
-        }
+        public static void WriteUShortNullable(this NetworkWriter writer, ushort? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteBlittable(value);
-
-        public static void WriteIntNullable(this NetworkWriter writer, int? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteInt(value.Value);
-        }
+        public static void WriteIntNullable(this NetworkWriter writer, int? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteUInt(this NetworkWriter writer, uint value) => writer.WriteBlittable(value);
-
-        public static void WriteUIntNullable(this NetworkWriter writer, uint? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteUInt(value.Value);
-        }
+        public static void WriteUIntNullable(this NetworkWriter writer, uint? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteLong(this NetworkWriter writer, long value)  => writer.WriteBlittable(value);
-
-        public static void WriteLongNullable(this NetworkWriter writer, long? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteLong(value.Value);
-        }
+        public static void WriteLongNullable(this NetworkWriter writer, long? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteULong(this NetworkWriter writer, ulong value) => writer.WriteBlittable(value);
-
-        public static void WriteULongNullable(this NetworkWriter writer, ulong? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteULong(value.Value);
-        }
+        public static void WriteULongNullable(this NetworkWriter writer, ulong? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
-
-        public static void WriteFloatNullable(this NetworkWriter writer, float? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteFloat(value.Value);
-        }
+        public static void WriteFloatNullable(this NetworkWriter writer, float? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteDouble(this NetworkWriter writer, double value) => writer.WriteBlittable(value);
-
-        public static void WriteDoubleNullable(this NetworkWriter writer, double? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteDouble(value.Value);
-        }
+        public static void WriteDoubleNullable(this NetworkWriter writer, double? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
-
-        public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteDecimal(value.Value);
-        }
+        public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteString(this NetworkWriter writer, string value)
         {
@@ -341,112 +275,40 @@ namespace Mirror
         }
 
         public static void WriteVector2(this NetworkWriter writer, Vector2 value) => writer.WriteBlittable(value);
-
-        public static void WriteVector2Nullable(this NetworkWriter writer, Vector2? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteVector2(value.Value);
-        }
+        public static void WriteVector2Nullable(this NetworkWriter writer, Vector2? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteVector3(this NetworkWriter writer, Vector3 value) => writer.WriteBlittable(value);
-
-        public static void WriteVector3Nullable(this NetworkWriter writer, Vector3? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteVector3(value.Value);
-        }
+        public static void WriteVector3Nullable(this NetworkWriter writer, Vector3? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteVector4(this NetworkWriter writer, Vector4 value) => writer.WriteBlittable(value);
-
-        public static void WriteVector4Nullable(this NetworkWriter writer, Vector4? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteVector4(value.Value);
-        }
+        public static void WriteVector4Nullable(this NetworkWriter writer, Vector4? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value) => writer.WriteBlittable(value);
-
-        public static void WriteVector2IntNullable(this NetworkWriter writer, Vector2Int? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteVector2Int(value.Value);
-        }
+        public static void WriteVector2IntNullable(this NetworkWriter writer, Vector2Int? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteVector3Int(this NetworkWriter writer, Vector3Int value) => writer.WriteBlittable(value);
-
-        public static void WriteVector3IntNullable(this NetworkWriter writer, Vector3Int? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteVector3Int(value.Value);
-        }
+        public static void WriteVector3IntNullable(this NetworkWriter writer, Vector3Int? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteColor(this NetworkWriter writer, Color value) => writer.WriteBlittable(value);
-
-        public static void WriteColorNullable(this NetworkWriter writer, Color? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteColor(value.Value);
-        }
+        public static void WriteColorNullable(this NetworkWriter writer, Color? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteColor32(this NetworkWriter writer, Color32 value) => writer.WriteBlittable(value);
-
-        public static void WriteColor32Nullable(this NetworkWriter writer, Color32? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteColor32(value.Value);
-        }
+        public static void WriteColor32Nullable(this NetworkWriter writer, Color32? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value) => writer.WriteBlittable(value);
-
-        public static void WriteQuaternionNullable(this NetworkWriter writer, Quaternion? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteQuaternion(value.Value);
-        }
+        public static void WriteQuaternionNullable(this NetworkWriter writer, Quaternion? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteRect(this NetworkWriter writer, Rect value) => writer.WriteBlittable(value);
-
-        public static void WriteRectNullable(this NetworkWriter writer, Rect? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteRect(value.Value);
-        }
+        public static void WriteRectNullable(this NetworkWriter writer, Rect? value) => writer.WriteBlittableNullable(value);
 
         public static void WritePlane(this NetworkWriter writer, Plane value) => writer.WriteBlittable(value);
-
-        public static void WritePlaneNullable(this NetworkWriter writer, Plane? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WritePlane(value.Value);
-        }
+        public static void WritePlaneNullable(this NetworkWriter writer, Plane? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteRay(this NetworkWriter writer, Ray value) => writer.WriteBlittable(value);
-
-        public static void WriteRayNullable(this NetworkWriter writer, Ray? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteRay(value.Value);
-        }
+        public static void WriteRayNullable(this NetworkWriter writer, Ray? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value) => writer.WriteBlittable(value);
-
-        public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value)
-        {
-            writer.WriteBool(value.HasValue);
-            if (value.HasValue)
-                writer.WriteMatrix4x4(value.Value);
-        }
+        public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteGuid(this NetworkWriter writer, Guid value)
         {
