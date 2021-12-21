@@ -86,7 +86,7 @@ namespace Mirror
         //   WriteBlittable assumes same endianness for server & client.
         //   All Unity 2018+ platforms are little endian.
         //   => run NetworkWriterTests.BlittableOnThisPlatform() to verify!
-        public unsafe void WriteBlittable<T>(T value)
+        internal unsafe void WriteBlittable<T>(T value)
             where T : unmanaged
         {
             // check if blittable for safety
@@ -119,11 +119,7 @@ namespace Mirror
             Position += size;
         }
 
-        public void WriteByte(byte value)
-        {
-            EnsureCapacity(Position + 1);
-            buffer[Position++] = value;
-        }
+        public void WriteByte(byte value) => WriteBlittable(value);
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
@@ -159,7 +155,7 @@ namespace Mirror
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
         static readonly byte[] stringBuffer = new byte[NetworkWriter.MaxStringLength];
 
-        public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteByte(value);
+        public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteBlittable(value);
 
         public static void WriteByteNullable(this NetworkWriter writer, byte? value)
         {
@@ -168,7 +164,7 @@ namespace Mirror
                 writer.WriteByte(value.Value);
         }
 
-        public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteByte((byte)value);
+        public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteBlittable(value);
 
         public static void WriteSByteNullable(this NetworkWriter writer, sbyte? value)
         {
@@ -177,7 +173,7 @@ namespace Mirror
                 writer.WriteSByte(value.Value);
         }
 
-        public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteUShort(value);
+        public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteBlittable(value);
 
         public static void WriteCharNullable(this NetworkWriter writer, char? value)
         {
@@ -186,7 +182,8 @@ namespace Mirror
                 writer.WriteChar(value.Value);
         }
 
-        public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteByte((byte)(value ? 1 : 0));
+        // bool is not blittable. convert to byte.
+        public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteBlittable((byte)(value ? 1 : 0));
 
         public static void WriteBoolNullable(this NetworkWriter writer, bool? value)
         {
@@ -195,7 +192,7 @@ namespace Mirror
                 writer.WriteBool(value.Value);
         }
 
-        public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteUShort((ushort)value);
+        public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteBlittable(value);
 
         public static void WriteShortNullable(this NetworkWriter writer, short? value)
         {
@@ -204,11 +201,7 @@ namespace Mirror
                 writer.WriteShort(value.Value);
         }
 
-        public static void WriteUShort(this NetworkWriter writer, ushort value)
-        {
-            writer.WriteByte((byte)value);
-            writer.WriteByte((byte)(value >> 8));
-        }
+        public static void WriteUShort(this NetworkWriter writer, ushort value) => writer.WriteBlittable(value);
 
         public static void WriteUShortNullable(this NetworkWriter writer, ushort? value)
         {
@@ -217,7 +210,7 @@ namespace Mirror
                 writer.WriteUShort(value.Value);
         }
 
-        public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteUInt((uint)value);
+        public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteBlittable(value);
 
         public static void WriteIntNullable(this NetworkWriter writer, int? value)
         {
@@ -226,13 +219,7 @@ namespace Mirror
                 writer.WriteInt(value.Value);
         }
 
-        public static void WriteUInt(this NetworkWriter writer, uint value)
-        {
-            writer.WriteByte((byte)value);
-            writer.WriteByte((byte)(value >> 8));
-            writer.WriteByte((byte)(value >> 16));
-            writer.WriteByte((byte)(value >> 24));
-        }
+        public static void WriteUInt(this NetworkWriter writer, uint value) => writer.WriteBlittable(value);
 
         public static void WriteUIntNullable(this NetworkWriter writer, uint? value)
         {
@@ -241,7 +228,7 @@ namespace Mirror
                 writer.WriteUInt(value.Value);
         }
 
-        public static void WriteLong(this NetworkWriter writer, long value) => writer.WriteULong((ulong)value);
+        public static void WriteLong(this NetworkWriter writer, long value)  => writer.WriteBlittable(value);
 
         public static void WriteLongNullable(this NetworkWriter writer, long? value)
         {
@@ -250,17 +237,7 @@ namespace Mirror
                 writer.WriteLong(value.Value);
         }
 
-        public static void WriteULong(this NetworkWriter writer, ulong value)
-        {
-            writer.WriteByte((byte)value);
-            writer.WriteByte((byte)(value >> 8));
-            writer.WriteByte((byte)(value >> 16));
-            writer.WriteByte((byte)(value >> 24));
-            writer.WriteByte((byte)(value >> 32));
-            writer.WriteByte((byte)(value >> 40));
-            writer.WriteByte((byte)(value >> 48));
-            writer.WriteByte((byte)(value >> 56));
-        }
+        public static void WriteULong(this NetworkWriter writer, ulong value) => writer.WriteBlittable(value);
 
         public static void WriteULongNullable(this NetworkWriter writer, ulong? value)
         {
@@ -269,14 +246,7 @@ namespace Mirror
                 writer.WriteULong(value.Value);
         }
 
-        public static void WriteFloat(this NetworkWriter writer, float value)
-        {
-            UIntFloat converter = new UIntFloat
-            {
-                floatValue = value
-            };
-            writer.WriteUInt(converter.intValue);
-        }
+        public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
 
         public static void WriteFloatNullable(this NetworkWriter writer, float? value)
         {
@@ -285,14 +255,7 @@ namespace Mirror
                 writer.WriteFloat(value.Value);
         }
 
-        public static void WriteDouble(this NetworkWriter writer, double value)
-        {
-            UIntDouble converter = new UIntDouble
-            {
-                doubleValue = value
-            };
-            writer.WriteULong(converter.longValue);
-        }
+        public static void WriteDouble(this NetworkWriter writer, double value) => writer.WriteBlittable(value);
 
         public static void WriteDoubleNullable(this NetworkWriter writer, double? value)
         {
@@ -301,18 +264,7 @@ namespace Mirror
                 writer.WriteDouble(value.Value);
         }
 
-        public static void WriteDecimal(this NetworkWriter writer, decimal value)
-        {
-            // the only way to read it without allocations is to both read and
-            // write it with the FloatConverter (which is not binary compatible
-            // to writer.Write(decimal), hence why we use it here too)
-            UIntDecimal converter = new UIntDecimal
-            {
-                decimalValue = value
-            };
-            writer.WriteULong(converter.longValue1);
-            writer.WriteULong(converter.longValue2);
-        }
+        public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
 
         public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value)
         {
@@ -387,11 +339,7 @@ namespace Mirror
             }
         }
 
-        public static void WriteVector2(this NetworkWriter writer, Vector2 value)
-        {
-            writer.WriteFloat(value.x);
-            writer.WriteFloat(value.y);
-        }
+        public static void WriteVector2(this NetworkWriter writer, Vector2 value) => writer.WriteBlittable(value);
 
         public static void WriteVector2Nullable(this NetworkWriter writer, Vector2? value)
         {
@@ -400,12 +348,7 @@ namespace Mirror
                 writer.WriteVector2(value.Value);
         }
 
-        public static void WriteVector3(this NetworkWriter writer, Vector3 value)
-        {
-            writer.WriteFloat(value.x);
-            writer.WriteFloat(value.y);
-            writer.WriteFloat(value.z);
-        }
+        public static void WriteVector3(this NetworkWriter writer, Vector3 value) => writer.WriteBlittable(value);
 
         public static void WriteVector3Nullable(this NetworkWriter writer, Vector3? value)
         {
@@ -414,13 +357,7 @@ namespace Mirror
                 writer.WriteVector3(value.Value);
         }
 
-        public static void WriteVector4(this NetworkWriter writer, Vector4 value)
-        {
-            writer.WriteFloat(value.x);
-            writer.WriteFloat(value.y);
-            writer.WriteFloat(value.z);
-            writer.WriteFloat(value.w);
-        }
+        public static void WriteVector4(this NetworkWriter writer, Vector4 value) => writer.WriteBlittable(value);
 
         public static void WriteVector4Nullable(this NetworkWriter writer, Vector4? value)
         {
@@ -429,11 +366,7 @@ namespace Mirror
                 writer.WriteVector4(value.Value);
         }
 
-        public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value)
-        {
-            writer.WriteInt(value.x);
-            writer.WriteInt(value.y);
-        }
+        public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value) => writer.WriteBlittable(value);
 
         public static void WriteVector2IntNullable(this NetworkWriter writer, Vector2Int? value)
         {
@@ -442,12 +375,7 @@ namespace Mirror
                 writer.WriteVector2Int(value.Value);
         }
 
-        public static void WriteVector3Int(this NetworkWriter writer, Vector3Int value)
-        {
-            writer.WriteInt(value.x);
-            writer.WriteInt(value.y);
-            writer.WriteInt(value.z);
-        }
+        public static void WriteVector3Int(this NetworkWriter writer, Vector3Int value) => writer.WriteBlittable(value);
 
         public static void WriteVector3IntNullable(this NetworkWriter writer, Vector3Int? value)
         {
@@ -456,13 +384,7 @@ namespace Mirror
                 writer.WriteVector3Int(value.Value);
         }
 
-        public static void WriteColor(this NetworkWriter writer, Color value)
-        {
-            writer.WriteFloat(value.r);
-            writer.WriteFloat(value.g);
-            writer.WriteFloat(value.b);
-            writer.WriteFloat(value.a);
-        }
+        public static void WriteColor(this NetworkWriter writer, Color value) => writer.WriteBlittable(value);
 
         public static void WriteColorNullable(this NetworkWriter writer, Color? value)
         {
@@ -471,13 +393,7 @@ namespace Mirror
                 writer.WriteColor(value.Value);
         }
 
-        public static void WriteColor32(this NetworkWriter writer, Color32 value)
-        {
-            writer.WriteByte(value.r);
-            writer.WriteByte(value.g);
-            writer.WriteByte(value.b);
-            writer.WriteByte(value.a);
-        }
+        public static void WriteColor32(this NetworkWriter writer, Color32 value) => writer.WriteBlittable(value);
 
         public static void WriteColor32Nullable(this NetworkWriter writer, Color32? value)
         {
@@ -486,13 +402,7 @@ namespace Mirror
                 writer.WriteColor32(value.Value);
         }
 
-        public static void WriteQuaternion(this NetworkWriter writer, Quaternion value)
-        {
-            writer.WriteFloat(value.x);
-            writer.WriteFloat(value.y);
-            writer.WriteFloat(value.z);
-            writer.WriteFloat(value.w);
-        }
+        public static void WriteQuaternion(this NetworkWriter writer, Quaternion value) => writer.WriteBlittable(value);
 
         public static void WriteQuaternionNullable(this NetworkWriter writer, Quaternion? value)
         {
@@ -501,13 +411,7 @@ namespace Mirror
                 writer.WriteQuaternion(value.Value);
         }
 
-        public static void WriteRect(this NetworkWriter writer, Rect value)
-        {
-            writer.WriteFloat(value.xMin);
-            writer.WriteFloat(value.yMin);
-            writer.WriteFloat(value.width);
-            writer.WriteFloat(value.height);
-        }
+        public static void WriteRect(this NetworkWriter writer, Rect value) => writer.WriteBlittable(value);
 
         public static void WriteRectNullable(this NetworkWriter writer, Rect? value)
         {
@@ -516,11 +420,7 @@ namespace Mirror
                 writer.WriteRect(value.Value);
         }
 
-        public static void WritePlane(this NetworkWriter writer, Plane value)
-        {
-            writer.WriteVector3(value.normal);
-            writer.WriteFloat(value.distance);
-        }
+        public static void WritePlane(this NetworkWriter writer, Plane value) => writer.WriteBlittable(value);
 
         public static void WritePlaneNullable(this NetworkWriter writer, Plane? value)
         {
@@ -529,11 +429,7 @@ namespace Mirror
                 writer.WritePlane(value.Value);
         }
 
-        public static void WriteRay(this NetworkWriter writer, Ray value)
-        {
-            writer.WriteVector3(value.origin);
-            writer.WriteVector3(value.direction);
-        }
+        public static void WriteRay(this NetworkWriter writer, Ray value) => writer.WriteBlittable(value);
 
         public static void WriteRayNullable(this NetworkWriter writer, Ray? value)
         {
@@ -542,25 +438,7 @@ namespace Mirror
                 writer.WriteRay(value.Value);
         }
 
-        public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value)
-        {
-            writer.WriteFloat(value.m00);
-            writer.WriteFloat(value.m01);
-            writer.WriteFloat(value.m02);
-            writer.WriteFloat(value.m03);
-            writer.WriteFloat(value.m10);
-            writer.WriteFloat(value.m11);
-            writer.WriteFloat(value.m12);
-            writer.WriteFloat(value.m13);
-            writer.WriteFloat(value.m20);
-            writer.WriteFloat(value.m21);
-            writer.WriteFloat(value.m22);
-            writer.WriteFloat(value.m23);
-            writer.WriteFloat(value.m30);
-            writer.WriteFloat(value.m31);
-            writer.WriteFloat(value.m32);
-            writer.WriteFloat(value.m33);
-        }
+        public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value) => writer.WriteBlittable(value);
 
         public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value)
         {
