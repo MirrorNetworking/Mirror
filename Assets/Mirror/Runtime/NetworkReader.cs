@@ -173,7 +173,8 @@ namespace Mirror
         public static sbyte ReadSByte(this NetworkReader reader) => reader.ReadBlittable<sbyte>();
         public static sbyte? ReadSByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadSByte(reader) : default(sbyte?);
 
-        public static char ReadChar(this NetworkReader reader) => reader.ReadBlittable<char>();
+        // bool is not blittable. read as ushort.
+        public static char ReadChar(this NetworkReader reader) => (char)reader.ReadBlittable<ushort>();
         public static char? ReadCharNullable(this NetworkReader reader) => reader.ReadBool() ? ReadChar(reader) : default(char?);
 
         // bool is not blittable. read as byte.

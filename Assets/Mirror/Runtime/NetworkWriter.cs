@@ -173,7 +173,8 @@ namespace Mirror
                 writer.WriteSByte(value.Value);
         }
 
-        public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteBlittable(value);
+        // char is not blittable. convert to ushort.
+        public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteBlittable((ushort)value);
 
         public static void WriteCharNullable(this NetworkWriter writer, char? value)
         {
