@@ -27,8 +27,8 @@ namespace Mirror
     // add custom channels anymore.
     public static class Channels
     {
-        public const int Reliable = 0;      // ordered
-        public const int Unreliable = 1;    // unordered
+        public const int Reliable = 0;   // ordered
+        public const int Unreliable = 1; // unordered
     }
 
     public static class Utils
