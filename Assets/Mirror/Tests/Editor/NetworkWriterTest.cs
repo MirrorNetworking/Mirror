@@ -35,6 +35,13 @@ namespace Mirror.Tests
         }
         */
 
+        // Write/ReadBlittable assumes same endianness on server & client.
+        [Test]
+        public void LittleEndianPlatform()
+        {
+            Assert.That(BitConverter.IsLittleEndian, Is.True);
+        }
+
         [Test]
         public void TestWritingSmallMessage()
         {
