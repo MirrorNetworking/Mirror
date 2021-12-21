@@ -100,7 +100,8 @@ namespace Mirror
             fixed (byte* ptr = &buffer.Array[buffer.Offset + Position])
             {
                 // cast buffer to a T* pointer and then read from it.
-                // TODO *(T*) failed on android before. consider PtrToStructure
+                // note: this failed on android before.
+                //       supposedly works with 2020.3 LTS though.
                 value = *(T*)ptr;
             }
             Position += size;

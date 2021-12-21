@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace Mirror
@@ -57,6 +58,65 @@ namespace Mirror
         public ArraySegment<byte> ToArraySegment()
         {
             return new ArraySegment<byte>(buffer, 0, Position);
+        }
+
+        // WriteBlittable<T> from DOTSNET.
+        // this is extremely fast, but only works for blittable types.
+        //
+        // Benchmark:
+        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Unity 2018 LTS (debug mode)
+        //
+        //                | Median |  Min  |  Max  |  Avg  |  Std  | (ms)
+        //     before     |  30.35 | 29.86 | 48.99 | 32.54 |  4.93 |
+        //     blittable* |   5.69 |  5.52 | 27.51 |  7.78 |  5.65 |
+        //
+        //     * without IsBlittable check
+        //     => 4-6x faster!
+        //
+        //   WriteQuaternion x 100k, Macbook Pro 2015 @ 2.2Ghz, Unity 2020.1 (release mode)
+        //
+        //                | Median |  Min  |  Max  |  Avg  |  Std  | (ms)
+        //     before     |   9.41 |  8.90 | 23.02 | 10.72 |  3.07 |
+        //     blittable* |   1.48 |  1.40 | 16.03 |  2.60 |  2.71 |
+        //
+        //     * without IsBlittable check
+        //     => 6x faster!
+        //
+        // Note:
+        //   WriteBlittable assumes same endianness for server & client.
+        //   All Unity 2018+ platforms are little endian.
+        //   => run NetworkWriterTests.BlittableOnThisPlatform() to verify!
+        public unsafe void WriteBlittable<T>(T value)
+            where T : unmanaged
+        {
+            // check if blittable for safety
+#if UNITY_EDITOR
+            if (!UnsafeUtility.IsBlittable(typeof(T)))
+            {
+                Debug.LogError(typeof(T) + " is not blittable!");
+                return;
+            }
+#endif
+            // calculate size
+            //   sizeof(T) gets the managed size at compile time.
+            //   Marshal.SizeOf<T> gets the unmanaged size at runtime (slow).
+            // => our 1mio writes benchmark is 6x slower with Marshal.SizeOf<T>
+            // => for blittable types, sizeof(T) is even recommended:
+            // https://docs.microsoft.com/en-us/dotnet/standard/native-interop/best-practices
+            int size = sizeof(T);
+
+            // ensure capacity
+            EnsureCapacity(Position + size);
+
+            // write blittable
+            fixed (byte* ptr = &buffer[Position])
+            {
+                // cast buffer to T* pointer, then assign value to the area
+                // note: this failed on android before.
+                //       supposedly works with 2020.3 LTS though.
+                *(T*)ptr = value;
+            }
+            Position += size;
         }
 
         public void WriteByte(byte value)
