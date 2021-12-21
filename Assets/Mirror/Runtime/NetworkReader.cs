@@ -70,7 +70,7 @@ namespace Mirror
         // Note:
         //   ReadBlittable assumes same endianness for server & client.
         //   All Unity 2018+ platforms are little endian.
-        unsafe T ReadBlittable<T>()
+        internal unsafe T ReadBlittable<T>()
             where T : unmanaged
         {
             // check if blittable for safety
@@ -108,14 +108,7 @@ namespace Mirror
             return value;
         }
 
-        public byte ReadByte()
-        {
-            if (Position + 1 > buffer.Count)
-            {
-                throw new EndOfStreamException($"ReadByte out of range:{ToString()}");
-            }
-            return buffer.Array[buffer.Offset + Position++];
-        }
+        public byte ReadByte() => ReadBlittable<byte>();
 
         /// <summary>Read 'count' bytes into the bytes array</summary>
         // TODO why does this also return bytes[]???
@@ -174,85 +167,44 @@ namespace Mirror
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
-        public static byte ReadByte(this NetworkReader reader) => reader.ReadByte();
+        public static byte ReadByte(this NetworkReader reader) => reader.ReadBlittable<byte>();
         public static byte? ReadByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadByte(reader) : default(byte?);
 
-        public static sbyte ReadSByte(this NetworkReader reader) => (sbyte)reader.ReadByte();
+        public static sbyte ReadSByte(this NetworkReader reader) => reader.ReadBlittable<sbyte>();
         public static sbyte? ReadSByteNullable(this NetworkReader reader) => reader.ReadBool() ? ReadSByte(reader) : default(sbyte?);
 
-        public static char ReadChar(this NetworkReader reader) => (char)reader.ReadUShort();
+        public static char ReadChar(this NetworkReader reader) => reader.ReadBlittable<char>();
         public static char? ReadCharNullable(this NetworkReader reader) => reader.ReadBool() ? ReadChar(reader) : default(char?);
 
-        public static bool ReadBool(this NetworkReader reader) => reader.ReadByte() != 0;
+        // bool is not blittable. read as byte.
+        public static bool ReadBool(this NetworkReader reader) => reader.ReadBlittable<byte>() != 0;
         public static bool? ReadBoolNullable(this NetworkReader reader) => reader.ReadBool() ? ReadBool(reader) : default(bool?);
 
         public static short ReadShort(this NetworkReader reader) => (short)reader.ReadUShort();
         public static short? ReadShortNullable(this NetworkReader reader) => reader.ReadBool() ? ReadShort(reader) : default(short?);
 
-        public static ushort ReadUShort(this NetworkReader reader)
-        {
-            ushort value = 0;
-            value |= reader.ReadByte();
-            value |= (ushort)(reader.ReadByte() << 8);
-            return value;
-        }
+        public static ushort ReadUShort(this NetworkReader reader) => reader.ReadBlittable<ushort>();
         public static ushort? ReadUShortNullable(this NetworkReader reader) => reader.ReadBool() ? ReadUShort(reader) : default(ushort?);
 
-        public static int ReadInt(this NetworkReader reader) => (int)reader.ReadUInt();
+        public static int ReadInt(this NetworkReader reader) => reader.ReadBlittable<int>();
         public static int? ReadIntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadInt(reader) : default(int?);
 
-        public static uint ReadUInt(this NetworkReader reader)
-        {
-            uint value = 0;
-            value |= reader.ReadByte();
-            value |= (uint)(reader.ReadByte() << 8);
-            value |= (uint)(reader.ReadByte() << 16);
-            value |= (uint)(reader.ReadByte() << 24);
-            return value;
-        }
+        public static uint ReadUInt(this NetworkReader reader) => reader.ReadBlittable<uint>();
         public static uint? ReadUIntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadUInt(reader) : default(uint?);
 
-        public static long ReadLong(this NetworkReader reader) => (long)reader.ReadULong();
+        public static long ReadLong(this NetworkReader reader) => reader.ReadBlittable<long>();
         public static long? ReadLongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadLong(reader) : default(long?);
 
-        public static ulong ReadULong(this NetworkReader reader)
-        {
-            ulong value = 0;
-            value |= reader.ReadByte();
-            value |= ((ulong)reader.ReadByte()) << 8;
-            value |= ((ulong)reader.ReadByte()) << 16;
-            value |= ((ulong)reader.ReadByte()) << 24;
-            value |= ((ulong)reader.ReadByte()) << 32;
-            value |= ((ulong)reader.ReadByte()) << 40;
-            value |= ((ulong)reader.ReadByte()) << 48;
-            value |= ((ulong)reader.ReadByte()) << 56;
-            return value;
-        }
+        public static ulong ReadULong(this NetworkReader reader) => reader.ReadBlittable<ulong>();
         public static ulong? ReadULongNullable(this NetworkReader reader) => reader.ReadBool() ? ReadULong(reader) : default(ulong?);
 
-        public static float ReadFloat(this NetworkReader reader)
-        {
-            UIntFloat converter = new UIntFloat();
-            converter.intValue = reader.ReadUInt();
-            return converter.floatValue;
-        }
+        public static float ReadFloat(this NetworkReader reader) => reader.ReadBlittable<float>();
         public static float? ReadFloatNullable(this NetworkReader reader) => reader.ReadBool() ? ReadFloat(reader) : default(float?);
 
-        public static double ReadDouble(this NetworkReader reader)
-        {
-            UIntDouble converter = new UIntDouble();
-            converter.longValue = reader.ReadULong();
-            return converter.doubleValue;
-        }
+        public static double ReadDouble(this NetworkReader reader) => reader.ReadBlittable<double>();
         public static double? ReadDoubleNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDouble(reader) : default(double?);
 
-        public static decimal ReadDecimal(this NetworkReader reader)
-        {
-            UIntDecimal converter = new UIntDecimal();
-            converter.longValue1 = reader.ReadULong();
-            converter.longValue2 = reader.ReadULong();
-            return converter.decimalValue;
-        }
+        public static decimal ReadDecimal(this NetworkReader reader) => reader.ReadBlittable<decimal>();
         public static decimal? ReadDecimalNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDecimal(reader) : default(decimal?);
 
         /// <exception cref="T:System.ArgumentException">if an invalid utf8 string is sent</exception>
@@ -306,61 +258,40 @@ namespace Mirror
             return count == 0 ? default : reader.ReadBytesSegment(checked((int)(count - 1u)));
         }
 
-        public static Vector2 ReadVector2(this NetworkReader reader) => new Vector2(reader.ReadFloat(), reader.ReadFloat());
+        public static Vector2 ReadVector2(this NetworkReader reader) => reader.ReadBlittable<Vector2>();
         public static Vector2? ReadVector2Nullable(this NetworkReader reader) => reader.ReadBool() ? ReadVector2(reader) : default(Vector2?);
 
-        public static Vector3 ReadVector3(this NetworkReader reader) => new Vector3(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat());
+        public static Vector3 ReadVector3(this NetworkReader reader) => reader.ReadBlittable<Vector3>();
         public static Vector3? ReadVector3Nullable(this NetworkReader reader) => reader.ReadBool() ? ReadVector3(reader) : default(Vector3?);
 
-        public static Vector4 ReadVector4(this NetworkReader reader) => new Vector4(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat());
+        public static Vector4 ReadVector4(this NetworkReader reader) => reader.ReadBlittable<Vector4>();
         public static Vector4? ReadVector4Nullable(this NetworkReader reader) => reader.ReadBool() ? ReadVector4(reader) : default(Vector4?);
 
-        public static Vector2Int ReadVector2Int(this NetworkReader reader) => new Vector2Int(reader.ReadInt(), reader.ReadInt());
+        public static Vector2Int ReadVector2Int(this NetworkReader reader) => reader.ReadBlittable<Vector2Int>();
         public static Vector2Int? ReadVector2IntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadVector2Int(reader) : default(Vector2Int?);
 
-        public static Vector3Int ReadVector3Int(this NetworkReader reader) => new Vector3Int(reader.ReadInt(), reader.ReadInt(), reader.ReadInt());
+        public static Vector3Int ReadVector3Int(this NetworkReader reader) => reader.ReadBlittable<Vector3Int>();
         public static Vector3Int? ReadVector3IntNullable(this NetworkReader reader) => reader.ReadBool() ? ReadVector3Int(reader) : default(Vector3Int?);
 
-        public static Color ReadColor(this NetworkReader reader) => new Color(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat());
+        public static Color ReadColor(this NetworkReader reader) => reader.ReadBlittable<Color>();
         public static Color? ReadColorNullable(this NetworkReader reader) => reader.ReadBool() ? new Color(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat()) : default(Color?);
 
-        public static Color32 ReadColor32(this NetworkReader reader) => new Color32(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+        public static Color32 ReadColor32(this NetworkReader reader) => reader.ReadBlittable<Color32>();
         public static Color32? ReadColor32Nullable(this NetworkReader reader) => reader.ReadBool() ? new Color32(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()) : default(Color32?);
 
-        public static Quaternion ReadQuaternion(this NetworkReader reader) => new Quaternion(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat());
+        public static Quaternion ReadQuaternion(this NetworkReader reader) => reader.ReadBlittable<Quaternion>();
         public static Quaternion? ReadQuaternionNullable(this NetworkReader reader) => reader.ReadBool() ? ReadQuaternion(reader) : default(Quaternion?);
 
-        public static Rect ReadRect(this NetworkReader reader) => new Rect(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat());
+        public static Rect ReadRect(this NetworkReader reader) => reader.ReadBlittable<Rect>();
         public static Rect? ReadRectNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRect(reader) : default(Rect?);
 
-        public static Plane ReadPlane(this NetworkReader reader) => new Plane(reader.ReadVector3(), reader.ReadFloat());
+        public static Plane ReadPlane(this NetworkReader reader) => reader.ReadBlittable<Plane>();
         public static Plane? ReadPlaneNullable(this NetworkReader reader) => reader.ReadBool() ? ReadPlane(reader) : default(Plane?);
 
-        public static Ray ReadRay(this NetworkReader reader) => new Ray(reader.ReadVector3(), reader.ReadVector3());
+        public static Ray ReadRay(this NetworkReader reader) => reader.ReadBlittable<Ray>();
         public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBool() ? ReadRay(reader) : default(Ray?);
 
-        public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader)
-        {
-            return new Matrix4x4
-            {
-                m00 = reader.ReadFloat(),
-                m01 = reader.ReadFloat(),
-                m02 = reader.ReadFloat(),
-                m03 = reader.ReadFloat(),
-                m10 = reader.ReadFloat(),
-                m11 = reader.ReadFloat(),
-                m12 = reader.ReadFloat(),
-                m13 = reader.ReadFloat(),
-                m20 = reader.ReadFloat(),
-                m21 = reader.ReadFloat(),
-                m22 = reader.ReadFloat(),
-                m23 = reader.ReadFloat(),
-                m30 = reader.ReadFloat(),
-                m31 = reader.ReadFloat(),
-                m32 = reader.ReadFloat(),
-                m33 = reader.ReadFloat()
-            };
-        }
+        public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader)=> reader.ReadBlittable<Matrix4x4>();
         public static Matrix4x4? ReadMatrix4x4Nullable(this NetworkReader reader) => reader.ReadBool() ? ReadMatrix4x4(reader) : default(Matrix4x4?);
 
         public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
