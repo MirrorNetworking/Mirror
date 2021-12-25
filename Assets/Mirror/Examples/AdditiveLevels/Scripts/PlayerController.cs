@@ -13,7 +13,7 @@ namespace Mirror.Examples.AdditiveLevels
         [Header("Movement Settings")]
         public float moveSpeed = 8f;
         public float turnSensitivity = 5f;
-        public float maxTurnSpeed = 150f;
+        public float maxTurnSpeed = 100f;
 
         [Header("Diagnostics")]
         public float horizontal;
@@ -34,26 +34,8 @@ namespace Mirror.Examples.AdditiveLevels
             GetComponent<NetworkTransform>().clientAuthority = true;
         }
 
-        void OnDisable()
-        {
-            if (isLocalPlayer && Camera.main != null)
-                Camera.main.transform.SetParent(null);
-        }
-
-        void OnDestroy()
-        {
-            if (isLocalPlayer && Camera.main != null)
-                Camera.main.transform.SetParent(null);
-        }
-
         public override void OnStartLocalPlayer()
         {
-            //Debug.Log("OnStartLocalPlayer");
-            Camera.main.orthographic = false;
-            Camera.main.transform.SetParent(transform);
-            Camera.main.transform.localPosition = new Vector3(0f, 3f, -8f);
-            Camera.main.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
-
             characterController.enabled = true;
         }
 
