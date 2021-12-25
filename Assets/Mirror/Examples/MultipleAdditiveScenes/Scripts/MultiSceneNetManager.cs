@@ -65,13 +65,13 @@ namespace Mirror.Examples.MultipleAdditiveScenes
             playerScore.scoreIndex = clientIndex / subScenes.Count;
             playerScore.matchIndex = clientIndex % subScenes.Count;
 
-            clientIndex++;
-
             // Do this only on server, not on clients
             // This is what allows the NetworkSceneChecker on player and scene objects
             // to isolate matches per scene instance on server.
             if (subScenes.Count > 0)
                 SceneManager.MoveGameObjectToScene(conn.identity.gameObject, subScenes[clientIndex % subScenes.Count]);
+
+            clientIndex++;
         }
 
         #endregion
