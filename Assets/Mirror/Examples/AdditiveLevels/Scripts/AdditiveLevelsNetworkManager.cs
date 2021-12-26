@@ -108,9 +108,8 @@ namespace Mirror.Examples.AdditiveLevels
                 yield return Resources.UnloadUnusedAssets();
             }
 
-            // Reset this to false when ready to proceed
+            // Reset these to false when ready to proceed
             NetworkClient.isLoadingScene = false;
-
             isInTransition = false;
 
             OnClientSceneChanged();
