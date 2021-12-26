@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,16 +17,23 @@ namespace Mirror.Examples.AdditiveLevels
         [Tooltip("Reference to child TMP label")]
         public TMPro.TextMeshPro label;
 
+        [SyncVar(hook = nameof(OnLabelTextChanged))]
+        public string labelText;
+
+        public void OnLabelTextChanged(string _, string newValue)
+        {
+            label.text = labelText;
+        }
+
         // This is approximately the fade time
         WaitForSeconds waitForFade = new WaitForSeconds(2f);
 
-        /// <summary>
-        /// Called on every NetworkBehaviour when it is activated on a client.
-        /// <para>Objects on the host have this function called, as there is a local client on the host. The values of SyncVars on object are guaranteed to be initialized correctly with the latest state from the server when this function is called on the client.</para>
-        /// </summary>
-        public override void OnStartClient()
+        public override void OnStartServer()
         {
-            label.text = System.IO.Path.GetFileNameWithoutExtension(destinationScene);
+            labelText = Path.GetFileNameWithoutExtension(destinationScene);
+
+            // Simple Regex to insert spaces before capitals, numbers
+            labelText = Regex.Replace(labelText, @"\B[A-Z0-9]+", " $0");
         }
 
         // Note that I have created layers called Player(8) and Portal(9) and set them
@@ -36,7 +45,7 @@ namespace Mirror.Examples.AdditiveLevels
 
             //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} Portal::OnTriggerEnter {gameObject.name} in {gameObject.scene.name}");
 
-            // applies to host client on server or remote client
+            // applies to host client on server and remote clients
             if (other.TryGetComponent<PlayerController>(out PlayerController playerController))
                 playerController.enabled = false;
 
