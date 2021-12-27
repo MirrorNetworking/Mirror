@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using Mirror;
+using UnityEngine.SceneManagement;
 
 // This sets up the scene camera for the local player
 
@@ -14,17 +14,6 @@ namespace Mirror.Examples.NetworkRoom
             mainCam = Camera.main;
         }
 
-        void OnDisable()
-        {
-            if (isLocalPlayer && mainCam != null)
-            {
-                mainCam.orthographic = true;
-                mainCam.transform.SetParent(null);
-                mainCam.transform.localPosition = new Vector3(0f, 70f, 0f);
-                mainCam.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
-            }
-        }
-
         public override void OnStartLocalPlayer()
         {
             if (mainCam != null)
@@ -34,6 +23,19 @@ namespace Mirror.Examples.NetworkRoom
                 mainCam.transform.SetParent(transform);
                 mainCam.transform.localPosition = new Vector3(0f, 3f, -8f);
                 mainCam.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
+            }
+        }
+
+        public override void OnStopClient()
+        {
+            if (isLocalPlayer && mainCam != null)
+            {
+                Debug.LogWarning("PlayerCamera:OnStopClient");
+                mainCam.transform.SetParent(null);
+                SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
+                mainCam.orthographic = true;
+                mainCam.transform.localPosition = new Vector3(0f, 70f, 0f);
+                mainCam.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             }
         }
     }
