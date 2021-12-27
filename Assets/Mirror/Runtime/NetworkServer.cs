@@ -850,14 +850,9 @@ namespace Mirror
         // calling SetClientReady().
         public static void SetClientNotReady(NetworkConnection conn)
         {
-            if (conn.isReady)
-            {
-                // Debug.Log($"PlayerNotReady {conn}");
-                conn.isReady = false;
-                conn.RemoveFromObservingsObservers();
-
-                conn.Send(new NotReadyMessage());
-            }
+            conn.isReady = false;
+            conn.RemoveFromObservingsObservers();
+            conn.Send(new NotReadyMessage());
         }
 
         /// <summary>Marks all connected clients as no longer ready.</summary>
