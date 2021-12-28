@@ -30,7 +30,6 @@ namespace Mirror.Examples.NetworkRoom
         {
             if (isLocalPlayer && mainCam != null)
             {
-                Debug.LogWarning("PlayerCamera:OnStopClient");
                 mainCam.transform.SetParent(null);
                 SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
                 mainCam.orthographic = true;
