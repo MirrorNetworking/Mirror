@@ -68,7 +68,7 @@ namespace Mirror.Examples.MultipleMatch
         public ToggleGroup toggleGroup;
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void ResetStatics()
         {
             playerMatches.Clear();

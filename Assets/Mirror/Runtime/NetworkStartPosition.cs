@@ -8,10 +8,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-start-position")]
     public class NetworkStartPosition : MonoBehaviour
     {
-        public void Start()
+        public void Awake()
         {
-            // Do this in Start, not Awake, so NetworkManager::ResetStatics
-            // doesn't wipe start positions out of the list.
             NetworkManager.RegisterStartPosition(transform);
         }
 

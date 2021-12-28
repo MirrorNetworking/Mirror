@@ -50,7 +50,7 @@ namespace Mirror
         public static Action OnLateUpdate;
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void ResetStatics()
         {
             OnEarlyUpdate = null;
@@ -158,7 +158,7 @@ namespace Mirror
         }
 
         // hook into Unity runtime to actually add our custom functions
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void RuntimeInitializeOnLoad()
         {
             //Debug.Log("Mirror: adding Network[Early/Late]Update to Unity...");

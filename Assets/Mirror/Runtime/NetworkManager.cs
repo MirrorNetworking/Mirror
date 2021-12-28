@@ -188,7 +188,7 @@ namespace Mirror
             // Don't allow collision-destroyed second instance to continue.
             if (!InitializeSingleton()) return;
 
-            Debug.Log("Mirror | mirror-networking.com | discord.gg/N9QVxbM");
+            Debug.LogWarning("Mirror | mirror-networking.com | discord.gg/N9QVxbM");
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
@@ -713,9 +713,11 @@ namespace Mirror
 
         // This is the only way to clear the singleton, so another instance can be created.
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void ResetStatics()
         {
+            Debug.Log("Resetting Statics");
+
             // call StopHost if we have a singleton
             if (singleton)
                 singleton.StopHost();

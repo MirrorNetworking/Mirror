@@ -157,7 +157,7 @@ namespace Mirror
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Shutdown()
         {
             if (initialized)
