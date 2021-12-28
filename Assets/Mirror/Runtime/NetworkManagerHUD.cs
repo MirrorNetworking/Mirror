@@ -11,15 +11,8 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-manager-hud")]
     public class NetworkManagerHUD : MonoBehaviour
     {
-        NetworkManager manager;
-
         public int offsetX;
         public int offsetY;
-
-        void Awake()
-        {
-            manager = GetComponent<NetworkManager>();
-        }
 
         void OnGUI()
         {
@@ -60,7 +53,7 @@ namespace Mirror
                 {
                     if (GUILayout.Button("Host (Server + Client)"))
                     {
-                        manager.StartHost();
+                        NetworkManager.singleton.StartHost();
                     }
                 }
 
@@ -68,10 +61,10 @@ namespace Mirror
                 GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Client"))
                 {
-                    manager.StartClient();
+                    NetworkManager.singleton.StartClient();
                 }
                 // This updates networkAddress every frame from the TextField
-                manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                NetworkManager.singleton.networkAddress = GUILayout.TextField(NetworkManager.singleton.networkAddress);
                 GUILayout.EndHorizontal();
 
                 // Server Only
@@ -82,16 +75,16 @@ namespace Mirror
                 }
                 else
                 {
-                    if (GUILayout.Button("Server Only")) manager.StartServer();
+                    if (GUILayout.Button("Server Only")) NetworkManager.singleton.StartServer();
                 }
             }
             else
             {
                 // Connecting
-                GUILayout.Label($"Connecting to {manager.networkAddress}..");
+                GUILayout.Label($"Connecting to {NetworkManager.singleton.networkAddress}..");
                 if (GUILayout.Button("Cancel Connection Attempt"))
                 {
-                    manager.StopClient();
+                    NetworkManager.singleton.StopClient();
                 }
             }
         }
@@ -114,7 +107,7 @@ namespace Mirror
             // client only
             else if (NetworkClient.isConnected)
             {
-                GUILayout.Label($"<b>Client</b>: connected to {manager.networkAddress} via {Transport.activeTransport}");
+                GUILayout.Label($"<b>Client</b>: connected to {NetworkManager.singleton.networkAddress} via {Transport.activeTransport}");
             }
         }
 
@@ -125,7 +118,7 @@ namespace Mirror
             {
                 if (GUILayout.Button("Stop Host"))
                 {
-                    manager.StopHost();
+                    NetworkManager.singleton.StopHost();
                 }
             }
             // stop client if client-only
@@ -133,7 +126,7 @@ namespace Mirror
             {
                 if (GUILayout.Button("Stop Client"))
                 {
-                    manager.StopClient();
+                    NetworkManager.singleton.StopClient();
                 }
             }
             // stop server if server-only
@@ -141,7 +134,7 @@ namespace Mirror
             {
                 if (GUILayout.Button("Stop Server"))
                 {
-                    manager.StopServer();
+                    NetworkManager.singleton.StopServer();
                 }
             }
         }
