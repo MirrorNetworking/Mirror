@@ -10,7 +10,8 @@ namespace Mirror
     public abstract class InterestManagement : MonoBehaviour
     {
         // Awake configures InterestManagement in NetworkServer/Client
-        [ServerCallback]
+        // Do NOT check for active server or client here.
+        // Awake must always set the static aoi references.
         void Awake()
         {
             if (NetworkServer.aoi == null)
