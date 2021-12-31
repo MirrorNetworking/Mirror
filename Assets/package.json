@@ -1,11 +1,11 @@
 {
-    "name": "com.veriorpies.parrelsync",
+    "name": "com.vis2k.mirror",
     "displayName": "Mirror",
     "version": "55.3.8",
-    "unity": "2019.4.28",
+    "unity": "2019.4",
     "description": "Mirror is a high level Networking library for Unity 2019/2020 LTS, compatible with different low level Transports.",
     "license": "MIT",
-	"keywords": [ "Networking", "Editor" ],
+	"keywords": [ "Networking" ],
     "dependencies": {
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
