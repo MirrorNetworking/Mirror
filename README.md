@@ -50,6 +50,21 @@ Get **Unity 2019 LTS**, download [Mirror on the Asset Store](https://assetstore.
 
 Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn how it all works.
 
+### Installing using UPM
+Mirror can also be installed using UPM.
+You can install Mirror by adding the following to Package Manager.
+```
+https://github.com/vis2k/Mirror.git?path=/Assets
+```
+![upm_install_git](https://raw.githubusercontent.com/VeriorPies/ParrelSync/master/Images/UPM_1.png)
+![install_mirror_upm](https://user-images.githubusercontent.com/43488179/147811434-054fa8d6-31bd-468d-ad4d-e77a0e3f19b8.png)
+or by adding
+```
+"com.vis2k.mirror": "https://github.com/vis2k/Mirror.git?path=/Assets"
+```
+to the `Packages/manifest.json` file
+
+### Migration from UNET
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.gitbook.io/docs/general/migration-guide).
 
 ## Made with Mirror
