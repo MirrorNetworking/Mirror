@@ -96,6 +96,7 @@ namespace Mirror
             }
 
             // read blittable
+
             T value;
             fixed (byte* ptr = &buffer.Array[buffer.Offset + Position])
             {
