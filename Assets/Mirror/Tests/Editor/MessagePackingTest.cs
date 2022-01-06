@@ -1,5 +1,8 @@
 using System;
+using Mirror.Tests.MessageTests;
 using NUnit.Framework;
+using UnityEngine;
+
 namespace Mirror.Tests
 {
     [TestFixture]
@@ -32,6 +35,16 @@ namespace Mirror.Tests
 
                 return networkReader.Read<T>();
             }
+        }
+
+        // message id is generated from message.FullName.
+        // should be consistent across all platforms.
+        [Test]
+        public void GetId()
+        {
+            // "Mirror.Tests.MessageTests.TestMessage"
+            Debug.Log(typeof(TestMessage).FullName);
+            Assert.That(MessagePacking.GetId<TestMessage>(), Is.EqualTo(0x8706));
         }
 
         [Test]
