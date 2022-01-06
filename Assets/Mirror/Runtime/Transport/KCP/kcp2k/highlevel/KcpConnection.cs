@@ -20,12 +20,6 @@ namespace kcp2k
         public Action<ArraySegment<byte>, KcpChannel> OnData;
         public Action OnDisconnected;
 
-        // Mirror needs a way to stop the kcp message processing while loop
-        // immediately after a scene change message. Mirror can't process any
-        // other messages during a scene change.
-        // (could be useful for others too)
-        bool paused;
-
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
         public const int DEFAULT_TIMEOUT = 10000;
@@ -315,19 +309,7 @@ namespace kcp2k
             HandleChoked();
 
             // process all received messages
-            //
-            // Mirror scene changing requires transports to immediately stop
-            // processing any more messages after a scene message was
-            // received. and since we are in a while loop here, we need this
-            // extra check.
-            //
-            // note while that this is mainly for Mirror, but might be
-            // useful in other applications too.
-            //
-            // note that we check it BEFORE ever calling ReceiveNext. otherwise
-            // we would silently eat the received message and never process it.
-            while (!paused &&
-                   ReceiveNextReliable(out KcpHeader header, out ArraySegment<byte> message))
+            while (ReceiveNextReliable(out KcpHeader header, out ArraySegment<byte> message))
             {
                 // message type FSM. no default so we never miss a case.
                 switch (header)
@@ -499,15 +481,8 @@ namespace kcp2k
                         //    the current state allows it.
                         if (state == KcpState.Authenticated)
                         {
-                            // only process messages while not paused for Mirror
-                            // scene switching etc.
-                            // -> if an unreliable message comes in while
-                            //    paused, simply drop it. it's unreliable!
-                            if (!paused)
-                            {
-                                ArraySegment<byte> message = new ArraySegment<byte>(buffer, 1, msgLength - 1);
-                                OnData?.Invoke(message, KcpChannel.Unreliable);
-                            }
+                            ArraySegment<byte> message = new ArraySegment<byte>(buffer, 1, msgLength - 1);
+                            OnData?.Invoke(message, KcpChannel.Unreliable);
 
                             // set last receive time to avoid timeout.
                             // -> we do this in ANY case even if not enabled.
@@ -578,7 +553,7 @@ namespace kcp2k
             {
                 // copy channel header, data into raw send buffer, then send
                 rawSendBuffer[0] = (byte)KcpChannel.Unreliable;
-                Buffer.BlockCopy(message.Array, 0, rawSendBuffer, 1, message.Count);
+                Buffer.BlockCopy(message.Array, message.Offset, rawSendBuffer, 1, message.Count);
                 RawSend(rawSendBuffer, message.Count + 1);
             }
             // otherwise content is larger than MaxMessageSize. let user know!
@@ -668,24 +643,5 @@ namespace kcp2k
 
         // get remote endpoint
         public EndPoint GetRemoteEndPoint() => remoteEndPoint;
-
-        // pause/unpause to safely support mirror scene handling and to
-        // immediately pause the receive while loop if needed.
-        public void Pause() => paused = true;
-        public void Unpause()
-        {
-            // unpause
-            paused = false;
-
-            // reset the timeout.
-            // we have likely been paused for > timeout seconds, but that
-            // doesn't mean we should disconnect. for example, Mirror pauses
-            // kcp during scene changes which could easily take > 10s timeout:
-            //   see also: https://github.com/vis2k/kcp2k/issues/8
-            // => Unpause completely resets the timeout instead of restoring the
-            //    time difference when we started pausing. it's more simple and
-            //    it's a good idea to start counting from 0 after we unpaused!
-            lastReceiveTime = (uint)refTime.ElapsedMilliseconds;
-        }
     }
 }

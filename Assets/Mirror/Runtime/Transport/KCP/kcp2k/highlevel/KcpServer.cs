@@ -323,19 +323,5 @@ namespace kcp2k
             socket?.Close();
             socket = null;
         }
-
-        // pause/unpause to safely support mirror scene handling and to
-        // immediately pause the receive while loop if needed.
-        public void Pause()
-        {
-            foreach (KcpServerConnection connection in connections.Values)
-                connection.Pause();
-        }
-
-        public void Unpause()
-        {
-            foreach (KcpServerConnection connection in connections.Values)
-                connection.Unpause();
-        }
     }
 }

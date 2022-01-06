@@ -111,10 +111,5 @@ namespace kcp2k
             TickIncoming();
             TickOutgoing();
         }
-
-        // pause/unpause to safely support mirror scene handling and to
-        // immediately pause the receive while loop if needed.
-        public void Pause() => connection?.Pause();
-        public void Unpause() => connection?.Unpause();
     }
 }

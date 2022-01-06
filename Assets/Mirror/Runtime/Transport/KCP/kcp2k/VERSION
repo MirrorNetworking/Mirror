@@ -1,3 +1,8 @@
+V1.16 [2022-01-06]
+- fix: SendUnreliable respects ArraySegment.Offset
+- fix: potential bug with negative length (see PR #2)
+- breaking: removed pause handling because it's not necessary for Mirror anymore
+
 V1.15 [2021-12-11]
 - feature: feature: MaxRetransmits aka dead_link now configurable
 - dead_link disconnect message improved to show exact retransmit count

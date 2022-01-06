@@ -162,34 +162,13 @@ namespace kcp2k
         // process incoming in early update
         public override void ClientEarlyUpdate()
         {
-            // scene change messages disable transports to stop them from
-            // processing while changing the scene.
-            // -> we need to check enabled here
-            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // only process messages while transport is enabled.
+            // scene change messsages disable it to stop processing.
             // (see also: https://github.com/vis2k/Mirror/pull/379)
             if (enabled) client.TickIncoming();
         }
         // process outgoing in late update
         public override void ClientLateUpdate() => client.TickOutgoing();
-
-        // scene change message will disable transports.
-        // kcp processes messages in an internal loop which should be
-        // stopped immediately after scene change (= after disabled)
-        // => kcp has tests to guaranteed that calling .Pause() during the
-        //    receive loop stops the receive loop immediately, not after.
-        void OnEnable()
-        {
-            // unpause when enabled again
-            client?.Unpause();
-            server?.Unpause();
-        }
-
-        void OnDisable()
-        {
-            // pause immediately when not enabled anymore
-            client?.Pause();
-            server?.Pause();
-        }
 
         // server
         public override Uri ServerUri()
@@ -211,10 +190,8 @@ namespace kcp2k
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()
         {
-            // scene change messages disable transports to stop them from
-            // processing while changing the scene.
-            // -> we need to check enabled here
-            // -> and in kcp's internal loops, see Awake() OnCheckEnabled setup!
+            // only process messages while transport is enabled.
+            // scene change messsages disable it to stop processing.
             // (see also: https://github.com/vis2k/Mirror/pull/379)
             if (enabled) server.TickIncoming();
         }

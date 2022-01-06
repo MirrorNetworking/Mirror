@@ -17,6 +17,7 @@ namespace kcp2k
         {
             try
             {
+                // NOTE: dns lookup is blocking. this can take a second.
                 addresses = Dns.GetHostAddresses(hostname);
                 return addresses.Length >= 1;
             }
