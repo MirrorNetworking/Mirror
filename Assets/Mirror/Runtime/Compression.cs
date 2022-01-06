@@ -296,7 +296,7 @@ namespace Mirror
             }
 
             byte a1 = reader.ReadByte();
-            if (a0 >= 241 && a0 <= 248)
+            if (a0 <= 248)
             {
                 return 240 + ((a0 - (ulong)241) << 8) + a1;
             }
