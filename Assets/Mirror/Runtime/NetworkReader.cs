@@ -110,7 +110,7 @@ namespace Mirror
 
         // blittable'?' template for code reuse
         // note: bool isn't blittable. need to read as byte.
-        internal unsafe T? ReadBlittableNullable<T>()
+        internal T? ReadBlittableNullable<T>()
             where T : unmanaged =>
                 ReadByte() != 0 ? ReadBlittable<T>() : default(T?);
 
