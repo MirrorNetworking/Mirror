@@ -93,7 +93,7 @@ namespace Mirror
 #if UNITY_EDITOR
             if (!UnsafeUtility.IsBlittable(typeof(T)))
             {
-                Debug.LogError(typeof(T) + " is not blittable!");
+                Debug.LogError($"{typeof(T)} is not blittable!");
                 return;
             }
 #endif

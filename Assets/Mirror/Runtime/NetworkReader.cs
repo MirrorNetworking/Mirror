@@ -77,7 +77,7 @@ namespace Mirror
 #if UNITY_EDITOR
             if (!UnsafeUtility.IsBlittable(typeof(T)))
             {
-                throw new ArgumentException(typeof(T) + " is not blittable!");
+                throw new ArgumentException($"{typeof(T)} is not blittable!");
             }
 #endif
 
