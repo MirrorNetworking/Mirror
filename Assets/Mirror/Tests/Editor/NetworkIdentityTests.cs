@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
@@ -168,32 +167,6 @@ namespace Mirror.Tests
             value = reader.ReadInt();
         }
     }
-
-#pragma warning disable 618
-    class RebuildObserversNetworkBehaviour : NetworkVisibility
-    {
-        public NetworkConnection observer;
-        public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-        public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize)
-        {
-            observers.Add(observer);
-        }
-        public override void OnSetHostVisibility(bool visible) {}
-    }
-
-    class RebuildEmptyObserversNetworkBehaviour : NetworkVisibility
-    {
-        public override bool OnCheckObserver(NetworkConnection conn) { return true; }
-        public override void OnRebuildObservers(HashSet<NetworkConnection> observers, bool initialize) {}
-        public int hostVisibilityCalled;
-        public bool hostVisibilityValue;
-        public override void OnSetHostVisibility(bool visible)
-        {
-            ++hostVisibilityCalled;
-            hostVisibilityValue = visible;
-        }
-    }
-#pragma warning restore 618
 
     class IsClientServerCheckComponent : NetworkBehaviour
     {

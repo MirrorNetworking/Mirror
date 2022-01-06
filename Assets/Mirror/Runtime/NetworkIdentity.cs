@@ -162,11 +162,6 @@ namespace Mirror
         // get all NetworkBehaviour components
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
 
-#pragma warning disable 618
-        [Obsolete("Network Visibility has been deprecated. Use Global Interest Management instead.")]
-        public NetworkVisibility visibility { get; private set; }
-#pragma warning restore 618
-
         // current visibility
         //
         // Default = use interest management
@@ -326,11 +321,6 @@ namespace Mirror
             // no one can overwrite it because NetworkIdentity is sealed.
             // => doing it here is the fastest and easiest solution.
             InitializeNetworkBehaviours();
-
-            // initialize visibility component. only call GetComponent once.
-#pragma warning disable 618
-            visibility = GetComponent<NetworkVisibility>();
-#pragma warning restore 618
 
             if (hasSpawned)
             {

@@ -1198,12 +1198,7 @@ namespace Mirror
             if (spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
                 localObject != null)
             {
-                // obsolete legacy system support (for now)
-#pragma warning disable 618
-                if (localObject.visibility != null)
-                    localObject.visibility.OnSetHostVisibility(false);
-#pragma warning restore 618
-                else if (aoi != null)
+                if (aoi != null)
                     aoi.SetHostVisibility(localObject, false);
             }
         }
@@ -1224,12 +1219,7 @@ namespace Mirror
                 localObject.NotifyAuthority();
                 localObject.OnStartClient();
 
-                // obsolete legacy system support (for now)
-#pragma warning disable 618
-                if (localObject.visibility != null)
-                    localObject.visibility.OnSetHostVisibility(true);
-#pragma warning restore 618
-                else if (aoi != null)
+                if (aoi != null)
                     aoi.SetHostVisibility(localObject, true);
 
                 CheckForLocalPlayer(localObject);

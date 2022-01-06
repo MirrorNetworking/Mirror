@@ -1236,17 +1236,8 @@ namespace Mirror
                     // default: legacy system / new system / no system support
                     else if (identity.visible == Visibility.Default)
                     {
-                        // legacy system
-#pragma warning disable 618
-                        if (identity.visibility != null)
-                        {
-                            // call OnCheckObserver
-                            if (identity.visibility.OnCheckObserver(conn))
-                                identity.AddObserver(conn);
-                        }
-#pragma warning restore 618
-                        // new system
-                        else if (aoi != null)
+                        // aoi system
+                        if (aoi != null)
                         {
                             // call OnCheckObserver
                             if (aoi.OnCheckObserver(identity, conn))
@@ -1428,13 +1419,7 @@ namespace Mirror
             // not force hidden?
             if (identity.visible != Visibility.ForceHidden)
             {
-                // obsolete legacy system support (for now)
-#pragma warning disable 618
-                if (identity.visibility != null)
-                    identity.visibility.OnRebuildObservers(newObservers, initialize);
-#pragma warning restore 618
-                else
-                    aoi.OnRebuildObservers(identity, newObservers, initialize);
+                aoi.OnRebuildObservers(identity, newObservers, initialize);
             }
 
             // IMPORTANT: AFTER rebuilding add own player connection in any case
@@ -1516,12 +1501,7 @@ namespace Mirror
             {
                 if (!newObservers.Contains(localConnection))
                 {
-                    // obsolete legacy system support (for now)
-#pragma warning disable 618
-                    if (identity.visibility != null)
-                        identity.visibility.OnSetHostVisibility(false);
-#pragma warning restore 618
-                    else if (aoi != null)
+                    if (aoi != null)
                         aoi.SetHostVisibility(identity, false);
                 }
             }
@@ -1548,22 +1528,9 @@ namespace Mirror
             if (identity.observers == null)
                 return;
 
-            // legacy proximitychecker support:
-            // make sure user doesn't use both new and old system.
-#pragma warning disable 618
-            if (aoi != null & identity.visibility != null)
-            {
-                Debug.LogError($"RebuildObservers: {identity.name} has {identity.visibility.GetType()} component but there is also a global {aoi.GetType()} component. Can't use both systems at the same time!");
-                return;
-            }
-#pragma warning restore 618
-
             // if there is no interest management system,
             // or if 'force shown' then add all connections
-#pragma warning disable 618
-            if ((aoi == null && identity.visibility == null) ||
-                identity.visible == Visibility.ForceShown)
-#pragma warning restore 618
+            if (aoi == null || identity.visible == Visibility.ForceShown)
             {
                 RebuildObserversDefault(identity, initialize);
             }
