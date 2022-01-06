@@ -42,24 +42,6 @@ namespace Mirror.Weaver
             return null;
         }
 
-        public static MethodReference TryResolveMethodInParents(TypeReference tr, AssemblyDefinition assembly, string name)
-        {
-            if (tr == null)
-            {
-                return null;
-            }
-            foreach (MethodDefinition methodRef in tr.Resolve().Methods)
-            {
-                if (methodRef.Name == name)
-                {
-                    return assembly.MainModule.ImportReference(methodRef);
-                }
-            }
-
-            // Could not find the method in this class,  try the parent
-            return TryResolveMethodInParents(tr.Resolve().BaseType, assembly, name);
-        }
-
         public static MethodDefinition ResolveDefaultPublicCtor(TypeReference variable)
         {
             foreach (MethodDefinition methodRef in variable.Resolve().Methods)
@@ -69,18 +51,6 @@ namespace Mirror.Weaver
                     methodRef.Parameters.Count == 0)
                 {
                     return methodRef;
-                }
-            }
-            return null;
-        }
-
-        public static MethodReference ResolveProperty(TypeReference tr, AssemblyDefinition assembly, string name)
-        {
-            foreach (PropertyDefinition pd in tr.Resolve().Properties)
-            {
-                if (pd.Name == name)
-                {
-                    return assembly.MainModule.ImportReference(pd.GetMethod);
                 }
             }
             return null;

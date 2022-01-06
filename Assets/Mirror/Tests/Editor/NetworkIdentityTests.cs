@@ -880,9 +880,9 @@ namespace Mirror.Tests
             compA.syncInterval = 0;
             compB.syncInterval = Mathf.Infinity;
 
-            // set components dirty bits
-            compA.SetSyncVarDirtyBit(0x0001);
-            compB.SetSyncVarDirtyBit(0x1001);
+            // set user dirty
+            compA.SetDirty(true);
+            compB.SetDirty(true);
             // dirty because interval reached and mask != 0
             Assert.That(compA.IsDirty(), Is.True);
             // not dirty because syncinterval not reached
@@ -913,8 +913,8 @@ namespace Mirror.Tests
             compB.syncInterval = Mathf.Infinity;
 
             // set components dirty bits
-            compA.SetSyncVarDirtyBit(0x0001);
-            compB.SetSyncVarDirtyBit(0x1001);
+            compA.SetDirty(true);
+            compB.SetDirty(true);
             // dirty because interval reached and mask != 0
             Assert.That(compA.IsDirty(), Is.True);
             // not dirty because syncinterval not reached

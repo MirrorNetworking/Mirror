@@ -18,6 +18,10 @@ namespace Mirror
             }
         }
 
+        // remove suffix if possible. otherwise return original string.
+        public static string RemoveFromEnd(this string text, string suffix) =>
+            text.EndsWith(suffix) ? text.Substring(0, text.Length - suffix.Length) : text;
+
         // previously in DotnetCompatibility.cs
         // leftover from the UNET days. supposedly for windows store?
         internal static string GetMethodName(this Delegate func)

@@ -26,28 +26,28 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsGenericParam()
         {
+            HasError("Cannot generate reader for generic variable MySyncVar`1. Use a supported type or provide a custom reader",
+                "WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam/MySyncVar`1<System.Int32>");
             HasError("Cannot generate writer for generic type MySyncVar`1. Use a supported type or provide a custom writer",
                 "WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam/MySyncVar`1<System.Int32>");
-            HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
-                "WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam/MySyncVar`1<System.Int32> WeaverSyncVarTests.SyncVarsGenericParam.SyncVarsGenericParam::invalidVar");
         }
 
         [Test]
         public void SyncVarsInterface()
         {
+            HasError("Cannot generate reader for interface IMySyncVar. Use a supported type or provide a custom reader",
+                "WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar");
             HasError("Cannot generate writer for interface IMySyncVar. Use a supported type or provide a custom writer",
                 "WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar");
-            HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
-                "WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface/IMySyncVar WeaverSyncVarTests.SyncVarsInterface.SyncVarsInterface::invalidVar");
         }
 
         [Test]
         public void SyncVarsUnityComponent()
         {
+            HasError("Cannot generate reader for component type TextMesh. Use a supported type or provide a custom reader",
+                "UnityEngine.TextMesh");
             HasError("Cannot generate writer for component type TextMesh. Use a supported type or provide a custom writer",
                 "UnityEngine.TextMesh");
-            HasError("invalidVar has unsupported type. Use a supported Mirror type instead",
-                "UnityEngine.TextMesh WeaverSyncVarTests.SyncVarsUnityComponent.SyncVarsUnityComponent::invalidVar");
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncVarsMoreThanMax()
         {
-            HasError("SyncVarsMoreThanMax has > 64 SyncVars. Consider refactoring your class into multiple components",
+            HasError("SyncVarsMoreThanMax has > 64 SyncObjects (SyncVars, SyncLists etc). Consider refactoring your class into multiple components",
                 "WeaverSyncVarTests.SyncVarsMoreThanMax.SyncVarsMoreThanMax");
         }
     }

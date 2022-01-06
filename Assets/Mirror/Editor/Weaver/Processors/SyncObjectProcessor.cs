@@ -10,7 +10,7 @@ namespace Mirror.Weaver
 
         // Finds SyncObjects fields in a type
         // Type should be a NetworkBehaviour
-        public static List<FieldDefinition> FindSyncObjectsFields(Writers writers, Readers readers, Logger Log, TypeDefinition td, ref bool WeavingFailed)
+        public static List<FieldDefinition> FindSyncObjectsFields(Writers writers, Readers readers, Dictionary<FieldDefinition, FieldDefinition> addedSyncVarTs, Logger Log, TypeDefinition td, ref bool WeavingFailed)
         {
             List<FieldDefinition> syncObjects = new List<FieldDefinition>();
 
@@ -37,7 +37,12 @@ namespace Mirror.Weaver
                     {
                         // just a warning for now.
                         // many people might still use non-readonly SyncObjects.
-                        Log.Warning($"{fd.Name} should have a 'readonly' keyword in front of the variable because {typeof(SyncObject)}s always need to be initialized by the Weaver.", fd);
+
+                        // TODO Weaver generated SyncVar<T> can't be readonly
+                        // because Inspector wouldn't show it. (#1368395)
+                        // => no need to warn for weaver generated for now.
+                        if (!addedSyncVarTs.ContainsKey(fd))
+                            Log.Warning($"{fd.Name} should have a 'readonly' keyword in front of the variable because {typeof(SyncObject)}s always need to be initialized by the Weaver.", fd);
 
                         // only log, but keep weaving. no need to break projects.
                         //WeavingFailed = true;
@@ -52,10 +57,9 @@ namespace Mirror.Weaver
             // SyncObjects dirty mask is 64 bit. can't sync more than 64.
             if (syncObjects.Count > 64)
             {
-                Log.Error($"{td.Name} has > {SyncObjectsLimit} SyncObjects (SyncLists etc). Consider refactoring your class into multiple components", td);
+                Log.Error($"{td.Name} has > {SyncObjectsLimit} SyncObjects (SyncVars, SyncLists etc). Consider refactoring your class into multiple components", td);
                 WeavingFailed = true;
             }
-
 
             return syncObjects;
         }

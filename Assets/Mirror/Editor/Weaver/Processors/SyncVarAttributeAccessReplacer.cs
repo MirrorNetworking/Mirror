@@ -2,6 +2,8 @@
 // is replaced with:
 // public int Networkhealth { get; set; } properties.
 // this class processes all access to 'health' and replaces it with 'Networkhealth'
+//
+// TODO try replacing with SyncVar<T>.Value directly later
 using System;
 using Mono.CecilX;
 using Mono.CecilX.Cil;

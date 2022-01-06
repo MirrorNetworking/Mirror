@@ -13,7 +13,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void SyncObjectsMoreThanMax()
         {
-            HasError("SyncObjectsMoreThanMax has > 64 SyncObjects (SyncLists etc). Consider refactoring your class into multiple components",
+            HasError("SyncObjectsMoreThanMax has > 64 SyncObjects (SyncVars, SyncLists etc). Consider refactoring your class into multiple components",
                 "WeaverSyncObjectsTest.SyncObjectsMoreThanMax.SyncObjectsMoreThanMax");
         }
 
