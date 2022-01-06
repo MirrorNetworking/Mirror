@@ -15,18 +15,5 @@ namespace Mirror.Weaver
         // getter functions that replace [SyncVar] member variable references. dict<field, replacement>
         public Dictionary<FieldDefinition, MethodDefinition> replacementGetterProperties =
             new Dictionary<FieldDefinition, MethodDefinition>();
-
-        // amount of SyncVars per class. dict<className, amount>
-        // necessary for SyncVar dirty bits, where inheriting classes start
-        // their dirty bits at base class SyncVar amount.
-        public Dictionary<string, int> numSyncVars = new Dictionary<string, int>();
-
-        public int GetSyncVarStart(string className) =>
-            numSyncVars.TryGetValue(className, out int value) ? value : 0;
-
-        public void SetNumSyncVars(string className, int num)
-        {
-            numSyncVars[className] = num;
-        }
     }
 }

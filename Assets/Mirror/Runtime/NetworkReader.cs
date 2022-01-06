@@ -449,21 +449,6 @@ namespace Mirror
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static NetworkBehaviour.NetworkBehaviourSyncVar ReadNetworkBehaviourSyncVar(this NetworkReader reader)
-        {
-            uint netId = reader.ReadUInt();
-            byte componentIndex = default;
-
-            // if netId is not 0, then index is also sent to read before returning
-            if (netId != 0)
-            {
-                componentIndex = reader.ReadByte();
-            }
-
-            return new NetworkBehaviour.NetworkBehaviourSyncVar(netId, componentIndex);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Transform ReadTransform(this NetworkReader reader)
         {
             // Don't use null propagation here as it could lead to MissingReferenceException

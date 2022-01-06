@@ -171,7 +171,9 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            Assert.That(clientObject.value, Is.EqualTo(serverValue));
         }
 
         [Test]
@@ -193,7 +195,9 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            Assert.That(clientObject.value, Is.EqualTo(serverValue));
         }
 
         [Test]
@@ -218,7 +222,9 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            Assert.That(clientObject.value, Is.EqualTo(serverValue));
         }
 
         [Test]
@@ -240,7 +246,9 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             bool written = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written);
-            Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientValue));
+            Assert.That(clientObject.value, Is.EqualTo(serverValue));
         }
 
         [Test]
@@ -272,7 +280,9 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             bool written1 = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written1);
-            Assert.That(clientObject.value, Is.EqualTo(clientBehaviour1));
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientBehaviour1));
+            Assert.That(clientObject.value, Is.EqualTo(serverBehaviour1));
 
             // check that behaviour 2 can be synced
             serverObject.value = serverBehaviour2;
@@ -280,7 +290,9 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             bool written2 = SyncToClient(serverObject, clientObject, initialState);
             Assert.IsTrue(written2);
-            Assert.That(clientObject.value, Is.EqualTo(clientBehaviour2));
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientBehaviour2));
+            Assert.That(clientObject.value, Is.EqualTo(serverBehaviour2));
         }
 
         [Test]
@@ -307,7 +319,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.IsTrue(written, "did not write");
 
             // remove identity from client, as if it walked out of range
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            // so remove from both.
             NetworkClient.spawned.Remove(clientIdentity.netId);
+            NetworkServer.spawned.Remove(serverIdentity.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -317,9 +332,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             // add identity back to collection, as if it walked back into range
             NetworkClient.spawned.Add(clientIdentity.netId, clientIdentity);
+            NetworkServer.spawned.Add(serverIdentity.netId, serverIdentity);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
+            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
         }
 
         [Test]
@@ -346,7 +364,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.IsTrue(written, "did not write");
 
             // remove identity from client, as if it walked out of range
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            // so remove from both.
             NetworkClient.spawned.Remove(clientValue.netId);
+            NetworkServer.spawned.Remove(serverValue.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -356,9 +377,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             // add identity back to collection, as if it walked back into range
             NetworkClient.spawned.Add(clientValue.netId, clientValue);
+            NetworkServer.spawned.Add(serverValue.netId, serverValue);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
+            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
         }
 
         [Test]
@@ -386,7 +410,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.IsTrue(written, "did not write");
 
             // remove identity from client, as if it walked out of range
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            // so remove from both.
             NetworkClient.spawned.Remove(clientIdentity.netId);
+            NetworkServer.spawned.Remove(serverIdentity.netId);
 
             // read client data, this should be cached in field
             ClientRead(clientObject, initialState, data, writeLength);
@@ -396,9 +423,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             // add identity back to collection, as if it walked back into range
             NetworkClient.spawned.Add(clientIdentity.netId, clientIdentity);
+            NetworkServer.spawned.Add(serverIdentity.netId, serverIdentity);
 
             // check field finds value
-            Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
+            // SyncVar<T> will look it up in server.spawned first because server is running.
+            //Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
+            Assert.That(clientObject.value, Is.EqualTo(serverValue), "fields should return serverValue");
         }
 
         [Test]

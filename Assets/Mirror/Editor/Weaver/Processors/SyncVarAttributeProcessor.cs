@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.CecilX;
@@ -11,15 +10,18 @@ namespace Mirror.Weaver
     // not static, because ILPostProcessor is multithreaded
     public class SyncVarAttributeProcessor
     {
-        // ulong = 64 bytes
-        const int SyncVarLimit = 64;
-
         AssemblyDefinition assembly;
         WeaverTypes weaverTypes;
         SyncVarAccessLists syncVarAccessLists;
         Logger Log;
 
-        string HookParameterMessage(string hookName, TypeReference ValueType) =>
+        // keep original name for now. less confusing in IL.
+        public const string OriginalSyncVarSuffix = "";
+
+        // add suffix to SyncVar<T>. SyncVarDrawer will exclude it.
+        public const string NewSyncVarTSuffix = "_generated";
+
+        static string HookParameterMessage(string hookName, TypeReference ValueType) =>
             $"void {hookName}({ValueType} oldValue, {ValueType} newValue)";
 
         public SyncVarAttributeProcessor(AssemblyDefinition assembly, WeaverTypes weaverTypes, SyncVarAccessLists syncVarAccessLists, Logger Log)
@@ -31,7 +33,7 @@ namespace Mirror.Weaver
         }
 
         // Get hook method if any
-        public MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, ref bool WeavingFailed)
+        public static MethodDefinition GetHookMethod(TypeDefinition td, FieldDefinition syncVar, Logger Log, ref bool WeavingFailed)
         {
             CustomAttribute syncVarAttr = syncVar.GetCustomAttribute<SyncVarAttribute>();
 
@@ -43,10 +45,10 @@ namespace Mirror.Weaver
             if (hookFunctionName == null)
                 return null;
 
-            return FindHookMethod(td, syncVar, hookFunctionName, ref WeavingFailed);
+            return FindHookMethod(td, syncVar, hookFunctionName, Log, ref WeavingFailed);
         }
 
-        MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName, ref bool WeavingFailed)
+        static MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName, Logger Log, ref bool WeavingFailed)
         {
             List<MethodDefinition> methods = td.GetMethods(hookFunctionName);
 
@@ -78,88 +80,45 @@ namespace Mirror.Weaver
             return null;
         }
 
-        bool MatchesParameters(FieldDefinition syncVar, MethodDefinition method)
+        static bool MatchesParameters(FieldDefinition syncVar, MethodDefinition method)
         {
             // matches void onValueChange(T oldValue, T newValue)
             return method.Parameters[0].ParameterType.FullName == syncVar.FieldType.FullName &&
                    method.Parameters[1].ParameterType.FullName == syncVar.FieldType.FullName;
         }
 
-        public MethodDefinition GenerateSyncVarGetter(FieldDefinition fd, string originalName, FieldDefinition netFieldId)
+        public MethodDefinition GenerateSyncVarGetter(FieldDefinition syncVarT, TypeReference syncVarT_ForValue, FieldDefinition originalSyncVar, string originalName)
         {
             //Create the get method
             MethodDefinition get = new MethodDefinition(
                 $"get_Network{originalName}", MethodAttributes.Public |
                                               MethodAttributes.SpecialName |
                                               MethodAttributes.HideBySig,
-                    fd.FieldType);
+                    originalSyncVar.FieldType);
 
             ILProcessor worker = get.Body.GetILProcessor();
 
-            // [SyncVar] GameObject?
-            if (fd.FieldType.Is<UnityEngine.GameObject>())
-            {
-                // return this.GetSyncVarGameObject(ref field, uint netId);
-                // this.
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, netFieldId);
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, fd);
-                worker.Emit(OpCodes.Call, weaverTypes.getSyncVarGameObjectReference);
-                worker.Emit(OpCodes.Ret);
-            }
-            // [SyncVar] NetworkIdentity?
-            else if (fd.FieldType.Is<NetworkIdentity>())
-            {
-                // return this.GetSyncVarNetworkIdentity(ref field, uint netId);
-                // this.
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, netFieldId);
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, fd);
-                worker.Emit(OpCodes.Call, weaverTypes.getSyncVarNetworkIdentityReference);
-                worker.Emit(OpCodes.Ret);
-            }
-            else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
-            {
-                // return this.GetSyncVarNetworkBehaviour<T>(ref field, uint netId);
-                // this.
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, netFieldId);
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, fd);
-                MethodReference getFunc = weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
-                worker.Emit(OpCodes.Call, getFunc);
-                worker.Emit(OpCodes.Ret);
-            }
-            // [SyncVar] int, string, etc.
-            else
-            {
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, fd);
-                worker.Emit(OpCodes.Ret);
-            }
+            // make generic instance for SyncVar<T>.Value getter
+            // so we have SyncVar<int>.Value etc.
+            MethodReference syncVarT_Value_Get_ForValue = GetSyncVarT_Value_Getter(originalSyncVar, syncVarT_ForValue, weaverTypes);
 
-            get.Body.Variables.Add(new VariableDefinition(fd.FieldType));
+            // push this.SyncVar<T>.Value on stack
+            // when doing it manually, this is the generated IL:
+            //   IL_0001: ldfld class [Mirror]Mirror.SyncVar`1<int32> Mirror.Examples.Tanks.Test::exampleT
+            //   IL_0006: callvirt instance !0 class [Mirror]Mirror.SyncVar`1<int32>::get_Value()
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldfld, syncVarT);
+            worker.Emit(OpCodes.Callvirt, syncVarT_Value_Get_ForValue);
+            worker.Emit(OpCodes.Ret);
+
+            get.Body.Variables.Add(new VariableDefinition(originalSyncVar.FieldType));
             get.Body.InitLocals = true;
             get.SemanticsAttributes = MethodSemanticsAttributes.Getter;
 
             return get;
         }
 
-        // for [SyncVar] health, weaver generates
-        //
-        //   NetworkHealth
-        //   {
-        //      get => health;
-        //      set => GeneratedSyncVarSetter(...)
-        //   }
-        //
-        // the setter used to be manually IL generated, but we moved it to C# :)
-        public MethodDefinition GenerateSyncVarSetter(TypeDefinition td, FieldDefinition fd, string originalName, long dirtyBit, FieldDefinition netFieldId, ref bool WeavingFailed)
+        public MethodDefinition GenerateSyncVarSetter(FieldDefinition syncVarT, TypeReference syncVarT_ForValue, FieldDefinition originalSyncVar, string originalName, ref bool WeavingFailed)
         {
             //Create the set method
             MethodDefinition set = new MethodDefinition($"set_Network{originalName}", MethodAttributes.Public |
@@ -169,140 +128,196 @@ namespace Mirror.Weaver
 
             ILProcessor worker = set.Body.GetILProcessor();
 
-            // if (!SyncVarEqual(value, ref playerData))
-            Instruction endOfMethod = worker.Create(OpCodes.Nop);
+            // make generic instance for SyncVar<T>.Value setter
+            // so we have SyncVar<int>.Value etc.
+            MethodReference syncVarT_Value_Set_ForValue = GetSyncVarT_Value_Setter(originalSyncVar, syncVarT_ForValue, weaverTypes);
 
-            // NOTE: SyncVar...Equal functions are static.
-            // don't Emit Ldarg_0 aka 'this'.
-
-            // call WeaverSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
+            // when doing this.SyncVar<T>.Value = ... manually, this is the
+            // generated IL:
             //   IL_0000: ldarg.0
-            //   IL_0001: ldarg.1
-            //   IL_0002: ldarg.0
-            //   IL_0003: ldflda int32 Mirror.Examples.Tanks.Tank::health
-            //   IL_0008: ldc.i4.1
-            //   IL_0009: conv.i8
-            //   IL_000a: ldnull
-            //   IL_000b: call instance void [Mirror]Mirror.NetworkBehaviour::GeneratedSyncVarSetter<int32>(!!0, !!0&, uint64, class [netstandard]System.Action`2<!!0, !!0>)
-            //   IL_0010: ret
-
-            // 'this.' for the call
-            worker.Emit(OpCodes.Ldarg_0);
-
-            // first push 'value'
-            worker.Emit(OpCodes.Ldarg_1);
-
-            // push 'ref T this.field'
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldflda, fd);
-
-            // push the dirty bit for this SyncVar
-            worker.Emit(OpCodes.Ldc_I8, dirtyBit);
-
-            // hook?
-            MethodDefinition hookMethod = GetHookMethod(td, fd, ref WeavingFailed);
-            if (hookMethod != null)
-            {
-                // IL_000a: ldarg.0
-                // IL_000b: ldftn instance void Mirror.Examples.Tanks.Tank::ExampleHook(int32, int32)
-                // IL_0011: newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
-
-                // this.
-                worker.Emit(OpCodes.Ldarg_0);
-
-                // the function
-                worker.Emit(OpCodes.Ldftn, hookMethod);
-
-                // call 'new Action<T,T>()' constructor to convert the function to an action
-                // we need to make an instance of the generic Action<T,T>.
-                //
-                // TODO this allocates a new 'Action' for every SyncVar hook call.
-                //      we should allocate it once and store it somewhere in the future.
-                //      hooks are only called on the client though, so it's not too bad for now.
-                TypeReference actionRef = assembly.MainModule.ImportReference(typeof(Action<,>));
-                GenericInstanceType genericInstance = actionRef.MakeGenericInstanceType(fd.FieldType, fd.FieldType);
-                worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
-            }
-            // pass 'null' as hook
-            else worker.Emit(OpCodes.Ldnull);
-
-            // call GeneratedSyncVarSetter<T>.
-            // special cases for GameObject/NetworkIdentity/NetworkBehaviour
-            // passing netId too for persistence.
-            if (fd.FieldType.Is<UnityEngine.GameObject>())
-            {
-                // GameObject setter needs one more parameter: netId field ref
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netFieldId);
-                worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_GameObject);
-            }
-            else if (fd.FieldType.Is<NetworkIdentity>())
-            {
-                // NetworkIdentity setter needs one more parameter: netId field ref
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netFieldId);
-                worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_NetworkIdentity);
-            }
-            // TODO this only uses the persistent netId for types DERIVED FROM NB.
-            //      not if the type is just 'NetworkBehaviour'.
-            //      this is what original implementation did too. fix it after.
-            else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
-            {
-                // NetworkIdentity setter needs one more parameter: netId field ref
-                // (actually its a NetworkBehaviourSyncVar type)
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netFieldId);
-                // make generic version of GeneratedSyncVarSetter_NetworkBehaviour<T>
-                MethodReference getFunc = weaverTypes.generatedSyncVarSetter_NetworkBehaviour_T.MakeGeneric(assembly.MainModule, fd.FieldType);
-                worker.Emit(OpCodes.Call, getFunc);
-            }
-            else
-            {
-                // make generic version of GeneratedSyncVarSetter<T>
-                MethodReference generic = weaverTypes.generatedSyncVarSetter.MakeGeneric(assembly.MainModule, fd.FieldType);
-                worker.Emit(OpCodes.Call, generic);
-            }
-
-            worker.Append(endOfMethod);
+            //   IL_0001: ldfld class [Mirror]Mirror.SyncVar`1<int32> Mirror.Examples.Tanks.Test::exampleT
+            //   IL_0006: ldarg.1
+            //   IL_0007: callvirt instance void class [Mirror]Mirror.SyncVar`1<int32>::set_Value(!0)
+            worker.Emit(OpCodes.Ldarg_0); // 'this.'
+            worker.Emit(OpCodes.Ldfld, syncVarT);
+            worker.Emit(OpCodes.Ldarg_1); // 'value' from setter
+            worker.Emit(OpCodes.Callvirt, syncVarT_Value_Set_ForValue);
 
             worker.Emit(OpCodes.Ret);
 
-            set.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.In, fd.FieldType));
+            set.Parameters.Add(new ParameterDefinition("value", ParameterAttributes.In, originalSyncVar.FieldType));
             set.SemanticsAttributes = MethodSemanticsAttributes.Setter;
 
             return set;
         }
 
-        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds, long dirtyBit, ref bool WeavingFailed)
+        // make SyncVar<T> instance for given type.
+        // with explicit replacements for SyncVarGameObject/NetworkIdentity/NetworkBehaviour
+        // for persistence through netId
+        public void CreateSyncVarT_Field(FieldDefinition originalField, WeaverTypes weaverTypes, out TypeReference typeReference, out FieldDefinition fieldDefinition)
+        {
+            // Weaver will show a warning that SyncObjects need to be 'readonly'
+            // so let's make it 'readonly'.
+
+            // copy original field's visibility.
+            // if original [SyncVar] is private, SyncVar<T> should be too.
+            // otherwise it would be shown in inspector.
+            // TODO Unity Inspector doesn't show 'readonly' fields in Inspector (#1368395)
+            // make it readonly again later.
+            //FieldAttributes fieldAttributes = originalField.Attributes | FieldAttributes.InitOnly;
+            FieldAttributes fieldAttributes = originalField.Attributes;
+
+            if (originalField.FieldType.Is<UnityEngine.GameObject>())
+            {
+                typeReference = weaverTypes.SyncVarT_GameObject_Type;
+                fieldDefinition = new FieldDefinition(originalField.Name + NewSyncVarTSuffix, fieldAttributes, typeReference);
+            }
+            else if (originalField.FieldType.Is<NetworkIdentity>())
+            {
+                typeReference = weaverTypes.SyncVarT_NetworkIdentity_Type;
+                fieldDefinition = new FieldDefinition(originalField.Name + NewSyncVarTSuffix, fieldAttributes, typeReference);
+            }
+            // SyncVarNetworkBehaviour<T> with explicit type for
+            // OnHook(Monster, Monster) instead of OnHook(NetworkBehaviour, NetworkBehaviour)
+            else if (originalField.FieldType.Is<NetworkBehaviour>() ||
+                     originalField.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            {
+                typeReference = weaverTypes.SyncVarT_NetworkBehaviour_Type.MakeGenericInstanceType(originalField.FieldType);
+                fieldDefinition = new FieldDefinition(originalField.Name + NewSyncVarTSuffix, fieldAttributes, typeReference);
+            }
+            // SyncVar<T>
+            else
+            {
+                // make a generic instance for SyncVar<originalField Type>
+                typeReference = weaverTypes.SyncVarT_Type.MakeGenericInstanceType(originalField.FieldType);
+                fieldDefinition = new FieldDefinition(originalField.Name + NewSyncVarTSuffix, fieldAttributes, typeReference);
+            }
+        }
+
+        // get SyncVar<T>.Value getter for given type.
+        // with explicit replacements for SyncVarGameObject/NetworkIdentity/NetworkBehaviour
+        // for persistence through netId
+        public MethodReference GetSyncVarT_Value_Getter(FieldDefinition originalField, TypeReference syncVarT_ForValue, WeaverTypes weaverTypes)
+        {
+            if (originalField.FieldType.Is<UnityEngine.GameObject>())
+            {
+                return weaverTypes.SyncVarT_GameObject_Value_Get_Reference;
+            }
+            else if (originalField.FieldType.Is<NetworkIdentity>())
+            {
+                return weaverTypes.SyncVarT_NetworkIdentity_Value_Get_Reference;
+            }
+            // SyncVarNetworkBehaviour<T> with explicit type for
+            // OnHook(Monster, Monster) instead of OnHook(NetworkBehaviour, NetworkBehaviour)
+            else if (originalField.FieldType.Is<NetworkBehaviour>() ||
+                     originalField.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            {
+                // make a generic instance for SyncVarNetworkBehaviour<originalField Type>.Value.get
+                GenericInstanceType syncVarNetworkBehaviour_Value_GenericInstanceType = (GenericInstanceType)syncVarT_ForValue;
+                return weaverTypes.SyncVarT_NetworkBehaviour_Value_Get_Reference.MakeHostInstanceGeneric(assembly.MainModule, syncVarNetworkBehaviour_Value_GenericInstanceType);
+            }
+            // SyncVar<T>
+            else
+            {
+                // make a generic instance for SyncVar<originalField Type>.Value.get
+                GenericInstanceType syncVarT_Value_GenericInstanceType = (GenericInstanceType)syncVarT_ForValue;
+                return weaverTypes.SyncVarT_Value_Get_Reference.MakeHostInstanceGeneric(assembly.MainModule, syncVarT_Value_GenericInstanceType);
+            }
+        }
+
+        // get SyncVar<T>.Value setter for given type.
+        // with explicit replacements for SyncVarGameObject/NetworkIdentity/NetworkBehaviour
+        // for persistence through netId
+        public MethodReference GetSyncVarT_Value_Setter(FieldDefinition originalField, TypeReference syncVarT_ForValue, WeaverTypes weaverTypes)
+        {
+            if (originalField.FieldType.Is<UnityEngine.GameObject>())
+            {
+                return weaverTypes.SyncVarT_GameObject_Value_Set_Reference;
+            }
+            else if (originalField.FieldType.Is<NetworkIdentity>())
+            {
+                return weaverTypes.SyncVarT_NetworkIdentity_Value_Set_Reference;
+            }
+            // SyncVarNetworkBehaviour<T> with explicit type for
+            // OnHook(Monster, Monster) instead of OnHook(NetworkBehaviour, NetworkBehaviour)
+            else if (originalField.FieldType.Is<NetworkBehaviour>() ||
+                     originalField.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            {
+                // make a generic instance for SyncVarNetworkBehaviour<originalField Type>.Value.get
+                GenericInstanceType syncVarNetworkBehaviour_Value_GenericInstanceType = (GenericInstanceType)syncVarT_ForValue;
+                return weaverTypes.SyncVarT_NetworkBehaviour_Value_Set_Reference.MakeHostInstanceGeneric(assembly.MainModule, syncVarNetworkBehaviour_Value_GenericInstanceType);
+            }
+            // SyncVar<T>
+            else
+            {
+                // make a generic instance for SyncVar<originalField Type>.Value.get
+                GenericInstanceType syncVarT_Value_GenericInstanceType = (GenericInstanceType)syncVarT_ForValue;
+                return weaverTypes.SyncVarT_Value_Set_Reference.MakeHostInstanceGeneric(assembly.MainModule, syncVarT_Value_GenericInstanceType);
+            }
+        }
+
+        // get SyncVar<T> ctor for given type.
+        // with explicit replacements for SyncVarGameObject/NetworkIdentity/NetworkBehaviour
+        // for persistence through netId
+        public static MethodReference GetSyncVarT_Ctor(FieldDefinition originalField, ModuleDefinition module, WeaverTypes weaverTypes)
+        {
+            if (originalField.FieldType.Is<UnityEngine.GameObject>())
+            {
+                return weaverTypes.SyncVarT_GameObject_Constructor;
+            }
+            else if (originalField.FieldType.Is<NetworkIdentity>())
+            {
+                return weaverTypes.SyncVarT_NetworkIdentity_Constructor;
+            }
+            // SyncVarNetworkBehaviour<T> with explicit type for
+            // OnHook(Monster, Monster) instead of OnHook(NetworkBehaviour, NetworkBehaviour)
+            else if (originalField.FieldType.Is<NetworkBehaviour>() ||
+                     originalField.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            {
+                // make generic instance of SyncVarNetworkBehaviour<T> type for the type of 'value'
+                TypeReference syncVarNetworkBehaviour_ForValue = weaverTypes.SyncVarT_NetworkBehaviour_Type.MakeGenericInstanceType(originalField.FieldType);
+
+                // make generic ctor for SyncVar<T> for the target type SyncVar<T> with type of 'value'
+                GenericInstanceType syncVarT_GenericInstanceType = (GenericInstanceType)syncVarNetworkBehaviour_ForValue;
+                return weaverTypes.SyncVarT_NetworkBehaviour_Constructor.MakeHostInstanceGeneric(module, syncVarT_GenericInstanceType);
+            }
+            // SyncVar<T>
+            else
+            {
+                // make generic instance of SyncVar<T> type for the type of 'value'
+                TypeReference syncVarT_ForValue = weaverTypes.SyncVarT_Type.MakeGenericInstanceType(originalField.FieldType);
+
+                // make generic ctor for SyncVar<T> for the target type SyncVar<T> with type of 'value'
+                GenericInstanceType syncVarT_GenericInstanceType = (GenericInstanceType)syncVarT_ForValue;
+                return weaverTypes.SyncVarT_GenericConstructor.MakeHostInstanceGeneric(module, syncVarT_GenericInstanceType);
+            }
+        }
+
+        // ProcessSyncVar is called while iterating td.Fields.
+        // can't add to it while iterating.
+        // new SyncVar<T> fields are added to 'addedSyncVarTs' with
+        //   <SyncVar<T>, [SyncVar] original>
+        public void ProcessSyncVar(TypeDefinition td, FieldDefinition fd, Dictionary<FieldDefinition, FieldDefinition> addedSyncVarTs, ref bool WeavingFailed)
         {
             string originalName = fd.Name;
 
-            // GameObject/NetworkIdentity SyncVars have a new field for netId
-            FieldDefinition netIdField = null;
-            // NetworkBehaviour has different field type than other NetworkIdentityFields
-            if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
-            {
-                netIdField = new FieldDefinition($"___{fd.Name}NetId",
-                   FieldAttributes.Private,
-                   weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>());
+            // IMPORTANT: if a SyncVar<T> gives a weaver error:
+            // '... was defined in another module and needs to be imported'
+            // then the caller didn't added it to td.Fields!
 
-                syncVarNetIds[fd] = netIdField;
-            }
-            else if (fd.FieldType.IsNetworkIdentityField())
-            {
-                netIdField = new FieldDefinition($"___{fd.Name}NetId",
-                    FieldAttributes.Private,
-                    weaverTypes.Import<uint>());
+            // make generic instance of SyncVar<T> type for the type of 'value'
+            // initial value is set in constructor.
+            CreateSyncVarT_Field(fd, weaverTypes, out TypeReference syncVarT_ForValue, out FieldDefinition syncVarTField);
+            addedSyncVarTs[syncVarTField] = fd;
 
-                syncVarNetIds[fd] = netIdField;
-            }
-
-            MethodDefinition get = GenerateSyncVarGetter(fd, originalName, netIdField);
-            MethodDefinition set = GenerateSyncVarSetter(td, fd, originalName, dirtyBit, netIdField, ref WeavingFailed);
+            // add getters/setters so that SyncVarAttributeAccessReplacer can
+            // simply change the instruction to 'Call' with getter/setter.
+            MethodDefinition get = GenerateSyncVarGetter(syncVarTField, syncVarT_ForValue, fd, originalName);
+            MethodDefinition set = GenerateSyncVarSetter(syncVarTField, syncVarT_ForValue, fd, originalName, ref WeavingFailed);
 
             //NOTE: is property even needed? Could just use a setter function?
             //create the property
-            PropertyDefinition propertyDefinition = new PropertyDefinition($"Network{originalName}", PropertyAttributes.None, fd.FieldType)
+            PropertyDefinition propertyDefinition = new PropertyDefinition($"{originalName}{NewSyncVarTSuffix}_property", PropertyAttributes.None, fd.FieldType)
             {
                 GetMethod = get,
                 SetMethod = set
@@ -312,27 +327,30 @@ namespace Mirror.Weaver
             td.Methods.Add(get);
             td.Methods.Add(set);
             td.Properties.Add(propertyDefinition);
-            syncVarAccessLists.replacementSetterProperties[fd] = set;
 
-            // replace getter field if GameObject/NetworkIdentity so it uses
-            // netId instead
-            // -> only for GameObjects, otherwise an int syncvar's getter would
-            //    end up in recursion.
-            if (fd.FieldType.IsNetworkIdentityField())
-            {
-                syncVarAccessLists.replacementGetterProperties[fd] = get;
-            }
+            // add getter/setter to replacement lists
+            syncVarAccessLists.replacementSetterProperties[fd] = set;
+            syncVarAccessLists.replacementGetterProperties[fd] = get;
+
+            // removing the original [SyncVar] still gives us an error about
+            // '... was defined in another module and needs to be imported'.
+            // seems like Weaver still uses it elsewehre afterwards.
+            // let's simply rename it and hide it from the inspector.
+            fd.Name += OriginalSyncVarSuffix;
+
+            // don't show old [SyncVar] and generated SyncVar<T> in Inspector:
+            // => can't remove orignal [SyncVar] because we still replace access
+            //    to it with the generated properties.
+            // => simply add [HideInInspector] instead.
+            // TODO try to fully remove it again later with ProcessSyncVars()
+            //      via addedSyncVarTs
+            MethodDefinition ctor = weaverTypes.hideInInspectorAttribute.GetConstructors().First();
+            CustomAttribute hideInInspector = new CustomAttribute(assembly.MainModule.ImportReference(ctor));
+            fd.CustomAttributes.Add(hideInInspector);
         }
 
-        public (List<FieldDefinition> syncVars, Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds) ProcessSyncVars(TypeDefinition td, ref bool WeavingFailed)
+        public void ProcessSyncVars(TypeDefinition td, Dictionary<FieldDefinition, FieldDefinition> addedSyncVarTs, ref bool WeavingFailed)
         {
-            List<FieldDefinition> syncVars = new List<FieldDefinition>();
-            Dictionary<FieldDefinition, FieldDefinition> syncVarNetIds = new Dictionary<FieldDefinition, FieldDefinition>();
-
-            // the mapping of dirtybits to sync-vars is implicit in the order of the fields here. this order is recorded in m_replacementProperties.
-            // start assigning syncvars at the place the base class stopped, if any
-            int dirtyBitCounter = syncVarAccessLists.GetSyncVarStart(td.BaseType.FullName);
-
             // find syncvars
             foreach (FieldDefinition fd in td.Fields)
             {
@@ -358,96 +376,78 @@ namespace Mirror.Weaver
                     }
                     else
                     {
-                        syncVars.Add(fd);
-
-                        ProcessSyncVar(td, fd, syncVarNetIds, 1L << dirtyBitCounter, ref WeavingFailed);
-                        dirtyBitCounter += 1;
-
-                        if (dirtyBitCounter > SyncVarLimit)
-                        {
-                            Log.Error($"{td.Name} has > {SyncVarLimit} SyncVars. Consider refactoring your class into multiple components", td);
-                            WeavingFailed = true;
-                            continue;
-                        }
+                        ProcessSyncVar(td, fd, addedSyncVarTs, ref WeavingFailed);
                     }
                 }
             }
 
-            // add all the new SyncVar __netId fields
-            foreach (FieldDefinition fd in syncVarNetIds.Values)
+            // add all added SyncVar<T>s
+            foreach (FieldDefinition fd in addedSyncVarTs.Keys)
             {
                 td.Fields.Add(fd);
             }
-            syncVarAccessLists.SetNumSyncVars(td.FullName, syncVars.Count);
-
-            return (syncVars, syncVarNetIds);
         }
 
-        public void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue, ref bool WeavingFailed)
+        // inject initialization code for SyncVar<T> from [SyncVar] into ctor
+        // called from NetworkBehaviourProcessor.InjectIntoInstanceConstructor()
+        // see also: https://groups.google.com/g/mono-cecil/c/JCLRPxOym4A?pli=1
+        public static void InjectSyncVarT_Initialization(AssemblyDefinition assembly, ILProcessor ctorWorker, TypeDefinition td, FieldDefinition syncVarT, FieldDefinition originalSyncVar, WeaverTypes weaverTypes, Logger Log, ref bool WeavingFailed)
         {
-            if (newValue == null)
+            // find hook method in original [SyncVar(hook="func")] attribute (if any)
+            MethodDefinition hookMethod = GetHookMethod(td, originalSyncVar, Log, ref WeavingFailed);
+
+            // final 'StFld syncVarT' needs 'this.' in front
+            ctorWorker.Emit(OpCodes.Ldarg_0);
+
+            // push 'new SyncVar<T>(value, hook)' on stack
+            ctorWorker.Emit(OpCodes.Ldarg_0);                // 'this' for this.originalSyncVar
+            ctorWorker.Emit(OpCodes.Ldfld, originalSyncVar); // value = originalSyncVar
+            // pass hook parameter (a method converted to an Action)
+            if (hookMethod != null)
             {
-                Log.Error("NewValue field was null when writing SyncVar hook");
-                WeavingFailed = true;
-            }
+                // 'ldftn' loads the hook function onto the stack.
+                // for static hooks, we need to push 'null' onto stack first.
+                // for instance hooks, we need to push 'this' onto stack first.
+                // (from C# generated IL code)
+                ctorWorker.Emit(hookMethod.IsStatic ? OpCodes.Ldnull : OpCodes.Ldarg_0);
 
-            WriteCallHookMethod(worker, hookMethod, oldValue, newValue);
-        }
-
-        void WriteCallHookMethod(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue)
-        {
-            WriteStartFunctionCall();
-
-            // write args
-            WriteOldValue();
-            WriteNewValue();
-
-            WriteEndFunctionCall();
-
-
-            // *** Local functions used to write OpCodes ***
-            // Local functions have access to function variables, no need to pass in args
-
-            void WriteOldValue()
-            {
-                worker.Emit(OpCodes.Ldloc, oldValue);
-            }
-
-            void WriteNewValue()
-            {
-                // write arg1 or this.field
-                if (newValue == null)
+                // when doing SyncVar<T> test = new SyncVar<T>(value, hook),
+                // this is the IL code to convert hook to Action:
+                //   ldftn instance void Mirror.Examples.Tanks.Test::OnChanged(int32, int32)
+                //   newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
+                if (hookMethod.IsVirtual)
                 {
-                    worker.Emit(OpCodes.Ldarg_1);
+                    // Ldvirtftn needs one additional parameter: the object
+                    // C# compiler seems to simply use 'dup' for the previous
+                    // Ldarg_0
+                    ctorWorker.Emit(OpCodes.Dup);
+                    ctorWorker.Emit(OpCodes.Ldvirtftn, hookMethod);
                 }
                 else
                 {
-                    // this.
-                    worker.Emit(OpCodes.Ldarg_0);
-                    // syncvar.get
-                    worker.Emit(OpCodes.Ldfld, newValue);
+                    ctorWorker.Emit(OpCodes.Ldftn, hookMethod);
                 }
+
+                // make generic instance of Action<T,T> type for the type of 'value'
+                TypeReference actionT_T_ForValue = weaverTypes.ActionT_T_Type.MakeGenericInstanceType(originalSyncVar.FieldType, originalSyncVar.FieldType);
+
+                // make generic ctor for Action<T,T> for the target type Action<T,T> with type of 'value'
+                GenericInstanceType actionT_T_GenericInstanceType = (GenericInstanceType)actionT_T_ForValue;
+                MethodReference actionT_T_Ctor_ForValue = weaverTypes.ActionT_T_GenericConstructor.MakeHostInstanceGeneric(assembly.MainModule, actionT_T_GenericInstanceType);
+                ctorWorker.Emit(OpCodes.Newobj, actionT_T_Ctor_ForValue);
+            }
+            else
+            {
+                // push 'hook = null' onto stack
+                ctorWorker.Emit(OpCodes.Ldnull);
             }
 
-            // Writes this before method if it is not static
-            void WriteStartFunctionCall()
-            {
-                // don't add this (Ldarg_0) if method is static
-                if (!hookMethod.IsStatic)
-                {
-                    // this before method call
-                    // e.g. this.onValueChanged
-                    worker.Emit(OpCodes.Ldarg_0);
-                }
-            }
+            // make generic ctor for SyncVar<T> for the target type SyncVar<T> with type of 'value'
+            MethodReference syncVarT_Ctor_ForValue = GetSyncVarT_Ctor(originalSyncVar, assembly.MainModule, weaverTypes);
+            ctorWorker.Emit(OpCodes.Newobj, syncVarT_Ctor_ForValue);
 
-            // Calls method
-            void WriteEndFunctionCall()
-            {
-                // only use Callvirt when not static
-                OpCode opcode = hookMethod.IsStatic ? OpCodes.Call : OpCodes.Callvirt;
-                worker.Emit(opcode, hookMethod);
-            }
+            // store result in SyncVar<T> member
+            ctorWorker.Emit(OpCodes.Stfld, syncVarT);
         }
     }
 }

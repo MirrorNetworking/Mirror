@@ -2,6 +2,8 @@
 // is replaced with:
 // public int Networkhealth { get; set; } properties.
 // this class processes all access to 'health' and replaces it with 'Networkhealth'
+//
+// TODO try replacing with SyncVar<T>.Value directly later
 using System;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
@@ -142,12 +144,14 @@ namespace Mirror.Weaver
                 return 1;
 
             // does it set a field that we replaced?
-            if (syncVarAccessLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacement))
+            // get the replacement property .get and .set methods first.
+            if (syncVarAccessLists.replacementSetterProperties.TryGetValue(opField, out MethodDefinition replacementSetter) &&
+                syncVarAccessLists.replacementGetterProperties.TryGetValue(opField, out MethodDefinition replacementGetter))
             {
                 // we have a replacement for this property
-                // is the next instruction a initobj?
-                Instruction nextInstr = md.Body.Instructions[iCount + 1];
 
+                // special case: if next instruction is InitObject like 'new MyStruct'
+                Instruction nextInstr = md.Body.Instructions[iCount + 1];
                 if (nextInstr.OpCode == OpCodes.Initobj)
                 {
                     // we need to replace this code with:
@@ -160,11 +164,35 @@ namespace Mirror.Weaver
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloca, tmpVariable));
                     worker.InsertBefore(instr, worker.Create(OpCodes.Initobj, opField.FieldType));
                     worker.InsertBefore(instr, worker.Create(OpCodes.Ldloc, tmpVariable));
-                    worker.InsertBefore(instr, worker.Create(OpCodes.Call, replacement));
+                    worker.InsertBefore(instr, worker.Create(OpCodes.Call, replacementSetter));
 
                     worker.Remove(instr);
                     worker.Remove(nextInstr);
+
+                    // IMPORTANT: we inserted 4 instructions
                     return 4;
+                }
+                // otherwise the ldflda is to load the old SyncVar.
+                // we need to replace it with the replacement getter instead.
+                //
+                // for example, this code:
+                //    int n = MyStruct.n;
+                // IL:
+                //    ldflda valuetype MyStruct
+                //    ldfld int n
+                //
+                // we want it to be:
+                //    int n = MyStruct_replacement.n;
+                // IL:
+                //    call instance valuetype MyStruct_replacement_getter
+                //    ldfld int n
+                //
+                // for a complete example, see this link:
+                // https://github.com/vis2k/Mirror/pull/2957#issuecomment-1020061244
+                else
+                {
+                    instr.OpCode = OpCodes.Call;
+                    instr.Operand = replacementGetter;
                 }
             }
 

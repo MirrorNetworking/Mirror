@@ -5,6 +5,7 @@
 //   Health: 42
 //
 // BUG: Unity also doesn't show custom drawer for readonly fields (#1368395)
+using Mirror.Weaver;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,6 +23,10 @@ namespace Mirror
 
             Rect valueRect = new Rect(position.x, position.y, valueWidth, position.height);
             Rect labelRect = new Rect(position.x + valueWidth, position.y, syncVarIndicatorRect.x, position.height);
+
+            // if weaver replaced [SyncVar] -> SyncVar<T> and added a suffix,
+            // do not show the suffix.
+            label.text = label.text.RemoveFromEnd(SyncVarAttributeProcessor.NewSyncVarTSuffix);
 
             EditorGUI.PropertyField(valueRect, property.FindPropertyRelative("_Value"), label, true);
             GUI.Label(labelRect, syncVarIndicatorContent, EditorStyles.miniLabel);
