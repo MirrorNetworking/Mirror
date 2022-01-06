@@ -574,20 +574,10 @@ namespace Mirror
         //   note: SyncVar hooks are only called when inital=false
         public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
         {
-            bool objectWritten = false;
             // if initialState: write all SyncVars.
             // otherwise write dirtyBits+dirty SyncVars
-            if (initialState)
-            {
-                objectWritten = SerializeObjectsAll(writer);
-            }
-            else
-            {
-                objectWritten = SerializeObjectsDelta(writer);
-            }
-
+            bool objectWritten = initialState ? SerializeObjectsAll(writer) : SerializeObjectsDelta(writer);
             bool syncVarWritten = SerializeSyncVars(writer, initialState);
-
             return objectWritten || syncVarWritten;
         }
 
