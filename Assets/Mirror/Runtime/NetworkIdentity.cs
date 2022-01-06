@@ -834,13 +834,6 @@ namespace Mirror
             }
         }
 
-        // interest management /////////////////////////////////////////////////
-        // obsoletes to still support ProximityChecker while transitioning to
-        // global Interest Management
-        // Deprecated 2021-02-17
-        [Obsolete("Use NetworkServer.RebuildObservers(identity, initialize) instead.")]
-        public void RebuildObservers(bool initialize) => NetworkServer.RebuildObservers(this, initialize);
-
         // vis2k: readstring bug prevention: https://github.com/vis2k/Mirror/issues/2617
         // -> OnSerialize writes length,componentData,length,componentData,...
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
