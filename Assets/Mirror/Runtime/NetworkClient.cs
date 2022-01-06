@@ -117,14 +117,14 @@ namespace Mirror
             {
                 RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
                 RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
-                RegisterHandler<NetworkPongMessage>(msg => {}, false);
+                RegisterHandler<NetworkPongMessage>(_ => {}, false);
                 RegisterHandler<SpawnMessage>(OnHostClientSpawn);
                 // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnStartedMessage>(msg => {});
+                RegisterHandler<ObjectSpawnStartedMessage>(_ => {});
                 // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>(msg => {});
+                RegisterHandler<ObjectSpawnFinishedMessage>(_ => {});
                 // host mode doesn't need state updates
-                RegisterHandler<EntityStateMessage>(msg => {});
+                RegisterHandler<EntityStateMessage>(_ => {});
             }
             else
             {
