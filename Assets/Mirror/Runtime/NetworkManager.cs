@@ -716,8 +716,6 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void ResetStatics()
         {
-            Debug.Log("Resetting Statics");
-
             // call StopHost if we have a singleton
             if (singleton)
                 singleton.StopHost();
