@@ -73,3 +73,9 @@ ehthumbs.db
 Thumbs.db
 /VisRepo.txt
 *.vsconfig
+
+# Mirror Examples & Tests
+/Assets/Mirror/Examples
+/Assets/Mirror/Examples.meta
+/Assets/Mirror/Tests
+/Assets/Mirror/Tests.meta
