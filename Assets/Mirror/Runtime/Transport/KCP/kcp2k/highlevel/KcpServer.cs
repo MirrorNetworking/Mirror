@@ -14,10 +14,15 @@ namespace kcp2k
         public Action<int, ArraySegment<byte>, KcpChannel> OnData;
         public Action<int> OnDisconnected;
 
-        // configuration
+        // socket configuration
         // DualMode uses both IPv6 and IPv4. not all platforms support it.
         // (Nintendo Switch, etc.)
         public bool DualMode;
+        // too small send/receive buffers might cause connection drops under
+        // heavy load. using the OS max size can make a difference already.
+        public bool MaximizeSendReceiveBuffersToOSLimit;
+
+        // kcp configuration
         // NoDelay is recommended to reduce latency. This also scales better
         // without buffers getting full.
         public bool NoDelay;
@@ -69,7 +74,8 @@ namespace kcp2k
                          uint SendWindowSize = Kcp.WND_SND,
                          uint ReceiveWindowSize = Kcp.WND_RCV,
                          int Timeout = KcpConnection.DEFAULT_TIMEOUT,
-                         uint MaxRetransmits = Kcp.DEADLINK)
+                         uint MaxRetransmits = Kcp.DEADLINK,
+                         bool MaximizeSendReceiveBuffersToOSLimit = false)
         {
             this.OnConnected = OnConnected;
             this.OnData = OnData;
@@ -83,6 +89,7 @@ namespace kcp2k
             this.ReceiveWindowSize = ReceiveWindowSize;
             this.Timeout = Timeout;
             this.MaxRetransmits = MaxRetransmits;
+            this.MaximizeSendReceiveBuffersToOSLimit = MaximizeSendReceiveBuffersToOSLimit;
 
             // create newClientEP either IPv4 or IPv6
             newClientEP = DualMode
@@ -91,6 +98,25 @@ namespace kcp2k
         }
 
         public bool IsActive() => socket != null;
+
+        // if connections drop under heavy load, increase to OS limit.
+        // if still not enough, increase the OS limit.
+        void ConfigureSocketBufferSizes()
+        {
+            if (MaximizeSendReceiveBuffersToOSLimit)
+            {
+                // log initial size for comparison.
+                // remember initial size for log comparison
+                int initialReceive = socket.ReceiveBufferSize;
+                int initialSend = socket.SendBufferSize;
+
+                socket.SetReceiveBufferToOSLimit();
+                socket.SetSendBufferToOSLimit();
+                Log.Info($"KcpServer: RecvBuf = {initialReceive}=>{socket.ReceiveBufferSize} ({socket.ReceiveBufferSize/initialReceive}x) SendBuf = {initialSend}=>{socket.SendBufferSize} ({socket.SendBufferSize/initialSend}x) increased to OS limits!");
+            }
+            // otherwise still log the defaults for info.
+            else Log.Info($"KcpServer: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+        }
 
         public void Start(ushort port)
         {
@@ -114,6 +140,9 @@ namespace kcp2k
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 socket.Bind(new IPEndPoint(IPAddress.Any, port));
             }
+
+            // configure socket buffer size.
+            ConfigureSocketBufferSizes();
         }
 
         public void Send(int connectionId, ArraySegment<byte> segment, KcpChannel channel)
