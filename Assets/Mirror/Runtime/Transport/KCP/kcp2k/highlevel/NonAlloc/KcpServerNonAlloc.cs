@@ -11,8 +11,33 @@ namespace kcp2k
     {
         IPEndPointNonAlloc reusableClientEP;
 
-        public KcpServerNonAlloc(Action<int> OnConnected, Action<int, ArraySegment<byte>, KcpChannel> OnData, Action<int> OnDisconnected, bool DualMode, bool NoDelay, uint Interval, int FastResend = 0, bool CongestionWindow = true, uint SendWindowSize = Kcp.WND_SND, uint ReceiveWindowSize = Kcp.WND_RCV, int Timeout = KcpConnection.DEFAULT_TIMEOUT, uint MaxRetransmits = Kcp.DEADLINK)
-            : base(OnConnected, OnData, OnDisconnected, DualMode, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits)
+        public KcpServerNonAlloc(Action<int> OnConnected,
+                                 Action<int, ArraySegment<byte>,
+                                 KcpChannel> OnData,
+                                 Action<int> OnDisconnected,
+                                 bool DualMode,
+                                 bool NoDelay,
+                                 uint Interval,
+                                 int FastResend = 0,
+                                 bool CongestionWindow = true,
+                                 uint SendWindowSize = Kcp.WND_SND,
+                                 uint ReceiveWindowSize = Kcp.WND_RCV,
+                                 int Timeout = KcpConnection.DEFAULT_TIMEOUT,
+                                 uint MaxRetransmits = Kcp.DEADLINK,
+                                 bool MaximizeSendReceiveBuffersToOSLimit = false)
+            : base(OnConnected,
+                   OnData,
+                   OnDisconnected,
+                   DualMode,
+                   NoDelay,
+                   Interval,
+                   FastResend,
+                   CongestionWindow,
+                   SendWindowSize,
+                   ReceiveWindowSize,
+                   Timeout,
+                   MaxRetransmits,
+                   MaximizeSendReceiveBuffersToOSLimit)
         {
             // create reusableClientEP either IPv4 or IPv6
             reusableClientEP = DualMode

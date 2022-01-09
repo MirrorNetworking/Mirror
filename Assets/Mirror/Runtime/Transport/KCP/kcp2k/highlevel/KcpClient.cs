@@ -27,7 +27,17 @@ namespace kcp2k
         protected virtual KcpClientConnection CreateConnection() =>
             new KcpClientConnection();
 
-        public void Connect(string address, ushort port, bool noDelay, uint interval, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = KcpConnection.DEFAULT_TIMEOUT, uint maxRetransmits = Kcp.DEADLINK)
+        public void Connect(string address,
+                            ushort port,
+                            bool noDelay,
+                            uint interval,
+                            int fastResend = 0,
+                            bool congestionWindow = true,
+                            uint sendWindowSize = Kcp.WND_SND,
+                            uint receiveWindowSize = Kcp.WND_RCV,
+                            int timeout = KcpConnection.DEFAULT_TIMEOUT,
+                            uint maxRetransmits = Kcp.DEADLINK,
+                            bool maximizeSendReceiveBuffersToOSLimit = false)
         {
             if (connected)
             {
@@ -59,7 +69,17 @@ namespace kcp2k
             };
 
             // connect
-            connection.Connect(address, port, noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout, maxRetransmits);
+            connection.Connect(address,
+                               port,
+                               noDelay,
+                               interval,
+                               fastResend,
+                               congestionWindow,
+                               sendWindowSize,
+                               receiveWindowSize,
+                               timeout,
+                               maxRetransmits,
+                               maximizeSendReceiveBuffersToOSLimit);
         }
 
         public void Send(ArraySegment<byte> segment, KcpChannel channel)

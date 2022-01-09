@@ -1,3 +1,7 @@
+V1.17 [2022-01-09]
+- perf: server/client MaximizeSendReceiveBuffersToOSLimit option to set send/recv
+  buffer sizes to OS limit. avoids drops due to small buffers under heavy load.
+
 V1.16 [2022-01-06]
 - fix: SendUnreliable respects ArraySegment.Offset
 - fix: potential bug with negative length (see PR #2)
