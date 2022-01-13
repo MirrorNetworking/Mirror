@@ -60,6 +60,9 @@ namespace Mirror
             Position = 0;
         }
 
+        // IMPORTANT: ReadBlittable<T> via fixed pinning WON'T WORK on android:
+        //            https://github.com/vis2k/Mirror/issues/3044
+        //            if we ever do it again, use NativeArray + .GetPtr()!
         public byte ReadByte()
         {
             if (Position + 1 > buffer.Count)
