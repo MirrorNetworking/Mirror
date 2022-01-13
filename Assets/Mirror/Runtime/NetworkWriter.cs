@@ -59,6 +59,9 @@ namespace Mirror
             return new ArraySegment<byte>(buffer, 0, Position);
         }
 
+        // IMPORTANT: WriteBlittable<T> via fixed pinning WON'T WORK on android:
+        //            https://github.com/vis2k/Mirror/issues/3044
+        //            if we ever do it again, use NativeArray + .GetPtr()!
         public void WriteByte(byte value)
         {
             EnsureCapacity(Position + 1);
