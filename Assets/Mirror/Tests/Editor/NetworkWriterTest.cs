@@ -1278,7 +1278,7 @@ namespace Mirror.Tests
                 _ = reader.ReadArray<int>();
             });
             // todo improve this message check
-            Assert.That(exception, Has.Message.Contains($"ReadBlittable<System.Int32> out of range"));
+            Assert.That(exception, Has.Message.Contains($"ReadByte out of range"));
 
             void WriteBadArray()
             {
