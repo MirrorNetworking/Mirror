@@ -95,6 +95,9 @@ namespace Mirror
                 throw new EndOfStreamException($"ReadBlittable<{typeof(T)}> out of range: {ToString()}");
             }
 
+            // TODO TRY
+            T* valueBuffer = stackalloc T[1];
+
             // read blittable
             T value;
             fixed (byte* ptr = &buffer.Array[buffer.Offset + Position])
@@ -102,7 +105,13 @@ namespace Mirror
                 // cast buffer to a T* pointer and then read from it.
                 // note: this failed on android before.
                 //       supposedly works with 2020.3 LTS though.
-                value = *(T*)ptr;
+                //value = *(T*)ptr;
+
+                // copy possibly unaligned buffer @ position to aligned value buffer
+                UnsafeUtility.MemCpy(valueBuffer, ptr, size);
+
+                // and extract the value
+                value = valueBuffer[0];
             }
             Position += size;
             return value;
