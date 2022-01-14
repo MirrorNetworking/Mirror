@@ -1,3 +1,4 @@
+using System;
 using Mirror;
 using UnityEngine;
 
@@ -8,12 +9,12 @@ public class Repro : MonoBehaviour
         using (var writer = NetworkWriterPool.GetWriter())
         {
             writer.WriteUInt(42);
-            Debug.Log("written blittable UINT");
+            //Debug.Log("written blittable UINT");
         }
 
         NetworkReader reader = new NetworkReader(new byte[]{0x01, 0x02, 0x03, 0x04});
         uint value = reader.ReadUInt();
-        Debug.Log("read blittable UINT: " + value);
+        //Debug.Log("read blittable UINT: " + value);
     }
 
     void TryDouble()
@@ -21,12 +22,26 @@ public class Repro : MonoBehaviour
         using (var writer = NetworkWriterPool.GetWriter())
         {
             writer.WriteDouble(42d);
-            Debug.Log("written blittable DOUBLE");
+            //Debug.Log("written blittable DOUBLE");
         }
 
         NetworkReader reader = new NetworkReader(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08});
         double value = reader.ReadDouble();
-        Debug.Log("read blittable DOUBLE: " + value);
+        //Debug.Log("read blittable DOUBLE: " + value);
+    }
+
+    unsafe void TryUnaligned()
+    {
+        byte[] buffer = new byte[8];
+        for (int i = 0; i < 7; ++i) {
+            // 0 is aligned, 1 is aligned, etc.
+            fixed (byte* ptr = &buffer[i])
+            {
+                ushort* ushort_ptr = (ushort*)ptr;
+                *ushort_ptr = 0xFF;
+            }
+        }
+        Debug.Log("repro unaligned: " + BitConverter.ToString(buffer));
     }
 
     void Start()
@@ -35,6 +50,7 @@ public class Repro : MonoBehaviour
 
         TryUint();
         TryDouble();
+        TryUnaligned();
 
         Debug.LogWarning("================== END OF REPRO ==================");
     }
