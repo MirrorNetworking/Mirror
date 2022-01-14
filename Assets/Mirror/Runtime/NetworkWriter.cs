@@ -116,14 +116,14 @@ namespace Mirror
             // we can't get the ptr from &value.
             // but we can create a T[], put value into it, then use that pointer.
             // which is always aligned too.
-            T[] valueArray = new T[1];
-            valueArray[0] = value;
+            //T[] valueArray = new T[1];
+            //valueArray[0] = value;
 
             // write blittable
             fixed (byte* ptr = &buffer[Position])
             {
-                fixed (T* src = valueArray)
-                {
+                //fixed (T* src = valueArray)
+                //{
                     // first lets make sure byte* worked here
                     if ((IntPtr)ptr == IntPtr.Zero)
                     {
@@ -151,8 +151,8 @@ namespace Mirror
                     //var valuePtr = UnsafeUtility.CopyStructureToPtr()
                     //UnsafeUtility.MemCpy(ptr, src, size);
                     //UnsafeUtility.MemCpy((void*)ptr, (void*)valueBuffer, size);
-                    UnsafeUtility.MemCpy(ptr, src, size);
-                }
+                    UnsafeUtility.MemCpy(ptr, valueBuffer, size);
+                //}
             }
             Position += size;
         }
