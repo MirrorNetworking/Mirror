@@ -32,13 +32,13 @@ public class Repro : MonoBehaviour
 
     unsafe void TryUnaligned()
     {
-        byte[] buffer = new byte[8];
-        for (int i = 0; i < 7; ++i) {
+        byte[] buffer = new byte[30];
+        for (int i = 0; i < 18; ++i) {
             // 0 is aligned, 1 is aligned, etc.
             fixed (byte* ptr = &buffer[i])
             {
-                ushort* ushort_ptr = (ushort*)ptr;
-                *ushort_ptr = 0xFF;
+                double* double_ptr = (double*)ptr;
+                *double_ptr = Math.PI;
             }
         }
         Debug.Log("repro unaligned: " + BitConverter.ToString(buffer));
