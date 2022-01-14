@@ -48,9 +48,9 @@ public class Repro : MonoBehaviour
     {
         Debug.Log("Trying to repro..");
 
-        TryUint();
-        TryDouble();
-        TryUnaligned();
+        //TryUint();
+        //TryDouble();
+        //TryUnaligned();
 
         Debug.LogWarning("================== END OF REPRO ==================");
     }
