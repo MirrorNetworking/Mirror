@@ -46,7 +46,7 @@ namespace Mirror
         public KeyCode hotKey = KeyCode.F12;
 
         // GUI
-        bool visible;
+        public bool visible;
         Vector2 scroll = Vector2.zero;
 
         void Awake()
