@@ -44,6 +44,17 @@ public class Repro : MonoBehaviour
         Debug.Log("repro unaligned: " + BitConverter.ToString(buffer));
     }
 
+    // now try the fix
+    void TryUnalignedFix()
+    {
+        using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+        {
+            // write unaligned double at position =1
+            writer.WriteByte(0xFF);
+            writer.WriteDouble(Math.PI);
+        }
+    }
+
     void Start()
     {
         Debug.Log("Trying to repro..");
@@ -51,6 +62,7 @@ public class Repro : MonoBehaviour
         //TryUint();
         //TryDouble();
         //TryUnaligned();
+        TryUnalignedFix();
 
         Debug.LogWarning("================== END OF REPRO ==================");
     }
