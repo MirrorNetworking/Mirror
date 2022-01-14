@@ -112,10 +112,13 @@ namespace Mirror
             // write blittable
             fixed (byte* ptr = &buffer[Position])
             {
+                // let's do this step by step
+                T* t_ptr = (T*)ptr;
+
                 // cast buffer to T* pointer, then assign value to the area
                 // note: this failed on android before.
                 //       supposedly works with 2020.3 LTS though.
-                *(T*)ptr = value;
+                *t_ptr = value;
             }
             Position += size;
         }
@@ -215,8 +218,8 @@ namespace Mirror
         public static void WriteDouble(this NetworkWriter writer, double value)
         {
             // DEBUG: try to find the exact value that fails.
-            UIntDouble convert = new UIntDouble{doubleValue = value};
-            Debug.Log($"=> NetworkWriter.WriteDouble: {value} => 0x{convert.longValue:X8}");
+            //UIntDouble convert = new UIntDouble{doubleValue = value};
+            //Debug.Log($"=> NetworkWriter.WriteDouble: {value} => 0x{convert.longValue:X8}");
 
 
             writer.WriteBlittable(value);
