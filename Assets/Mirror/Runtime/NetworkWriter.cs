@@ -112,13 +112,32 @@ namespace Mirror
             // write blittable
             fixed (byte* ptr = &buffer[Position])
             {
+                // first lets make sure byte* worked here
+                if ((IntPtr)ptr == IntPtr.Zero)
+                {
+                    Debug.LogError("BYTE* PTR = buffer[pos] RETURNED 0 PTR!");
+                    return;
+                }
+
                 // let's do this step by step
                 T* t_ptr = (T*)ptr;
+                if ((IntPtr)t_ptr == IntPtr.Zero)
+                {
+                    Debug.LogError("T* PTR RETURNED 0 PTR!");
+                    return;
+                }
 
                 // cast buffer to T* pointer, then assign value to the area
                 // note: this failed on android before.
                 //       supposedly works with 2020.3 LTS though.
                 *t_ptr = value;
+
+                // TODO
+                // *T might be a null reference if old android devices don't
+                // support *(T*) casts for unaligned byte* addresses.
+                // so let's just memcpy
+                //var valuePtr = UnsafeUtility.CopyStructureToPtr()
+                //UnsafeUtility.MemCpy(ptr, src, size);
             }
             Position += size;
         }
