@@ -118,12 +118,15 @@ namespace Mirror
                 // on some android systems, assigning *(T*)ptr throws a NRE if
                 // the ptr isn't aligned (i.e. if Position is 1,2,3,5, etc.).
                 // here we have to use memcpy.
+                //
                 // => we can't get a pointer of a struct in C# without
                 //    marshalling allocations
                 // => instead, we stack allocate an array of type T and use that
                 // => stackalloc avoids GC and is very fast. it only works for
                 //    value types, but all blittable types are anyway.
-                // this way, we can still support blittable writes on android.
+                //
+                // this way, we can still support blittable reads on android.
+                // see also: https://github.com/vis2k/Mirror/issues/3044
                 T* valueBuffer = stackalloc T[1]{value};
                 UnsafeUtility.MemCpy(ptr, valueBuffer, size);
 #else
