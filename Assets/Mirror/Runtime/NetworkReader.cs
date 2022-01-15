@@ -112,6 +112,7 @@ namespace Mirror
                 //
                 // this way, we can still support blittable reads on android.
                 // see also: https://github.com/vis2k/Mirror/issues/3044
+                // (solution discovered by AIIO, FakeByte, mischa)
                 T* valueBuffer = stackalloc T[1];
                 UnsafeUtility.MemCpy(valueBuffer, ptr, size);
                 value = valueBuffer[0];
