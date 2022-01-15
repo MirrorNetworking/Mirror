@@ -16,8 +16,7 @@ namespace Mirror
         // helper function to get vis range for a given object, or default.
         int GetVisRange(NetworkIdentity identity)
         {
-            DistanceInterestManagementCustomRange custom = identity.GetComponent<DistanceInterestManagementCustomRange>();
-            return custom != null ? custom.visRange : visRange;
+            return identity.TryGetComponent(out DistanceInterestManagementCustomRange custom) ? custom.visRange : visRange;
         }
 
         [ServerCallback]
