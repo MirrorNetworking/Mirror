@@ -42,6 +42,24 @@ namespace Mirror.Tests
             Assert.That(BitConverter.IsLittleEndian, Is.True);
         }
 
+        // some platforms may not support unaligned *(T*) reads/writes.
+        // but it still needs to work with our workaround.
+        // let's have an editor test to maybe catch it early.
+        // Editor runs Win/Mac/Linux and atm the issue only exists on Android,
+        // but let's have a test anyway.
+        // see also: https://github.com/vis2k/Mirror/issues/3044
+        [Test]
+        public void WriteUnaligned()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            // make unaligned
+            writer.WriteByte(0xFF);
+            // write a double
+            writer.WriteDouble(Math.PI);
+            // should have written 9 bytes without throwing exceptions
+            Assert.That(writer.Position, Is.EqualTo(9));
+        }
+
         [Test]
         public void TestWritingSmallMessage()
         {
