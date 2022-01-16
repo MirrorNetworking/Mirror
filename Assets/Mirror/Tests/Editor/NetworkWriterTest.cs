@@ -1273,12 +1273,9 @@ namespace Mirror.Tests
             WriteBadArray();
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            EndOfStreamException exception = Assert.Throws<EndOfStreamException>(() =>
-            {
+            Assert.Throws<EndOfStreamException>(() => {
                 _ = reader.ReadArray<int>();
             });
-            // todo improve this message check
-            Assert.That(exception, Has.Message.Contains($"ReadByte out of range"));
 
             void WriteBadArray()
             {
