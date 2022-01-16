@@ -10,6 +10,10 @@ using Mirror;
 
 public class #SCRIPTNAME# : NetworkManager
 {
+    // Overrides the base singleton so we don't
+    // have to cast to this type everywhere.
+    public static new PortalsNetworkManager singleton { get; private set; }
+
     #region Unity Callbacks
 
     public override void OnValidate()
@@ -32,6 +36,7 @@ public class #SCRIPTNAME# : NetworkManager
     /// </summary>
     public override void Start()
     {
+        singleton = this;
         base.Start();
     }
 
