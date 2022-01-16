@@ -646,6 +646,40 @@ namespace Mirror
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
 
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        {
+            if (initialState)
+            {
+                writer.Write(syncPosition ? targetComponent.localPosition : default(Vector3?));
+                writer.Write(syncRotation ? targetComponent.localRotation : default(Quaternion?));
+                writer.Write(syncScale ? targetComponent.localScale : default(Vector3?));
+                return true;
+            }
+
+            return false;
+        }
+
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            Vector3? position = reader.Read<Vector3?>();
+            if (position.HasValue)
+            {
+                targetComponent.localPosition = position.Value;
+            }
+
+            Quaternion? rotation = reader.Read<Quaternion?>();
+            if (rotation.HasValue)
+            {
+                targetComponent.localRotation = rotation.Value;
+            }
+
+            Vector3? scale = reader.Read<Vector3?>();
+            if (scale.HasValue)
+            {
+                targetComponent.localScale = scale.Value;
+            }
+        }
+
         // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
