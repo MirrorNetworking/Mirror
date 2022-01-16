@@ -1251,6 +1251,9 @@ namespace Mirror
 
         // Clear only dirty component's dirty bits. ignores components which
         // may be dirty but not ready to be synced yet (because of syncInterval)
+        //
+        // IMPORTANT to clear SyncLists's changes to avoid ever
+        //           growing changes while not having observers etc.
         internal void ClearDirtyComponentsDirtyBits()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)

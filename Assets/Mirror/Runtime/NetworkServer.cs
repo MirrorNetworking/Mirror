@@ -1598,12 +1598,15 @@ namespace Mirror
                     }
 
                     // clear dirty bits only for the components that we serialized
-                    // DO NOT clean ALL component's dirty bits, because
+                    // DO NOT clear ALL component's dirty bits, because
                     // components can have different syncIntervals and we don't
                     // want to reset dirty bits for the ones that were not
                     // synced yet.
                     // (we serialized only the IsDirty() components, or all of
                     //  them if initialState. clearing the dirty ones is enough.)
+                    //
+                    // IMPORTANT to clear SyncLists's changes to avoid ever
+                    //           growing changes while not having observers etc.
                     //
                     // NOTE: this is what we did before push->pull
                     //       broadcasting. let's keep doing this for
