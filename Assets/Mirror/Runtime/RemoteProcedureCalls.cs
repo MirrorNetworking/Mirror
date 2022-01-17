@@ -4,17 +4,17 @@ using UnityEngine;
 
 namespace Mirror.RemoteCalls
 {
-    // command function delegate
-    public delegate void CmdDelegate(NetworkBehaviour obj, NetworkReader reader, NetworkConnectionToClient senderConnection);
+    // remote call function delegate
+    public delegate void RemoteCallDelegate(NetworkBehaviour obj, NetworkReader reader, NetworkConnectionToClient senderConnection);
 
     class Invoker
     {
         public Type invokeClass;
         public MirrorInvokeType invokeType;
-        public CmdDelegate invokeFunction;
+        public RemoteCallDelegate invokeFunction;
         public bool cmdRequiresAuthority;
 
-        public bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, CmdDelegate invokeFunction)
+        public bool AreEqual(Type invokeClass, MirrorInvokeType invokeType, RemoteCallDelegate invokeFunction)
         {
             return (this.invokeClass == invokeClass &&
                     this.invokeType == invokeType &&
@@ -43,7 +43,7 @@ namespace Mirror.RemoteCalls
             }
         }
 
-        internal static int RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, CmdDelegate func, bool cmdRequiresAuthority = true)
+        internal static int RegisterDelegate(Type invokeClass, string cmdName, MirrorInvokeType invokerType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int cmdHash = GetMethodHash(invokeClass, cmdName);
@@ -67,7 +67,7 @@ namespace Mirror.RemoteCalls
             return cmdHash;
         }
 
-        static bool CheckIfDeligateExists(Type invokeClass, MirrorInvokeType invokerType, CmdDelegate func, int cmdHash)
+        static bool CheckIfDeligateExists(Type invokeClass, MirrorInvokeType invokerType, RemoteCallDelegate func, int cmdHash)
         {
             if (cmdHandlerDelegates.ContainsKey(cmdHash))
             {
@@ -85,12 +85,12 @@ namespace Mirror.RemoteCalls
             return false;
         }
 
-        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, CmdDelegate func, bool requiresAuthority)
+        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, RemoteCallDelegate func, bool requiresAuthority)
         {
             RegisterDelegate(invokeClass, cmdName, MirrorInvokeType.Command, func, requiresAuthority);
         }
 
-        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, CmdDelegate func)
+        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, RemoteCallDelegate func)
         {
             RegisterDelegate(invokeClass, rpcName, MirrorInvokeType.ClientRpc, func);
         }
@@ -139,7 +139,7 @@ namespace Mirror.RemoteCalls
         }
 
         /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
-        public static CmdDelegate GetDelegate(int cmdHash)
+        public static RemoteCallDelegate GetDelegate(int cmdHash)
         {
             if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
             {
