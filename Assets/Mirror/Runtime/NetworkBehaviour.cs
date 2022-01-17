@@ -234,7 +234,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteCallHelper.GetMethodHash(invokeClass, cmdName),
+                functionHash = RemoteProcedureCalls.GetMethodHash(invokeClass, cmdName),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
@@ -269,7 +269,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteCallHelper.GetMethodHash(invokeClass, rpcName),
+                functionHash = RemoteProcedureCalls.GetMethodHash(invokeClass, rpcName),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
@@ -316,7 +316,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteCallHelper.GetMethodHash(invokeClass, rpcName),
+                functionHash = RemoteProcedureCalls.GetMethodHash(invokeClass, rpcName),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
