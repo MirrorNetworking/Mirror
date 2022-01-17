@@ -364,7 +364,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldnull);
             worker.Emit(OpCodes.Ldftn, func);
 
-            worker.Emit(OpCodes.Newobj, weaverTypes.CmdDelegateConstructor);
+            worker.Emit(OpCodes.Newobj, weaverTypes.RemoteCallDelegateConstructor);
             //
             worker.Emit(OpCodes.Call, registerMethod);
         }
@@ -380,7 +380,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldnull);
             worker.Emit(OpCodes.Ldftn, func);
 
-            worker.Emit(OpCodes.Newobj, weaverTypes.CmdDelegateConstructor);
+            worker.Emit(OpCodes.Newobj, weaverTypes.RemoteCallDelegateConstructor);
 
             // requiresAuthority ? 1 : 0
             worker.Emit(requiresAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);

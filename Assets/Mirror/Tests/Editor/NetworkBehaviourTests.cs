@@ -224,12 +224,12 @@ namespace Mirror.Tests
 
             // get handler
             int cmdHash = RemoteProcedureCalls.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
-            CmdDelegate func = RemoteProcedureCalls.GetDelegate(cmdHash);
-            CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
+            RemoteCallDelegate func = RemoteProcedureCalls.GetDelegate(cmdHash);
+            RemoteCallDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
 
             // invalid hash should return null handler
-            CmdDelegate funcNull = RemoteProcedureCalls.GetDelegate(1234);
+            RemoteCallDelegate funcNull = RemoteProcedureCalls.GetDelegate(1234);
             Assert.That(funcNull, Is.Null);
 
             // clean up
