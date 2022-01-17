@@ -1605,8 +1605,9 @@ namespace Mirror
                     // (we serialized only the IsDirty() components, or all of
                     //  them if initialState. clearing the dirty ones is enough.)
                     //
-                    // IMPORTANT to clear SyncLists's changes to avoid ever
-                    //           growing changes while not having observers etc.
+                    // NOTE: this used to be very important to avoid ever
+                    //       growing SyncList changes if they had no observers,
+                    //       but we've added SyncObject.isRecording since.
                     //
                     // NOTE: this is what we did before push->pull
                     //       broadcasting. let's keep doing this for
