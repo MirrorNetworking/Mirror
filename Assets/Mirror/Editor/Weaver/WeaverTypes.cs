@@ -82,7 +82,7 @@ namespace Mirror.Weaver
             CmdDelegateConstructor = Resolvers.ResolveMethod(cmdDelegateReference, assembly, Log, ".ctor", ref WeavingFailed);
 
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
-            TypeReference RemoteCallHelperType = Import(typeof(RemoteCalls.RemoteCallHelper));
+            TypeReference RemoteProcedureCallsType = Import(typeof(RemoteCalls.RemoteProcedureCalls));
 
             TypeReference ScriptableObjectType = Import<UnityEngine.ScriptableObject>();
 
@@ -113,8 +113,8 @@ namespace Mirror.Weaver
             setSyncVarNetworkBehaviourReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVarNetworkBehaviour", ref WeavingFailed);
             getSyncVarNetworkBehaviourReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GetSyncVarNetworkBehaviour", ref WeavingFailed);
 
-            registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, assembly, Log, "RegisterCommandDelegate", ref WeavingFailed);
-            registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteCallHelperType, assembly, Log, "RegisterRpcDelegate", ref WeavingFailed);
+            registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteProcedureCallsType, assembly, Log, "RegisterCommandDelegate", ref WeavingFailed);
+            registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteProcedureCallsType, assembly, Log, "RegisterRpcDelegate", ref WeavingFailed);
 
             TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
             // these have multiple methods with same name, so need to check parameters too

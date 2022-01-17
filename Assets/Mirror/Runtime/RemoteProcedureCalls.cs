@@ -28,7 +28,7 @@ namespace Mirror.RemoteCalls
     }
 
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
-    public static class RemoteCallHelper
+    public static class RemoteProcedureCalls
     {
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
