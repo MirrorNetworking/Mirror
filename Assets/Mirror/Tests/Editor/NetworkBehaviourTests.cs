@@ -223,7 +223,7 @@ namespace Mirror.Tests
                 false);
 
             // get handler
-            int cmdHash = RemoteProcedureCalls.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
+            int cmdHash = nameof(NetworkBehaviourDelegateComponent.Delegate).GetStableHashCode();
             RemoteCallDelegate func = RemoteProcedureCalls.GetDelegate(cmdHash);
             RemoteCallDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));

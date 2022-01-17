@@ -297,13 +297,13 @@ namespace Mirror.Weaver
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.FullName);
             }
 
             // register all target rpcs in cctor
             for (int i = 0; i < targetRpcs.Count; ++i)
             {
-                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].FullName);
             }
 
             // add final 'Ret' instruction to cctor
@@ -371,7 +371,7 @@ namespace Mirror.Weaver
 
         void GenerateRegisterCommandDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
-            string cmdName = cmdResult.method.Name;
+            string cmdName = cmdResult.method.FullName;
             bool requiresAuthority = cmdResult.requiresAuthority;
 
             worker.Emit(OpCodes.Ldtoken, netBehaviourSubclass);
