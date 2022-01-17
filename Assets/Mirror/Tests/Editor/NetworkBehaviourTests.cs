@@ -181,7 +181,7 @@ namespace Mirror.Tests
             int registeredHash1 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
@@ -190,7 +190,7 @@ namespace Mirror.Tests
             int registeredHash2 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
@@ -200,7 +200,7 @@ namespace Mirror.Tests
             int registeredHash3 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate2,
                 false);
 
@@ -218,7 +218,7 @@ namespace Mirror.Tests
             int registeredHash = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
