@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Mirror.RemoteCalls
 {
+    // invoke type for Cmd/Rpc
+    public enum MirrorInvokeType { Command, ClientRpc }
+
     // remote call function delegate
     public delegate void RemoteCallDelegate(NetworkBehaviour obj, NetworkReader reader, NetworkConnectionToClient senderConnection);
 
