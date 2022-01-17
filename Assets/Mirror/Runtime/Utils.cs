@@ -15,9 +15,6 @@ namespace Mirror
     // Handles requests to unspawn objects on the client
     public delegate void UnSpawnDelegate(GameObject spawned);
 
-    // invoke type for Cmd/Rpc
-    public enum MirrorInvokeType { Command, ClientRpc }
-
     // channels are const ints instead of an enum so people can add their own
     // channels (can't extend an enum otherwise).
     //
