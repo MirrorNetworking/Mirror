@@ -34,7 +34,7 @@ namespace Mirror.RemoteCalls
     public static class RemoteProcedureCalls
     {
         // note: do not clear those with [RuntimeInitializeOnLoad]
-        static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
+        static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
         internal static int GetMethodHash(Type invokeClass, string methodName)
         {
@@ -63,7 +63,7 @@ namespace Mirror.RemoteCalls
                 cmdRequiresAuthority = cmdRequiresAuthority,
             };
 
-            cmdHandlerDelegates[cmdHash] = invoker;
+            remoteCallDelegates[cmdHash] = invoker;
 
             //string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" requiresAuthority:{cmdRequiresAuthority}" : "";
             //Debug.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
@@ -73,10 +73,10 @@ namespace Mirror.RemoteCalls
 
         static bool CheckIfDelegateExists(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate func, int cmdHash)
         {
-            if (cmdHandlerDelegates.ContainsKey(cmdHash))
+            if (remoteCallDelegates.ContainsKey(cmdHash))
             {
                 // something already registered this hash
-                Invoker oldInvoker = cmdHandlerDelegates[cmdHash];
+                Invoker oldInvoker = remoteCallDelegates[cmdHash];
                 if (oldInvoker.AreEqual(invokeClass, remoteCallType, func))
                 {
                     // it's all right,  it was the same function
@@ -102,12 +102,12 @@ namespace Mirror.RemoteCalls
         //  We need this in order to clean up tests
         internal static void RemoveDelegate(int hash)
         {
-            cmdHandlerDelegates.Remove(hash);
+            remoteCallDelegates.Remove(hash);
         }
 
         static bool GetInvokerForHash(int cmdHash, RemoteCallType remoteCallType, out Invoker invoker)
         {
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out invoker) && invoker != null && invoker.remoteCallType == remoteCallType)
+            if (remoteCallDelegates.TryGetValue(cmdHash, out invoker) && invoker != null && invoker.remoteCallType == remoteCallType)
             {
                 return true;
             }
@@ -145,7 +145,7 @@ namespace Mirror.RemoteCalls
         /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
         public static RemoteCallDelegate GetDelegate(int cmdHash)
         {
-            if (cmdHandlerDelegates.TryGetValue(cmdHash, out Invoker invoker))
+            if (remoteCallDelegates.TryGetValue(cmdHash, out Invoker invoker))
             {
                 return invoker.invokeFunction;
             }
