@@ -1044,7 +1044,6 @@ namespace Mirror.Weaver
                 return false;
             }
 
-
             // if not SenderConnection And not TargetRpc NetworkConnection first param
             if (!isSenderConnection && isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
             {
