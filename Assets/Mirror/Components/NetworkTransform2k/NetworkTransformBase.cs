@@ -645,7 +645,6 @@ namespace Mirror
             // buffer limit should be at least multiplier to have enough in there
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
-
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             // sync target component's position on spawn.
@@ -653,9 +652,9 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(targetComponent.localPosition);
-                if (syncRotation) writer.WriteQuaternion(targetComponent.localRotation);
-                if (syncScale)    writer.WriteVector3(targetComponent.localScale);
+                writer.WriteVector3Nullable(syncPosition ? targetComponent.localPosition : default(Vector3?));
+                writer.WriteQuaternionNullable(syncRotation ? targetComponent.localRotation : default(Quaternion?));
+                writer.WriteVector3Nullable(syncScale ? targetComponent.localScale : default(Vector3?));
                 return true;
             }
 
@@ -667,12 +666,14 @@ namespace Mirror
             // sync target component's position on spawn.
             // fixes https://github.com/vis2k/Mirror/pull/3051/
             // (Spawn message wouldn't sync NTChild positions either)
-            if (initialState)
-            {
-                if (syncPosition) targetComponent.localPosition = reader.ReadVector3();
-                if (syncRotation) targetComponent.localRotation = reader.ReadQuaternion();
-                if (syncScale)    targetComponent.localScale = reader.ReadVector3();
-            }
+            Vector3? position = reader.ReadVector3Nullable();
+            if (position.HasValue) targetComponent.localPosition = position.Value;
+            
+            Quaternion? rotation = reader.ReadQuaternionNullable();
+            if (rotation.HasValue) targetComponent.localRotation = rotation.Value;
+
+            Vector3? scale = reader.ReadVector3Nullable();
+            if (scale.HasValue) targetComponent.localScale = scale.Value;
         }
 
         // OnGUI allocates even if it does nothing. avoid in release.
