@@ -4,8 +4,7 @@ using UnityEngine;
 namespace Mirror.Experimental
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/Experimental/NetworkTransformExperimental")]
-    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-transform")]
+    // Deprecated 2022-01-18
     [Obsolete("Use the default NetworkTransform instead, it has proper snapshot interpolation.")]
     public class NetworkTransform : NetworkTransformBase
     {
