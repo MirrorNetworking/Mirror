@@ -21,6 +21,7 @@ using UnityEngine;
 
 namespace Mirror.Experimental
 {
+    // Deprecated 2022-01-18
     [Obsolete("Use the default NetworkTransform instead, it has proper snapshot interpolation.")]
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
