@@ -290,20 +290,20 @@ namespace Mirror.Weaver
             for (int i = 0; i < commands.Count; ++i)
             {
                 CmdResult cmdResult = commands[i];
-                GenerateRegisterCommandDelegate(cctorWorker, weaverTypes.registerCommandDelegateReference, commandInvocationFuncs[i], cmdResult);
+                GenerateRegisterCommandDelegate(cctorWorker, weaverTypes.registerCommandReference, commandInvocationFuncs[i], cmdResult);
             }
 
             // register all client rpcs in cctor
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.FullName);
+                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcReference, clientRpcInvocationFuncs[i], clientRpcResult.method.FullName);
             }
 
             // register all target rpcs in cctor
             for (int i = 0; i < targetRpcs.Count; ++i)
             {
-                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].FullName);
+                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcReference, targetRpcInvocationFuncs[i], targetRpcs[i].FullName);
             }
 
             // add final 'Ret' instruction to cctor

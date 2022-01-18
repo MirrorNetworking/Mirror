@@ -42,8 +42,8 @@ namespace Mirror.Weaver
         public MethodReference syncVarNetworkBehaviourEqualReference;
         public MethodReference setSyncVarNetworkBehaviourReference;
         public MethodReference getSyncVarNetworkBehaviourReference;
-        public MethodReference registerCommandDelegateReference;
-        public MethodReference registerRpcDelegateReference;
+        public MethodReference registerCommandReference;
+        public MethodReference registerRpcReference;
         public MethodReference getTypeFromHandleReference;
         public MethodReference logErrorReference;
         public MethodReference logWarningReference;
@@ -113,8 +113,8 @@ namespace Mirror.Weaver
             setSyncVarNetworkBehaviourReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVarNetworkBehaviour", ref WeavingFailed);
             getSyncVarNetworkBehaviourReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GetSyncVarNetworkBehaviour", ref WeavingFailed);
 
-            registerCommandDelegateReference = Resolvers.ResolveMethod(RemoteProcedureCallsType, assembly, Log, "RegisterCommandDelegate", ref WeavingFailed);
-            registerRpcDelegateReference = Resolvers.ResolveMethod(RemoteProcedureCallsType, assembly, Log, "RegisterRpcDelegate", ref WeavingFailed);
+            registerCommandReference = Resolvers.ResolveMethod(RemoteProcedureCallsType, assembly, Log, "RegisterCommand", ref WeavingFailed);
+            registerRpcReference = Resolvers.ResolveMethod(RemoteProcedureCallsType, assembly, Log, "RegisterRpc", ref WeavingFailed);
 
             TypeReference unityDebug = Import(typeof(UnityEngine.Debug));
             // these have multiple methods with same name, so need to check parameters too
