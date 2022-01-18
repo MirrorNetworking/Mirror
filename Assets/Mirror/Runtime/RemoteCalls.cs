@@ -114,7 +114,8 @@ namespace Mirror.RemoteCalls
 
         internal static CommandInfo GetCommandInfo(int cmdHash, NetworkBehaviour invokingType)
         {
-            if (GetInvokerForHash(cmdHash, RemoteCallType.Command, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(invokingType))
+            if (GetInvokerForHash(cmdHash, RemoteCallType.Command, out Invoker invoker) &&
+                invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 return new CommandInfo
                 {
