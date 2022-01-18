@@ -16,14 +16,14 @@ namespace Mirror.RemoteCalls
         // when invoking, we check if 'TypeA' is an instance of the type.
         // the hash itself isn't enough because we wouldn't know which component
         // to invoke it on if there are multiple of the same type.
-        public Type invokeClass;
+        public Type componentType;
         public RemoteCallType callType;
         public RemoteCallDelegate function;
         public bool cmdRequiresAuthority;
 
-        public bool AreEqual(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate invokeFunction)
+        public bool AreEqual(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate invokeFunction)
         {
-            return (this.invokeClass == invokeClass &&
+            return (this.componentType == componentType &&
                     this.callType == remoteCallType &&
                     this.function == invokeFunction);
         }
@@ -35,37 +35,37 @@ namespace Mirror.RemoteCalls
         // note: do not clear those with [RuntimeInitializeOnLoad]
         static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
-        static bool CheckIfDelegateExists(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate func, int cmdHash)
+        static bool CheckIfDelegateExists(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate func, int cmdHash)
         {
             if (remoteCallDelegates.ContainsKey(cmdHash))
             {
                 // something already registered this hash
                 Invoker oldInvoker = remoteCallDelegates[cmdHash];
-                if (oldInvoker.AreEqual(invokeClass, remoteCallType, func))
+                if (oldInvoker.AreEqual(componentType, remoteCallType, func))
                 {
                     // it's all right,  it was the same function
                     return true;
                 }
 
-                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.function.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
+                Debug.LogError($"Function {oldInvoker.componentType}.{oldInvoker.function.GetMethodName()} and {componentType}.{func.GetMethodName()} have the same hash.  Please rename one of them");
             }
 
             return false;
         }
 
         // pass full function name to avoid ClassA.Func & ClassB.Func collisions
-        internal static int RegisterDelegate(Type invokeClass, string functionFullName, RemoteCallType remoteCallType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
+        internal static int RegisterDelegate(Type componentType, string functionFullName, RemoteCallType remoteCallType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
             int hash = functionFullName.GetStableHashCode();
 
-            if (CheckIfDelegateExists(invokeClass, remoteCallType, func, hash))
+            if (CheckIfDelegateExists(componentType, remoteCallType, func, hash))
                 return hash;
 
             remoteCallDelegates[hash] = new Invoker
             {
                 callType = remoteCallType,
-                invokeClass = invokeClass,
+                componentType = componentType,
                 function = func,
                 cmdRequiresAuthority = cmdRequiresAuthority
             };
@@ -73,12 +73,12 @@ namespace Mirror.RemoteCalls
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
-        public static void RegisterCommandDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func, bool requiresAuthority) =>
-            RegisterDelegate(invokeClass, functionFullName, RemoteCallType.Command, func, requiresAuthority);
+        public static void RegisterCommandDelegate(Type componentType, string functionFullName, RemoteCallDelegate func, bool requiresAuthority) =>
+            RegisterDelegate(componentType, functionFullName, RemoteCallType.Command, func, requiresAuthority);
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
-        public static void RegisterRpcDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func) =>
-            RegisterDelegate(invokeClass, functionFullName, RemoteCallType.ClientRpc, func);
+        public static void RegisterRpcDelegate(Type componentType, string functionFullName, RemoteCallDelegate func) =>
+            RegisterDelegate(componentType, functionFullName, RemoteCallType.ClientRpc, func);
 
         // to clean up tests
         internal static void RemoveDelegate(int hash) =>
@@ -99,7 +99,7 @@ namespace Mirror.RemoteCalls
             //            actually of the right type. prevents attackers trying
             //            to invoke remote calls on wrong components.
             if (GetInvokerForHash(functionHash, remoteCallType, out Invoker invoker) &&
-                invoker.invokeClass.IsInstanceOfType(component))
+                invoker.componentType.IsInstanceOfType(component))
             {
                 // invoke function on this component
                 invoker.function(component, reader, senderConnection);
