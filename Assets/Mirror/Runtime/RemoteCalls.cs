@@ -25,11 +25,6 @@ namespace Mirror.RemoteCalls
         }
     }
 
-    public struct CommandInfo
-    {
-        public bool requiresAuthority;
-    }
-
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
     public static class RemoteProcedureCalls
     {
@@ -112,18 +107,12 @@ namespace Mirror.RemoteCalls
             return false;
         }
 
-        internal static CommandInfo GetCommandInfo(int cmdHash, NetworkBehaviour invokingType)
-        {
-            if (GetInvokerForHash(cmdHash, RemoteCallType.Command, out Invoker invoker) &&
-                invoker.invokeClass.IsInstanceOfType(invokingType))
-            {
-                return new CommandInfo
-                {
-                    requiresAuthority = invoker.cmdRequiresAuthority
-                };
-            }
-            return default;
-        }
+        // check if the command 'requiresAuthority' which is set in the attribute
+        internal static bool CommandRequiresAuthority(int cmdHash, NetworkBehaviour component) =>
+            GetInvokerForHash(cmdHash, RemoteCallType.Command, out Invoker invoker) &&
+            // TODO why get component and check that? it's checked before applying remote call anyway?
+            invoker.invokeClass.IsInstanceOfType(component) &&
+            invoker.cmdRequiresAuthority;
 
         /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
         public static RemoteCallDelegate GetDelegate(int cmdHash) =>

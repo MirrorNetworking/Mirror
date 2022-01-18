@@ -1060,25 +1060,26 @@ namespace Mirror
         }
 
         // Runs on server
-        internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
+        // TODO why get component and check that? it's checked before applying remote call anyway?
+        internal bool CommandRequiresAuthority(int componentIndex, int cmdHash)
         {
             // check if unity object has been destroyed
             if (this == null)
             {
                 // error can be logged later
-                return default;
+                return false;
             }
 
             // find the right component to invoke the function on
             if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
             {
                 NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                return RemoteProcedureCalls.GetCommandInfo(cmdHash, invokeComponent);
+                return RemoteProcedureCalls.CommandRequiresAuthority(cmdHash, invokeComponent);
             }
             else
             {
                 // error can be logged later
-                return default;
+                return false;
             }
         }
 
