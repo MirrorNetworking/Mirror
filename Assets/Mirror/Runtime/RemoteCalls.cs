@@ -100,15 +100,15 @@ namespace Mirror.RemoteCalls
         // note: no need to throw an error if not found.
         // an attacker might just try to call a cmd with an rpc's hash etc.
         // returning false is enough.
-        static bool GetInvokerForHash(int cmdHash, RemoteCallType remoteCallType, out Invoker invoker) =>
-            remoteCallDelegates.TryGetValue(cmdHash, out invoker) &&
+        static bool GetInvokerForHash(int functionHash, RemoteCallType remoteCallType, out Invoker invoker) =>
+            remoteCallDelegates.TryGetValue(functionHash, out invoker) &&
             invoker != null &&
             invoker.remoteCallType == remoteCallType;
 
         // InvokeCmd/Rpc Delegate can all use the same function here
-        internal static bool InvokeHandlerDelegate(int cmdHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkBehaviour component, NetworkConnectionToClient senderConnection = null)
+        internal static bool InvokeHandlerDelegate(int functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkBehaviour component, NetworkConnectionToClient senderConnection = null)
         {
-            if (GetInvokerForHash(cmdHash, remoteCallType, out Invoker invoker) &&
+            if (GetInvokerForHash(functionHash, remoteCallType, out Invoker invoker) &&
                 invoker.invokeClass.IsInstanceOfType(component))
             {
                 // invoke function on this component
