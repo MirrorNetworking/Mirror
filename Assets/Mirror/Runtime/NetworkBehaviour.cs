@@ -248,7 +248,7 @@ namespace Mirror
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
-        protected void SendRPCInternal(Type invokeClass, string functionFullName, NetworkWriter writer, int channelId, bool includeOwner)
+        protected void SendRPCInternal(string functionFullName, NetworkWriter writer, int channelId, bool includeOwner)
         {
             // this was in Weaver before
             if (!NetworkServer.active)
