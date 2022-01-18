@@ -33,6 +33,7 @@ namespace Mirror.RemoteCalls
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
     public static class RemoteProcedureCalls
     {
+        // note: do not clear those with [RuntimeInitializeOnLoad]
         static readonly Dictionary<int, Invoker> cmdHandlerDelegates = new Dictionary<int, Invoker>();
 
         internal static int GetMethodHash(Type invokeClass, string methodName)
