@@ -108,7 +108,8 @@ namespace Mirror.RemoteCalls
         // InvokeCmd/Rpc Delegate can all use the same function here
         internal static bool InvokeHandlerDelegate(int cmdHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkBehaviour invokingType, NetworkConnectionToClient senderConnection = null)
         {
-            if (GetInvokerForHash(cmdHash, remoteCallType, out Invoker invoker) && invoker.invokeClass.IsInstanceOfType(invokingType))
+            if (GetInvokerForHash(cmdHash, remoteCallType, out Invoker invoker) &&
+                invoker.invokeClass.IsInstanceOfType(invokingType))
             {
                 invoker.invokeFunction(invokingType, reader, senderConnection);
                 return true;
