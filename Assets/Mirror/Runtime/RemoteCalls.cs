@@ -33,12 +33,12 @@ namespace Mirror.RemoteCalls
         // note: do not clear those with [RuntimeInitializeOnLoad]
         static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
-        static bool CheckIfDelegateExists(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate func, int cmdHash)
+        static bool CheckIfDelegateExists(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate func, int functionHash)
         {
-            if (remoteCallDelegates.ContainsKey(cmdHash))
+            if (remoteCallDelegates.ContainsKey(functionHash))
             {
                 // something already registered this hash
-                Invoker oldInvoker = remoteCallDelegates[cmdHash];
+                Invoker oldInvoker = remoteCallDelegates[functionHash];
                 if (oldInvoker.AreEqual(componentType, remoteCallType, func))
                 {
                     // it's all right,  it was the same function
