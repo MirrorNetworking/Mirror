@@ -21,12 +21,10 @@ namespace Mirror.RemoteCalls
         public RemoteCallDelegate function;
         public bool cmdRequiresAuthority;
 
-        public bool AreEqual(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate invokeFunction)
-        {
-            return (this.componentType == componentType &&
-                    this.callType == remoteCallType &&
-                    this.function == invokeFunction);
-        }
+        public bool AreEqual(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate invokeFunction) =>
+            this.componentType == componentType &&
+            this.callType == remoteCallType &&
+            this.function == invokeFunction;
     }
 
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
