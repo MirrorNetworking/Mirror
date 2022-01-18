@@ -73,10 +73,14 @@ namespace Mirror.RemoteCalls
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        // need to pass componentType to support invoking on GameObjects with
+        // multiple components of same type with same remote call.
         public static void RegisterCommandDelegate(Type componentType, string functionFullName, RemoteCallDelegate func, bool requiresAuthority) =>
             RegisterDelegate(componentType, functionFullName, RemoteCallType.Command, func, requiresAuthority);
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        // need to pass componentType to support invoking on GameObjects with
+        // multiple components of same type with same remote call.
         public static void RegisterRpcDelegate(Type componentType, string functionFullName, RemoteCallDelegate func) =>
             RegisterDelegate(componentType, functionFullName, RemoteCallType.ClientRpc, func);
 
