@@ -80,22 +80,16 @@ namespace Mirror.RemoteCalls
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
-        public static void RegisterCommandDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func, bool requiresAuthority)
-        {
+        public static void RegisterCommandDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func, bool requiresAuthority) =>
             RegisterDelegate(invokeClass, functionFullName, RemoteCallType.Command, func, requiresAuthority);
-        }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
-        public static void RegisterRpcDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func)
-        {
+        public static void RegisterRpcDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func) =>
             RegisterDelegate(invokeClass, functionFullName, RemoteCallType.ClientRpc, func);
-        }
 
         // to clean up tests
-        internal static void RemoveDelegate(int hash)
-        {
+        internal static void RemoveDelegate(int hash) =>
             remoteCallDelegates.Remove(hash);
-        }
 
         // note: no need to throw an error if not found.
         // an attacker might just try to call a cmd with an rpc's hash etc.
