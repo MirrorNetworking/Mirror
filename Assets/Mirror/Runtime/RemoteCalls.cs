@@ -39,14 +39,16 @@ namespace Mirror.RemoteCalls
         {
             if (remoteCallDelegates.ContainsKey(functionHash))
             {
-                // something already registered this hash
+                // something already registered this hash.
+                // it's okay if it was the same function.
                 Invoker oldInvoker = remoteCallDelegates[functionHash];
                 if (oldInvoker.AreEqual(componentType, remoteCallType, func))
                 {
-                    // it's all right,  it was the same function
                     return true;
                 }
 
+                // otherwise notify user. there is a rare chance of string
+                // hash collisions.
                 Debug.LogError($"Function {oldInvoker.componentType}.{oldInvoker.function.GetMethodName()} and {componentType}.{func.GetMethodName()} have the same hash.  Please rename one of them");
             }
 
