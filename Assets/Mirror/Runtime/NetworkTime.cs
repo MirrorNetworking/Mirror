@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
+#if !UNITY_2020_3_OR_NEWER
 using Stopwatch = System.Diagnostics.Stopwatch;
+#endif
 
 namespace Mirror
 {
