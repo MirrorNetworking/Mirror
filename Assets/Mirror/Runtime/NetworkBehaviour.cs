@@ -279,7 +279,7 @@ namespace Mirror
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
-        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string functionFullName, NetworkWriter writer, int channelId)
+        protected void SendTargetRPCInternal(NetworkConnection conn, string functionFullName, NetworkWriter writer, int channelId)
         {
             if (!NetworkServer.active)
             {

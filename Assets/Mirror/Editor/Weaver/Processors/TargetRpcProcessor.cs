@@ -118,9 +118,6 @@ namespace Mirror.Weaver
                 // null
                 worker.Emit(OpCodes.Ldnull);
             }
-            worker.Emit(OpCodes.Ldtoken, td);
-            // invokerClass
-            worker.Emit(OpCodes.Call, weaverTypes.getTypeFromHandleReference);
             // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
             worker.Emit(OpCodes.Ldstr, md.FullName);
             // writer
