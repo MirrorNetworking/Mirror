@@ -1199,16 +1199,6 @@ namespace Mirror.Weaver
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.Command, ref WeavingFailed))
                 return;
 
-            // multiple commands of same name with different parameteres are now
-            // supported because we register them with md.FullName like:
-            // "System.Void Mirror.Tests.RemoteAttrributeTest.AuthorityBehaviour::SendInt(System.Int32)"
-            //if (names.Contains(md.Name))
-            //{
-            //    Log.Error($"Duplicate Command name {md.Name}", md);
-            //    WeavingFailed = true;
-            //    return;
-            //}
-
             bool requiresAuthority = commandAttr.GetField("requiresAuthority", true);
 
             names.Add(md.Name);
