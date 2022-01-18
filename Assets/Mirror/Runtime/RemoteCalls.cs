@@ -58,19 +58,13 @@ namespace Mirror.RemoteCalls
             if (CheckIfDelegateExists(invokeClass, remoteCallType, func, hash))
                 return hash;
 
-            Invoker invoker = new Invoker
+            remoteCallDelegates[hash] = new Invoker
             {
                 remoteCallType = remoteCallType,
                 invokeClass = invokeClass,
                 invokeFunction = func,
                 cmdRequiresAuthority = cmdRequiresAuthority
             };
-
-            remoteCallDelegates[hash] = invoker;
-
-            //string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" requiresAuthority:{cmdRequiresAuthority}" : "";
-            //Debug.Log($"RegisterDelegate hash: {hash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
-
             return hash;
         }
 
