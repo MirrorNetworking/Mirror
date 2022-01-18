@@ -942,6 +942,27 @@ namespace Mirror
                                      lastSerialization.ownerWriter,
                                      lastSerialization.observersWriter);
 
+                // clear dirty bits for the components that we serialized.
+                // previously we did this in NetworkServer.BroadcastToConnection
+                // for every connection, for every entity.
+                // but we only serialize each entity once, right here in this
+                // 'lastSerialization.tick != tick' scope.
+                // so only do it once.
+                //
+                // NOTE: not in OnSerializeAllSafely as that should only do one
+                //       thing: serialize data.
+                //
+                //
+                // NOTE: DO NOT clear ALL component's dirty bits, because
+                //       components can have different syncIntervals and we
+                //       don't want to reset dirty bits for the ones that were
+                //       not synced yet.
+                //
+                // NOTE: this used to be very important to avoid ever growing
+                //       SyncList changes if they had no observers, but we've
+                //       added SyncObject.isRecording since.
+                ClearDirtyComponentsDirtyBits();
+
                 // set tick
                 lastSerialization.tick = tick;
                 //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
