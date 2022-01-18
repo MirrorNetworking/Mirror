@@ -50,9 +50,6 @@ namespace Mirror.Weaver
             // invoke internal send and return
             // load 'base.' to call the SendCommand function with
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldtoken, td);
-            // invokerClass
-            worker.Emit(OpCodes.Call, weaverTypes.getTypeFromHandleReference);
             // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
             worker.Emit(OpCodes.Ldstr, md.FullName);
             // writer

@@ -187,7 +187,7 @@ namespace Mirror
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
-        protected void SendCommandInternal(Type invokeClass, string functionFullName, NetworkWriter writer, int channelId, bool requiresAuthority = true)
+        protected void SendCommandInternal(string functionFullName, NetworkWriter writer, int channelId, bool requiresAuthority = true)
         {
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
