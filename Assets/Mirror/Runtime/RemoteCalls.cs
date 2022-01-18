@@ -30,6 +30,8 @@ namespace Mirror.RemoteCalls
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
     public static class RemoteProcedureCalls
     {
+        // one lookup for all remote calls.
+        // allows us to easily add more remote call types without duplicating code.
         // note: do not clear those with [RuntimeInitializeOnLoad]
         static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
