@@ -111,10 +111,8 @@ namespace Mirror.RemoteCalls
         }
 
         // check if the command 'requiresAuthority' which is set in the attribute
-        internal static bool CommandRequiresAuthority(int cmdHash, NetworkBehaviour component) =>
+        internal static bool CommandRequiresAuthority(int cmdHash) =>
             GetInvokerForHash(cmdHash, RemoteCallType.Command, out Invoker invoker) &&
-            // TODO why get component and check that? it's checked before applying remote call anyway?
-            invoker.invokeClass.IsInstanceOfType(component) &&
             invoker.cmdRequiresAuthority;
 
         /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
