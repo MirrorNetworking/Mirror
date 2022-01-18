@@ -91,7 +91,7 @@ namespace Mirror.RemoteCalls
             RegisterDelegate(invokeClass, functionFullName, RemoteCallType.ClientRpc, func);
         }
 
-        //  We need this in order to clean up tests
+        // to clean up tests
         internal static void RemoveDelegate(int hash)
         {
             remoteCallDelegates.Remove(hash);
