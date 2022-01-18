@@ -275,8 +275,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
-            HasError("Duplicate Command name CmdCantHaveSameName",
-                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32)");
+            IsSuccess();
         }
     }
 }

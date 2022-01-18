@@ -50,6 +50,18 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void SendThrow(int _) => throw new Exception(ErrorMessage);
     }
 
+    class CommandOverloads : NetworkBehaviour
+    {
+        public int firstCalled = 0;
+        public int secondCalled = 0;
+
+        [Command]
+        public void TheCommand(int _) => ++firstCalled;
+
+        [Command]
+        public void TheCommand(string _) => ++secondCalled;
+    }
+
     public class CommandTest : RemoteTestBase
     {
         [Test]
@@ -213,6 +225,23 @@ namespace Mirror.Tests.RemoteAttrributeTest
                 hostBehaviour.SendThrow(someInt);
                 ProcessMessages();
             }, "Processing new message should not throw, the exception from SendThrow should be caught");
+        }
+
+        // RemoteCalls uses md.FullName which gives us the full command/rpc name
+        // like "System.Void Mirror.Tests.RemoteAttrributeTest.AuthorityBehaviour::SendInt(System.Int32)"
+        // which means overloads with same name but different types should work.
+        [Test]
+        public void CommandOverloads()
+        {
+            // spawn with owner
+            CreateNetworkedAndSpawn(out _, out _, out CommandOverloads comp, NetworkServer.localConnection);
+
+            // call both overloads once
+            comp.TheCommand(42);
+            comp.TheCommand("A");
+            ProcessMessages();
+            Assert.That(comp.firstCalled, Is.EqualTo(1));
+            Assert.That(comp.secondCalled, Is.EqualTo(1));
         }
     }
 }
