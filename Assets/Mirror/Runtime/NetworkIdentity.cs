@@ -1053,7 +1053,7 @@ namespace Mirror
             }
 
             NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-            if (!RemoteProcedureCalls.InvokeHandlerDelegate(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
+            if (!RemoteProcedureCalls.Invoke(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
             {
                 Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
             }
