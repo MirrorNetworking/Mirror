@@ -645,6 +645,7 @@ namespace Mirror
             // buffer limit should be at least multiplier to have enough in there
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
+        
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             // sync target component's position on spawn.
