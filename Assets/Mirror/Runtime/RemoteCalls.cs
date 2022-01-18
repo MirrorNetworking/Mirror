@@ -116,8 +116,8 @@ namespace Mirror.RemoteCalls
             invoker.cmdRequiresAuthority;
 
         /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
-        public static RemoteCallDelegate GetDelegate(int cmdHash) =>
-            remoteCallDelegates.TryGetValue(cmdHash, out Invoker invoker)
+        public static RemoteCallDelegate GetDelegate(int functionHash) =>
+            remoteCallDelegates.TryGetValue(functionHash, out Invoker invoker)
             ? invoker.invokeFunction
             : null;
     }
