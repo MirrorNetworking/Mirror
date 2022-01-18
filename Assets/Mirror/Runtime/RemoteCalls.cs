@@ -97,19 +97,13 @@ namespace Mirror.RemoteCalls
             remoteCallDelegates.Remove(hash);
         }
 
-        static bool GetInvokerForHash(int cmdHash, RemoteCallType remoteCallType, out Invoker invoker)
-        {
-            if (remoteCallDelegates.TryGetValue(cmdHash, out invoker) && invoker != null && invoker.remoteCallType == remoteCallType)
-            {
-                return true;
-            }
-
-            // debug message if not found, or null, or mismatched type
-            // (no need to throw an error, an attacker might just be trying to
-            //  call an cmd with an rpc's hash)
-            // Debug.Log($"GetInvokerForHash hash {cmdHash} not found");
-            return false;
-        }
+        // note: no need to throw an error if not found.
+        // an attacker might just try to call a cmd with an rpc's hash etc.
+        // returning false is enough.
+        static bool GetInvokerForHash(int cmdHash, RemoteCallType remoteCallType, out Invoker invoker) =>
+            remoteCallDelegates.TryGetValue(cmdHash, out invoker) &&
+            invoker != null &&
+            invoker.remoteCallType == remoteCallType;
 
         // InvokeCmd/Rpc Delegate can all use the same function here
         internal static bool InvokeHandlerDelegate(int cmdHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkBehaviour invokingType, NetworkConnectionToClient senderConnection = null)
