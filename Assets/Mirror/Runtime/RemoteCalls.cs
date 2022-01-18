@@ -14,14 +14,14 @@ namespace Mirror.RemoteCalls
     {
         public Type invokeClass;
         public RemoteCallType remoteCallType;
-        public RemoteCallDelegate invokeFunction;
+        public RemoteCallDelegate function;
         public bool cmdRequiresAuthority;
 
         public bool AreEqual(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate invokeFunction)
         {
             return (this.invokeClass == invokeClass &&
                     this.remoteCallType == remoteCallType &&
-                    this.invokeFunction == invokeFunction);
+                    this.function == invokeFunction);
         }
     }
 
@@ -43,7 +43,7 @@ namespace Mirror.RemoteCalls
                     return true;
                 }
 
-                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.function.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
             }
 
             return false;
@@ -62,7 +62,7 @@ namespace Mirror.RemoteCalls
             {
                 remoteCallType = remoteCallType,
                 invokeClass = invokeClass,
-                invokeFunction = func,
+                function = func,
                 cmdRequiresAuthority = cmdRequiresAuthority
             };
             return hash;
@@ -98,7 +98,7 @@ namespace Mirror.RemoteCalls
                 invoker.invokeClass.IsInstanceOfType(component))
             {
                 // invoke function on this component
-                invoker.invokeFunction(component, reader, senderConnection);
+                invoker.function(component, reader, senderConnection);
                 return true;
             }
             return false;
@@ -112,7 +112,7 @@ namespace Mirror.RemoteCalls
         /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
         public static RemoteCallDelegate GetDelegate(int functionHash) =>
             remoteCallDelegates.TryGetValue(functionHash, out Invoker invoker)
-            ? invoker.invokeFunction
+            ? invoker.function
             : null;
     }
 }
