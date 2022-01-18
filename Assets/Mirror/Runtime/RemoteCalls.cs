@@ -63,7 +63,7 @@ namespace Mirror.RemoteCalls
                 remoteCallType = remoteCallType,
                 invokeClass = invokeClass,
                 invokeFunction = func,
-                cmdRequiresAuthority = cmdRequiresAuthority,
+                cmdRequiresAuthority = cmdRequiresAuthority
             };
 
             remoteCallDelegates[hash] = invoker;
