@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Mirror.RemoteCalls;
 using UnityEngine;
 
 namespace Mirror
@@ -187,14 +186,15 @@ namespace Mirror
             syncObject.IsRecording = () => netIdentity.observers?.Count > 0;
         }
 
-        protected void SendCommandInternal(Type invokeClass, string cmdName, NetworkWriter writer, int channelId, bool requiresAuthority = true)
+        // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        protected void SendCommandInternal(Type invokeClass, string functionFullName, NetworkWriter writer, int channelId, bool requiresAuthority = true)
         {
             // this was in Weaver before
             // NOTE: we could remove this later to allow calling Cmds on Server
             //       to avoid Wrapper functions. a lot of people requested this.
             if (!NetworkClient.active)
             {
-                Debug.LogError($"Command Function {cmdName} called without an active client.");
+                Debug.LogError($"Command Function {functionFullName} called without an active client.");
                 return;
             }
 
@@ -213,7 +213,7 @@ namespace Mirror
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(!requiresAuthority || isLocalPlayer || hasAuthority))
             {
-                Debug.LogWarning($"Trying to send command for object without authority. {invokeClass}.{cmdName}");
+                Debug.LogWarning($"Trying to send command for object without authority. {functionFullName}");
                 return;
             }
 
@@ -234,7 +234,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteProcedureCalls.GetMethodHash(invokeClass, cmdName),
+                functionHash = functionFullName.GetStableHashCode(),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
@@ -247,19 +247,20 @@ namespace Mirror
             NetworkClient.connection.Send(message, channelId);
         }
 
-        protected void SendRPCInternal(Type invokeClass, string rpcName, NetworkWriter writer, int channelId, bool includeOwner)
+        // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        protected void SendRPCInternal(Type invokeClass, string functionFullName, NetworkWriter writer, int channelId, bool includeOwner)
         {
             // this was in Weaver before
             if (!NetworkServer.active)
             {
-                Debug.LogError($"RPC Function {rpcName} called on Client.");
+                Debug.LogError($"RPC Function {functionFullName} called on Client.");
                 return;
             }
 
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning($"ClientRpc {rpcName} called on un-spawned object: {name}");
+                Debug.LogWarning($"ClientRpc {functionFullName} called on un-spawned object: {name}");
                 return;
             }
 
@@ -269,7 +270,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteProcedureCalls.GetMethodHash(invokeClass, rpcName),
+                functionHash = functionFullName.GetStableHashCode(),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
@@ -277,17 +278,18 @@ namespace Mirror
             NetworkServer.SendToReadyObservers(netIdentity, message, includeOwner, channelId);
         }
 
-        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string rpcName, NetworkWriter writer, int channelId)
+        // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        protected void SendTargetRPCInternal(NetworkConnection conn, Type invokeClass, string functionFullName, NetworkWriter writer, int channelId)
         {
             if (!NetworkServer.active)
             {
-                Debug.LogError($"TargetRPC {rpcName} called when server not active");
+                Debug.LogError($"TargetRPC {functionFullName} called when server not active");
                 return;
             }
 
             if (!isServer)
             {
-                Debug.LogWarning($"TargetRpc {rpcName} called on {name} but that object has not been spawned or has been unspawned");
+                Debug.LogWarning($"TargetRpc {functionFullName} called on {name} but that object has not been spawned or has been unspawned");
                 return;
             }
 
@@ -300,13 +302,13 @@ namespace Mirror
             // if still null
             if (conn is null)
             {
-                Debug.LogError($"TargetRPC {rpcName} was given a null connection, make sure the object has an owner or you pass in the target connection");
+                Debug.LogError($"TargetRPC {functionFullName} was given a null connection, make sure the object has an owner or you pass in the target connection");
                 return;
             }
 
             if (!(conn is NetworkConnectionToClient))
             {
-                Debug.LogError($"TargetRPC {rpcName} requires a NetworkConnectionToClient but was given {conn.GetType().Name}");
+                Debug.LogError($"TargetRPC {functionFullName} requires a NetworkConnectionToClient but was given {conn.GetType().Name}");
                 return;
             }
 
@@ -316,7 +318,7 @@ namespace Mirror
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = RemoteProcedureCalls.GetMethodHash(invokeClass, rpcName),
+                functionHash = functionFullName.GetStableHashCode(),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };

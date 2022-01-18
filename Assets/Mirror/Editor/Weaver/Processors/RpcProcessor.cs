@@ -74,7 +74,6 @@ namespace Mirror.Weaver
             if (!NetworkBehaviourProcessor.WriteArguments(worker, writers, Log, md, RemoteCallType.ClientRpc, ref WeavingFailed))
                 return null;
 
-            string rpcName = md.Name;
             int channel = clientRpcAttr.GetField("channel", 0);
             bool includeOwner = clientRpcAttr.GetField("includeOwner", true);
 
@@ -84,7 +83,8 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldtoken, td);
             // invokerClass
             worker.Emit(OpCodes.Call, weaverTypes.getTypeFromHandleReference);
-            worker.Emit(OpCodes.Ldstr, rpcName);
+            // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+            worker.Emit(OpCodes.Ldstr, md.FullName);
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, channel);

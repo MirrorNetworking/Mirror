@@ -74,7 +74,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} was given a null connection, make sure the object has an owner or you pass in the target connection");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) was given a null connection, make sure the object has an owner or you pass in the target connection");
             hostBehaviour.SendInt(someInt);
         }
 
@@ -90,7 +90,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} was given a null connection, make sure the object has an owner or you pass in the target connection");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendIntWithTarget(Mirror.NetworkConnection,System.Int32) was given a null connection, make sure the object has an owner or you pass in the target connection");
             hostBehaviour.SendIntWithTarget(null, someInt);
         }
 
@@ -106,7 +106,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} requires a NetworkConnectionToClient but was given {typeof(FakeConnection).Name}");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendIntWithTarget(Mirror.NetworkConnection,System.Int32) requires a NetworkConnectionToClient but was given {typeof(FakeConnection).Name}");
             hostBehaviour.SendIntWithTarget(new FakeConnection(), someInt);
         }
         class FakeConnection : NetworkConnection
@@ -130,12 +130,12 @@ namespace Mirror.Tests.RemoteAttrributeTest
                 Assert.Fail("Event should not be invoked with error");
             };
             NetworkServer.active = false;
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} called when server not active");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called when server not active");
             hostBehaviour.SendInt(someInt);
         }
 
         [Test]
-        public void ErrorForTargetRpcWhenObjetNotSpawned()
+        public void ErrorForTargetRpcWhenObjectNotSpawned()
         {
             // create without spawning
             CreateNetworked(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
@@ -146,7 +146,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Warning, $"TargetRpc {nameof(TargetRpcBehaviour.SendInt)} called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
+            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
             hostBehaviour.SendInt(someInt);
         }
     }

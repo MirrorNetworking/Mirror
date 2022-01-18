@@ -36,24 +36,14 @@ namespace Mirror.RemoteCalls
         // note: do not clear those with [RuntimeInitializeOnLoad]
         static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
-        internal static int GetMethodHash(Type invokeClass, string methodName)
-        {
-            // (invokeClass + ":" + cmdName).GetStableHashCode() would cause allocations.
-            // so hash1 + hash2 is better.
-            unchecked
-            {
-                int hash = invokeClass.FullName.GetStableHashCode();
-                return hash * 503 + methodName.GetStableHashCode();
-            }
-        }
-
-        internal static int RegisterDelegate(Type invokeClass, string cmdName, RemoteCallType remoteCallType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
+        // pass full function name to avoid ClassA.Func & ClassB.Func collisions
+        internal static int RegisterDelegate(Type invokeClass, string functionFullName, RemoteCallType remoteCallType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
         {
             // type+func so Inventory.RpcUse != Equipment.RpcUse
-            int cmdHash = GetMethodHash(invokeClass, cmdName);
+            int hash = functionFullName.GetStableHashCode();
 
-            if (CheckIfDelegateExists(invokeClass, remoteCallType, func, cmdHash))
-                return cmdHash;
+            if (CheckIfDelegateExists(invokeClass, remoteCallType, func, hash))
+                return hash;
 
             Invoker invoker = new Invoker
             {
@@ -63,12 +53,12 @@ namespace Mirror.RemoteCalls
                 cmdRequiresAuthority = cmdRequiresAuthority,
             };
 
-            remoteCallDelegates[cmdHash] = invoker;
+            remoteCallDelegates[hash] = invoker;
 
             //string ingoreAuthorityMessage = invokerType == MirrorInvokeType.Command ? $" requiresAuthority:{cmdRequiresAuthority}" : "";
-            //Debug.Log($"RegisterDelegate hash: {cmdHash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
+            //Debug.Log($"RegisterDelegate hash: {hash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
 
-            return cmdHash;
+            return hash;
         }
 
         static bool CheckIfDelegateExists(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate func, int cmdHash)
@@ -89,14 +79,16 @@ namespace Mirror.RemoteCalls
             return false;
         }
 
-        public static void RegisterCommandDelegate(Type invokeClass, string cmdName, RemoteCallDelegate func, bool requiresAuthority)
+        // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        public static void RegisterCommandDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func, bool requiresAuthority)
         {
-            RegisterDelegate(invokeClass, cmdName, RemoteCallType.Command, func, requiresAuthority);
+            RegisterDelegate(invokeClass, functionFullName, RemoteCallType.Command, func, requiresAuthority);
         }
 
-        public static void RegisterRpcDelegate(Type invokeClass, string rpcName, RemoteCallDelegate func)
+        // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        public static void RegisterRpcDelegate(Type invokeClass, string functionFullName, RemoteCallDelegate func)
         {
-            RegisterDelegate(invokeClass, rpcName, RemoteCallType.ClientRpc, func);
+            RegisterDelegate(invokeClass, functionFullName, RemoteCallType.ClientRpc, func);
         }
 
         //  We need this in order to clean up tests
