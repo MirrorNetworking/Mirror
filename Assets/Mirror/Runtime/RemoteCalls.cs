@@ -12,6 +12,10 @@ namespace Mirror.RemoteCalls
 
     class Invoker
     {
+        // GameObjects might have multiple components of TypeA.CommandA().
+        // when invoking, we check if 'TypeA' is an instance of the type.
+        // the hash itself isn't enough because we wouldn't know which component
+        // to invoke it on if there are multiple of the same type.
         public Type invokeClass;
         public RemoteCallType callType;
         public RemoteCallDelegate function;
