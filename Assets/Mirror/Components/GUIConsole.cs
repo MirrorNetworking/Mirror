@@ -60,7 +60,10 @@ namespace Mirror
         void OnLog(string message, string stackTrace, LogType type)
         {
             // is this important?
-            bool isImportant = type == LogType.Error || type == LogType.Exception;
+            // => always show exceptions & errors
+            // => usually a good idea to show warnings too, otherwise it's too
+            //    easy to miss OnDeserialize warnings etc. in builds
+            bool isImportant = type == LogType.Error || type == LogType.Exception || type == LogType.Warning;
 
             // use stack trace only if important
             // (otherwise users would have to find and search the log file.
