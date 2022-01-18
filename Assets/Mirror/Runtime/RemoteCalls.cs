@@ -36,6 +36,24 @@ namespace Mirror.RemoteCalls
         // note: do not clear those with [RuntimeInitializeOnLoad]
         static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
+        static bool CheckIfDelegateExists(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate func, int cmdHash)
+        {
+            if (remoteCallDelegates.ContainsKey(cmdHash))
+            {
+                // something already registered this hash
+                Invoker oldInvoker = remoteCallDelegates[cmdHash];
+                if (oldInvoker.AreEqual(invokeClass, remoteCallType, func))
+                {
+                    // it's all right,  it was the same function
+                    return true;
+                }
+
+                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
+            }
+
+            return false;
+        }
+
         // pass full function name to avoid ClassA.Func & ClassB.Func collisions
         internal static int RegisterDelegate(Type invokeClass, string functionFullName, RemoteCallType remoteCallType, RemoteCallDelegate func, bool cmdRequiresAuthority = true)
         {
@@ -59,24 +77,6 @@ namespace Mirror.RemoteCalls
             //Debug.Log($"RegisterDelegate hash: {hash} invokerType: {invokerType} method: {func.GetMethodName()}{ingoreAuthorityMessage}");
 
             return hash;
-        }
-
-        static bool CheckIfDelegateExists(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate func, int cmdHash)
-        {
-            if (remoteCallDelegates.ContainsKey(cmdHash))
-            {
-                // something already registered this hash
-                Invoker oldInvoker = remoteCallDelegates[cmdHash];
-                if (oldInvoker.AreEqual(invokeClass, remoteCallType, func))
-                {
-                    // it's all right,  it was the same function
-                    return true;
-                }
-
-                Debug.LogError($"Function {oldInvoker.invokeClass}.{oldInvoker.invokeFunction.GetMethodName()} and {invokeClass}.{func.GetMethodName()} have the same hash.  Please rename one of them");
-            }
-
-            return false;
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
