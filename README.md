@@ -26,6 +26,8 @@ We needed a networking library that allows us to **[launch our games](https://mi
 
 Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)** & **[production](https://www.oculus.com/experiences/quest/2564158073609422/)** ready.
 
+Build for the **Metaverse**, with **Mirror Networking**!
+
 ## Free & Open
 Mirror is **free & open source**!
 * Code: MIT licensed.
