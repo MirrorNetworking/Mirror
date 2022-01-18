@@ -12,7 +12,7 @@ public class #SCRIPTNAME# : NetworkManager
 {
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
-    public static new PortalsNetworkManager singleton { get; private set; }
+    public static new #SCRIPTNAME# singleton { get; private set; }
 
     #region Unity Callbacks
 
