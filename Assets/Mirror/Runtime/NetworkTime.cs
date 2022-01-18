@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace Mirror
@@ -14,15 +15,6 @@ namespace Mirror
 
         static double lastPingTime;
 
-        // Date and time when the application started
-        // TODO Unity 2020 / 2021 supposedly has double Time.time now?
-        static readonly Stopwatch stopwatch = new Stopwatch();
-
-        static NetworkTime()
-        {
-            stopwatch.Start();
-        }
-
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
         static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
 
@@ -31,11 +23,16 @@ namespace Mirror
         static double offsetMax = double.MaxValue;
 
         /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
-        // useful until we have Unity's 'double' Time.time
-        //
+#if UNITY_2020_3_OR_NEWER
+        public static double localTime => Time.timeAsDouble;
+#else
+        // need stopwatch for older Unity versions, but it's quite slow.
         // CAREFUL: unlike Time.time, this is not a FRAME time.
         //          it changes during the frame too.
+        static readonly Stopwatch stopwatch = new Stopwatch();
+        static NetworkTime() => stopwatch.Start();
         public static double localTime => stopwatch.Elapsed.TotalSeconds;
+#endif
 
         /// <summary>The time in seconds since the server started.</summary>
         //
@@ -84,7 +81,9 @@ namespace Mirror
             _offset = new ExponentialMovingAverage(PingWindowSize);
             offsetMin = double.MinValue;
             offsetMax = double.MaxValue;
+#if !UNITY_2020_3_OR_NEWER
             stopwatch.Restart();
+#endif
         }
 
         internal static void UpdateClient()
