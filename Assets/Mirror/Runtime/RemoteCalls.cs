@@ -13,14 +13,14 @@ namespace Mirror.RemoteCalls
     class Invoker
     {
         public Type invokeClass;
-        public RemoteCallType remoteCallType;
+        public RemoteCallType callType;
         public RemoteCallDelegate function;
         public bool cmdRequiresAuthority;
 
         public bool AreEqual(Type invokeClass, RemoteCallType remoteCallType, RemoteCallDelegate invokeFunction)
         {
             return (this.invokeClass == invokeClass &&
-                    this.remoteCallType == remoteCallType &&
+                    this.callType == remoteCallType &&
                     this.function == invokeFunction);
         }
     }
@@ -60,7 +60,7 @@ namespace Mirror.RemoteCalls
 
             remoteCallDelegates[hash] = new Invoker
             {
-                remoteCallType = remoteCallType,
+                callType = remoteCallType,
                 invokeClass = invokeClass,
                 function = func,
                 cmdRequiresAuthority = cmdRequiresAuthority
@@ -86,7 +86,7 @@ namespace Mirror.RemoteCalls
         static bool GetInvokerForHash(int functionHash, RemoteCallType remoteCallType, out Invoker invoker) =>
             remoteCallDelegates.TryGetValue(functionHash, out invoker) &&
             invoker != null &&
-            invoker.remoteCallType == remoteCallType;
+            invoker.callType == remoteCallType;
 
         // InvokeCmd/Rpc Delegate can all use the same function here
         internal static bool Invoke(int functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkBehaviour component, NetworkConnectionToClient senderConnection = null)
