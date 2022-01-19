@@ -558,7 +558,7 @@ namespace Mirror
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [ClientRpc]
-        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        public void RpcTeleport(Vector3 destination, Quaternion rotation)
         {
             // NOTE: even in client authority mode, the server is always allowed
             //       to teleport the player. for example:
@@ -567,6 +567,14 @@ namespace Mirror
             //         so the server should be able to reset position if needed.
 
             // TODO what about host mode?
+            OnTeleport(destination, rotation);
+        }
+
+        // Deprecated 2022-01-19
+        [Obsolete("Use RpcTeleport(Vector3, Quaternion) instead.")]
+        [ClientRpc]
+        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
             OnTeleport(destination, rotation);
         }
 
@@ -596,7 +604,7 @@ namespace Mirror
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [Command]
-        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        public void CmdTeleport(Vector3 destination, Quaternion rotation)
         {
             // client can only teleport objects that it has authority over.
             if (!clientAuthority) return;
@@ -611,7 +619,17 @@ namespace Mirror
             // TODO or not? if client ONLY calls Teleport(pos), the position
             //      would only be set after the rpc. unless the client calls
             //      BOTH Teleport(pos) and targetComponent.position=pos
-            RpcTeleportAndRotate(destination, rotation);
+            RpcTeleport(destination, rotation);
+        }
+
+        // Deprecated 2022-01-19
+        [Obsolete("Use CmdTeleport(Vector3, Quaternion) instead.")]
+        [Command]
+        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
+            if (!clientAuthority) return;
+            OnTeleport(destination, rotation);
+            RpcTeleport(destination, rotation);
         }
 
         public virtual void Reset()
