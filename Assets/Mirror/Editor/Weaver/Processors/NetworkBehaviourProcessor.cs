@@ -1161,12 +1161,6 @@ namespace Mirror.Weaver
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.TargetRpc, ref WeavingFailed))
                 return;
 
-            if (names.Contains(md.Name))
-            {
-                Log.Error($"Duplicate Target Rpc name {md.Name}", md);
-                WeavingFailed = true;
-                return;
-            }
             names.Add(md.Name);
             targetRpcs.Add(md);
 

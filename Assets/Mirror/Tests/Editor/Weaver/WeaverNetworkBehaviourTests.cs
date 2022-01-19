@@ -124,8 +124,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourTargetRpcDuplicateName()
         {
-            HasError("Duplicate Target Rpc name TargetRpcCantHaveSameName",
-                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcDuplicateName.NetworkBehaviourTargetRpcDuplicateName::TargetRpcCantHaveSameName(Mirror.NetworkConnection,System.Int32,System.Int32)");
+            IsSuccess();
         }
 
         [Test]

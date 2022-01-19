@@ -22,6 +22,18 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
+    class TargetRpcOverloads : NetworkBehaviour
+    {
+        public int firstCalled = 0;
+        public int secondCalled = 0;
+
+        [TargetRpc]
+        public void TargetRpcTest(int _) => ++firstCalled;
+
+        [TargetRpc]
+        public void TargetRpcTest(string _) => ++secondCalled;
+    }
+
     public class TargetRpcTest : RemoteTestBase
     {
         [Test]
@@ -148,6 +160,22 @@ namespace Mirror.Tests.RemoteAttrributeTest
             };
             LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
             hostBehaviour.SendInt(someInt);
+        }
+
+        // RemoteCalls uses md.FullName which gives us the full command/rpc name
+        // like "System.Void Mirror.Tests.RemoteAttrributeTest.AuthorityBehaviour::SendInt(System.Int32)"
+        // which means overloads with same name but different types should work.
+        [Test]
+        public void TargetRpcOverload()
+        {
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcOverloads hostBehaviour, NetworkServer.localConnection);
+
+            hostBehaviour.TargetRpcTest(42);
+            hostBehaviour.TargetRpcTest("A");
+            ProcessMessages();
+            Assert.That(hostBehaviour.firstCalled, Is.EqualTo(1));
+            Assert.That(hostBehaviour.secondCalled, Is.EqualTo(1));
         }
     }
 }
