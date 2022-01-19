@@ -1,0 +1,22 @@
+{
+    "name": "Mirror.Tests.Runtime",
+    "references": [
+        "Mirror",
+        "Mirror.Components",
+        "Mirror.Tests.Common"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "NSubstitute.dll",
+        "Castle.Core.dll",
+        "System.Threading.Tasks.Extensions.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": []
+}
