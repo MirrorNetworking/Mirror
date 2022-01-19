@@ -1129,13 +1129,6 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (names.Contains(md.Name))
-            {
-                Log.Error($"Duplicate ClientRpc name {md.Name}", md);
-                WeavingFailed = true;
-                return;
-            }
-
             bool includeOwner = clientRpcAttr.GetField("includeOwner", true);
 
             names.Add(md.Name);
