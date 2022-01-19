@@ -932,12 +932,10 @@ namespace Mirror
                 return;
             }
 
-            CommandInfo commandInfo = identity.GetCommandInfo(msg.componentIndex, msg.functionHash);
-
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            bool requiresAuthority = commandInfo.requiresAuthority;
+            bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
             if (requiresAuthority && identity.connectionToClient != conn)
             {
                 Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
@@ -947,7 +945,7 @@ namespace Mirror
             // Debug.Log($"OnCommandMessage for netId:{msg.netId} conn:{conn}");
 
             using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, MirrorInvokeType.Command, networkReader, conn as NetworkConnectionToClient);
+                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, RemoteCallType.Command, networkReader, conn as NetworkConnectionToClient);
         }
 
         // spawning ////////////////////////////////////////////////////////////
@@ -1596,24 +1594,6 @@ namespace Mirror
                         };
                         connection.Send(message);
                     }
-
-                    // clear dirty bits only for the components that we serialized
-                    // DO NOT clear ALL component's dirty bits, because
-                    // components can have different syncIntervals and we don't
-                    // want to reset dirty bits for the ones that were not
-                    // synced yet.
-                    // (we serialized only the IsDirty() components, or all of
-                    //  them if initialState. clearing the dirty ones is enough.)
-                    //
-                    // NOTE: this used to be very important to avoid ever
-                    //       growing SyncList changes if they had no observers,
-                    //       but we've added SyncObject.isRecording since.
-                    //
-                    // NOTE: this is what we did before push->pull
-                    //       broadcasting. let's keep doing this for
-                    //       feature parity to not break anyone's project.
-                    //       TODO make this more simple / unnecessary later.
-                    identity.ClearDirtyComponentsDirtyBits();
                 }
                 // spawned list should have no null entries because we
                 // always call Remove in OnObjectDestroy everywhere.

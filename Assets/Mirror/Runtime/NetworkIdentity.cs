@@ -942,6 +942,27 @@ namespace Mirror
                                      lastSerialization.ownerWriter,
                                      lastSerialization.observersWriter);
 
+                // clear dirty bits for the components that we serialized.
+                // previously we did this in NetworkServer.BroadcastToConnection
+                // for every connection, for every entity.
+                // but we only serialize each entity once, right here in this
+                // 'lastSerialization.tick != tick' scope.
+                // so only do it once.
+                //
+                // NOTE: not in OnSerializeAllSafely as that should only do one
+                //       thing: serialize data.
+                //
+                //
+                // NOTE: DO NOT clear ALL component's dirty bits, because
+                //       components can have different syncIntervals and we
+                //       don't want to reset dirty bits for the ones that were
+                //       not synced yet.
+                //
+                // NOTE: this used to be very important to avoid ever growing
+                //       SyncList changes if they had no observers, but we've
+                //       added SyncObject.isRecording since.
+                ClearDirtyComponentsDirtyBits();
+
                 // set tick
                 lastSerialization.tick = tick;
                 //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
@@ -1015,12 +1036,12 @@ namespace Mirror
         }
 
         // Helper function to handle Command/Rpc
-        internal void HandleRemoteCall(int componentIndex, int functionHash, MirrorInvokeType invokeType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
+        internal void HandleRemoteCall(int componentIndex, int functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             // check if unity object has been destroyed
             if (this == null)
             {
-                Debug.LogWarning($"{invokeType} [{functionHash}] received for deleted object [netId={netId}]");
+                Debug.LogWarning($"{remoteCallType} [{functionHash}] received for deleted object [netId={netId}]");
                 return;
             }
 
@@ -1032,32 +1053,9 @@ namespace Mirror
             }
 
             NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-            if (!RemoteCallHelper.InvokeHandlerDelegate(functionHash, invokeType, reader, invokeComponent, senderConnection))
+            if (!RemoteProcedureCalls.Invoke(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
             {
-                Debug.LogError($"Found no receiver for incoming {invokeType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
-            }
-        }
-
-        // Runs on server
-        internal CommandInfo GetCommandInfo(int componentIndex, int cmdHash)
-        {
-            // check if unity object has been destroyed
-            if (this == null)
-            {
-                // error can be logged later
-                return default;
-            }
-
-            // find the right component to invoke the function on
-            if (0 <= componentIndex && componentIndex < NetworkBehaviours.Length)
-            {
-                NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-                return RemoteCallHelper.GetCommandInfo(cmdHash, invokeComponent);
-            }
-            else
-            {
-                // error can be logged later
-                return default;
+                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
             }
         }
 

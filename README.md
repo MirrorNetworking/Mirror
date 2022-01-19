@@ -138,11 +138,8 @@ All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/M
 ## Development & Contributing
 Mirror is used **in production** by everything from small indie projects to million dollar funded games that will run for a decade or more.
 
-Therefore it is of utmost importance for us to follow the [KISS principle](https://en.wikipedia.org/wiki/KISS_principle) in order for our games to survive, so that we can still fix networking bugs 10 years from now if needed.
+Therefore it is important for us to follow the [KISS principle](https://en.wikipedia.org/wiki/KISS_principle) in order for our games to survive, so that we can still fix networking bugs 10 years from now if needed.
 
-Keeping the next decade in mind, contributing **fixes** / **tests** / **improvements** is highly appreciated while new features have a low probability of being merged.
-
-_At this point, what we don't add to Mirror is more important than what we do add to it!_
 
 # Bug Bounty
 <img src="https://user-images.githubusercontent.com/16416509/110572995-718b5900-8195-11eb-802c-235c82a03bf7.png" height="150">
