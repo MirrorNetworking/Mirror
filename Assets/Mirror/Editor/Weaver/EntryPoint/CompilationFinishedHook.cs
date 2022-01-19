@@ -27,7 +27,7 @@ namespace Mirror.Weaver
         // delete for subscription to Weaver error messages
         public static Action<string> OnWeaverError;
 
-        // controls weather Weaver errors are reported direct to the Unity console (tests enable this)
+        // controls whether Weaver errors are reported direct to the Unity console (tests enable this)
         public static bool UnityLogEnabled = true;
 
         [InitializeOnLoadMethod]
