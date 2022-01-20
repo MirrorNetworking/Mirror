@@ -22,6 +22,18 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
+    class TargetRpcOverloads : NetworkBehaviour
+    {
+        public int firstCalled = 0;
+        public int secondCalled = 0;
+
+        [TargetRpc]
+        public void TargetRpcTest(int _) => ++firstCalled;
+
+        [TargetRpc]
+        public void TargetRpcTest(string _) => ++secondCalled;
+    }
+
     public class TargetRpcTest : RemoteTestBase
     {
         [Test]
@@ -74,7 +86,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} was given a null connection, make sure the object has an owner or you pass in the target connection");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) was given a null connection, make sure the object has an owner or you pass in the target connection");
             hostBehaviour.SendInt(someInt);
         }
 
@@ -90,7 +102,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} was given a null connection, make sure the object has an owner or you pass in the target connection");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendIntWithTarget(Mirror.NetworkConnection,System.Int32) was given a null connection, make sure the object has an owner or you pass in the target connection");
             hostBehaviour.SendIntWithTarget(null, someInt);
         }
 
@@ -106,7 +118,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendIntWithTarget)} requires a NetworkConnectionToClient but was given {typeof(FakeConnection).Name}");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendIntWithTarget(Mirror.NetworkConnection,System.Int32) requires a NetworkConnectionToClient but was given {typeof(FakeConnection).Name}");
             hostBehaviour.SendIntWithTarget(new FakeConnection(), someInt);
         }
         class FakeConnection : NetworkConnection
@@ -130,12 +142,12 @@ namespace Mirror.Tests.RemoteAttrributeTest
                 Assert.Fail("Event should not be invoked with error");
             };
             NetworkServer.active = false;
-            LogAssert.Expect(LogType.Error, $"TargetRPC {nameof(TargetRpcBehaviour.SendInt)} called when server not active");
+            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called when server not active");
             hostBehaviour.SendInt(someInt);
         }
 
         [Test]
-        public void ErrorForTargetRpcWhenObjetNotSpawned()
+        public void ErrorForTargetRpcWhenObjectNotSpawned()
         {
             // create without spawning
             CreateNetworked(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
@@ -146,8 +158,24 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Warning, $"TargetRpc {nameof(TargetRpcBehaviour.SendInt)} called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
+            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
             hostBehaviour.SendInt(someInt);
+        }
+
+        // RemoteCalls uses md.FullName which gives us the full command/rpc name
+        // like "System.Void Mirror.Tests.RemoteAttrributeTest.AuthorityBehaviour::SendInt(System.Int32)"
+        // which means overloads with same name but different types should work.
+        [Test]
+        public void TargetRpcOverload()
+        {
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcOverloads hostBehaviour, NetworkServer.localConnection);
+
+            hostBehaviour.TargetRpcTest(42);
+            hostBehaviour.TargetRpcTest("A");
+            ProcessMessages();
+            Assert.That(hostBehaviour.firstCalled, Is.EqualTo(1));
+            Assert.That(hostBehaviour.secondCalled, Is.EqualTo(1));
         }
     }
 }

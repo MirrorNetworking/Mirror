@@ -21,7 +21,6 @@ namespace Mirror.Weaver
 
         WeaverTypes weaverTypes;
         SyncVarAccessLists syncVarAccessLists;
-        IAssemblyResolver Resolver;
         AssemblyDefinition CurrentAssembly;
         Writers writers;
         Readers readers;
@@ -138,7 +137,6 @@ namespace Mirror.Weaver
             modified = false;
             try
             {
-                Resolver = resolver;
                 CurrentAssembly = assembly;
 
                 // fix "No writer found for ..." error

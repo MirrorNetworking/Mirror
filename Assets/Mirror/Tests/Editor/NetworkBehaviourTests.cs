@@ -178,36 +178,36 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            int registeredHash1 = RemoteCallHelper.RegisterDelegate(
+            int registeredHash1 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
-            int registeredHash2 = RemoteCallHelper.RegisterDelegate(
+            int registeredHash2 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, $"Function {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate)} and {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate2)} have the same hash.  Please rename one of them");
-            int registeredHash3 = RemoteCallHelper.RegisterDelegate(
+            int registeredHash3 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate2,
                 false);
 
             // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash1);
-            RemoteCallHelper.RemoveDelegate(registeredHash2);
-            RemoteCallHelper.RemoveDelegate(registeredHash3);
+            RemoteProcedureCalls.RemoveDelegate(registeredHash1);
+            RemoteProcedureCalls.RemoveDelegate(registeredHash2);
+            RemoteProcedureCalls.RemoveDelegate(registeredHash3);
         }
 
         [Test]
@@ -215,25 +215,25 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            int registeredHash = RemoteCallHelper.RegisterDelegate(
+            int registeredHash = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
-                MirrorInvokeType.Command,
+                RemoteCallType.Command,
                 NetworkBehaviourDelegateComponent.Delegate,
                 false);
 
             // get handler
-            int cmdHash = RemoteCallHelper.GetMethodHash(typeof(NetworkBehaviourDelegateComponent), nameof(NetworkBehaviourDelegateComponent.Delegate));
-            CmdDelegate func = RemoteCallHelper.GetDelegate(cmdHash);
-            CmdDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
+            int cmdHash = nameof(NetworkBehaviourDelegateComponent.Delegate).GetStableHashCode();
+            RemoteCallDelegate func = RemoteProcedureCalls.GetDelegate(cmdHash);
+            RemoteCallDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
 
             // invalid hash should return null handler
-            CmdDelegate funcNull = RemoteCallHelper.GetDelegate(1234);
+            RemoteCallDelegate funcNull = RemoteProcedureCalls.GetDelegate(1234);
             Assert.That(funcNull, Is.Null);
 
             // clean up
-            RemoteCallHelper.RemoveDelegate(registeredHash);
+            RemoteProcedureCalls.RemoveDelegate(registeredHash);
         }
 
         // NOTE: SyncVarGameObjectEqual should be static later

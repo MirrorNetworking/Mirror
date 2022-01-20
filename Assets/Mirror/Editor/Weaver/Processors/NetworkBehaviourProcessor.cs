@@ -290,20 +290,20 @@ namespace Mirror.Weaver
             for (int i = 0; i < commands.Count; ++i)
             {
                 CmdResult cmdResult = commands[i];
-                GenerateRegisterCommandDelegate(cctorWorker, weaverTypes.registerCommandDelegateReference, commandInvocationFuncs[i], cmdResult);
+                GenerateRegisterCommandDelegate(cctorWorker, weaverTypes.registerCommandReference, commandInvocationFuncs[i], cmdResult);
             }
 
             // register all client rpcs in cctor
             for (int i = 0; i < clientRpcs.Count; ++i)
             {
                 ClientRpcResult clientRpcResult = clientRpcs[i];
-                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, clientRpcInvocationFuncs[i], clientRpcResult.method.Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcReference, clientRpcInvocationFuncs[i], clientRpcResult.method.FullName);
             }
 
             // register all target rpcs in cctor
             for (int i = 0; i < targetRpcs.Count; ++i)
             {
-                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcDelegateReference, targetRpcInvocationFuncs[i], targetRpcs[i].Name);
+                GenerateRegisterRemoteDelegate(cctorWorker, weaverTypes.registerRpcReference, targetRpcInvocationFuncs[i], targetRpcs[i].FullName);
             }
 
             // add final 'Ret' instruction to cctor
@@ -356,22 +356,25 @@ namespace Mirror.Weaver
             // This generates code like:
             NetworkBehaviour.RegisterCommandDelegate(base.GetType(), "CmdThrust", new NetworkBehaviour.CmdDelegate(ShipControl.InvokeCmdCmdThrust));
         */
-        void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, string cmdName)
+
+        // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+        void GenerateRegisterRemoteDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, string functionFullName)
         {
             worker.Emit(OpCodes.Ldtoken, netBehaviourSubclass);
             worker.Emit(OpCodes.Call, weaverTypes.getTypeFromHandleReference);
-            worker.Emit(OpCodes.Ldstr, cmdName);
+            worker.Emit(OpCodes.Ldstr, functionFullName);
             worker.Emit(OpCodes.Ldnull);
             worker.Emit(OpCodes.Ldftn, func);
 
-            worker.Emit(OpCodes.Newobj, weaverTypes.CmdDelegateConstructor);
+            worker.Emit(OpCodes.Newobj, weaverTypes.RemoteCallDelegateConstructor);
             //
             worker.Emit(OpCodes.Call, registerMethod);
         }
 
         void GenerateRegisterCommandDelegate(ILProcessor worker, MethodReference registerMethod, MethodDefinition func, CmdResult cmdResult)
         {
-            string cmdName = cmdResult.method.Name;
+            // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
+            string cmdName = cmdResult.method.FullName;
             bool requiresAuthority = cmdResult.requiresAuthority;
 
             worker.Emit(OpCodes.Ldtoken, netBehaviourSubclass);
@@ -380,7 +383,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldnull);
             worker.Emit(OpCodes.Ldftn, func);
 
-            worker.Emit(OpCodes.Newobj, weaverTypes.CmdDelegateConstructor);
+            worker.Emit(OpCodes.Newobj, weaverTypes.RemoteCallDelegateConstructor);
 
             // requiresAuthority ? 1 : 0
             worker.Emit(requiresAuthority ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
@@ -1041,7 +1044,6 @@ namespace Mirror.Weaver
                 return false;
             }
 
-
             // if not SenderConnection And not TargetRpc NetworkConnection first param
             if (!isSenderConnection && isNetworkConnection && !(callType == RemoteCallType.TargetRpc && firstParam))
             {
@@ -1127,13 +1129,6 @@ namespace Mirror.Weaver
                 return;
             }
 
-            if (names.Contains(md.Name))
-            {
-                Log.Error($"Duplicate ClientRpc name {md.Name}", md);
-                WeavingFailed = true;
-                return;
-            }
-
             bool includeOwner = clientRpcAttr.GetField("includeOwner", true);
 
             names.Add(md.Name);
@@ -1166,12 +1161,6 @@ namespace Mirror.Weaver
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.TargetRpc, ref WeavingFailed))
                 return;
 
-            if (names.Contains(md.Name))
-            {
-                Log.Error($"Duplicate Target Rpc name {md.Name}", md);
-                WeavingFailed = true;
-                return;
-            }
             names.Add(md.Name);
             targetRpcs.Add(md);
 
@@ -1195,13 +1184,6 @@ namespace Mirror.Weaver
 
             if (!ValidateRemoteCallAndParameters(md, RemoteCallType.Command, ref WeavingFailed))
                 return;
-
-            if (names.Contains(md.Name))
-            {
-                Log.Error($"Duplicate Command name {md.Name}", md);
-                WeavingFailed = true;
-                return;
-            }
 
             bool requiresAuthority = commandAttr.GetField("requiresAuthority", true);
 

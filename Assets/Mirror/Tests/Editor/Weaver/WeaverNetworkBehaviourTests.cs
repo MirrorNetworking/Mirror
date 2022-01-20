@@ -124,8 +124,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourTargetRpcDuplicateName()
         {
-            HasError("Duplicate Target Rpc name TargetRpcCantHaveSameName",
-                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourTargetRpcDuplicateName.NetworkBehaviourTargetRpcDuplicateName::TargetRpcCantHaveSameName(Mirror.NetworkConnection,System.Int32,System.Int32)");
+            IsSuccess();
         }
 
         [Test]
@@ -211,8 +210,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourClientRpcDuplicateName()
         {
-            HasError("Duplicate ClientRpc name RpcCantHaveSameName",
-                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourClientRpcDuplicateName.NetworkBehaviourClientRpcDuplicateName::RpcCantHaveSameName(System.Int32,System.Int32)");
+            IsSuccess();
         }
 
         [Test]
@@ -275,8 +273,7 @@ namespace Mirror.Weaver.Tests
         [Test]
         public void NetworkBehaviourCmdDuplicateName()
         {
-            HasError("Duplicate Command name CmdCantHaveSameName",
-                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdDuplicateName.NetworkBehaviourCmdDuplicateName::CmdCantHaveSameName(System.Int32,System.Int32)");
+            IsSuccess();
         }
     }
 }

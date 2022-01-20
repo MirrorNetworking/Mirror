@@ -558,7 +558,7 @@ namespace Mirror
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [ClientRpc]
-        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        public void RpcTeleport(Vector3 destination, Quaternion rotation)
         {
             // NOTE: even in client authority mode, the server is always allowed
             //       to teleport the player. for example:
@@ -567,6 +567,14 @@ namespace Mirror
             //         so the server should be able to reset position if needed.
 
             // TODO what about host mode?
+            OnTeleport(destination, rotation);
+        }
+
+        // Deprecated 2022-01-19
+        [Obsolete("Use RpcTeleport(Vector3, Quaternion) instead.")]
+        [ClientRpc]
+        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
             OnTeleport(destination, rotation);
         }
 
@@ -596,7 +604,7 @@ namespace Mirror
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
         [Command]
-        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        public void CmdTeleport(Vector3 destination, Quaternion rotation)
         {
             // client can only teleport objects that it has authority over.
             if (!clientAuthority) return;
@@ -611,7 +619,17 @@ namespace Mirror
             // TODO or not? if client ONLY calls Teleport(pos), the position
             //      would only be set after the rpc. unless the client calls
             //      BOTH Teleport(pos) and targetComponent.position=pos
-            RpcTeleportAndRotate(destination, rotation);
+            RpcTeleport(destination, rotation);
+        }
+
+        // Deprecated 2022-01-19
+        [Obsolete("Use CmdTeleport(Vector3, Quaternion) instead.")]
+        [Command]
+        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
+        {
+            if (!clientAuthority) return;
+            OnTeleport(destination, rotation);
+            RpcTeleport(destination, rotation);
         }
 
         public virtual void Reset()
@@ -644,6 +662,34 @@ namespace Mirror
 
             // buffer limit should be at least multiplier to have enough in there
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
+        }
+        
+        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        {
+            // sync target component's position on spawn.
+            // fixes https://github.com/vis2k/Mirror/pull/3051/
+            // (Spawn message wouldn't sync NTChild positions either)
+            if (initialState)
+            {
+                if (syncPosition) writer.WriteVector3(targetComponent.localPosition);
+                if (syncRotation) writer.WriteQuaternion(targetComponent.localRotation);
+                if (syncScale)    writer.WriteVector3(targetComponent.localScale);
+                return true;
+            }
+            return false;
+        }
+
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            // sync target component's position on spawn.
+            // fixes https://github.com/vis2k/Mirror/pull/3051/
+            // (Spawn message wouldn't sync NTChild positions either)
+            if (initialState)
+            {
+                if (syncPosition) targetComponent.localPosition = reader.ReadVector3();
+                if (syncRotation) targetComponent.localRotation = reader.ReadQuaternion();
+                if (syncScale)    targetComponent.localScale = reader.ReadVector3();
+            }
         }
 
         // OnGUI allocates even if it does nothing. avoid in release.

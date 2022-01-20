@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Mirror.Experimental
 {
@@ -6,8 +7,8 @@ namespace Mirror.Experimental
     /// A component to synchronize the position of child transforms of networked objects.
     /// <para>There must be a NetworkTransform on the root object of the hierarchy. There can be multiple NetworkTransformChild components on an object. This does not use physics for synchronization, it simply synchronizes the localPosition and localRotation of the child transform and lerps towards the received values.</para>
     /// </summary>
-    [AddComponentMenu("Network/Experimental/NetworkTransformChildExperimentalExperimental")]
-    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-transform-child")]
+    // Deprecated 2022-01-18
+    [Obsolete("Use the default NetworkTransform instead, it has proper snapshot interpolation.")]
     public class NetworkTransformChild : NetworkTransformBase
     {
         [Header("Target")]

@@ -35,6 +35,18 @@ namespace Mirror.Tests.RemoteAttrributeTest
             onSendMonsterBase?.Invoke(someMonster);
     }
 
+    class RpcOverloads : NetworkBehaviour
+    {
+        public int firstCalled = 0;
+        public int secondCalled = 0;
+
+        [ClientRpc]
+        public void RpcTest(int _) => ++firstCalled;
+
+        [ClientRpc]
+        public void RpcTest(string _) => ++secondCalled;
+    }
+
     public class ClientRpcTest : RemoteTestBase
     {
         [Test]
@@ -122,6 +134,22 @@ namespace Mirror.Tests.RemoteAttrributeTest
             hostBehaviour.RpcSendMonster(currentMonster);
             ProcessMessages();
             Assert.That(called, Is.EqualTo(2));
+        }
+
+        // RemoteCalls uses md.FullName which gives us the full command/rpc name
+        // like "System.Void Mirror.Tests.RemoteAttrributeTest.AuthorityBehaviour::SendInt(System.Int32)"
+        // which means overloads with same name but different types should work.
+        [Test]
+        public void RpcOverload()
+        {
+            // spawn with owner
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcOverloads hostBehaviour, NetworkServer.localConnection);
+
+            hostBehaviour.RpcTest(42);
+            hostBehaviour.RpcTest("A");
+            ProcessMessages();
+            Assert.That(hostBehaviour.firstCalled, Is.EqualTo(1));
+            Assert.That(hostBehaviour.secondCalled, Is.EqualTo(1));
         }
     }
 }
