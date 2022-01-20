@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
+    [AddComponentMenu("Network/ Interest Management/ Scene/Scene Interest Management")]
     public class SceneInterestManagement : InterestManagement
     {
         // Use Scene instead of string scene.name because when additively

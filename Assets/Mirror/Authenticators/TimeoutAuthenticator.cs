@@ -7,7 +7,7 @@ namespace Mirror.Authenticators
     /// An authenticator that disconnects connections if they don't
     /// authenticate within a specified time limit.
     /// </summary>
-    [AddComponentMenu("Network/Authenticators/TimeoutAuthenticator")]
+    [AddComponentMenu("Network/ Authenticators/Timeout Authenticator")]
     public class TimeoutAuthenticator : NetworkAuthenticator
     {
         public NetworkAuthenticator authenticator;

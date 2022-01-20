@@ -9,7 +9,7 @@ namespace Mirror.Authenticators
     /// <para>Note: deviceUniqueIdentifier can be spoofed, so security is not guaranteed.</para>
     /// <para>See https://docs.unity3d.com/ScriptReference/SystemInfo-deviceUniqueIdentifier.html for details.</para>
     /// </summary>
-    [AddComponentMenu("Network/Authenticators/DeviceAuthenticator")]
+    [AddComponentMenu("Network/ Authenticators/Device Authenticator")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators/device-authenticator")]
     public class DeviceAuthenticator : NetworkAuthenticator
     {

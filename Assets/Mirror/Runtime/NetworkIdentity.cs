@@ -35,7 +35,7 @@ namespace Mirror
     // NetworkIdentity.Awake initializes all NetworkComponents.
     // let's make sure it's always called before their Awake's.
     [DefaultExecutionOrder(-1)]
-    [AddComponentMenu("Network/NetworkIdentity")]
+    [AddComponentMenu("Network/Network Identity")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-identity")]
     public sealed class NetworkIdentity : MonoBehaviour
     {

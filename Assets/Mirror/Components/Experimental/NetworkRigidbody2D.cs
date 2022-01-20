@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Mirror.Experimental
 {
-    [AddComponentMenu("Network/Experimental/NetworkRigidbody2D")]
+    [AddComponentMenu("Network/ Experimental/Network Rigidbody 2D")]
     public class NetworkRigidbody2D : NetworkBehaviour
     {
         [Header("Settings")]
