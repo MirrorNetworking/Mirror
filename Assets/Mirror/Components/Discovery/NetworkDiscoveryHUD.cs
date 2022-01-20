@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror.Discovery
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/Network DiscoveryHUD")]
+    [AddComponentMenu("Network/Network Discovery HUD")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-discovery")]
     [RequireComponent(typeof(NetworkDiscovery))]
     public class NetworkDiscoveryHUD : MonoBehaviour
