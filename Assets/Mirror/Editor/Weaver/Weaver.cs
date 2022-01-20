@@ -39,6 +39,7 @@ namespace Mirror.Weaver
         // Example:
         // RpcTeleport(Vector3 position) -> InvokeUserCode_RpcTeleportVector3()
         // RpcTeleport(Vector3 position, Quaternion rotation) -> InvokeUserCode_RpcTeleportVector3Quaternion()
+        // fixes https://github.com/vis2k/Mirror/issues/3060
         public static string GenerateMethodName(string initialPrefix, MethodDefinition md)
         {
             initialPrefix += md.Name;
