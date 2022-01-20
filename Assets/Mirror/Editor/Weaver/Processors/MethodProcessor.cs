@@ -32,12 +32,7 @@ namespace Mirror.Weaver
         //  this returns the newly created method with all the user provided code
         public static MethodDefinition SubstituteMethod(Logger Log, TypeDefinition td, MethodDefinition md, ref bool WeavingFailed)
         {
-            string newName = RpcPrefix + md.Name;
-
-            for (int i = 0; i < md.Parameters.Count; i++)
-            {
-                newName += md.Parameters[i].Name;
-            }
+            string newName = Weaver.GenerateMethodName(RpcPrefix, md);
 
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
