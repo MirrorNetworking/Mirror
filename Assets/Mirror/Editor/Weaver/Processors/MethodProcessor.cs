@@ -33,6 +33,12 @@ namespace Mirror.Weaver
         public static MethodDefinition SubstituteMethod(Logger Log, TypeDefinition td, MethodDefinition md, ref bool WeavingFailed)
         {
             string newName = RpcPrefix + md.Name;
+
+            for (int i = 0; i < md.Parameters.Count; i++)
+            {
+                newName += md.Parameters[i].Name;
+            }
+
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // force the substitute method to be protected.
