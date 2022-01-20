@@ -36,6 +36,9 @@ namespace Mirror.Weaver
         // -> have the same signature,
         // -> so, append the signature to the generated method name,
         // -> to create a unique name
+        // Example:
+        // RpcTeleport(Vector3 position) -> InvokeUserCode_RpcTeleportVector3()
+        // RpcTeleport(Vector3 position, Quaternion rotation) -> InvokeUserCode_RpcTeleportVector3Quaternion()
         public static string GenerateMethodName(string initialPrefix, MethodDefinition md)
         {
             initialPrefix += md.Name;
