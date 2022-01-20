@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/NetworkTeam")]
+    [AddComponentMenu("Network/ Interest Management/ Team/Network Team")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public class NetworkTeam : NetworkBehaviour
     {

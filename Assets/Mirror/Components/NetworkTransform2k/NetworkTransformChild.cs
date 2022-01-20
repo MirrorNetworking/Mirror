@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [AddComponentMenu("Network/Network Transform Child")]
     public class NetworkTransformChild : NetworkTransformBase
     {
         [Header("Target")]

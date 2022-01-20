@@ -9,6 +9,7 @@ using UnityEngine;
 namespace Mirror
 {
     [DisallowMultipleComponent]
+    [AddComponentMenu("Network/Network Transform")]
     public class NetworkTransform : NetworkTransformBase
     {
         protected override Transform targetComponent => transform;
