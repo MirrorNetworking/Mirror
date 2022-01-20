@@ -36,6 +36,7 @@ namespace Mirror.Weaver
         // -> have the same signature,
         // -> so, append the signature to the generated method name,
         // -> to create a unique name
+        // fixes https://github.com/vis2k/Mirror/issues/3060
         public static string GenerateMethodName(string initialPrefix, MethodDefinition md)
         {
             initialPrefix += md.Name;
