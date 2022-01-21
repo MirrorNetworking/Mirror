@@ -109,8 +109,6 @@ namespace Mirror
             // ensure capacity
             EnsureCapacity(Position + size);
 
-            // TODO TRY
-
             // write blittable
             fixed (byte* ptr = &buffer[Position])
             {
