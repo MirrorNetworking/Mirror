@@ -17,7 +17,8 @@ namespace Mirror.Weaver
         // FixRemoteCallToBaseMethod replaces them afterwards.
         public static MethodDefinition SubstituteMethod(Logger Log, TypeDefinition td, MethodDefinition md, ref bool WeavingFailed)
         {
-            string newName = RpcPrefix + md.Name;
+            string newName = Weaver.GenerateMethodName(RpcPrefix, md);
+
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // force the substitute method to be protected.

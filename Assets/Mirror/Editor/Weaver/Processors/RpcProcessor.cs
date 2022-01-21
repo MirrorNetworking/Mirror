@@ -8,10 +8,10 @@ namespace Mirror.Weaver
     {
         public static MethodDefinition ProcessRpcInvoke(WeaverTypes weaverTypes, Writers writers, Readers readers, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc, ref bool WeavingFailed)
         {
-            MethodDefinition rpc = new MethodDefinition(
-                Weaver.InvokeRpcPrefix + md.Name,
-                MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                weaverTypes.Import(typeof(void)));
+            string rpcName = Weaver.GenerateMethodName(Weaver.InvokeRpcPrefix, md);
+
+            MethodDefinition rpc = new MethodDefinition(rpcName, MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
+                                                        weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
