@@ -15,9 +15,7 @@ namespace Mirror.Weaver
 
         public static MethodDefinition ProcessTargetRpcInvoke(WeaverTypes weaverTypes, Readers readers, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc, ref bool WeavingFailed)
         {
-            string trgName = Weaver.GenerateMethodName(Weaver.InvokeRpcPrefix, md);
-
-            MethodDefinition rpc = new MethodDefinition(trgName, MethodAttributes.Family |
+            MethodDefinition rpc = new MethodDefinition(Weaver.InvokeRpcPrefix + md.Name, MethodAttributes.Family |
                     MethodAttributes.Static |
                     MethodAttributes.HideBySig,
                 weaverTypes.Import(typeof(void)));

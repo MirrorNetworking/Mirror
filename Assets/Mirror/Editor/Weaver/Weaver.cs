@@ -31,25 +31,6 @@ namespace Mirror.Weaver
         // multi threaded logging.
         public Logger Log;
 
-        // remote actions now support overloads,
-        // -> but IL2CPP doesnt like it when two generated methods
-        // -> have the same signature,
-        // -> so, append the signature to the generated method name,
-        // -> to create a unique name
-        // Example:
-        // RpcTeleport(Vector3 position) -> InvokeUserCode_RpcTeleportVector3()
-        // RpcTeleport(Vector3 position, Quaternion rotation) -> InvokeUserCode_RpcTeleportVector3Quaternion()
-        // fixes https://github.com/vis2k/Mirror/issues/3060
-        public static string GenerateMethodName(string initialPrefix, MethodDefinition md)
-        {
-            initialPrefix += md.Name;
-
-            for (int i = 0; i < md.Parameters.Count; i++)
-                initialPrefix += md.Parameters[i].ParameterType.Name;
-
-            return initialPrefix;
-        }
-
         public Weaver(Logger Log)
         {
             this.Log = Log;
