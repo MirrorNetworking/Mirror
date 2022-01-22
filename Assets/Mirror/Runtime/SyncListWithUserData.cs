@@ -6,7 +6,7 @@ namespace Mirror
 {
     public class SyncListWithUserData<T, TUserData> : SyncObject, IList<T>, IReadOnlyList<T>
     {
-        public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
+        public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem, TUserData userData);
 
         readonly IList<T> objects;
         readonly IList<TUserData> InternalUserData;
@@ -75,7 +75,7 @@ namespace Mirror
             InternalUserData.Clear();
         }
 
-        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem)
+        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, TUserData userData)
         {
             if (IsReadOnly)
                 throw new InvalidOperationException("Synclists can only be modified at the server");
@@ -93,7 +93,7 @@ namespace Mirror
                 OnDirty?.Invoke();
             }
 
-            Callback?.Invoke(op, itemIndex, oldItem, newItem);
+            Callback?.Invoke(op, itemIndex, oldItem, newItem, userData);
         }
 
         public override void OnSerializeAll(NetworkWriter writer)
@@ -188,6 +188,7 @@ namespace Mirror
                 int index = 0;
                 T oldItem = default;
                 T newItem = default;
+                TUserData userData = default;
 
                 switch (operation)
                 {
@@ -224,6 +225,7 @@ namespace Mirror
                         if (apply)
                         {
                             oldItem = objects[index];
+                            userData = InternalUserData[index];
                             objects.RemoveAt(index);
                             InternalUserData.RemoveAt(index);
                         }
@@ -243,7 +245,7 @@ namespace Mirror
 
                 if (apply)
                 {
-                    Callback?.Invoke(operation, index, oldItem, newItem);
+                    Callback?.Invoke(operation, index, oldItem, newItem, default);
                 }
                 // we just skipped this change
                 else
@@ -257,7 +259,7 @@ namespace Mirror
         {
             objects.Add(item);
             InternalUserData.Add(default);
-            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item);
+            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, default);
         }
 
         public void AddRange(IEnumerable<T> range)
@@ -270,7 +272,7 @@ namespace Mirror
         {
             objects.Clear();
             //InternalUserData.Clear();
-            AddOperation(Operation.OP_CLEAR, 0, default, default);
+            AddOperation(Operation.OP_CLEAR, 0, default, default, default);
         }
 
         public bool Contains(T item) => IndexOf(item) >= 0;
@@ -314,7 +316,7 @@ namespace Mirror
         {
             objects.Insert(index, item);
             InternalUserData.Insert(index, default);
-            AddOperation(Operation.OP_INSERT, index, default, item);
+            AddOperation(Operation.OP_INSERT, index, default, item, default);
         }
 
         public void InsertRange(int index, IEnumerable<T> range)
@@ -342,8 +344,9 @@ namespace Mirror
             UnityEngine.Debug.LogWarning($"objects RemoveAt {index}");
             objects.RemoveAt(index);
             UnityEngine.Debug.LogWarning($"InternalUserData RemoveAt {index}");
+            TUserData userData = InternalUserData[index];
             InternalUserData.RemoveAt(index);
-            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default);
+            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, userData);
         }
 
         public int RemoveAll(Predicate<T> match)
@@ -367,8 +370,9 @@ namespace Mirror
                 if (!comparer.Equals(objects[i], value))
                 {
                     T oldItem = objects[i];
+                    TUserData userData = InternalUserData[i];
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, oldItem, value);
+                    AddOperation(Operation.OP_SET, i, oldItem, value, default);
                 }
             }
         }
