@@ -59,9 +59,7 @@ namespace Mirror
             this.objects = objects;
             InternalUserData = new List<TUserData>();
             for (int i = 0; i < objects.Count; i++)
-            {
                 InternalUserData.Add(default(TUserData));
-            }
         }
 
         // throw away all the changes
@@ -80,9 +78,7 @@ namespace Mirror
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem)
         {
             if (IsReadOnly)
-            {
                 throw new InvalidOperationException("Synclists can only be modified at the server");
-            }
 
             Change change = new Change
             {
@@ -267,15 +263,13 @@ namespace Mirror
         public void AddRange(IEnumerable<T> range)
         {
             foreach (T entry in range)
-            {
                 Add(entry);
-            }
         }
 
         public void Clear()
         {
             objects.Clear();
-            InternalUserData.Clear();
+            //InternalUserData.Clear();
             AddOperation(Operation.OP_CLEAR, 0, default, default);
         }
 
@@ -296,6 +290,7 @@ namespace Mirror
             for (int i = 0; i < objects.Count; ++i)
                 if (match(objects[i]))
                     return i;
+
             return -1;
         }
 
@@ -311,6 +306,7 @@ namespace Mirror
             for (int i = 0; i < objects.Count; ++i)
                 if (match(objects[i]))
                     results.Add(objects[i]);
+
             return results;
         }
 
@@ -335,16 +331,17 @@ namespace Mirror
             int index = IndexOf(item);
             bool result = index >= 0;
             if (result)
-            {
                 RemoveAt(index);
-            }
+
             return result;
         }
 
         public void RemoveAt(int index)
         {
             T oldItem = objects[index];
+            UnityEngine.Debug.LogWarning($"objects RemoveAt {index}");
             objects.RemoveAt(index);
+            UnityEngine.Debug.LogWarning($"InternalUserData RemoveAt {index}");
             InternalUserData.RemoveAt(index);
             AddOperation(Operation.OP_REMOVEAT, index, oldItem, default);
         }
@@ -357,9 +354,7 @@ namespace Mirror
                     toRemove.Add(objects[i]);
 
             foreach (T entry in toRemove)
-            {
                 Remove(entry);
-            }
 
             return toRemove.Count;
         }
@@ -416,9 +411,8 @@ namespace Mirror
             public bool MoveNext()
             {
                 if (++index >= list.Count)
-                {
                     return false;
-                }
+
                 Current = list[index];
                 return true;
             }
