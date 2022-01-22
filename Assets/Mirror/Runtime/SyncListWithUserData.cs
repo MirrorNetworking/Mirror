@@ -238,7 +238,6 @@ namespace Mirror
                         {
                             oldItem = objects[index];
                             objects[index] = newItem;
-                            //InternalUserData[index] = default;
                         }
                         break;
                 }
@@ -271,7 +270,7 @@ namespace Mirror
         public void Clear()
         {
             objects.Clear();
-            //InternalUserData.Clear();
+            InternalUserData.Clear();
             AddOperation(Operation.OP_CLEAR, 0, default, default, default);
         }
 
@@ -338,17 +337,6 @@ namespace Mirror
             return result;
         }
 
-        public void RemoveAt(int index)
-        {
-            T oldItem = objects[index];
-            UnityEngine.Debug.LogWarning($"objects RemoveAt {index}");
-            objects.RemoveAt(index);
-            UnityEngine.Debug.LogWarning($"InternalUserData RemoveAt {index}");
-            TUserData userData = InternalUserData[index];
-            InternalUserData.RemoveAt(index);
-            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, userData);
-        }
-
         public int RemoveAll(Predicate<T> match)
         {
             List<T> toRemove = new List<T>();
@@ -360,6 +348,17 @@ namespace Mirror
                 Remove(entry);
 
             return toRemove.Count;
+        }
+
+        public void RemoveAt(int index)
+        {
+            T oldItem = objects[index];
+            TUserData userData = InternalUserData[index];
+            UnityEngine.Debug.LogWarning($"objects RemoveAt {index}");
+            objects.RemoveAt(index);
+            UnityEngine.Debug.LogWarning($"InternalUserData RemoveAt {index}");
+            InternalUserData.RemoveAt(index);
+            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, userData);
         }
 
         public T this[int i]
