@@ -243,14 +243,10 @@ namespace Mirror
                 }
 
                 if (apply)
-                {
                     Callback?.Invoke(operation, index, oldItem, newItem, default);
-                }
-                // we just skipped this change
                 else
-                {
+                    // we just skipped this change
                     changesAhead--;
-                }
             }
         }
 
@@ -311,13 +307,6 @@ namespace Mirror
             return results;
         }
 
-        public void Insert(int index, T item)
-        {
-            objects.Insert(index, item);
-            InternalUserData.Insert(index, default);
-            AddOperation(Operation.OP_INSERT, index, default, item, default);
-        }
-
         public void InsertRange(int index, IEnumerable<T> range)
         {
             foreach (T entry in range)
@@ -327,14 +316,11 @@ namespace Mirror
             }
         }
 
-        public bool Remove(T item)
+        public void Insert(int index, T item)
         {
-            int index = IndexOf(item);
-            bool result = index >= 0;
-            if (result)
-                RemoveAt(index);
-
-            return result;
+            objects.Insert(index, item);
+            InternalUserData.Insert(index, default);
+            AddOperation(Operation.OP_INSERT, index, default, item, default);
         }
 
         public int RemoveAll(Predicate<T> match)
@@ -350,13 +336,21 @@ namespace Mirror
             return toRemove.Count;
         }
 
+        public bool Remove(T item)
+        {
+            int index = IndexOf(item);
+            bool result = index >= 0;
+            if (result)
+                RemoveAt(index);
+
+            return result;
+        }
+
         public void RemoveAt(int index)
         {
             T oldItem = objects[index];
             TUserData userData = InternalUserData[index];
-            UnityEngine.Debug.LogWarning($"objects RemoveAt {index}");
             objects.RemoveAt(index);
-            UnityEngine.Debug.LogWarning($"InternalUserData RemoveAt {index}");
             InternalUserData.RemoveAt(index);
             AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, userData);
         }
@@ -388,16 +382,6 @@ namespace Mirror
 
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
 
-        // default Enumerator allocates. we need a custom struct Enumerator to
-        // not allocate on the heap.
-        // (System.Collections.Generic.List<T> source code does the same)
-        //
-        // benchmark:
-        //   uMMORPG with 800 monsters, Skills.GetHealthBonus() which runs a
-        //   foreach on skills SyncList:
-        //      before: 81.2KB GC per frame
-        //      after:     0KB GC per frame
-        // => this is extremely important for MMO scale networking
         public struct Enumerator : IEnumerator<T>
         {
             readonly SyncListWithUserData<T, TUserData> list;
