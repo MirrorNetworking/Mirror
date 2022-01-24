@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -17,22 +18,25 @@ namespace Mirror
         // -> Transport.GetMaxPacketSize is the raw maximum
         // -> Every message gets serialized into <<id, content>>
         // -> Every serialized message get put into a batch with a header
-        public static int MaxContentSize =>
-            Transport.activeTransport.GetMaxPacketSize()
-            - HeaderSize
-            - Batcher.HeaderSize;
-
-        public static ushort GetId<T>() where T : struct, NetworkMessage
+        public static int MaxContentSize
         {
-            // paul: 16 bits is enough to avoid collisions
-            //  - keeps the message size small
-            //  - in case of collisions,  Mirror will display an error
-            return (ushort)(typeof(T).FullName.GetStableHashCode() & 0xFFFF);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Transport.activeTransport.GetMaxPacketSize()
+                   - HeaderSize
+                   - Batcher.HeaderSize;
         }
+
+        // paul: 16 bits is enough to avoid collisions
+        //  - keeps the message size small
+        //  - in case of collisions,  Mirror will display an error
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort GetId<T>() where T : struct, NetworkMessage =>
+            (ushort)(typeof(T).FullName.GetStableHashCode() & 0xFFFF);
 
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
         //    and do an allocation free send before recycling it.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Pack<T>(T message, NetworkWriter writer)
             where T : struct, NetworkMessage
         {
@@ -47,6 +51,7 @@ namespace Mirror
         // -> pass NetworkReader so it's less strange if we create it in here
         //    and pass it upwards.
         // -> NetworkReader will point at content afterwards!
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Unpack(NetworkReader messageReader, out ushort msgType)
         {
             // read message type
@@ -63,6 +68,8 @@ namespace Mirror
         }
 
         // version for handlers with channelId
+        // inline! only exists for 20-30 messages and they call it all the time.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T, int> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
@@ -128,6 +135,7 @@ namespace Mirror
         // version for handlers without channelId
         // TODO obsolete this some day to always use the channelId version.
         //      all handlers in this version are wrapped with 1 extra action.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
             where T : struct, NetworkMessage
             where C : NetworkConnection
