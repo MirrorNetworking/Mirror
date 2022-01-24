@@ -146,7 +146,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
     {
         public int Value;
     }
-    class DavidHook_Ldflda : NetworkBehaviour
+    class DavidHookComponent : NetworkBehaviour
     {
         [SyncVar] public DavidStruct syncvar;
 
@@ -510,8 +510,8 @@ namespace Mirror.Tests.SyncVarAttributeTests
         public void DavidHook_SetSyncVarStructsValue(bool intialState)
         {
             CreateNetworkedAndSpawn(
-                out _, out _, out DavidHook_Ldflda serverObject,
-                out _, out _, out DavidHook_Ldflda clientObject);
+                out _, out _, out DavidHookComponent serverObject,
+                out _, out _, out DavidHookComponent clientObject);
 
             // change it on server.
             // should not throw.
