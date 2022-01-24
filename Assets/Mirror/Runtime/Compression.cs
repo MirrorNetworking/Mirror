@@ -1,5 +1,6 @@
 // Quaternion compression from DOTSNET
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -77,6 +78,7 @@ namespace Mirror
         const ushort TenBitsMax = 0x3FF;
 
         // helper function to access 'nth' component of quaternion
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static float QuaternionElement(Quaternion q, int element)
         {
             switch (element)
@@ -137,6 +139,7 @@ namespace Mirror
         // Quaternion normalizeSAFE from ECS math.normalizesafe()
         // => useful to produce valid quaternions even if client sends invalid
         //    data
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static Quaternion QuaternionNormalizeSafe(Quaternion value)
         {
             // The smallest positive normal number representable in a float.
@@ -280,6 +283,7 @@ namespace Mirror
         }
 
         // zigzag encoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CompressVarInt(NetworkWriter writer, long i)
         {
             ulong zigzagged = (ulong)((i >> 63) ^ (i << 1));
@@ -347,6 +351,7 @@ namespace Mirror
         }
 
         // zigzag decoding https://gist.github.com/mfuerstenau/ba870a29e16536fdbaba
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long DecompressVarInt(NetworkReader reader)
         {
             ulong data = DecompressVarUInt(reader);
