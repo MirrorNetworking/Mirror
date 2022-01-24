@@ -139,6 +139,23 @@ namespace Mirror.Tests.SyncVarAttributeTests
         }
     }
 
+
+    // repro for the bug found by David_548219 in discord where setting
+    // MyStruct.value would throw invalid IL
+    public struct DavidStruct
+    {
+        public int Value;
+    }
+    class DavidHook_Ldflda : NetworkBehaviour
+    {
+        [SyncVar] public DavidStruct syncvar;
+
+        public override void OnStartServer()
+        {
+            syncvar.Value = 42;
+        }
+    }
+
     public class SyncVarAttributeHookTest : SyncVarAttributeTestBase
     {
         [SetUp]
@@ -480,6 +497,25 @@ namespace Mirror.Tests.SyncVarAttributeTests
             // we synced an array with two values, so if ldflda uses the correct
             // SyncVar then it shouldn't be null anymore now.
             Assert.That(clientObject.ldflda_Array, !Is.Null);
+        }
+
+        // repro for the bug found by David_548219 in discord where setting
+        // MyStruct.value would throw invalid IL.
+        // could happen if we change Weaver [SyncVar] logic / replacements.
+        // testing syncVar = X isn't enough.
+        // we should have a test for syncVar.value = X too.
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void DavidHook_SetSyncVarStructsValue(bool intialState)
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out DavidHook_Ldflda serverObject,
+                out _, out _, out DavidHook_Ldflda clientObject);
+
+            // change it on server.
+            // should not throw.
+            serverObject.syncvar.Value = 1337;
         }
     }
 }
