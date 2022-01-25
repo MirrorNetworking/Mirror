@@ -236,15 +236,18 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldflda, netFieldId);
                 worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_NetworkIdentity);
             }
+            // TODO this only uses the persistent netId for types DERIVED FROM NB.
+            //      not if the type is just 'NetworkBehaviour'.
+            //      this is what original implementation did too. fix it after.
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
-                // reference to netId Field to set
-                /*worker.Emit(OpCodes.Ldarg_0);
+                // NetworkIdentity setter needs one more parameter: netId field ref
+                // (actually its a NetworkBehaviourSyncVar type)
+                worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
-
-                MethodReference getFunc = weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
-                worker.Emit(OpCodes.Call, getFunc);*/
-                Log.Warning("TODO [SyncVar] NetworkBehaviour persistence.");
+                // make generic version of GeneratedSyncVarSetter_NetworkBehaviour<T>
+                MethodReference getFunc = weaverTypes.generatedSyncVarSetter_NetworkBehaviour_T.MakeGeneric(assembly.MainModule, fd.FieldType);
+                worker.Emit(OpCodes.Call, getFunc);
             }
             else
             {

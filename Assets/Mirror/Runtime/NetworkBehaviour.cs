@@ -426,6 +426,32 @@ namespace Mirror
             }
         }
 
+        // NetworkBehaviour needs custom handling for persistence via netId.
+        // has one extra parameter.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_NetworkBehaviour<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref NetworkBehaviourSyncVar netIdField)
+            where T : NetworkBehaviour
+        {
+            if (!SyncVarNetworkBehaviourEqual(value, netIdField))
+            {
+                T oldValue = field;
+                SetSyncVarNetworkBehaviour(value, ref field, dirtyBit, ref netIdField);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
         // helper function for [SyncVar] GameObjects.
         // needs to be public so that tests & NetworkBehaviours from other
         // assemblies both find it
