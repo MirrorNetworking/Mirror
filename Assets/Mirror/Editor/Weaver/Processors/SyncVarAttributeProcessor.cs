@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
+using Mono.CecilX.Rocks;
 
 namespace Mirror.Weaver
 {
@@ -204,17 +206,15 @@ namespace Mirror.Weaver
                 // the function
                 worker.Emit(OpCodes.Ldftn, hookMethod);
 
-                // call 'new Action<T, T>()'
-                // need to make an instance of the generic version.
-
-                // first, we need a TypeReference from our TypeDefinition
-                TypeReference reference = td.GetElementType();
-                Log.Warning("hook reference: " + reference);
-
-                // TODO make this a field so we don't allocate every time.
-                //GenericInstanceType genericInstance = (GenericInstanceType)reference;
-                //TypeReference elementType = genericInstance.GenericArguments[0];
-                worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T);
+                // call 'new Action<T,T>()' constructor to convert the function to an action
+                // we need to make an instance of the generic Action<T,T>.
+                //
+                // TODO this allocates a new 'Action' for every SyncVar hook call.
+                //      we should allocate it once and store it somewhere in the future.
+                //      hooks are only called on the client though, so it's not too bad for now.
+                TypeReference actionRef = assembly.MainModule.ImportReference(typeof(Action<,>));
+                GenericInstanceType genericInstance = actionRef.MakeGenericInstanceType(fd.FieldType, fd.FieldType);
+                worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
             }
             // pass 'null' as hook
             else worker.Emit(OpCodes.Ldnull);
