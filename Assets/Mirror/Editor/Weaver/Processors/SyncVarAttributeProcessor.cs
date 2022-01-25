@@ -220,7 +220,7 @@ namespace Mirror.Weaver
             else worker.Emit(OpCodes.Ldnull);
 
 
-            // TODO call this.WeaverSyncVarSetter<T>.
+            // call GeneratedSyncVarSetter<T>.
             // it's generic, so make one for type <T>.
             MethodReference generic = weaverTypes.generatedSyncVarSetter.MakeGeneric(assembly.MainModule, fd.FieldType);
             worker.Emit(OpCodes.Call, generic);
