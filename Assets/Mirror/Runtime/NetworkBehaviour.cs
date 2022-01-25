@@ -326,6 +326,54 @@ namespace Mirror
             conn.Send(message, channelId);
         }
 
+        // move the [SyncVar] generated property's .set into C# to avoid much IL
+        //
+        //   public int health = 42;
+        //
+        //   public int Networkhealth
+        //   {
+        //       get
+        //       {
+        //           return health;
+        //       }
+        //       [param: In]
+        //       set
+        //       {
+        //           if (!NetworkBehaviour.SyncVarEqual(value, ref health))
+        //           {
+        //               int oldValue = health;
+        //               SetSyncVar(value, ref health, 1uL);
+        //               if (NetworkServer.localClientActive && !GetSyncVarHookGuard(1uL))
+        //               {
+        //                   SetSyncVarHookGuard(1uL, value: true);
+        //                   OnChanged(oldValue, value);
+        //                   SetSyncVarHookGuard(1uL, value: false);
+        //               }
+        //           }
+        //       }
+        //   }
+        internal void WeaverSyncVarSetter<T>(ref T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
+        {
+            if (!SyncVarEqual(value, ref field))
+            {
+                T oldValue = field;
+                SetSyncVar(value, ref field, dirtyBit);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
         // helper function for [SyncVar] GameObjects.
         // needs to be public so that tests & NetworkBehaviours from other
         // assemblies both find it
