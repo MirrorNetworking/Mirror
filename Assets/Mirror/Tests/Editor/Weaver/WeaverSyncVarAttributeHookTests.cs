@@ -4,48 +4,6 @@ namespace Mirror.Weaver.Tests
 {
     public class WeaverSyncVarAttributeHookTests : WeaverTestsBuildFromTestName
     {
-        [Test]
-        public void FindsPrivateHook()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void FindsPublicHook()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void FindsStaticHook()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void FindsHookWithGameObjects()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void FindsHookWithNetworkIdentity()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void FindsHookWithOtherOverloadsInOrder()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void FindsHookWithOtherOverloadsInReverseOrder()
-        {
-            IsSuccess();
-        }
-
         static string OldNewMethodFormat(string hookName, string ValueType)
         {
             return string.Format("void {0}({1} oldValue, {1} newValue)", hookName, ValueType);
