@@ -219,7 +219,6 @@ namespace Mirror.Weaver
             // pass 'null' as hook
             else worker.Emit(OpCodes.Ldnull);
 
-
             // call GeneratedSyncVarSetter<T>.
             // special cases for GameObject/NetworkIdentity/NetworkBehaviour
             // passing netId too for persistence.

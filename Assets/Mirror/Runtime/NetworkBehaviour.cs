@@ -381,7 +381,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarSetter_GameObject(GameObject value, ref GameObject field, ulong dirtyBit, Action<GameObject, GameObject> OnChanged, ref uint netIdField)
         {
-            if (!SyncVarEqual(value, ref field))
+            if (!SyncVarGameObjectEqual(value, netIdField))
             {
                 GameObject oldValue = field;
                 SetSyncVarGameObject(value, ref field, dirtyBit, ref netIdField);
@@ -406,7 +406,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarSetter_NetworkIdentity(NetworkIdentity value, ref NetworkIdentity field, ulong dirtyBit, Action<NetworkIdentity, NetworkIdentity> OnChanged, ref uint netIdField)
         {
-            if (!SyncVarEqual(value, ref field))
+            if (!SyncVarNetworkIdentityEqual(value, netIdField))
             {
                 NetworkIdentity oldValue = field;
                 SetSyncVarNetworkIdentity(value, ref field, dirtyBit, ref netIdField);
