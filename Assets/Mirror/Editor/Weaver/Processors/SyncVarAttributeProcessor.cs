@@ -481,11 +481,6 @@ namespace Mirror.Weaver
             return (syncVars, syncVarNetIds);
         }
 
-        public void WriteCallHookMethodUsingArgument(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue)
-        {
-            WriteCallHookMethod(worker, hookMethod, oldValue, null);
-        }
-
         public void WriteCallHookMethodUsingField(ILProcessor worker, MethodDefinition hookMethod, VariableDefinition oldValue, FieldDefinition newValue, ref bool WeavingFailed)
         {
             if (newValue == null)
