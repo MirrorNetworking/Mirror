@@ -225,21 +225,17 @@ namespace Mirror.Weaver
             // passing netId too for persistence.
             if (fd.FieldType.Is<UnityEngine.GameObject>())
             {
-                // reference to netId Field to set
-                /*worker.Emit(OpCodes.Ldarg_0);
+                // GameObject setter needs one more parameter: netId field ref
+                worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
-
-                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarGameObjectReference);*/
-                Log.Warning("TODO [SyncVar] GameObject persistence.");
+                worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_GameObject);
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {
-                // reference to netId Field to set
-                /*worker.Emit(OpCodes.Ldarg_0);
+                // NetworkIdentity setter needs one more parameter: netId field ref
+                worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldflda, netFieldId);
-
-                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarNetworkIdentityReference);*/
-                Log.Warning("TODO [SyncVar] NetworkIdentity persistence.");
+                worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_NetworkIdentity);
             }
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {

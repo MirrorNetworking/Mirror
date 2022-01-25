@@ -376,7 +376,8 @@ namespace Mirror
             }
         }
 
-        // GameObject needs custom handling for persistence via netId
+        // GameObject needs custom handling for persistence via netId.
+        // has one extra parameter.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarSetter_GameObject(GameObject value, ref GameObject field, ulong dirtyBit, Action<GameObject, GameObject> OnChanged, ref uint netIdField)
         {
@@ -400,7 +401,8 @@ namespace Mirror
             }
         }
 
-        // NetworkIdentity needs custom handling for persistence via netId
+        // NetworkIdentity needs custom handling for persistence via netId.
+        // has one extra parameter.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarSetter_NetworkIdentity(NetworkIdentity value, ref NetworkIdentity field, ulong dirtyBit, Action<NetworkIdentity, NetworkIdentity> OnChanged, ref uint netIdField)
         {
