@@ -352,7 +352,7 @@ namespace Mirror
         //           }
         //       }
         //   }
-        internal void WeaverSyncVarSetter<T>(ref T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
+        internal void WeaverSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
         {
             if (!SyncVarEqual(value, ref field))
             {
