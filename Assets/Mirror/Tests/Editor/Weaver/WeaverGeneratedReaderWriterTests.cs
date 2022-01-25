@@ -5,40 +5,10 @@ namespace Mirror.Weaver.Tests
     public class WeaverGeneratedReaderWriterTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void CreatesForStructs()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForClass()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForClassInherited()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForClassWithValidConstructor()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void GivesErrorForClassWithNoValidConstructor()
         {
             HasError("SomeOtherData can't be deserialized because it has no default constructor. Don't use SomeOtherData in [SyncVar]s, Rpcs, Cmds, etc.",
                 "GeneratedReaderWriter.GivesErrorForClassWithNoValidConstructor.SomeOtherData");
-        }
-
-        [Test]
-        public void CreatesForInheritedFromScriptableObject()
-        {
-            IsSuccess();
         }
 
         [Test]
@@ -93,13 +63,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void ExcludesNonSerializedFields()
-        {
-            // we test this by having a not allowed type in the class, but mark it with NonSerialized
-            IsSuccess();
-        }
-
-        [Test]
         public void GivesErrorWhenUsingInterface()
         {
             HasError("Cannot generate writer for interface IData. Use a supported type or provide a custom writer",
@@ -110,12 +73,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void CanUseCustomReadWriteForInterfaces()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void GivesErrorWhenUsingAbstractClass()
         {
             HasError("Cannot generate writer for abstract class DataBase. Use a supported type or provide a custom writer",
@@ -123,36 +80,6 @@ namespace Mirror.Weaver.Tests
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for abstract class DataBase. Use a supported type or provide a custom reader",
             //    "GeneratedReaderWriter.GivesErrorWhenUsingAbstractClass.DataBase");
-        }
-
-        [Test]
-        public void CanUseCustomReadWriteForAbstractClass()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForEnums()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForArraySegment()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForStructArraySegment()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void GivesErrorForJaggedArray()
-        {
-            IsSuccess();
         }
 
         [Test]
@@ -180,18 +107,6 @@ namespace Mirror.Weaver.Tests
             // TODO change weaver to run checks for write/read at the same time
             //HasError("Cannot generate reader for ArraySegment because element MonoBehaviour does not have a reader. Use a supported type or provide a custom reader",
             //    "System.ArraySegment`1<UnityEngine.MonoBehaviour>");
-        }
-
-        [Test]
-        public void CreatesForList()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void CreatesForStructList()
-        {
-            IsSuccess();
         }
 
         [Test]

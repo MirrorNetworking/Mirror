@@ -5,24 +5,6 @@ namespace Mirror.Weaver.Tests
     public class WeaverMessageTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void MessageValid()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void MessageWithBaseClass()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void MessageSelfReferencing()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void MessageMemberGeneric()
         {
             HasError("Cannot generate reader for generic variable HasGeneric`1. Use a supported type or provide a custom reader",
@@ -42,18 +24,6 @@ namespace Mirror.Weaver.Tests
                 "WeaverMessageTests.MessageMemberInterface.SuperCoolInterface WeaverMessageTests.MessageMemberInterface.MessageMemberInterface::invalidField");
             HasError("Cannot generate writer for interface SuperCoolInterface. Use a supported type or provide a custom writer",
                 "WeaverMessageTests.MessageMemberInterface.SuperCoolInterface");
-        }
-
-        [Test]
-        public void MessageNestedInheritance()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void AbstractMessageMethods()
-        {
-            IsSuccess();
         }
     }
 }

@@ -9,7 +9,8 @@
         "Telepathy",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Unity.Mirror.CodeGen"
+        "Unity.Mirror.CodeGen",
+        "WeaverTestExtraAssembly"
     ],
     "includePlatforms": [
         "Editor"

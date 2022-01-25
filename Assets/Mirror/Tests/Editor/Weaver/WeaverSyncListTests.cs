@@ -5,66 +5,6 @@ namespace Mirror.Weaver.Tests
     public class WeaverSyncListTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void SyncList()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListByteValid()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListGenericAbstractInheritance()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListGenericInheritance()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListGenericInheritanceWithMultipleGeneric()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListInheritance()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListMissingParamlessCtor()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListMissingParamlessCtorManuallyInitialized()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListNestedStruct()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncListNestedInAbstractClass()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void SyncListNestedInAbstractClassWithInvalid()
         {
             // we need this negative test to make sure that SyncList is being processed
@@ -77,12 +17,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void SyncListNestedInStruct()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void SyncListNestedInStructWithInvalid()
         {
             // we need this negative test to make sure that SyncList is being processed
@@ -92,13 +26,6 @@ namespace Mirror.Weaver.Tests
                 "UnityEngine.Object WeaverSyncListTests.SyncListNestedInStructWithInvalid.SyncListNestedInStructWithInvalid/SomeData::target");
             HasError("Cannot generate writer for Object. Use a supported type or provide a custom writer",
                 "UnityEngine.Object");
-
-        }
-
-        [Test]
-        public void SyncListStruct()
-        {
-            IsSuccess();
         }
 
         [Test]
@@ -110,6 +37,8 @@ namespace Mirror.Weaver.Tests
                 "WeaverSyncListTests.SyncListErrorForGenericStruct.SyncListErrorForGenericStruct/MyGenericStruct`1<System.Single>");
         }
 
+        // IsSuccess test, but still in here because it shows an error
+        // if we move to regular C#
         [Test]
         public void SyncListGenericStructWithCustomMethods()
         {
@@ -125,14 +54,10 @@ namespace Mirror.Weaver.Tests
                 "WeaverSyncListTests.SyncListErrorForInterface.MyInterface");
         }
 
+        // IsSuccess test, but still in here because it shows an error
+        // if we move to regular C#
         [Test]
         public void SyncListInterfaceWithCustomMethods()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void GenericSyncListCanBeUsed()
         {
             IsSuccess();
         }

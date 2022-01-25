@@ -5,18 +5,6 @@ namespace Mirror.Weaver.Tests
     public class WeaverSyncVarAttributeTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void SyncVarsValid()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void SyncVarsDerivedNetworkBehaviour()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void SyncVarsStatic()
         {
             HasError("invalidVar cannot be static",
@@ -71,12 +59,6 @@ namespace Mirror.Weaver.Tests
                 "WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList/SyncObjImplementer WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncobj");
             HasWarning("syncints has [SyncVar] attribute. SyncLists should not be marked with SyncVar",
                 "Mirror.SyncList`1<System.Int32> WeaverSyncVarTests.SyncVarsSyncList.SyncVarsSyncList::syncints");
-        }
-
-        [Test]
-        public void SyncVarsExactlyMax()
-        {
-            IsSuccess();
         }
 
         [Test]
