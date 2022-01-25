@@ -205,11 +205,16 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldftn, hookMethod);
 
                 // call 'new Action<T, T>()'
+                // need to make an instance of the generic version.
+
+                // first, we need a TypeReference from our TypeDefinition
+                TypeReference reference = td.GetElementType();
+                Log.Warning("hook reference: " + reference);
+
                 // TODO make this a field so we don't allocate every time.
-                TypeReference reference = td;
-                GenericInstanceType genericInstance = (GenericInstanceType)reference;
-                TypeReference elementType = genericInstance.GenericArguments[0];
-                worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+                //GenericInstanceType genericInstance = (GenericInstanceType)reference;
+                //TypeReference elementType = genericInstance.GenericArguments[0];
+                worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T);
             }
             // pass 'null' as hook
             else worker.Emit(OpCodes.Ldnull);
