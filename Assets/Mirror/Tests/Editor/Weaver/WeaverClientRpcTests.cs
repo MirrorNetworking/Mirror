@@ -5,28 +5,10 @@ namespace Mirror.Weaver.Tests
     public class WeaverClientRpcTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void ClientRpcValid()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void ClientRpcCantBeStatic()
         {
             HasError("RpcCantBeStatic must not be static",
                 "System.Void WeaverClientRpcTests.ClientRpcCantBeStatic.ClientRpcCantBeStatic::RpcCantBeStatic()");
-        }
-
-        [Test]
-        public void VirtualClientRpc()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void OverrideVirtualClientRpc()
-        {
-            IsSuccess();
         }
 
         [Test]
@@ -41,18 +23,6 @@ namespace Mirror.Weaver.Tests
         {
             HasError("Abstract ClientRpc are currently not supported, use virtual method instead",
                 "System.Void WeaverClientRpcTests.OverrideAbstractClientRpc.BaseBehaviour::RpcDoSomething()");
-        }
-
-        [Test]
-        public void ClientRpcThatExcludesOwner()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void BehaviourCanBeSentInRpc()
-        {
-            IsSuccess();
         }
     }
 }
