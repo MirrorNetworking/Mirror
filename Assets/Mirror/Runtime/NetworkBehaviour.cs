@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -352,6 +353,7 @@ namespace Mirror
         //           }
         //       }
         //   }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GeneratedSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
         {
             if (!SyncVarEqual(value, ref field))
