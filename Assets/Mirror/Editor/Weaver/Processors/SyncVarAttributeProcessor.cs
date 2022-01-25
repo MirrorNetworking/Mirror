@@ -221,12 +221,42 @@ namespace Mirror.Weaver
 
 
             // call GeneratedSyncVarSetter<T>.
-            // it's generic, so make one for type <T>.
-            MethodReference generic = weaverTypes.generatedSyncVarSetter.MakeGeneric(assembly.MainModule, fd.FieldType);
-            worker.Emit(OpCodes.Call, generic);
+            // special cases for GameObject/NetworkIdentity/NetworkBehaviour
+            // passing netId too for persistence.
+            if (fd.FieldType.Is<UnityEngine.GameObject>())
+            {
+                // reference to netId Field to set
+                /*worker.Emit(OpCodes.Ldarg_0);
+                worker.Emit(OpCodes.Ldflda, netFieldId);
 
+                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarGameObjectReference);*/
+                Log.Warning("TODO [SyncVar] GameObject persistence.");
+            }
+            else if (fd.FieldType.Is<NetworkIdentity>())
+            {
+                // reference to netId Field to set
+                /*worker.Emit(OpCodes.Ldarg_0);
+                worker.Emit(OpCodes.Ldflda, netFieldId);
 
+                worker.Emit(OpCodes.Call, weaverTypes.setSyncVarNetworkIdentityReference);*/
+                Log.Warning("TODO [SyncVar] NetworkIdentity persistence.");
+            }
+            else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            {
+                // reference to netId Field to set
+                /*worker.Emit(OpCodes.Ldarg_0);
+                worker.Emit(OpCodes.Ldflda, netFieldId);
 
+                MethodReference getFunc = weaverTypes.setSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
+                worker.Emit(OpCodes.Call, getFunc);*/
+                Log.Warning("TODO [SyncVar] NetworkBehaviour persistence.");
+            }
+            else
+            {
+                // make generic version of GeneratedSyncVarSetter<T>
+                MethodReference generic = weaverTypes.generatedSyncVarSetter.MakeGeneric(assembly.MainModule, fd.FieldType);
+                worker.Emit(OpCodes.Call, generic);
+            }
 
             /*
             // new value to set
