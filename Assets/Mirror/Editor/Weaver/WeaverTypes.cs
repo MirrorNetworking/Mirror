@@ -104,8 +104,6 @@ namespace Mirror.Weaver
             syncVarNetworkIdentityEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SyncVarNetworkIdentityEqual", ref WeavingFailed);
             syncVarGameObjectEqualReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SyncVarGameObjectEqual", ref WeavingFailed);
             setSyncVarReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVar", ref WeavingFailed);
-            setSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVarHookGuard", ref WeavingFailed);
-            getSyncVarHookGuard = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GetSyncVarHookGuard", ref WeavingFailed);
 
             setSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "SetSyncVarGameObject", ref WeavingFailed);
             getSyncVarGameObjectReference = Resolvers.ResolveMethod(NetworkBehaviourType, assembly, Log, "GetSyncVarGameObject", ref WeavingFailed);

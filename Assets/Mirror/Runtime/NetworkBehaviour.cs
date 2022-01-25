@@ -352,7 +352,7 @@ namespace Mirror
         //           }
         //       }
         //   }
-        internal void GeneratedSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
+        public void GeneratedSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
         {
             if (!SyncVarEqual(value, ref field))
             {

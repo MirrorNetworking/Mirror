@@ -164,6 +164,44 @@ namespace Mirror.Weaver
             // NOTE: SyncVar...Equal functions are static.
             // don't Emit Ldarg_0 aka 'this'.
 
+            // call WeaverSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged = null)
+            //   IL_0000: ldarg.0
+            //   IL_0001: ldarg.1
+            //   IL_0002: ldarg.0
+            //   IL_0003: ldflda int32 Mirror.Examples.Tanks.Tank::health
+            //   IL_0008: ldc.i4.1
+            //   IL_0009: conv.i8
+            //   IL_000a: ldnull
+            //   IL_000b: call instance void [Mirror]Mirror.NetworkBehaviour::GeneratedSyncVarSetter<int32>(!!0, !!0&, uint64, class [netstandard]System.Action`2<!!0, !!0>)
+            //   IL_0010: ret
+            //
+            // TODO GameObject/NetworkBehaviour special cases
+
+            // 'this.' for the call
+            worker.Emit(OpCodes.Ldarg_0);
+
+            // first push 'value'
+            worker.Emit(OpCodes.Ldarg_1);
+
+            // push 'ref T this.field'
+            worker.Emit(OpCodes.Ldarg_0);
+            worker.Emit(OpCodes.Ldflda, fd);
+
+            // push the dirty bit for this SyncVar
+            worker.Emit(OpCodes.Ldc_I8, dirtyBit);
+
+            // TODO hook if any. null for now.
+            worker.Emit(OpCodes.Ldnull);
+
+            // TODO call this.WeaverSyncVarSetter<T>.
+            // it's generic, so make one for type <T>.
+            MethodReference generic = weaverTypes.generatedSyncVarSetter.MakeGeneric(assembly.MainModule, fd.FieldType);
+            worker.Emit(OpCodes.Call, generic);
+
+
+
+
+            /*
             // new value to set
             worker.Emit(OpCodes.Ldarg_1);
 
@@ -294,6 +332,7 @@ namespace Mirror.Weaver
 
                 worker.Append(label);
             }
+            */
 
             worker.Append(endOfMethod);
 
