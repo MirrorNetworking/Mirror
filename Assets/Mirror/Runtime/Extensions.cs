@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
@@ -31,6 +32,7 @@ namespace Mirror
 
         // helper function to copy to List<T>
         // C# only provides CopyTo(T[])
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CopyTo<T>(this IEnumerable<T> source, List<T> destination)
         {
             // foreach allocates. use AddRange.

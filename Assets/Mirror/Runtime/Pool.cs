@@ -1,6 +1,7 @@
 ﻿// Pool to avoid allocations (from libuv2k)
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
@@ -24,9 +25,11 @@ namespace Mirror
         }
 
         // take an element from the pool, or create a new one if empty
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Take() => objects.Count > 0 ? objects.Pop() : objectGenerator();
 
         // return an element to the pool
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Return(T item) => objects.Push(item);
 
         // count to see how many objects are in the pool. useful for tests.
