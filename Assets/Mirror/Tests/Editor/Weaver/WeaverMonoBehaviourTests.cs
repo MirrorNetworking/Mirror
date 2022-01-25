@@ -5,12 +5,6 @@ namespace Mirror.Weaver.Tests
     public class WeaverMonoBehaviourTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void MonoBehaviourValid()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void MonoBehaviourSyncVar()
         {
             HasError("SyncVar potato must be inside a NetworkBehaviour.  MonoBehaviourSyncVar is not a NetworkBehaviour",
@@ -43,30 +37,6 @@ namespace Mirror.Weaver.Tests
         {
             HasError("TargetRpc TargetThisCantBeOutsideNetworkBehaviour must be declared inside a NetworkBehaviour",
                 "System.Void WeaverMonoBehaviourTests.MonoBehaviourTargetRpc.MonoBehaviourTargetRpc::TargetThisCantBeOutsideNetworkBehaviour(Mirror.NetworkConnection)");
-        }
-
-        [Test]
-        public void MonoBehaviourServer()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void MonoBehaviourServerCallback()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void MonoBehaviourClient()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void MonoBehaviourClientCallback()
-        {
-            IsSuccess();
         }
     }
 }
