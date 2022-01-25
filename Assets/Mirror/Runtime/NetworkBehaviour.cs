@@ -376,6 +376,54 @@ namespace Mirror
             }
         }
 
+        // GameObject needs custom handling for persistence via netId
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_GameObject(GameObject value, ref GameObject field, ulong dirtyBit, Action<GameObject, GameObject> OnChanged, ref uint netIdField)
+        {
+            if (!SyncVarEqual(value, ref field))
+            {
+                GameObject oldValue = field;
+                SetSyncVarGameObject(value, ref field, dirtyBit, ref netIdField);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        // NetworkIdentity needs custom handling for persistence via netId
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_NetworkIdentity(NetworkIdentity value, ref NetworkIdentity field, ulong dirtyBit, Action<NetworkIdentity, NetworkIdentity> OnChanged, ref uint netIdField)
+        {
+            if (!SyncVarEqual(value, ref field))
+            {
+                NetworkIdentity oldValue = field;
+                SetSyncVarNetworkIdentity(value, ref field, dirtyBit, ref netIdField);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
         // helper function for [SyncVar] GameObjects.
         // needs to be public so that tests & NetworkBehaviours from other
         // assemblies both find it
