@@ -13,6 +13,9 @@ namespace Mirror.Weaver.Tests
             BuildAndWeaveTestAssembly(className, TestContext.CurrentContext.Test.Name);
         }
 
+        // IMPORTANT: IsSuccess() tests can almost ALL be moved into regular
+        // C#/folders without running AssemblyBuilder on them.
+        // See README.md int his folder.
         protected void IsSuccess()
         {
             Assert.That(weaverErrors, Is.Empty);
