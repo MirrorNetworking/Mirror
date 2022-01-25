@@ -28,6 +28,9 @@ namespace Mirror.Weaver
         // array segment
         public MethodReference ArraySegmentConstructorReference;
 
+        // Action<T,T> for SyncVar Hooks
+        public MethodReference ActionT_T;
+
         // syncvar
         public MethodReference generatedSyncVarSetter;
         public MethodReference syncVarEqualReference;
@@ -72,6 +75,9 @@ namespace Mirror.Weaver
 
             TypeReference ArraySegmentType = Import(typeof(ArraySegment<>));
             ArraySegmentConstructorReference = Resolvers.ResolveMethod(ArraySegmentType, assembly, Log, ".ctor", ref WeavingFailed);
+
+            TypeReference ActionType = Import(typeof(Action<,>));
+            ActionT_T = Resolvers.ResolveMethod(ActionType, assembly, Log, ".ctor", ref WeavingFailed);
 
             TypeReference NetworkServerType = Import(typeof(NetworkServer));
             NetworkServerGetActive = Resolvers.ResolveMethod(NetworkServerType, assembly, Log, "get_active", ref WeavingFailed);

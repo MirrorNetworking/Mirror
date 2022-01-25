@@ -190,8 +190,30 @@ namespace Mirror.Weaver
             // push the dirty bit for this SyncVar
             worker.Emit(OpCodes.Ldc_I8, dirtyBit);
 
-            // TODO hook if any. null for now.
-            worker.Emit(OpCodes.Ldnull);
+            // hook?
+            MethodDefinition hookMethod = GetHookMethod(td, fd, ref WeavingFailed);
+            if (hookMethod != null)
+            {
+                // IL_000a: ldarg.0
+                // IL_000b: ldftn instance void Mirror.Examples.Tanks.Tank::ExampleHook(int32, int32)
+                // IL_0011: newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
+
+                // this.
+                worker.Emit(OpCodes.Ldarg_0);
+
+                // the function
+                worker.Emit(OpCodes.Ldftn, hookMethod);
+
+                // call 'new Action<T, T>()'
+                // TODO make this a field so we don't allocate every time.
+                TypeReference reference = td;
+                GenericInstanceType genericInstance = (GenericInstanceType)reference;
+                TypeReference elementType = genericInstance.GenericArguments[0];
+                worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+            }
+            // pass 'null' as hook
+            else worker.Emit(OpCodes.Ldnull);
+
 
             // TODO call this.WeaverSyncVarSetter<T>.
             // it's generic, so make one for type <T>.
