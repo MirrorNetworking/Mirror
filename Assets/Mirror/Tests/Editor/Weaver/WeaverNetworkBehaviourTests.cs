@@ -5,18 +5,6 @@ namespace Mirror.Weaver.Tests
     public class WeaverNetworkBehaviourTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void NetworkBehaviourValid()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void NetworkBehaviourAbstractBaseValid()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void NetworkBehaviourGeneric()
         {
             HasError("NetworkBehaviourGeneric`1 cannot have generic parameters",
@@ -116,18 +104,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void NetworkBehaviourTargetRpcParamNetworkConnection()
-        {
-            IsSuccess();
-        }
-
-        [Test]
-        public void NetworkBehaviourTargetRpcDuplicateName()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void NetworkBehaviourClientRpcGenericParam()
         {
             HasError("RpcCantHaveGeneric cannot have generic parameters",
@@ -208,12 +184,6 @@ namespace Mirror.Weaver.Tests
         }
 
         [Test]
-        public void NetworkBehaviourClientRpcDuplicateName()
-        {
-            IsSuccess();
-        }
-
-        [Test]
         public void NetworkBehaviourCmdParamOut()
         {
             HasError("CmdCantHaveParamOut cannot have out parameters",
@@ -268,12 +238,6 @@ namespace Mirror.Weaver.Tests
         {
             HasError("CmdCantHaveParamOptional has invalid parameter monkeyCon, Cannot pass NetworkConnections. Instead use 'NetworkConnectionToClient conn = null' to get the sender's connection on the server",
                 "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourCmdParamNetworkConnection.NetworkBehaviourCmdParamNetworkConnection::CmdCantHaveParamOptional(Mirror.NetworkConnection)");
-        }
-
-        [Test]
-        public void NetworkBehaviourCmdDuplicateName()
-        {
-            IsSuccess();
         }
     }
 }
