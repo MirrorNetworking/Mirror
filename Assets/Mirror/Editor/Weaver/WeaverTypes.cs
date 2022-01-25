@@ -84,7 +84,7 @@ namespace Mirror.Weaver
             TypeReference NetworkBehaviourType = Import<NetworkBehaviour>();
             TypeReference RemoteProcedureCallsType = Import(typeof(RemoteCalls.RemoteProcedureCalls));
 
-            TypeReference ScriptableObjectType = Import<UnityEngine.ScriptableObject>();
+            TypeReference ScriptableObjectType = Import<ScriptableObject>();
 
             ScriptableObjectCreateInstanceMethod = Resolvers.ResolveMethod(
                 ScriptableObjectType, assembly, Log,
