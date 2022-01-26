@@ -185,8 +185,6 @@ namespace Mirror.Weaver
             //   IL_000a: ldnull
             //   IL_000b: call instance void [Mirror]Mirror.NetworkBehaviour::GeneratedSyncVarSetter<int32>(!!0, !!0&, uint64, class [netstandard]System.Action`2<!!0, !!0>)
             //   IL_0010: ret
-            //
-            // TODO GameObject/NetworkBehaviour special cases
 
             // 'this.' for the call
             worker.Emit(OpCodes.Ldarg_0);
