@@ -7,29 +7,14 @@ namespace Mirror.Weaver
     {
         const string RpcPrefix = "UserCode_";
 
-        // creates a method substitute
-        // For example, if we have this:
-        //  public void CmdThrust(float thrusting, int spin)
-        //  {
-        //      xxxxx
-        //  }
+        // For a function like
+        //   [ClientRpc] void RpcTest(int value),
+        // Weaver substitutes the method and moves the code to a new method:
+        //   UserCode_RpcTest(int value) <- contains original code
+        //   RpcTest(int value) <- serializes parameters, sends the message
         //
-        //  it will substitute the method and move the code to a new method with a provided name
-        //  for example:
-        //
-        //  public void CmdTrust(float thrusting, int spin)
-        //  {
-        //  }
-        //
-        //  public void <newName>(float thrusting, int spin)
-        //  {
-        //      xxxxx
-        //  }
-        //
-        //  Note that all the calls to the method remain untouched
-        //
-        //  the original method definition loses all code
-        //  this returns the newly created method with all the user provided code
+        // Note that all the calls to the method remain untouched.
+        // FixRemoteCallToBaseMethod replaces them afterwards.
         public static MethodDefinition SubstituteMethod(Logger Log, TypeDefinition td, MethodDefinition md, ref bool WeavingFailed)
         {
             string newName = RpcPrefix + md.Name;
@@ -70,10 +55,9 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-
         // For a function like
         //   [ClientRpc] void RpcTest(int value),
-        // Weaver replaces it with:
+        // Weaver substitutes the method and moves the code to a new method:
         //   UserCode_RpcTest(int value) <- contains original code
         //   RpcTest(int value) <- serializes parameters, sends the message
         //
