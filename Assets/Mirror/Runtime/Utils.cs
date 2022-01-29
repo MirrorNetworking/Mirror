@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using UnityEngine;
 
@@ -72,11 +73,13 @@ namespace Mirror
 
         // is a 2D point in screen? (from ummorpg)
         // (if width = 1024, then indices from 0..1023 are valid (=1024 indices)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsPointInScreen(Vector2 point) =>
             0 <= point.x && point.x < Screen.width &&
             0 <= point.y && point.y < Screen.height;
 
         // universal .spawned function
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkIdentity GetSpawnedInServerOrClient(uint netId)
         {
             // server / host mode: use the one from server.

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -324,6 +325,131 @@ namespace Mirror
             };
 
             conn.Send(message, channelId);
+        }
+
+        // move the [SyncVar] generated property's .set into C# to avoid much IL
+        //
+        //   public int health = 42;
+        //
+        //   public int Networkhealth
+        //   {
+        //       get
+        //       {
+        //           return health;
+        //       }
+        //       [param: In]
+        //       set
+        //       {
+        //           if (!NetworkBehaviour.SyncVarEqual(value, ref health))
+        //           {
+        //               int oldValue = health;
+        //               SetSyncVar(value, ref health, 1uL);
+        //               if (NetworkServer.localClientActive && !GetSyncVarHookGuard(1uL))
+        //               {
+        //                   SetSyncVarHookGuard(1uL, value: true);
+        //                   OnChanged(oldValue, value);
+        //                   SetSyncVarHookGuard(1uL, value: false);
+        //               }
+        //           }
+        //       }
+        //   }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged)
+        {
+            if (!SyncVarEqual(value, ref field))
+            {
+                T oldValue = field;
+                SetSyncVar(value, ref field, dirtyBit);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        // GameObject needs custom handling for persistence via netId.
+        // has one extra parameter.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_GameObject(GameObject value, ref GameObject field, ulong dirtyBit, Action<GameObject, GameObject> OnChanged, ref uint netIdField)
+        {
+            if (!SyncVarGameObjectEqual(value, netIdField))
+            {
+                GameObject oldValue = field;
+                SetSyncVarGameObject(value, ref field, dirtyBit, ref netIdField);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        // NetworkIdentity needs custom handling for persistence via netId.
+        // has one extra parameter.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_NetworkIdentity(NetworkIdentity value, ref NetworkIdentity field, ulong dirtyBit, Action<NetworkIdentity, NetworkIdentity> OnChanged, ref uint netIdField)
+        {
+            if (!SyncVarNetworkIdentityEqual(value, netIdField))
+            {
+                NetworkIdentity oldValue = field;
+                SetSyncVarNetworkIdentity(value, ref field, dirtyBit, ref netIdField);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
+        }
+
+        // NetworkBehaviour needs custom handling for persistence via netId.
+        // has one extra parameter.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarSetter_NetworkBehaviour<T>(T value, ref T field, ulong dirtyBit, Action<T, T> OnChanged, ref NetworkBehaviourSyncVar netIdField)
+            where T : NetworkBehaviour
+        {
+            if (!SyncVarNetworkBehaviourEqual(value, netIdField))
+            {
+                T oldValue = field;
+                SetSyncVarNetworkBehaviour(value, ref field, dirtyBit, ref netIdField);
+
+                // call hook (if any)
+                if (OnChanged != null)
+                {
+                    // we use hook guard to protect against deadlock where hook
+                    // changes syncvar, calling hook again.
+                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    {
+                        SetSyncVarHookGuard(dirtyBit, true);
+                        OnChanged(oldValue, value);
+                        SetSyncVarHookGuard(dirtyBit, false);
+                    }
+                }
+            }
         }
 
         // helper function for [SyncVar] GameObjects.

@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [AddComponentMenu("Network/ Interest Management/ Distance/Distance Interest Management")]
     public class DistanceInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible at. Add DistanceInterestManagementCustomRange onto NetworkIdentities for custom ranges.")]

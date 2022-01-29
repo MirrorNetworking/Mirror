@@ -1022,7 +1022,7 @@ namespace Mirror
 
         static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
         {
-            // verify if we an spawn this
+            // verify if we can spawn this
             if (Utils.IsPrefab(obj))
             {
                 Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. Instantiate it first.");

@@ -16,6 +16,7 @@ namespace Mirror
 
         public override bool Available() => inner.Available();
         public override int GetMaxPacketSize(int channelId = 0) => inner.GetMaxPacketSize(channelId);
+        public override int GetBatchThreshold(int channelId = Channels.Reliable) => inner.GetBatchThreshold(channelId);
         public override void Shutdown() => inner.Shutdown();
 
         #region Client
@@ -31,6 +32,9 @@ namespace Mirror
         public override bool ClientConnected() => inner.ClientConnected();
         public override void ClientDisconnect() => inner.ClientDisconnect();
         public override void ClientSend(ArraySegment<byte> segment, int channelId) => inner.ClientSend(segment, channelId);
+
+        public override void ClientEarlyUpdate() => inner.ClientEarlyUpdate();
+        public override void ClientLateUpdate() => inner.ClientLateUpdate();
         #endregion
 
         #region Server
@@ -49,6 +53,9 @@ namespace Mirror
         public override void ServerDisconnect(int connectionId) => inner.ServerDisconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => inner.ServerGetClientAddress(connectionId);
         public override Uri ServerUri() => inner.ServerUri();
+
+        public override void ServerEarlyUpdate() => inner.ServerEarlyUpdate();
+        public override void ServerLateUpdate() => inner.ServerLateUpdate();
         #endregion
     }
 }

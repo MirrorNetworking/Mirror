@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Mirror
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Network/DistanceInterestManagementCustomRange")]
+    [AddComponentMenu("Network/ Interest Management/ Distance/Distance Custom Range")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public class DistanceInterestManagementCustomRange : NetworkBehaviour
     {
