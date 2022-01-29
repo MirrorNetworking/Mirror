@@ -70,8 +70,17 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        // Finds and fixes call to base methods within remote calls
-        //For example, changes `base.CmdDoSomething` to `base.CallCmdDoSomething` within `this.CallCmdDoSomething`
+
+        // For a function like
+        //   [ClientRpc] void RpcTest(int value),
+        // Weaver replaces it with:
+        //   UserCode_RpcTest(int value) <- contains original code
+        //   RpcTest(int value) <- serializes parameters, sends the message
+        //
+        // FixRemoteCallToBaseMethod replaces all calls to
+        //   RpcTest(value)
+        // with
+        //   UserCode_RpcTest(value)
         public static void FixRemoteCallToBaseMethod(Logger Log, TypeDefinition type, MethodDefinition method, ref bool WeavingFailed)
         {
             string callName = method.Name;
