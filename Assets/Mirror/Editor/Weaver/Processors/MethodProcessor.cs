@@ -17,7 +17,8 @@ namespace Mirror.Weaver
         // FixRemoteCallToBaseMethod replaces them afterwards.
         public static MethodDefinition SubstituteMethod(Logger Log, TypeDefinition td, MethodDefinition md, ref bool WeavingFailed)
         {
-            string newName = RpcPrefix + md.Name;
+            string newName = Weaver.GenerateMethodName(RpcPrefix, md);
+
             MethodDefinition cmd = new MethodDefinition(newName, md.Attributes, md.ReturnType);
 
             // force the substitute method to be protected.
@@ -79,28 +80,43 @@ namespace Mirror.Weaver
 
             foreach (Instruction instruction in method.Body.Instructions)
             {
-                // if call to base.CmdDoSomething within this.CallCmdDoSomething
-                if (IsCallToMethod(instruction, out MethodDefinition calledMethod) &&
-                    calledMethod.Name == baseRemoteCallName)
+                // is this instruction a Call to a method?
+                // if yes, output the method so we can check it.
+                if (IsCallToMethod(instruction, out MethodDefinition calledMethod))
                 {
-                    TypeDefinition baseType = type.BaseType.Resolve();
-                    MethodDefinition baseMethod = baseType.GetMethodInBaseType(callName);
-
-                    if (baseMethod == null)
+                    // when considering if 'calledMethod' is a call to 'method',
+                    // we originally compared .Name.
+                    //
+                    // to fix IL2CPP build bugs with overloaded Rpcs, we need to
+                    // generated rpc names like
+                    //   RpcTest(string value) => RpcTestString(strig value)
+                    //   RpcTest(int value)    => RpcTestInt(int value)
+                    // to make them unique.
+                    //
+                    // calledMethod.Name is still "RpcTest", so we need to
+                    // convert this to the generated name as well before comparing.
+                    string calledMethodName_Generated = Weaver.GenerateMethodName("", calledMethod);
+                    if (calledMethodName_Generated == baseRemoteCallName)
                     {
-                        Log.Error($"Could not find base method for {callName}", method);
-                        WeavingFailed = true;
-                        return;
-                    }
+                        TypeDefinition baseType = type.BaseType.Resolve();
+                        MethodDefinition baseMethod = baseType.GetMethodInBaseType(callName);
 
-                    if (!baseMethod.IsVirtual)
-                    {
-                        Log.Error($"Could not find base method that was virtual {callName}", method);
-                        WeavingFailed = true;
-                        return;
-                    }
+                        if (baseMethod == null)
+                        {
+                            Log.Error($"Could not find base method for {callName}", method);
+                            WeavingFailed = true;
+                            return;
+                        }
 
-                    instruction.Operand = baseMethod;
+                        if (!baseMethod.IsVirtual)
+                        {
+                            Log.Error($"Could not find base method that was virtual {callName}", method);
+                            WeavingFailed = true;
+                            return;
+                        }
+
+                        instruction.Operand = baseMethod;
+                    }
                 }
             }
         }
