@@ -4,6 +4,9 @@ namespace WeaverNetworkBehaviourTests.NetworkBehaviourGeneric
 {
     class NetworkBehaviourGeneric<T> : NetworkBehaviour
     {
-        T genericsNotAllowed;
+        [SyncVar]
+        T genericSyncVarNotAllowed;
+
+        T genericTypeIsFine;
     }
 }

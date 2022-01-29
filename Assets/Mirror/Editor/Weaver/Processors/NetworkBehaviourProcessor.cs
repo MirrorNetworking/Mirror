@@ -68,14 +68,6 @@ namespace Mirror.Weaver
                 return false;
             }
 
-            if (netBehaviourSubclass.HasGenericParameters)
-            {
-                Log.Error($"{netBehaviourSubclass.Name} cannot have generic parameters", netBehaviourSubclass);
-                WeavingFailed = true;
-                // originally Process returned true in every case, except if already processed.
-                // maybe return false here in the future.
-                return true;
-            }
             MarkAsProcessed(netBehaviourSubclass);
 
             // deconstruct tuple and set fields
@@ -821,6 +813,14 @@ namespace Mirror.Weaver
         // validate parameters for a remote function call like Rpc/Cmd
         bool ValidateParameter(MethodReference method, ParameterDefinition param, RemoteCallType callType, bool firstParam, ref bool WeavingFailed)
         {
+            // need to check this before any type lookups since those will fail since generic types don't resolve
+            if (param.ParameterType.IsGenericParameter)
+            {
+                Log.Error($"{method.Name} cannot have generic parameters", method);
+                WeavingFailed = true;
+                return false;
+            }
+
             bool isNetworkConnection = param.ParameterType.Is<NetworkConnection>();
             bool isSenderConnection = IsSenderConnection(param, callType);
 

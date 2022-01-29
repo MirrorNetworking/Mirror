@@ -377,6 +377,13 @@ namespace Mirror.Weaver
                         continue;
                     }
 
+                    if (fd.FieldType.IsGenericParameter)
+                    {
+                        Log.Error($"{fd.Name} has generic type. Generic SyncVars are not supported", fd);
+                        WeavingFailed = true;
+                        continue;
+                    }
+
                     if (fd.FieldType.IsArray)
                     {
                         Log.Error($"{fd.Name} has invalid type. Use SyncLists instead of arrays", fd);
