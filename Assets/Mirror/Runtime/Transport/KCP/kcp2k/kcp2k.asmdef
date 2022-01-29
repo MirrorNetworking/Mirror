@@ -20,6 +20,7 @@
         "Switch",
         "tvOS",
         "WSA",
+        "WebGL",
         "WindowsStandalone64",
         "XboxOne"
     ],
