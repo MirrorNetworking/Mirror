@@ -37,15 +37,19 @@ namespace Mirror.Weaver
         // -> so, append the signature to the generated method name,
         // -> to create a unique name
         // Example:
-        // RpcTeleport(Vector3 position) -> InvokeUserCode_RpcTeleportVector3()
-        // RpcTeleport(Vector3 position, Quaternion rotation) -> InvokeUserCode_RpcTeleportVector3Quaternion()
+        // RpcTeleport(Vector3 position) -> InvokeUserCode_RpcTeleport__Vector3()
+        // RpcTeleport(Vector3 position, Quaternion rotation) -> InvokeUserCode_RpcTeleport__Vector3Quaternion()
         // fixes https://github.com/vis2k/Mirror/issues/3060
         public static string GenerateMethodName(string initialPrefix, MethodDefinition md)
         {
             initialPrefix += md.Name;
 
-            for (int i = 0; i < md.Parameters.Count; i++)
-                initialPrefix += md.Parameters[i].ParameterType.Name;
+            for (int i = 0; i < md.Parameters.Count; ++i)
+            {
+                // with __ so it's more obvious that this is the parameter suffix.
+                // otherwise RpcTest(int) => RpcTestInt(int) which is not obvious.
+                initialPrefix += $"__{md.Parameters[i].ParameterType.Name}";
+            }
 
             return initialPrefix;
         }
