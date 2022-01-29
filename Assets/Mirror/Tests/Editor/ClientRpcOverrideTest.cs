@@ -104,6 +104,8 @@ namespace Mirror.Tests.RemoteAttrributeTest
             Assert.That(overrideCallCount, Is.EqualTo(1));
         }
 
+        // IMPORTANT: test to prevent the issue from:
+        //            https://github.com/vis2k/Mirror/pull/3072
         [Test]
         public void OverrideVirtualWithBaseCallsBothVirtualAndBase()
         {
