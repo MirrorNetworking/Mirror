@@ -80,7 +80,7 @@ namespace Mirror.Tests
         public override void OnStartLocalPlayer() => ++called;
     }
 
-    class NetworkDestroyExceptionNetworkBehaviour : NetworkBehaviour
+    class StopClientExceptionNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStopClient()
@@ -90,10 +90,26 @@ namespace Mirror.Tests
         }
     }
 
-    class NetworkDestroyCalledNetworkBehaviour : NetworkBehaviour
+    class StopClientCalledNetworkBehaviour : NetworkBehaviour
     {
         public int called;
         public override void OnStopClient() => ++called;
+    }
+
+    class StopLocalPlayerCalledNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopLocalPlayer() => ++called;
+    }
+
+    class StopLocalPlayerExceptionNetworkBehaviour : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopLocalPlayer()
+        {
+            ++called;
+            throw new Exception("some exception");
+        }
     }
 
     class StopServerCalledNetworkBehaviour : NetworkBehaviour
@@ -756,10 +772,39 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void OnStopLocalPlayer()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out StopLocalPlayerCalledNetworkBehaviour comp);
+
+            // call OnStopLocalPlayer in identity
+            identity.OnStopLocalPlayer();
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnStopLocalPlayerException()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out StopLocalPlayerExceptionNetworkBehaviour compEx,
+                out StopLocalPlayerCalledNetworkBehaviour comp);
+
+            // call OnStopLocalPlayer in identity
+            // one component will throw an exception, but that shouldn't stop
+            // OnStopLocalPlayer from being called in the second one
+            // exception will log an error
+            LogAssert.ignoreFailingMessages = true;
+            identity.OnStopLocalPlayer();
+            LogAssert.ignoreFailingMessages = false;
+            Assert.That(compEx.called, Is.EqualTo(1));
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
         public void OnStopClient()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out NetworkDestroyCalledNetworkBehaviour comp);
+                out StopClientCalledNetworkBehaviour comp);
 
             // call OnStopClient in identity
             identity.OnStopClient();
@@ -770,8 +815,8 @@ namespace Mirror.Tests
         public void OnStopClientException()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out NetworkDestroyExceptionNetworkBehaviour compEx,
-                out NetworkDestroyCalledNetworkBehaviour comp);
+                out StopClientExceptionNetworkBehaviour compEx,
+                out StopClientCalledNetworkBehaviour comp);
 
             // call OnStopClient in identity
             // one component will throw an exception, but that shouldn't stop
