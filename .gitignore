@@ -73,3 +73,7 @@ ehthumbs.db
 Thumbs.db
 /VisRepo.txt
 *.vsconfig
+
+
+# CompilationLog.txt created by tests
+Assets/Mirror/Tests/Editor/Weaver/*/CompilationLog.txt

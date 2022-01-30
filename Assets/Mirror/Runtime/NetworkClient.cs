@@ -1308,6 +1308,9 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
             if (spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
             {
+                if (localObject.isLocalPlayer)
+                    localObject.OnStopLocalPlayer();
+
                 localObject.OnStopClient();
 
                 // user handling
@@ -1389,7 +1392,11 @@ namespace Mirror
                 {
                     if (identity != null && identity.gameObject != null)
                     {
+                        if (identity.isLocalPlayer)
+                            identity.OnStopLocalPlayer();
+
                         identity.OnStopClient();
+
                         bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
                         if (!wasUnspawned)
                         {
