@@ -827,6 +827,9 @@ namespace Mirror
         /// <summary>Like Start(), but only called on client and host for the local player object.</summary>
         public virtual void OnStartLocalPlayer() {}
 
+        /// <summary>Stop event, but only called on client and host for the local player object.</summary>
+        public virtual void OnStopLocalPlayer() {}
+
         /// <summary>Like Start(), but only called for objects the client has authority over.</summary>
         public virtual void OnStartAuthority() {}
 
