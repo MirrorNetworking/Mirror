@@ -1,7 +1,7 @@
 version: '{branch}-{build}'
 
 environment:
-    nodejs_version: "10"
+    nodejs_version: "16"
     LFTP_PASSWORD:
         secure: sH23IC4a98S5uTtgYNHNvg==
 
