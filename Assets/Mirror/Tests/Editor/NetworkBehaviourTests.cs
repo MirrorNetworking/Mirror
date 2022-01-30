@@ -87,6 +87,13 @@ namespace Mirror.Tests
         public override void OnStartLocalPlayer() => ++called;
     }
 
+    // we need to inherit from networkbehaviour to test protected functions
+    public class OnStopLocalPlayerComponent : NetworkBehaviour
+    {
+        public int called;
+        public override void OnStopLocalPlayer() => ++called;
+    }
+
     public class NetworkBehaviourTests : MirrorEditModeTest
     {
         [TearDown]
@@ -865,6 +872,14 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStartLocalPlayerComponent comp);
             identity.OnStartLocalPlayer();
+            Assert.That(comp.called, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void OnStopLocalPlayer()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStopLocalPlayerComponent comp);
+            identity.OnStopLocalPlayer();
             Assert.That(comp.called, Is.EqualTo(1));
         }
     }
