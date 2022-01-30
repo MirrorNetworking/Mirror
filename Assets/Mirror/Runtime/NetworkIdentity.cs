@@ -784,6 +784,26 @@ namespace Mirror
             }
         }
 
+        internal void OnStopLocalPlayer()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnStopLocalPlayer should be caught, so that
+                // one component's exception doesn't stop all other components
+                // from being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStopLocalPlayer();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, comp);
+                }
+            }
+        }
+
         bool hadAuthority;
         internal void NotifyAuthority()
         {
