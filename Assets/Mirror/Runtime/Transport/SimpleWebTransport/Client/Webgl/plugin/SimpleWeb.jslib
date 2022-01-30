@@ -27,7 +27,7 @@ function IsConnected(index) {
 }
 
 function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackPtr, errorCallbackPtr) {
-    const address = Pointer_stringify(addressPtr);
+    const address = UTF8ToString(addressPtr);
     console.log("Connecting to " + address);
     // Create webSocket connection.
     webSocket = new WebSocket(address);
@@ -37,11 +37,11 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
     // Connection opened
     webSocket.addEventListener('open', function (event) {
         console.log("Connected to " + address);
-        Runtime.dynCall('vi', openCallbackPtr, [index]);
+        Module['dynCall_vi'](openCallbackPtr, [index]);
     });
     webSocket.addEventListener('close', function (event) {
         console.log("Disconnected from " + address);
-        Runtime.dynCall('vi', closeCallBackPtr, [index]);
+        Module['dynCall_vi'](closeCallBackPtr, [index]);
     });
 
     // Listen for messages
@@ -55,7 +55,7 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
             var dataBuffer = new Uint8Array(HEAPU8.buffer, bufferPtr, arrayLength);
             dataBuffer.set(array);
 
-            Runtime.dynCall('viii', messageCallbackPtr, [index, bufferPtr, arrayLength]);
+            Module['dynCall_viii'](messageCallbackPtr, [index, bufferPtr, arrayLength]);
             _free(bufferPtr);
         }
         else {
@@ -66,7 +66,7 @@ function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackP
     webSocket.addEventListener('error', function (event) {
         console.error('Socket Error', event);
 
-        Runtime.dynCall('vi', errorCallbackPtr, [index]);
+        Module['dynCall_vi'](errorCallbackPtr, [index]);
     });
 
     return index;
