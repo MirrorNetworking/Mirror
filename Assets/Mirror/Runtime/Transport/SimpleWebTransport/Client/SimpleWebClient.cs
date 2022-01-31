@@ -19,7 +19,7 @@ namespace Mirror.SimpleWeb
     {
         public static SimpleWebClient Create(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR && (UNITY_2019 || UNITY_2020)
             return new WebSocketClientWebGl(maxMessageSize, maxMessagesPerTick);
 #else
             return new WebSocketClientStandAlone(maxMessageSize, maxMessagesPerTick, tcpConfig);

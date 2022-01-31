@@ -1,14 +1,18 @@
 {
     "name": "SimpleWebTransport",
+    "rootNamespace": "",
     "references": [
         "Mirror"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [
+        "UNITY_2019 || UNITY_2020"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

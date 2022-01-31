@@ -14,7 +14,7 @@ namespace Mirror.SimpleWeb
 
         internal WebSocketClientStandAlone(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig) : base(maxMessageSize, maxMessagesPerTick)
         {
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR && (UNITY_2019 || UNITY_2020)
             throw new NotSupportedException();
 #else
             sslHelper = new ClientSslHelper();
