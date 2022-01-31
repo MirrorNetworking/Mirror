@@ -1285,6 +1285,7 @@ namespace Mirror
                 // localPlayer may already be assigned to something else
                 // so only make it null if it's this identity.
                 localPlayer = null;
+                identity.OnStopLocalPlayer();
             }
 
             CheckForLocalPlayer(identity);
