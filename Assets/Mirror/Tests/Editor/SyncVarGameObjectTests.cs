@@ -5,8 +5,10 @@ namespace Mirror.Tests
 {
     public class SyncVarGameObjectTests : MirrorTest
     {
-        GameObject go;
-        NetworkIdentity identity;
+        GameObject serverGO;
+        GameObject clientGO;
+        NetworkIdentity serverIdentity;
+        NetworkIdentity clientIdentity;
 
         [SetUp]
         public override void SetUp()
@@ -15,11 +17,11 @@ namespace Mirror.Tests
 
             // need a connected client & server so we can have spawned identities
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // need a spawned GameObject with a netId (we store by netId)
-            CreateNetworkedAndSpawn(out go, out identity);
-            Assert.That(identity.netId, !Is.EqualTo(0));
+            CreateNetworkedAndSpawn(out serverGO, out serverIdentity, out clientGO, out clientIdentity);
+            Assert.That(serverIdentity.netId, !Is.EqualTo(0));
         }
 
         [TearDown]
@@ -29,8 +31,8 @@ namespace Mirror.Tests
         [Test]
         public void Constructor_GameObject()
         {
-            SyncVarGameObject field = new SyncVarGameObject(go);
-            Assert.That(field.Value, Is.EqualTo(go));
+            SyncVarGameObject field = new SyncVarGameObject(serverGO);
+            Assert.That(field.Value, Is.EqualTo(serverGO));
         }
 
         // make sure the GameObject .Value works, even though base is uint
@@ -42,32 +44,32 @@ namespace Mirror.Tests
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
 
-            field.Value = go;
-            Assert.That(field.Value, Is.EqualTo(go));
+            field.Value = serverGO;
+            Assert.That(field.Value, Is.EqualTo(serverGO));
         }
 
         [Test]
         public void ImplicitTo()
         {
-            SyncVarGameObject field = new SyncVarGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(serverGO);
             // T = field implicit conversion should get .Value
             GameObject value = field;
-            Assert.That(value, Is.EqualTo(go));
+            Assert.That(value, Is.EqualTo(serverGO));
         }
 
         [Test]
         public void ImplicitFrom_SetsValue()
         {
             // field = T implicit conversion should set .Value
-            SyncVarGameObject field = go;
-            Assert.That(field.Value, Is.EqualTo(go));
+            SyncVarGameObject field = serverGO;
+            Assert.That(field.Value, Is.EqualTo(serverGO));
         }
 
         [Test]
         public void OperatorEquals()
         {
             // != null
-            SyncVarGameObject field = new SyncVarGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(serverGO);
 
             // NOTE: this throws a compilation error, which is good!
             // we don't want users to do 'player.target == null'.
@@ -75,7 +77,7 @@ namespace Mirror.Tests
             // Assert.That(field != null, Is.True);
 
             // different SyncVar<T>, same .Value
-            SyncVarGameObject fieldSame = new SyncVarGameObject(go);
+            SyncVarGameObject fieldSame = new SyncVarGameObject(serverGO);
             Assert.That(field == fieldSame, Is.True);
             Assert.That(field != fieldSame, Is.False);
 
@@ -85,8 +87,8 @@ namespace Mirror.Tests
             Assert.That(field != fieldNull, Is.True);
 
             // same GameObject
-            Assert.That(field == go, Is.True);
-            Assert.That(field != go, Is.False);
+            Assert.That(field == serverGO, Is.True);
+            Assert.That(field != serverGO, Is.False);
 
             // different GameObject
             GameObject other = new GameObject("other");
@@ -103,7 +105,7 @@ namespace Mirror.Tests
             {
                 ++called;
                 Assert.That(oldValue, Is.Null);
-                Assert.That(newValue, Is.EqualTo(go));
+                Assert.That(newValue, Is.EqualTo(serverGO));
             }
 
             SyncVarGameObject field = new SyncVarGameObject(null);
@@ -112,7 +114,7 @@ namespace Mirror.Tests
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
 
-            field.Value = go;
+            field.Value = serverGO;
             Assert.That(called, Is.EqualTo(1));
         }
 
@@ -121,8 +123,8 @@ namespace Mirror.Tests
         [Test]
         public void EqualsTest()
         {
-            SyncVarGameObject fieldA = new SyncVarGameObject(go);
-            SyncVarGameObject fieldB = new SyncVarGameObject(go);
+            SyncVarGameObject fieldA = new SyncVarGameObject(serverGO);
+            SyncVarGameObject fieldB = new SyncVarGameObject(serverGO);
             SyncVarGameObject fieldC = new SyncVarGameObject(null);
             Assert.That(fieldA.Equals(fieldB), Is.True);
             Assert.That(fieldA.Equals(fieldC), Is.False);
@@ -132,45 +134,45 @@ namespace Mirror.Tests
         public void PersistenceThroughDisappearance()
         {
             // field with identity
-            SyncVarGameObject field = new SyncVarGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(serverGO);
 
             // remove from spawned, shouldn't be found anymore
-            NetworkServer.spawned.Remove(identity.netId);
+            NetworkServer.spawned.Remove(serverIdentity.netId);
             Assert.That(field.Value, Is.EqualTo(null));
 
             // add to spawned again
             // add to spawned again, should be found again
-            NetworkServer.spawned[identity.netId] = identity;
-            Assert.That(field.Value, Is.EqualTo(go));
+            NetworkServer.spawned[serverIdentity.netId] = serverIdentity;
+            Assert.That(field.Value, Is.EqualTo(serverGO));
         }
 
         [Test]
         public void SerializeAllWritesNetId()
         {
-            SyncVarGameObject field = new SyncVarGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(serverGO);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeAll(writer);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            Assert.That(reader.ReadUInt(), Is.EqualTo(identity.netId));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(serverIdentity.netId));
         }
 
         [Test]
         public void SerializeDeltaWritesNetId()
         {
-            SyncVarGameObject field = new SyncVarGameObject(go);
+            SyncVarGameObject field = new SyncVarGameObject(serverGO);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeDelta(writer);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            Assert.That(reader.ReadUInt(), Is.EqualTo(identity.netId));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(serverIdentity.netId));
         }
 
         [Test]
         public void DeserializeAllReadsNetId()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteUInt(identity.netId);
+            writer.WriteUInt(serverIdentity.netId);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarGameObject field = new SyncVarGameObject(null);
@@ -179,14 +181,14 @@ namespace Mirror.Tests
             field.OnDirty = () => {};
 
             field.OnDeserializeAll(reader);
-            Assert.That(field.Value, Is.EqualTo(go));
+            Assert.That(field.Value, Is.EqualTo(serverGO));
         }
 
         [Test]
         public void DeserializeDeltaReadsNetId()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteUInt(identity.netId);
+            writer.WriteUInt(serverIdentity.netId);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarGameObject field = new SyncVarGameObject(null);
@@ -195,7 +197,7 @@ namespace Mirror.Tests
             field.OnDirty = () => {};
 
             field.OnDeserializeDelta(reader);
-            Assert.That(field.Value, Is.EqualTo(go));
+            Assert.That(field.Value, Is.EqualTo(serverGO));
         }
     }
 }
