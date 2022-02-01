@@ -16,14 +16,22 @@ namespace Mirror.Tests
         public List<GameObject> instantiated;
 
         // we usually need the memory transport
+        GameObject holder;
         public MemoryTransport transport;
 
         public virtual void SetUp()
         {
             instantiated = new List<GameObject>();
 
+            // need a holder GO
+            holder = new GameObject();
+
             // need a transport to send & receive
-            Transport.activeTransport = transport = new GameObject().AddComponent<MemoryTransport>();
+            Transport.activeTransport = transport = holder.AddComponent<MemoryTransport>();
+
+            // NetworkServer was static before (= always existed).
+            // so always create the component again.
+            NetworkServerComponent.singleton = holder.AddComponent<NetworkServerComponent>();
         }
 
         public virtual void TearDown()
@@ -41,7 +49,8 @@ namespace Mirror.Tests
                 if (go != null)
                     GameObject.DestroyImmediate(go);
 
-            GameObject.DestroyImmediate(transport.gameObject);
+            GameObject.DestroyImmediate(holder);
+            NetworkServerComponent.singleton = null;
             Transport.activeTransport = null;
         }
 
