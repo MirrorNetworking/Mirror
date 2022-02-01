@@ -80,6 +80,10 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(NetworkBehaviour a, SyncVarNetworkBehaviour<T> b) => !(a == b);
 
+        // if we overwrite == operators, we also need to overwrite .Equals.
+        public override bool Equals(object obj) => obj is SyncVarNetworkBehaviour<T> value && this == value;
+        public override int GetHashCode() => Value.GetHashCode();
+
         // helper functions to get/set netId, componentIndex from ulong
         internal static ulong Pack(uint netId, byte componentIndex)
         {

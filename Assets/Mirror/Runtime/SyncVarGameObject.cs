@@ -127,5 +127,9 @@ namespace Mirror
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(GameObject a, SyncVarGameObject b) => !(a == b);
+
+        // if we overwrite == operators, we also need to overwrite .Equals.
+        public override bool Equals(object obj) => obj is SyncVarGameObject value && this == value;
+        public override int GetHashCode() => Value.GetHashCode();
     }
 }

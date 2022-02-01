@@ -102,5 +102,9 @@ namespace Mirror
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(NetworkIdentity a, SyncVarNetworkIdentity b) => !(a == b);
+
+        // if we overwrite == operators, we also need to overwrite .Equals.
+        public override bool Equals(object obj) => obj is SyncVarNetworkIdentity value && this == value;
+        public override int GetHashCode() => Value.GetHashCode();
     }
 }
