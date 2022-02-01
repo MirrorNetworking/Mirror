@@ -7,6 +7,7 @@
 //
 // original Weaver code was broken because it didn't store by netId.
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
@@ -43,6 +44,34 @@ namespace Mirror
         // implicit conversion: SyncFieldNetworkBehaviour = value
         // even if SyncField is readonly, it's still useful: SyncFieldNetworkBehaviour = target;
         public static implicit operator SyncVarNetworkBehaviour<T>(T value) => new SyncVarNetworkBehaviour<T>(value);
+
+        // NOTE: overloading all == operators blocks '== null' checks with an
+        // "ambiguous invocation" error. that's good. this way user code like
+        // "player.target == null" won't compile instead of silently failing!
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(SyncVarNetworkBehaviour<T> a, SyncVarNetworkBehaviour<T> b) =>
+            a.Value == b.Value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(SyncVarNetworkBehaviour<T> a, SyncVarNetworkBehaviour<T> b) => !(a == b);
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(SyncVarNetworkBehaviour<T> a, NetworkBehaviour b) =>
+            a.Value == b;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(SyncVarNetworkBehaviour<T> a, NetworkBehaviour b) => !(a == b);
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(NetworkBehaviour a, SyncVarNetworkBehaviour<T> b) =>
+            a == b.Value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(NetworkBehaviour a, SyncVarNetworkBehaviour<T> b) => !(a == b);
 
         // wrap <NetworkIdentity> hook within base <uint> hook
         static Action<ulong, ulong> WrapHook(Action<T, T> hook) =>

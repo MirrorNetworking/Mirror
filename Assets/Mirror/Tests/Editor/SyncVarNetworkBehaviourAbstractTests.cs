@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -94,6 +95,37 @@ namespace Mirror.Tests
             // field = T implicit conversion should set .Value
             SyncVarNetworkBehaviour<NetworkBehaviour> field = component;
             Assert.That(field.Value, Is.EqualTo(component));
+        }
+
+        [Test]
+        public void OperatorEquals()
+        {
+            // != null
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+
+            // NOTE: this throws a compilation error, which is good!
+            // we don't want users to do 'player.target == null'.
+            // better to not compile than to fail silently.
+            // Assert.That(field != null, Is.True);
+
+            // different SyncVar<T>, same .Value
+            SyncVarNetworkBehaviour<NetworkBehaviour> fieldSame = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            Assert.That(field == fieldSame, Is.True);
+            Assert.That(field != fieldSame, Is.False);
+
+            // different SyncVar<T>, different .Value
+            SyncVarNetworkBehaviour<NetworkBehaviour> fieldNull = new SyncVarNetworkBehaviour<NetworkBehaviour>(null);
+            Assert.That(field == fieldNull, Is.False);
+            Assert.That(field != fieldNull, Is.True);
+
+            // same NetworkBehaviour<NetworkBehaviour>
+            Assert.That(field == component, Is.True);
+            Assert.That(field != component, Is.False);
+
+            // different NetworkBehaviour<NetworkBehaviour>
+            EmptyBehaviour other = new GameObject().AddComponent<EmptyBehaviour>();
+            Assert.That(field == (NetworkBehaviour)other, Is.False); // NRE
+            Assert.That(field != (NetworkBehaviour)other, Is.True);
         }
 
         // make sure the NetworkBehaviour hook works, even though base is uint.
