@@ -6,8 +6,10 @@ namespace Mirror.Tests
     // SyncVarNetworkBehaviour for a abstract NetworkBehaviour
     public class SyncVarNetworkBehaviourAbstractTests : MirrorTest
     {
-        NetworkIdentity identity;
-        NetworkBehaviour component;
+        NetworkIdentity serverIdentity;
+        NetworkIdentity clientIdentity;
+        NetworkBehaviour serverComponent;
+        NetworkBehaviour clientComponent;
 
         [SetUp]
         public override void SetUp()
@@ -16,14 +18,15 @@ namespace Mirror.Tests
 
             // need a connected client & server so we can have spawned identities
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // need a spawned NetworkIdentity with a netId (we store by netId)
             // we need a valid NetworkBehaviour component.
             // the class is abstract so we need to use EmptyBehaviour and cast back
-            CreateNetworkedAndSpawn(out _, out identity, out EmptyBehaviour inheritedComponent);
-            component = inheritedComponent;
-            Assert.That(identity.netId, !Is.EqualTo(0));
+            CreateNetworkedAndSpawn(out _, out serverIdentity, out EmptyBehaviour inheritedServerComponent, out _, out clientIdentity, out EmptyBehaviour inheritedClientComponent);
+            serverComponent = inheritedServerComponent;
+            clientComponent = inheritedClientComponent;
+            Assert.That(serverIdentity.netId, !Is.EqualTo(0));
         }
 
         [TearDown]
@@ -48,8 +51,8 @@ namespace Mirror.Tests
         [Test]
         public void Constructor_NetworkBehaviour()
         {
-            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
-            Assert.That(field.Value, Is.EqualTo(component));
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
+            Assert.That(field.Value, Is.EqualTo(serverComponent));
         }
 
         // make sure the NetworkBehaviour .Value works, even though base is uint
@@ -61,47 +64,47 @@ namespace Mirror.Tests
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
 
-            field.Value = component;
-            Assert.That(field.Value, Is.EqualTo(component));
+            field.Value = serverComponent;
+            Assert.That(field.Value, Is.EqualTo(serverComponent));
         }
 
         [Test]
         public void PersistenceThroughDisappearance()
         {
             // field with NetworkBehaviour
-            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
 
             // remove from spawned, shouldn't be found anymore
-            NetworkServer.spawned.Remove(identity.netId);
+            NetworkServer.spawned.Remove(serverIdentity.netId);
             Assert.That(field.Value, Is.EqualTo(null));
 
             // add to spawned again, should be found again
-            NetworkServer.spawned[identity.netId] = identity;
-            Assert.That(field.Value, Is.EqualTo(component));
+            NetworkServer.spawned[serverIdentity.netId] = serverIdentity;
+            Assert.That(field.Value, Is.EqualTo(serverComponent));
         }
 
         [Test]
         public void ImplicitTo()
         {
-            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
             // T = field implicit conversion should get .Value
             NetworkBehaviour value = field;
-            Assert.That(value, Is.EqualTo(component));
+            Assert.That(value, Is.EqualTo(serverComponent));
         }
 
         [Test]
         public void ImplicitFrom_SetsValue()
         {
             // field = T implicit conversion should set .Value
-            SyncVarNetworkBehaviour<NetworkBehaviour> field = component;
-            Assert.That(field.Value, Is.EqualTo(component));
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = serverComponent;
+            Assert.That(field.Value, Is.EqualTo(serverComponent));
         }
 
         [Test]
         public void OperatorEquals()
         {
             // != null
-            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
 
             // NOTE: this throws a compilation error, which is good!
             // we don't want users to do 'player.target == null'.
@@ -109,7 +112,7 @@ namespace Mirror.Tests
             // Assert.That(field != null, Is.True);
 
             // different SyncVar<T>, same .Value
-            SyncVarNetworkBehaviour<NetworkBehaviour> fieldSame = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            SyncVarNetworkBehaviour<NetworkBehaviour> fieldSame = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
             Assert.That(field == fieldSame, Is.True);
             Assert.That(field != fieldSame, Is.False);
 
@@ -119,8 +122,8 @@ namespace Mirror.Tests
             Assert.That(field != fieldNull, Is.True);
 
             // same NetworkBehaviour<NetworkBehaviour>
-            Assert.That(field == component, Is.True);
-            Assert.That(field != component, Is.False);
+            Assert.That(field == serverComponent, Is.True);
+            Assert.That(field != serverComponent, Is.False);
 
             // different NetworkBehaviour<NetworkBehaviour>
             EmptyBehaviour other = new GameObject().AddComponent<EmptyBehaviour>();
@@ -137,7 +140,7 @@ namespace Mirror.Tests
             {
                 ++called;
                 Assert.That(oldValue, Is.Null);
-                Assert.That(newValue, Is.EqualTo(component));
+                Assert.That(newValue, Is.EqualTo(serverComponent));
             }
 
             SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(null);
@@ -146,7 +149,7 @@ namespace Mirror.Tests
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
 
-            field.Value = component;
+            field.Value = serverComponent;
             Assert.That(called, Is.EqualTo(1));
         }
 
@@ -155,8 +158,8 @@ namespace Mirror.Tests
         [Test]
         public void EqualsTest()
         {
-            SyncVarNetworkBehaviour<NetworkBehaviour> fieldA = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
-            SyncVarNetworkBehaviour<NetworkBehaviour> fieldB = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            SyncVarNetworkBehaviour<NetworkBehaviour> fieldA = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
+            SyncVarNetworkBehaviour<NetworkBehaviour> fieldB = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
             SyncVarNetworkBehaviour<NetworkBehaviour> fieldC = new SyncVarNetworkBehaviour<NetworkBehaviour>(null);
             Assert.That(fieldA.Equals(fieldB), Is.True);
             Assert.That(fieldA.Equals(fieldC), Is.False);
@@ -165,33 +168,33 @@ namespace Mirror.Tests
         [Test]
         public void SerializeAllWritesNetIdAndComponentIndex()
         {
-            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeAll(writer);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            Assert.That(reader.ReadUInt(), Is.EqualTo(component.netId));
-            Assert.That(reader.ReadByte(), Is.EqualTo(component.ComponentIndex));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(serverComponent.netId));
+            Assert.That(reader.ReadByte(), Is.EqualTo(serverComponent.ComponentIndex));
         }
 
         [Test]
         public void SerializeDeltaWritesNetIdAndComponentIndex()
         {
-            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(component);
+            SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(serverComponent);
             NetworkWriter writer = new NetworkWriter();
             field.OnSerializeDelta(writer);
 
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
-            Assert.That(reader.ReadUInt(), Is.EqualTo(component.netId));
-            Assert.That(reader.ReadByte(), Is.EqualTo(component.ComponentIndex));
+            Assert.That(reader.ReadUInt(), Is.EqualTo(serverComponent.netId));
+            Assert.That(reader.ReadByte(), Is.EqualTo(serverComponent.ComponentIndex));
         }
 
         [Test]
         public void DeserializeAllReadsNetIdAndComponentIndex()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteUInt(component.netId);
-            writer.WriteByte((byte)component.ComponentIndex);
+            writer.WriteUInt(serverComponent.netId);
+            writer.WriteByte((byte)serverComponent.ComponentIndex);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(null);
@@ -200,15 +203,15 @@ namespace Mirror.Tests
             field.OnDirty = () => {};
 
             field.OnDeserializeAll(reader);
-            Assert.That(field.Value, Is.EqualTo(component));
+            Assert.That(field.Value, Is.EqualTo(serverComponent));
         }
 
         [Test]
         public void DeserializeDeltaReadsNetIdAndComponentIndex()
         {
             NetworkWriter writer = new NetworkWriter();
-            writer.WriteUInt(component.netId);
-            writer.WriteByte((byte)component.ComponentIndex);
+            writer.WriteUInt(serverComponent.netId);
+            writer.WriteByte((byte)serverComponent.ComponentIndex);
             NetworkReader reader = new NetworkReader(writer.ToArraySegment());
 
             SyncVarNetworkBehaviour<NetworkBehaviour> field = new SyncVarNetworkBehaviour<NetworkBehaviour>(null);
@@ -217,7 +220,7 @@ namespace Mirror.Tests
             field.OnDirty = () => {};
 
             field.OnDeserializeDelta(reader);
-            Assert.That(field.Value, Is.EqualTo(component));
+            Assert.That(field.Value, Is.EqualTo(serverComponent));
         }
     }
 }
