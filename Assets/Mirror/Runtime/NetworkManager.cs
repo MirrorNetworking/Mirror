@@ -14,6 +14,7 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/Network Manager")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-manager")]
+    [RequireComponent(typeof(NetworkServerComponent))]
     public class NetworkManager : MonoBehaviour
     {
         /// <summary>Enable to keep NetworkManager alive when changing scenes.</summary>
@@ -179,6 +180,19 @@ namespace Mirror
                     transport = gameObject.AddComponent<KcpTransport>();
                     Debug.Log("NetworkManager: added default Transport because there was none yet.");
                 }
+            }
+
+            // add server if there is none yet. makes upgrading easier.
+            NetworkServerComponent server = GetComponent<NetworkServerComponent>();
+            if (server == null)
+            {
+#if UNITY_EDITOR
+                // RecordObject needs to be called before we make the change
+                UnityEditor.Undo.RecordObject(gameObject, "Added default NetworkServerComponent");
+#endif
+
+                gameObject.AddComponent<NetworkServerComponent>();
+                Debug.Log("NetworkManager: added default NetworkServerComponent because there was none yet.");
             }
         }
 
