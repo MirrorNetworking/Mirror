@@ -15,7 +15,7 @@ namespace Mirror.Tests
         {
             base.SetUp();
 
-            CreateGameObject(out _, out transport);
+            transport = holder.AddComponent<MultiplexTransport>();
 
             transport1 = Substitute.For<Transport>();
             transport2 = Substitute.For<Transport>();
