@@ -79,19 +79,19 @@ namespace Mirror.Tests.Attributes
         AttributeBehaviour_NetworkBehaviour behaviour;
         GameObject go;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void SetUp()
         {
             go = new GameObject();
             behaviour = go.AddComponent<AttributeBehaviour_NetworkBehaviour>();
         }
 
-        [OneTimeTearDown]
+        [TearDown]
         public void TearDown()
         {
-            UnityEngine.Object.DestroyImmediate(go);
             NetworkClient.connectState = ConnectState.None;
             NetworkServer.active = false;
+            UnityEngine.Object.DestroyImmediate(go);
         }
 
 
@@ -361,19 +361,19 @@ namespace Mirror.Tests.Attributes
         AttributeBehaviour_MonoBehaviour behaviour;
         GameObject go;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void SetUp()
         {
             go = new GameObject();
             behaviour = go.AddComponent<AttributeBehaviour_MonoBehaviour>();
         }
 
-        [OneTimeTearDown]
+        [TearDown]
         public void TearDown()
         {
-            UnityEngine.Object.DestroyImmediate(go);
             NetworkClient.connectState = ConnectState.None;
             NetworkServer.active = false;
+            UnityEngine.Object.DestroyImmediate(go);
         }
 
 
