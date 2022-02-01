@@ -13,8 +13,8 @@ namespace Mirror.Tests
         {
             base.SetUp();
 
-            // create spatial hashing object & component
-            CreateGameObject(out GameObject go, out aoi);
+            // create component
+            aoi = holder.AddComponent<SpatialHashingInterestManagement>();
             aoi.visRange = 10;
             // setup server aoi since InterestManagement Awake isn't called
             NetworkServer.aoi = aoi;
