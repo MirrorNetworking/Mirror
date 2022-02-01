@@ -1302,10 +1302,11 @@ namespace Mirror.Tests
         public void SyncObjectChanges_DontGrowWithoutObservers()
         {
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // one monster
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out NetworkBehaviourWithSyncVarsAndCollections comp);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity identity, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                    out _, out _, out _);
 
             // without AOI, connections observer everything.
             // clear the observers first.
