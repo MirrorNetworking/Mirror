@@ -193,6 +193,10 @@ namespace Mirror
 
                 gameObject.AddComponent<NetworkServerComponent>();
                 Debug.Log("NetworkManager: added default NetworkServerComponent because there was none yet.");
+#if UNITY_EDITOR
+                // RecordObject needs to be called after the change as it seems
+                UnityEditor.Undo.RecordObject(gameObject, "Added default NetworkServerComponent");
+#endif
             }
         }
 
