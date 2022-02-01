@@ -26,9 +26,9 @@ namespace Mirror.Examples.AdditiveLevels
             }
         }
 
-        public override void OnStopClient()
+        public override void OnStopLocalPlayer()
         {
-            if (isLocalPlayer && mainCam != null)
+            if (mainCam != null)
             {
                 mainCam.transform.SetParent(null);
                 SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
