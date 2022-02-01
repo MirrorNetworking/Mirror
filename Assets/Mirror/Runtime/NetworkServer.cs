@@ -204,7 +204,7 @@ namespace Mirror
         public static void SetClientReady(NetworkConnection conn) => NetworkServerComponent.singleton.SetClientReady(conn);
 
         /// <summary>Marks the client of the connection to be not-ready.</summary>
-        public static void SetClientNotReady(NetworkConnection conn) => NetworkServerComponent.singleton.SetClientReady(conn);
+        public static void SetClientNotReady(NetworkConnection conn) => NetworkServerComponent.singleton.SetClientNotReady(conn);
 
         /// <summary>Marks all connected clients as no longer ready.</summary>
         public static void SetAllClientsNotReady() => NetworkServerComponent.singleton.SetAllClientsNotReady();
