@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Mirror.RemoteCalls;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
