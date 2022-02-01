@@ -106,7 +106,8 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(go));
             }
 
-            SyncVarGameObject field = new SyncVarGameObject(null, OnChanged);
+            SyncVarGameObject field = new SyncVarGameObject(null);
+            field.Callback += OnChanged;
 
             // avoid 'not initialized' exception
             field.OnDirty = () => {};

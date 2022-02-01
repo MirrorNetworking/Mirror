@@ -52,14 +52,21 @@ namespace Mirror
             set => base.Value = value != null ? value.netId : 0;
         }
 
+        // OnChanged Callback is for <uint, uint>.
+        // Let's also have one for <NetworkIdentity, NetworkIdentity>
+        public new event Action<NetworkIdentity, NetworkIdentity> Callback;
+
+        // overwrite CallCallback to use the NetworkIdentity version instead
+        protected override void InvokeCallback(uint oldValue, uint newValue) =>
+            Callback?.Invoke(Utils.GetSpawnedInServerOrClient(oldValue), Utils.GetSpawnedInServerOrClient(newValue));
+
         // ctor
         // 'value = null' so we can do:
         //   SyncVarNetworkIdentity = new SyncVarNetworkIdentity()
         // instead of
         //   SyncVarNetworkIdentity = new SyncVarNetworkIdentity(null);
-        public SyncVarNetworkIdentity(NetworkIdentity value = null, Action<NetworkIdentity, NetworkIdentity> hook = null)
-            : base(value != null ? value.netId : 0,
-                hook != null ? WrapHook(hook) : null) {}
+        public SyncVarNetworkIdentity(NetworkIdentity value = null)
+            : base(value != null ? value.netId : 0) {}
 
         // implicit conversion: NetworkIdentity value = SyncFieldNetworkIdentity
         public static implicit operator NetworkIdentity(SyncVarNetworkIdentity field) => field.Value;
@@ -95,9 +102,5 @@ namespace Mirror
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(NetworkIdentity a, SyncVarNetworkIdentity b) => !(a == b);
-
-        // wrap <NetworkIdentity> hook within base <uint> hook
-        static Action<uint, uint> WrapHook(Action<NetworkIdentity, NetworkIdentity> hook) =>
-            (oldValue, newValue) => { hook(Utils.GetSpawnedInServerOrClient(oldValue), Utils.GetSpawnedInServerOrClient(newValue)); };
     }
 }

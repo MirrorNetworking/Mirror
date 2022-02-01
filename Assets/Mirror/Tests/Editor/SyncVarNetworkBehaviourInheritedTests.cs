@@ -137,7 +137,8 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(component));
             }
 
-            SyncVarNetworkBehaviour<EmptyBehaviour> field = new SyncVarNetworkBehaviour<EmptyBehaviour>(null, OnChanged);
+            SyncVarNetworkBehaviour<EmptyBehaviour> field = new SyncVarNetworkBehaviour<EmptyBehaviour>(null);
+            field.Callback += OnChanged;
 
             // avoid 'not initialized' exception
             field.OnDirty = () => {};

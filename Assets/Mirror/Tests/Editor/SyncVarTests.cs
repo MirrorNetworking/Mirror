@@ -117,7 +117,8 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(1337));
             }
 
-            SyncVar<int> field = new SyncVar<int>(42, OnChanged);
+            SyncVar<int> field = 42;
+            field.Callback += OnChanged;
 
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
@@ -137,7 +138,8 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(1337));
             }
 
-            SyncVar<int> field = new SyncVar<int>(42, OnChanged);
+            SyncVar<int> field = 42;
+            field.Callback += OnChanged;
             // assign same value again. hook shouldn't be called again.
             field.Value = 42;
             Assert.That(called, Is.EqualTo(0));
@@ -157,7 +159,8 @@ namespace Mirror.Tests
                 field.Value = 0;
                 ++called;
             }
-            field = new SyncVar<int>(42, OnChanged);
+            field = 42;
+            field.Callback += OnChanged;
 
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
@@ -179,7 +182,8 @@ namespace Mirror.Tests
                 Assert.That(oldValue, Is.EqualTo(42));
                 Assert.That(newValue, Is.EqualTo(1337));
             }
-            SyncVar<int> field = new SyncVar<int>(42, OnChanged);
+            SyncVar<int> field = 42;
+            field.Callback += OnChanged;
 
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
@@ -205,7 +209,8 @@ namespace Mirror.Tests
                 Assert.That(oldValue, Is.EqualTo(42));
                 Assert.That(newValue, Is.EqualTo(1337));
             }
-            SyncVar<int> fieldWithHook = new SyncVar<int>(42, OnChanged);
+            SyncVar<int> fieldWithHook = 42;
+            fieldWithHook.Callback += OnChanged;
 
             // avoid 'not initialized' exception
             fieldWithHook.OnDirty = () => {};

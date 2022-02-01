@@ -120,7 +120,8 @@ namespace Mirror.Tests
                 Assert.That(newValue, Is.EqualTo(identity));
             }
 
-            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null, OnChanged);
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(null);
+            field.Callback += OnChanged;
 
             // avoid 'not initialized' exception
             field.OnDirty = () => {};
