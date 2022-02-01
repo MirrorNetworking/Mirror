@@ -101,15 +101,12 @@ namespace Mirror.Tests.Attributes
         public void Client_float_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'System.Single Mirror.Tests.Attributes.AttributeBehaviour_NetworkBehaviour::Client_float_Function()' called when client was not active");
             }
             float actual = behaviour.Client_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -119,15 +116,12 @@ namespace Mirror.Tests.Attributes
         public void Client_float_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_NetworkBehaviour::Client_float_out_Function(System.Single&)' called when client was not active");
             }
             behaviour.Client_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -137,15 +131,12 @@ namespace Mirror.Tests.Attributes
         public void Server_float_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'System.Single Mirror.Tests.Attributes.AttributeBehaviour_NetworkBehaviour::Server_float_Function()' called when server was not active");
             }
             float actual = behaviour.Server_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -155,15 +146,12 @@ namespace Mirror.Tests.Attributes
         public void Server_float_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_NetworkBehaviour::Server_float_out_Function(System.Single&)' called when server was not active");
             }
             behaviour.Server_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -173,11 +161,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_float_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
 
             float actual = behaviour.ClientCallback_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -187,11 +173,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_float_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
 
             behaviour.ClientCallback_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -201,11 +185,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_float_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
 
             float actual = behaviour.ServerCallback_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -215,11 +197,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_float_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_NetworkBehaviour.Expected_float : default;
 
             behaviour.ServerCallback_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
     }
@@ -403,15 +383,12 @@ namespace Mirror.Tests.Attributes
         public void Client_float_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'System.Single Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Client_float_Function()' called when client was not active");
             }
             float actual = behaviour.Client_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -421,15 +398,12 @@ namespace Mirror.Tests.Attributes
         public void Client_float_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Client_float_out_Function(System.Single&)' called when client was not active");
             }
             behaviour.Client_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -439,15 +413,12 @@ namespace Mirror.Tests.Attributes
         public void Client_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.Attributes.ClassWithNoConstructor Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithNoConstructor_Function()' called when client was not active");
             }
             ClassWithNoConstructor actual = behaviour.Client_ClassWithNoConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -457,15 +428,12 @@ namespace Mirror.Tests.Attributes
         public void Client_ClassWithNoConstructor_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithNoConstructor_out_Function(Mirror.Tests.Attributes.ClassWithNoConstructor&)' called when client was not active");
             }
             behaviour.Client_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -475,15 +443,12 @@ namespace Mirror.Tests.Attributes
         public void Client_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'Mirror.Tests.Attributes.ClassWithConstructor Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithConstructor_Function()' called when client was not active");
             }
             ClassWithConstructor actual = behaviour.Client_ClassWithConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -493,15 +458,12 @@ namespace Mirror.Tests.Attributes
         public void Client_ClassWithConstructor_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Client] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Client_ClassWithConstructor_out_Function(Mirror.Tests.Attributes.ClassWithConstructor&)' called when client was not active");
             }
             behaviour.Client_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -511,15 +473,12 @@ namespace Mirror.Tests.Attributes
         public void Server_float_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'System.Single Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Server_float_Function()' called when server was not active");
             }
             float actual = behaviour.Server_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -529,15 +488,12 @@ namespace Mirror.Tests.Attributes
         public void Server_float_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Server_float_out_Function(System.Single&)' called when server was not active");
             }
             behaviour.Server_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -547,15 +503,12 @@ namespace Mirror.Tests.Attributes
         public void Server_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.Attributes.ClassWithNoConstructor Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithNoConstructor_Function()' called when server was not active");
             }
             ClassWithNoConstructor actual = behaviour.Server_ClassWithNoConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -565,15 +518,12 @@ namespace Mirror.Tests.Attributes
         public void Server_ClassWithNoConstructor_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithNoConstructor_out_Function(Mirror.Tests.Attributes.ClassWithNoConstructor&)' called when server was not active");
             }
             behaviour.Server_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -583,15 +533,12 @@ namespace Mirror.Tests.Attributes
         public void Server_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'Mirror.Tests.Attributes.ClassWithConstructor Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithConstructor_Function()' called when server was not active");
             }
             ClassWithConstructor actual = behaviour.Server_ClassWithConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -601,15 +548,12 @@ namespace Mirror.Tests.Attributes
         public void Server_ClassWithConstructor_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
-
             if (!active)
             {
                 LogAssert.Expect(LogType.Warning, "[Server] function 'System.Void Mirror.Tests.Attributes.AttributeBehaviour_MonoBehaviour::Server_ClassWithConstructor_out_Function(Mirror.Tests.Attributes.ClassWithConstructor&)' called when server was not active");
             }
             behaviour.Server_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -619,11 +563,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_float_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
 
             float actual = behaviour.ClientCallback_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -633,11 +575,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_float_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
 
             behaviour.ClientCallback_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -647,11 +587,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
 
             ClassWithNoConstructor actual = behaviour.ClientCallback_ClassWithNoConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -661,11 +599,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_ClassWithNoConstructor_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
 
             behaviour.ClientCallback_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -675,11 +611,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
 
             ClassWithConstructor actual = behaviour.ClientCallback_ClassWithConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -689,11 +623,9 @@ namespace Mirror.Tests.Attributes
         public void ClientCallback_ClassWithConstructor_setsOutValue(bool active)
         {
             NetworkClient.connectState = active ? ConnectState.Connected : ConnectState.None;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
 
             behaviour.ClientCallback_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -703,11 +635,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_float_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
 
             float actual = behaviour.ServerCallback_float_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -717,11 +647,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_float_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             float expected = active ? AttributeBehaviour_MonoBehaviour.Expected_float : default;
 
             behaviour.ServerCallback_float_out_Function(out float actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -731,11 +659,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_ClassWithNoConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
 
             ClassWithNoConstructor actual = behaviour.ServerCallback_ClassWithNoConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -745,11 +671,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_ClassWithNoConstructor_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithNoConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithNoConstructor : default;
 
             behaviour.ServerCallback_ClassWithNoConstructor_out_Function(out ClassWithNoConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -759,11 +683,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_ClassWithConstructor_returnsValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
 
             ClassWithConstructor actual = behaviour.ServerCallback_ClassWithConstructor_Function();
-
             Assert.AreEqual(expected, actual);
         }
 
@@ -773,11 +695,9 @@ namespace Mirror.Tests.Attributes
         public void ServerCallback_ClassWithConstructor_setsOutValue(bool active)
         {
             NetworkServer.active = active;
-
             ClassWithConstructor expected = active ? AttributeBehaviour_MonoBehaviour.Expected_ClassWithConstructor : default;
 
             behaviour.ServerCallback_ClassWithConstructor_out_Function(out ClassWithConstructor actual);
-
             Assert.AreEqual(expected, actual);
         }
     }
