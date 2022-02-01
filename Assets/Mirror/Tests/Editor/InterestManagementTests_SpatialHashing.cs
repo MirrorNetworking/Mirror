@@ -27,8 +27,6 @@ namespace Mirror.Tests
         public override void TearDown()
         {
             base.TearDown();
-            // clear server aoi again
-            NetworkServer.aoi = null;
         }
 
         // brute force interest management
