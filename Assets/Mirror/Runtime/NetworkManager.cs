@@ -97,7 +97,7 @@ namespace Mirror
         public static int startPositionIndex;
 
         /// <summary>The one and only NetworkManager</summary>
-        public static NetworkManager singleton { get; private set; }
+        public static NetworkManager singleton { get; internal set; }
 
         /// <summary>Number of active player objects across all connections on the server.</summary>
         public int numPlayers => NetworkServer.connections.Count(kv => kv.Value.identity != null);
