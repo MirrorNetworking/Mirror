@@ -21,6 +21,13 @@ namespace Mirror.Examples.Tanks
 
         [Header("Stats")]
         [SyncVar] public int health = 4;
+        SyncVar<int> test = 42;
+
+        SyncList<int> list = new SyncList<int>();
+
+        public override void OnStartClient()
+        {
+        }
 
         void Update()
         {
