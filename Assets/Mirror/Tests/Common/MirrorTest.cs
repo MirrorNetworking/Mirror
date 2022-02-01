@@ -16,14 +16,18 @@ namespace Mirror.Tests
         public List<GameObject> instantiated;
 
         // we usually need the memory transport
+        public GameObject holder;
         public MemoryTransport transport;
 
         public virtual void SetUp()
         {
             instantiated = new List<GameObject>();
 
+            // need a holder GO. with name for easier debugging.
+            holder = new GameObject("MirrorTest.holder");
+
             // need a transport to send & receive
-            Transport.activeTransport = transport = new GameObject().AddComponent<MemoryTransport>();
+            Transport.activeTransport = transport = holder.AddComponent<MemoryTransport>();
         }
 
         public virtual void TearDown()
