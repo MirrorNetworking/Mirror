@@ -99,7 +99,11 @@ namespace Mirror
         /// <summary>Shuts down the server and disconnects all clients</summary>
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void Shutdown() => NetworkServerComponent.singleton.Shutdown();
+        public static void Shutdown()
+        {
+            if (NetworkServerComponent.singleton != null)
+                NetworkServerComponent.singleton.Shutdown();
+        }
 
         // connections /////////////////////////////////////////////////////////
         /// <summary>Add a connection and setup callbacks. Returns true if not added yet.</summary>
