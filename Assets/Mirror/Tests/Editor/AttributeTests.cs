@@ -83,6 +83,7 @@ namespace Mirror.Tests.Attributes
         public void SetUp()
         {
             go = new GameObject();
+            go.AddComponent<NetworkServerComponent>().Awake();
             behaviour = go.AddComponent<AttributeBehaviour_NetworkBehaviour>();
         }
 
@@ -365,6 +366,7 @@ namespace Mirror.Tests.Attributes
         public void SetUp()
         {
             go = new GameObject();
+            go.AddComponent<NetworkServerComponent>().Awake();
             behaviour = go.AddComponent<AttributeBehaviour_MonoBehaviour>();
         }
 

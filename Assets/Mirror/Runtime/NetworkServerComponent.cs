@@ -70,7 +70,8 @@ namespace Mirror
         public Action<NetworkConnection, Exception> OnErrorEvent;
 
         // singleton access for NetworkServer static ///////////////////////////
-        void Awake()
+        // internal so we can initialize it from tests
+        internal void Awake()
         {
             if (singleton != null)
                 throw new Exception($"There can only be one NetworkServer component for now. Looks like there is one on {name} and one on {singleton.name}!");
