@@ -74,11 +74,27 @@ namespace Mirror
 
         // == operator for comparisons like Player.target==monster
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(SyncVarNetworkBehaviour<T> a, T b) =>
+            a.Value == b;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(SyncVarNetworkBehaviour<T> a, T b) => !(a == b);
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(NetworkBehaviour a, SyncVarNetworkBehaviour<T> b) =>
             a == b.Value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(NetworkBehaviour a, SyncVarNetworkBehaviour<T> b) => !(a == b);
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(T a, SyncVarNetworkBehaviour<T> b) =>
+            a == b.Value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(T a, SyncVarNetworkBehaviour<T> b) => !(a == b);
 
         // if we overwrite == operators, we also need to overwrite .Equals.
         public override bool Equals(object obj) => obj is SyncVarNetworkBehaviour<T> value && this == value;
