@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -74,6 +75,37 @@ namespace Mirror.Tests
             // field = T implicit conversion should set .Value
             SyncVarNetworkIdentity field = identity;
             Assert.That(field.Value, Is.EqualTo(identity));
+        }
+
+        [Test]
+        public void OperatorEquals()
+        {
+            // != null
+            SyncVarNetworkIdentity field = new SyncVarNetworkIdentity(identity);
+
+            // NOTE: this throws a compilation error, which is good!
+            // we don't want users to do 'player.target == null'.
+            // better to not compile than to fail silently.
+            // Assert.That(field != null, Is.True);
+
+            // different SyncVar<T>, same .Value
+            SyncVarNetworkIdentity fieldSame = new SyncVarNetworkIdentity(identity);
+            Assert.That(field == fieldSame, Is.True);
+            Assert.That(field != fieldSame, Is.False);
+
+            // different SyncVar<T>, different .Value
+            SyncVarNetworkIdentity fieldNull = new SyncVarNetworkIdentity(null);
+            Assert.That(field == fieldNull, Is.False);
+            Assert.That(field != fieldNull, Is.True);
+
+            // same NetworkIdentity
+            Assert.That(field == identity, Is.True);
+            Assert.That(field != identity, Is.False);
+
+            // different NetworkIdentity
+            NetworkIdentity other = new GameObject().AddComponent<NetworkIdentity>();
+            Assert.That(field == other, Is.False);
+            Assert.That(field != other, Is.True);
         }
 
         // make sure the NetworkIdentity hook works, even though base is uint.
