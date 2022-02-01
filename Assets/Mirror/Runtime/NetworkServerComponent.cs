@@ -54,7 +54,7 @@ namespace Mirror
         public bool active { get; internal set; }
 
         // scene loading
-        public bool isLoadingScene;
+        [HideInInspector] public bool isLoadingScene;
 
         // interest management component (optional)
         // by default, everyone observes everyone
