@@ -24,6 +24,9 @@ namespace Mirror.Tests
             transport.Awake();
         }
 
+        [TearDown]
+        public override void TearDown() => base.TearDown();
+
         // A Test behaves as an ordinary method
         [Test]
         public void TestAvailable()
