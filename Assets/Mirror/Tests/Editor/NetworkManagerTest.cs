@@ -7,14 +7,13 @@ namespace Mirror.Tests
     [TestFixture]
     public class NetworkManagerTest : MirrorEditModeTest
     {
-        GameObject gameObject;
+        GameObject gameObject => holder;
         NetworkManager manager;
 
         [SetUp]
         public override void SetUp()
         {
             base.SetUp();
-            gameObject = transport.gameObject;
             manager = gameObject.AddComponent<NetworkManager>();
         }
 
