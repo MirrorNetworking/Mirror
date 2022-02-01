@@ -63,6 +63,37 @@ namespace Mirror.Tests
             Assert.That(field.Value, Is.EqualTo(go));
         }
 
+        [Test]
+        public void OperatorEquals()
+        {
+            // != null
+            SyncVarGameObject field = new SyncVarGameObject(go);
+
+            // NOTE: this throws a compilation error, which is good!
+            // we don't want users to do 'player.target == null'.
+            // better to not compile than to fail silently.
+            // Assert.That(field != null, Is.True);
+
+            // different SyncVar<T>, same .Value
+            SyncVarGameObject fieldSame = new SyncVarGameObject(go);
+            Assert.That(field == fieldSame, Is.True);
+            Assert.That(field != fieldSame, Is.False);
+
+            // different SyncVar<T>, different .Value
+            SyncVarGameObject fieldNull = new SyncVarGameObject(null);
+            Assert.That(field == fieldNull, Is.False);
+            Assert.That(field != fieldNull, Is.True);
+
+            // same GameObject
+            Assert.That(field == go, Is.True);
+            Assert.That(field != go, Is.False);
+
+            // different GameObject
+            GameObject other = new GameObject("other");
+            Assert.That(field == other, Is.False);
+            Assert.That(field != other, Is.True);
+        }
+
         // make sure the GameObject hook works, even though base is uint.
         [Test]
         public void Hook()

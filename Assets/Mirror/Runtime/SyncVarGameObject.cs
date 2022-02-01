@@ -42,6 +42,7 @@
     }
 */
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -91,6 +92,34 @@ namespace Mirror
         // implicit conversion: SyncFieldGameObject = value
         // even if SyncField is readonly, it's still useful: SyncFieldGameObject = target;
         public static implicit operator SyncVarGameObject(GameObject value) => new SyncVarGameObject(value);
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(SyncVarGameObject a, SyncVarGameObject b) =>
+            a.Value == b.Value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(SyncVarGameObject a, SyncVarGameObject b) => !(a == b);
+
+        // NOTE: overloading all == operators blocks '== null' checks with an
+        // "ambiguous invocation" error. that's good. this way user code like
+        // "player.target == null" won't compile instead of silently failing!
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(SyncVarGameObject a, GameObject b) =>
+            a.Value == b;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(SyncVarGameObject a, GameObject b) => !(a == b);
+
+        // == operator for comparisons like Player.target==monster
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(GameObject a, SyncVarGameObject b) =>
+            a == b.Value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(GameObject a, SyncVarGameObject b) => !(a == b);
 
         // wrap <GameObject> hook within base <uint> hook
         static Action<uint, uint> WrapHook(Action<GameObject, GameObject> hook) =>
