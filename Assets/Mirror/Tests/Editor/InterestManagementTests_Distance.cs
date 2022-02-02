@@ -13,8 +13,8 @@ namespace Mirror.Tests
         {
             base.SetUp();
 
-            // create AOI GameObject
-            CreateGameObject(out GameObject go, out aoi);
+            // create component
+            aoi = holder.AddComponent<DistanceInterestManagement>();
             aoi.visRange = 10;
             // setup server aoi since InterestManagement Awake isn't called
             NetworkServer.aoi = aoi;
