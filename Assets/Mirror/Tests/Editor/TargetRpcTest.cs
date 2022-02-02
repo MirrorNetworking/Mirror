@@ -34,23 +34,39 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void TargetRpcTest(string _) => ++secondCalled;
     }
 
-    public class TargetRpcTest : RemoteTestBase
+    public class TargetRpcTest : MirrorTest
     {
+        NetworkConnectionToClient connectionToClient;
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            // start server/client
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+        }
+
+        [TearDown]
+        public override void TearDown() => base.TearDown();
+
         [Test]
         public void TargetRpcIsCalled()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out TargetRpcBehaviour serverComponent,
+                                    out _, out _, out TargetRpcBehaviour clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int callCount = 0;
-            hostBehaviour.onSendInt += incomingInt =>
+            clientComponent.onSendInt += incomingInt =>
             {
                 callCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.SendInt(someInt);
+            serverComponent.SendInt(someInt);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
@@ -59,17 +75,18 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void TargetRpcIsCalledOnTarget()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out TargetRpcBehaviour serverComponent,
+                                    out _, out _, out TargetRpcBehaviour clientComponent);
 
             const int someInt = 20;
 
             int callCount = 0;
-            hostBehaviour.onSendInt += incomingInt =>
+            clientComponent.onSendInt += incomingInt =>
             {
                 callCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.SendIntWithTarget(NetworkServer.localConnection, someInt);
+            serverComponent.SendIntWithTarget(connectionToClient, someInt);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
@@ -78,48 +95,51 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void ErrorForTargetRpcWithNoOwner()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out TargetRpcBehaviour serverComponent,
+                                    out _, out _, out TargetRpcBehaviour clientComponent);
 
             const int someInt = 20;
 
-            hostBehaviour.onSendInt += incomingInt =>
+            clientComponent.onSendInt += incomingInt =>
             {
                 Assert.Fail("Event should not be invoked with error");
             };
             LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) was given a null connection, make sure the object has an owner or you pass in the target connection");
-            hostBehaviour.SendInt(someInt);
+            serverComponent.SendInt(someInt);
         }
 
         [Test]
         public void ErrorForTargetRpcWithNullArgment()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out TargetRpcBehaviour serverComponent,
+                                    out _, out _, out TargetRpcBehaviour clientComponent);
 
             const int someInt = 20;
 
-            hostBehaviour.onSendInt += incomingInt =>
+            clientComponent.onSendInt += incomingInt =>
             {
                 Assert.Fail("Event should not be invoked with error");
             };
             LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendIntWithTarget(Mirror.NetworkConnection,System.Int32) was given a null connection, make sure the object has an owner or you pass in the target connection");
-            hostBehaviour.SendIntWithTarget(null, someInt);
+            serverComponent.SendIntWithTarget(null, someInt);
         }
 
         [Test]
         public void ErrorForTargetRpcWhenNotGivenConnectionToClient()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out TargetRpcBehaviour serverComponent,
+                                    out _, out _, out TargetRpcBehaviour clientComponent);
 
             const int someInt = 20;
 
-            hostBehaviour.onSendInt += incomingInt =>
+            clientComponent.onSendInt += incomingInt =>
             {
                 Assert.Fail("Event should not be invoked with error");
             };
             LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendIntWithTarget(Mirror.NetworkConnection,System.Int32) requires a NetworkConnectionToClient but was given {typeof(FakeConnection).Name}");
-            hostBehaviour.SendIntWithTarget(new FakeConnection(), someInt);
+            serverComponent.SendIntWithTarget(new FakeConnection(), someInt);
         }
         class FakeConnection : NetworkConnection
         {
@@ -133,33 +153,34 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void ErrorForTargetRpcWhenServerNotActive()
         {
             // spawn without owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out TargetRpcBehaviour serverComponent,
+                                    out _, out _, out TargetRpcBehaviour clientComponent);
 
             const int someInt = 20;
 
-            hostBehaviour.onSendInt += incomingInt =>
+            clientComponent.onSendInt += incomingInt =>
             {
                 Assert.Fail("Event should not be invoked with error");
             };
             NetworkServer.active = false;
             LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called when server not active");
-            hostBehaviour.SendInt(someInt);
+            serverComponent.SendInt(someInt);
         }
 
         [Test]
         public void ErrorForTargetRpcWhenObjectNotSpawned()
         {
             // create without spawning
-            CreateNetworked(out GameObject _, out NetworkIdentity _, out TargetRpcBehaviour hostBehaviour);
+            CreateNetworked(out _, out _, out TargetRpcBehaviour component);
 
             const int someInt = 20;
 
-            hostBehaviour.onSendInt += incomingInt =>
+            component.onSendInt += incomingInt =>
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {hostBehaviour.name} but that object has not been spawned or has been unspawned");
-            hostBehaviour.SendInt(someInt);
+            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {component.name} but that object has not been spawned or has been unspawned");
+            component.SendInt(someInt);
         }
 
         // RemoteCalls uses md.FullName which gives us the full command/rpc name
@@ -169,13 +190,15 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void TargetRpcOverload()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out TargetRpcOverloads hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out TargetRpcOverloads serverComponent,
+                                    out _, out _, out TargetRpcOverloads clientComponent,
+                                    connectionToClient);
 
-            hostBehaviour.TargetRpcTest(42);
-            hostBehaviour.TargetRpcTest("A");
+            serverComponent.TargetRpcTest(42);
+            serverComponent.TargetRpcTest("A");
             ProcessMessages();
-            Assert.That(hostBehaviour.firstCalled, Is.EqualTo(1));
-            Assert.That(hostBehaviour.secondCalled, Is.EqualTo(1));
+            Assert.That(clientComponent.firstCalled, Is.EqualTo(1));
+            Assert.That(clientComponent.secondCalled, Is.EqualTo(1));
         }
     }
 }
