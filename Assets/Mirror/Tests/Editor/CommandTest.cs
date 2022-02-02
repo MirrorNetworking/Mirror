@@ -164,30 +164,6 @@ namespace Mirror.Tests.RemoteAttrributeTest
             Assert.That(callCount, Is.EqualTo(1));
         }
 
-        // test to prevent https://github.com/vis2k/Mirror/issues/2629
-        // from happening again in the future
-        // -> [Command]s can be called on other objects with requiresAuthority=false.
-        // -> those objects don't have a .connectionToServer
-        // -> we broke it when using .connectionToServer instead of
-        //    NetworkClient.connection in SendCommandInternal.
-        [Test, Ignore("TODO")]
-        public void Command_RequiresAuthorityFalse_ForOtherObjectWithoutConnectionToServer()
-        {
-            // spawn without owner (= without connectionToClient)
-            CreateNetworkedAndSpawn(out _, out _, out IgnoreAuthorityBehaviour serverComponent,
-                                    out _, out _, out IgnoreAuthorityBehaviour clientComponent);
-
-            // setup callback
-            int called = 0;
-            serverComponent.onSendInt += _ => { ++called; };
-
-            // call command. don't require authority.
-            // the object doesn't have a .connectionToServer (like a scene object)
-            Assert.That(serverComponent.connectionToServer, Is.Null);
-            clientComponent.CmdSendInt(0);
-            Assert.That(called, Is.EqualTo(1));
-        }
-
         [Test]
         public void SenderConnectionIsSetWhenCommandIsRecieved()
         {
@@ -263,6 +239,33 @@ namespace Mirror.Tests.RemoteAttrributeTest
             ProcessMessages();
             Assert.That(serverComponent.firstCalled, Is.EqualTo(1));
             Assert.That(serverComponent.secondCalled, Is.EqualTo(1));
+        }
+    }
+
+    // need host mode for this one test
+    public class CommandTest_HostMode : RemoteTestBase
+    {
+        // test to prevent https://github.com/vis2k/Mirror/issues/2629
+        // from happening again in the future
+        // -> [Command]s can be called on other objects with requiresAuthority=false.
+        // -> those objects don't have a .connectionToServer
+        // -> we broke it when using .connectionToServer instead of
+        //    NetworkClient.connection in SendCommandInternal.
+        [Test]
+        public void Command_RequiresAuthorityFalse_ForOtherObjectWithoutConnectionToServer()
+        {
+            // spawn without owner (= without connectionToClient)
+            CreateNetworkedAndSpawn(out _, out _, out IgnoreAuthorityBehaviour comp);
+
+            // setup callback
+            int called = 0;
+            comp.onSendInt += _ => { ++called; };
+
+            // call command. don't require authority.
+            // the object doesn't have a .connectionToServer (like a scene object)
+            Assert.That(comp.connectionToServer, Is.Null);
+            comp.CmdSendInt(0);
+            Assert.That(called, Is.EqualTo(1));
         }
     }
 }
