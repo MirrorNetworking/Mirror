@@ -827,9 +827,10 @@ namespace Mirror.Tests
             // SyncLists are only set dirty while owner has observers.
             // need a connection.
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
 
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
+            CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                    out _, out _, out _);
 
             // add to synclist
             comp.list.Add(42);
