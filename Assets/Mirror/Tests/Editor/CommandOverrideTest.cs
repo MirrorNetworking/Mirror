@@ -49,24 +49,40 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
-    public class CommandOverrideTest : RemoteTestBase
+    public class CommandOverrideTest : MirrorTest
     {
+        NetworkConnectionToClient connectionToClient;
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            // start server/client
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+        }
+
+        [TearDown]
+        public override void TearDown() => base.TearDown();
+
         [Test]
         public void VirtualCommandIsCalled()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualCommand hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualCommand serverComponent,
+                                    out _, out _, out VirtualCommand clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            serverComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.CmdSendInt(someInt);
+            clientComponent.CmdSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(1));
         }
@@ -75,18 +91,20 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void VirtualCommandWithNoOverrideIsCalled()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualNoOverrideCommand hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualNoOverrideCommand serverComponent,
+                                    out _, out _, out VirtualNoOverrideCommand clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            serverComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.CmdSendInt(someInt);
+            clientComponent.CmdSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(1));
         }
@@ -95,23 +113,25 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void OverrideVirtualCommandIsCalled()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideCommand hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualOverrideCommand serverComponent,
+                                    out _, out _, out VirtualOverrideCommand clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
             int overrideCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            serverComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
             };
-            hostBehaviour.onOverrideSendInt += incomingInt =>
+            serverComponent.onOverrideSendInt += incomingInt =>
             {
                 overrideCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.CmdSendInt(someInt);
+            clientComponent.CmdSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(0));
             Assert.That(overrideCallCount, Is.EqualTo(1));
@@ -121,24 +141,26 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void OverrideVirtualWithBaseCallsBothVirtualAndBase()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideCommandWithBase hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualOverrideCommandWithBase serverComponent,
+                                    out _, out _, out VirtualOverrideCommandWithBase clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
             int overrideCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            serverComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.onOverrideSendInt += incomingInt =>
+            serverComponent.onOverrideSendInt += incomingInt =>
             {
                 overrideCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.CmdSendInt(someInt);
+            clientComponent.CmdSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(1));
             Assert.That(overrideCallCount, Is.EqualTo(1));
@@ -148,31 +170,32 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void OverrideVirtualWithBaseCallsAllMethodsThatCallBase()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideCommandWithBase2 hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualOverrideCommandWithBase2 serverComponent,
+                                    out _, out _, out VirtualOverrideCommandWithBase2 clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
             int overrideCallCount = 0;
             int override2CallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            serverComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.onOverrideSendInt += incomingInt =>
+            serverComponent.onOverrideSendInt += incomingInt =>
             {
                 overrideCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.onOverrideSendInt2 += incomingInt =>
+            serverComponent.onOverrideSendInt2 += incomingInt =>
             {
                 override2CallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-
-            hostBehaviour.CmdSendInt(someInt);
+            clientComponent.CmdSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(1));
             Assert.That(overrideCallCount, Is.EqualTo(1));
