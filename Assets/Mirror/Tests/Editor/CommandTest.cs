@@ -76,10 +76,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
 
         [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-        }
+        public override void TearDown() => base.TearDown();
 
         [Test]
         public void CommandIsSentWithAuthority()
@@ -255,10 +252,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
 
         [TearDown]
-        public override void TearDown()
-        {
-            base.TearDown();
-        }
+        public override void TearDown() => base.TearDown();
 
         // test to prevent https://github.com/vis2k/Mirror/issues/2629
         // from happening again in the future
