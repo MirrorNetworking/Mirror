@@ -1,6 +1,5 @@
 using System;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests.RemoteAttrributeTest
 {
@@ -36,24 +35,40 @@ namespace Mirror.Tests.RemoteAttrributeTest
         }
     }
 
-    public class ClientRpcOverrideTest : RemoteTestBase
+    public class ClientRpcOverrideTest : MirrorTest
     {
+        NetworkConnectionToClient connectionToClient;
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            // start server/client
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+        }
+
+        [TearDown]
+        public override void TearDown() => base.TearDown();
+
         [Test]
         public void VirtualRpcIsCalled()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualClientRpc hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualClientRpc serverComponent,
+                                    out _, out _, out VirtualClientRpc clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            clientComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.RpcSendInt(someInt);
+            serverComponent.RpcSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(1));
         }
@@ -62,18 +77,20 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void VirtualCommandWithNoOverrideIsCalled()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualNoOverrideClientRpc hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualNoOverrideClientRpc serverComponent,
+                                    out _, out _, out VirtualNoOverrideClientRpc clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            clientComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.RpcSendInt(someInt);
+            serverComponent.RpcSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(1));
         }
@@ -82,23 +99,25 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void OverrideVirtualRpcIsCalled()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideClientRpc hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualOverrideClientRpc serverComponent,
+                                    out _, out _, out VirtualOverrideClientRpc clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
             int overrideCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            clientComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
             };
-            hostBehaviour.onOverrideSendInt += incomingInt =>
+            clientComponent.onOverrideSendInt += incomingInt =>
             {
                 overrideCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.RpcSendInt(someInt);
+            serverComponent.RpcSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(0));
             Assert.That(overrideCallCount, Is.EqualTo(1));
@@ -110,24 +129,26 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void OverrideVirtualWithBaseCallsBothVirtualAndBase()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out VirtualOverrideClientRpcWithBase hostBehaviour, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out VirtualOverrideClientRpcWithBase serverComponent,
+                                    out _, out _, out VirtualOverrideClientRpcWithBase clientComponent,
+                                    connectionToClient);
 
             const int someInt = 20;
 
             int virtualCallCount = 0;
             int overrideCallCount = 0;
-            hostBehaviour.onVirtualSendInt += incomingInt =>
+            clientComponent.onVirtualSendInt += incomingInt =>
             {
                 virtualCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
-            hostBehaviour.onOverrideSendInt += incomingInt =>
+            clientComponent.onOverrideSendInt += incomingInt =>
             {
                 overrideCallCount++;
                 Assert.That(incomingInt, Is.EqualTo(someInt));
             };
 
-            hostBehaviour.RpcSendInt(someInt);
+            serverComponent.RpcSendInt(someInt);
             ProcessMessages();
             Assert.That(virtualCallCount, Is.EqualTo(1));
             Assert.That(overrideCallCount, Is.EqualTo(1));
