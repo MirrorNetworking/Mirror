@@ -418,6 +418,7 @@ namespace Mirror.Tests
             // IMPORTANT: OnSpawn finds 'sceneId' in .spawnableObjects.
             // only those who are ConsiderForSpawn() are in there.
             // for scene objects to be considered, they need to be disabled.
+            // (it'll be active by the time we return here)
             clientGO.SetActive(false);
 
             // add as player & process spawn message on client.
@@ -425,6 +426,7 @@ namespace Mirror.Tests
             ProcessMessages();
 
             // make sure the client really spawned it.
+            Assert.That(clientGO.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
         }
 
