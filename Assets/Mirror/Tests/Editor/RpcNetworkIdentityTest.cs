@@ -37,22 +37,42 @@ namespace Mirror.Tests.RemoteAttrributeTest
     }
 
     [Description("Test for sending NetworkIdentity fields (NI/GO/NB) in RPC")]
-    public class RpcNetworkIdentityTest : RemoteTestBase
+    public class RpcNetworkIdentityTest : MirrorTest
     {
+        NetworkConnectionToClient connectionToClient;
+
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            // start server/client
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+        }
+
+        [TearDown]
+        public override void TearDown() => base.TearDown();
+
         [Test]
         public void RpcCanSendNetworkIdentity()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity expected, out RpcNetworkIdentityBehaviour _, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour serverOwnerComponent,
+                                    out _, out _, out RpcNetworkIdentityBehaviour clientOwnerComponent,
+                                    connectionToClient);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity serverExpected, out RpcNetworkIdentityBehaviour _,
+                                    out _, out NetworkIdentity clientExpected, out _,
+                                    connectionToClient);
 
             int callCount = 0;
-            hostBehaviour.onSendNetworkIdentityCalled += actual =>
+            clientOwnerComponent.onSendNetworkIdentityCalled += actual =>
             {
                 callCount++;
-                Assert.That(actual, Is.EqualTo(expected));
+                // Utils.GetSpawnedInServerOrClient finds the server one before the client one
+                Assert.That(actual, Is.EqualTo(serverExpected));
+                //Assert.That(actual, Is.EqualTo(clientExpected));
             };
-            hostBehaviour.SendNetworkIdentity(expected);
+            serverOwnerComponent.SendNetworkIdentity(serverExpected);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
@@ -61,16 +81,27 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void RpcCanSendGameObject()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
-            CreateNetworkedAndSpawn(out GameObject expected, out NetworkIdentity _, out RpcNetworkIdentityBehaviour _, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour serverOwnerComponent,
+                                    out _, out _, out RpcNetworkIdentityBehaviour clientOwnerComponent,
+                                    connectionToClient);
+            CreateNetworkedAndSpawn(out GameObject serverExpected, out _, out RpcNetworkIdentityBehaviour _,
+                                    out GameObject clientExpected, out _, out _,
+                                    connectionToClient);
+
+            serverOwnerComponent.name = nameof(serverOwnerComponent);
+            clientOwnerComponent.name = nameof(clientOwnerComponent);
+            serverExpected.name = nameof(serverExpected);
+            clientExpected.name = nameof(clientExpected);
 
             int callCount = 0;
-            hostBehaviour.onSendGameObjectCalled += actual =>
+            clientOwnerComponent.onSendGameObjectCalled += actual =>
             {
                 callCount++;
-                Assert.That(actual, Is.EqualTo(expected));
+                // Utils.GetSpawnedInServerOrClient finds the server one before the client one
+                Assert.That(actual, Is.EqualTo(serverExpected));
+                //Assert.That(actual, Is.EqualTo(clientExpected));
             };
-            hostBehaviour.SendGameObject(expected);
+            serverOwnerComponent.SendGameObject(serverExpected);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
@@ -79,16 +110,22 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void RpcCanSendNetworkBehaviour()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour expected, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour serverOwnerComponent,
+                                    out _, out _, out RpcNetworkIdentityBehaviour clientOwnerComponent,
+                                    connectionToClient);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour serverExpected,
+                                    out _, out _, out RpcNetworkIdentityBehaviour clientExpected,
+                                    connectionToClient);
 
             int callCount = 0;
-            hostBehaviour.onSendNetworkBehaviourCalled += actual =>
+            clientOwnerComponent.onSendNetworkBehaviourCalled += actual =>
             {
                 callCount++;
-                Assert.That(actual, Is.EqualTo(expected));
+                // Utils.GetSpawnedInServerOrClient finds the server one before the client one
+                Assert.That(actual, Is.EqualTo(serverExpected));
+                //Assert.That(actual, Is.EqualTo(clientExpected));
             };
-            hostBehaviour.SendNetworkBehaviour(expected);
+            serverOwnerComponent.SendNetworkBehaviour(serverExpected);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
@@ -97,16 +134,22 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void RpcCanSendNetworkBehaviourDerived()
         {
             // spawn with owner
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour hostBehaviour, NetworkServer.localConnection);
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out RpcNetworkIdentityBehaviour expected, NetworkServer.localConnection);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour serverOwnerComponent,
+                                    out _, out _, out RpcNetworkIdentityBehaviour clientOwnerComponent,
+                                    connectionToClient);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour serverExpected,
+                                    out _, out _, out RpcNetworkIdentityBehaviour clientExpected,
+                                    connectionToClient);
 
             int callCount = 0;
-            hostBehaviour.onSendNetworkBehaviourDerivedCalled += actual =>
+            clientOwnerComponent.onSendNetworkBehaviourDerivedCalled += actual =>
              {
                  callCount++;
-                 Assert.That(actual, Is.EqualTo(expected));
+                // Utils.GetSpawnedInServerOrClient finds the server one before the client one
+                Assert.That(actual, Is.EqualTo(serverExpected));
+                //Assert.That(actual, Is.EqualTo(clientExpected));
              };
-            hostBehaviour.SendNetworkBehaviourDerived(expected);
+            serverOwnerComponent.SendNetworkBehaviourDerived(serverExpected);
             ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
