@@ -243,8 +243,23 @@ namespace Mirror.Tests.RemoteAttrributeTest
     }
 
     // need host mode for this one test
-    public class CommandTest_HostMode : RemoteTestBase
+    public class CommandTest_HostMode : MirrorTest
     {
+        [SetUp]
+        public override void SetUp()
+        {
+            base.SetUp();
+            // start server/client
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+        }
+
+        [TearDown]
+        public override void TearDown()
+        {
+            base.TearDown();
+        }
+
         // test to prevent https://github.com/vis2k/Mirror/issues/2629
         // from happening again in the future
         // -> [Command]s can be called on other objects with requiresAuthority=false.
