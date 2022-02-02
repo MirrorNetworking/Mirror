@@ -17,7 +17,7 @@ namespace Mirror.Tests
 
             // start server & connect client because we need spawn functions
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out _);
         }
 
         /* uncomment if needed. commented for faster test workflow. this takes >3s.
@@ -1336,7 +1336,8 @@ namespace Mirror.Tests
         public void TestNetworkBehaviour()
         {
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour behaviour);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour behaviour,
+                                    out _, out _, out _);
 
             NetworkWriter writer = new NetworkWriter();
             writer.WriteNetworkBehaviour(behaviour);
@@ -1372,7 +1373,8 @@ namespace Mirror.Tests
         public void TestNetworkBehaviourWeaverGenerated()
         {
             // create spawned because we will look up netId in .spawned
-            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour behaviour);
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour behaviour,
+                                    out _, out _, out _);
 
             NetworkWriter writer = new NetworkWriter();
             writer.Write(behaviour);
