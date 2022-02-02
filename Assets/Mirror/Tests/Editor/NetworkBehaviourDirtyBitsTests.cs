@@ -1,7 +1,6 @@
 // dirty bits are powerful magic.
 // add some tests to guarantee correct behaviour.
 using NUnit.Framework;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
@@ -23,6 +22,8 @@ namespace Mirror.Tests
 
     public class NetworkBehaviourDirtyBitsTests : MirrorEditModeTest
     {
+        NetworkConnectionToClient connectionToClient;
+
         [SetUp]
         public override void SetUp()
         {
@@ -31,13 +32,20 @@ namespace Mirror.Tests
             // SyncLists are only set dirty while owner has observers.
             // need a connection.
             NetworkServer.Listen(1);
-            ConnectHostClientBlockingAuthenticatedAndReady();
+            ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
+        }
+
+        [TearDown]
+        public override void TearDown()
+        {
+            base.TearDown();
         }
 
         [Test]
         public void SetSyncVarDirtyBit()
         {
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourSyncVarDirtyBitsExposed comp);
+            CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourSyncVarDirtyBitsExposed comp,
+                                    out _, out _, out _);
 
             // set 3rd dirty bit.
             comp.SetSyncVarDirtyBit(0b_00000000_00000100);
@@ -53,7 +61,8 @@ namespace Mirror.Tests
         [Test]
         public void SyncObjectsSetDirtyBits()
         {
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
+            CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                    out _, out _, out _);
 
             // not dirty by default
             Assert.That(comp.syncObjectDirtyBits, Is.EqualTo(0UL));
@@ -70,7 +79,8 @@ namespace Mirror.Tests
         [Test]
         public void IsDirty()
         {
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourWithSyncVarsAndCollections comp);
+            CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                    out _, out _, out _);
 
             // not dirty by default
             Assert.That(comp.IsDirty(), Is.False);
@@ -93,7 +103,8 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncVarDirtyBits()
         {
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out EmptyBehaviour emptyBehaviour);
+            CreateNetworkedAndSpawn(out _, out _, out EmptyBehaviour emptyBehaviour,
+                                    out _, out _, out _);
 
             // set syncinterval so dirtybit works fine
             emptyBehaviour.syncInterval = 0;
@@ -111,7 +122,8 @@ namespace Mirror.Tests
         [Test]
         public void ClearAllDirtyBitsClearsSyncObjectsDirtyBits()
         {
-            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
+            CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,
+                                    out _, out _, out _);
 
             // set syncinterval so dirtybit works fine
             comp.syncInterval = 0;
@@ -137,8 +149,11 @@ namespace Mirror.Tests
         public void DirtyBitsAreClearedForSpawnedWithoutObservers()
         {
             // need one player, one monster
-            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player, NetworkServer.localConnection);
-            CreateNetworkedAndSpawn(out _, out NetworkIdentity monster, out NetworkBehaviourWithSyncVarsAndCollections monsterComp);
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player,
+                                          out _, out _,
+                                          connectionToClient);
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity monster, out NetworkBehaviourWithSyncVarsAndCollections monsterComp,
+                                    out _, out _, out _);
 
             // without AOI, player connection sees everyone automatically.
             // remove the monster from observing.
