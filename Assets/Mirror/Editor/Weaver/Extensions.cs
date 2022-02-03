@@ -251,5 +251,85 @@ namespace Mirror.Weaver
             }
             return null;
         }
+
+        /// <summary>
+        /// Takes generic arguments from child class and applies them to parent reference, if possible
+        /// <br/>
+        /// eg makes `Base{T}` in <c>Child{int} : Base{int}</c> have `int` instead of `T`
+        /// </summary>
+        /// <param name="parentReference"></param>
+        /// <param name="childReference"></param>
+        /// <returns></returns>
+        // Originally by James-Frowen under MIT https://github.com/MirageNet/Mirage/commit/cf91e1d54796866d2cf87f8e919bb5c681977e45
+        public static TypeReference ApplyGenericParameters(this TypeReference parentReference,
+            TypeReference childReference)
+        {
+            // If the parent is not generic, we got nothing to apply
+            if (!parentReference.IsGenericInstance)
+                return parentReference;
+
+            GenericInstanceType parentGeneric = (GenericInstanceType)parentReference;
+            // make new type so we can replace the args on it
+            // resolve it so we have non-generic instance (eg just instance with <T> instead of <int>)
+            // if we don't cecil will make it double generic (eg INVALID IL)
+            GenericInstanceType generic = new GenericInstanceType(parentReference.Resolve());
+            foreach (TypeReference arg in parentGeneric.GenericArguments)
+                generic.GenericArguments.Add(arg);
+
+            for (int i = 0; i < generic.GenericArguments.Count; i++)
+            {
+                // if arg is not generic
+                // eg List<int> would be int so not generic.
+                // But List<T> would be T so is generic
+                if (!generic.GenericArguments[i].IsGenericParameter)
+                    continue;
+
+                // get the generic name, eg T
+                string name = generic.GenericArguments[i].Name;
+                // find what type T is, eg turn it into `int` if `List<int>`
+                TypeReference arg = FindMatchingGenericArgument(childReference, name);
+
+                // import just to be safe
+                TypeReference imported = parentReference.Module.ImportReference(arg);
+                // set arg on generic, parent ref will be Base<int> instead of just Base<T>
+                generic.GenericArguments[i] = imported;
+            }
+
+            return generic;
+        }
+
+        /// <summary>
+        /// Finds the type reference for a generic parameter with the provided name in the child reference
+        /// </summary>
+        /// <param name="childReference"></param>
+        /// <param name="paramName"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if child reference is not generic or doesn't contain the param</exception>
+        // Originally by James-Frowen under MIT https://github.com/MirageNet/Mirage/commit/cf91e1d54796866d2cf87f8e919bb5c681977e45
+        static TypeReference FindMatchingGenericArgument(TypeReference childReference, string paramName)
+        {
+            TypeDefinition def = childReference.Resolve();
+            // child class must be generic if we are in this part of the code
+            // eg Child<T> : Base<T>  <--- child must have generic if Base has T
+            // vs Child : Base<int> <--- wont be here if Base has int (we check if T exists before calling this)
+            if (!def.HasGenericParameters)
+                throw new InvalidOperationException(
+                    "Base class had generic parameters, but could not find them in child class");
+
+            // go through parameters in child class, and find the generic that matches the name
+            for (int i = 0; i < def.GenericParameters.Count; i++)
+            {
+                GenericParameter param = def.GenericParameters[i];
+                if (param.Name == paramName)
+                {
+                    GenericInstanceType generic = (GenericInstanceType)childReference;
+                    // return generic arg with same index
+                    return generic.GenericArguments[i];
+                }
+            }
+
+            // this should never happen, if it does it means that this code is bugged
+            throw new InvalidOperationException("Did not find matching generic");
+        }
     }
 }
