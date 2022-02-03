@@ -741,20 +741,13 @@ namespace Mirror.Tests
         [Test]
         public void SetAllClientsNotReady()
         {
-            // add first ready client
-            CreateLocalConnectionPair(out LocalConnectionToClient first, out _);
-            first.isReady = true;
-            NetworkServer.connections[42] = first;
-
-            // add second ready client
-            CreateLocalConnectionPair(out LocalConnectionToClient second, out _);
-            second.isReady = true;
-            NetworkServer.connections[43] = second;
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+            Assert.That(connectionToClient.isReady, Is.True);
 
             // set all not ready
             NetworkServer.SetAllClientsNotReady();
-            Assert.That(first.isReady, Is.False);
-            Assert.That(second.isReady, Is.False);
+            Assert.That(connectionToClient.isReady, Is.False);
         }
 
         [Test]
