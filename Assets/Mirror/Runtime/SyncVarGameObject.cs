@@ -55,7 +55,9 @@ namespace Mirror
         // .spawned lookup from netId overwrites base uint .Value
         public new GameObject Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => GetGameObject(base.Value);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => base.Value = GetNetId(value);
         }
 
@@ -64,6 +66,7 @@ namespace Mirror
         public new event Action<GameObject, GameObject> Callback;
 
         // overwrite CallCallback to use the GameObject version instead
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void InvokeCallback(uint oldValue, uint newValue) =>
             Callback?.Invoke(GetGameObject(oldValue), GetGameObject(newValue));
 
@@ -76,6 +79,7 @@ namespace Mirror
             : base(GetNetId(value)) {}
 
         // helper function to get netId from GameObject (if any)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static uint GetNetId(GameObject go)
         {
             if (go != null)
@@ -87,6 +91,7 @@ namespace Mirror
         }
 
         // helper function to get GameObject from netId (if spawned)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static GameObject GetGameObject(uint netId)
         {
             NetworkIdentity spawned = Utils.GetSpawnedInServerOrClient(netId);
@@ -94,10 +99,12 @@ namespace Mirror
         }
 
         // implicit conversion: GameObject value = SyncFieldGameObject
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator GameObject(SyncVarGameObject field) => field.Value;
 
         // implicit conversion: SyncFieldGameObject = value
         // even if SyncField is readonly, it's still useful: SyncFieldGameObject = target;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator SyncVarGameObject(GameObject value) => new SyncVarGameObject(value);
 
         // == operator for comparisons like Player.target==monster
@@ -129,7 +136,10 @@ namespace Mirror
         public static bool operator !=(GameObject a, SyncVarGameObject b) => !(a == b);
 
         // if we overwrite == operators, we also need to overwrite .Equals.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) => obj is SyncVarGameObject value && this == value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => Value.GetHashCode();
     }
 }

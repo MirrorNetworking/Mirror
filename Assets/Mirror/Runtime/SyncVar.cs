@@ -16,6 +16,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -33,6 +34,7 @@ namespace Mirror
         // virtual for SyncFieldNetworkIdentity netId trick etc.
         public virtual T Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _Value;
             set
             {
@@ -74,6 +76,7 @@ namespace Mirror
         // OnCallback is responsible for calling the callback.
         // this is necessary for inheriting classes like SyncVarGameObject,
         // where the netIds should be converted to GOs and call the GO hook.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void InvokeCallback(T oldValue, T newValue) =>
             Callback?.Invoke(oldValue, newValue);
 
@@ -107,21 +110,31 @@ namespace Mirror
         // SyncVar<T>s are readonly and only initialized by 'Value' once.
 
         // implicit conversion: int value = SyncVar<T>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator T(SyncVar<T> field) => field.Value;
 
         // implicit conversion: SyncVar<T> = value
         // even if SyncVar<T> is readonly, it's still useful: SyncVar<int> = 1;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator SyncVar<T>(T value) => new SyncVar<T>(value);
 
         // serialization (use .Value instead of _Value so hook is called!)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnSerializeAll(NetworkWriter writer) => writer.Write(Value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnSerializeDelta(NetworkWriter writer) => writer.Write(Value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnDeserializeAll(NetworkReader reader) => Value = reader.Read<T>();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnDeserializeDelta(NetworkReader reader) => Value = reader.Read<T>();
 
         // IEquatable should compare Value.
         // SyncVar<T> should act invisibly like [SyncVar] before.
         // this way we can do SyncVar<int> health == 0 etc.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(T other) =>
             // from NetworkBehaviour.SyncVarEquals:
             // EqualityComparer method avoids allocations.

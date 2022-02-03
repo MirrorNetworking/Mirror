@@ -48,7 +48,9 @@ namespace Mirror
         // .spawned lookup from netId overwrites base uint .Value
         public new NetworkIdentity Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Utils.GetSpawnedInServerOrClient(base.Value);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => base.Value = value != null ? value.netId : 0;
         }
 
@@ -57,6 +59,7 @@ namespace Mirror
         public new event Action<NetworkIdentity, NetworkIdentity> Callback;
 
         // overwrite CallCallback to use the NetworkIdentity version instead
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void InvokeCallback(uint oldValue, uint newValue) =>
             Callback?.Invoke(Utils.GetSpawnedInServerOrClient(oldValue), Utils.GetSpawnedInServerOrClient(newValue));
 
@@ -69,10 +72,12 @@ namespace Mirror
             : base(value != null ? value.netId : 0) {}
 
         // implicit conversion: NetworkIdentity value = SyncFieldNetworkIdentity
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator NetworkIdentity(SyncVarNetworkIdentity field) => field.Value;
 
         // implicit conversion: SyncFieldNetworkIdentity = value
         // even if SyncField is readonly, it's still useful: SyncFieldNetworkIdentity = target;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator SyncVarNetworkIdentity(NetworkIdentity value) => new SyncVarNetworkIdentity(value);
 
         // NOTE: overloading all == operators blocks '== null' checks with an
@@ -104,7 +109,10 @@ namespace Mirror
         public static bool operator !=(NetworkIdentity a, SyncVarNetworkIdentity b) => !(a == b);
 
         // if we overwrite == operators, we also need to overwrite .Equals.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) => obj is SyncVarNetworkIdentity value && this == value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => Value.GetHashCode();
     }
 }

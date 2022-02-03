@@ -25,7 +25,9 @@ namespace Mirror
         // .spawned lookup from netId overwrites base uint .Value
         public new T Value
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => ULongToNetworkBehaviour(base.Value);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set => base.Value = NetworkBehaviourToULong(value);
         }
 
@@ -34,6 +36,7 @@ namespace Mirror
         public new event Action<T, T> Callback;
 
         // overwrite CallCallback to use the NetworkIdentity version instead
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void InvokeCallback(ulong oldValue, ulong newValue) =>
             Callback?.Invoke(ULongToNetworkBehaviour(oldValue), ULongToNetworkBehaviour(newValue));
 
@@ -46,10 +49,12 @@ namespace Mirror
             : base(NetworkBehaviourToULong(value)) {}
 
         // implicit conversion: NetworkBehaviour value = SyncFieldNetworkBehaviour
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator T(SyncVarNetworkBehaviour<T> field) => field.Value;
 
         // implicit conversion: SyncFieldNetworkBehaviour = value
         // even if SyncField is readonly, it's still useful: SyncFieldNetworkBehaviour = target;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator SyncVarNetworkBehaviour<T>(T value) => new SyncVarNetworkBehaviour<T>(value);
 
         // NOTE: overloading all == operators blocks '== null' checks with an
@@ -97,16 +102,18 @@ namespace Mirror
         public static bool operator !=(T a, SyncVarNetworkBehaviour<T> b) => !(a == b);
 
         // if we overwrite == operators, we also need to overwrite .Equals.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object obj) => obj is SyncVarNetworkBehaviour<T> value && this == value;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => Value.GetHashCode();
 
         // helper functions to get/set netId, componentIndex from ulong
-        internal static ulong Pack(uint netId, byte componentIndex)
-        {
-            // netId on the 4 left bytes. compIndex on the right most byte.
-            return (ulong)netId << 32 | componentIndex;
-        }
+        // netId on the 4 left bytes. compIndex on the right most byte.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ulong Pack(uint netId, byte componentIndex) =>
+            (ulong)netId << 32 | componentIndex;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Unpack(ulong value, out uint netId, out byte componentIndex)
         {
             netId = (uint)(value >> 32);
@@ -133,6 +140,7 @@ namespace Mirror
         }
 
         // Serialize should only write 4+1 bytes, not 8 bytes ulong
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnSerializeAll(NetworkWriter writer)
         {
             Unpack(base.Value, out uint netId, out byte componentIndex);
@@ -140,10 +148,12 @@ namespace Mirror
             writer.WriteByte(componentIndex);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnSerializeDelta(NetworkWriter writer) =>
             OnSerializeAll(writer);
 
         // Deserialize should only write 4+1 bytes, not 8 bytes ulong
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnDeserializeAll(NetworkReader reader)
         {
             uint netId = reader.ReadUInt();
@@ -151,6 +161,7 @@ namespace Mirror
             base.Value = Pack(netId, componentIndex);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void OnDeserializeDelta(NetworkReader reader) =>
             OnDeserializeAll(reader);
     }
