@@ -727,7 +727,8 @@ namespace Mirror.Tests
         [Test]
         public void SetClientReadyAndNotReady()
         {
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
             Assert.That(connectionToClient.isReady, Is.False);
 
             NetworkServer.SetClientReady(connectionToClient);
