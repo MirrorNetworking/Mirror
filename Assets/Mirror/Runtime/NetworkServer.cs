@@ -222,10 +222,8 @@ namespace Mirror
         }
 
         /// <summary>Removes a connection by connectionId. Returns true if removed.</summary>
-        public static bool RemoveConnection(int connectionId)
-        {
-            return connections.Remove(connectionId);
-        }
+        public static bool RemoveConnection(int connectionId) =>
+            connections.Remove(connectionId);
 
         // called by LocalClient to add itself. don't call directly.
         // TODO consider internal setter instead?
