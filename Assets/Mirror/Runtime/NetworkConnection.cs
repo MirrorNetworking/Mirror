@@ -76,7 +76,6 @@ namespace Mirror
         internal NetworkConnection(int networkConnectionId) : this()
         {
             connectionId = networkConnectionId;
-            // TODO why isn't lastMessageTime set in here like in the other ctor?
         }
 
         // TODO if we only have Reliable/Unreliable, then we could initialize
