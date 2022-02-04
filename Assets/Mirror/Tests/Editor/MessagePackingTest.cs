@@ -50,18 +50,18 @@ namespace Mirror.Tests
         [Test]
         public void TestPacking()
         {
-            SceneMessage message = new SceneMessage()
+            TestMessage message = new TestMessage()
             {
-                sceneName = "Hello world",
-                sceneOperation = SceneOperation.LoadAdditive
+                IntValue = 42,
+                StringValue = "Hello world"
             };
 
             byte[] data = PackToByteArray(message);
 
-            SceneMessage unpacked = UnpackFromByteArray<SceneMessage>(data);
+            TestMessage unpacked = UnpackFromByteArray<TestMessage>(data);
 
-            Assert.That(unpacked.sceneName, Is.EqualTo("Hello world"));
-            Assert.That(unpacked.sceneOperation, Is.EqualTo(SceneOperation.LoadAdditive));
+            Assert.That(unpacked.StringValue, Is.EqualTo("Hello world"));
+            Assert.That(unpacked.IntValue, Is.EqualTo(42));
         }
 
         [Test]
@@ -83,10 +83,10 @@ namespace Mirror.Tests
             // Unpack<T> has a id != msgType case that throws a FormatException.
             // let's try to trigger it.
 
-            SceneMessage message = new SceneMessage()
+            TestMessage message = new TestMessage()
             {
-                sceneName = "Hello world",
-                sceneOperation = SceneOperation.LoadAdditive
+                IntValue = 42,
+                StringValue = "Hello world"
             };
 
             byte[] data = PackToByteArray(message);
@@ -97,7 +97,7 @@ namespace Mirror.Tests
 
             Assert.Throws<FormatException>(() =>
             {
-                SceneMessage unpacked = UnpackFromByteArray<SceneMessage>(data);
+                TestMessage unpacked = UnpackFromByteArray<TestMessage>(data);
             });
         }
 
@@ -105,10 +105,10 @@ namespace Mirror.Tests
         public void TestUnpackMessageNonGeneric()
         {
             // try a regular message
-            SceneMessage message = new SceneMessage()
+            TestMessage message = new TestMessage()
             {
-                sceneName = "Hello world",
-                sceneOperation = SceneOperation.LoadAdditive
+                IntValue = 42,
+                StringValue = "Hello world"
             };
 
             byte[] data = PackToByteArray(message);
