@@ -1204,37 +1204,37 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void NoExternalConnections_WithNoConnection()
+        public void HasExternalConnections_WithNoConnection()
         {
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
-            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
+            Assert.That(NetworkServer.HasExternalConnections(), Is.False);
         }
 
         [Test]
-        public void NoExternalConnections_WithConnections()
+        public void HasExternalConnections_WithConnections()
         {
             NetworkServer.connections.Add(1, null);
             NetworkServer.connections.Add(2, null);
-            Assert.That(NetworkServer.NoExternalConnections(), Is.False);
+            Assert.That(NetworkServer.HasExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
         }
 
         [Test]
-        public void NoExternalConnections_WithHostOnly()
+        public void HasExternalConnections_WithHostOnly()
         {
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
 
             NetworkServer.SetLocalConnection(connectionToClient);
             NetworkServer.connections.Add(0, connectionToClient);
 
-            Assert.That(NetworkServer.NoExternalConnections(), Is.True);
+            Assert.That(NetworkServer.HasExternalConnections(), Is.False);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             NetworkServer.RemoveLocalConnection();
         }
 
         [Test]
-        public void NoExternalConnections_WithHostAndConnection()
+        public void HasExternalConnections_WithHostAndConnection()
         {
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
 
@@ -1242,7 +1242,7 @@ namespace Mirror.Tests
             NetworkServer.connections.Add(0, connectionToClient);
             NetworkServer.connections.Add(1, null);
 
-            Assert.That(NetworkServer.NoExternalConnections(), Is.False);
+            Assert.That(NetworkServer.HasExternalConnections(), Is.True);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(2));
 
             NetworkServer.RemoveLocalConnection();

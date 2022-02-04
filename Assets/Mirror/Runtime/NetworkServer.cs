@@ -250,10 +250,24 @@ namespace Mirror
         }
 
         /// <summary>True if we have no external connections (host is allowed)</summary>
-        public static bool NoExternalConnections()
+        // DEPRECATED 2022-02-05
+        [Obsolete("Use !HasExternalConnections() instead of NoExternalConnections() to avoid double negatives.")]
+        public static bool NoExternalConnections() => !HasExternalConnections();
+
+        /// <summary>True if we have external connections (that are not host)</summary>
+        public static bool HasExternalConnections()
         {
-            return connections.Count == 0 ||
-                   (connections.Count == 1 && localConnection != null);
+            // any connections?
+            if (connections.Count > 0)
+            {
+                // only host connection?
+                if (connections.Count == 1 && localConnection != null)
+                    return false;
+
+                // otherwise we have real external connections
+                return true;
+            }
+            return false;
         }
 
         // send ////////////////////////////////////////////////////////////////
