@@ -1342,7 +1342,17 @@ namespace Mirror
             if (mode == DestroyMode.Destroy)
             {
                 identity.destroyCalled = true;
-                UnityEngine.Object.Destroy(identity.gameObject);
+
+                // Destroy if application is running
+                if (Application.isPlaying)
+                {
+                    UnityEngine.Object.Destroy(identity.gameObject);
+                }
+                // Destroy can't be used in Editor during tests. use DestroyImmediate.
+                else
+                {
+                    GameObject.DestroyImmediate(identity.gameObject);
+                }
             }
             // otherwise simply .Reset() and set inactive again
             else if (mode == DestroyMode.Reset)

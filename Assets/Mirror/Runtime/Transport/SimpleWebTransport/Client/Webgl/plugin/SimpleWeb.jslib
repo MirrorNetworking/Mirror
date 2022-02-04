@@ -27,7 +27,16 @@ function IsConnected(index) {
 }
 
 function Connect(addressPtr, openCallbackPtr, closeCallBackPtr, messageCallbackPtr, errorCallbackPtr) {
-    const address = Pointer_stringify(addressPtr);
+    // fix for unity 2021 because unity bug in .jslib
+    if (typeof Runtime === "undefined") {
+        // if unity doesn't create Runtime, then make it here
+        // dont ask why this works, just be happy that it does
+        Runtime = {
+            dynCall: dynCall
+        }
+    }
+
+    const address = UTF8ToString(addressPtr);
     console.log("Connecting to " + address);
     // Create webSocket connection.
     webSocket = new WebSocket(address);
