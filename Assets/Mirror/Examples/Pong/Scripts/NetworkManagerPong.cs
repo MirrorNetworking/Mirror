@@ -32,7 +32,7 @@ namespace Mirror.Examples.Pong
             }
         }
 
-        public override void OnServerDisconnect(NetworkConnection conn)
+        public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
             // destroy ball
             if (ball != null)

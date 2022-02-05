@@ -16,7 +16,7 @@ namespace Mirror.Examples.Chat
             networkAddress = hostname;
         }
 
-        public override void OnServerDisconnect(NetworkConnection conn)
+        public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
             // remove player name from the HashSet
             if (conn.authenticationData != null)
