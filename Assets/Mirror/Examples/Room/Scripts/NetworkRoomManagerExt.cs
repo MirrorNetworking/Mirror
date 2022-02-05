@@ -33,7 +33,7 @@ namespace Mirror.Examples.NetworkRoom
         /// <param name="roomPlayer"></param>
         /// <param name="gamePlayer"></param>
         /// <returns>true unless some code in here decides it needs to abort the replacement</returns>
-        public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
+        public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer, GameObject gamePlayer)
         {
             PlayerScore playerScore = gamePlayer.GetComponent<PlayerScore>();
             playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
