@@ -50,9 +50,9 @@ namespace Mirror
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
         // => public so that custom NetworkManagers can hook into it
-        public static Action<NetworkConnection> OnConnectedEvent;
-        public static Action<NetworkConnection> OnDisconnectedEvent;
-        public static Action<NetworkConnection, Exception> OnErrorEvent;
+        public static Action<NetworkConnectionToClient> OnConnectedEvent;
+        public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
+        public static Action<NetworkConnectionToClient, Exception> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
