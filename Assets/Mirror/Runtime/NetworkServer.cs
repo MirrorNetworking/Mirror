@@ -880,7 +880,7 @@ namespace Mirror
         }
 
         // default ready handler.
-        static void OnClientReadyMessage(NetworkConnection conn, ReadyMessage msg)
+        static void OnClientReadyMessage(NetworkConnectionToClient conn, ReadyMessage msg)
         {
             // Debug.Log($"Default handler for ready message from {conn}");
             SetClientReady(conn);
@@ -921,7 +921,7 @@ namespace Mirror
         // remote calls ////////////////////////////////////////////////////////
         // Handle command from specific player, this could be one of multiple
         // players on a single client
-        static void OnCommandMessage(NetworkConnection conn, CommandMessage msg, int channelId)
+        static void OnCommandMessage(NetworkConnectionToClient conn, CommandMessage msg, int channelId)
         {
             if (!conn.isReady)
             {

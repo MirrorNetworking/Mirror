@@ -349,7 +349,7 @@ namespace Mirror.Examples.MultipleMatch
 
         #region Server Match Message Handlers
 
-        void OnServerMatchMessage(NetworkConnection conn, ServerMatchMessage msg)
+        void OnServerMatchMessage(NetworkConnectionToClient conn, ServerMatchMessage msg)
         {
             if (!NetworkServer.active) return;
 

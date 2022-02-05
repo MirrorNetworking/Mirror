@@ -55,7 +55,7 @@ namespace Mirror.Authenticators
             // do nothing, wait for client to send his id
         }
 
-        void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
+        void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
         {
             Debug.Log($"connection {conn.connectionId} authenticated with id {msg.clientDeviceID}");
 
