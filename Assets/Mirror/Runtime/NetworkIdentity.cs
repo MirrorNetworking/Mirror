@@ -118,6 +118,7 @@ namespace Mirror
         internal bool destroyCalled;
 
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
+        // TODO change to NetworkConnectionToServer, but might cause some breaking
         public NetworkConnection connectionToServer { get; internal set; }
 
         /// <summary>Server's network connection to the client. This is only valid for client-owned objects (including the Player object) on the server.</summary>

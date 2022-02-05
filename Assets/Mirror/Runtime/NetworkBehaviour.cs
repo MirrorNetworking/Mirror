@@ -52,6 +52,7 @@ namespace Mirror
         public uint netId => netIdentity.netId;
 
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
+        // TODO change to NetworkConnectionToServer, but might cause some breaking
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
 
         /// <summary>Server's network connection to the client. This is only valid for player objects on the server.</summary>
