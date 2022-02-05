@@ -116,7 +116,7 @@ namespace Mirror
                     NetworkServer.RebuildObservers(netIdentity, false);
         }
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch identityNetworkMatch))
                 return false;
@@ -127,7 +127,7 @@ namespace Mirror
             return identityNetworkMatch.matchId == newObserverNetworkMatch.matchId;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
         {
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                 return;
