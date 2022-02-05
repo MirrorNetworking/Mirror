@@ -604,7 +604,7 @@ namespace Mirror
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
         // TODO obsolete this some day to always use the channelId version.
         //      all handlers in this version are wrapped with 1 extra action.
-        public static void RegisterHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
+        public static void RegisterHandler<T>(Action<NetworkConnectionToClient, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ushort msgType = MessagePacking.GetId<T>();
@@ -617,7 +617,7 @@ namespace Mirror
 
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
         // This version passes channelId to the handler.
-        public static void RegisterHandler<T>(Action<NetworkConnection, T, int> handler, bool requireAuthentication = true)
+        public static void RegisterHandler<T>(Action<NetworkConnectionToClient, T, int> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ushort msgType = MessagePacking.GetId<T>();
@@ -629,7 +629,7 @@ namespace Mirror
         }
 
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
-        public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
+        public static void ReplaceHandler<T>(Action<NetworkConnectionToClient, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ushort msgType = MessagePacking.GetId<T>();
