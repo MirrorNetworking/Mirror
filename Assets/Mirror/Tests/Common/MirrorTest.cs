@@ -378,7 +378,7 @@ namespace Mirror.Tests
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN PLAYER.
         // often times, we really need a player object for the client to receive
         // certain messages.
-        protected void CreateNetworkedAndSpawnPlayer(out GameObject go, out NetworkIdentity identity, NetworkConnection ownerConnection)
+        protected void CreateNetworkedAndSpawnPlayer(out GameObject go, out NetworkIdentity identity, NetworkConnectionToClient ownerConnection)
         {
             // server & client need to be active before spawning
             Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
@@ -400,7 +400,7 @@ namespace Mirror.Tests
         protected void CreateNetworkedAndSpawnPlayer(
             out GameObject serverGO, out NetworkIdentity serverIdentity,
             out GameObject clientGO, out NetworkIdentity clientIdentity,
-            NetworkConnection ownerConnection)
+            NetworkConnectionToClient ownerConnection)
         {
             // server & client need to be active before spawning
             Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
@@ -433,7 +433,7 @@ namespace Mirror.Tests
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN PLAYER.
         // often times, we really need a player object for the client to receive
         // certain messages.
-        protected void CreateNetworkedAndSpawnPlayer<T>(out GameObject go, out NetworkIdentity identity, out T component, NetworkConnection ownerConnection)
+        protected void CreateNetworkedAndSpawnPlayer<T>(out GameObject go, out NetworkIdentity identity, out T component, NetworkConnectionToClient ownerConnection)
             where T : NetworkBehaviour
         {
             // server & client need to be active before spawning
@@ -456,7 +456,7 @@ namespace Mirror.Tests
         protected void CreateNetworkedAndSpawnPlayer<T>(
             out GameObject serverGO, out NetworkIdentity serverIdentity, out T serverComponent,
             out GameObject clientGO, out NetworkIdentity clientIdentity, out T clientComponent,
-            NetworkConnection ownerConnection)
+            NetworkConnectionToClient ownerConnection)
             where T : NetworkBehaviour
         {
             // server & client need to be active before spawning

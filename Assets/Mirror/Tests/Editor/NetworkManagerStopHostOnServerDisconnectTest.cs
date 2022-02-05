@@ -5,7 +5,7 @@ namespace Mirror.Tests
     class NetworkManagerOnServerDisconnect : NetworkManager
     {
         public int called;
-        public override void OnServerDisconnect(NetworkConnection conn)
+        public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
             base.OnServerDisconnect(conn);
             ++called; 

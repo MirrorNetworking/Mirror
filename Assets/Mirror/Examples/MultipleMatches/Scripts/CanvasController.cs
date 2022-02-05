@@ -488,7 +488,7 @@ namespace Mirror.Examples.MultipleMatch
             }
         }
 
-        void OnServerStartMatch(NetworkConnection conn)
+        void OnServerStartMatch(NetworkConnectionToClient conn)
         {
             if (!NetworkServer.active || !playerMatches.ContainsKey(conn)) return;
 
@@ -501,7 +501,7 @@ namespace Mirror.Examples.MultipleMatch
 
                 MatchController matchController = matchControllerObject.GetComponent<MatchController>();
 
-                foreach (NetworkConnection playerConn in matchConnections[matchId])
+                foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
                 {
                     playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.Started });
 

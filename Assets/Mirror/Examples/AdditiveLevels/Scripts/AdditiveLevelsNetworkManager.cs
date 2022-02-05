@@ -144,7 +144,7 @@ namespace Mirror.Examples.AdditiveLevels
         /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerReady(NetworkConnection conn)
+        public override void OnServerReady(NetworkConnectionToClient conn)
         {
             //Debug.Log($"OnServerReady {conn} {conn.identity}");
 
@@ -157,7 +157,7 @@ namespace Mirror.Examples.AdditiveLevels
 
         // This delay is mostly for the host player that loads too fast for the
         // server to have subscenes async loaded from OnServerSceneChanged ahead of it.
-        IEnumerator AddPlayerDelayed(NetworkConnection conn)
+        IEnumerator AddPlayerDelayed(NetworkConnectionToClient conn)
         {
             // Wait for server to async load all subscenes for game instances
             while (!subscenesLoaded)
