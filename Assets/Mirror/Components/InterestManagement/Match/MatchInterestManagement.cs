@@ -118,20 +118,10 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
         {
-            // Objects without NetworkMatch are visible to everyone, e.g. leaderboard
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch identityNetworkMatch))
-                return true;
-
-            // Guid.Empty is never a valid matchId - hidden from everyone
-            if (identityNetworkMatch.matchId == Guid.Empty)
                 return false;
 
-            // Player Objects without NetworkMatch are hidden from everyone, e.g. lobby players
             if (!newObserver.identity.TryGetComponent<NetworkMatch>(out NetworkMatch newObserverNetworkMatch))
-                return false;
-
-            // Guid.Empty is never a valid matchId - hidden from everyone
-            if (newObserverNetworkMatch.matchId == Guid.Empty)
                 return false;
 
             return identityNetworkMatch.matchId == newObserverNetworkMatch.matchId;
