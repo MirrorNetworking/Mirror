@@ -115,7 +115,7 @@ namespace Mirror
                     NetworkServer.RebuildObservers(netIdentity, false);
         }
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             // Always observed if no NetworkTeam component
             if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam identityNetworkTeam))
