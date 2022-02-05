@@ -35,7 +35,7 @@ namespace Mirror.Examples.MultipleMatch
         /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerReady(NetworkConnection conn)
+        public override void OnServerReady(NetworkConnectionToClient conn)
         {
             base.OnServerReady(conn);
             canvasController.OnServerReady(conn);

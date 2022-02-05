@@ -127,7 +127,7 @@ namespace Mirror
             return identityNetworkMatch.matchId == newObserverNetworkMatch.matchId;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
         {
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                 return;
@@ -135,7 +135,7 @@ namespace Mirror
             Guid matchId = networkMatch.matchId;
 
             // Guid.Empty is never a valid matchId
-            if (matchId == Guid.Empty) 
+            if (matchId == Guid.Empty)
                 return;
 
             if (!matchObjects.TryGetValue(matchId, out HashSet<NetworkIdentity> objects))

@@ -712,7 +712,7 @@ namespace Mirror
         // for that object. This function is used for "adding" a player, not for
         // "replacing" the player on a connection. If there is already a player
         // on this playerControllerId for this connection, this will fail.
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player)
+        public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -758,7 +758,7 @@ namespace Mirror
         // for that object. This function is used for "adding" a player, not for
         // "replacing" the player on a connection. If there is already a player
         // on this playerControllerId for this connection, this will fail.
-        public static bool AddPlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId)
+        public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player, Guid assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
@@ -770,7 +770,7 @@ namespace Mirror
         /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
         // This does NOT change the ready state of the connection, so it can
         // safely be used while changing scenes.
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, bool keepAuthority = false)
+        public static bool ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, bool keepAuthority = false)
         {
             NetworkIdentity identity = player.GetComponent<NetworkIdentity>();
             if (identity == null)
@@ -827,7 +827,7 @@ namespace Mirror
         /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
         // This does NOT change the ready state of the connection, so it can
         // safely be used while changing scenes.
-        public static bool ReplacePlayerForConnection(NetworkConnection conn, GameObject player, Guid assetId, bool keepAuthority = false)
+        public static bool ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, Guid assetId, bool keepAuthority = false)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
@@ -844,7 +844,7 @@ namespace Mirror
         // SYSTEM_READY message. If there is not specific action a game needs to
         // take for this message, relying on the default ready handler function
         // is probably fine, so this call wont be needed.
-        public static void SetClientReady(NetworkConnection conn)
+        public static void SetClientReady(NetworkConnectionToClient conn)
         {
             // Debug.Log($"SetClientReadyInternal for conn:{conn}");
 
@@ -860,7 +860,7 @@ namespace Mirror
         // Clients that are not ready do not receive spawned objects or state
         // synchronization updates. They client can be made ready again by
         // calling SetClientReady().
-        public static void SetClientNotReady(NetworkConnection conn)
+        public static void SetClientNotReady(NetworkConnectionToClient conn)
         {
             conn.isReady = false;
             conn.RemoveFromObservingsObservers();
@@ -1013,7 +1013,7 @@ namespace Mirror
             }
         }
 
-        internal static void SendChangeOwnerMessage(NetworkIdentity identity, NetworkConnection conn)
+        internal static void SendChangeOwnerMessage(NetworkIdentity identity, NetworkConnectionToClient conn)
         {
             // Don't send if identity isn't spawned or only exists on server
             if (identity.netId == 0 || identity.serverOnly) return;
@@ -1201,7 +1201,7 @@ namespace Mirror
             }
         }
 
-        static void SpawnObserversForConnection(NetworkConnection conn)
+        static void SpawnObserversForConnection(NetworkConnectionToClient conn)
         {
             //Debug.Log($"Spawning {spawned.Count} objects for conn {conn}");
 
@@ -1282,7 +1282,7 @@ namespace Mirror
         // This is used when a client disconnects, to remove the players for
         // that client. This also destroys non-player objects that have client
         // authority set for this connection.
-        public static void DestroyPlayerForConnection(NetworkConnection conn)
+        public static void DestroyPlayerForConnection(NetworkConnectionToClient conn)
         {
             // destroy all objects owned by this connection, including the player object
             conn.DestroyOwnedObjects();
@@ -1416,7 +1416,7 @@ namespace Mirror
 
         // allocate newObservers helper HashSet only once
         // internal for tests
-        internal static readonly HashSet<NetworkConnection> newObservers = new HashSet<NetworkConnection>();
+        internal static readonly HashSet<NetworkConnectionToClient> newObservers = new HashSet<NetworkConnectionToClient>();
 
         // rebuild observers default method (no AOI) - adds all connections
         static void RebuildObserversDefault(NetworkIdentity identity, bool initialize)
@@ -1460,7 +1460,7 @@ namespace Mirror
             bool changed = false;
 
             // add all newObservers that aren't in .observers yet
-            foreach (NetworkConnection conn in newObservers)
+            foreach (NetworkConnectionToClient conn in newObservers)
             {
                 // only add ready connections.
                 // otherwise the player might not be in the world yet or anymore
@@ -1477,7 +1477,7 @@ namespace Mirror
             }
 
             // remove all old .observers that aren't in newObservers anymore
-            foreach (NetworkConnection conn in identity.observers.Values)
+            foreach (NetworkConnectionToClient conn in identity.observers.Values)
             {
                 if (!newObservers.Contains(conn))
                 {
@@ -1492,7 +1492,7 @@ namespace Mirror
             if (changed)
             {
                 identity.observers.Clear();
-                foreach (NetworkConnection conn in newObservers)
+                foreach (NetworkConnectionToClient conn in newObservers)
                 {
                     if (conn != null && conn.isReady)
                         identity.observers.Add(conn.connectionId, conn);

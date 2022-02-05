@@ -1245,7 +1245,7 @@ namespace Mirror
         }
 
         /// <summary>Called on the server when a client is ready (= loaded the scene)</summary>
-        public virtual void OnServerReady(NetworkConnection conn)
+        public virtual void OnServerReady(NetworkConnectionToClient conn)
         {
             if (conn.identity == null)
             {
@@ -1257,7 +1257,7 @@ namespace Mirror
 
         /// <summary>Called on server when a client requests to add the player. Adds playerPrefab by default. Can be overwritten.</summary>
         // The default implementation for this function creates a new player object from the playerPrefab.
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
             Transform startPos = GetStartPosition();
             GameObject player = startPos != null

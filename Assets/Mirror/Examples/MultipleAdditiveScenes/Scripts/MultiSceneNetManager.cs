@@ -39,14 +39,14 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerAddPlayer(NetworkConnection conn)
+        public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
             StartCoroutine(OnServerAddPlayerDelayed(conn));
         }
 
         // This delay is mostly for the host player that loads too fast for the
         // server to have subscenes async loaded from OnStartServer ahead of it.
-        IEnumerator OnServerAddPlayerDelayed(NetworkConnection conn)
+        IEnumerator OnServerAddPlayerDelayed(NetworkConnectionToClient conn)
         {
             // wait for server to async load all subscenes for game instances
             while (!subscenesLoaded)

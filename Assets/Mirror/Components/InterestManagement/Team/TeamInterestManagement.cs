@@ -129,7 +129,7 @@ namespace Mirror
             return identityNetworkTeam.forceShown || identityNetworkTeam.teamId == newObserverNetworkTeam.teamId;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
         {
             // If this object doesn't have a NetworkTeam then it's visible to all clients
             if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam))
@@ -159,7 +159,7 @@ namespace Mirror
                     newObservers.Add(networkIdentity.connectionToClient);
         }
 
-        void AddAllConnections(HashSet<NetworkConnection> newObservers)
+        void AddAllConnections(HashSet<NetworkConnectionToClient> newObservers)
         {
             foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
             {
