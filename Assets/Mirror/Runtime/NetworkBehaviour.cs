@@ -55,7 +55,7 @@ namespace Mirror
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
 
         /// <summary>Server's network connection to the client. This is only valid for player objects on the server.</summary>
-        public NetworkConnection connectionToClient => netIdentity.connectionToClient;
+        public NetworkConnectionToClient connectionToClient => netIdentity.connectionToClient;
 
         // SyncLists, SyncSets, etc.
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
