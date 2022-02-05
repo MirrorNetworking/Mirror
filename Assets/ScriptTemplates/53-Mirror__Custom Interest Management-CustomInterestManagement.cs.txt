@@ -19,7 +19,7 @@ public class #SCRIPTNAME# : InterestManagement
     /// <param name="newObserver">Network Connection of a client.</param>
     /// <returns>True if the client can see this object.</returns>
     [ServerCallback]
-    public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
+    public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
     {
         // Default behaviour of making the identity object visible to all clients.
         // Replace this code with your own logic as appropriate.
@@ -34,7 +34,7 @@ public class #SCRIPTNAME# : InterestManagement
     /// <param name="newObservers">cached hashset to put the result into</param>
     /// <param name="initialize">true if being rebuilt for the first time</param>
     [ServerCallback]
-    public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+    public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
     {
         // Default behaviour of making the identity object visible to all clients.
         // Replace this code with your own logic as appropriate.
