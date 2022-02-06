@@ -131,14 +131,14 @@ public class #SCRIPTNAME# : NetworkManager
     /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
     /// </summary>
     /// <param name="conn">Connection from client.</param>
-    public override void OnServerConnect(NetworkConnection conn) { }
+    public override void OnServerConnect(NetworkConnectionToClient conn) { }
 
     /// <summary>
     /// Called on the server when a client is ready.
     /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
     /// </summary>
     /// <param name="conn">Connection from client.</param>
-    public override void OnServerReady(NetworkConnection conn)
+    public override void OnServerReady(NetworkConnectionToClient conn)
     {
         base.OnServerReady(conn);
     }
@@ -148,7 +148,7 @@ public class #SCRIPTNAME# : NetworkManager
     /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
     /// </summary>
     /// <param name="conn">Connection from client.</param>
-    public override void OnServerAddPlayer(NetworkConnection conn)
+    public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnServerAddPlayer(conn);
     }
@@ -158,7 +158,7 @@ public class #SCRIPTNAME# : NetworkManager
     /// <para>This is called on the Server when a Client disconnects from the Server. Use an override to decide what should happen when a disconnection is detected.</para>
     /// </summary>
     /// <param name="conn">Connection from client.</param>
-    public override void OnServerDisconnect(NetworkConnection conn)
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
     {
         base.OnServerDisconnect(conn);
     }
@@ -169,7 +169,7 @@ public class #SCRIPTNAME# : NetworkManager
     /// </summary>
     /// <param name="conn">Connection of the client...may be null</param>
     /// <param name="exception">Exception thrown from the Transport.</param>
-    public override void OnServerError(NetworkConnection conn, Exception exception) { }
+    public override void OnServerError(NetworkConnectionToClient conn, Exception exception) { }
 
     #endregion
 

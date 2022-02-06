@@ -44,13 +44,13 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// This is called on the server when a new client connects to the server.
     /// </summary>
     /// <param name="conn">The new connection.</param>
-    public override void OnRoomServerConnect(NetworkConnection conn) { }
+    public override void OnRoomServerConnect(NetworkConnectionToClient conn) { }
 
     /// <summary>
     /// This is called on the server when a client disconnects.
     /// </summary>
     /// <param name="conn">The connection that disconnected.</param>
-    public override void OnRoomServerDisconnect(NetworkConnection conn) { }
+    public override void OnRoomServerDisconnect(NetworkConnectionToClient conn) { }
 
     /// <summary>
     /// This is called on the server when a networked scene finishes loading.
@@ -64,7 +64,7 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// </summary>
     /// <param name="conn">The connection the player object is for.</param>
     /// <returns>The new room-player object.</returns>
-    public override GameObject OnRoomServerCreateRoomPlayer(NetworkConnection conn)
+    public override GameObject OnRoomServerCreateRoomPlayer(NetworkConnectionToClient conn)
     {
         return base.OnRoomServerCreateRoomPlayer(conn);
     }
@@ -76,7 +76,7 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <param name="conn">The connection the player object is for.</param>
     /// <param name="roomPlayer">The room player object for this connection.</param>
     /// <returns>A new GamePlayer object.</returns>
-    public override GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer)
+    public override GameObject OnRoomServerCreateGamePlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
     {
         return base.OnRoomServerCreateGamePlayer(conn, roomPlayer);
     }
@@ -87,7 +87,7 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <para>See OnRoomServerCreateGamePlayer to customize the player object for the initial GamePlay scene.</para>
     /// </summary>
     /// <param name="conn">The connection the player object is for.</param>
-    public override void OnRoomServerAddPlayer(NetworkConnection conn)
+    public override void OnRoomServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnRoomServerAddPlayer(conn);
     }
@@ -100,7 +100,7 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// <param name="roomPlayer">The room player object.</param>
     /// <param name="gamePlayer">The game player object.</param>
     /// <returns>False to not allow this player to replace the room player.</returns>
-    public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
+    public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer, GameObject gamePlayer)
     {
         return base.OnRoomServerSceneLoadedForPlayer(conn, roomPlayer, gamePlayer);
     }
