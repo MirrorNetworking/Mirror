@@ -118,10 +118,20 @@ namespace Mirror
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
+            // Never observed if no NetworkMatch component
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch identityNetworkMatch))
                 return false;
 
+            // Guid.Empty is never a valid matchId
+            if (identityNetworkMatch.matchId == Guid.Empty)
+                return false;
+
+            // Never observed if no NetworkMatch component
             if (!newObserver.identity.TryGetComponent<NetworkMatch>(out NetworkMatch newObserverNetworkMatch))
+                return false;
+
+            // Guid.Empty is never a valid matchId
+            if (newObserverNetworkMatch.matchId == Guid.Empty)
                 return false;
 
             return identityNetworkMatch.matchId == newObserverNetworkMatch.matchId;
