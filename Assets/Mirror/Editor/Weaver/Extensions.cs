@@ -140,6 +140,16 @@ namespace Mirror.Weaver
             return module.ImportReference(reference);
         }
 
+        public static FieldReference MakeHostInstanceGeneric(this FieldReference self)
+        {
+            var declaringType = new GenericInstanceType(self.DeclaringType);
+            foreach (var parameter in self.DeclaringType.GenericParameters)
+            {
+                declaringType.GenericArguments.Add(parameter);
+            }
+            return new FieldReference(self.Name, self.FieldType, declaringType);
+        }
+
         // Given a field of a generic class such as Writer<T>.write,
         // and a generic instance such as ArraySegment`int
         // Creates a reference to the specialized method  ArraySegment`int`.get_Count

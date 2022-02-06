@@ -429,8 +429,13 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldarg_2);
             worker.Emit(OpCodes.Brfalse, initialStateLabel);
 
-            foreach (FieldDefinition syncVar in syncVars)
+            foreach (FieldDefinition syncVarDef in syncVars)
             {
+                FieldReference syncVar = syncVarDef;
+                if (netBehaviourSubclass.HasGenericParameters)
+                {
+                    syncVar = syncVarDef.MakeHostInstanceGeneric();
+                }
                 // Generates a writer call for each sync variable
                 // writer
                 worker.Emit(OpCodes.Ldarg_1);
@@ -473,8 +478,14 @@ namespace Mirror.Weaver
 
             // start at number of syncvars in parent
             int dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
-            foreach (FieldDefinition syncVar in syncVars)
+            foreach (FieldDefinition syncVarDef in syncVars)
             {
+
+                FieldReference syncVar = syncVarDef;
+                if (netBehaviourSubclass.HasGenericParameters)
+                {
+                    syncVar = syncVarDef.MakeHostInstanceGeneric();
+                }
                 Instruction varLabel = worker.Create(OpCodes.Nop);
 
                 // Generates: if ((base.get_syncVarDirtyBits() & 1uL) != 0uL)
@@ -531,7 +542,15 @@ namespace Mirror.Weaver
 
             // push 'ref T this.field'
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldflda, syncVar);
+            // if the netbehaviour class is generic, we need to make the field reference generic as well for correct IL
+            if (netBehaviourSubclass.HasGenericParameters)
+            {
+                worker.Emit(OpCodes.Ldflda, syncVar.MakeHostInstanceGeneric());
+            }
+            else
+            {
+                worker.Emit(OpCodes.Ldflda, syncVar);
+            }
 
             // hook? then push 'new Action<T,T>(Hook)' onto stack
             MethodDefinition hookMethod = syncVarAttributeProcessor.GetHookMethod(netBehaviourSubclass, syncVar, ref WeavingFailed);
