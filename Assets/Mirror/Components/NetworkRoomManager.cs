@@ -245,7 +245,7 @@ namespace Mirror
         /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerConnect(NetworkConnection conn)
+        public override void OnServerConnect(NetworkConnectionToClient conn)
         {
             if (numPlayers >= maxConnections)
             {
@@ -550,13 +550,13 @@ namespace Mirror
         /// This is called on the server when a new client connects to the server.
         /// </summary>
         /// <param name="conn">The new connection.</param>
-        public virtual void OnRoomServerConnect(NetworkConnection conn) {}
+        public virtual void OnRoomServerConnect(NetworkConnectionToClient conn) {}
 
         /// <summary>
         /// This is called on the server when a client disconnects.
         /// </summary>
         /// <param name="conn">The connection that disconnected.</param>
-        public virtual void OnRoomServerDisconnect(NetworkConnection conn) {}
+        public virtual void OnRoomServerDisconnect(NetworkConnectionToClient conn) {}
 
         /// <summary>
         /// This is called on the server when a networked scene finishes loading.

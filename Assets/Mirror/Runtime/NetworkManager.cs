@@ -1109,7 +1109,7 @@ namespace Mirror
 
         // called after successful authentication
         // TODO do the NetworkServer.OnAuthenticated thing from x branch
-        void OnServerAuthenticated(NetworkConnection conn)
+        void OnServerAuthenticated(NetworkConnectionToClient conn)
         {
             //Debug.Log("NetworkManager.OnServerAuthenticated");
 
@@ -1231,7 +1231,7 @@ namespace Mirror
         }
 
         /// <summary>Called on the server when a new client connects.</summary>
-        public virtual void OnServerConnect(NetworkConnection conn) {}
+        public virtual void OnServerConnect(NetworkConnectionToClient conn) {}
 
         /// <summary>Called on the server when a client disconnects.</summary>
         // Called by NetworkServer.OnTransportDisconnect!
