@@ -21,7 +21,7 @@ namespace Mirror
     {
         public struct PendingPlayer
         {
-            public NetworkConnection conn;
+            public NetworkConnectionToClient conn;
             public GameObject roomPlayer;
         }
 
@@ -150,7 +150,7 @@ namespace Mirror
         /// <para>The default implementation of this function calls NetworkServer.SetClientReady() to continue the network setup process.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerReady(NetworkConnection conn)
+        public override void OnServerReady(NetworkConnectionToClient conn)
         {
             Debug.Log("NetworkRoomManager OnServerReady");
             base.OnServerReady(conn);
@@ -165,7 +165,7 @@ namespace Mirror
             }
         }
 
-        void SceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer)
+        void SceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
         {
             Debug.Log($"NetworkRoom SceneLoadedForPlayer scene: {SceneManager.GetActiveScene().path} {conn}");
 
@@ -269,7 +269,7 @@ namespace Mirror
         /// <para>This is called on the Server when a Client disconnects from the Server. Use an override to decide what should happen when a disconnection is detected.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerDisconnect(NetworkConnection conn)
+        public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
             if (conn.identity != null)
             {
@@ -314,7 +314,7 @@ namespace Mirror
         /// <para>The default implementation for this function creates a new player object from the playerPrefab.</para>
         /// </summary>
         /// <param name="conn">Connection from client.</param>
-        public override void OnServerAddPlayer(NetworkConnection conn)
+        public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
             // increment the index before adding the player, so first player starts at 1
             clientIndex++;
@@ -593,7 +593,7 @@ namespace Mirror
         /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)">OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)</see> to customize the player object for the initial GamePlay scene.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
-        public virtual void OnRoomServerAddPlayer(NetworkConnection conn)
+        public virtual void OnRoomServerAddPlayer(NetworkConnectionToClient conn)
         {
             base.OnServerAddPlayer(conn);
         }

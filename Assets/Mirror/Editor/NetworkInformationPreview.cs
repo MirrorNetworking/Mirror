@@ -73,7 +73,7 @@ namespace Mirror
 
         public override bool HasPreviewGUI()
         {
-            // need to check if target is null to stop MissingReferenceException 
+            // need to check if target is null to stop MissingReferenceException
             return target != null && target is GameObject gameObject && gameObject.GetComponent<NetworkIdentity>() != null;
         }
 
@@ -180,7 +180,7 @@ namespace Mirror
                 observerRect.x += 20;
                 observerRect.y += observerRect.height;
 
-                foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
+                foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in identity.observers)
                 {
                     GUI.Label(observerRect, $"{kvp.Value.address}:{kvp.Value}", styles.componentName);
                     observerRect.y += observerRect.height;

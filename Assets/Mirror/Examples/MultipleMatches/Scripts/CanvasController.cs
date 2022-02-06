@@ -26,7 +26,7 @@ namespace Mirror.Examples.MultipleMatch
         /// <summary>
         /// Network Connections of all players in a match
         /// </summary>
-        internal static readonly Dictionary<Guid, HashSet<NetworkConnection>> matchConnections = new Dictionary<Guid, HashSet<NetworkConnection>>();
+        internal static readonly Dictionary<Guid, HashSet<NetworkConnectionToClient>> matchConnections = new Dictionary<Guid, HashSet<NetworkConnectionToClient>>();
 
         /// <summary>
         /// Player informations by Network Connection
@@ -256,7 +256,7 @@ namespace Mirror.Examples.MultipleMatch
             SendMatchList();
         }
 
-        internal void OnServerDisconnect(NetworkConnection conn)
+        internal void OnServerDisconnect(NetworkConnectionToClient conn)
         {
             if (!NetworkServer.active) return;
 
@@ -279,7 +279,7 @@ namespace Mirror.Examples.MultipleMatch
                 }
             }
 
-            foreach (KeyValuePair<Guid, HashSet<NetworkConnection>> kvp in matchConnections)
+            foreach (KeyValuePair<Guid, HashSet<NetworkConnectionToClient>> kvp in matchConnections)
             {
                 kvp.Value.Remove(conn);
             }
@@ -294,12 +294,12 @@ namespace Mirror.Examples.MultipleMatch
                     openMatches[playerInfo.matchId] = matchInfo;
                 }
 
-                HashSet<NetworkConnection> connections;
+                HashSet<NetworkConnectionToClient> connections;
                 if (matchConnections.TryGetValue(playerInfo.matchId, out connections))
                 {
                     PlayerInfo[] infos = connections.Select(playerConn => playerInfos[playerConn]).ToArray();
 
-                    foreach (NetworkConnection playerConn in matchConnections[playerInfo.matchId])
+                    foreach (NetworkConnectionToClient playerConn in matchConnections[playerInfo.matchId])
                     {
                         if (playerConn != conn)
                         {
@@ -401,16 +401,16 @@ namespace Mirror.Examples.MultipleMatch
             playerInfo.ready = !playerInfo.ready;
             playerInfos[conn] = playerInfo;
 
-            HashSet<NetworkConnection> connections = matchConnections[matchId];
+            HashSet<NetworkConnectionToClient> connections = matchConnections[matchId];
             PlayerInfo[] infos = connections.Select(playerConn => playerInfos[playerConn]).ToArray();
 
-            foreach (NetworkConnection playerConn in matchConnections[matchId])
+            foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
             {
                 playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.UpdateRoom, playerInfos = infos });
             }
         }
 
-        void OnServerLeaveMatch(NetworkConnection conn, Guid matchId)
+        void OnServerLeaveMatch(NetworkConnectionToClient conn, Guid matchId)
         {
             if (!NetworkServer.active) return;
 
@@ -423,15 +423,15 @@ namespace Mirror.Examples.MultipleMatch
             playerInfo.matchId = Guid.Empty;
             playerInfos[conn] = playerInfo;
 
-            foreach (KeyValuePair<Guid, HashSet<NetworkConnection>> kvp in matchConnections)
+            foreach (KeyValuePair<Guid, HashSet<NetworkConnectionToClient>> kvp in matchConnections)
             {
                 kvp.Value.Remove(conn);
             }
 
-            HashSet<NetworkConnection> connections = matchConnections[matchId];
+            HashSet<NetworkConnectionToClient> connections = matchConnections[matchId];
             PlayerInfo[] infos = connections.Select(playerConn => playerInfos[playerConn]).ToArray();
 
-            foreach (NetworkConnection playerConn in matchConnections[matchId])
+            foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
             {
                 playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.UpdateRoom, playerInfos = infos });
             }
@@ -441,12 +441,12 @@ namespace Mirror.Examples.MultipleMatch
             conn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.Departed });
         }
 
-        void OnServerCreateMatch(NetworkConnection conn)
+        void OnServerCreateMatch(NetworkConnectionToClient conn)
         {
             if (!NetworkServer.active || playerMatches.ContainsKey(conn)) return;
 
             Guid newMatchId = Guid.NewGuid();
-            matchConnections.Add(newMatchId, new HashSet<NetworkConnection>());
+            matchConnections.Add(newMatchId, new HashSet<NetworkConnectionToClient>());
             matchConnections[newMatchId].Add(conn);
             playerMatches.Add(conn, newMatchId);
             openMatches.Add(newMatchId, new MatchInfo { matchId = newMatchId, maxPlayers = 2, players = 1 });
@@ -501,7 +501,7 @@ namespace Mirror.Examples.MultipleMatch
 
                 MatchController matchController = matchControllerObject.GetComponent<MatchController>();
 
-                foreach (NetworkConnection playerConn in matchConnections[matchId])
+                foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
                 {
                     playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.Started });
 
@@ -536,7 +536,7 @@ namespace Mirror.Examples.MultipleMatch
             }
         }
 
-        void OnServerJoinMatch(NetworkConnection conn, Guid matchId)
+        void OnServerJoinMatch(NetworkConnectionToClient conn, Guid matchId)
         {
             if (!NetworkServer.active || !matchConnections.ContainsKey(matchId) || !openMatches.ContainsKey(matchId)) return;
 
@@ -555,7 +555,7 @@ namespace Mirror.Examples.MultipleMatch
 
             conn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.Joined, matchId = matchId, playerInfos = infos });
 
-            foreach (NetworkConnection playerConn in matchConnections[matchId])
+            foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
             {
                 playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.UpdateRoom, playerInfos = infos });
             }

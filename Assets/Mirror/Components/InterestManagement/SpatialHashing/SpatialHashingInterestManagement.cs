@@ -31,7 +31,7 @@ namespace Mirror
         public bool showSlider;
 
         // the grid
-        Grid2D<NetworkConnection> grid = new Grid2D<NetworkConnection>();
+        Grid2D<NetworkConnectionToClient> grid = new Grid2D<NetworkConnectionToClient>();
 
         // project 3d world position to grid position
         Vector2Int ProjectToGrid(Vector3 position) =>
@@ -39,7 +39,7 @@ namespace Mirror
             ? Vector2Int.RoundToInt(new Vector2(position.x, position.z) / resolution)
             : Vector2Int.RoundToInt(new Vector2(position.x, position.y) / resolution);
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             // calculate projected positions
             Vector2Int projected = ProjectToGrid(identity.transform.position);
@@ -52,7 +52,7 @@ namespace Mirror
             return (projected - observerProjected).sqrMagnitude <= 2;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
         {
             // add everyone in 9 neighbour grid
             // -> pass observers to GetWithNeighbours directly to avoid allocations

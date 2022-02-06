@@ -26,13 +26,13 @@ namespace Mirror
             lastRebuildTime = 0D;
         }
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             int range = GetVisRange(identity);
             return Vector3.Distance(identity.transform.position, newObserver.identity.transform.position) < range;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
         {
             // cache range and .transform because both call GetComponent.
             int range = GetVisRange(identity);

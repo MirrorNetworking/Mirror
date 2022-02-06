@@ -10,8 +10,9 @@ namespace Mirror
         public const int LocalConnectionId = 0;
 
         /// <summary>NetworkIdentities that this connection can see</summary>
-        // TODO move to server's NetworkConnectionToClient?
-        public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
+        // DEPRECATED 2022-02-05
+        [Obsolete("Cast to NetworkConnectionToClient to access .observing")]
+        public HashSet<NetworkIdentity> observing => ((NetworkConnectionToClient)this).observing;
 
         /// <summary>Unique identifier for this connection that is assigned by the transport layer.</summary>
         // assigned by transport, this id is unique for every connection on server.
@@ -44,7 +45,9 @@ namespace Mirror
         //            fixes a bug where DestroyOwnedObjects wouldn't find the
         //            netId anymore: https://github.com/vis2k/Mirror/issues/1380
         //            Works fine with NetworkIdentity pointers though.
-        public readonly HashSet<NetworkIdentity> clientOwnedObjects = new HashSet<NetworkIdentity>();
+        // DEPRECATED 2022-02-05
+        [Obsolete("Cast to NetworkConnectionToClient to access .clientOwnedObjects")]
+        public HashSet<NetworkIdentity> clientOwnedObjects => ((NetworkConnectionToClient)this).clientOwnedObjects;
 
         // batching from server to client & client to server.
         // fewer transport calls give us significantly better performance/scale.
@@ -198,6 +201,9 @@ namespace Mirror
             }
         }
 
+        /// <summary>Check if we received a message within the last 'timeout' seconds.</summary>
+        internal virtual bool IsAlive(float timeout) => Time.time - lastMessageTime < timeout;
+
         /// <summary>Disconnects this connection.</summary>
         // for future reference, here is how Disconnects work in Mirror.
         //
@@ -219,65 +225,5 @@ namespace Mirror
         public abstract void Disconnect();
 
         public override string ToString() => $"connection({connectionId})";
-
-        // TODO move to server's NetworkConnectionToClient?
-        internal void AddToObserving(NetworkIdentity netIdentity)
-        {
-            observing.Add(netIdentity);
-
-            // spawn identity for this conn
-            NetworkServer.ShowForConnection(netIdentity, this);
-        }
-
-        // TODO move to server's NetworkConnectionToClient?
-        internal void RemoveFromObserving(NetworkIdentity netIdentity, bool isDestroyed)
-        {
-            observing.Remove(netIdentity);
-
-            if (!isDestroyed)
-            {
-                // hide identity for this conn
-                NetworkServer.HideForConnection(netIdentity, this);
-            }
-        }
-
-        // TODO move to server's NetworkConnectionToClient?
-        internal void RemoveFromObservingsObservers()
-        {
-            foreach (NetworkIdentity netIdentity in observing)
-            {
-                netIdentity.RemoveObserver(this);
-            }
-            observing.Clear();
-        }
-
-        /// <summary>Check if we received a message within the last 'timeout' seconds.</summary>
-        internal virtual bool IsAlive(float timeout) => Time.time - lastMessageTime < timeout;
-
-        internal void AddOwnedObject(NetworkIdentity obj)
-        {
-            clientOwnedObjects.Add(obj);
-        }
-
-        internal void RemoveOwnedObject(NetworkIdentity obj)
-        {
-            clientOwnedObjects.Remove(obj);
-        }
-
-        internal void DestroyOwnedObjects()
-        {
-            // create a copy because the list might be modified when destroying
-            HashSet<NetworkIdentity> tmp = new HashSet<NetworkIdentity>(clientOwnedObjects);
-            foreach (NetworkIdentity netIdentity in tmp)
-            {
-                if (netIdentity != null)
-                {
-                    NetworkServer.Destroy(netIdentity.gameObject);
-                }
-            }
-
-            // clear the hashset because we destroyed them all
-            clientOwnedObjects.Clear();
-        }
     }
 }

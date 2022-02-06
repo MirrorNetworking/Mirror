@@ -98,7 +98,7 @@ namespace Mirror
         /// <summary>The set of network connections (players) that can see this object.</summary>
         // note: null until OnStartServer was called. this is necessary for
         //       SendTo* to work properly in server-only mode.
-        public Dictionary<int, NetworkConnection> observers;
+        public Dictionary<int, NetworkConnectionToClient> observers;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId { get; internal set; }
@@ -636,7 +636,7 @@ namespace Mirror
             }
 
             netId = GetNextNetworkId();
-            observers = new Dictionary<int, NetworkConnection>();
+            observers = new Dictionary<int, NetworkConnectionToClient>();
 
             //Debug.Log($"OnStartServer {this} NetId:{netId} SceneId:{sceneId:X}");
 
@@ -1080,7 +1080,7 @@ namespace Mirror
             }
         }
 
-        internal void AddObserver(NetworkConnection conn)
+        internal void AddObserver(NetworkConnectionToClient conn)
         {
             if (observers == null)
             {
@@ -1136,7 +1136,7 @@ namespace Mirror
         {
             if (observers != null)
             {
-                foreach (NetworkConnection conn in observers.Values)
+                foreach (NetworkConnectionToClient conn in observers.Values)
                 {
                     conn.RemoveFromObserving(this, true);
                 }
@@ -1153,7 +1153,7 @@ namespace Mirror
         // Authority can be removed with RemoveClientAuthority. Only one client
         // can own an object at any time. This does not need to be called for
         // player objects, as their authority is setup automatically.
-        public bool AssignClientAuthority(NetworkConnection conn)
+        public bool AssignClientAuthority(NetworkConnectionToClient conn)
         {
             if (!isServer)
             {
