@@ -264,7 +264,7 @@ namespace Mirror
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
         // used when adding players
-        internal void SetClientOwner(NetworkConnection conn)
+        internal void SetClientOwner(NetworkConnectionToClient conn)
         {
             // do nothing if it already has an owner
             if (connectionToClient != null && conn != connectionToClient)
@@ -274,7 +274,7 @@ namespace Mirror
             }
 
             // otherwise set the owner connection
-            connectionToClient = (NetworkConnectionToClient)conn;
+            connectionToClient = conn;
         }
 
         static uint nextNetworkId = 1;
@@ -284,7 +284,7 @@ namespace Mirror
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
         /// <summary>The delegate type for the clientAuthorityCallback.</summary>
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
+        public delegate void ClientAuthorityCallback(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState);
 
         /// <summary> A callback that can be populated to be notified when the client-authority state of objects changes.</summary>
         public static event ClientAuthorityCallback clientAuthorityCallback;

@@ -11,12 +11,12 @@ namespace Mirror.Examples.MultipleMatch
         /// <summary>
         /// Match Controllers listen for this to terminate their match and clean up
         /// </summary>
-        public event Action<NetworkConnection> OnPlayerDisconnected;
+        public event Action<NetworkConnectionToClient> OnPlayerDisconnected;
 
         /// <summary>
         /// Cross-reference of client that created the corresponding match in openMatches below
         /// </summary>
-        internal static readonly Dictionary<NetworkConnection, Guid> playerMatches = new Dictionary<NetworkConnection, Guid>();
+        internal static readonly Dictionary<NetworkConnectionToClient, Guid> playerMatches = new Dictionary<NetworkConnectionToClient, Guid>();
 
         /// <summary>
         /// Open matches that are available for joining
@@ -31,12 +31,12 @@ namespace Mirror.Examples.MultipleMatch
         /// <summary>
         /// Player informations by Network Connection
         /// </summary>
-        internal static readonly Dictionary<NetworkConnection, PlayerInfo> playerInfos = new Dictionary<NetworkConnection, PlayerInfo>();
+        internal static readonly Dictionary<NetworkConnectionToClient, PlayerInfo> playerInfos = new Dictionary<NetworkConnectionToClient, PlayerInfo>();
 
         /// <summary>
         /// Network Connections that have neither started nor joined a match yet
         /// </summary>
-        internal static readonly List<NetworkConnection> waitingConnections = new List<NetworkConnection>();
+        internal static readonly List<NetworkConnectionToClient> waitingConnections = new List<NetworkConnectionToClient>();
 
         /// <summary>
         /// GUID of a match the local player has created
@@ -214,7 +214,7 @@ namespace Mirror.Examples.MultipleMatch
         /// Sends updated match list to all waiting connections or just one if specified
         /// </summary>
         /// <param name="conn"></param>
-        internal void SendMatchList(NetworkConnection conn = null)
+        internal void SendMatchList(NetworkConnectionToClient conn = null)
         {
             if (!NetworkServer.active) return;
 
@@ -245,7 +245,7 @@ namespace Mirror.Examples.MultipleMatch
             NetworkServer.RegisterHandler<ServerMatchMessage>(OnServerMatchMessage);
         }
 
-        internal void OnServerReady(NetworkConnection conn)
+        internal void OnServerReady(NetworkConnectionToClient conn)
         {
             if (!NetworkServer.active) return;
 
@@ -269,7 +269,7 @@ namespace Mirror.Examples.MultipleMatch
                 playerMatches.Remove(conn);
                 openMatches.Remove(matchId);
 
-                foreach (NetworkConnection playerConn in matchConnections[matchId])
+                foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
                 {
                     PlayerInfo _playerInfo = playerInfos[playerConn];
                     _playerInfo.ready = false;
@@ -319,7 +319,7 @@ namespace Mirror.Examples.MultipleMatch
 
         internal void OnClientConnect()
         {
-            playerInfos.Add(NetworkClient.connection, new PlayerInfo { playerIndex = this.playerIndex, ready = false });
+            playerInfos.Add((NetworkConnectionToClient)NetworkClient.connection, new PlayerInfo { playerIndex = this.playerIndex, ready = false });
         }
 
         internal void OnStartClient()
@@ -393,7 +393,7 @@ namespace Mirror.Examples.MultipleMatch
             }
         }
 
-        void OnServerPlayerReady(NetworkConnection conn, Guid matchId)
+        void OnServerPlayerReady(NetworkConnectionToClient conn, Guid matchId)
         {
             if (!NetworkServer.active) return;
 
@@ -463,7 +463,7 @@ namespace Mirror.Examples.MultipleMatch
             SendMatchList();
         }
 
-        void OnServerCancelMatch(NetworkConnection conn)
+        void OnServerCancelMatch(NetworkConnectionToClient conn)
         {
             if (!NetworkServer.active || !playerMatches.ContainsKey(conn)) return;
 
@@ -475,7 +475,7 @@ namespace Mirror.Examples.MultipleMatch
                 playerMatches.Remove(conn);
                 openMatches.Remove(matchId);
 
-                foreach (NetworkConnection playerConn in matchConnections[matchId])
+                foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
                 {
                     PlayerInfo playerInfo = playerInfos[playerConn];
                     playerInfo.ready = false;
@@ -488,7 +488,7 @@ namespace Mirror.Examples.MultipleMatch
             }
         }
 
-        void OnServerStartMatch(NetworkConnection conn)
+        void OnServerStartMatch(NetworkConnectionToClient conn)
         {
             if (!NetworkServer.active || !playerMatches.ContainsKey(conn)) return;
 

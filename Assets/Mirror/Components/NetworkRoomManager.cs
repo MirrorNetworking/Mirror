@@ -570,7 +570,7 @@ namespace Mirror
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         /// <returns>The new room-player object.</returns>
-        public virtual GameObject OnRoomServerCreateRoomPlayer(NetworkConnection conn)
+        public virtual GameObject OnRoomServerCreateRoomPlayer(NetworkConnectionToClient conn)
         {
             return null;
         }
@@ -582,7 +582,7 @@ namespace Mirror
         /// <param name="conn">The connection the player object is for.</param>
         /// <param name="roomPlayer">The room player object for this connection.</param>
         /// <returns>A new GamePlayer object.</returns>
-        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnection conn, GameObject roomPlayer)
+        public virtual GameObject OnRoomServerCreateGamePlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
         {
             return null;
         }
@@ -590,7 +590,7 @@ namespace Mirror
         /// <summary>
         /// This allows customization of the creation of the GamePlayer object on the server.
         /// <para>This is only called for subsequent GamePlay scenes after the first one.</para>
-        /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)">OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)</see> to customize the player object for the initial GamePlay scene.</para>
+        /// <para>See <see cref="OnRoomServerCreateGamePlayer(NetworkConnectionToClient, GameObject)">OnRoomServerCreateGamePlayer(NetworkConnection, GameObject)</see> to customize the player object for the initial GamePlay scene.</para>
         /// </summary>
         /// <param name="conn">The connection the player object is for.</param>
         public virtual void OnRoomServerAddPlayer(NetworkConnectionToClient conn)
@@ -607,7 +607,7 @@ namespace Mirror
         /// <param name="roomPlayer">The room player object.</param>
         /// <param name="gamePlayer">The game player object.</param>
         /// <returns>False to not allow this player to replace the room player.</returns>
-        public virtual bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
+        public virtual bool OnRoomServerSceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer, GameObject gamePlayer)
         {
             return true;
         }
