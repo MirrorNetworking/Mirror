@@ -1040,7 +1040,7 @@ namespace Mirror
                 return false;
             }
 
-            identity = message.sceneId == 0 ? SpawnPrefab(message) : SpawnSceneObject(message);
+            identity = message.sceneId == 0 ? SpawnPrefab(message) : SpawnSceneObject(message.sceneId);
 
             if (identity == null)
             {
@@ -1085,12 +1085,12 @@ namespace Mirror
             return null;
         }
 
-        static NetworkIdentity SpawnSceneObject(SpawnMessage message)
+        static NetworkIdentity SpawnSceneObject(ulong sceneId)
         {
-            NetworkIdentity identity = GetAndRemoveSceneObject(message.sceneId);
+            NetworkIdentity identity = GetAndRemoveSceneObject(sceneId);
             if (identity == null)
             {
-                Debug.LogError($"Spawn scene object not found for {message.sceneId:X}. Make sure that client and server use exactly the same project. This only happens if the hierarchy gets out of sync.");
+                Debug.LogError($"Spawn scene object not found for {sceneId:X}. Make sure that client and server use exactly the same project. This only happens if the hierarchy gets out of sync.");
 
                 // dump the whole spawnable objects dict for easier debugging
                 //foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
