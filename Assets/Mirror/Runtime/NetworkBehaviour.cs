@@ -365,6 +365,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
@@ -390,6 +392,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
@@ -415,6 +419,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
@@ -441,6 +447,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
