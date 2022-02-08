@@ -182,6 +182,11 @@ namespace Mirror.Tests
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
 
+            // double check that client object's isClient is really true!
+            // previously a test magically failed because isClient was false
+            // even though it should've been true!
+            Assert.That(clientIdentity.isClient, Is.True);
+
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
                 Debug.Assert(clientIdentity.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
@@ -236,6 +241,11 @@ namespace Mirror.Tests
             // spawn
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
+
+            // double check that client object's isClient is really true!
+            // previously a test magically failed because isClient was false
+            // even though it should've been true!
+            Assert.That(clientIdentity.isClient, Is.True);
 
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
@@ -296,6 +306,11 @@ namespace Mirror.Tests
             // spawn
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
+
+            // double check that client object's isClient is really true!
+            // previously a test magically failed because isClient was false
+            // even though it should've been true!
+            Assert.That(clientIdentity.isClient, Is.True);
 
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
@@ -363,6 +378,11 @@ namespace Mirror.Tests
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
 
+            // double check that client object's isClient is really true!
+            // previously a test magically failed because isClient was false
+            // even though it should've been true!
+            Assert.That(clientIdentity.isClient, Is.True);
+
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
             {
@@ -428,6 +448,11 @@ namespace Mirror.Tests
             // make sure the client really spawned it.
             Assert.That(clientGO.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
+
+            // double check that client object's isClient is really true!
+            // previously a test magically failed because isClient was false
+            // even though it should've been true!
+            Assert.That(clientIdentity.isClient, Is.True);
         }
 
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN PLAYER.
@@ -485,6 +510,11 @@ namespace Mirror.Tests
             // make sure the client really spawned it.
             Assert.That(clientGO.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
+
+            // double check that client object's isClient is really true!
+            // previously a test magically failed because isClient was false
+            // even though it should've been true!
+            Assert.That(clientIdentity.isClient, Is.True);
         }
 
         // fully connect client to local server
