@@ -526,6 +526,13 @@ namespace Mirror.Tests
 
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
             connectionToClient = NetworkServer.connections.Values.First();
+
+            // set isSpawnFinished flag.
+            // so that any Spawn() calls will call OnStartClient and set isClient=true
+            // for the client objects.
+            // otherwise this would only happen after AddPlayerForConnection.
+            // but not all tests have a player.
+            NetworkClient.isSpawnFinished = true;
         }
 
         // fully connect client to local server & authenticate
@@ -561,6 +568,13 @@ namespace Mirror.Tests
             NetworkClient.ConnectLocalServer();
             UpdateTransport();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
+
+            // set isSpawnFinished flag.
+            // so that any Spawn() calls will call OnStartClient and set isClient=true
+            // for the client objects.
+            // otherwise this would only happen after AddPlayerForConnection.
+            // but not all tests have a player.
+            NetworkClient.isSpawnFinished = true;
         }
 
         // fully connect client to local server & authenticate & set read
