@@ -534,25 +534,22 @@ namespace Mirror.Weaver
 
         void DeserializeField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, ref bool WeavingFailed)
         {
-            // check for Hook function
-            MethodDefinition hookMethod = syncVarAttributeProcessor.GetHookMethod(netBehaviourSubclass, syncVar, ref WeavingFailed);
-
             if (syncVar.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
-                DeserializeNetworkBehaviourField(syncVar, worker, deserialize, hookMethod, ref WeavingFailed);
+                DeserializeNetworkBehaviourField(syncVar, worker, deserialize, ref WeavingFailed);
             }
             else if (syncVar.FieldType.IsNetworkIdentityField())
             {
-                DeserializeNetworkIdentityField(syncVar, worker, deserialize, hookMethod, ref WeavingFailed);
+                DeserializeNetworkIdentityField(syncVar, worker, deserialize, ref WeavingFailed);
             }
             else
             {
-                DeserializeNormalField(syncVar, worker, deserialize, hookMethod, ref WeavingFailed);
+                DeserializeNormalField(syncVar, worker, deserialize, ref WeavingFailed);
             }
         }
 
         /// [SyncVar] GameObject/NetworkIdentity?
-        void DeserializeNetworkIdentityField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, MethodDefinition hookMethod, ref bool WeavingFailed)
+        void DeserializeNetworkIdentityField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, ref bool WeavingFailed)
         {
             /*
             Generates code like:
@@ -560,11 +557,6 @@ namespace Mirror.Weaver
                // returns GetSyncVarGameObject(___qNetId)
                GameObject oldSyncVar = syncvar.getter;
                ___qNetId = reader.ReadPackedUInt32();
-               if (!SyncVarEqual(oldNetId, ref ___goNetId))
-               {
-                   // getter returns GetSyncVarGameObject(___qNetId)
-                   OnSetQ(oldSyncVar, syncvar.getter);
-               }
             */
 
             // GameObject/NetworkIdentity SyncVar:
@@ -605,54 +597,10 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<uint>(), ref WeavingFailed));
             // netId
             worker.Emit(OpCodes.Stfld, netIdField);
-
-            if (hookMethod != null)
-            {
-                // call Hook(this.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
-                // because we send/receive the netID, not the GameObject/NetworkIdentity
-                // but only if SyncVar changed. otherwise a client would
-                // get hook calls for all initial values, even if they
-                // didn't change from the default values on the client.
-                // see also: https://github.com/vis2k/Mirror/issues/1278
-
-                // IMPORTANT: for GameObjects/NetworkIdentities we usually
-                //            use SyncVarGameObjectEqual to compare equality.
-                //            in this case however, we can just use
-                //            SyncVarEqual with the two uint netIds.
-                //            => this is easier weaver code because we don't
-                //               have to get the GameObject/NetworkIdentity
-                //               from the uint netId
-                //            => this is faster because we void one
-                //               GetComponent call for GameObjects to get
-                //               their NetworkIdentity when comparing.
-
-                // Generates: if (!SyncVarEqual);
-                Instruction syncVarEqualLabel = worker.Create(OpCodes.Nop);
-
-                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
-
-                // 'oldNetId'
-                worker.Emit(OpCodes.Ldloc, oldNetId);
-                // 'ref this.__netId'
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netIdField);
-                // call the function
-                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(weaverTypes.syncVarEqualReference);
-                syncVarEqualGm.GenericArguments.Add(netIdField.FieldType);
-                worker.Emit(OpCodes.Call, syncVarEqualGm);
-                worker.Emit(OpCodes.Brtrue, syncVarEqualLabel);
-
-                // call the hook
-                // Generates: OnValueChanged(oldValue, this.syncVar);
-                syncVarAttributeProcessor.WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar, ref WeavingFailed);
-
-                // Generates: end if (!SyncVarEqual);
-                worker.Append(syncVarEqualLabel);
-            }
         }
 
         // [SyncVar] NetworkBehaviour
-        void DeserializeNetworkBehaviourField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, MethodDefinition hookMethod, ref bool WeavingFailed)
+        void DeserializeNetworkBehaviourField(FieldDefinition syncVar, ILProcessor worker, MethodDefinition deserialize, ref bool WeavingFailed)
         {
             /*
             Generates code like:
@@ -661,11 +609,6 @@ namespace Mirror.Weaver
                T oldSyncVar = syncvar.getter;
                ___qNetId.netId = reader.ReadPackedUInt32();
                ___qNetId.componentIndex = reader.ReadByte();
-               if (!SyncVarEqual(oldNetId, ref ___goNetId))
-               {
-                   // getter returns GetSyncVarGameObject(___qNetId)
-                   OnSetQ(oldSyncVar, syncvar.getter);
-               }
             */
 
             // GameObject/NetworkIdentity SyncVar:
@@ -706,64 +649,16 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Call, readers.GetReadFunc(weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>(), ref WeavingFailed));
             // netId
             worker.Emit(OpCodes.Stfld, netIdField);
-
-            if (hookMethod != null)
-            {
-                // call Hook(this.GetSyncVarGameObject/NetworkIdentity(reader.ReadPackedUInt32()))
-                // because we send/receive the netID, not the GameObject/NetworkIdentity
-                // but only if SyncVar changed. otherwise a client would
-                // get hook calls for all initial values, even if they
-                // didn't change from the default values on the client.
-                // see also: https://github.com/vis2k/Mirror/issues/1278
-
-                // IMPORTANT: for GameObjects/NetworkIdentities we usually
-                //            use SyncVarGameObjectEqual to compare equality.
-                //            in this case however, we can just use
-                //            SyncVarEqual with the two uint netIds.
-                //            => this is easier weaver code because we don't
-                //               have to get the GameObject/NetworkIdentity
-                //               from the uint netId
-                //            => this is faster because we void one
-                //               GetComponent call for GameObjects to get
-                //               their NetworkIdentity when comparing.
-
-                // Generates: if (!SyncVarEqual);
-                Instruction syncVarEqualLabel = worker.Create(OpCodes.Nop);
-
-                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
-
-                // 'oldNetId'
-                worker.Emit(OpCodes.Ldloc, oldNetId);
-                // 'ref this.__netId'
-                worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netIdField);
-                // call the function
-                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(weaverTypes.syncVarEqualReference);
-                syncVarEqualGm.GenericArguments.Add(netIdField.FieldType);
-                worker.Emit(OpCodes.Call, syncVarEqualGm);
-                worker.Emit(OpCodes.Brtrue, syncVarEqualLabel);
-
-                // call the hook
-                // Generates: OnValueChanged(oldValue, this.syncVar);
-                syncVarAttributeProcessor.WriteCallHookMethodUsingField(worker, hookMethod, oldSyncVar, syncVar, ref WeavingFailed);
-
-                // Generates: end if (!SyncVarEqual);
-                worker.Append(syncVarEqualLabel);
-            }
         }
 
         // [SyncVar] int/float/struct/etc.?
-        void DeserializeNormalField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, MethodDefinition hookMethod, ref bool WeavingFailed)
+        void DeserializeNormalField(FieldDefinition syncVar, ILProcessor serWorker, MethodDefinition deserialize, ref bool WeavingFailed)
         {
             /*
              Generates code like:
                 // for hook
                 int oldValue = a;
                 Networka = reader.ReadPackedInt32();
-                if (!SyncVarEqual(oldValue, ref a))
-                {
-                    OnSetA(oldValue, Networka);
-                }
              */
 
             MethodReference readFunc = readers.GetReadFunc(syncVar.FieldType, ref WeavingFailed);
@@ -798,38 +693,6 @@ namespace Mirror.Weaver
             serWorker.Append(serWorker.Create(OpCodes.Call, readFunc));
             // syncvar
             serWorker.Append(serWorker.Create(OpCodes.Stfld, syncVar));
-
-            if (hookMethod != null)
-            {
-                // call hook
-                // but only if SyncVar changed. otherwise a client would
-                // get hook calls for all initial values, even if they
-                // didn't change from the default values on the client.
-                // see also: https://github.com/vis2k/Mirror/issues/1278
-
-                // Generates: if (!SyncVarEqual);
-                Instruction syncVarEqualLabel = serWorker.Create(OpCodes.Nop);
-
-                // NOTE: static function. don't Emit Ldarg_0 aka 'this'.
-
-                // 'oldValue'
-                serWorker.Append(serWorker.Create(OpCodes.Ldloc, oldValue));
-                // 'ref this.syncVar'
-                serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-                serWorker.Append(serWorker.Create(OpCodes.Ldflda, syncVar));
-                // call the function
-                GenericInstanceMethod syncVarEqualGm = new GenericInstanceMethod(weaverTypes.syncVarEqualReference);
-                syncVarEqualGm.GenericArguments.Add(syncVar.FieldType);
-                serWorker.Append(serWorker.Create(OpCodes.Call, syncVarEqualGm));
-                serWorker.Append(serWorker.Create(OpCodes.Brtrue, syncVarEqualLabel));
-
-                // call the hook
-                // Generates: OnValueChanged(oldValue, this.syncVar);
-                syncVarAttributeProcessor.WriteCallHookMethodUsingField(serWorker, hookMethod, oldValue, syncVar, ref WeavingFailed);
-
-                // Generates: end if (!SyncVarEqual);
-                serWorker.Append(syncVarEqualLabel);
-            }
         }
 
         void GenerateDeSerialization(ref bool WeavingFailed)
