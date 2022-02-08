@@ -553,9 +553,6 @@ namespace Mirror.Weaver
         {
             /*
             Generates code like:
-               uint oldNetId = ___qNetId;
-               // returns GetSyncVarGameObject(___qNetId)
-               GameObject oldSyncVar = syncvar.getter;
                ___qNetId = reader.ReadPackedUInt32();
             */
 
@@ -565,20 +562,6 @@ namespace Mirror.Weaver
             //     lookups in the getter (so it still works if objects
             //     move in and out of range repeatedly)
             FieldDefinition netIdField = syncVarNetIds[syncVar];
-
-            // uint oldNetId = ___qNetId;
-            VariableDefinition oldNetId = new VariableDefinition(weaverTypes.Import<uint>());
-            deserialize.Body.Variables.Add(oldNetId);
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldfld, netIdField);
-            worker.Emit(OpCodes.Stloc, oldNetId);
-
-            // GameObject/NetworkIdentity oldSyncVar = syncvar.getter;
-            VariableDefinition oldSyncVar = new VariableDefinition(syncVar.FieldType);
-            deserialize.Body.Variables.Add(oldSyncVar);
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldfld, syncVar);
-            worker.Emit(OpCodes.Stloc, oldSyncVar);
 
             // read id and store in netId field BEFORE calling the hook
             // -> this makes way more sense. by definition, the hook is
@@ -604,9 +587,6 @@ namespace Mirror.Weaver
         {
             /*
             Generates code like:
-               uint oldNetId = ___qNetId.netId;
-               byte oldCompIndex = ___qNetId.componentIndex;
-               T oldSyncVar = syncvar.getter;
                ___qNetId.netId = reader.ReadPackedUInt32();
                ___qNetId.componentIndex = reader.ReadByte();
             */
@@ -617,20 +597,6 @@ namespace Mirror.Weaver
             //     lookups in the getter (so it still works if objects
             //     move in and out of range repeatedly)
             FieldDefinition netIdField = syncVarNetIds[syncVar];
-
-            // uint oldNetId = ___qNetId;
-            VariableDefinition oldNetId = new VariableDefinition(weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>());
-            deserialize.Body.Variables.Add(oldNetId);
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldfld, netIdField);
-            worker.Emit(OpCodes.Stloc, oldNetId);
-
-            // GameObject/NetworkIdentity oldSyncVar = syncvar.getter;
-            VariableDefinition oldSyncVar = new VariableDefinition(syncVar.FieldType);
-            deserialize.Body.Variables.Add(oldSyncVar);
-            worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldfld, syncVar);
-            worker.Emit(OpCodes.Stloc, oldSyncVar);
 
             // read id and store in netId field BEFORE calling the hook
             // -> this makes way more sense. by definition, the hook is
@@ -656,9 +622,7 @@ namespace Mirror.Weaver
         {
             /*
              Generates code like:
-                // for hook
-                int oldValue = a;
-                Networka = reader.ReadPackedInt32();
+                Networkhealth = reader.ReadInt32();
              */
 
             MethodReference readFunc = readers.GetReadFunc(syncVar.FieldType, ref WeavingFailed);
@@ -668,13 +632,6 @@ namespace Mirror.Weaver
                 WeavingFailed = true;
                 return;
             }
-
-            // T oldValue = value;
-            VariableDefinition oldValue = new VariableDefinition(syncVar.FieldType);
-            deserialize.Body.Variables.Add(oldValue);
-            serWorker.Append(serWorker.Create(OpCodes.Ldarg_0));
-            serWorker.Append(serWorker.Create(OpCodes.Ldfld, syncVar));
-            serWorker.Append(serWorker.Create(OpCodes.Stloc, oldValue));
 
             // read value and store in syncvar BEFORE calling the hook
             // -> this makes way more sense. by definition, the hook is
