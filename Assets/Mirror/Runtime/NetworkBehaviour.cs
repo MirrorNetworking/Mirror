@@ -365,9 +365,10 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // only call hook on clients.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (isClient && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -390,9 +391,10 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // only call hook on clients.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (isClient && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -415,9 +417,10 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // only call hook on clients.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (isClient && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -441,9 +444,10 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // only call hook on clients.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (isClient && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
