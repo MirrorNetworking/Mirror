@@ -950,9 +950,13 @@ namespace Mirror
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
         internal NetworkIdentitySerialization GetSerializationAtTick(int tick)
         {
-            // reserialize if tick is different than last changed.
+            // only rebuild serialization once per tick. reuse otherwise.
+            // except for tests, where Time.frameCount never increases.
+            // so during tests, we always rebuild.
+            // (otherwise [SyncVar] changes would never be serialized in tests)
+            //
             // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick)
+            if (lastSerialization.tick != tick || !Application.isPlaying)
             {
                 // reset
                 lastSerialization.ownerWriter.Position = 0;
