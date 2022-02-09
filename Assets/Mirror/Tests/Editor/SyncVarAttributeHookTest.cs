@@ -156,7 +156,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         }
     }
 
-    public class SyncVarAttributeHookTest : SyncVarAttributeTestBase
+    public class SyncVarAttributeHookTest : MirrorTest
     {
         [SetUp]
         public override void SetUp()
@@ -168,10 +168,14 @@ namespace Mirror.Tests.SyncVarAttributeTests
             ConnectClientBlockingAuthenticatedAndReady(out _);
         }
 
+        [TearDown]
+        public override void TearDown()
+        {
+            base.TearDown();
+        }
+
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void Hook_CalledWhenSyncingChangedValue(bool intialState)
+        public void Hook_CalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out HookBehaviour serverObject,
@@ -191,15 +195,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void Hook_NotCalledWhenSyncingSameValue(bool intialState)
+        public void Hook_NotCalledWhenSyncingSameValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out HookBehaviour serverObject,
@@ -220,15 +221,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             };
 
             // hook shouldn't be called because both already have same value
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(callCount, Is.EqualTo(0));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void Hook_OnlyCalledOnClient(bool intialState)
+        public void Hook_OnlyCalledOnClientd()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out HookBehaviour serverObject,
@@ -242,19 +240,15 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             // change on server
             ++serverObject.value;
-            //++clientObject.value;
 
             // sync. hook should've only been called on client.
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(clientCalled, Is.EqualTo(1));
             Assert.That(serverCalled, Is.EqualTo(0));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void StaticMethod_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void StaticMethod_HookCalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out StaticHookBehaviour serverObject,
@@ -274,15 +268,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(hookcallCount, Is.EqualTo(1));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void GameObjectHook_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void GameObjectHook_HookCalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out GameObjectHookBehaviour serverObject,
@@ -306,15 +297,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 Assert.That(newValue, Is.EqualTo(clientValue));
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void NetworkIdentityHook_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void NetworkIdentityHook_HookCalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out NetworkIdentityHookBehaviour serverObject,
@@ -338,15 +326,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 Assert.That(newValue, Is.EqualTo(clientValue));
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void NetworkBehaviourHook_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void NetworkBehaviourHook_HookCalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out NetworkBehaviourHookBehaviour serverObject,
@@ -370,15 +355,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 Assert.That(newValue, Is.EqualTo(clientValue));
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void VirtualHook_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void VirtualHook_HookCalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out VirtualHookBase serverObject,
@@ -400,15 +382,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(baseCallCount, Is.EqualTo(1));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void VirtualOverrideHook_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void VirtualOverrideHook_HookCalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out VirtualOverrideHook serverObject,
@@ -433,16 +412,13 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 baseCallCount++;
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(overrideCallCount, Is.EqualTo(1));
             Assert.That(baseCallCount, Is.EqualTo(0));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void AbstractHook_HookCalledWhenSyncingChangedValue(bool intialState)
+        public void AbstractHook_HookCalledWhenSyncingChangedValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out AbstractHook serverObject,
@@ -464,8 +440,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
                 Assert.That(newValue, Is.EqualTo(serverValue));
             };
 
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(callCount, Is.EqualTo(1));
         }
 
@@ -478,9 +453,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         // this wasn't necessary for the original SyncVars, which is why the bug
         // wasn't caught by a unit test to begin with.
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void ImerHook_Ldflda_Uses_Correct_SyncVar(bool intialState)
+        public void ImerHook_Ldflda_Uses_Correct_SyncVard()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out ImerHook_Ldflda serverObject,
@@ -490,8 +463,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject._syncProportions = new Proportions{Array = new byte[]{3, 4}};
 
             // sync to client
-            bool written = SyncToClient(serverObject, clientObject, intialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
 
             // client uses ldflda to get replacement.Array.
             // we synced an array with two values, so if ldflda uses the correct
@@ -505,9 +477,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         // testing syncVar = X isn't enough.
         // we should have a test for syncVar.value = X too.
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void DavidHook_SetSyncVarStructsValue(bool intialState)
+        public void DavidHook_SetSyncVarStructsValued()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out DavidHookComponent serverObject,
