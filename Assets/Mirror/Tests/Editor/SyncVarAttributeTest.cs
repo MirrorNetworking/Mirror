@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -59,7 +58,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         public MockMonsterBase monster2;
     }
 
-    public class SyncVarAttributeTest : SyncVarAttributeTestBase
+    public class SyncVarAttributeTest : MirrorTest
     {
         [SetUp]
         public override void SetUp()
@@ -72,6 +71,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             // we are testing server->client syncs.
             // so we need truly separted server & client, not host.
             ConnectClientBlockingAuthenticatedAndReady(out _);
+        }
+
+        [TearDown]
+        public override void TearDown()
+        {
+            base.TearDown();
         }
 
         [Test]
@@ -153,9 +158,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncsGameobject(bool initialState)
+        public void SyncsGameobject()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarGameObject serverObject,
@@ -169,15 +172,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverValue;
             clientObject.value = null;
 
-            bool written = SyncToClient(serverObject, clientObject, initialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncIdentity(bool initialState)
+        public void SyncIdentity()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarNetworkIdentity serverObject,
@@ -191,15 +191,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverValue;
             clientObject.value = null;
 
-            bool written = SyncToClient(serverObject, clientObject, initialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncTransform(bool initialState)
+        public void SyncTransform()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarTransform serverObject,
@@ -216,15 +213,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverValue;
             clientObject.value = null;
 
-            bool written = SyncToClient(serverObject, clientObject, initialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncsBehaviour(bool initialState)
+        public void SyncsBehaviour()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarNetworkBehaviour serverObject,
@@ -238,15 +232,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverValue;
             clientObject.value = null;
 
-            bool written = SyncToClient(serverObject, clientObject, initialState);
-            Assert.IsTrue(written);
+            ProcessMessages();
             Assert.That(clientObject.value, Is.EqualTo(clientValue));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncsMultipleBehaviour(bool initialState)
+        public void SyncsMultipleBehaviour()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarNetworkBehaviour serverObject,
@@ -270,23 +261,19 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverBehaviour1;
             clientObject.value = null;
 
-            bool written1 = SyncToClient(serverObject, clientObject, initialState);
-            Assert.IsTrue(written1);
+            ProcessMessages();
             Assert.That(clientObject.value, Is.EqualTo(clientBehaviour1));
 
             // check that behaviour 2 can be synced
             serverObject.value = serverBehaviour2;
             clientObject.value = null;
 
-            bool written2 = SyncToClient(serverObject, clientObject, initialState);
-            Assert.IsTrue(written2);
+            ProcessMessages();
             Assert.That(clientObject.value, Is.EqualTo(clientBehaviour2));
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncVarCacheNetidForGameObject(bool initialState)
+        public void SyncVarCacheNetidForGameObject()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarGameObject serverObject,
@@ -302,15 +289,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverValue;
             clientObject.value = null;
 
-            // write server data
-            bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
-            Assert.IsTrue(written, "did not write");
-
             // remove identity from client, as if it walked out of range
             NetworkClient.spawned.Remove(clientIdentity.netId);
 
-            // read client data, this should be cached in field
-            ClientRead(clientObject, initialState, data, writeLength);
+            ProcessMessages();
 
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
@@ -323,9 +305,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncVarCacheNetidForIdentity(bool initialState)
+        public void SyncVarCacheNetidForIdentity()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarNetworkIdentity serverObject,
@@ -341,15 +321,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverValue;
             clientObject.value = null;
 
-            // write server data
-            bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
-            Assert.IsTrue(written, "did not write");
-
             // remove identity from client, as if it walked out of range
             NetworkClient.spawned.Remove(clientValue.netId);
 
-            // read client data, this should be cached in field
-            ClientRead(clientObject, initialState, data, writeLength);
+            ProcessMessages();
 
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
@@ -362,9 +337,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
         }
 
         [Test]
-        [TestCase(true)]
-        [TestCase(false)]
-        public void SyncVarCacheNetidForBehaviour(bool initialState)
+        public void SyncVarCacheNetidForBehaviour()
         {
             CreateNetworkedAndSpawn(
                 out _, out _, out SyncVarNetworkBehaviour serverObject,
@@ -381,15 +354,10 @@ namespace Mirror.Tests.SyncVarAttributeTests
             serverObject.value = serverValue;
             clientObject.value = null;
 
-            // write server data
-            bool written = ServerWrite(serverObject, initialState, out ArraySegment<byte> data, out int writeLength);
-            Assert.IsTrue(written, "did not write");
-
             // remove identity from client, as if it walked out of range
             NetworkClient.spawned.Remove(clientIdentity.netId);
 
-            // read client data, this should be cached in field
-            ClientRead(clientObject, initialState, data, writeLength);
+            ProcessMessages();
 
             // check field shows as null
             Assert.That(clientObject.value, Is.EqualTo(null), "field should return null");
