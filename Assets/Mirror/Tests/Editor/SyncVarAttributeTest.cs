@@ -272,6 +272,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.That(clientObject.value, Is.EqualTo(clientBehaviour2));
         }
 
+        // this test is also important if we do LocalWorldState later:
+        // - if LocalWorldMessage spawns netId=N
+        // - and we remove N from NetworkClient.spawned
+        // - and the next LocalWorldMessage contains updated payload for N
+        // =>  client should NOT assume it's a spawned payload just because the
+        //     netId isn't in spawned anymore.
         [Test]
         public void SyncVarCacheNetidForGameObject()
         {
@@ -304,6 +310,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
         }
 
+        // this test is also important if we do LocalWorldState later:
+        // - if LocalWorldMessage spawns netId=N
+        // - and we remove N from NetworkClient.spawned
+        // - and the next LocalWorldMessage contains updated payload for N
+        // =>  client should NOT assume it's a spawned payload just because the
+        //     netId isn't in spawned anymore.
         [Test]
         public void SyncVarCacheNetidForIdentity()
         {
@@ -336,6 +348,12 @@ namespace Mirror.Tests.SyncVarAttributeTests
             Assert.That(clientObject.value, Is.EqualTo(clientValue), "fields should return clientValue");
         }
 
+        // this test is also important if we do LocalWorldState later:
+        // - if LocalWorldMessage spawns netId=N
+        // - and we remove N from NetworkClient.spawned
+        // - and the next LocalWorldMessage contains updated payload for N
+        // =>  client should NOT assume it's a spawned payload just because the
+        //     netId isn't in spawned anymore.
         [Test]
         public void SyncVarCacheNetidForBehaviour()
         {
