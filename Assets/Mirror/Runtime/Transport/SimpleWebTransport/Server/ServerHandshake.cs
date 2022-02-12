@@ -25,7 +25,7 @@ namespace Mirror.SimpleWeb
         public ServerHandshake(BufferPool bufferPool, int handshakeMaxSize)
         {
             this.bufferPool = bufferPool;
-            this.maxHttpHeaderSize = handshakeMaxSize;
+            maxHttpHeaderSize = handshakeMaxSize;
         }
 
         ~ServerHandshake()
@@ -54,7 +54,7 @@ namespace Mirror.SimpleWeb
 
             string msg = ReadToEndForHandshake(stream);
 
-            if (string.IsNullOrWhiteSpace(msg))
+            if (string.IsNullOrEmpty(msg))
                 return false;
 
             try
@@ -97,7 +97,7 @@ namespace Mirror.SimpleWeb
         void AcceptHandshake(Stream stream, string msg)
         {
             using (
-                ArrayBuffer keyBuffer = bufferPool.Take(KeyLength),
+                ArrayBuffer keyBuffer = bufferPool.Take(KeyLength + Constants.HandshakeGUIDLength),
                             responseBuffer = bufferPool.Take(ResponseLength))
             {
                 GetKey(msg, keyBuffer.array);
@@ -120,7 +120,7 @@ namespace Mirror.SimpleWeb
 
         static void AppendGuid(byte[] keyBuffer)
         {
-            Buffer.BlockCopy(Constants.HandshakeGUIDBytes, 0, keyBuffer, KeyLength, Constants.HandshakeGUID.Length);
+            Buffer.BlockCopy(Constants.HandshakeGUIDBytes, 0, keyBuffer, KeyLength, Constants.HandshakeGUIDLength);
         }
 
         byte[] CreateHash(byte[] keyBuffer)

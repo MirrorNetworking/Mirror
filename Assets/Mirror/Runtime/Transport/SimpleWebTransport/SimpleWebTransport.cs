@@ -78,12 +78,6 @@ namespace Mirror.SimpleWeb
 
         void OnValidate()
         {
-            if (maxMessageSize > ushort.MaxValue)
-            {
-                Debug.LogWarning($"max supported value for maxMessageSize is {ushort.MaxValue}");
-                maxMessageSize = ushort.MaxValue;
-            }
-
             Log.level = _logLevels;
         }
 
@@ -209,7 +203,7 @@ namespace Mirror.SimpleWeb
                 Debug.LogError("SimpleWebServer Already Started");
             }
 
-            SslConfig config = SslConfigLoader.Load(this);
+            SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
 
             server.onConnect += OnServerConnected.Invoke;

@@ -18,9 +18,9 @@ namespace Mirror.SimpleWeb
         public readonly byte[] array;
 
         /// <summary>
-        /// number of bytes writen to buffer
+        /// number of bytes written to buffer
         /// </summary>
-        internal int count;
+        public int count { get; internal set; }
 
         /// <summary>
         /// How many times release needs to be called before buffer is returned to pool
@@ -52,7 +52,7 @@ namespace Mirror.SimpleWeb
             if (newValue <= 0)
             {
                 count = 0;
-                owner.Return(this);
+                owner?.Return(this);
             }
         }
         public void Dispose()
@@ -228,7 +228,7 @@ namespace Mirror.SimpleWeb
             // 3056      e^ (3 + 1.675 * 3)
             // 16,317    e^ (3 + 1.675 * 4)
 
-            // perceision wont be lose when using doubles
+            // precision wont be lose when using doubles
         }
 
         [Conditional("UNITY_ASSERTIONS")]
