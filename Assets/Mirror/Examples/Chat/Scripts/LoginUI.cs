@@ -18,6 +18,7 @@ namespace Mirror.Examples.Chat
             instance = this;
         }
 
+        // Called by UI element UsernameInput.OnValueChanged
         public void ToggleButtons(string username)
         {
             hostButton.interactable = !string.IsNullOrWhiteSpace(username);

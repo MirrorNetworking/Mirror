@@ -138,7 +138,7 @@ namespace Mirror.Examples.Chat
 
         #region Client
 
-        // Called by UI element Username.OnValueChanged
+        // Called by UI element UsernameInput.OnValueChanged
         public void SetPlayername(string username)
         {
             playerName = username;
