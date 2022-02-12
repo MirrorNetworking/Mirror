@@ -112,8 +112,7 @@ namespace Mirror
         /// <summary>True if the client loaded a new scene when connecting to the server.</summary>
         // This is set before OnClientConnect is called, so it can be checked
         // there to perform different logic if a scene load occurred.
-        [NonSerialized]
-        public bool clientLoadedScene;
+        protected bool clientLoadedScene;
 
         // helper enum to know if we started the networkmanager as server/client/host.
         // -> this is necessary because when StartHost changes server scene to
