@@ -43,6 +43,7 @@ namespace Mirror.Examples.Chat
             AppendMessage(prettyMessage);
         }
 
+        // Called by UI element MessageField.OnEndEdit
         public void OnEndEdit(string input)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter) || Input.GetButtonDown("Submit"))
