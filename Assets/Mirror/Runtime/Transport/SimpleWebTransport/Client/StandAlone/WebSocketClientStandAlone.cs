@@ -11,7 +11,6 @@ namespace Mirror.SimpleWeb
         readonly TcpConfig tcpConfig;
         Connection conn;
 
-
         internal WebSocketClientStandAlone(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig) : base(maxMessageSize, maxMessagesPerTick)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
@@ -26,6 +25,14 @@ namespace Mirror.SimpleWeb
         public override void Connect(Uri serverAddress)
         {
             state = ClientState.Connecting;
+
+            // create connection here before thread so that send queue exist before connected
+            TcpClient client = new TcpClient();
+            tcpConfig.ApplyTo(client);
+
+            // create connection object here so dispose correctly disconnects on failed connect
+            conn = new Connection(client, AfterConnectionDisposed);
+
             Thread receiveThread = new Thread(() => ConnectAndReceiveLoop(serverAddress));
             receiveThread.IsBackground = true;
             receiveThread.Start();
@@ -35,11 +42,8 @@ namespace Mirror.SimpleWeb
         {
             try
             {
-                TcpClient client = new TcpClient();
-                tcpConfig.ApplyTo(client);
-
-                // create connection object here so dispose correctly disconnects on failed connect
-                conn = new Connection(client, AfterConnectionDisposed);
+                // connection created above
+                TcpClient client = conn.client;
                 conn.receiveThread = Thread.CurrentThread;
 
                 try

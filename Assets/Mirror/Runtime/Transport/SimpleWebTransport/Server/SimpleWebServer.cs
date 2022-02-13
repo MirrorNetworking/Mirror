@@ -52,6 +52,7 @@ namespace Mirror.SimpleWeb
                 server.Send(id, buffer);
             }
         }
+
         public void SendOne(int connectionId, ArraySegment<byte> source)
         {
             ArrayBuffer buffer = bufferPool.Take(source.Count);
@@ -70,12 +71,25 @@ namespace Mirror.SimpleWeb
             return server.GetClientAddress(connectionId);
         }
 
+        /// <summary>
+        /// Processes all new messages
+        /// </summary>
+        public void ProcessMessageQueue()
+        {
+            ProcessMessageQueue(null);
+        }
+
+        /// <summary>
+        /// Processes all messages while <paramref name="behaviour"/> is enabled
+        /// </summary>
+        /// <param name="behaviour"></param>
         public void ProcessMessageQueue(MonoBehaviour behaviour)
         {
             int processedCount = 0;
+            bool skipEnabled = behaviour == null;
             // check enabled every time in case behaviour was disabled after data
             while (
-                behaviour.enabled &&
+                (skipEnabled || behaviour.enabled) &&
                 processedCount < maxMessagesPerTick &&
                 // Dequeue last
                 server.receiveQueue.TryDequeue(out Message next)
