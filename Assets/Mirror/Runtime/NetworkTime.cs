@@ -102,7 +102,7 @@ namespace Mirror
         // executed at the server when we receive a ping message
         // reply with a pong containing the time from the client
         // and time from the server
-        internal static void OnServerPing(NetworkConnection conn, NetworkPingMessage message)
+        internal static void OnServerPing(NetworkConnectionToClient conn, NetworkPingMessage message)
         {
             // Debug.Log($"OnPingServerMessage conn:{conn}");
             NetworkPongMessage pongMessage = new NetworkPongMessage

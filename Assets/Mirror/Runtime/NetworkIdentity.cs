@@ -98,7 +98,7 @@ namespace Mirror
         /// <summary>The set of network connections (players) that can see this object.</summary>
         // note: null until OnStartServer was called. this is necessary for
         //       SendTo* to work properly in server-only mode.
-        public Dictionary<int, NetworkConnection> observers;
+        public Dictionary<int, NetworkConnectionToClient> observers;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId { get; internal set; }
@@ -118,6 +118,7 @@ namespace Mirror
         internal bool destroyCalled;
 
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
+        // TODO change to NetworkConnectionToServer, but might cause some breaking
         public NetworkConnection connectionToServer { get; internal set; }
 
         /// <summary>Server's network connection to the client. This is only valid for client-owned objects (including the Player object) on the server.</summary>
@@ -263,7 +264,7 @@ namespace Mirror
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
         // used when adding players
-        internal void SetClientOwner(NetworkConnection conn)
+        internal void SetClientOwner(NetworkConnectionToClient conn)
         {
             // do nothing if it already has an owner
             if (connectionToClient != null && conn != connectionToClient)
@@ -273,7 +274,7 @@ namespace Mirror
             }
 
             // otherwise set the owner connection
-            connectionToClient = (NetworkConnectionToClient)conn;
+            connectionToClient = conn;
         }
 
         static uint nextNetworkId = 1;
@@ -283,7 +284,7 @@ namespace Mirror
         public static void ResetNextNetworkId() => nextNetworkId = 1;
 
         /// <summary>The delegate type for the clientAuthorityCallback.</summary>
-        public delegate void ClientAuthorityCallback(NetworkConnection conn, NetworkIdentity identity, bool authorityState);
+        public delegate void ClientAuthorityCallback(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState);
 
         /// <summary> A callback that can be populated to be notified when the client-authority state of objects changes.</summary>
         public static event ClientAuthorityCallback clientAuthorityCallback;
@@ -635,7 +636,7 @@ namespace Mirror
             }
 
             netId = GetNextNetworkId();
-            observers = new Dictionary<int, NetworkConnection>();
+            observers = new Dictionary<int, NetworkConnectionToClient>();
 
             //Debug.Log($"OnStartServer {this} NetId:{netId} SceneId:{sceneId:X}");
 
@@ -949,9 +950,13 @@ namespace Mirror
         // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
         internal NetworkIdentitySerialization GetSerializationAtTick(int tick)
         {
-            // reserialize if tick is different than last changed.
+            // only rebuild serialization once per tick. reuse otherwise.
+            // except for tests, where Time.frameCount never increases.
+            // so during tests, we always rebuild.
+            // (otherwise [SyncVar] changes would never be serialized in tests)
+            //
             // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick)
+            if (lastSerialization.tick != tick || !Application.isPlaying)
             {
                 // reset
                 lastSerialization.ownerWriter.Position = 0;
@@ -1079,7 +1084,7 @@ namespace Mirror
             }
         }
 
-        internal void AddObserver(NetworkConnection conn)
+        internal void AddObserver(NetworkConnectionToClient conn)
         {
             if (observers == null)
             {
@@ -1135,7 +1140,7 @@ namespace Mirror
         {
             if (observers != null)
             {
-                foreach (NetworkConnection conn in observers.Values)
+                foreach (NetworkConnectionToClient conn in observers.Values)
                 {
                     conn.RemoveFromObserving(this, true);
                 }
@@ -1152,7 +1157,7 @@ namespace Mirror
         // Authority can be removed with RemoveClientAuthority. Only one client
         // can own an object at any time. This does not need to be called for
         // player objects, as their authority is setup automatically.
-        public bool AssignClientAuthority(NetworkConnection conn)
+        public bool AssignClientAuthority(NetworkConnectionToClient conn)
         {
             if (!isServer)
             {

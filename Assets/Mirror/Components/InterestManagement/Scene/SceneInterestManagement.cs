@@ -51,7 +51,7 @@ namespace Mirror
             {
                 Scene currentScene = lastObjectScene[identity];
                 Scene newScene = identity.gameObject.scene;
-                if (newScene == currentScene) 
+                if (newScene == currentScene)
                     continue;
 
                 // Mark new/old scenes as dirty so they get rebuilt
@@ -89,12 +89,12 @@ namespace Mirror
                     NetworkServer.RebuildObservers(netIdentity, false);
         }
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             return identity.gameObject.scene == newObserver.identity.gameObject.scene;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
         {
             if (!sceneObjects.TryGetValue(identity.gameObject.scene, out HashSet<NetworkIdentity> objects))
                 return;

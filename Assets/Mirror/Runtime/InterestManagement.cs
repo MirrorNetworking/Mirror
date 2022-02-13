@@ -35,7 +35,7 @@ namespace Mirror
         // the network connection will be added as an observer.
         //   conn: Network connection of a player.
         //   returns True if the player can see this object.
-        public abstract bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver);
+        public abstract bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver);
 
         // rebuild observers for the given NetworkIdentity.
         // Server will automatically spawn/despawn added/removed ones.
@@ -54,7 +54,7 @@ namespace Mirror
         //
         // Mirror maintains .observing automatically in the background. best of
         // both worlds without any worrying now!
-        public abstract void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize);
+        public abstract void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize);
 
         // helper function to trigger a full rebuild.
         // most implementations should call this in a certain interval.

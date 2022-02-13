@@ -73,7 +73,7 @@ namespace Mirror.Authenticators
         /// </summary>
         /// <param name="conn">Connection to client.</param>
         /// <param name="msg">The message payload</param>
-        public void OnAuthRequestMessage(NetworkConnection conn, AuthRequestMessage msg)
+        public void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
         {
             //Debug.Log($"Authentication Request: {msg.authUsername} {msg.authPassword}");
 

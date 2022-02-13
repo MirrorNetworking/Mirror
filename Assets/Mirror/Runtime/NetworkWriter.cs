@@ -470,7 +470,6 @@ namespace Mirror
             writer.WriteBytes(data, 0, data.Length);
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
         {
@@ -478,7 +477,6 @@ namespace Mirror
             if (value.HasValue)
                 writer.WriteGuid(value.Value);
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteNetworkIdentity(this NetworkWriter writer, NetworkIdentity value)
@@ -491,7 +489,6 @@ namespace Mirror
             writer.WriteUInt(value.netId);
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteNetworkBehaviour(this NetworkWriter writer, NetworkBehaviour value)
         {
@@ -503,7 +500,6 @@ namespace Mirror
             writer.WriteUInt(value.netId);
             writer.WriteByte((byte)value.ComponentIndex);
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteTransform(this NetworkWriter writer, Transform value)
@@ -525,7 +521,6 @@ namespace Mirror
             }
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteGameObject(this NetworkWriter writer, GameObject value)
         {
@@ -546,7 +541,6 @@ namespace Mirror
             }
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
@@ -559,7 +553,6 @@ namespace Mirror
             for (int i = 0; i < list.Count; i++)
                 writer.Write(list[i]);
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteArray<T>(this NetworkWriter writer, T[] array)

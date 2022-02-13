@@ -52,10 +52,11 @@ namespace Mirror
         public uint netId => netIdentity.netId;
 
         /// <summary>Client's network connection to the server. This is only valid for player objects on the client.</summary>
+        // TODO change to NetworkConnectionToServer, but might cause some breaking
         public NetworkConnection connectionToServer => netIdentity.connectionToServer;
 
         /// <summary>Server's network connection to the client. This is only valid for player objects on the server.</summary>
-        public NetworkConnection connectionToClient => netIdentity.connectionToClient;
+        public NetworkConnectionToClient connectionToClient => netIdentity.connectionToClient;
 
         // SyncLists, SyncSets, etc.
         protected readonly List<SyncObject> syncObjects = new List<SyncObject>();
@@ -364,6 +365,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
@@ -389,6 +392,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
@@ -414,6 +419,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
@@ -440,6 +447,8 @@ namespace Mirror
                 // call hook (if any)
                 if (OnChanged != null)
                 {
+                    // in host mode, setting a SyncVar calls the hook directly.
+                    // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
                     if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))

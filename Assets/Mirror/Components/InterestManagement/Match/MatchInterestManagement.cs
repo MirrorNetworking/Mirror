@@ -116,18 +116,28 @@ namespace Mirror
                     NetworkServer.RebuildObservers(netIdentity, false);
         }
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnection newObserver)
+        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
+            // Never observed if no NetworkMatch component
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch identityNetworkMatch))
                 return false;
 
+            // Guid.Empty is never a valid matchId
+            if (identityNetworkMatch.matchId == Guid.Empty)
+                return false;
+
+            // Never observed if no NetworkMatch component
             if (!newObserver.identity.TryGetComponent<NetworkMatch>(out NetworkMatch newObserverNetworkMatch))
+                return false;
+
+            // Guid.Empty is never a valid matchId
+            if (newObserverNetworkMatch.matchId == Guid.Empty)
                 return false;
 
             return identityNetworkMatch.matchId == newObserverNetworkMatch.matchId;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnection> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
         {
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                 return;
@@ -135,7 +145,7 @@ namespace Mirror
             Guid matchId = networkMatch.matchId;
 
             // Guid.Empty is never a valid matchId
-            if (matchId == Guid.Empty) 
+            if (matchId == Guid.Empty)
                 return;
 
             if (!matchObjects.TryGetValue(matchId, out HashSet<NetworkIdentity> objects))

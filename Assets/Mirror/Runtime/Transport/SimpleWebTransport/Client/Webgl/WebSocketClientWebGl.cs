@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AOT;
 
 namespace Mirror.SimpleWeb
@@ -12,6 +13,15 @@ namespace Mirror.SimpleWeb
         /// key for instances sent between c# and js
         /// </summary>
         int index;
+
+        /// <summary>
+        /// Queue for messages sent by high level while still connecting, they will be sent after onOpen is called.
+        /// <para>
+        ///     This is a workaround for anything that calls Send immediately after Connect.
+        ///     Without this the JS websocket will give errors.
+        /// </para>
+        /// </summary>
+        Queue<byte[]> ConnectingSendQueue;
 
         internal WebSocketClientWebGl(int maxMessageSize, int maxMessagesPerTick) : base(maxMessageSize, maxMessagesPerTick)
         {
@@ -44,13 +54,32 @@ namespace Mirror.SimpleWeb
                 return;
             }
 
-            SimpleWebJSLib.Send(index, segment.Array, 0, segment.Count);
+            if (state == ClientState.Connected)
+            {
+                SimpleWebJSLib.Send(index, segment.Array, segment.Offset, segment.Count);
+            }
+            else
+            {
+                if (ConnectingSendQueue == null)
+                    ConnectingSendQueue = new Queue<byte[]>();
+                ConnectingSendQueue.Enqueue(segment.ToArray());
+            }
         }
 
         void onOpen()
         {
             receiveQueue.Enqueue(new Message(EventType.Connected));
             state = ClientState.Connected;
+
+            if (ConnectingSendQueue != null)
+            {
+                while (ConnectingSendQueue.Count > 0)
+                {
+                    byte[] next = ConnectingSendQueue.Dequeue();
+                    SimpleWebJSLib.Send(index, next, 0, next.Length);
+                }
+                ConnectingSendQueue = null;
+            }
         }
 
         void onClose()

@@ -112,8 +112,7 @@ namespace Mirror
         /// <summary>True if the client loaded a new scene when connecting to the server.</summary>
         // This is set before OnClientConnect is called, so it can be checked
         // there to perform different logic if a scene load occurred.
-        [NonSerialized]
-        public bool clientLoadedScene;
+        protected bool clientLoadedScene;
 
         // helper enum to know if we started the networkmanager as server/client/host.
         // -> this is necessary because when StartHost changes server scene to
@@ -1091,7 +1090,7 @@ namespace Mirror
             }
         }
 
-        void OnServerConnectInternal(NetworkConnection conn)
+        void OnServerConnectInternal(NetworkConnectionToClient conn)
         {
             //Debug.Log("NetworkManager.OnServerConnectInternal");
 
@@ -1109,7 +1108,7 @@ namespace Mirror
 
         // called after successful authentication
         // TODO do the NetworkServer.OnAuthenticated thing from x branch
-        void OnServerAuthenticated(NetworkConnection conn)
+        void OnServerAuthenticated(NetworkConnectionToClient conn)
         {
             //Debug.Log("NetworkManager.OnServerAuthenticated");
 
@@ -1126,13 +1125,13 @@ namespace Mirror
             OnServerConnect(conn);
         }
 
-        void OnServerReadyMessageInternal(NetworkConnection conn, ReadyMessage msg)
+        void OnServerReadyMessageInternal(NetworkConnectionToClient conn, ReadyMessage msg)
         {
             //Debug.Log("NetworkManager.OnServerReadyMessageInternal");
             OnServerReady(conn);
         }
 
-        void OnServerAddPlayerInternal(NetworkConnection conn, AddPlayerMessage msg)
+        void OnServerAddPlayerInternal(NetworkConnectionToClient conn, AddPlayerMessage msg)
         {
             //Debug.Log("NetworkManager.OnServerAddPlayer");
 
@@ -1231,11 +1230,11 @@ namespace Mirror
         }
 
         /// <summary>Called on the server when a new client connects.</summary>
-        public virtual void OnServerConnect(NetworkConnection conn) {}
+        public virtual void OnServerConnect(NetworkConnectionToClient conn) {}
 
         /// <summary>Called on the server when a client disconnects.</summary>
         // Called by NetworkServer.OnTransportDisconnect!
-        public virtual void OnServerDisconnect(NetworkConnection conn)
+        public virtual void OnServerDisconnect(NetworkConnectionToClient conn)
         {
             // by default, this function destroys the connection's player.
             // can be overwritten for cases like delayed logouts in MMOs to
@@ -1245,7 +1244,7 @@ namespace Mirror
         }
 
         /// <summary>Called on the server when a client is ready (= loaded the scene)</summary>
-        public virtual void OnServerReady(NetworkConnection conn)
+        public virtual void OnServerReady(NetworkConnectionToClient conn)
         {
             if (conn.identity == null)
             {
@@ -1257,7 +1256,7 @@ namespace Mirror
 
         /// <summary>Called on server when a client requests to add the player. Adds playerPrefab by default. Can be overwritten.</summary>
         // The default implementation for this function creates a new player object from the playerPrefab.
-        public virtual void OnServerAddPlayer(NetworkConnection conn)
+        public virtual void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
             Transform startPos = GetStartPosition();
             GameObject player = startPos != null
@@ -1271,7 +1270,7 @@ namespace Mirror
         }
 
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
-        public virtual void OnServerError(NetworkConnection conn, Exception exception) {}
+        public virtual void OnServerError(NetworkConnectionToClient conn, Exception exception) {}
 
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}

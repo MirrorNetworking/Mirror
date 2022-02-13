@@ -88,7 +88,7 @@ public class #SCRIPTNAME# : NetworkTransformBase
     /// <summary>
     /// Called by both CmdTeleport and RpcTeleport on server and clients, respectively.
     /// Here you can disable a Character Controller before calling the base method,
-    /// and re-enabling it after the base method call to avoid conflicting with it.
+    /// and re-enable it after the base method call to avoid conflicting with it.
     /// </summary>
     protected override void OnTeleport(Vector3 destination)
     {
@@ -96,9 +96,9 @@ public class #SCRIPTNAME# : NetworkTransformBase
     }
 
     /// <summary>
-    /// Called by both CmdTeleportAndRotate and RpcTeleportAndRotate on server and clients, respectively.
+    /// Called by both CmdTeleport and RpcTeleport on server and clients, respectively.
     /// Here you can disable a Character Controller before calling the base method,
-    /// and re-enabling it after the base method call to avoid conflicting with it.
+    /// and re-enable it after the base method call to avoid conflicting with it.
     /// </summary>
     protected override void OnTeleport(Vector3 destination, Quaternion rotation)
     {
