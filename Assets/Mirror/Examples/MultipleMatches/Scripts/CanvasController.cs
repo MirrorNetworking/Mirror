@@ -224,7 +224,7 @@ namespace Mirror.Examples.MultipleMatch
             }
             else
             {
-                foreach (var waiter in waitingConnections)
+                foreach (NetworkConnectionToClient waiter in waitingConnections)
                 {
                     waiter.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.List, matchInfos = openMatches.Values.ToArray() });
                 }
