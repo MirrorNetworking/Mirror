@@ -207,8 +207,20 @@ namespace Mirror.Weaver
                 // IL_000b: ldftn instance void Mirror.Examples.Tanks.Tank::ExampleHook(int32, int32)
                 // IL_0011: newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
 
-                // this.
-                worker.Emit(OpCodes.Ldarg_0);
+                // we support static hook sand instance hooks.
+                if (hookMethod.IsStatic)
+                {
+                    // for static hooks, we need to push 'null' first.
+                    // we can't just push nothing.
+                    // stack would get out of balance because we already pushed
+                    // other stuff above.
+                    worker.Emit(OpCodes.Ldnull);
+                }
+                else
+                {
+                    // for instance hooks, we need to push 'this.' first.
+                    worker.Emit(OpCodes.Ldarg_0);
+                }
 
                 // the function
                 worker.Emit(OpCodes.Ldftn, hookMethod);
