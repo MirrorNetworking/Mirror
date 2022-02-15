@@ -222,8 +222,18 @@ namespace Mirror.Weaver
                     worker.Emit(OpCodes.Ldarg_0);
                 }
 
-                // the function
-                worker.Emit(OpCodes.Ldftn, hookMethod);
+                // we support regular and virtual hook functions.
+                if (hookMethod.IsVirtual)
+                {
+                    // for virtual / overwritten hooks, we need different IL.
+                    // this is from simply testing Action = VirtualHook; in C#.
+                    worker.Emit(OpCodes.Dup);
+                    worker.Emit(OpCodes.Ldvirtftn, hookMethod);
+                }
+                else
+                {
+                    worker.Emit(OpCodes.Ldftn, hookMethod);
+                }
 
                 // call 'new Action<T,T>()' constructor to convert the function to an action
                 // we need to make an instance of the generic Action<T,T>.
