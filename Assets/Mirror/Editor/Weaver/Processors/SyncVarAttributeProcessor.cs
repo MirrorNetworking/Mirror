@@ -46,6 +46,53 @@ namespace Mirror.Weaver
             return FindHookMethod(td, syncVar, hookFunctionName, ref WeavingFailed);
         }
 
+        // push hook from GetHookMethod() onto the stack as a new Action<T,T>.
+        // allows for reuse without handling static/virtual cases every time.
+        public void GenerateNewActionFromHookMethod(FieldDefinition syncVar, ILProcessor worker, MethodDefinition hookMethod)
+        {
+            // IL_000a: ldarg.0
+            // IL_000b: ldftn instance void Mirror.Examples.Tanks.Tank::ExampleHook(int32, int32)
+            // IL_0011: newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
+
+            // we support static hook sand instance hooks.
+            if (hookMethod.IsStatic)
+            {
+                // for static hooks, we need to push 'null' first.
+                // we can't just push nothing.
+                // stack would get out of balance because we already pushed
+                // other stuff above.
+                worker.Emit(OpCodes.Ldnull);
+            }
+            else
+            {
+                // for instance hooks, we need to push 'this.' first.
+                worker.Emit(OpCodes.Ldarg_0);
+            }
+
+            // we support regular and virtual hook functions.
+            if (hookMethod.IsVirtual)
+            {
+                // for virtual / overwritten hooks, we need different IL.
+                // this is from simply testing Action = VirtualHook; in C#.
+                worker.Emit(OpCodes.Dup);
+                worker.Emit(OpCodes.Ldvirtftn, hookMethod);
+            }
+            else
+            {
+                worker.Emit(OpCodes.Ldftn, hookMethod);
+            }
+
+            // call 'new Action<T,T>()' constructor to convert the function to an action
+            // we need to make an instance of the generic Action<T,T>.
+            //
+            // TODO this allocates a new 'Action' for every SyncVar hook call.
+            //      we should allocate it once and store it somewhere in the future.
+            //      hooks are only called on the client though, so it's not too bad for now.
+            TypeReference actionRef = assembly.MainModule.ImportReference(typeof(Action<,>));
+            GenericInstanceType genericInstance = actionRef.MakeGenericInstanceType(syncVar.FieldType, syncVar.FieldType);
+            worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+        }
+
         MethodDefinition FindHookMethod(TypeDefinition td, FieldDefinition syncVar, string hookFunctionName, ref bool WeavingFailed)
         {
             List<MethodDefinition> methods = td.GetMethods(hookFunctionName);
@@ -199,54 +246,17 @@ namespace Mirror.Weaver
             // push the dirty bit for this SyncVar
             worker.Emit(OpCodes.Ldc_I8, dirtyBit);
 
-            // hook?
+            // hook? then push 'new Action<T,T>(Hook)' onto stack
             MethodDefinition hookMethod = GetHookMethod(td, fd, ref WeavingFailed);
             if (hookMethod != null)
             {
-                // IL_000a: ldarg.0
-                // IL_000b: ldftn instance void Mirror.Examples.Tanks.Tank::ExampleHook(int32, int32)
-                // IL_0011: newobj instance void class [netstandard]System.Action`2<int32, int32>::.ctor(object, native int)
-
-                // we support static hook sand instance hooks.
-                if (hookMethod.IsStatic)
-                {
-                    // for static hooks, we need to push 'null' first.
-                    // we can't just push nothing.
-                    // stack would get out of balance because we already pushed
-                    // other stuff above.
-                    worker.Emit(OpCodes.Ldnull);
-                }
-                else
-                {
-                    // for instance hooks, we need to push 'this.' first.
-                    worker.Emit(OpCodes.Ldarg_0);
-                }
-
-                // we support regular and virtual hook functions.
-                if (hookMethod.IsVirtual)
-                {
-                    // for virtual / overwritten hooks, we need different IL.
-                    // this is from simply testing Action = VirtualHook; in C#.
-                    worker.Emit(OpCodes.Dup);
-                    worker.Emit(OpCodes.Ldvirtftn, hookMethod);
-                }
-                else
-                {
-                    worker.Emit(OpCodes.Ldftn, hookMethod);
-                }
-
-                // call 'new Action<T,T>()' constructor to convert the function to an action
-                // we need to make an instance of the generic Action<T,T>.
-                //
-                // TODO this allocates a new 'Action' for every SyncVar hook call.
-                //      we should allocate it once and store it somewhere in the future.
-                //      hooks are only called on the client though, so it's not too bad for now.
-                TypeReference actionRef = assembly.MainModule.ImportReference(typeof(Action<,>));
-                GenericInstanceType genericInstance = actionRef.MakeGenericInstanceType(fd.FieldType, fd.FieldType);
-                worker.Emit(OpCodes.Newobj, weaverTypes.ActionT_T.MakeHostInstanceGeneric(assembly.MainModule, genericInstance));
+                GenerateNewActionFromHookMethod(fd, worker, hookMethod);
             }
-            // pass 'null' as hook
-            else worker.Emit(OpCodes.Ldnull);
+            // otherwise push 'null' as hook
+            else
+            {
+                worker.Emit(OpCodes.Ldnull);
+            }
 
             // call GeneratedSyncVarSetter<T>.
             // special cases for GameObject/NetworkIdentity/NetworkBehaviour
