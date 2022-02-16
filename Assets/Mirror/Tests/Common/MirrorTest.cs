@@ -1,4 +1,5 @@
 // base class for networking tests to make things easier.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -182,9 +183,8 @@ namespace Mirror.Tests
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
 
-            // double check that client object's isClient is really true!
-            // previously a test magically failed because isClient was false
-            // even though it should've been true!
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
             Assert.That(clientIdentity.isClient, Is.True);
 
             // double check that we have authority if we passed an owner connection
@@ -242,9 +242,8 @@ namespace Mirror.Tests
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
 
-            // double check that client object's isClient is really true!
-            // previously a test magically failed because isClient was false
-            // even though it should've been true!
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
             Assert.That(clientIdentity.isClient, Is.True);
 
             // double check that we have authority if we passed an owner connection
@@ -307,9 +306,8 @@ namespace Mirror.Tests
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
 
-            // double check that client object's isClient is really true!
-            // previously a test magically failed because isClient was false
-            // even though it should've been true!
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
             Assert.That(clientIdentity.isClient, Is.True);
 
             // double check that we have authority if we passed an owner connection
@@ -378,9 +376,8 @@ namespace Mirror.Tests
             NetworkServer.Spawn(serverGO, ownerConnection);
             ProcessMessages();
 
-            // double check that client object's isClient is really true!
-            // previously a test magically failed because isClient was false
-            // even though it should've been true!
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
             Assert.That(clientIdentity.isClient, Is.True);
 
             // double check that we have authority if we passed an owner connection
@@ -445,6 +442,10 @@ namespace Mirror.Tests
             NetworkServer.AddPlayerForConnection(ownerConnection, serverGO);
             ProcessMessages();
 
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
+
             // make sure the client really spawned it.
             Assert.That(clientGO.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
@@ -507,14 +508,13 @@ namespace Mirror.Tests
             NetworkServer.AddPlayerForConnection(ownerConnection, serverGO);
             ProcessMessages();
 
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
+
             // make sure the client really spawned it.
             Assert.That(clientGO.activeSelf, Is.True);
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
-
-            // double check that client object's isClient is really true!
-            // previously a test magically failed because isClient was false
-            // even though it should've been true!
-            Assert.That(clientIdentity.isClient, Is.True);
         }
 
         // fully connect client to local server
