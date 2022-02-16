@@ -163,29 +163,27 @@ namespace Mirror.Tests
         [Test]
         public void SerializationMismatch()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SerializeMismatchNetworkBehaviour compMiss,
-                out SerializeTest2NetworkBehaviour comp);
+            // create spawned so that isServer/isClient is set properly
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SerializeMismatchNetworkBehaviour serverCompMiss, out SerializeTest2NetworkBehaviour serverComp,
+                out _, out NetworkIdentity clientIdentity, out SerializeMismatchNetworkBehaviour clientCompMiss, out SerializeTest2NetworkBehaviour clientComp);
 
-            // set some unique values to serialize
-            comp.value = "42";
+            // set some unique values on server component to serialize
+            serverComp.value = "42";
 
-            // serialize
-            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            // serialize server object
+            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
-            // reset component values
-            comp.value = null;
-
-            // deserialize all
-            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            // warning log because of serialization mismatch
+            // deserialize on client
+            // ignore warning log because of serialization mismatch
             LogAssert.ignoreFailingMessages = true;
-            identity.OnDeserializeAllSafely(reader, true);
+            NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
+            clientIdentity.OnDeserializeAllSafely(reader, true);
             LogAssert.ignoreFailingMessages = false;
 
             // the mismatch component will fail, but the one before and after
             // should still work fine. that's the whole point.
-            Assert.That(comp.value, Is.EqualTo("42"));
+            Assert.That(clientComp.value, Is.EqualTo("42"));
         }
     }
 }
