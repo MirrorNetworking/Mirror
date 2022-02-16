@@ -138,7 +138,7 @@ namespace Mirror
         public byte ReadByte() => ReadBlittable<byte>();
 
         /// <summary>Read 'count' bytes into the bytes array</summary>
-        // TODO why does this also return bytes[]???
+        // NOTE: returns byte[] because all reader functions return something.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte[] ReadBytes(byte[] bytes, int count)
         {
@@ -147,9 +147,14 @@ namespace Mirror
             {
                 throw new EndOfStreamException($"ReadBytes can't read {count} + bytes because the passed byte[] only has length {bytes.Length}");
             }
+            // check if within buffer limits
+            if (Position + count > buffer.Count)
+            {
+                throw new EndOfStreamException($"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}");
+            }
 
-            ArraySegment<byte> data = ReadBytesSegment(count);
-            Array.Copy(data.Array, data.Offset, bytes, 0, count);
+            Array.Copy(buffer.Array, buffer.Offset + Position, bytes, 0, count);
+            Position += count;
             return bytes;
         }
 
