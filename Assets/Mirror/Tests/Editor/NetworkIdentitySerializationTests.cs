@@ -25,46 +25,38 @@ namespace Mirror.Tests
         [Test]
         public void OnSerializeAndDeserializeAllSafely()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SerializeTest1NetworkBehaviour comp1,
-                out SerializeTest2NetworkBehaviour comp2);
+            // need two of both versions so we can serialize -> deserialize
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp1, out SerializeTest2NetworkBehaviour serverComp2,
+                out _, out NetworkIdentity clientIdentity, out SerializeTest1NetworkBehaviour clientComp1, out SerializeTest2NetworkBehaviour clientComp2
+            );
 
-            // set some unique values to serialize
-            comp1.value = 12345;
-            comp1.syncMode = SyncMode.Observers;
-            comp2.value = "67890";
-            comp2.syncMode = SyncMode.Owner;
+            // set sync modes
+            serverComp1.syncMode = clientComp1.syncMode = SyncMode.Observers;
+            serverComp2.syncMode = clientComp2.syncMode = SyncMode.Owner;
 
-            // serialize all
-            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            // set unique values on server components
+            serverComp1.value = 42;
+            serverComp2.value = "42";
 
-            // owner & observers should have written something
-            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
-            Assert.That(observersWriter.Position, Is.GreaterThan(0));
-            Debug.Log($"ownerWriter: {BitConverter.ToString(ownerWriter.ToArray())}");
-            Debug.Log($"observersWriter: {BitConverter.ToString(observersWriter.ToArray())}");
+            // serialize server object
+            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
-            // reset component values
-            comp1.value = 0;
-            comp2.value = null;
-
-            // deserialize all for owner
+            // deserialize client object with OWNER payload
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            identity.OnDeserializeAllSafely(reader, true);
-            Assert.That(comp1.value, Is.EqualTo(12345));
-            Assert.That(comp2.value, Is.EqualTo("67890"));
+            clientIdentity.OnDeserializeAllSafely(reader, true);
+            Assert.That(clientComp1.value, Is.EqualTo(42));
+            Assert.That(clientComp2.value, Is.EqualTo("42"));
 
             // reset component values
-            comp1.value = 0;
-            comp2.value = null;
+            clientComp1.value = 0;
+            clientComp2.value = null;
 
-            // deserialize all for observers
+            // deserialize client object with OBSERVERS payload
             reader = new NetworkReader(observersWriter.ToArray());
-            identity.OnDeserializeAllSafely(reader, true);
-            // observers mode, should be in data
-            Assert.That(comp1.value, Is.EqualTo(12345));
-            // owner mode, should not be in data
-            Assert.That(comp2.value, Is.EqualTo(null));
+            clientIdentity.OnDeserializeAllSafely(reader, true);
+            Assert.That(clientComp1.value, Is.EqualTo(42)); // observers mode should be in data
+            Assert.That(clientComp2.value, Is.EqualTo(null)); // owner mode shouldn't be in data
         }
 
         // serialization should work even if a component throws an exception.
