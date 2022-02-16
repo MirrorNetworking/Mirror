@@ -159,7 +159,7 @@ namespace Mirror.Tests
                 out SerializeTest2NetworkBehaviour comp);
 
             // set some unique values to serialize
-            comp.value = "67890";
+            comp.value = "42";
 
             // serialize
             identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
@@ -176,7 +176,7 @@ namespace Mirror.Tests
 
             // the mismatch component will fail, but the one before and after
             // should still work fine. that's the whole point.
-            Assert.That(comp.value, Is.EqualTo("67890"));
+            Assert.That(comp.value, Is.EqualTo("42"));
         }
     }
 }
