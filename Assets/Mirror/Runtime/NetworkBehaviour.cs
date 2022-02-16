@@ -549,6 +549,253 @@ namespace Mirror
             return newNetId == netIdField;
         }
 
+        // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
+        //
+        // before:
+        //  public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //  {
+        //      base.DeserializeSyncVars(reader, initialState);
+        //      if (initialState)
+        //      {
+        //          int num = health;
+        //          Networkhealth = reader.ReadInt();
+        //          if (!NetworkBehaviour.SyncVarEqual(num, ref health))
+        //          {
+        //              OnChanged(num, health);
+        //          }
+        //          return;
+        //      }
+        //      long num2 = (long)reader.ReadULong();
+        //      if ((num2 & 1L) != 0L)
+        //      {
+        //          int num3 = health;
+        //          Networkhealth = reader.ReadInt();
+        //          if (!NetworkBehaviour.SyncVarEqual(num3, ref health))
+        //          {
+        //              OnChanged(num3, health);
+        //          }
+        //      }
+        //  }
+        //
+        // after:
+        //
+        //  public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //  {
+        //      base.DeserializeSyncVars(reader, initialState);
+        //      if (initialState)
+        //      {
+        //          GeneratedSyncVarDeserialize(reader, ref health, null, reader.ReadInt());
+        //          return;
+        //      }
+        //      long num = (long)reader.ReadULong();
+        //      if ((num & 1L) != 0L)
+        //      {
+        //          GeneratedSyncVarDeserialize(reader, ref health, null, reader.ReadInt());
+        //      }
+        //  }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarDeserialize<T>(ref T field, Action<T, T> OnChanged, T value)
+        {
+            T previous = field;
+            field = value;
+
+            // any hook? then call if changed.
+            if (OnChanged != null && !SyncVarEqual(previous, ref field))
+            {
+                OnChanged(previous, field);
+            }
+        }
+
+        // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
+        //
+        // before:
+        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //   {
+        //       base.DeserializeSyncVars(reader, initialState);
+        //       if (initialState)
+        //       {
+        //           uint __targetNetId = ___targetNetId;
+        //           GameObject networktarget = Networktarget;
+        //           ___targetNetId = reader.ReadUInt();
+        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId, ref ___targetNetId))
+        //           {
+        //               OnChangedNB(networktarget, Networktarget);
+        //           }
+        //           return;
+        //       }
+        //       long num = (long)reader.ReadULong();
+        //       if ((num & 1L) != 0L)
+        //       {
+        //           uint __targetNetId2 = ___targetNetId;
+        //           GameObject networktarget2 = Networktarget;
+        //           ___targetNetId = reader.ReadUInt();
+        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId2, ref ___targetNetId))
+        //           {
+        //               OnChangedNB(networktarget2, Networktarget);
+        //           }
+        //       }
+        //   }
+        //
+        // after:
+        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //   {
+        //       base.DeserializeSyncVars(reader, initialState);
+        //       if (initialState)
+        //       {
+        //           GeneratedSyncVarDeserialize_GameObject(reader, ref target, OnChangedNB, ref ___targetNetId);
+        //           return;
+        //       }
+        //       long num = (long)reader.ReadULong();
+        //       if ((num & 1L) != 0L)
+        //       {
+        //           GeneratedSyncVarDeserialize_GameObject(reader, ref target, OnChangedNB, ref ___targetNetId);
+        //       }
+        //   }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarDeserialize_GameObject(ref GameObject field, Action<GameObject, GameObject> OnChanged, NetworkReader reader, ref uint netIdField)
+        {
+            uint previousNetId = netIdField;
+            GameObject previousGameObject = field;
+            netIdField = reader.ReadUInt();
+
+            // get the new GameObject now that netId field is set
+            field = GetSyncVarGameObject(netIdField, ref field);
+
+            // any hook? then call if changed.
+            if (OnChanged != null && !SyncVarEqual(previousNetId, ref netIdField))
+            {
+                OnChanged(previousGameObject, field);
+            }
+        }
+
+        // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
+        //
+        // before:
+        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //   {
+        //       base.DeserializeSyncVars(reader, initialState);
+        //       if (initialState)
+        //       {
+        //           uint __targetNetId = ___targetNetId;
+        //           NetworkIdentity networktarget = Networktarget;
+        //           ___targetNetId = reader.ReadUInt();
+        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId, ref ___targetNetId))
+        //           {
+        //               OnChangedNI(networktarget, Networktarget);
+        //           }
+        //           return;
+        //       }
+        //       long num = (long)reader.ReadULong();
+        //       if ((num & 1L) != 0L)
+        //       {
+        //           uint __targetNetId2 = ___targetNetId;
+        //           NetworkIdentity networktarget2 = Networktarget;
+        //           ___targetNetId = reader.ReadUInt();
+        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId2, ref ___targetNetId))
+        //           {
+        //               OnChangedNI(networktarget2, Networktarget);
+        //           }
+        //       }
+        //   }
+        //
+        // after:
+        //
+        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //   {
+        //       base.DeserializeSyncVars(reader, initialState);
+        //       if (initialState)
+        //       {
+        //           GeneratedSyncVarDeserialize_NetworkIdentity(reader, ref target, OnChangedNI, ref ___targetNetId);
+        //           return;
+        //       }
+        //       long num = (long)reader.ReadULong();
+        //       if ((num & 1L) != 0L)
+        //       {
+        //           GeneratedSyncVarDeserialize_NetworkIdentity(reader, ref target, OnChangedNI, ref ___targetNetId);
+        //       }
+        //   }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarDeserialize_NetworkIdentity(ref NetworkIdentity field, Action<NetworkIdentity, NetworkIdentity> OnChanged, NetworkReader reader, ref uint netIdField)
+        {
+            uint previousNetId = netIdField;
+            NetworkIdentity previousIdentity = field;
+            netIdField = reader.ReadUInt();
+
+            // get the new NetworkIdentity now that netId field is set
+            field = GetSyncVarNetworkIdentity(netIdField, ref field);
+
+            // any hook? then call if changed.
+            if (OnChanged != null && !SyncVarEqual(previousNetId, ref netIdField))
+            {
+                OnChanged(previousIdentity, field);
+            }
+        }
+
+        // move the [SyncVar] generated OnDeserialize C# to avoid much IL.
+        //
+        // before:
+        //
+        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //   {
+        //       base.DeserializeSyncVars(reader, initialState);
+        //       if (initialState)
+        //       {
+        //           NetworkBehaviourSyncVar __targetNetId = ___targetNetId;
+        //           Tank networktarget = Networktarget;
+        //           ___targetNetId = reader.ReadNetworkBehaviourSyncVar();
+        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId, ref ___targetNetId))
+        //           {
+        //               OnChangedNB(networktarget, Networktarget);
+        //           }
+        //           return;
+        //       }
+        //       long num = (long)reader.ReadULong();
+        //       if ((num & 1L) != 0L)
+        //       {
+        //           NetworkBehaviourSyncVar __targetNetId2 = ___targetNetId;
+        //           Tank networktarget2 = Networktarget;
+        //           ___targetNetId = reader.ReadNetworkBehaviourSyncVar();
+        //           if (!NetworkBehaviour.SyncVarEqual(__targetNetId2, ref ___targetNetId))
+        //           {
+        //               OnChangedNB(networktarget2, Networktarget);
+        //           }
+        //       }
+        //   }
+        //
+        // after:
+        //
+        //   public override void DeserializeSyncVars(NetworkReader reader, bool initialState)
+        //   {
+        //       base.DeserializeSyncVars(reader, initialState);
+        //       if (initialState)
+        //       {
+        //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
+        //           return;
+        //       }
+        //       long num = (long)reader.ReadULong();
+        //       if ((num & 1L) != 0L)
+        //       {
+        //           GeneratedSyncVarDeserialize_NetworkBehaviour(reader, ref target, OnChangedNB, ref ___targetNetId);
+        //       }
+        //   }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GeneratedSyncVarDeserialize_NetworkBehaviour<T>(ref T field, Action<T, T> OnChanged, NetworkReader reader, ref NetworkBehaviourSyncVar netIdField)
+            where T : NetworkBehaviour
+        {
+            NetworkBehaviourSyncVar previousNetId = netIdField;
+            T previousBehaviour = field;
+            netIdField = reader.ReadNetworkBehaviourSyncVar();
+
+            // get the new NetworkBehaviour now that netId field is set
+            field = GetSyncVarNetworkBehaviour(netIdField, ref field);
+
+            // any hook? then call if changed.
+            if (OnChanged != null && !SyncVarEqual(previousNetId, ref netIdField))
+            {
+                OnChanged(previousBehaviour, field);
+            }
+        }
+
         // helper function for [SyncVar] NetworkIdentities.
         // dirtyBit is a mask like 00010
         protected void SetSyncVarNetworkIdentity(NetworkIdentity newIdentity, ref NetworkIdentity identityField, ulong dirtyBit, ref uint netIdField)
