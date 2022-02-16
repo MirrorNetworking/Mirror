@@ -38,6 +38,9 @@ namespace Mirror
             Position = 0;
         }
 
+        // NOTE that our runtime resizing comes at no extra cost because:
+        // 1. 'has space' checks are necessary even for fixed sized writers.
+        // 2. all writers will eventually be large enough to stop resizing.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void EnsureCapacity(int value)
         {
@@ -111,6 +114,9 @@ namespace Mirror
             int size = sizeof(T);
 
             // ensure capacity
+            // NOTE that our runtime resizing comes at no extra cost because:
+            // 1. 'has space' checks are necessary even for fixed sized writers.
+            // 2. all writers will eventually be large enough to stop resizing.
             EnsureCapacity(Position + size);
 
             // write blittable
