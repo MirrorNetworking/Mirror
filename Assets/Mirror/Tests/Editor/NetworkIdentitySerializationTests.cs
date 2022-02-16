@@ -17,6 +17,15 @@ namespace Mirror.Tests
             base.SetUp();
             ownerWriter = new NetworkWriter();
             observersWriter = new NetworkWriter();
+
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out _);
+        }
+
+        [TearDown]
+        public override void TearDown()
+        {
+            base.TearDown();
         }
 
         // serialize -> deserialize. multiple components to be sure.
