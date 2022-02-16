@@ -122,24 +122,33 @@ namespace Mirror.Tests
         [Test]
         public void TooManyComponents()
         {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity);
+            // create spawned so that isServer/isClient is set properly
+            CreateNetworkedAndSpawn(
+                out GameObject serverGO, out NetworkIdentity serverIdentity,
+                out GameObject clientGO, out NetworkIdentity clientIdentity);
 
             // add 65 components
             for (int i = 0; i < 65; ++i)
-                gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
+            {
+                serverGO.AddComponent<SerializeTest1NetworkBehaviour>();
+                clientGO.AddComponent<SerializeTest1NetworkBehaviour>();
+            }
 
             // CreateNetworked already initializes the components.
             // let's reset and initialize again with the added ones.
-            identity.Reset();
-            identity.Awake();
+            serverIdentity.Reset();
+            clientIdentity.Reset();
+            serverIdentity.Awake();
+            clientIdentity.Awake();
 
             // ignore error from creating cache (has its own test)
             LogAssert.ignoreFailingMessages = true;
-            _ = identity.NetworkBehaviours;
+            _ = serverIdentity.NetworkBehaviours;
+            _ = clientIdentity.NetworkBehaviours;
             LogAssert.ignoreFailingMessages = false;
 
             // try to serialize
-            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
 
             // Should still write with too many Components because NetworkBehavioursCache should handle the error
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
