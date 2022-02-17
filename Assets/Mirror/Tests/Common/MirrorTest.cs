@@ -1,5 +1,4 @@
 // base class for networking tests to make things easier.
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -493,6 +492,50 @@ namespace Mirror.Tests
             // (spawning has to find it on client, it doesn't create it)
             CreateNetworked(out serverGO, out serverIdentity, out serverComponent);
             CreateNetworked(out clientGO, out clientIdentity, out clientComponent);
+
+            // give both a scene id and register it on client for spawnables
+            clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
+            NetworkClient.spawnableObjects[clientIdentity.sceneId] = clientIdentity;
+
+            // IMPORTANT: OnSpawn finds 'sceneId' in .spawnableObjects.
+            // only those who are ConsiderForSpawn() are in there.
+            // for scene objects to be considered, they need to be disabled.
+            // (it'll be active by the time we return here)
+            clientGO.SetActive(false);
+
+            // add as player & process spawn message on client.
+            NetworkServer.AddPlayerForConnection(ownerConnection, serverGO);
+            ProcessMessages();
+
+            // double check isServer/isClient. avoids debugging headaches.
+            Assert.That(serverIdentity.isServer, Is.True);
+            Assert.That(clientIdentity.isClient, Is.True);
+
+            // make sure the client really spawned it.
+            Assert.That(clientGO.activeSelf, Is.True);
+            Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
+        }
+
+        // create GameObject + NetworkIdentity + NetworkBehaviours & SPAWN PLAYER.
+        // often times, we really need a player object for the client to receive
+        // certain messages.
+        // => returns objects from client and from server.
+        //    will be same in host mode.
+        protected void CreateNetworkedAndSpawnPlayer<T, U>(
+            out GameObject serverGO, out NetworkIdentity serverIdentity, out T serverComponentA, out U serverComponentB,
+            out GameObject clientGO, out NetworkIdentity clientIdentity, out T clientComponentA, out U clientComponentB,
+            NetworkConnectionToClient ownerConnection)
+            where T : NetworkBehaviour
+            where U : NetworkBehaviour
+        {
+            // server & client need to be active before spawning
+            Debug.Assert(NetworkClient.active, "NetworkClient needs to be active before spawning.");
+            Debug.Assert(NetworkServer.active, "NetworkServer needs to be active before spawning.");
+
+            // create one on server, one on client
+            // (spawning has to find it on client, it doesn't create it)
+            CreateNetworked(out serverGO, out serverIdentity, out serverComponentA, out serverComponentB);
+            CreateNetworked(out clientGO, out clientIdentity, out clientComponentA, out clientComponentB);
 
             // give both a scene id and register it on client for spawnables
             clientIdentity.sceneId = serverIdentity.sceneId = (ulong)serverGO.GetHashCode();
