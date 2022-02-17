@@ -238,6 +238,7 @@ namespace Mirror.Discovery
         /// <returns>The message to be sent back to the client or null</returns>
         protected abstract Response ProcessRequest(Request request, IPEndPoint endpoint);
 
+        // Android Multicast fix: https://github.com/vis2k/Mirror/pull/2887
 #if UNITY_ANDROID
         AndroidJavaObject multicastLock;
         bool hasMulticastLock;
@@ -245,8 +246,8 @@ namespace Mirror.Discovery
         void BeginMulticastLock()
 		{
 #if UNITY_ANDROID
-            if (hasMulticastLock)
-                return;
+            if (hasMulticastLock) return;
+                
             if (Application.platform == RuntimePlatform.Android)
             {
                 using (AndroidJavaObject activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"))
@@ -265,12 +266,11 @@ namespace Mirror.Discovery
         void EndpMulticastLock()
         {
 #if UNITY_ANDROID
-            if (!hasMulticastLock)
-                return;
+            if (!hasMulticastLock) return;
+            
             multicastLock?.Call("release");
             hasMulticastLock = false;
 #endif
-
         }
 
 #endregion
