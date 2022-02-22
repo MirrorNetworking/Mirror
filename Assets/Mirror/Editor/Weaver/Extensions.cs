@@ -262,15 +262,10 @@ namespace Mirror.Weaver
             return null;
         }
 
-        /// <summary>
-        /// Takes generic arguments from child class and applies them to parent reference, if possible
-        /// <br/>
-        /// eg makes `Base{T}` in <c>Child{int} : Base{int}</c> have `int` instead of `T`
-        /// </summary>
-        /// <param name="parentReference"></param>
-        /// <param name="childReference"></param>
-        /// <returns></returns>
-        // Originally by James-Frowen under MIT https://github.com/MirageNet/Mirage/commit/cf91e1d54796866d2cf87f8e919bb5c681977e45
+        // Takes generic arguments from child class and applies them to parent reference, if possible
+        // eg makes `Base<T>` in Child<int> : Base<int> have `int` instead of `T`
+        // Originally by James-Frowen under MIT 
+        // https://github.com/MirageNet/Mirage/commit/cf91e1d54796866d2cf87f8e919bb5c681977e45
         public static TypeReference ApplyGenericParameters(this TypeReference parentReference,
             TypeReference childReference)
         {
@@ -308,14 +303,9 @@ namespace Mirror.Weaver
             return generic;
         }
 
-        /// <summary>
-        /// Finds the type reference for a generic parameter with the provided name in the child reference
-        /// </summary>
-        /// <param name="childReference"></param>
-        /// <param name="paramName"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Thrown if child reference is not generic or doesn't contain the param</exception>
-        // Originally by James-Frowen under MIT https://github.com/MirageNet/Mirage/commit/cf91e1d54796866d2cf87f8e919bb5c681977e45
+        // Finds the type reference for a generic parameter with the provided name in the child reference
+        // Originally by James-Frowen under MIT 
+        // https://github.com/MirageNet/Mirage/commit/cf91e1d54796866d2cf87f8e919bb5c681977e45
         static TypeReference FindMatchingGenericArgument(TypeReference childReference, string paramName)
         {
             TypeDefinition def = childReference.Resolve();
