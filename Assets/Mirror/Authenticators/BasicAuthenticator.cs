@@ -63,7 +63,7 @@ namespace Mirror.Authenticators
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
-        public override void OnServerAuthenticate(NetworkConnection conn)
+        public override void OnServerAuthenticate(NetworkConnectionToClient conn)
         {
             // do nothing...wait for AuthRequestMessage from client
         }
@@ -115,7 +115,7 @@ namespace Mirror.Authenticators
             }
         }
 
-        IEnumerator DelayedDisconnect(NetworkConnection conn, float waitTime)
+        IEnumerator DelayedDisconnect(NetworkConnectionToClient conn, float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
 

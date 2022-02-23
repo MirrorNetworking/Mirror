@@ -26,14 +26,14 @@ namespace Mirror
         public virtual void OnStopServer() {}
 
         /// <summary>Called on server from OnServerAuthenticateInternal when a client needs to authenticate</summary>
-        public abstract void OnServerAuthenticate(NetworkConnection conn);
+        public abstract void OnServerAuthenticate(NetworkConnectionToClient conn);
 
         protected void ServerAccept(NetworkConnectionToClient conn)
         {
             OnServerAuthenticated.Invoke(conn);
         }
 
-        protected void ServerReject(NetworkConnection conn)
+        protected void ServerReject(NetworkConnectionToClient conn)
         {
             conn.Disconnect();
         }
