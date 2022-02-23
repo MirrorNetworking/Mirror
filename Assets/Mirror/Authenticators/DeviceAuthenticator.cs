@@ -50,7 +50,7 @@ namespace Mirror.Authenticators
         /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
-        public override void OnServerAuthenticate(NetworkConnection conn)
+        public override void OnServerAuthenticate(NetworkConnectionToClient conn)
         {
             // do nothing, wait for client to send his id
         }
