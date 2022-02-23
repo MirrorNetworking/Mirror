@@ -16,6 +16,12 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in td.Fields)
             {
+                if (fd.FieldType.IsGenericParameter)
+                {
+                    // can't call .Resolve on generic ones
+                    continue;
+                }
+
                 if (fd.FieldType.Resolve().IsDerivedFrom<SyncObject>())
                 {
                     if (fd.IsStatic)
