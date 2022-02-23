@@ -33,7 +33,7 @@ namespace Mirror
             OnServerAuthenticated.Invoke(conn);
         }
 
-        protected void ServerReject(NetworkConnection conn)
+        protected void ServerReject(NetworkConnectionToClient conn)
         {
             conn.Disconnect();
         }

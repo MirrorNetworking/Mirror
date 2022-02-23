@@ -115,7 +115,7 @@ namespace Mirror.Authenticators
             }
         }
 
-        IEnumerator DelayedDisconnect(NetworkConnection conn, float waitTime)
+        IEnumerator DelayedDisconnect(NetworkConnectionToClient conn, float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
 
