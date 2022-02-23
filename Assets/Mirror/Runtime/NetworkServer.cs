@@ -594,9 +594,15 @@ namespace Mirror
 
         static void OnError(int connectionId, Exception exception)
         {
-            Debug.LogException(exception);
             // try get connection. passes null otherwise.
             connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
+
+            if (exception is AggregateException)
+                foreach (Exception ex in ((AggregateException)exception).InnerExceptions)
+                    Debug.Log($"{conn} {ex.Message}");
+            else
+                Debug.LogException(exception);
+
             OnErrorEvent?.Invoke(conn, exception);
         }
 
