@@ -140,6 +140,8 @@ namespace Mirror.Weaver
             return module.ImportReference(reference);
         }
 
+        // needed for NetworkBehaviour<T> support
+        // https://github.com/vis2k/Mirror/pull/3073/
         public static FieldReference MakeHostInstanceGeneric(this FieldReference self)
         {
             var declaringType = new GenericInstanceType(self.DeclaringType);
