@@ -69,17 +69,28 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
             }
 
+            MethodReference hookMethodReference;
+            // if the network behaviour class is generic, we need to make the method reference generic for correct IL
+            if (hookMethod.DeclaringType.HasGenericParameters)
+            {
+                hookMethodReference = hookMethod.MakeHostInstanceGeneric(hookMethod.Module, hookMethod.DeclaringType.MakeGenericInstanceType(hookMethod.DeclaringType.GenericParameters.ToArray()));
+            }
+            else
+            {
+                hookMethodReference = hookMethod;
+            }
+
             // we support regular and virtual hook functions.
             if (hookMethod.IsVirtual)
             {
                 // for virtual / overwritten hooks, we need different IL.
                 // this is from simply testing Action = VirtualHook; in C#.
                 worker.Emit(OpCodes.Dup);
-                worker.Emit(OpCodes.Ldvirtftn, hookMethod);
+                worker.Emit(OpCodes.Ldvirtftn, hookMethodReference);
             }
             else
             {
-                worker.Emit(OpCodes.Ldftn, hookMethod);
+                worker.Emit(OpCodes.Ldftn, hookMethodReference);
             }
 
             // call 'new Action<T,T>()' constructor to convert the function to an action
@@ -143,6 +154,29 @@ namespace Mirror.Weaver
 
             ILProcessor worker = get.Body.GetILProcessor();
 
+            FieldReference fr;
+            if (fd.DeclaringType.HasGenericParameters)
+            {
+                fr = fd.MakeHostInstanceGeneric();
+            }
+            else
+            {
+                fr = fd;
+            }
+
+            FieldReference netIdFieldReference = null;
+            if (netFieldId != null)
+            {
+                if (netFieldId.DeclaringType.HasGenericParameters)
+                {
+                    netIdFieldReference = netFieldId.MakeHostInstanceGeneric();
+                }
+                else
+                {
+                    netIdFieldReference = netFieldId;
+                }
+            }
+
             // [SyncVar] GameObject?
             if (fd.FieldType.Is<UnityEngine.GameObject>())
             {
@@ -150,9 +184,9 @@ namespace Mirror.Weaver
                 // this.
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, netFieldId);
+                worker.Emit(OpCodes.Ldfld, netIdFieldReference);
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, fd);
+                worker.Emit(OpCodes.Ldflda, fr);
                 worker.Emit(OpCodes.Call, weaverTypes.getSyncVarGameObjectReference);
                 worker.Emit(OpCodes.Ret);
             }
@@ -163,9 +197,9 @@ namespace Mirror.Weaver
                 // this.
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, netFieldId);
+                worker.Emit(OpCodes.Ldfld, netIdFieldReference);
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, fd);
+                worker.Emit(OpCodes.Ldflda, fr);
                 worker.Emit(OpCodes.Call, weaverTypes.getSyncVarNetworkIdentityReference);
                 worker.Emit(OpCodes.Ret);
             }
@@ -175,9 +209,9 @@ namespace Mirror.Weaver
                 // this.
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, netFieldId);
+                worker.Emit(OpCodes.Ldfld, netIdFieldReference);
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, fd);
+                worker.Emit(OpCodes.Ldflda, fr);
                 MethodReference getFunc = weaverTypes.getSyncVarNetworkBehaviourReference.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
                 worker.Emit(OpCodes.Ret);
@@ -186,7 +220,7 @@ namespace Mirror.Weaver
             else
             {
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldfld, fd);
+                worker.Emit(OpCodes.Ldfld, fr);
                 worker.Emit(OpCodes.Ret);
             }
 
@@ -215,6 +249,28 @@ namespace Mirror.Weaver
                     weaverTypes.Import(typeof(void)));
 
             ILProcessor worker = set.Body.GetILProcessor();
+            FieldReference fr;
+            if (fd.DeclaringType.HasGenericParameters)
+            {
+               fr = fd.MakeHostInstanceGeneric();
+            }
+            else
+            {
+                fr = fd;
+            }
+
+            FieldReference netIdFieldReference = null;
+            if (netFieldId != null)
+            {
+                if (netFieldId.DeclaringType.HasGenericParameters)
+                {
+                    netIdFieldReference = netFieldId.MakeHostInstanceGeneric();
+                }
+                else
+                {
+                  netIdFieldReference = netFieldId;
+                }
+            }
 
             // if (!SyncVarEqual(value, ref playerData))
             Instruction endOfMethod = worker.Create(OpCodes.Nop);
@@ -241,7 +297,7 @@ namespace Mirror.Weaver
 
             // push 'ref T this.field'
             worker.Emit(OpCodes.Ldarg_0);
-            worker.Emit(OpCodes.Ldflda, fd);
+            worker.Emit(OpCodes.Ldflda, fr);
 
             // push the dirty bit for this SyncVar
             worker.Emit(OpCodes.Ldc_I8, dirtyBit);
@@ -265,14 +321,14 @@ namespace Mirror.Weaver
             {
                 // GameObject setter needs one more parameter: netId field ref
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netFieldId);
+                worker.Emit(OpCodes.Ldflda, netIdFieldReference);
                 worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_GameObject);
             }
             else if (fd.FieldType.Is<NetworkIdentity>())
             {
                 // NetworkIdentity setter needs one more parameter: netId field ref
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netFieldId);
+                worker.Emit(OpCodes.Ldflda, netIdFieldReference);
                 worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_NetworkIdentity);
             }
             // TODO this only uses the persistent netId for types DERIVED FROM NB.
@@ -283,7 +339,7 @@ namespace Mirror.Weaver
                 // NetworkIdentity setter needs one more parameter: netId field ref
                 // (actually its a NetworkBehaviourSyncVar type)
                 worker.Emit(OpCodes.Ldarg_0);
-                worker.Emit(OpCodes.Ldflda, netFieldId);
+                worker.Emit(OpCodes.Ldflda, netIdFieldReference);
                 // make generic version of GeneratedSyncVarSetter_NetworkBehaviour<T>
                 MethodReference getFunc = weaverTypes.generatedSyncVarSetter_NetworkBehaviour_T.MakeGeneric(assembly.MainModule, fd.FieldType);
                 worker.Emit(OpCodes.Call, getFunc);
@@ -315,16 +371,18 @@ namespace Mirror.Weaver
             if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
             {
                 netIdField = new FieldDefinition($"___{fd.Name}NetId",
-                   FieldAttributes.Private,
+                   FieldAttributes.Family, // needs to be protected for generic classes, otherwise access isn't allowed
                    weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>());
+                netIdField.DeclaringType = td;
 
                 syncVarNetIds[fd] = netIdField;
             }
             else if (fd.FieldType.IsNetworkIdentityField())
             {
                 netIdField = new FieldDefinition($"___{fd.Name}NetId",
-                    FieldAttributes.Private,
+                    FieldAttributes.Family, // needs to be protected for generic classes, otherwise access isn't allowed
                     weaverTypes.Import<uint>());
+                netIdField.DeclaringType = td;
 
                 syncVarNetIds[fd] = netIdField;
             }
@@ -373,6 +431,13 @@ namespace Mirror.Weaver
                     if ((fd.Attributes & FieldAttributes.Static) != 0)
                     {
                         Log.Error($"{fd.Name} cannot be static", fd);
+                        WeavingFailed = true;
+                        continue;
+                    }
+
+                    if (fd.FieldType.IsGenericParameter)
+                    {
+                        Log.Error($"{fd.Name} has generic type. Generic SyncVars are not supported", fd);
                         WeavingFailed = true;
                         continue;
                     }

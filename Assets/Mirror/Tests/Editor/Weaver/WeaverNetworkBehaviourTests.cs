@@ -5,10 +5,17 @@ namespace Mirror.Weaver.Tests
     public class WeaverNetworkBehaviourTests : WeaverTestsBuildFromTestName
     {
         [Test]
-        public void NetworkBehaviourGeneric()
+        public void NetworkBehaviourGenericSyncVar()
         {
-            HasError("NetworkBehaviourGeneric`1 cannot have generic parameters",
-                "WeaverNetworkBehaviourTests.NetworkBehaviourGeneric.NetworkBehaviourGeneric`1");
+            HasError("genericSyncVarNotAllowed has generic type. Generic SyncVars are not supported",
+                "T WeaverNetworkBehaviourTests.NetworkBehaviourGeneric.NetworkBehaviourGeneric`1::genericSyncVarNotAllowed");
+        }
+
+        [Test]
+        public void NetworkBehaviourGenericRpc()
+        {
+            HasError("RpcGeneric cannot have generic parameters",
+                "System.Void WeaverNetworkBehaviourTests.NetworkBehaviourGeneric.NetworkBehaviourGeneric`1::RpcGeneric(T)");
         }
 
         [Test]
