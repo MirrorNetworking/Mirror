@@ -26,7 +26,7 @@ namespace Mirror
         public virtual void OnStopServer() {}
 
         /// <summary>Called on server from OnServerAuthenticateInternal when a client needs to authenticate</summary>
-        public abstract void OnServerAuthenticate(NetworkConnectionToClient conn);
+        public virtual void OnServerAuthenticate(NetworkConnectionToClient conn) {}
 
         protected void ServerAccept(NetworkConnectionToClient conn)
         {
@@ -45,7 +45,7 @@ namespace Mirror
         public virtual void OnStopClient() {}
 
         /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
-        public abstract void OnClientAuthenticate();
+        public virtual void OnClientAuthenticate() {}
 
         protected void ClientAccept()
         {
