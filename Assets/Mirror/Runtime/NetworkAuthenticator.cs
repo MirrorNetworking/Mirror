@@ -45,7 +45,7 @@ namespace Mirror
         public virtual void OnStopClient() {}
 
         /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
-        public virtual void OnClientAuthenticate();
+        public virtual void OnClientAuthenticate() {}
 
         protected void ClientAccept()
         {
