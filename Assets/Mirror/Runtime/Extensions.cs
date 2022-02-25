@@ -16,7 +16,9 @@ namespace Mirror
                 foreach (char c in text)
                     hash = hash * 31 + c;
 
-                Console.WriteLine($"Packing {hash} {text}");
+                if (hash == 35549)
+                    Console.WriteLine($"Packing {hash} {text}");
+
                 return hash;
             }
         }
