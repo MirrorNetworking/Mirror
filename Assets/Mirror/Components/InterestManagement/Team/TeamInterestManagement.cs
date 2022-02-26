@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -145,7 +144,7 @@ namespace Mirror
             return identityNetworkTeam.teamId == newObserverNetworkTeam.teamId;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers, bool initialize)
+        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
         {
             // If this object doesn't have a NetworkTeam then it's visible to all clients
             if (!identity.TryGetComponent<NetworkTeam>(out NetworkTeam networkTeam))
