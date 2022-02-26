@@ -1442,7 +1442,7 @@ namespace Mirror
             // not force hidden?
             if (identity.visible != Visibility.ForceHidden)
             {
-                aoi.OnRebuildObservers(identity, newObservers, initialize);
+                aoi.OnRebuildObservers(identity, newObservers);
             }
 
             // IMPORTANT: AFTER rebuilding add own player connection in any case
