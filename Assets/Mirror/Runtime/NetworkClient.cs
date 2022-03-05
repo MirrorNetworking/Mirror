@@ -90,6 +90,9 @@ namespace Mirror
         // Disabled scene objects that can be spawned again, by sceneId.
         internal static readonly Dictionary<ulong, NetworkIdentity> spawnableObjects =
             new Dictionary<ulong, NetworkIdentity>();
+        // Scene objects that should have been found, but weren't for some reason (maybe they weren't included in the build, e.g. Addressables, and the client loaded the level last.)
+        internal static readonly Dictionary<ulong, SpawnMessage> missedSpawns =
+            new Dictionary<ulong, SpawnMessage>();
 
         static Unbatcher unbatcher = new Unbatcher();
 
@@ -1049,7 +1052,8 @@ namespace Mirror
 
             if (identity == null)
             {
-                Debug.LogError($"Could not spawn assetId={message.assetId} scene={message.sceneId:X} netId={message.netId}");
+                Debug.LogWarning($"Could not spawn assetId={message.assetId} scene={message.sceneId:X} netId={message.netId}. Cached missed spawn request for potential future use.");
+                missedSpawns[message.sceneId] = message;
                 return false;
             }
 
@@ -1095,8 +1099,7 @@ namespace Mirror
             NetworkIdentity identity = GetAndRemoveSceneObject(sceneId);
             if (identity == null)
             {
-                Debug.LogError($"Spawn scene object not found for {sceneId:X}. Make sure that client and server use exactly the same project. This only happens if the hierarchy gets out of sync.");
-
+                Debug.LogWarning($"Spawn scene object not found for {sceneId:X}. Make sure that client and server use exactly the same project. This can happen if the scene wasn't included in the build (e.g. Addressables)");
                 // dump the whole spawnable objects dict for easier debugging
                 //foreach (KeyValuePair<ulong, NetworkIdentity> kvp in spawnableObjects)
                 //    Debug.Log($"Spawnable: SceneId={kvp.Key:X} name={kvp.Value.name}");
@@ -1138,7 +1141,15 @@ namespace Mirror
                 // add all unspawned NetworkIdentities to spawnable objects
                 if (ConsiderForSpawning(identity))
                 {
-                    spawnableObjects.Add(identity.sceneId, identity);
+                    SpawnMessage sm;
+
+                    if (!missedSpawns.TryGetValue(identity.sceneId, out sm)) // Has the server already tried to spawn it?
+                        spawnableObjects.Add(identity.sceneId, identity); // No, queue it up.
+                    else
+                    {
+                        ApplySpawnPayload(identity, missedSpawns[identity.sceneId]); // Yes, catch the missed spawn.
+                        missedSpawns.Remove(identity.sceneId);
+                    }
                 }
             }
         }
