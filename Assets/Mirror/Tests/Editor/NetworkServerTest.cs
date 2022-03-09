@@ -1316,6 +1316,7 @@ namespace Mirror.Tests
             Assert.That(comp.list.GetChangeCount(), Is.EqualTo(0));
         }
 
+        // test for https://github.com/vis2k/Mirror/issues/3106
         [Test]
         public void RemovePlayerForConnection_CallsOnStopLocalPlayer()
         {
