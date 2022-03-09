@@ -1277,6 +1277,8 @@ namespace Mirror
                 Debug.LogError($"OnChangeOwner: Could not find object with netId {message.netId}");
         }
 
+        // ChangeOwnerMessage contains new 'owned' and new 'localPlayer'
+        // that we need to apply to the identity.
         internal static void ChangeOwner(NetworkIdentity identity, ChangeOwnerMessage message)
         {
             identity.hasAuthority = message.isOwner;
