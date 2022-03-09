@@ -814,12 +814,16 @@ namespace Mirror
             Respawn(identity);
 
             if (keepAuthority)
+            {
                 // This needs to be sent to clear isLocalPlayer on
                 // client while keeping hasAuthority true
                 SendChangeOwnerMessage(previousPlayer, conn);
+            }
             else
+            {
                 // This clears both isLocalPlayer and hasAuthority on client
                 previousPlayer.RemoveClientAuthority();
+            }
 
             return true;
         }
