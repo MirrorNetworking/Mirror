@@ -1283,6 +1283,7 @@ namespace Mirror
         {
             // set ownership flag (aka authority)
             identity.hasAuthority = message.isOwner;
+            // TODO call this AFTER OnStopLocalPlayer? clear everything first, then set new values?
             identity.NotifyAuthority();
 
             // set localPlayer flag
