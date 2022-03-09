@@ -1328,7 +1328,6 @@ namespace Mirror.Tests
                 out _, out NetworkIdentity serverIdentity, out StopLocalPlayerCalledNetworkBehaviour serverComp,
                 out _, out NetworkIdentity clientIdentity, out StopLocalPlayerCalledNetworkBehaviour clientComp,
                 connectionToClient);
-            Assert.That(clientComp.called, Is.EqualTo(0));
 
             // set it to not be owned by this connection anymore
             NetworkServer.RemovePlayerForConnection(connectionToClient, false);
