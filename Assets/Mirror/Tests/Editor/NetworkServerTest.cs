@@ -1360,17 +1360,11 @@ namespace Mirror.Tests
             serverNextIdentity.name = nameof(serverNextIdentity);
             clientNextIdentity.name = nameof(clientNextIdentity);
 
-            // OnStartLocalPlayer was called when spawning the owned one above.
-            // reset our counter first.
-            clientPreviousComp.called = 0;
-
             // replace connection's player from 'previous' to 'next'
             NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject);
             ProcessMessages();
 
-            // should NOT call OnStartLocalPlayer on 'previous' since it just stopped being the local player
-            // should call OnStartLocalPlayer on 'next' since it's became the new local player.
-            Assert.That(clientPreviousComp.called, Is.EqualTo(0));
+            // should call OnStartLocalPlayer on 'next' since it became the new local player.
             Assert.That(clientNextComp.called, Is.EqualTo(1));
         }
 
