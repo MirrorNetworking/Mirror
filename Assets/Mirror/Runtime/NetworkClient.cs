@@ -1281,9 +1281,15 @@ namespace Mirror
         // that we need to apply to the identity.
         internal static void ChangeOwner(NetworkIdentity identity, ChangeOwnerMessage message)
         {
+            // local player before, but not anymore?
+            // call OnStopLocalPlayer before setting new values.
+            if (identity.isLocalPlayer && !message.isLocalPlayer)
+            {
+                identity.OnStopLocalPlayer();
+            }
+
             // set ownership flag (aka authority)
             identity.hasAuthority = message.isOwner;
-            // TODO call this AFTER OnStopLocalPlayer? clear everything first, then set new values?
             identity.NotifyAuthority();
 
             // set localPlayer flag
@@ -1299,7 +1305,6 @@ namespace Mirror
             else if (localPlayer == identity)
             {
                 localPlayer = null;
-                identity.OnStopLocalPlayer();
             }
 
             // call OnStartLocalPlayer if it's the local player now.

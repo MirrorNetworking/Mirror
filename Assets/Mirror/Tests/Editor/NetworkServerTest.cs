@@ -1336,5 +1336,37 @@ namespace Mirror.Tests
             // should call OnStopLocalPlayer on client
             Assert.That(clientComp.called, Is.EqualTo(1));
         }
+
+        // test for https://github.com/vis2k/Mirror/issues/3106
+        [Test]
+        public void ReplacePlayerForConnection_CallsOnStopLocalPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+
+            // spawn owned object
+            CreateNetworkedAndSpawnPlayer(
+                out _, out NetworkIdentity serverPreviousIdentity, out StopLocalPlayerCalledNetworkBehaviour serverPreviousComp,
+                out _, out NetworkIdentity clientPreviousIdentity, out StopLocalPlayerCalledNetworkBehaviour clientPreviousComp,
+                connectionToClient);
+            serverPreviousIdentity.name = nameof(serverPreviousIdentity);
+            clientPreviousIdentity.name = nameof(clientPreviousIdentity);
+
+            // spawn not owned object
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverNextIdentity, out StopLocalPlayerCalledNetworkBehaviour serverNextComp,
+                out _, out NetworkIdentity clientNextIdentity, out StopLocalPlayerCalledNetworkBehaviour clientNextComp);
+            serverNextIdentity.name = nameof(serverNextIdentity);
+            clientNextIdentity.name = nameof(clientNextIdentity);
+
+            // replace connection's player from 'previous' to 'next'
+            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject);
+            ProcessMessages();
+
+            // should call OnStopLocalPlayer on 'previous' since it's not owned anymore now.
+            // should NOT call OnStopLocalPlayer on 'next' since it just became the local player.
+            Assert.That(clientPreviousComp.called, Is.EqualTo(1));
+            Assert.That(clientNextComp.called, Is.EqualTo(0));
+        }
     }
 }
