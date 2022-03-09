@@ -1288,14 +1288,15 @@ namespace Mirror
 
             // set localPlayer flag
             identity.isLocalPlayer = message.isLocalPlayer;
+
+            // identity is now local player. set our static helper field to it.
             if (identity.isLocalPlayer)
             {
                 localPlayer = identity;
             }
+            // identity's isLocalPlayer was set false. was it local player before?
             else if (localPlayer == identity)
             {
-                // localPlayer may already be assigned to something else
-                // so only make it null if it's this identity.
                 localPlayer = null;
                 identity.OnStopLocalPlayer();
             }
