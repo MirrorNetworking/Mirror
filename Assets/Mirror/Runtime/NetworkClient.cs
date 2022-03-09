@@ -1277,22 +1277,37 @@ namespace Mirror
                 Debug.LogError($"OnChangeOwner: Could not find object with netId {message.netId}");
         }
 
+        // ChangeOwnerMessage contains new 'owned' and new 'localPlayer'
+        // that we need to apply to the identity.
         internal static void ChangeOwner(NetworkIdentity identity, ChangeOwnerMessage message)
         {
-            identity.hasAuthority = message.isOwner;
-            identity.NotifyAuthority();
-
-            identity.isLocalPlayer = message.isLocalPlayer;
-            if (identity.isLocalPlayer)
-                localPlayer = identity;
-            else if (localPlayer == identity)
+            // local player before, but not anymore?
+            // call OnStopLocalPlayer before setting new values.
+            if (identity.isLocalPlayer && !message.isLocalPlayer)
             {
-                // localPlayer may already be assigned to something else
-                // so only make it null if it's this identity.
-                localPlayer = null;
                 identity.OnStopLocalPlayer();
             }
 
+            // set ownership flag (aka authority)
+            identity.hasAuthority = message.isOwner;
+            identity.NotifyAuthority();
+
+            // set localPlayer flag
+            identity.isLocalPlayer = message.isLocalPlayer;
+
+            // identity is now local player. set our static helper field to it.
+            if (identity.isLocalPlayer)
+            {
+                localPlayer = identity;
+            }
+            // identity's isLocalPlayer was set to false.
+            // clear our static localPlayer IF (and only IF) it was that one before.
+            else if (localPlayer == identity)
+            {
+                localPlayer = null;
+            }
+
+            // call OnStartLocalPlayer if it's the local player now.
             CheckForLocalPlayer(identity);
         }
 

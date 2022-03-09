@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -153,7 +153,7 @@ namespace Mirror.Examples.Chat
         public override void OnStartClient()
         {
             // register a handler for the authentication response we expect from server
-            NetworkClient.RegisterHandler<AuthResponseMessage>((Action<AuthResponseMessage>)OnAuthResponseMessage, false);
+            NetworkClient.RegisterHandler<AuthResponseMessage>(OnAuthResponseMessage, false);
         }
 
         /// <summary>
