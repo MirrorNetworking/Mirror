@@ -66,7 +66,7 @@ namespace Mirror.Tests
             // should throw an exception
             byte[] bytes = { 0x00, 0x01 };
 
-            using (PooledNetworkReader reader = NetworkReaderPool.Take(bytes))
+            using (NetworkReaderPooled reader = NetworkReaderPool.Take(bytes))
             {
                 try
                 {

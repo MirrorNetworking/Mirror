@@ -420,11 +420,11 @@ namespace Mirror.Tests
     {
         public static uint GetChangeCount(this SyncObject syncObject)
         {
-            using (PooledNetworkWriter writer = NetworkWriterPool.Take())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Take())
             {
                 syncObject.OnSerializeDelta(writer);
 
-                using (PooledNetworkReader reader = NetworkReaderPool.Take(writer.ToArraySegment()))
+                using (NetworkReaderPooled reader = NetworkReaderPool.Take(writer.ToArraySegment()))
                 {
                     return reader.ReadUInt();
                 }
