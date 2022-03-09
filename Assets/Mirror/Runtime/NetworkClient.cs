@@ -1281,9 +1281,11 @@ namespace Mirror
         // that we need to apply to the identity.
         internal static void ChangeOwner(NetworkIdentity identity, ChangeOwnerMessage message)
         {
+            // set ownership flag (aka authority)
             identity.hasAuthority = message.isOwner;
             identity.NotifyAuthority();
 
+            // set localPlayer flag
             identity.isLocalPlayer = message.isLocalPlayer;
             if (identity.isLocalPlayer)
             {
@@ -1296,7 +1298,6 @@ namespace Mirror
                 localPlayer = null;
                 identity.OnStopLocalPlayer();
             }
-
             CheckForLocalPlayer(identity);
         }
 
