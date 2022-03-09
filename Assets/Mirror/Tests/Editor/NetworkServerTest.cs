@@ -1315,5 +1315,26 @@ namespace Mirror.Tests
             // changes should be empty since we have no observers
             Assert.That(comp.list.GetChangeCount(), Is.EqualTo(0));
         }
+
+        [Test]
+        public void RemovePlayerForConnection_CallsOnStopLocalPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+
+            // spawn owned object
+            CreateNetworkedAndSpawnPlayer(
+                out _, out NetworkIdentity serverIdentity, out StopLocalPlayerCalledNetworkBehaviour serverComp,
+                out _, out NetworkIdentity clientIdentity, out StopLocalPlayerCalledNetworkBehaviour clientComp,
+                connectionToClient);
+            Assert.That(clientComp.called, Is.EqualTo(0));
+
+            // set it to not be owned by this connection anymore
+            NetworkServer.RemovePlayerForConnection(connectionToClient, false);
+            ProcessMessages();
+
+            // should call OnStopLocalPlayer on client
+            Assert.That(clientComp.called, Is.EqualTo(1));
+        }
     }
 }
