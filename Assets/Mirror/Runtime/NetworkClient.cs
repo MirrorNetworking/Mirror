@@ -1300,6 +1300,8 @@ namespace Mirror
                 localPlayer = null;
                 identity.OnStopLocalPlayer();
             }
+
+            // call OnStartLocalPlayer if it's the local player now.
             CheckForLocalPlayer(identity);
         }
 
