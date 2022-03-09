@@ -143,15 +143,15 @@ namespace Mirror.Weaver
         public static void WriteCreateWriter(ILProcessor worker, WeaverTypes weaverTypes)
         {
             // create writer
-            worker.Emit(OpCodes.Call, weaverTypes.GetPooledWriterReference);
+            worker.Emit(OpCodes.Call, weaverTypes.TakeWriterReference);
             worker.Emit(OpCodes.Stloc_0);
         }
 
-        public static void WriteRecycleWriter(ILProcessor worker, WeaverTypes weaverTypes)
+        public static void WriteReturnWriter(ILProcessor worker, WeaverTypes weaverTypes)
         {
             // NetworkWriterPool.Recycle(writer);
             worker.Emit(OpCodes.Ldloc_0);
-            worker.Emit(OpCodes.Call, weaverTypes.RecycleWriterReference);
+            worker.Emit(OpCodes.Call, weaverTypes.ReturnWriterReference);
         }
 
         public static bool WriteArguments(ILProcessor worker, Writers writers, Logger Log, MethodDefinition method, RemoteCallType callType, ref bool WeavingFailed)

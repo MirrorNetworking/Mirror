@@ -127,7 +127,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldc_I4, targetRpcAttr.GetField("channel", 0));
             worker.Emit(OpCodes.Callvirt, weaverTypes.sendTargetRpcInternal);
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(worker, weaverTypes);
+            NetworkBehaviourProcessor.WriteReturnWriter(worker, weaverTypes);
 
             worker.Emit(OpCodes.Ret);
 

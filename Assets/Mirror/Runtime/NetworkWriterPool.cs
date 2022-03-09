@@ -6,7 +6,7 @@ namespace Mirror
     /// <summary>Pooled NetworkWriter, automatically returned to pool when using 'using'</summary>
     public sealed class PooledNetworkWriter : NetworkWriter, IDisposable
     {
-        public void Dispose() => NetworkWriterPool.Recycle(this);
+        public void Dispose() => NetworkWriterPool.Return(this);
     }
 
     /// <summary>Pool of NetworkWriters to avoid allocations.</summary>
@@ -24,9 +24,13 @@ namespace Mirror
             1000
         );
 
+        // DEPRECATED 2022-03-10
+        [Obsolete("GetWriter() was renamed to Take()")]
+        public static PooledNetworkWriter GetWriter() => Take();
+
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PooledNetworkWriter GetWriter()
+        public static PooledNetworkWriter Take()
         {
             // grab from pool & reset position
             PooledNetworkWriter writer = Pool.Take();
@@ -34,9 +38,13 @@ namespace Mirror
             return writer;
         }
 
+        // DEPRECATED 2022-03-10
+        [Obsolete("Recycle() was renamed to Return()")]
+        public static void Recycle(PooledNetworkWriter writer) => Return(writer);
+
         /// <summary>Return a writer to the pool.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Recycle(PooledNetworkWriter writer)
+        public static void Return(PooledNetworkWriter writer)
         {
             Pool.Return(writer);
         }
