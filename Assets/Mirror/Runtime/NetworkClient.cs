@@ -1294,7 +1294,8 @@ namespace Mirror
             {
                 localPlayer = identity;
             }
-            // identity's isLocalPlayer was set false. was it local player before?
+            // identity's isLocalPlayer was set to false.
+            // clear our static localPlayer IF (and only IF) it was that one before.
             else if (localPlayer == identity)
             {
                 localPlayer = null;
