@@ -1284,7 +1284,9 @@ namespace Mirror
 
             identity.isLocalPlayer = message.isLocalPlayer;
             if (identity.isLocalPlayer)
+            {
                 localPlayer = identity;
+            }
             else if (localPlayer == identity)
             {
                 // localPlayer may already be assigned to something else
