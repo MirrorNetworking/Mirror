@@ -1338,6 +1338,39 @@ namespace Mirror.Tests
         }
 
         // test for https://github.com/vis2k/Mirror/issues/3106
+        // need to make sure OnStartLocalPlayer is only called ONCE, not TWICE.
+        [Test]
+        public void ReplacePlayerForConnection_CallsOnStartLocalPlayer()
+        {
+            NetworkServer.Listen(1);
+            ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
+
+            // spawn owned object
+            CreateNetworkedAndSpawnPlayer(
+                out _, out NetworkIdentity serverPreviousIdentity, out StartLocalPlayerCalledNetworkBehaviour serverPreviousComp,
+                out _, out NetworkIdentity clientPreviousIdentity, out StartLocalPlayerCalledNetworkBehaviour clientPreviousComp,
+                connectionToClient);
+            serverPreviousIdentity.name = nameof(serverPreviousIdentity);
+            clientPreviousIdentity.name = nameof(clientPreviousIdentity);
+
+            // spawn not owned object
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverNextIdentity, out StartLocalPlayerCalledNetworkBehaviour serverNextComp,
+                out _, out NetworkIdentity clientNextIdentity, out StartLocalPlayerCalledNetworkBehaviour clientNextComp);
+            serverNextIdentity.name = nameof(serverNextIdentity);
+            clientNextIdentity.name = nameof(clientNextIdentity);
+
+            // replace connection's player from 'previous' to 'next'
+            NetworkServer.ReplacePlayerForConnection(connectionToClient, serverNextIdentity.gameObject);
+            ProcessMessages();
+
+            // should NOT call OnStartLocalPlayer on 'previous' since it just stopped being the local player
+            // should call OnStartLocalPlayer on 'next' since it's became the new local player.
+            Assert.That(clientPreviousComp.called, Is.EqualTo(0));
+            Assert.That(clientNextComp.called, Is.EqualTo(1));
+        }
+
+        // test for https://github.com/vis2k/Mirror/issues/3106
         [Test]
         public void ReplacePlayerForConnection_CallsOnStopLocalPlayer()
         {
