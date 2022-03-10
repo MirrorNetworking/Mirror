@@ -140,10 +140,10 @@ namespace Mirror.Weaver
             worker.Body.Variables.Add(new VariableDefinition(weaverTypes.Import<PooledNetworkWriter>()));
         }
 
-        public static void WriteCreateWriter(ILProcessor worker, WeaverTypes weaverTypes)
+        public static void WriteGetWriter(ILProcessor worker, WeaverTypes weaverTypes)
         {
             // create writer
-            worker.Emit(OpCodes.Call, weaverTypes.TakeWriterReference);
+            worker.Emit(OpCodes.Call, weaverTypes.GetWriterReference);
             worker.Emit(OpCodes.Stloc_0);
         }
 

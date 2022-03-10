@@ -25,12 +25,12 @@ namespace Mirror
         );
 
         // DEPRECATED 2022-03-10
-        [Obsolete("GetReader() was renamed to Take()")]
-        public static PooledNetworkReader GetReader(byte[] bytes) => Take(bytes);
+        [Obsolete("GetReader() was renamed to Get()")]
+        public static PooledNetworkReader GetReader(byte[] bytes) => Get(bytes);
 
         /// <summary>Get the next reader in the pool. If pool is empty, creates a new Reader</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PooledNetworkReader Take(byte[] bytes)
+        public static PooledNetworkReader Get(byte[] bytes)
         {
             // grab from pool & set buffer
             PooledNetworkReader reader = Pool.Take();
@@ -39,12 +39,12 @@ namespace Mirror
         }
 
         // DEPRECATED 2022-03-10
-        [Obsolete("GetReader() was renamed to Take()")]
-        public static PooledNetworkReader GetReader(ArraySegment<byte> segment) => Take(segment);
+        [Obsolete("GetReader() was renamed to Get()")]
+        public static PooledNetworkReader GetReader(ArraySegment<byte> segment) => Get(segment);
 
         /// <summary>Get the next reader in the pool. If pool is empty, creates a new Reader</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PooledNetworkReader Take(ArraySegment<byte> segment)
+        public static PooledNetworkReader Get(ArraySegment<byte> segment)
         {
             // grab from pool & set buffer
             PooledNetworkReader reader = Pool.Take();

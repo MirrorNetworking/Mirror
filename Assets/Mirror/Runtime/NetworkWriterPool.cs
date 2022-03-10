@@ -25,12 +25,12 @@ namespace Mirror
         );
 
         // DEPRECATED 2022-03-10
-        [Obsolete("GetWriter() was renamed to Take()")]
-        public static PooledNetworkWriter GetWriter() => Take();
+        [Obsolete("GetWriter() was renamed to Get()")]
+        public static PooledNetworkWriter GetWriter() => Get();
 
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PooledNetworkWriter Take()
+        public static PooledNetworkWriter Get()
         {
             // grab from pool & reset position
             PooledNetworkWriter writer = Pool.Take();

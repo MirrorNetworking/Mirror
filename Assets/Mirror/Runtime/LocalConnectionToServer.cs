@@ -37,7 +37,7 @@ namespace Mirror
 
             // flush it to the server's OnTransportData immediately.
             // local connection to server always invokes immediately.
-            using (PooledNetworkWriter writer = NetworkWriterPool.Take())
+            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
             {
                 // make a batch with our local time (double precision)
                 if (batcher.MakeNextBatch(writer, NetworkTime.localTime))
@@ -71,7 +71,7 @@ namespace Mirror
                 Batcher batcher = GetBatchForChannelId(Channels.Reliable);
                 batcher.AddMessage(message);
 
-                using (PooledNetworkWriter batchWriter = NetworkWriterPool.Take())
+                using (PooledNetworkWriter batchWriter = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
                     if (batcher.MakeNextBatch(batchWriter, NetworkTime.localTime))

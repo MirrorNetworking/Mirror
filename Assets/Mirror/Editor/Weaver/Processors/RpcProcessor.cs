@@ -68,7 +68,7 @@ namespace Mirror.Weaver
             //worker.Emit(OpCodes.Ldstr, $"Call ClientRpc function {md.Name}");
             //worker.Emit(OpCodes.Call, WeaverTypes.logErrorReference);
 
-            NetworkBehaviourProcessor.WriteCreateWriter(worker, weaverTypes);
+            NetworkBehaviourProcessor.WriteGetWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the Rpc call
             if (!NetworkBehaviourProcessor.WriteArguments(worker, writers, Log, md, RemoteCallType.ClientRpc, ref WeavingFailed))
