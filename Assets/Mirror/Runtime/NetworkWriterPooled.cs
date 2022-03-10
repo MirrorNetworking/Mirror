@@ -1,3 +1,5 @@
+// "NetworkWriterPooled" instead of "PooledNetworkWriter" to group files, for
+// easier IDE workflow and more elegant code.
 using System;
 
 namespace Mirror
