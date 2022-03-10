@@ -3,8 +3,13 @@ using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
+    // DEPRECATED 2022-03-10
+    [Obsolete("PooledNetworkWriter was renamed to NetworkWriterPooled. It's cleaner & slightly easier to use.")]
+    public sealed class PooledNetworkWriter : NetworkWriterPooled {}
+
     /// <summary>Pooled NetworkWriter, automatically returned to pool when using 'using'</summary>
-    public sealed class PooledNetworkWriter : NetworkWriter, IDisposable
+    // TODO make sealed again after removing obsolete NetworkWriterPooled!
+    public class NetworkWriterPooled : NetworkWriter, IDisposable
     {
         public void Dispose() => NetworkWriterPool.Return(this);
     }
@@ -17,8 +22,8 @@ namespace Mirror
         // position before reusing.
         // this is also more consistent with NetworkReaderPool where we need to
         // assign the internal buffer before reusing.
-        static readonly Pool<PooledNetworkWriter> Pool = new Pool<PooledNetworkWriter>(
-            () => new PooledNetworkWriter(),
+        static readonly Pool<NetworkWriterPooled> Pool = new Pool<NetworkWriterPooled>(
+            () => new NetworkWriterPooled(),
             // initial capacity to avoid allocations in the first few frames
             // 1000 * 1200 bytes = around 1 MB.
             1000
@@ -26,25 +31,25 @@ namespace Mirror
 
         // DEPRECATED 2022-03-10
         [Obsolete("GetWriter() was renamed to Get()")]
-        public static PooledNetworkWriter GetWriter() => Get();
+        public static NetworkWriterPooled GetWriter() => Get();
 
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static PooledNetworkWriter Get()
+        public static NetworkWriterPooled Get()
         {
             // grab from pool & reset position
-            PooledNetworkWriter writer = Pool.Get();
+            NetworkWriterPooled writer = Pool.Get();
             writer.Reset();
             return writer;
         }
 
         // DEPRECATED 2022-03-10
         [Obsolete("Recycle() was renamed to Return()")]
-        public static void Recycle(PooledNetworkWriter writer) => Return(writer);
+        public static void Recycle(NetworkWriterPooled writer) => Return(writer);
 
         /// <summary>Return a writer to the pool.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Return(PooledNetworkWriter writer)
+        public static void Return(NetworkWriterPooled writer)
         {
             Pool.Return(writer);
         }

@@ -35,7 +35,7 @@ namespace Mirror
         // batched messages
         // IMPORTANT: we queue the serialized messages!
         //            queueing NetworkMessage would box and allocate!
-        Queue<PooledNetworkWriter> messages = new Queue<PooledNetworkWriter>();
+        Queue<NetworkWriterPooled> messages = new Queue<NetworkWriterPooled>();
 
         public Batcher(int threshold)
         {
@@ -52,7 +52,7 @@ namespace Mirror
             //    would add a size header. we want to write directly.
             // -> will be returned to pool when making the batch!
             // IMPORTANT: NOT adding a size header / msg saves LOTS of bandwidth
-            PooledNetworkWriter writer = NetworkWriterPool.Get();
+            NetworkWriterPooled writer = NetworkWriterPool.Get();
             writer.WriteBytes(message.Array, message.Offset, message.Count);
             messages.Enqueue(writer);
         }
@@ -78,7 +78,7 @@ namespace Mirror
             {
                 // add next message no matter what. even if > threshold.
                 // (we do allow > threshold sized messages as single batch)
-                PooledNetworkWriter message = messages.Dequeue();
+                NetworkWriterPooled message = messages.Dequeue();
                 ArraySegment<byte> segment = message.ToArraySegment();
                 writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
 

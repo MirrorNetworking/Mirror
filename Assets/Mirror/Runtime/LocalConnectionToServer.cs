@@ -11,7 +11,7 @@ namespace Mirror
         internal LocalConnectionToClient connectionToClient;
 
         // packet queue
-        internal readonly Queue<PooledNetworkWriter> queue = new Queue<PooledNetworkWriter>();
+        internal readonly Queue<NetworkWriterPooled> queue = new Queue<NetworkWriterPooled>();
 
         public override string address => "localhost";
 
@@ -37,7 +37,7 @@ namespace Mirror
 
             // flush it to the server's OnTransportData immediately.
             // local connection to server always invokes immediately.
-            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // make a batch with our local time (double precision)
                 if (batcher.MakeNextBatch(writer, NetworkTime.localTime))
@@ -63,7 +63,7 @@ namespace Mirror
             while (queue.Count > 0)
             {
                 // call receive on queued writer's content, return to pool
-                PooledNetworkWriter writer = queue.Dequeue();
+                NetworkWriterPooled writer = queue.Dequeue();
                 ArraySegment<byte> message = writer.ToArraySegment();
 
                 // OnTransportData assumes a proper batch with timestamp etc.
@@ -71,7 +71,7 @@ namespace Mirror
                 Batcher batcher = GetBatchForChannelId(Channels.Reliable);
                 batcher.AddMessage(message);
 
-                using (PooledNetworkWriter batchWriter = NetworkWriterPool.Get())
+                using (NetworkWriterPooled batchWriter = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
                     if (batcher.MakeNextBatch(batchWriter, NetworkTime.localTime))

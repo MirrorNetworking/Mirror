@@ -137,7 +137,7 @@ namespace Mirror.Weaver
         public static void WriteSetupLocals(ILProcessor worker, WeaverTypes weaverTypes)
         {
             worker.Body.InitLocals = true;
-            worker.Body.Variables.Add(new VariableDefinition(weaverTypes.Import<PooledNetworkWriter>()));
+            worker.Body.Variables.Add(new VariableDefinition(weaverTypes.Import<NetworkWriterPooled>()));
         }
 
         public static void WriteGetWriter(ILProcessor worker, WeaverTypes weaverTypes)

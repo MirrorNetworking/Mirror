@@ -125,11 +125,11 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
     {
         static void SyncNetworkBehaviour(NetworkBehaviour source, NetworkBehaviour target, bool initialState)
         {
-            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 source.OnSerialize(writer, initialState);
 
-                using (PooledNetworkReader reader = NetworkReaderPool.Get(writer.ToArraySegment()))
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(writer.ToArraySegment()))
                 {
                     target.OnDeserialize(reader, initialState);
                 }

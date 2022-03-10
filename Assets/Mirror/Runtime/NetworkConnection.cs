@@ -129,7 +129,7 @@ namespace Mirror
         public void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
-            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // pack message and send allocation free
                 MessagePacking.Pack(message, writer);
@@ -176,7 +176,7 @@ namespace Mirror
                 // make and send as many batches as necessary from the stored
                 // messages.
                 Batcher batcher = kvp.Value;
-                using (PooledNetworkWriter writer = NetworkWriterPool.Get())
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
                     while (batcher.MakeNextBatch(writer, NetworkTime.localTime))
