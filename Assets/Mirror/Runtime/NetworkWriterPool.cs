@@ -3,17 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
-    // DEPRECATED 2022-03-10
-    [Obsolete("PooledNetworkWriter was renamed to NetworkWriterPooled. It's cleaner & slightly easier to use.")]
-    public sealed class PooledNetworkWriter : NetworkWriterPooled {}
-
-    /// <summary>Pooled NetworkWriter, automatically returned to pool when using 'using'</summary>
-    // TODO make sealed again after removing obsolete NetworkWriterPooled!
-    public class NetworkWriterPooled : NetworkWriter, IDisposable
-    {
-        public void Dispose() => NetworkWriterPool.Return(this);
-    }
-
     /// <summary>Pool of NetworkWriters to avoid allocations.</summary>
     public static class NetworkWriterPool
     {
