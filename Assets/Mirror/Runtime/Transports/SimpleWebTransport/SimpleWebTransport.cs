@@ -181,6 +181,9 @@ namespace Mirror.SimpleWeb
             }
 
             client.Send(segment);
+
+            // call event. might be null if no statistics are listening etc.
+            OnClientDataSent?.Invoke(segment);
         }
 
         // messages should always be processed in early update
@@ -259,6 +262,9 @@ namespace Mirror.SimpleWeb
             }
 
             server.SendOne(connectionId, segment);
+
+            // call event. might be null if no statistics are listening etc.
+            OnServerDataSent?.Invoke(connectionId, segment);
         }
 
         public override string ServerGetClientAddress(int connectionId)
