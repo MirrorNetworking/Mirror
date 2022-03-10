@@ -282,7 +282,7 @@ namespace Mirror
             }
 
             // Debug.Log($"Server.SendToAll {typeof(T)}");
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
             {
                 // pack message only once
                 MessagePacking.Pack(message, writer);
@@ -328,7 +328,7 @@ namespace Mirror
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
             {
                 // pack message into byte[] once
                 MessagePacking.Pack(message, writer);
@@ -352,7 +352,7 @@ namespace Mirror
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
             {
                 // pack message only once
                 MessagePacking.Pack(message, writer);
@@ -960,7 +960,7 @@ namespace Mirror
 
             // Debug.Log($"OnCommandMessage for netId:{msg.netId} conn:{conn}");
 
-            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
+            using (PooledNetworkReader networkReader = NetworkReaderPool.Get(msg.payload))
                 identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, RemoteCallType.Command, networkReader, conn as NetworkConnectionToClient);
         }
 
@@ -996,7 +996,7 @@ namespace Mirror
             //Debug.Log($"Server SendSpawnMessage: name:{identity.name} sceneId:{identity.sceneId:X} netid:{identity.netId}");
 
             // one writer for owner, one for observers
-            using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
+            using (PooledNetworkWriter ownerWriter = NetworkWriterPool.Get(), observersWriter = NetworkWriterPool.Get())
             {
                 bool isOwner = identity.connectionToClient == conn;
                 ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);

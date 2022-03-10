@@ -52,7 +52,7 @@ namespace Mirror
             //    would add a size header. we want to write directly.
             // -> will be returned to pool when making the batch!
             // IMPORTANT: NOT adding a size header / msg saves LOTS of bandwidth
-            PooledNetworkWriter writer = NetworkWriterPool.GetWriter();
+            PooledNetworkWriter writer = NetworkWriterPool.Get();
             writer.WriteBytes(message.Array, message.Offset, message.Count);
             messages.Enqueue(writer);
         }
@@ -83,7 +83,7 @@ namespace Mirror
                 writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
 
                 // return the writer to pool
-                NetworkWriterPool.Recycle(message);
+                NetworkWriterPool.Return(message);
             }
             // keep going as long as we have more messages,
             // AND the next one would fit into threshold.

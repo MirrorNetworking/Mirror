@@ -14,7 +14,7 @@ namespace Mirror.Tests
         public static byte[] PackToByteArray<T>(T message)
             where T : struct, NetworkMessage
         {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (PooledNetworkWriter writer = NetworkWriterPool.Get())
             {
                 MessagePacking.Pack(message, writer);
                 return writer.ToArray();
@@ -25,7 +25,7 @@ namespace Mirror.Tests
         public static T UnpackFromByteArray<T>(byte[] data)
             where T : struct, NetworkMessage
         {
-            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(data))
+            using (PooledNetworkReader networkReader = NetworkReaderPool.Get(data))
             {
                 int msgType = MessagePacking.GetId<T>();
 
