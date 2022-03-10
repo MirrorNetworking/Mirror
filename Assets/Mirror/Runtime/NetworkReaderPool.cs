@@ -33,7 +33,7 @@ namespace Mirror
         public static PooledNetworkReader Get(byte[] bytes)
         {
             // grab from pool & set buffer
-            PooledNetworkReader reader = Pool.Take();
+            PooledNetworkReader reader = Pool.Get();
             reader.SetBuffer(bytes);
             return reader;
         }
@@ -47,7 +47,7 @@ namespace Mirror
         public static PooledNetworkReader Get(ArraySegment<byte> segment)
         {
             // grab from pool & set buffer
-            PooledNetworkReader reader = Pool.Take();
+            PooledNetworkReader reader = Pool.Get();
             reader.SetBuffer(segment);
             return reader;
         }

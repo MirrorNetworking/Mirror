@@ -33,7 +33,7 @@ namespace Mirror
         public static PooledNetworkWriter Get()
         {
             // grab from pool & reset position
-            PooledNetworkWriter writer = Pool.Take();
+            PooledNetworkWriter writer = Pool.Get();
             writer.Reset();
             return writer;
         }
