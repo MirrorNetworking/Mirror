@@ -1163,8 +1163,7 @@ namespace Mirror.Tests
             NetworkServer.SetLocalConnection(new LocalConnectionToClient());
 
             // connect a client
-            transport.ClientConnect("localhost");
-            UpdateTransport();
+            base.ConnectClientBlockingAuthenticatedAndReady(out _);
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 
             // shutdown
