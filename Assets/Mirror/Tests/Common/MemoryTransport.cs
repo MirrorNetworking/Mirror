@@ -72,6 +72,9 @@ namespace Mirror.Tests
 
                 // add server data message with connId=1 because 0 is reserved
                 serverIncoming.Enqueue(new Message(1, EventType.Data, data));
+
+                // call event. might be null if no statistics are listening etc.
+                OnClientDataSent?.Invoke(segment, channelId);
             }
         }
         public override void ClientDisconnect()
@@ -147,6 +150,9 @@ namespace Mirror.Tests
 
                 // add client data message
                 clientIncoming.Enqueue(new Message(0, EventType.Data, data));
+
+                // call event. might be null if no statistics are listening etc.
+                OnServerDataSent?.Invoke(connectionId, segment, channelId);
             }
         }
 

@@ -81,7 +81,7 @@ namespace Mirror
         }
 
         // client
-        private void CreateClient() 
+        private void CreateClient()
         {
             // create client
             client = new Telepathy.Client(clientMaxMessageSize);
@@ -104,7 +104,7 @@ namespace Mirror
             client.ReceiveQueueLimit = clientReceiveQueueLimit;
         }
         public override bool ClientConnected() => client != null && client.Connected;
-        public override void ClientConnect(string address) 
+        public override void ClientConnect(string address)
         {
             CreateClient();
             client.Connect(address, port);
@@ -119,8 +119,14 @@ namespace Mirror
             int serverPort = uri.IsDefaultPort ? port : uri.Port;
             client.Connect(uri.Host, serverPort);
         }
-        public override void ClientSend(ArraySegment<byte> segment, int channelId) => client?.Send(segment);
-        public override void ClientDisconnect() 
+        public override void ClientSend(ArraySegment<byte> segment, int channelId)
+        {
+            client?.Send(segment);
+
+            // call event. might be null if no statistics are listening etc.
+            OnClientDataSent?.Invoke(segment, Channels.Reliable);
+        }
+        public override void ClientDisconnect()
         {
             client?.Disconnect();
             client = null;
@@ -150,11 +156,11 @@ namespace Mirror
             return builder.Uri;
         }
         public override bool ServerActive() => server != null && server.Active;
-        public override void ServerStart() 
+        public override void ServerStart()
         {
             // create server
             server = new Telepathy.Server(serverMaxMessageSize);
-            
+
             // server hooks
             // other systems hook into transport events in OnCreate or
             // OnStartRunning in no particular order. the only way to avoid
@@ -172,11 +178,17 @@ namespace Mirror
             server.ReceiveTimeout = ReceiveTimeout;
             server.SendQueueLimit = serverSendQueueLimitPerConnection;
             server.ReceiveQueueLimit = serverReceiveQueueLimitPerConnection;
-            
+
             server.Start(port);
         }
 
-        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId) => server?.Send(connectionId, segment);
+        public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
+        {
+            server?.Send(connectionId, segment);
+
+            // call event. might be null if no statistics are listening etc.
+            OnServerDataSent?.Invoke(connectionId, segment, Channels.Reliable);
+        }
         public override void ServerDisconnect(int connectionId) => server?.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId)
         {
@@ -197,7 +209,7 @@ namespace Mirror
                 return "unknown";
             }
         }
-        public override void ServerStop() 
+        public override void ServerStop()
         {
             server?.Stop();
             server = null;

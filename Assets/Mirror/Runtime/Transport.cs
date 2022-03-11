@@ -42,6 +42,13 @@ namespace Mirror
         /// <summary>Called by Transport when the client received a message from the server.</summary>
         public Action<ArraySegment<byte>, int> OnClientDataReceived;
 
+        /// <summary>Called by Transport when the client sent a message to the server.</summary>
+        // Transports are responsible for calling it because:
+        // - groups it together with OnReceived responsibility
+        // - allows transports to decide if anything was sent or not
+        // - allows transports to decide the actual used channel (i.e. tcp always sending reliable)
+        public Action<ArraySegment<byte>, int> OnClientDataSent;
+
         /// <summary>Called by Transport when the client encountered an error.</summary>
         public Action<Exception> OnClientError;
 
@@ -78,6 +85,13 @@ namespace Mirror
 
         /// <summary>Called by Transport when the server received a message from a client.</summary>
         public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
+
+        /// <summary>Called by Transport when the server sent a message to a client.</summary>
+        // Transports are responsible for calling it because:
+        // - groups it together with OnReceived responsibility
+        // - allows transports to decide if anything was sent or not
+        // - allows transports to decide the actual used channel (i.e. tcp always sending reliable)
+        public Action<int, ArraySegment<byte>, int> OnServerDataSent;
 
         /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
         /// If a Disconnect will also be raised, raise the Error first.
