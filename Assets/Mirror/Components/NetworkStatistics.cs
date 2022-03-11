@@ -134,9 +134,6 @@ namespace Mirror
 
         void OnClientGUI()
         {
-            // create GUI area
-            GUILayout.BeginArea(new Rect(15, 185, 210, 300));
-
             // background
             GUILayout.BeginVertical("Box");
             GUILayout.Label("<b>Client Statistics</b>");
@@ -149,16 +146,10 @@ namespace Mirror
 
             // end background
             GUILayout.EndVertical();
-
-            // end of GUI area
-            GUILayout.EndArea();
         }
 
         void OnServerGUI()
         {
-            // create GUI area
-            GUILayout.BeginArea(new Rect(15, 100, 210, 300));
-
             // background
             GUILayout.BeginVertical("Box");
             GUILayout.Label("<b>Server Statistics</b>");
@@ -171,15 +162,24 @@ namespace Mirror
 
             // end background
             GUILayout.EndVertical();
-
-            // end of GUI area
-            GUILayout.EndArea();
         }
 
         void OnGUI()
         {
-            if (NetworkClient.active) OnClientGUI();
-            if (NetworkServer.active) OnServerGUI();
+            // only show if either server or client active
+            if (NetworkClient.active || NetworkServer.active)
+            {
+                // create main GUI area
+                // 105 is below NetworkManager HUD in all cases.
+                GUILayout.BeginArea(new Rect(15, 105, 210, 300));
+
+                // show client / server stats if active
+                if (NetworkClient.active) OnClientGUI();
+                if (NetworkServer.active) OnServerGUI();
+
+                // end of GUI area
+                GUILayout.EndArea();
+            }
         }
     }
 }
