@@ -171,5 +171,14 @@ namespace Mirror.RemoteCalls
             remoteCallDelegates.TryGetValue(functionHash, out Invoker invoker)
             ? invoker.function
             : null;
+
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
+        internal static void ResetStatics()
+        {
+            // clear rpc lookup every time.
+            // otherwise tests may have issues.
+            remoteCallIndexLookup.Clear();
+        }
     }
 }
