@@ -103,10 +103,20 @@ namespace Mirror
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnClientConnected = OnTransportConnected;
-            Transport.activeTransport.OnClientDataReceived = OnTransportData;
-            Transport.activeTransport.OnClientDisconnected = OnTransportDisconnected;
-            Transport.activeTransport.OnClientError = OnError;
+            // += so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnClientConnected += OnTransportConnected;
+            Transport.activeTransport.OnClientDataReceived += OnTransportData;
+            Transport.activeTransport.OnClientDisconnected += OnTransportDisconnected;
+            Transport.activeTransport.OnClientError += OnError;
+        }
+
+        static void RemoveTransportHandlers()
+        {
+            // -= so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnClientConnected -= OnTransportConnected;
+            Transport.activeTransport.OnClientDataReceived -= OnTransportData;
+            Transport.activeTransport.OnClientDisconnected -= OnTransportDisconnected;
+            Transport.activeTransport.OnClientError -= OnError;
         }
 
         internal static void RegisterSystemHandlers(bool hostMode)
@@ -414,6 +424,10 @@ namespace Mirror
             // previously this was done in Disconnect() already, but we still
             // need it for the above OnDisconnectedEvent.
             connection = null;
+
+            // transport handlers are only added when connecting.
+            // so only remove when actually disconnecting.
+            RemoveTransportHandlers();
         }
 
         static void OnError(Exception exception)

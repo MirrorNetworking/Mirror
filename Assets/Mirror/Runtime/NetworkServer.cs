@@ -80,10 +80,20 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnServerConnected = OnTransportConnected;
-            Transport.activeTransport.OnServerDataReceived = OnTransportData;
-            Transport.activeTransport.OnServerDisconnected = OnTransportDisconnected;
-            Transport.activeTransport.OnServerError = OnError;
+            // += so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnServerConnected += OnTransportConnected;
+            Transport.activeTransport.OnServerDataReceived += OnTransportData;
+            Transport.activeTransport.OnServerDisconnected += OnTransportDisconnected;
+            Transport.activeTransport.OnServerError += OnError;
+        }
+
+        static void RemoveTransportHandlers()
+        {
+            // -= so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnServerConnected -= OnTransportConnected;
+            Transport.activeTransport.OnServerDataReceived -= OnTransportData;
+            Transport.activeTransport.OnServerDisconnected -= OnTransportDisconnected;
+            Transport.activeTransport.OnServerError -= OnError;
         }
 
         // calls OnStartClient for all SERVER objects in host mode once.
@@ -174,6 +184,11 @@ namespace Mirror
                 //       but we still need to stop the server.
                 //       fixes https://github.com/vis2k/Mirror/issues/2536
                 Transport.activeTransport.ServerStop();
+
+                // transport handlers are hooked into when initializing.
+                // so only remove them when shutting down.
+                RemoveTransportHandlers();
+
                 initialized = false;
             }
 
