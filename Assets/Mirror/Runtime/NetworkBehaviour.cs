@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using Mirror.RemoteCalls;
 
 namespace Mirror
 {
@@ -235,8 +236,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
-                // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = functionFullName.GetStableHashCode(),
+                functionIndex = RemoteProcedureCalls.GetIndexFromFunctionHash(functionFullName),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
@@ -271,8 +271,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
-                // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = functionFullName.GetStableHashCode(),
+                functionIndex = RemoteProcedureCalls.GetIndexFromFunctionHash(functionFullName),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };
@@ -319,8 +318,7 @@ namespace Mirror
             {
                 netId = netId,
                 componentIndex = (byte)ComponentIndex,
-                // type+func so Inventory.RpcUse != Equipment.RpcUse
-                functionHash = functionFullName.GetStableHashCode(),
+                functionIndex = RemoteProcedureCalls.GetIndexFromFunctionHash(functionFullName),
                 // segment to avoid reader allocations
                 payload = writer.ToArraySegment()
             };

@@ -30,10 +30,44 @@ namespace Mirror.RemoteCalls
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
     public static class RemoteProcedureCalls
     {
-        // one lookup for all remote calls.
-        // allows us to easily add more remote call types without duplicating code.
-        // note: do not clear those with [RuntimeInitializeOnLoad]
-        static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
+        // sending rpc/cmd function hash would require 4 bytes each time.
+        // instead, let's only send the index to save bandwidth.
+        // => 1 byte index with 255 rpcs in total would not be enough.
+        // => 1 byte index with 255 rpcs per type is doable but lookup is hard,
+        //    because an rpc might be in the actual type or in the base type etc
+        // => 2 byte index allows for 64k Rpcs and is very easy to implement
+        //    with a SortedList + .IndexOfKey.
+        //
+        // NOTE: this could be 1 byte most of the time via VarInt!
+        //       but requires custom serialization for Command/RpcMessages.
+        //
+        // SortedList still doesn't allow duplicate keys, which is good.
+        // But it allows accessing keys by index.
+        static readonly SortedList<int, Invoker> remoteCallDelegates = new SortedList<int, Invoker>();
+
+        // hash -> index reverse lookup to cache .IndexOfKey() binary search.
+        static readonly Dictionary<int, ushort> remoteCallIndexLookup = new Dictionary<int, ushort>();
+
+        // helper function to get rpc/cmd index from function name / hash.
+        internal static ushort GetIndexFromFunctionHash(string functionFullName)
+        {
+            int hash = functionFullName.GetStableHashCode();
+
+            // IndexOfKey runs a binary search.
+            // cache results in lookup.
+            // IMPORTANT: can't cache results when registering rpcs/cmds as the
+            //            indices would only be valid after ALL were registered.
+            // return (ushort)remoteCallDelegates.IndexOfKey(hash);
+
+            // reuse cached index if possible
+            if (remoteCallIndexLookup.TryGetValue(hash, out ushort index))
+                return index;
+
+            // otherwise search and cache
+            ushort searchedIndex = (ushort)remoteCallDelegates.IndexOfKey(hash);
+            remoteCallIndexLookup[hash] = searchedIndex;
+            return searchedIndex;
+        }
 
         static bool CheckIfDelegateExists(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate func, int functionHash)
         {
@@ -64,6 +98,7 @@ namespace Mirror.RemoteCalls
             if (CheckIfDelegateExists(componentType, remoteCallType, func, hash))
                 return hash;
 
+            // register invoker by hash
             remoteCallDelegates[hash] = new Invoker
             {
                 callType = remoteCallType,
@@ -93,18 +128,30 @@ namespace Mirror.RemoteCalls
         // note: no need to throw an error if not found.
         // an attacker might just try to call a cmd with an rpc's hash etc.
         // returning false is enough.
-        static bool GetInvokerForHash(int functionHash, RemoteCallType remoteCallType, out Invoker invoker) =>
-            remoteCallDelegates.TryGetValue(functionHash, out invoker) &&
-            invoker != null &&
-            invoker.callType == remoteCallType;
+        static bool GetInvoker(ushort functionIndex, RemoteCallType remoteCallType, out Invoker invoker)
+        {
+            // valid index?
+            if (functionIndex <= remoteCallDelegates.Count)
+            {
+                // get key by index
+                int functionHash = remoteCallDelegates.Keys[functionIndex];
+                invoker = remoteCallDelegates[functionHash];
+                // check rpc type. don't allow calling cmds from rpcs, etc.
+                return invoker != null &&
+                       invoker.callType == remoteCallType;
+            }
+            invoker = null;
+            return false;
+        }
 
         // InvokeCmd/Rpc Delegate can all use the same function here
-        internal static bool Invoke(int functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkBehaviour component, NetworkConnectionToClient senderConnection = null)
+        // => invoke by index to save bandwidth (2 bytes instead of 4 bytes)
+        internal static bool Invoke(ushort functionIndex, RemoteCallType remoteCallType, NetworkReader reader, NetworkBehaviour component, NetworkConnectionToClient senderConnection = null)
         {
             // IMPORTANT: we check if the message's componentIndex component is
             //            actually of the right type. prevents attackers trying
             //            to invoke remote calls on wrong components.
-            if (GetInvokerForHash(functionHash, remoteCallType, out Invoker invoker) &&
+            if (GetInvoker(functionIndex, remoteCallType, out Invoker invoker) &&
                 invoker.componentType.IsInstanceOfType(component))
             {
                 // invoke function on this component
@@ -115,8 +162,8 @@ namespace Mirror.RemoteCalls
         }
 
         // check if the command 'requiresAuthority' which is set in the attribute
-        internal static bool CommandRequiresAuthority(int cmdHash) =>
-            GetInvokerForHash(cmdHash, RemoteCallType.Command, out Invoker invoker) &&
+        internal static bool CommandRequiresAuthority(ushort cmdIndex) =>
+            GetInvoker(cmdIndex, RemoteCallType.Command, out Invoker invoker) &&
             invoker.cmdRequiresAuthority;
 
         /// <summary>Gets the handler function by hash. Useful for profilers and debuggers.</summary>
@@ -124,6 +171,14 @@ namespace Mirror.RemoteCalls
             remoteCallDelegates.TryGetValue(functionHash, out Invoker invoker)
             ? invoker.function
             : null;
+
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod]
+        internal static void ResetStatics()
+        {
+            // clear rpc lookup every time.
+            // otherwise tests may have issues.
+            remoteCallIndexLookup.Clear();
+        }
     }
 }
-
