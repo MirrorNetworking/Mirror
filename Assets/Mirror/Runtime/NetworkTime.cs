@@ -53,7 +53,11 @@ namespace Mirror
         // and you cast down to float,  then the time will jump in 0.4s intervals.
         //
         // TODO consider using Unbatcher's remoteTime for NetworkTime
-        public static double time => localTime - _offset.Value;
+        public static double time
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => localTime - _offset.Value;
+        }
 
         /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
