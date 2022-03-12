@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror.RemoteCalls
@@ -49,6 +50,7 @@ namespace Mirror.RemoteCalls
         static readonly Dictionary<int, ushort> remoteCallIndexLookup = new Dictionary<int, ushort>();
 
         // helper function to get rpc/cmd index from function name / hash.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ushort GetIndexFromFunctionHash(string functionFullName)
         {
             int hash = functionFullName.GetStableHashCode();
