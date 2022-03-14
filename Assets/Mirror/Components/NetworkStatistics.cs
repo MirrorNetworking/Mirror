@@ -123,7 +123,7 @@ namespace Mirror
         void Update()
         {
             // calculate results every second
-            if (Time.timeAsDouble >= intervalStartTime + 1)
+            if (NetworkTime.localTime >= intervalStartTime + 1)
             {
                 if (NetworkClient.active) UpdateClient();
                 if (NetworkServer.active) UpdateServer();
