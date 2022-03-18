@@ -128,7 +128,7 @@ namespace Mirror
                 if (NetworkClient.active) UpdateClient();
                 if (NetworkServer.active) UpdateServer();
 
-                intervalStartTime = Time.timeAsDouble;
+                intervalStartTime = NetworkTime.localTime;
             }
         }
 
