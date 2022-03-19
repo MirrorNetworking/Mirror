@@ -1,11 +1,9 @@
 // Android NetworkDiscovery Multicast fix
 // https://github.com/vis2k/Mirror/pull/2887
 using UnityEditor;
-using UnityEngine;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using System.Xml;
-using System.IO;
 #if UNITY_ANDROID
 using UnityEditor.Android;
 #endif
