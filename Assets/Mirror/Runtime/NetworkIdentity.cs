@@ -1073,14 +1073,29 @@ namespace Mirror
             // find the right component to invoke the function on
             if (componentIndex < 0 || componentIndex >= NetworkBehaviours.Length)
             {
-                Debug.LogWarning($"Component [{componentIndex}] not found for [netId={netId}]");
+#if UNITY_SERVER
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Component [{componentIndex}] not found for [netId={netId}] on conn [{connectionToClient}].");
+                Console.ResetColor();
+                connectionToClient.Disconnect();
+#else
+                Debug.LogError($"Component [{componentIndex}] not found for [netId={netId}] on conn [{connectionToClient}].");
                 return;
+#endif
             }
 
             NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
             if (!RemoteProcedureCalls.Invoke(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
             {
-                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
+#if UNITY_SERVER
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances[netId ={netId}] on conn {connectionToClient}.");
+                Console.ResetColor();
+                connectionToClient.Disconnect();
+#else
+                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}] on conn {connectionToClient}.");
+                return;
+#endif
             }
         }
 
