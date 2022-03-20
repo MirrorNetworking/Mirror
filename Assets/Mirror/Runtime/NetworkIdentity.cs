@@ -1093,7 +1093,7 @@ namespace Mirror
                 Console.ResetColor();
                 connectionToClient.Disconnect();
 #else
-                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}] on conn {connectionToClient}.");
+                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionIndex}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}] on conn {connectionToClient}.");
                 return;
 #endif
             }
