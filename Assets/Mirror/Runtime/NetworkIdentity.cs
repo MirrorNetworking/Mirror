@@ -1061,17 +1061,17 @@ namespace Mirror
         }
 
         // Helper function to handle Command/Rpc
-        internal void HandleRemoteCall(int componentIndex, int functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
+        internal void HandleRemoteCall(byte componentIndex, ushort functionIndex, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             // check if unity object has been destroyed
             if (this == null)
             {
-                Debug.LogWarning($"{remoteCallType} [{functionHash}] received for deleted object [netId={netId}]");
+                Debug.LogWarning($"{remoteCallType} [{functionIndex}] received for deleted object [netId={netId}]");
                 return;
             }
 
             // find the right component to invoke the function on
-            if (componentIndex < 0 || componentIndex >= NetworkBehaviours.Length)
+            if (componentIndex >= NetworkBehaviours.Length)
             {
 #if UNITY_SERVER
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -1085,7 +1085,7 @@ namespace Mirror
             }
 
             NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-            if (!RemoteProcedureCalls.Invoke(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
+            if (!RemoteProcedureCalls.Invoke(functionIndex, remoteCallType, reader, invokeComponent, senderConnection))
             {
 #if UNITY_SERVER
                 Console.ForegroundColor = ConsoleColor.Red;

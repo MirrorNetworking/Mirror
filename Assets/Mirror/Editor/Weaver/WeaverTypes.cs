@@ -11,8 +11,8 @@ namespace Mirror.Weaver
         public MethodReference ScriptableObjectCreateInstanceMethod;
 
         public MethodReference NetworkBehaviourDirtyBitsReference;
-        public MethodReference GetPooledWriterReference;
-        public MethodReference RecycleWriterReference;
+        public MethodReference GetWriterReference;
+        public MethodReference ReturnWriterReference;
 
         public MethodReference NetworkClientConnectionReference;
 
@@ -95,8 +95,8 @@ namespace Mirror.Weaver
 
             NetworkBehaviourDirtyBitsReference = Resolvers.ResolveProperty(NetworkBehaviourType, assembly, "syncVarDirtyBits");
             TypeReference NetworkWriterPoolType = Import(typeof(NetworkWriterPool));
-            GetPooledWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "GetWriter", ref WeavingFailed);
-            RecycleWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "Recycle", ref WeavingFailed);
+            GetWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "Get", ref WeavingFailed);
+            ReturnWriterReference = Resolvers.ResolveMethod(NetworkWriterPoolType, assembly, Log, "Return", ref WeavingFailed);
 
             NetworkClientConnectionReference = Resolvers.ResolveMethod(NetworkClientType, assembly, Log, "get_connection", ref WeavingFailed);
 

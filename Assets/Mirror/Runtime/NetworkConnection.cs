@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
@@ -126,10 +127,11 @@ namespace Mirror
 
         // Send stage one: NetworkMessage<T>
         /// <summary>Send a NetworkMessage to this connection over the given channel.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // pack message and send allocation free
                 MessagePacking.Pack(message, writer);
@@ -141,6 +143,7 @@ namespace Mirror
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         // internal because no one except Mirror should send bytes directly to
         // the client. they would be detected as a message. send messages instead.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal virtual void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
         {
             //Debug.Log($"ConnectionSend {this} bytes:{BitConverter.ToString(segment.Array, segment.Offset, segment.Count)}");
@@ -165,6 +168,7 @@ namespace Mirror
         }
 
         // Send stage three: hand off to transport
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         // flush batched messages at the end of every Update.
@@ -176,7 +180,7 @@ namespace Mirror
                 // make and send as many batches as necessary from the stored
                 // messages.
                 Batcher batcher = kvp.Value;
-                using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
                     while (batcher.MakeNextBatch(writer, NetworkTime.localTime))

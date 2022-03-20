@@ -37,16 +37,23 @@ namespace Mirror
         public abstract bool Available();
 
         /// <summary>Called by Transport when the client connected to the server.</summary>
-        public Action OnClientConnected = () => Debug.LogWarning("OnClientConnected called with no handler");
+        public Action OnClientConnected;
 
         /// <summary>Called by Transport when the client received a message from the server.</summary>
-        public Action<ArraySegment<byte>, int> OnClientDataReceived = (data, channel) => Debug.LogWarning("OnClientDataReceived called with no handler");
+        public Action<ArraySegment<byte>, int> OnClientDataReceived;
+
+        /// <summary>Called by Transport when the client sent a message to the server.</summary>
+        // Transports are responsible for calling it because:
+        // - groups it together with OnReceived responsibility
+        // - allows transports to decide if anything was sent or not
+        // - allows transports to decide the actual used channel (i.e. tcp always sending reliable)
+        public Action<ArraySegment<byte>, int> OnClientDataSent;
 
         /// <summary>Called by Transport when the client encountered an error.</summary>
-        public Action<Exception> OnClientError = (error) => Debug.LogWarning("OnClientError called with no handler");
+        public Action<Exception> OnClientError;
 
         /// <summary>Called by Transport when the client disconnected from the server.</summary>
-        public Action OnClientDisconnected = () => Debug.LogWarning("OnClientDisconnected called with no handler");
+        public Action OnClientDisconnected;
 
         /// <summary>True if the client is currently connected to the server.</summary>
         public abstract bool ClientConnected();
@@ -74,17 +81,24 @@ namespace Mirror
         public abstract Uri ServerUri();
 
         /// <summary>Called by Transport when a new client connected to the server.</summary>
-        public Action<int> OnServerConnected = (connId) => Debug.LogWarning("OnServerConnected called with no handler");
+        public Action<int> OnServerConnected;
 
         /// <summary>Called by Transport when the server received a message from a client.</summary>
-        public Action<int, ArraySegment<byte>, int> OnServerDataReceived = (connId, data, channel) => Debug.LogWarning("OnServerDataReceived called with no handler");
+        public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
+
+        /// <summary>Called by Transport when the server sent a message to a client.</summary>
+        // Transports are responsible for calling it because:
+        // - groups it together with OnReceived responsibility
+        // - allows transports to decide if anything was sent or not
+        // - allows transports to decide the actual used channel (i.e. tcp always sending reliable)
+        public Action<int, ArraySegment<byte>, int> OnServerDataSent;
 
         /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
         /// If a Disconnect will also be raised, raise the Error first.
-        public Action<int, Exception> OnServerError = (connId, error) => Debug.LogWarning("OnServerError called with no handler");
+        public Action<int, Exception> OnServerError;
 
         /// <summary>Called by Transport when a client disconnected from the server.</summary>
-        public Action<int> OnServerDisconnected = (connId) => Debug.LogWarning("OnServerDisconnected called with no handler");
+        public Action<int> OnServerDisconnected;
 
         /// <summary>True if the server is currently listening for connections.</summary>
         public abstract bool ServerActive();

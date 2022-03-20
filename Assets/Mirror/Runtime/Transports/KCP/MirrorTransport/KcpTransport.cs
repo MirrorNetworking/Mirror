@@ -161,6 +161,9 @@ namespace kcp2k
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
             client.Send(segment, ToKcpChannel(channelId));
+
+            // call event. might be null if no statistics are listening etc.
+            OnClientDataSent?.Invoke(segment, channelId);
         }
         public override void ClientDisconnect() => client.Disconnect();
         // process incoming in early update
@@ -188,6 +191,9 @@ namespace kcp2k
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             server.Send(connectionId, segment, ToKcpChannel(channelId));
+
+            // call event. might be null if no statistics are listening etc.
+            OnServerDataSent?.Invoke(connectionId, segment, channelId);
         }
         public override void ServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
         public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);

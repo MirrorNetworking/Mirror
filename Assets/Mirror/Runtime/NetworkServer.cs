@@ -80,10 +80,20 @@ namespace Mirror
 
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnServerConnected = OnTransportConnected;
-            Transport.activeTransport.OnServerDataReceived = OnTransportData;
-            Transport.activeTransport.OnServerDisconnected = OnTransportDisconnected;
-            Transport.activeTransport.OnServerError = OnError;
+            // += so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnServerConnected += OnTransportConnected;
+            Transport.activeTransport.OnServerDataReceived += OnTransportData;
+            Transport.activeTransport.OnServerDisconnected += OnTransportDisconnected;
+            Transport.activeTransport.OnServerError += OnError;
+        }
+
+        static void RemoveTransportHandlers()
+        {
+            // -= so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnServerConnected -= OnTransportConnected;
+            Transport.activeTransport.OnServerDataReceived -= OnTransportData;
+            Transport.activeTransport.OnServerDisconnected -= OnTransportDisconnected;
+            Transport.activeTransport.OnServerError -= OnError;
         }
 
         // calls OnStartClient for all SERVER objects in host mode once.
@@ -174,6 +184,11 @@ namespace Mirror
                 //       but we still need to stop the server.
                 //       fixes https://github.com/vis2k/Mirror/issues/2536
                 Transport.activeTransport.ServerStop();
+
+                // transport handlers are hooked into when initializing.
+                // so only remove them when shutting down.
+                RemoveTransportHandlers();
+
                 initialized = false;
             }
 
@@ -282,7 +297,7 @@ namespace Mirror
             }
 
             // Debug.Log($"Server.SendToAll {typeof(T)}");
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // pack message only once
                 MessagePacking.Pack(message, writer);
@@ -328,7 +343,7 @@ namespace Mirror
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // pack message into byte[] once
                 MessagePacking.Pack(message, writer);
@@ -352,7 +367,7 @@ namespace Mirror
             if (identity == null || identity.observers == null || identity.observers.Count == 0)
                 return;
 
-            using (PooledNetworkWriter writer = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // pack message only once
                 MessagePacking.Pack(message, writer);
@@ -957,7 +972,7 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
+            bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionIndex);
             if (requiresAuthority && identity.connectionToClient != conn)
             {
                 Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
@@ -966,12 +981,12 @@ namespace Mirror
 
             // Debug.Log($"OnCommandMessage for netId:{msg.netId} conn:{conn}");
 
-            using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(msg.payload))
-                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, RemoteCallType.Command, networkReader, conn as NetworkConnectionToClient);
+            using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(msg.payload))
+                identity.HandleRemoteCall(msg.componentIndex, msg.functionIndex, RemoteCallType.Command, networkReader, conn as NetworkConnectionToClient);
         }
 
         // spawning ////////////////////////////////////////////////////////////
-        static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, PooledNetworkWriter ownerWriter, PooledNetworkWriter observersWriter)
+        static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, NetworkWriterPooled ownerWriter, NetworkWriterPooled observersWriter)
         {
             // Only call OnSerializeAllSafely if there are NetworkBehaviours
             if (identity.NetworkBehaviours.Length == 0)
@@ -1002,7 +1017,7 @@ namespace Mirror
             //Debug.Log($"Server SendSpawnMessage: name:{identity.name} sceneId:{identity.sceneId:X} netid:{identity.netId}");
 
             // one writer for owner, one for observers
-            using (PooledNetworkWriter ownerWriter = NetworkWriterPool.GetWriter(), observersWriter = NetworkWriterPool.GetWriter())
+            using (NetworkWriterPooled ownerWriter = NetworkWriterPool.Get(), observersWriter = NetworkWriterPool.Get())
             {
                 bool isOwner = identity.connectionToClient == conn;
                 ArraySegment<byte> payload = CreateSpawnMessagePayload(isOwner, identity, ownerWriter, observersWriter);

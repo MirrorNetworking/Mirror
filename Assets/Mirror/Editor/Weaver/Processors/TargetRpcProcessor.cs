@@ -100,7 +100,7 @@ namespace Mirror.Weaver
 
             NetworkBehaviourProcessor.WriteSetupLocals(worker, weaverTypes);
 
-            NetworkBehaviourProcessor.WriteCreateWriter(worker, weaverTypes);
+            NetworkBehaviourProcessor.WriteGetWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the TargetRpc call
             // (skip first one if first one is NetworkConnection)
@@ -127,7 +127,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldc_I4, targetRpcAttr.GetField("channel", 0));
             worker.Emit(OpCodes.Callvirt, weaverTypes.sendTargetRpcInternal);
 
-            NetworkBehaviourProcessor.WriteRecycleWriter(worker, weaverTypes);
+            NetworkBehaviourProcessor.WriteReturnWriter(worker, weaverTypes);
 
             worker.Emit(OpCodes.Ret);
 

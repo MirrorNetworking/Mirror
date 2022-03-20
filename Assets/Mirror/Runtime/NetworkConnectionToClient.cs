@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
@@ -26,6 +27,7 @@ namespace Mirror
             : base(networkConnectionId) {}
 
         // Send stage three: hand off to transport
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
             Transport.activeTransport.ServerSend(connectionId, segment, channelId);
 

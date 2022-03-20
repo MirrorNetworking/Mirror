@@ -103,10 +103,20 @@ namespace Mirror
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
-            Transport.activeTransport.OnClientConnected = OnTransportConnected;
-            Transport.activeTransport.OnClientDataReceived = OnTransportData;
-            Transport.activeTransport.OnClientDisconnected = OnTransportDisconnected;
-            Transport.activeTransport.OnClientError = OnError;
+            // += so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnClientConnected += OnTransportConnected;
+            Transport.activeTransport.OnClientDataReceived += OnTransportData;
+            Transport.activeTransport.OnClientDisconnected += OnTransportDisconnected;
+            Transport.activeTransport.OnClientError += OnError;
+        }
+
+        static void RemoveTransportHandlers()
+        {
+            // -= so that other systems can also hook into it (i.e. statistics)
+            Transport.activeTransport.OnClientConnected -= OnTransportConnected;
+            Transport.activeTransport.OnClientDataReceived -= OnTransportData;
+            Transport.activeTransport.OnClientDisconnected -= OnTransportDisconnected;
+            Transport.activeTransport.OnClientError -= OnError;
         }
 
         internal static void RegisterSystemHandlers(bool hostMode)
@@ -414,6 +424,10 @@ namespace Mirror
             // previously this was done in Disconnect() already, but we still
             // need it for the above OnDisconnectedEvent.
             connection = null;
+
+            // transport handlers are only added when connecting.
+            // so only remove when actually disconnecting.
+            RemoveTransportHandlers();
         }
 
         static void OnError(Exception exception)
@@ -1005,7 +1019,7 @@ namespace Mirror
             // (Count is 0 if there were no components)
             if (message.payload.Count > 0)
             {
-                using (PooledNetworkReader payloadReader = NetworkReaderPool.GetReader(message.payload))
+                using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
                 {
                     identity.OnDeserializeAllSafely(payloadReader, true);
                 }
@@ -1238,7 +1252,7 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
             {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(message.payload))
+                using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(message.payload))
                     localObject.OnDeserializeAllSafely(networkReader, false);
             }
             else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
@@ -1249,8 +1263,8 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnRPCMessage hash:{msg.functionHash} netId:{msg.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity))
             {
-                using (PooledNetworkReader networkReader = NetworkReaderPool.GetReader(message.payload))
-                    identity.HandleRemoteCall(message.componentIndex, message.functionHash, RemoteCallType.ClientRpc, networkReader);
+                using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(message.payload))
+                    identity.HandleRemoteCall(message.componentIndex, message.functionIndex, RemoteCallType.ClientRpc, networkReader);
             }
         }
 
