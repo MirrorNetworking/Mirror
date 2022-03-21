@@ -246,14 +246,28 @@ namespace Mirror
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
 
+        // reset only client sided statics.
+        // don't touch server statics when calling StopClient in host mode.
+        // https://github.com/vis2k/Mirror/issues/2954
+        internal static void ResetClientStatics()
+        {
+            previousLocalPlayer = null;
+            clientAuthorityCallback = null;
+        }
+
+        internal static void ResetServerStatics()
+        {
+            nextNetworkId = 1;
+        }
+
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         // internal so it can be called from NetworkServer & NetworkClient
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         internal static void ResetStatics()
         {
-            nextNetworkId = 1;
-            clientAuthorityCallback = null;
-            previousLocalPlayer = null;
+            // reset ALL statics
+            ResetClientStatics();
+            ResetServerStatics();
         }
 
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
@@ -754,7 +768,7 @@ namespace Mirror
         // ownership change due to sync to owner feature.
         // Without this static, the second time we get the spawn message we
         // would call OnStartLocalPlayer again on the same object
-        static NetworkIdentity previousLocalPlayer = null;
+        internal static NetworkIdentity previousLocalPlayer = null;
         internal void OnStartLocalPlayer()
         {
             if (previousLocalPlayer == this)

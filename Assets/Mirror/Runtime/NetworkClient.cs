@@ -1485,10 +1485,13 @@ namespace Mirror
             handlers.Clear();
             spawnableObjects.Clear();
 
-            // sets nextNetworkId to 1
-            // sets clientAuthorityCallback to null
-            // sets previousLocalPlayer to null
-            NetworkIdentity.ResetStatics();
+            // IMPORTANT: do NOT call NetworkIdentity.ResetStatics() here!
+            // calling StopClient() in host mode would reset nextNetId to 1,
+            // causing next connection to have a duplicate netId accidentally.
+            // => see also: https://github.com/vis2k/Mirror/issues/2954
+            //NetworkIdentity.ResetStatics();
+            // => instead, reset only the client sided statics.
+            NetworkIdentity.ResetClientStatics();
 
             // disconnect the client connection.
             // we do NOT call Transport.Shutdown, because someone only called
