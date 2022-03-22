@@ -1440,7 +1440,7 @@ namespace Mirror
                         //    on the host server, making them disconnect.
                         // https://github.com/vis2k/Mirror/issues/2954
                         bool hostOwned = identity.connectionToServer is LocalConnectionToServer;
-                        bool shouldDestroy = !NetworkServer.active || hostOwned;
+                        bool shouldDestroy = !identity.isServer || hostOwned;
                         if (shouldDestroy)
                         {
                             bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
