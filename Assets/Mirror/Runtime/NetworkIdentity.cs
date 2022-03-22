@@ -88,11 +88,7 @@ namespace Mirror
         /// <summary>True if this object exists on a client that is not also acting as a server.</summary>
         public bool isClientOnly => isClient && !isServer;
 
-        /// <summary>True if this object is the authoritative player object on the client.</summary>
-        // Determined at runtime. For most objects, authority is held by the server.
-        // For objects that had their authority set by AssignClientAuthority on
-        // the server, this will be true on the client that owns the object. NOT
-        // on other clients.
+        /// <summary>True on client if that component has been assigned to the client. E.g. player, pets, henchmen.</summary>
         public bool hasAuthority { get; internal set; }
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
