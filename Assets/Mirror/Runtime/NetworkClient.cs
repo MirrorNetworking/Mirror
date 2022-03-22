@@ -1432,20 +1432,32 @@ namespace Mirror
 
                         identity.OnStopClient();
 
-                        bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
-                        if (!wasUnspawned)
+                        // NetworkClient.Shutdown calls DestroyAllClientObjects.
+                        // which destroys all objects in NetworkClient.spawned.
+                        // => NC.spawned contains owned & observed objects
+                        // => in host mode, we CAN NOT destroy observed objects.
+                        // => that would destroy them other connection's objects
+                        //    on the host server, making them disconnect.
+                        // https://github.com/vis2k/Mirror/issues/2954
+                        bool hostOwned = identity.connectionToServer is LocalConnectionToServer;
+                        bool shouldDestroy = !NetworkServer.active || hostOwned;
+                        if (shouldDestroy)
                         {
-                            // scene objects are reset and disabled.
-                            // they always stay in the scene, we don't destroy them.
-                            if (identity.sceneId != 0)
+                            bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+                            if (!wasUnspawned)
                             {
-                                identity.Reset();
-                                identity.gameObject.SetActive(false);
-                            }
-                            // spawned objects are destroyed
-                            else
-                            {
-                                GameObject.Destroy(identity.gameObject);
+                                // scene objects are reset and disabled.
+                                // they always stay in the scene, we don't destroy them.
+                                if (identity.sceneId != 0)
+                                {
+                                    identity.Reset();
+                                    identity.gameObject.SetActive(false);
+                                }
+                                // spawned objects are destroyed
+                                else
+                                {
+                                    GameObject.Destroy(identity.gameObject);
+                                }
                             }
                         }
                     }
@@ -1471,7 +1483,6 @@ namespace Mirror
             // calls unspawnHandlers.Clear();
             ClearSpawners();
 
-            // calls spawned.Clear() if no exception occurs
             DestroyAllClientObjects();
 
             spawned.Clear();
