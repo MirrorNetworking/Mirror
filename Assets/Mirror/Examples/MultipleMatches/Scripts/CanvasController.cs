@@ -31,7 +31,7 @@ namespace Mirror.Examples.MultipleMatch
         /// <summary>
         /// Player informations by Network Connection
         /// </summary>
-        internal static readonly Dictionary<NetworkConnectionToClient, PlayerInfo> playerInfos = new Dictionary<NetworkConnectionToClient, PlayerInfo>();
+        internal static readonly Dictionary<NetworkConnection, PlayerInfo> playerInfos = new Dictionary<NetworkConnection, PlayerInfo>();
 
         /// <summary>
         /// Network Connections that have neither started nor joined a match yet
@@ -319,7 +319,7 @@ namespace Mirror.Examples.MultipleMatch
 
         internal void OnClientConnect()
         {
-            playerInfos.Add((NetworkConnectionToClient)NetworkClient.connection, new PlayerInfo { playerIndex = this.playerIndex, ready = false });
+            playerInfos.Add(NetworkClient.connection, new PlayerInfo { playerIndex = this.playerIndex, ready = false });
         }
 
         internal void OnStartClient()
