@@ -1433,7 +1433,14 @@ namespace Mirror
                         identity.OnStopClient();
 
                         bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
-                        if (!wasUnspawned)
+
+                        // unspawned objects should be reset for reuse later.
+                        if (wasUnspawned)
+                        {
+                            identity.Reset();
+                        }
+                        // without unspawn handler, we need to disable/destroy.
+                        else
                         {
                             // scene objects are reset and disabled.
                             // they always stay in the scene, we don't destroy them.
