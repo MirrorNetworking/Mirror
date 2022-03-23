@@ -12,11 +12,7 @@ namespace Mirror.Examples.Basic
         public Text playerNameText;
         public Text playerDataText;
 
-        /// <summary>
-        /// Caches the controlling Player object, subscribes to its events
-        /// </summary>
-        /// <param name="player">Player object that controls this UI</param>
-        /// <param name="isLocalPlayer">true if the Player object is the Local Player</param>
+        // Sets a highlight color for the local player
         public void SetLocalPlayer()
         {
             // add a visual background for the local player in the UI
