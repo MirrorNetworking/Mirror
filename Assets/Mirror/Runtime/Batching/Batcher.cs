@@ -32,14 +32,24 @@ namespace Mirror
         // TimeStamp header size for those who need it
         public const int HeaderSize = sizeof(double);
 
-        // batched messages
-        // IMPORTANT: we queue the serialized messages!
-        //            queueing NetworkMessage would box and allocate!
-        Queue<NetworkWriterPooled> messages = new Queue<NetworkWriterPooled>();
+        // finished batches
+        Queue<NetworkWriterPooled> batches = new Queue<NetworkWriterPooled>();
+        // current batch being written to
+        NetworkWriterPooled currentBatch;
 
         public Batcher(int threshold)
         {
             this.threshold = threshold;
+        }
+
+        private void NewBatch()
+        {
+            if (currentBatch != null)
+            {
+                batches.Enqueue(currentBatch);
+            }
+
+            currentBatch = NetworkWriterPool.Get();
         }
 
         // add a message for batching
@@ -47,23 +57,39 @@ namespace Mirror
         // caller needs to make sure they are within max packet size.
         public void AddMessage(ArraySegment<byte> message)
         {
+            if (currentBatch == null)
+            {
+                NewBatch();
+            }
+
+            if (message.Count + currentBatch.Position > threshold - HeaderSize &&
+                // larger-than-batch messages still get written
+                currentBatch.Position > 0)
+            {
+                NewBatch();
+            }
+
             // put into a (pooled) writer
             // -> WriteBytes instead of WriteSegment because the latter
             //    would add a size header. we want to write directly.
-            // -> will be returned to pool when making the batch!
+            // -> will be returned to pool after sending the batch!
             // IMPORTANT: NOT adding a size header / msg saves LOTS of bandwidth
-            NetworkWriterPooled writer = NetworkWriterPool.Get();
-            writer.WriteBytes(message.Array, message.Offset, message.Count);
-            messages.Enqueue(writer);
+            currentBatch.WriteBytes(message.Array, message.Offset, message.Count);
         }
 
-        // batch as many messages as possible into writer
         // returns true if any batch was made.
         public bool MakeNextBatch(NetworkWriter writer, double timeStamp)
         {
             // if we have no messages then there's nothing to do
-            if (messages.Count == 0)
-                return false;
+            if (batches.Count == 0)
+            {
+                if (currentBatch == null)
+                {
+                    return false;
+                }
+                batches.Enqueue(currentBatch);
+                currentBatch = null;
+            }
 
             // make sure the writer is fresh to avoid uncertain situations
             if (writer.Position != 0)
@@ -73,22 +99,11 @@ namespace Mirror
             // -> double precision for accuracy over long periods of time
             writer.WriteDouble(timeStamp);
 
-            // do start no matter what
-            do
-            {
-                // add next message no matter what. even if > threshold.
-                // (we do allow > threshold sized messages as single batch)
-                NetworkWriterPooled message = messages.Dequeue();
-                ArraySegment<byte> segment = message.ToArraySegment();
-                writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+            NetworkWriterPooled batch = batches.Dequeue();
 
-                // return the writer to pool
-                NetworkWriterPool.Return(message);
-            }
-            // keep going as long as we have more messages,
-            // AND the next one would fit into threshold.
-            while (messages.Count > 0 &&
-                   writer.Position + messages.Peek().Position <= threshold);
+            ArraySegment<byte> seg = batch.ToArraySegment();
+            writer.WriteBytes(seg.Array, seg.Offset, seg.Count);
+            NetworkWriterPool.Return(batch);
 
             // we had messages, so a batch was made
             return true;
