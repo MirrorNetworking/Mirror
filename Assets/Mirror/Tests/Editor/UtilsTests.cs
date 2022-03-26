@@ -37,19 +37,19 @@ namespace Mirror.Tests
             Assert.That(Utils.PrettyBytes(1023), Is.EqualTo("1023 B"));
 
             // kilobytes
-            Assert.That(Utils.PrettyBytes(1024), Is.EqualTo("1.00 KB"));
-            Assert.That(Utils.PrettyBytes(1024 + 512), Is.EqualTo("1.50 KB"));
-            Assert.That(Utils.PrettyBytes(2048), Is.EqualTo("2.00 KB"));
+            Assert.That(Utils.PrettyBytes(1024), Is.EqualTo($"{1.0:F2} KB"));
+            Assert.That(Utils.PrettyBytes(1024 + 512), Is.EqualTo($"{1.5:F2} KB"));
+            Assert.That(Utils.PrettyBytes(2048), Is.EqualTo($"{2.0:F2} KB"));
 
             // megabytes
-            Assert.That(Utils.PrettyBytes(1024 * 1024), Is.EqualTo("1.00 MB"));
-            Assert.That(Utils.PrettyBytes(1024 * (1024 + 512)), Is.EqualTo("1.50 MB"));
-            Assert.That(Utils.PrettyBytes(1024 * 1024 * 2), Is.EqualTo("2.00 MB"));
+            Assert.That(Utils.PrettyBytes(1024 * 1024), Is.EqualTo($"{1.0:F2} MB"));
+            Assert.That(Utils.PrettyBytes(1024 * (1024 + 512)), Is.EqualTo($"{1.5:F2} MB"));
+            Assert.That(Utils.PrettyBytes(1024 * 1024 * 2), Is.EqualTo($"{2.0:F2} MB"));
 
             // gigabytes
-            Assert.That(Utils.PrettyBytes(1024L * 1024L * 1024L), Is.EqualTo("1.00 GB"));
-            Assert.That(Utils.PrettyBytes(1024L * 1024L * (1024L + 512L)), Is.EqualTo("1.50 GB"));
-            Assert.That(Utils.PrettyBytes(1024L * 1024L * 1024L * 2L), Is.EqualTo("2.00 GB"));
+            Assert.That(Utils.PrettyBytes(1024L * 1024L * 1024L), Is.EqualTo($"{1.0:F2} GB"));
+            Assert.That(Utils.PrettyBytes(1024L * 1024L * (1024L + 512L)), Is.EqualTo($"{1.5:F2} GB"));
+            Assert.That(Utils.PrettyBytes(1024L * 1024L * 1024L * 2L), Is.EqualTo($"{2.0:F2} GB"));
         }
     }
 }
