@@ -73,6 +73,8 @@ namespace Mirror
 
                 // write timestamp first.
                 // -> double precision for accuracy over long periods of time
+                // -> batches are per-frame, it doesn't matter which message's
+                //    timestamp we use.
                 batch.WriteDouble(timeStamp);
             }
 
