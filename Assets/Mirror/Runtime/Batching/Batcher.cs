@@ -85,36 +85,37 @@ namespace Mirror
             }
         }
 
-        // get the next batch which is available for sending (if any).
-        // TODO safely get & return a batch instead of copying to writer?
-        // TODO could return pooled writer & use GetBatch in a 'using' statement!
-        public bool GetBatch(NetworkWriter writer)
+        // helper function to copy a batch to writer and return it to pool
+        static void CopyAndReturn(NetworkWriterPooled batch, NetworkWriter writer)
         {
             // make sure the writer is fresh to avoid uncertain situations
             if (writer.Position != 0)
                 throw new ArgumentException($"GetNextBatch needs a fresh writer!");
 
+            // copy to the target writer
+            ArraySegment<byte> segment = batch.ToArraySegment();
+            writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+
+            // return batch to pool for reuse
+            NetworkWriterPool.Return(batch);
+        }
+
+        // get the next batch which is available for sending (if any).
+        // TODO safely get & return a batch instead of copying to writer?
+        // TODO could return pooled writer & use GetBatch in a 'using' statement!
+        public bool GetBatch(NetworkWriter writer)
+        {
             // get first batch from queue (if any)
             if (batches.TryDequeue(out NetworkWriterPooled first))
             {
-                // copy to the target writer
-                ArraySegment<byte> segment = first.ToArraySegment();
-                writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
-
-                // return batch to pool for reuse
-                NetworkWriterPool.Return(first);
+                CopyAndReturn(first, writer);
                 return true;
             }
 
             // if queue was empty, we can send the batch in progress.
             if (batch != null)
             {
-                // copy to the target writer
-                ArraySegment<byte> segment = batch.ToArraySegment();
-                writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
-
-                // return batch to pool for reuse
-                NetworkWriterPool.Return(batch);
+                CopyAndReturn(batch, writer);
                 batch = null;
                 return true;
             }
