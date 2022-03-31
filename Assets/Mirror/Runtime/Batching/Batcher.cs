@@ -62,6 +62,18 @@ namespace Mirror
             //writer.WriteBytes(message.Array, message.Offset, message.Count);
             //messages.Enqueue(writer);
 
+            // when appending to a batch in progress, check final size.
+            // if it expands beyond threshold, then we should finalize it first.
+            // => less than or exactly threshold is fine.
+            //    GetBatch() will finalize it.
+            // => see unit tests.
+            if (batch != null &&
+                batch.Position + message.Count > threshold)
+            {
+                batches.Enqueue(batch);
+                batch = null;
+            }
+
             // initialize a new batch if necessary
             if (batch == null)
             {
@@ -76,13 +88,6 @@ namespace Mirror
             // add serialization to current batc. even if > threshold.
             // (we do allow > threshold sized messages as single batch)
             batch.WriteBytes(message.Array, message.Offset, message.Count);
-
-            // finalize this batch if >= threshold
-            if (batch.Position >= threshold)
-            {
-                batches.Enqueue(batch);
-                batch = null;
-            }
         }
 
         // helper function to copy a batch to writer and return it to pool
