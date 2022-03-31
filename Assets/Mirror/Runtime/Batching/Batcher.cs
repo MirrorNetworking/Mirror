@@ -88,7 +88,7 @@ namespace Mirror
         {
             // make sure the writer is fresh to avoid uncertain situations
             if (writer.Position != 0)
-                throw new ArgumentException($"GetNextBatch needs a fresh writer!");
+                throw new ArgumentException($"GetBatch needs a fresh writer!");
 
             // copy to the target writer
             ArraySegment<byte> segment = batch.ToArraySegment();
