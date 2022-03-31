@@ -32,10 +32,16 @@ namespace Mirror
         // TimeStamp header size for those who need it
         public const int HeaderSize = sizeof(double);
 
-        // batched messages
-        // IMPORTANT: we queue the serialized messages!
-        //            queueing NetworkMessage would box and allocate!
-        Queue<NetworkWriterPooled> messages = new Queue<NetworkWriterPooled>();
+        // full batches ready to be sent.
+        // DO NOT queue NetworkMessage, it would box.
+        // DO NOT queue each serialization separately.
+        //        it would allocate too many writers.
+        //        https://github.com/vis2k/Mirror/pull/3127
+        // => best to build batches on the fly.
+        Queue<NetworkWriterPooled> batches = new Queue<NetworkWriterPooled>();
+
+        // current batch in progress
+        NetworkWriterPooled batch;
 
         public Batcher(int threshold)
         {
@@ -45,53 +51,76 @@ namespace Mirror
         // add a message for batching
         // we allow any sized messages.
         // caller needs to make sure they are within max packet size.
-        public void AddMessage(ArraySegment<byte> message)
+        public void AddMessage(ArraySegment<byte> message, double timeStamp)
         {
             // put into a (pooled) writer
             // -> WriteBytes instead of WriteSegment because the latter
             //    would add a size header. we want to write directly.
             // -> will be returned to pool when making the batch!
             // IMPORTANT: NOT adding a size header / msg saves LOTS of bandwidth
-            NetworkWriterPooled writer = NetworkWriterPool.Get();
-            writer.WriteBytes(message.Array, message.Offset, message.Count);
-            messages.Enqueue(writer);
+            //NetworkWriterPooled writer = NetworkWriterPool.Get();
+            //writer.WriteBytes(message.Array, message.Offset, message.Count);
+            //messages.Enqueue(writer);
+
+            // initialize a new batch if necessary
+            if (batch == null)
+            {
+                // borrow from pool. we return it in GetBatch.
+                batch = NetworkWriterPool.Get();
+
+                // write timestamp first.
+                // -> double precision for accuracy over long periods of time
+                batch.WriteDouble(timeStamp);
+            }
+
+            // add serialization to current batc. even if > threshold.
+            // (we do allow > threshold sized messages as single batch)
+            batch.WriteBytes(message.Array, message.Offset, message.Count);
+
+            // finalize this batch if >= threshold
+            if (batch.Position >= threshold)
+            {
+                batches.Enqueue(batch);
+                batch = null;
+            }
         }
 
-        // batch as many messages as possible into writer
-        // returns true if any batch was made.
-        public bool GetNextBatch(NetworkWriter writer, double timeStamp)
+        // get the next batch which is available for sending (if any).
+        // TODO safely get & return a batch instead of copying to writer?
+        // TODO could return pooled writer & use GetBatch in a 'using' statement!
+        public bool GetBatch(NetworkWriter writer)
         {
-            // if we have no messages then there's nothing to do
-            if (messages.Count == 0)
-                return false;
-
             // make sure the writer is fresh to avoid uncertain situations
             if (writer.Position != 0)
                 throw new ArgumentException($"GetNextBatch needs a fresh writer!");
 
-            // write timestamp first
-            // -> double precision for accuracy over long periods of time
-            writer.WriteDouble(timeStamp);
-
-            // do start no matter what
-            do
+            // get first batch from queue (if any)
+            if (batches.TryDequeue(out NetworkWriterPooled first))
             {
-                // add next message no matter what. even if > threshold.
-                // (we do allow > threshold sized messages as single batch)
-                NetworkWriterPooled message = messages.Dequeue();
-                ArraySegment<byte> segment = message.ToArraySegment();
+                // copy to the target writer
+                ArraySegment<byte> segment = first.ToArraySegment();
                 writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
 
-                // return the writer to pool
-                NetworkWriterPool.Return(message);
+                // return batch to pool for reuse
+                NetworkWriterPool.Return(first);
+                return true;
             }
-            // keep going as long as we have more messages,
-            // AND the next one would fit into threshold.
-            while (messages.Count > 0 &&
-                   writer.Position + messages.Peek().Position <= threshold);
 
-            // we had messages, so a batch was made
-            return true;
+            // if queue was empty, we can send the batch in progress.
+            if (batch != null)
+            {
+                // copy to the target writer
+                ArraySegment<byte> segment = batch.ToArraySegment();
+                writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+
+                // return batch to pool for reuse
+                NetworkWriterPool.Return(batch);
+                batch = null;
+                return true;
+            }
+
+            // nothing was written
+            return false;
         }
     }
 }
