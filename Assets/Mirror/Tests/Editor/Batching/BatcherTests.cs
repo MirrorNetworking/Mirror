@@ -43,7 +43,7 @@ namespace Mirror.Tests.Batching
 
             writer.WriteByte(0);
             Assert.Throws<ArgumentException>(() => {
-                batcher.MakeNextBatch(writer, TimeStamp);
+                batcher.GetNextBatch(writer, TimeStamp);
             });
         }
 
@@ -51,7 +51,7 @@ namespace Mirror.Tests.Batching
         public void MakeNextBatch_NoMessage()
         {
             // make batch with no message
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(false));
         }
 
@@ -63,7 +63,7 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(message));
 
             // make batch
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
@@ -77,14 +77,14 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03}));
 
             // make batch
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
             Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02, 0x03})));
 
             // there should be no more batches to make
-            Assert.That(batcher.MakeNextBatch(writer, TimeStamp), Is.False);
+            Assert.That(batcher.GetNextBatch(writer, TimeStamp), Is.False);
         }
 
         [Test]
@@ -94,14 +94,14 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x03, 0x04}));
 
             // make batch
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
             Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02, 0x03, 0x04})));
 
             // there should be no more batches to make
-            Assert.That(batcher.MakeNextBatch(writer, TimeStamp), Is.False);
+            Assert.That(batcher.GetNextBatch(writer, TimeStamp), Is.False);
         }
 
         [Test]
@@ -112,7 +112,7 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x05}));
 
             // first batch
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
@@ -122,7 +122,7 @@ namespace Mirror.Tests.Batching
             writer.Position = 0;
 
             // second batch
-            result = batcher.MakeNextBatch(writer, TimeStamp);
+            result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
@@ -138,7 +138,7 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x06, 0x07}));
 
             // first batch
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
@@ -148,7 +148,7 @@ namespace Mirror.Tests.Batching
             writer.Position = 0;
 
             // second batch
-            result = batcher.MakeNextBatch(writer, TimeStamp);
+            result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
@@ -158,7 +158,7 @@ namespace Mirror.Tests.Batching
             writer.Position = 0;
 
             // third batch
-            result = batcher.MakeNextBatch(writer, TimeStamp);
+            result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
 
             // check result: <<tickTimeStamp:8, message>>
@@ -179,7 +179,7 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(large));
 
             // result should be only the large message
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
             Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, large)));
         }
@@ -206,7 +206,7 @@ namespace Mirror.Tests.Batching
             batcher.AddMessage(new ArraySegment<byte>(new byte[]{0x04}));
 
             // first batch should be the two small messages
-            bool result = batcher.MakeNextBatch(writer, TimeStamp);
+            bool result = batcher.GetNextBatch(writer, TimeStamp);
             Assert.That(result, Is.EqualTo(true));
             Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02})));
 
@@ -214,7 +214,7 @@ namespace Mirror.Tests.Batching
             writer.Position = 0;
 
             // second batch should be only the large message
-            result = batcher.MakeNextBatch(writer, TimeStamp + 1);
+            result = batcher.GetNextBatch(writer, TimeStamp + 1);
             Assert.That(result, Is.EqualTo(true));
             Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp + 1, large)));
 
@@ -222,7 +222,7 @@ namespace Mirror.Tests.Batching
             writer.Position = 0;
 
             // third batch be the two small messages
-            result = batcher.MakeNextBatch(writer, TimeStamp + 2);
+            result = batcher.GetNextBatch(writer, TimeStamp + 2);
             Assert.That(result, Is.EqualTo(true));
             Assert.That(writer.ToArray().SequenceEqual(ConcatTimestamp(TimeStamp + 2, new byte[]{0x03, 0x04})));
         }

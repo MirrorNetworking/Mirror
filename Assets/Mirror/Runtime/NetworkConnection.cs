@@ -183,7 +183,7 @@ namespace Mirror
                 using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
-                    while (batcher.MakeNextBatch(writer, NetworkTime.localTime))
+                    while (batcher.GetNextBatch(writer, NetworkTime.localTime))
                     {
                         // validate packet before handing the batch to the
                         // transport. this guarantees that we always stay
