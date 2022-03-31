@@ -53,15 +53,6 @@ namespace Mirror
         // caller needs to make sure they are within max packet size.
         public void AddMessage(ArraySegment<byte> message, double timeStamp)
         {
-            // put into a (pooled) writer
-            // -> WriteBytes instead of WriteSegment because the latter
-            //    would add a size header. we want to write directly.
-            // -> will be returned to pool when making the batch!
-            // IMPORTANT: NOT adding a size header / msg saves LOTS of bandwidth
-            //NetworkWriterPooled writer = NetworkWriterPool.Get();
-            //writer.WriteBytes(message.Array, message.Offset, message.Count);
-            //messages.Enqueue(writer);
-
             // when appending to a batch in progress, check final size.
             // if it expands beyond threshold, then we should finalize it first.
             // => less than or exactly threshold is fine.
@@ -86,7 +77,9 @@ namespace Mirror
             }
 
             // add serialization to current batc. even if > threshold.
-            // (we do allow > threshold sized messages as single batch)
+            // -> we do allow > threshold sized messages as single batch
+            // -> WriteBytes instead of WriteSegment because the latter
+            //    would add a size header. we want to write directly.
             batch.WriteBytes(message.Array, message.Offset, message.Count);
         }
 
