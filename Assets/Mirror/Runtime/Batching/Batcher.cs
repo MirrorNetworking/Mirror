@@ -76,7 +76,7 @@ namespace Mirror
                 batch.WriteDouble(timeStamp);
             }
 
-            // add serialization to current batc. even if > threshold.
+            // add serialization to current batch. even if > threshold.
             // -> we do allow > threshold sized messages as single batch
             // -> WriteBytes instead of WriteSegment because the latter
             //    would add a size header. we want to write directly.
