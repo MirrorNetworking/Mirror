@@ -1091,6 +1091,7 @@ namespace Mirror
 #else
                 Debug.LogError($"Component [{componentIndex}] not found for [netId={netId}] on conn [{connectionToClient}].");
                 return;
+#endif
             }
 
             NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
