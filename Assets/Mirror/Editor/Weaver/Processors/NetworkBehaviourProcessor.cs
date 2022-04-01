@@ -630,9 +630,9 @@ namespace Mirror.Weaver
             }
         }
 
+        public const string DeserializeMethodName = "DeserializeSyncVars";
         void GenerateDeSerialization(ref bool WeavingFailed)
         {
-            const string DeserializeMethodName = "DeserializeSyncVars";
             if (netBehaviourSubclass.GetMethod(DeserializeMethodName) != null)
                 return;
 
