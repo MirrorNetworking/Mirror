@@ -38,6 +38,9 @@ namespace Mirror.Tests.SyncVarAttributeTests
     {
         [SyncVar]
         public int value;
+
+        // property to see IL code for passing properties as ref.
+        public int property { get; set; }
     }
     class SyncVarAbstractNetworkBehaviour : NetworkBehaviour
     {

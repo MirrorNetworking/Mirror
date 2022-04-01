@@ -208,7 +208,10 @@ namespace Mirror.Weaver
 
                 if (modified)
                 {
-                    SyncVarAttributeAccessReplacer.Process(moduleDefinition, syncVarAccessLists);
+                    // replace [SyncVar] access with generated properties.
+                    // this is not allowed for all cases.
+                    // if it fails, return false to indicate failed compilation.
+                    SyncVarAttributeAccessReplacer.Process(moduleDefinition, syncVarAccessLists, ref WeavingFailed, Log);
 
                     // add class that holds read/write functions
                     moduleDefinition.Types.Add(GeneratedCodeClass);
@@ -220,6 +223,13 @@ namespace Mirror.Weaver
                     // ILPostProcessor writes to in-memory assembly.
                     // it depends on the caller.
                     //CurrentAssembly.Write(new WriterParameters{ WriteSymbols = true });
+                }
+
+                // SyncVarAttributeAccessReplacer may fail weaving.
+                // need to check again here.
+                if (WeavingFailed)
+                {
+                    return false;
                 }
 
                 return true;

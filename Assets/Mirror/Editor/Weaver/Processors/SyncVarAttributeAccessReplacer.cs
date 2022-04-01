@@ -11,7 +11,7 @@ namespace Mirror.Weaver
     public static class SyncVarAttributeAccessReplacer
     {
         // process the module
-        public static void Process(ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists)
+        public static void Process(ModuleDefinition moduleDef, SyncVarAccessLists syncVarAccessLists, ref bool WeavingFailed, Logger Log)
         {
             DateTime startTime = DateTime.Now;
 
@@ -20,31 +20,31 @@ namespace Mirror.Weaver
             {
                 if (td.IsClass)
                 {
-                    ProcessClass(syncVarAccessLists, td);
+                    ProcessClass(syncVarAccessLists, td, ref WeavingFailed, Log);
                 }
             }
 
             Console.WriteLine($"  ProcessSitesModule {moduleDef.Name} elapsed time:{(DateTime.Now - startTime)}");
         }
 
-        static void ProcessClass(SyncVarAccessLists syncVarAccessLists, TypeDefinition td)
+        static void ProcessClass(SyncVarAccessLists syncVarAccessLists, TypeDefinition td, ref bool WeavingFailed, Logger Log)
         {
             //Console.WriteLine($"    ProcessClass {td}");
 
             // process all methods in this class
             foreach (MethodDefinition md in td.Methods)
             {
-                ProcessMethod(syncVarAccessLists, md);
+                ProcessMethod(syncVarAccessLists, md, ref WeavingFailed, Log);
             }
 
             // processes all nested classes in this class recursively
             foreach (TypeDefinition nested in td.NestedTypes)
             {
-                ProcessClass(syncVarAccessLists, nested);
+                ProcessClass(syncVarAccessLists, nested, ref WeavingFailed, Log);
             }
         }
 
-        static void ProcessMethod(SyncVarAccessLists syncVarAccessLists, MethodDefinition md)
+        static void ProcessMethod(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, ref bool WeavingFailed, Logger Log)
         {
             // process all references to replaced members with properties
             //Log.Warning($"      ProcessSiteMethod {md}");
@@ -67,12 +67,12 @@ namespace Mirror.Weaver
                 for (int i = 0; i < md.Body.Instructions.Count;)
                 {
                     Instruction instr = md.Body.Instructions[i];
-                    i += ProcessInstruction(syncVarAccessLists, md, instr, i);
+                    i += ProcessInstruction(syncVarAccessLists, md, instr, i, ref WeavingFailed, Log);
                 }
             }
         }
 
-        static int ProcessInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount)
+        static int ProcessInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, int iCount, ref bool WeavingFailed, Logger Log)
         {
             // stfld (sets value of a field)?
             if (instr.OpCode == OpCodes.Stfld && instr.Operand is FieldDefinition opFieldst)
@@ -92,7 +92,7 @@ namespace Mirror.Weaver
             {
                 // watch out for initobj instruction
                 // see https://github.com/vis2k/Mirror/issues/696
-                return ProcessLoadAddressInstruction(syncVarAccessLists, md, instr, opFieldlda, iCount);
+                return ProcessLoadAddressInstruction(syncVarAccessLists, md, instr, opFieldlda, iCount, ref WeavingFailed, Log);
             }
 
             // we processed one instruction (instr)
@@ -135,7 +135,7 @@ namespace Mirror.Weaver
             }
         }
 
-        static int ProcessLoadAddressInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount)
+        static int ProcessLoadAddressInstruction(SyncVarAccessLists syncVarAccessLists, MethodDefinition md, Instruction instr, FieldDefinition opField, int iCount, ref bool WeavingFailed, Logger Log)
         {
             // don't replace property call sites in constructors
             if (md.Name == ".ctor")
@@ -165,6 +165,12 @@ namespace Mirror.Weaver
                     worker.Remove(instr);
                     worker.Remove(nextInstr);
                     return 4;
+                }
+                // https://github.com/vis2k/Mirror/issues/3129
+                else
+                {
+                    Log.Error($"{md.FullName} accesses [SyncVar] {opField.Name} by reference. This is not supported, because [SyncVar]s are internally represented as properties, and C# can not access properties by reference.");
+                    WeavingFailed = true;
                 }
             }
 
