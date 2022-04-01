@@ -164,7 +164,7 @@ namespace Mirror
             //
             // NOTE: we do NOT ValidatePacketSize here yet. the final packet
             //       will be the full batch, including timestamp.
-            GetBatchForChannelId(channelId).AddMessage(segment);
+            GetBatchForChannelId(channelId).AddMessage(segment, NetworkTime.localTime);
         }
 
         // Send stage three: hand off to transport
@@ -183,7 +183,7 @@ namespace Mirror
                 using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
-                    while (batcher.MakeNextBatch(writer, NetworkTime.localTime))
+                    while (batcher.GetBatch(writer))
                     {
                         // validate packet before handing the batch to the
                         // transport. this guarantees that we always stay

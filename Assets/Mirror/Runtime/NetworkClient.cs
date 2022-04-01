@@ -1432,20 +1432,39 @@ namespace Mirror
 
                         identity.OnStopClient();
 
-                        bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
-                        if (!wasUnspawned)
+                        // NetworkClient.Shutdown calls DestroyAllClientObjects.
+                        // which destroys all objects in NetworkClient.spawned.
+                        // => NC.spawned contains owned & observed objects
+                        // => in host mode, we CAN NOT destroy observed objects.
+                        // => that would destroy them other connection's objects
+                        //    on the host server, making them disconnect.
+                        // https://github.com/vis2k/Mirror/issues/2954
+                        bool hostOwned = identity.connectionToServer is LocalConnectionToServer;
+                        bool shouldDestroy = !identity.isServer || hostOwned;
+                        if (shouldDestroy)
                         {
-                            // scene objects are reset and disabled.
-                            // they always stay in the scene, we don't destroy them.
-                            if (identity.sceneId != 0)
+                            bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+
+                            // unspawned objects should be reset for reuse later.
+                            if (wasUnspawned)
                             {
                                 identity.Reset();
-                                identity.gameObject.SetActive(false);
                             }
-                            // spawned objects are destroyed
+                            // without unspawn handler, we need to disable/destroy.
                             else
                             {
-                                GameObject.Destroy(identity.gameObject);
+                                // scene objects are reset and disabled.
+                                // they always stay in the scene, we don't destroy them.
+                                if (identity.sceneId != 0)
+                                {
+                                    identity.Reset();
+                                    identity.gameObject.SetActive(false);
+                                }
+                                // spawned objects are destroyed
+                                else
+                                {
+                                    GameObject.Destroy(identity.gameObject);
+                                }
                             }
                         }
                     }
@@ -1478,10 +1497,13 @@ namespace Mirror
             handlers.Clear();
             spawnableObjects.Clear();
 
-            // sets nextNetworkId to 1
-            // sets clientAuthorityCallback to null
-            // sets previousLocalPlayer to null
-            NetworkIdentity.ResetStatics();
+            // IMPORTANT: do NOT call NetworkIdentity.ResetStatics() here!
+            // calling StopClient() in host mode would reset nextNetId to 1,
+            // causing next connection to have a duplicate netId accidentally.
+            // => see also: https://github.com/vis2k/Mirror/issues/2954
+            //NetworkIdentity.ResetStatics();
+            // => instead, reset only the client sided statics.
+            NetworkIdentity.ResetClientStatics();
 
             // disconnect the client connection.
             // we do NOT call Transport.Shutdown, because someone only called

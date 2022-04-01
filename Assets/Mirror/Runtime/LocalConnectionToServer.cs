@@ -33,14 +33,14 @@ namespace Mirror
             // OnTransportData assumes batching.
             // so let's make a batch with proper timestamp prefix.
             Batcher batcher = GetBatchForChannelId(channelId);
-            batcher.AddMessage(segment);
+            batcher.AddMessage(segment, NetworkTime.localTime);
 
             // flush it to the server's OnTransportData immediately.
             // local connection to server always invokes immediately.
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // make a batch with our local time (double precision)
-                if (batcher.MakeNextBatch(writer, NetworkTime.localTime))
+                if (batcher.GetBatch(writer))
                 {
                     NetworkServer.OnTransportData(connectionId, writer.ToArraySegment(), channelId);
                 }
@@ -69,12 +69,12 @@ namespace Mirror
                 // OnTransportData assumes a proper batch with timestamp etc.
                 // let's make a proper batch and pass it to OnTransportData.
                 Batcher batcher = GetBatchForChannelId(Channels.Reliable);
-                batcher.AddMessage(message);
+                batcher.AddMessage(message, NetworkTime.localTime);
 
                 using (NetworkWriterPooled batchWriter = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
-                    if (batcher.MakeNextBatch(batchWriter, NetworkTime.localTime))
+                    if (batcher.GetBatch(batchWriter))
                     {
                         NetworkClient.OnTransportData(batchWriter.ToArraySegment(), Channels.Reliable);
                     }
