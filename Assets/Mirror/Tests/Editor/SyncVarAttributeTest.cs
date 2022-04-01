@@ -34,6 +34,11 @@ namespace Mirror.Tests.SyncVarAttributeTests
         [SyncVar]
         public SyncVarNetworkBehaviour value;
     }
+    class SyncVarSetByRef : NetworkBehaviour
+    {
+        [SyncVar]
+        public int value;
+    }
     class SyncVarAbstractNetworkBehaviour : NetworkBehaviour
     {
         public abstract class MockMonsterBase : NetworkBehaviour
@@ -419,6 +424,23 @@ namespace Mirror.Tests.SyncVarAttributeTests
             // check that the syncvars got updated
             Assert.That(clientBehaviour.monster1, Is.EqualTo(serverBehaviour.monster1), "Data should be synchronized");
             Assert.That(clientBehaviour.monster2, Is.EqualTo(serverBehaviour.monster2), "Data should be synchronized");
+        }
+
+        // test to prevent https://github.com/vis2k/Mirror/issues/3129
+        [Test]
+        public void SyncsIfSetByRef()
+        {
+            CreateNetworkedAndSpawn(
+                out _, out _, out SyncVarSetByRef serverObject,
+                out _, out _, out SyncVarSetByRef clientObject);
+
+            // set it by ref on the server
+            void Setter(out int value) => value = 42;
+            Setter(out serverObject.value);
+
+            // should sync to client
+            ProcessMessages();
+            Assert.That(clientObject.value, Is.EqualTo(42));
         }
     }
 }
