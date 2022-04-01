@@ -38,5 +38,20 @@ namespace Mirror
             // foreach allocates. use AddRange.
             destination.AddRange(source);
         }
+
+#if !UNITY_2020_1_OR_NEWER
+        // Unity 2019 doesn't have Queue.TryDeque which we need for batching.
+        public static bool TryDequeue<T>(this Queue<T> source, out T element)
+        {
+            if (source.Count > 0)
+            {
+                element = source.Dequeue();
+                return true;
+            }
+
+            element = default;
+            return false;
+        }
+#endif
     }
 }
