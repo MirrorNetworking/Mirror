@@ -39,7 +39,7 @@ namespace Mirror
             destination.AddRange(source);
         }
 
-#if !UNITY_2020_1_OR_NEWER
+#if !UNITY_2021_OR_NEWER
         // Unity 2019 doesn't have Queue.TryDeque which we need for batching.
         public static bool TryDequeue<T>(this Queue<T> source, out T element)
         {
