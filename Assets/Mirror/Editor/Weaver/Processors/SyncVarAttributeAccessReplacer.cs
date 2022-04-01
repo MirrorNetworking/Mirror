@@ -147,7 +147,6 @@ namespace Mirror.Weaver
                 // we have a replacement for this property
                 // is the next instruction a initobj?
                 Instruction nextInstr = md.Body.Instructions[iCount + 1];
-
                 if (nextInstr.OpCode == OpCodes.Initobj)
                 {
                     // we need to replace this code with:
@@ -166,11 +165,21 @@ namespace Mirror.Weaver
                     worker.Remove(nextInstr);
                     return 4;
                 }
+                // otherwise user is passing [SyncVar] by ref.
+                // this is not supported because the generated [SyncVar] property
+                // can not be passed by ref.
                 // https://github.com/vis2k/Mirror/issues/3129
                 else
                 {
-                    Log.Error($"{md.FullName} accesses [SyncVar] {opField.Name} by reference. This is not supported, because [SyncVar]s are internally represented as properties, and C# can not access properties by reference.");
-                    WeavingFailed = true;
+                    // need to ignore ref passing in the generated [SyncVar]
+                    // property. that's allowed. everywhere else it's not.
+                    // for example, Networkhealth generated property setter calls
+                    // NetworkBehaviour.GeneratedSyncVarSetter(ref originalField, ...)
+                    if (md != replacement)
+                    {
+                        Log.Error($"{md.FullName} accesses [SyncVar] {opField.Name} by reference. [REPLACEMENT={replacement.Name}] This is not supported, because [SyncVar]s are internally represented as properties, and C# can not access properties by reference.");
+                        WeavingFailed = true;
+                    }
                 }
             }
 
