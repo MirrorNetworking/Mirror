@@ -175,6 +175,7 @@ namespace Mirror.Weaver
                     // property. that's allowed. everywhere else it's not.
                     // for example, Networkhealth generated property setter calls
                     // NetworkBehaviour.GeneratedSyncVarSetter(ref originalField, ...)
+                    // TODO also need to ignore generated Deserialize
                     if (md != replacement)
                     {
                         Log.Error($"{md.FullName} accesses [SyncVar] {opField.Name} by reference. [REPLACEMENT={replacement.Name}] This is not supported, because [SyncVar]s are internally represented as properties, and C# can not access properties by reference.");
