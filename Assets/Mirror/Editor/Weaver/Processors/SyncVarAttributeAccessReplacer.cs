@@ -183,7 +183,7 @@ namespace Mirror.Weaver
                         !syncVarAccessLists.replacementGetterProperties.ContainsKey(opField) && // getter
                         md.Name != NetworkBehaviourProcessor.DeserializeMethodName)             // Deserialize
                     {
-                        Log.Error($"{md.FullName} accesses [SyncVar] {opField.Name} by reference. [REPLACEMENT={replacement.Name}] This is not supported, because [SyncVar]s are internally represented as properties, and C# can not access properties by reference.");
+                        Log.Error($"{md.FullName} accesses [SyncVar] {opField.Name} by reference. This is not supported, because [SyncVar]s are internally represented as properties, and C# can not access properties by reference.");
                         WeavingFailed = true;
                     }
                 }
