@@ -171,15 +171,17 @@ namespace Mirror.Weaver
                 // https://github.com/vis2k/Mirror/issues/3129
                 else
                 {
-                    // need to ignore ref passing in the generated [SyncVar]
-                    // property. that's allowed. everywhere else it's not.
-                    // for example, Networkhealth generated property setter calls
-                    // NetworkBehaviour.GeneratedSyncVarSetter(ref originalField, ...)
-                    //
-                    // generated Deserialization also passes as ref for same method.
-                    // ignore that too.
-                    if (md != replacement &&
-                        md.Name != NetworkBehaviourProcessor.DeserializeMethodName)
+                    // the original [SyncVar] field is passed as ref by weaver.
+                    // * generated property getter may pass as ref for NI:
+                    //   GetSyncVarNetworkIdentity(___currentPlayerNetId, ref currentPlayer);
+                    // * generated property setter always passes as ref:
+                    //   GeneratedSyncVarSetter_NetworkIdentity(value, ref currentPlayer, ...);
+                    // * generated DeserializeSyncVars passes as ref:
+                    //   GeneratedSyncVarDeserialize_NetworkIdentity(ref currentPlayer, ...);
+                    // ignore these cases. forbid everything else.
+                    if (md != replacement &&                                                    // setter
+                        !syncVarAccessLists.replacementGetterProperties.ContainsKey(opField) && // getter
+                        md.Name != NetworkBehaviourProcessor.DeserializeMethodName)             // Deserialize
                     {
                         Log.Error($"{md.FullName} accesses [SyncVar] {opField.Name} by reference. [REPLACEMENT={replacement.Name}] This is not supported, because [SyncVar]s are internally represented as properties, and C# can not access properties by reference.");
                         WeavingFailed = true;
