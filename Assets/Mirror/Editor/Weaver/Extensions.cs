@@ -229,7 +229,7 @@ namespace Mirror.Weaver
             {
                 foreach (FieldDefinition field in typeDefinition.Fields)
                 {
-                    if (field.IsStatic || field.IsPrivate)
+                    if (field.IsStatic || !field.IsPublic)
                         continue;
 
                     if (field.IsNotSerialized)
