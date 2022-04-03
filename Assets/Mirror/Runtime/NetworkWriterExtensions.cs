@@ -317,11 +317,10 @@ namespace Mirror
             // end, and it might not be obvious why. let's make it obvious.
             // https://github.com/vis2k/Mirror/issues/2060
             //
-            // => exception because this is comparable to a compilation.
-            //    error. user should fix this asap to make sure the game
-            //    works as intended.
+            // => warning (instead of exception) because we also use a warning
+            //    if a GameObject doesn't have a NetworkIdentity component etc.
             if (value.netId == 0)
-                throw new ArgumentException($"Attempted to serialize unspawned GameObject: {value.name}. Prefabs and unspawned GameObjects would always be null on the other side. Please spawn it before using it in [SyncVar]s/Rpcs/Cmds/NetworkMessages etc.");
+                Debug.LogWarning($"Attempted to serialize unspawned GameObject: {value.name}. Prefabs and unspawned GameObjects would always be null on the other side. Please spawn it before using it in [SyncVar]s/Rpcs/Cmds/NetworkMessages etc.");
 
             writer.WriteUInt(value.netId);
         }

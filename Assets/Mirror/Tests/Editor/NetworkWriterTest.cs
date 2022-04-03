@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -1427,11 +1429,10 @@ namespace Mirror.Tests
             // create GO + NI, but unspawned
             CreateNetworked(out GameObject go, out _);
 
-            // serializing in rpc/cmd/message should throw if unspawned.
+            // serializing in rpc/cmd/message should warn if unspawned.
+            LogAssert.Expect(LogType.Warning, new Regex("Attempted to serialize unspawned.*"));
             NetworkWriter writer = new NetworkWriter();
-            Assert.Throws<ArgumentException>(() => {
-                writer.WriteGameObject(go);
-            });
+            writer.WriteGameObject(go);
         }
 
         // test to make sure unspawned / prefab GameObjects can't be synced.
@@ -1443,11 +1444,10 @@ namespace Mirror.Tests
             // create GO + NI, but unspawned
             CreateNetworked(out _, out NetworkIdentity identity);
 
-            // serializing in rpc/cmd/message should throw if unspawned.
+            // serializing in rpc/cmd/message should warn if unspawned.
+            LogAssert.Expect(LogType.Warning, new Regex("Attempted to serialize unspawned.*"));
             NetworkWriter writer = new NetworkWriter();
-            Assert.Throws<ArgumentException>(() => {
-                writer.WriteNetworkIdentity(identity);
-            });
+            writer.WriteNetworkIdentity(identity);
         }
     }
 }
