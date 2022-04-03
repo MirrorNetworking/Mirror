@@ -215,21 +215,11 @@ namespace Mirror
             if (netId == 0)
                 return null;
 
-            // look in server spawned
-            if (NetworkServer.active &&
-                NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity serverIdentity))
-                return serverIdentity;
-
-            // look in client spawned
-            if (NetworkClient.active &&
-                NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity clientIdentity))
-                return clientIdentity;
-
-            // a netId not being in spawned is common.
+            // NOTE: a netId not being in spawned is common.
             // for example, "[SyncVar] NetworkIdentity target" netId would not
             // be known on client if the monster walks out of proximity for a
             // moment. no need to log any error or warning here.
-            return null;
+            return Utils.GetSpawnedInServerOrClient(netId);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
