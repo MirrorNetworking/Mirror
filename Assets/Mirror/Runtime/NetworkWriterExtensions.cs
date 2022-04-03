@@ -311,6 +311,18 @@ namespace Mirror
                 writer.WriteUInt(0);
                 return;
             }
+
+            // users might try to use unspawned / prefab GameObjects in
+            // rpcs/cmds/syncvars/messages. they would be null on the other
+            // end, and it might not be obvious why. let's make it obvious.
+            // https://github.com/vis2k/Mirror/issues/2060
+            //
+            // => exception because this is comparable to a compilation.
+            //    error. user should fix this asap to make sure the game
+            //    works as intended.
+            if (value.netId == 0)
+                throw new ArgumentException($"Attempted to serialize unspawned GameObject: {value.name}. Prefabs and unspawned GameObjects would always be null on the other side. Please spawn it before using it in [SyncVar]s/Rpcs/Cmds/NetworkMessages etc.");
+
             writer.WriteUInt(value.netId);
         }
 
@@ -357,6 +369,19 @@ namespace Mirror
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
             if (identity != null)
             {
+                // users might try to use unspawned / prefab GameObjects in
+                // rpcs/cmds/syncvars/messages. they would be null on the other
+                // end, and it might not be obvious why. let's make it obvious.
+                // https://github.com/vis2k/Mirror/issues/2060
+                //
+                // => exception because this is comparable to a compilation.
+                //    error. user should fix this asap to make sure the game
+                //    works as intended.
+                if (identity.netId == 0)
+                    throw new ArgumentException($"Attempted to serialize unspawned GameObject: {value.name}. Prefabs and unspawned GameObjects would always be null on the other side. Please spawn it before using it in [SyncVar]s/Rpcs/Cmds/NetworkMessages etc.");
+
+                // write netId in any case though. guarantee same amount of
+                // written & read data.
                 writer.WriteUInt(identity.netId);
             }
             else
