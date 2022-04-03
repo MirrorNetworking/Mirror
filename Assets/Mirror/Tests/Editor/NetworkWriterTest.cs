@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace Mirror.Tests
 {
@@ -1416,6 +1418,36 @@ namespace Mirror.Tests
             NetworkReader reader = new NetworkReader(bytes);
             RpcNetworkIdentityBehaviour actual = reader.Read<RpcNetworkIdentityBehaviour>();
             Assert.That(actual, Is.EqualTo(behaviour), "Read should find the same behaviour as written");
+        }
+
+        // test to make sure unspawned / prefab GameObjects can't be synced.
+        // they would be null on the other end, and it might not be obvious why.
+        // https://github.com/vis2k/Mirror/issues/2060
+        [Test]
+        public void TestWritingUnspawnedGameObject()
+        {
+            // create GO + NI, but unspawned
+            CreateNetworked(out GameObject go, out _);
+
+            // serializing in rpc/cmd/message should warn if unspawned.
+            LogAssert.Expect(LogType.Warning, new Regex("Attempted to serialize unspawned.*"));
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteGameObject(go);
+        }
+
+        // test to make sure unspawned / prefab GameObjects can't be synced.
+        // they would be null on the other end, and it might not be obvious why.
+        // https://github.com/vis2k/Mirror/issues/2060
+        [Test]
+        public void TestWritingUnspawnedNetworkIdentity()
+        {
+            // create GO + NI, but unspawned
+            CreateNetworked(out _, out NetworkIdentity identity);
+
+            // serializing in rpc/cmd/message should warn if unspawned.
+            LogAssert.Expect(LogType.Warning, new Regex("Attempted to serialize unspawned.*"));
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteNetworkIdentity(identity);
         }
     }
 }

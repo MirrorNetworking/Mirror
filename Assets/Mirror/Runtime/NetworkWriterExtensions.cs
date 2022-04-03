@@ -311,6 +311,17 @@ namespace Mirror
                 writer.WriteUInt(0);
                 return;
             }
+
+            // users might try to use unspawned / prefab GameObjects in
+            // rpcs/cmds/syncvars/messages. they would be null on the other
+            // end, and it might not be obvious why. let's make it obvious.
+            // https://github.com/vis2k/Mirror/issues/2060
+            //
+            // => warning (instead of exception) because we also use a warning
+            //    if a GameObject doesn't have a NetworkIdentity component etc.
+            if (value.netId == 0)
+                Debug.LogWarning($"Attempted to serialize unspawned GameObject: {value.name}. Prefabs and unspawned GameObjects would always be null on the other side. Please spawn it before using it in [SyncVar]s/Rpcs/Cmds/NetworkMessages etc.");
+
             writer.WriteUInt(value.netId);
         }
 
@@ -354,16 +365,15 @@ namespace Mirror
                 writer.WriteUInt(0);
                 return;
             }
+
+            // warn if the GameObject doesn't have a NetworkIdentity,
             NetworkIdentity identity = value.GetComponent<NetworkIdentity>();
-            if (identity != null)
-            {
-                writer.WriteUInt(identity.netId);
-            }
-            else
-            {
+            if (identity == null)
                 Debug.LogWarning($"NetworkWriter {value} has no NetworkIdentity");
-                writer.WriteUInt(0);
-            }
+
+            // serialize the correct amount of data in any case to make sure
+            // that the other end can read the expected amount of data too.
+            writer.WriteNetworkIdentity(identity);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
