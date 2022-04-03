@@ -1368,6 +1368,36 @@ namespace Mirror.Tests
             Assert.That(reader.Position, Is.EqualTo(4), "should read 4 bytes when netid is 0");
         }
 
+        // test to prevent https://github.com/vis2k/Mirror/issues/2972
+        [Test]
+        public void TestNetworkBehaviourDoesntExistOnClient()
+        {
+            // create spawned because we will look up netId in .spawned
+            CreateNetworkedAndSpawn(out _, out _, out RpcNetworkIdentityBehaviour serverComponent,
+                                    out _, out _, out RpcNetworkIdentityBehaviour clientComponent);
+
+            // write on server where it's != null and exists
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteNetworkBehaviour(serverComponent);
+
+            byte[] bytes = writer.ToArray();
+            Assert.That(bytes.Length, Is.EqualTo(5), "Networkbehaviour should be 5 bytes long.");
+
+            // make it disappear / despawn on client
+            NetworkServer.spawned.Remove(serverComponent.netId);
+            NetworkClient.spawned.Remove(clientComponent.netId);
+
+            // reading should return null component
+            NetworkReader reader = new NetworkReader(bytes);
+            RpcNetworkIdentityBehaviour actual = reader.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>();
+            Assert.That(actual, Is.Null);
+
+            // IMPORTANT: should have read EXACTLY as much as was written.
+            // even if NetworkBehaviour wasn't found on client.
+            // otherwise data gets corrupted.
+            Assert.That(reader.Position, Is.EqualTo(writer.Position));
+        }
+
         [Test]
         [Description("Uses Generic read function to check weaver correctly creates it")]
         public void TestNetworkBehaviourWeaverGenerated()
