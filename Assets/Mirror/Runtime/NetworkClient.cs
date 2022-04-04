@@ -77,7 +77,9 @@ namespace Mirror
         public static readonly Dictionary<Guid, GameObject> prefabs =
             new Dictionary<Guid, GameObject>();
 
-        // spawn handlers
+        // custom spawn / unspawn handlers.
+        // useful to support prefab pooling etc.:
+        // https://mirror-networking.gitbook.io/docs/guides/gameobjects/custom-spawnfunctions
         internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers =
             new Dictionary<Guid, SpawnHandlerDelegate>();
         internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers =
