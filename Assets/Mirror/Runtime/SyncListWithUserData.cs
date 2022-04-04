@@ -13,7 +13,9 @@ namespace Mirror
         readonly IEqualityComparer<T> comparer;
 
         public int Count => objects.Count;
+
         public bool IsReadOnly { get; private set; }
+
         public event SyncListChanged Callback;
 
         public enum Operation : byte
@@ -24,19 +26,6 @@ namespace Mirror
             OP_REMOVEAT,
             OP_SET
         }
-
-        struct Change
-        {
-            internal Operation operation;
-            internal int index;
-            internal T item;
-        }
-
-        // list of changes.
-        // -> insert/delete/clear is only ONE change
-        // -> changing the same slot 10x caues 10 changes.
-        // -> note that this grows until next sync(!)
-        readonly List<Change> changes = new List<Change>();
 
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
@@ -74,6 +63,21 @@ namespace Mirror
             objects.Clear();
             InternalUserData.Clear();
         }
+
+        #region Server Only
+
+        struct Change
+        {
+            internal Operation operation;
+            internal int index;
+            internal T item;
+        }
+
+        // list of changes.
+        // -> insert/delete/clear is only ONE change
+        // -> changing the same slot 10x caues 10 changes.
+        // -> note that this grows until next sync(!)
+        readonly List<Change> changes = new List<Change>();
 
         public override void OnSerializeAll(NetworkWriter writer)
         {
@@ -124,112 +128,6 @@ namespace Mirror
                 }
             }
         }
-
-        public override void OnDeserializeAll(NetworkReader reader)
-        {
-            // This list can now only be modified by synchronization
-            IsReadOnly = true;
-
-            // if init,  write the full list content
-            int count = (int)reader.ReadUInt();
-
-            objects.Clear();
-            InternalUserData.Clear();
-            changes.Clear();
-
-            for (int i = 0; i < count; i++)
-            {
-                T obj = reader.Read<T>();
-                objects.Add(obj);
-                InternalUserData.Add(default(TUserData));
-            }
-
-            // We will need to skip all these changes
-            // the next time the list is synchronized
-            // because they have already been applied
-            changesAhead = (int)reader.ReadUInt();
-        }
-
-        public override void OnDeserializeDelta(NetworkReader reader)
-        {
-            // This list can now only be modified by synchronization
-            IsReadOnly = true;
-
-            int changesCount = (int)reader.ReadUInt();
-
-            for (int i = 0; i < changesCount; i++)
-            {
-                Operation operation = (Operation)reader.ReadByte();
-
-                // apply the operation only if it is a new change
-                // that we have not applied yet
-                bool apply = changesAhead == 0;
-                int index = 0;
-                T oldItem = default;
-                T newItem = default;
-                TUserData userData = default;
-
-                switch (operation)
-                {
-                    case Operation.OP_ADD:
-                        newItem = reader.Read<T>();
-                        if (apply)
-                        {
-                            index = objects.Count;
-                            objects.Add(newItem);
-                            InternalUserData.Add(default);
-                        }
-                        break;
-
-                    case Operation.OP_CLEAR:
-                        if (apply)
-                        {
-                            objects.Clear();
-                            InternalUserData.Clear();
-                        }
-                        break;
-
-                    case Operation.OP_INSERT:
-                        index = (int)reader.ReadUInt();
-                        newItem = reader.Read<T>();
-                        if (apply)
-                        {
-                            objects.Insert(index, newItem);
-                            InternalUserData.Insert(index, default);
-                        }
-                        break;
-
-                    case Operation.OP_REMOVEAT:
-                        index = (int)reader.ReadUInt();
-                        if (apply)
-                        {
-                            oldItem = objects[index];
-                            userData = InternalUserData[index];
-                            objects.RemoveAt(index);
-                            InternalUserData.RemoveAt(index);
-                        }
-                        break;
-
-                    case Operation.OP_SET:
-                        index = (int)reader.ReadUInt();
-                        newItem = reader.Read<T>();
-                        if (apply)
-                        {
-                            oldItem = objects[index];
-                            objects[index] = newItem;
-                        }
-                        break;
-                }
-
-                if (apply)
-                    Callback?.Invoke(operation, index, oldItem, newItem, userData);
-                else
-                    // we just skipped this change
-                    changesAhead--;
-            }
-        }
-
-        #region Server Methods
 
         public void Add(T item)
         {
@@ -370,6 +268,114 @@ namespace Mirror
             }
 
             Callback?.Invoke(op, itemIndex, oldItem, newItem, userData);
+        }
+
+        #endregion
+
+        #region Client Only
+
+        public override void OnDeserializeAll(NetworkReader reader)
+        {
+            // This list can now only be modified by synchronization
+            IsReadOnly = true;
+
+            // if init,  write the full list content
+            int count = (int)reader.ReadUInt();
+
+            objects.Clear();
+            InternalUserData.Clear();
+            changes.Clear();
+
+            for (int i = 0; i < count; i++)
+            {
+                T obj = reader.Read<T>();
+                objects.Add(obj);
+                InternalUserData.Add(default(TUserData));
+            }
+
+            // We will need to skip all these changes
+            // the next time the list is synchronized
+            // because they have already been applied
+            changesAhead = (int)reader.ReadUInt();
+        }
+
+        public override void OnDeserializeDelta(NetworkReader reader)
+        {
+            // This list can now only be modified by synchronization
+            IsReadOnly = true;
+
+            int changesCount = (int)reader.ReadUInt();
+
+            for (int i = 0; i < changesCount; i++)
+            {
+                Operation operation = (Operation)reader.ReadByte();
+
+                // apply the operation only if it is a new change
+                // that we have not applied yet
+                bool apply = changesAhead == 0;
+                int index = 0;
+                T oldItem = default;
+                T newItem = default;
+                TUserData userData = default;
+
+                switch (operation)
+                {
+                    case Operation.OP_ADD:
+                        newItem = reader.Read<T>();
+                        if (apply)
+                        {
+                            index = objects.Count;
+                            objects.Add(newItem);
+                            InternalUserData.Add(default);
+                        }
+                        break;
+
+                    case Operation.OP_CLEAR:
+                        if (apply)
+                        {
+                            objects.Clear();
+                            InternalUserData.Clear();
+                        }
+                        break;
+
+                    case Operation.OP_INSERT:
+                        index = (int)reader.ReadUInt();
+                        newItem = reader.Read<T>();
+                        if (apply)
+                        {
+                            objects.Insert(index, newItem);
+                            InternalUserData.Insert(index, default);
+                        }
+                        break;
+
+                    case Operation.OP_REMOVEAT:
+                        index = (int)reader.ReadUInt();
+                        if (apply)
+                        {
+                            oldItem = objects[index];
+                            userData = InternalUserData[index];
+                            objects.RemoveAt(index);
+                            InternalUserData.RemoveAt(index);
+                        }
+                        break;
+
+                    case Operation.OP_SET:
+                        index = (int)reader.ReadUInt();
+                        newItem = reader.Read<T>();
+                        if (apply)
+                        {
+                            oldItem = objects[index];
+                            objects[index] = newItem;
+                        }
+                        break;
+                }
+
+                if (apply)
+                    Callback?.Invoke(operation, index, oldItem, newItem, userData);
+                else
+                    // we just skipped this change
+                    changesAhead--;
+            }
         }
 
         public TUserData GetUserData(int index) => InternalUserData[index];
