@@ -148,8 +148,9 @@ namespace Mirror.Tests.ClientSceneTests
             Assert.IsNull(networkIdentity);
         }
 
+        // test to prevent https://github.com/vis2k/Mirror/issues/2705
         [Test]
-        public void FindOrSpawnObject_SpawnsFromPrefabIfBothPrefabAndHandlerExists()
+        public void FindOrSpawnObject_SpawnsFromHandlerIfBothPrefabAndHandlerExists()
         {
             const uint netId = 1003;
             int handlerCalled = 0;
@@ -167,13 +168,11 @@ namespace Mirror.Tests.ClientSceneTests
                 return go;
             });
 
-
             bool success = NetworkClient.FindOrSpawnObject(msg, out NetworkIdentity networkIdentity);
 
             Assert.IsTrue(success);
             Assert.IsNotNull(networkIdentity);
-            Assert.That(networkIdentity.name, Is.EqualTo($"{validPrefab.name}(Clone)"));
-            Assert.That(handlerCalled, Is.EqualTo(0), "Handler should not have been called");
+            Assert.That(handlerCalled, Is.EqualTo(1));
         }
 
         [Test]
