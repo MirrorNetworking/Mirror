@@ -75,27 +75,6 @@ namespace Mirror
             InternalUserData.Clear();
         }
 
-        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, TUserData userData)
-        {
-            if (IsReadOnly)
-                throw new InvalidOperationException("Synclists can only be modified at the server");
-
-            Change change = new Change
-            {
-                operation = op,
-                index = itemIndex,
-                item = newItem
-            };
-
-            if (IsRecording())
-            {
-                changes.Add(change);
-                OnDirty?.Invoke();
-            }
-
-            Callback?.Invoke(op, itemIndex, oldItem, newItem, userData);
-        }
-
         public override void OnSerializeAll(NetworkWriter writer)
         {
             // if init,  write the full list content
@@ -243,17 +222,19 @@ namespace Mirror
                 }
 
                 if (apply)
-                    Callback?.Invoke(operation, index, oldItem, newItem, default);
+                    Callback?.Invoke(operation, index, oldItem, newItem, userData);
                 else
                     // we just skipped this change
                     changesAhead--;
             }
         }
 
+        #region Server Methods
+
         public void Add(T item)
         {
             objects.Add(item);
-            InternalUserData.Add(default);
+            //InternalUserData.Add(default);
             AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, default);
         }
 
@@ -266,7 +247,7 @@ namespace Mirror
         public void Clear()
         {
             objects.Clear();
-            InternalUserData.Clear();
+            //InternalUserData.Clear();
             AddOperation(Operation.OP_CLEAR, 0, default, default, default);
         }
 
@@ -319,7 +300,7 @@ namespace Mirror
         public void Insert(int index, T item)
         {
             objects.Insert(index, item);
-            InternalUserData.Insert(index, default);
+            //InternalUserData.Insert(index, default);
             AddOperation(Operation.OP_INSERT, index, default, item, default);
         }
 
@@ -349,10 +330,10 @@ namespace Mirror
         public void RemoveAt(int index)
         {
             T oldItem = objects[index];
-            TUserData userData = InternalUserData[index];
+            //TUserData userData = InternalUserData[index];
             objects.RemoveAt(index);
-            InternalUserData.RemoveAt(index);
-            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, userData);
+            //InternalUserData.RemoveAt(index);
+            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, default);
         }
 
         public T this[int i]
@@ -363,11 +344,32 @@ namespace Mirror
                 if (!comparer.Equals(objects[i], value))
                 {
                     T oldItem = objects[i];
-                    TUserData userData = InternalUserData[i];
+                    //TUserData userData = InternalUserData[i];
                     objects[i] = value;
                     AddOperation(Operation.OP_SET, i, oldItem, value, default);
                 }
             }
+        }
+
+        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, TUserData userData)
+        {
+            if (IsReadOnly)
+                throw new InvalidOperationException("Synclists can only be modified at the server");
+
+            Change change = new Change
+            {
+                operation = op,
+                index = itemIndex,
+                item = newItem
+            };
+
+            if (IsRecording())
+            {
+                changes.Add(change);
+                OnDirty?.Invoke();
+            }
+
+            Callback?.Invoke(op, itemIndex, oldItem, newItem, userData);
         }
 
         public TUserData GetUserData(int index) => InternalUserData[index];
@@ -408,5 +410,7 @@ namespace Mirror
             object IEnumerator.Current => Current;
             public void Dispose() { }
         }
+
+        #endregion
     }
 }
