@@ -21,6 +21,18 @@ namespace Mirror.Examples
             NetworkClient.RegisterPrefab(prefab, SpawnHandler, UnspawnHandler);
         }
 
+        // used by NetworkClient.RegisterPrefab
+        GameObject SpawnHandler(SpawnMessage msg)
+        {
+            return Get(msg.position, msg.rotation);
+        }
+
+        // used by NetworkClient.RegisterPrefab
+        void UnspawnHandler(GameObject spawned)
+        {
+            Return(spawned);
+        }
+
         void OnDestroy()
         {
             NetworkClient.UnregisterPrefab(prefab);
@@ -40,18 +52,6 @@ namespace Mirror.Examples
             next.SetActive(false);
             currentCount++;
             return next;
-        }
-
-        // used by NetworkClient.RegisterPrefab
-        GameObject SpawnHandler(SpawnMessage msg)
-        {
-            return Get(msg.position, msg.rotation);
-        }
-
-        // used by NetworkClient.RegisterPrefab
-        void UnspawnHandler(GameObject spawned)
-        {
-            Return(spawned);
         }
 
         // Used to take Object from Pool.
