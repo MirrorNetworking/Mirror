@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror.Examples
@@ -6,13 +5,11 @@ namespace Mirror.Examples
     public class PrefabPoolManager : MonoBehaviour
     {
         [Header("Settings")]
-        public int startSize = 5;
-        public int maxSize = 20;
         public GameObject prefab;
 
         [Header("Debug")]
-        public Queue<GameObject> pool;
         public int currentCount;
+        public Pool<GameObject> pool;
 
         void Start()
         {
@@ -27,22 +24,12 @@ namespace Mirror.Examples
 
         void InitializePool()
         {
-            pool = new Queue<GameObject>();
-            for (int i = 0; i < startSize; i++)
-            {
-                GameObject next = CreateNew();
-                pool.Enqueue(next);
-            }
+            // create pool with generator function
+            pool = new Pool<GameObject>(CreateNew, 5);
         }
 
         GameObject CreateNew()
         {
-            if (currentCount > maxSize)
-            {
-                Debug.LogError($"Pool has reached max size of {maxSize}");
-                return null;
-            }
-
             // use this object as parent so that objects dont crowd hierarchy
             GameObject next = Instantiate(prefab, transform);
             next.name = $"{prefab.name}_pooled_{currentCount}";
@@ -68,12 +55,7 @@ namespace Mirror.Examples
         // Used on client by NetworkClient to spawn objects
         public GameObject GetFromPool(Vector3 position, Quaternion rotation)
         {
-            GameObject next = pool.Count > 0
-                ? pool.Dequeue() // take from pool
-                : CreateNew(); // create new because pool is empty
-
-            // CreateNew might return null if max size is reached
-            if (next == null) { return null; }
+            GameObject next = pool.Get();
 
             // set position/rotation and set active
             next.transform.position = position;
@@ -91,7 +73,7 @@ namespace Mirror.Examples
             spawned.SetActive(false);
 
             // add back to pool
-            pool.Enqueue(spawned);
+            pool.Return(spawned);
         }
     }
 }
