@@ -146,7 +146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  destroyAfter: 5
+  destroyAfter: 2
   rigidBody: {fileID: 4629190479245867726}
   force: 1000
 --- !u!136 &2355290524794870353
