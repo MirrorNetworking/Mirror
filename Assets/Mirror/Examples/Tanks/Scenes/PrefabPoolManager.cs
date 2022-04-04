@@ -41,19 +41,19 @@ namespace Mirror.Examples
         // used by NetworkClient.RegisterPrefab
         GameObject SpawnHandler(SpawnMessage msg)
         {
-            return GetFromPool(msg.position, msg.rotation);
+            return Get(msg.position, msg.rotation);
         }
 
         // used by NetworkClient.RegisterPrefab
         void UnspawnHandler(GameObject spawned)
         {
-            PutBackInPool(spawned);
+            Return(spawned);
         }
 
         // Used to take Object from Pool.
         // Should be used on server to get the next Object
         // Used on client by NetworkClient to spawn objects
-        public GameObject GetFromPool(Vector3 position, Quaternion rotation)
+        public GameObject Get(Vector3 position, Quaternion rotation)
         {
             GameObject next = pool.Get();
 
@@ -67,7 +67,7 @@ namespace Mirror.Examples
         // Used to put object back into pool so they can b
         // Should be used on server after unspawning an object
         // Used on client by NetworkClient to unspawn objects
-        public void PutBackInPool(GameObject spawned)
+        public void Return(GameObject spawned)
         {
             // disable object
             spawned.SetActive(false);
