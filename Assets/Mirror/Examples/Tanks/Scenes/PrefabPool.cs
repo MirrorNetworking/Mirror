@@ -2,10 +2,10 @@ using UnityEngine;
 
 namespace Mirror.Examples
 {
-    public class PrefabPoolManager : MonoBehaviour
+    public class PrefabPool : MonoBehaviour
     {
         // singleton for easier access from other scripts
-        public static PrefabPoolManager singleton;
+        public static PrefabPool singleton;
 
         [Header("Settings")]
         public GameObject prefab;

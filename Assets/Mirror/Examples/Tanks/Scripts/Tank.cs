@@ -55,7 +55,7 @@ namespace Mirror.Examples.Tanks
         [Command]
         void CmdFire()
         {
-            GameObject projectile = PrefabPoolManager.singleton.Get(projectileMount.position, projectileMount.rotation);
+            GameObject projectile = PrefabPool.singleton.Get(projectileMount.position, projectileMount.rotation);
             Debug.Log("[Server]: Got projectile from pool");
             NetworkServer.Spawn(projectile);
             RpcOnFire();
