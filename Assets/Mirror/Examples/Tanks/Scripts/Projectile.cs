@@ -27,7 +27,6 @@ namespace Mirror.Examples.Tanks
             // return to prefab pool
             NetworkServer.UnSpawn(gameObject);
             PrefabPool.singleton.Return(gameObject);
-            Debug.Log("[Server]: Returned projectile to pool");
             //NetworkServer.Destroy(gameObject);
         }
 
