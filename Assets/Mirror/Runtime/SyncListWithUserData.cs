@@ -132,7 +132,6 @@ namespace Mirror
         public void Add(T item)
         {
             objects.Add(item);
-            //InternalUserData.Add(default);
             AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, default);
         }
 
@@ -145,7 +144,6 @@ namespace Mirror
         public void Clear()
         {
             objects.Clear();
-            //InternalUserData.Clear();
             AddOperation(Operation.OP_CLEAR, 0, default, default, default);
         }
 
@@ -198,7 +196,6 @@ namespace Mirror
         public void Insert(int index, T item)
         {
             objects.Insert(index, item);
-            //InternalUserData.Insert(index, default);
             AddOperation(Operation.OP_INSERT, index, default, item, default);
         }
 
@@ -228,9 +225,7 @@ namespace Mirror
         public void RemoveAt(int index)
         {
             T oldItem = objects[index];
-            //TUserData userData = InternalUserData[index];
             objects.RemoveAt(index);
-            //InternalUserData.RemoveAt(index);
             AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, default);
         }
 
@@ -242,7 +237,6 @@ namespace Mirror
                 if (!comparer.Equals(objects[i], value))
                 {
                     T oldItem = objects[i];
-                    //TUserData userData = InternalUserData[i];
                     objects[i] = value;
                     AddOperation(Operation.OP_SET, i, oldItem, value, default);
                 }
