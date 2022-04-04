@@ -22,16 +22,10 @@ namespace Mirror.Examples
         }
 
         // used by NetworkClient.RegisterPrefab
-        GameObject SpawnHandler(SpawnMessage msg)
-        {
-            return Get(msg.position, msg.rotation);
-        }
+        GameObject SpawnHandler(SpawnMessage msg) => Get(msg.position, msg.rotation);
 
         // used by NetworkClient.RegisterPrefab
-        void UnspawnHandler(GameObject spawned)
-        {
-            Return(spawned);
-        }
+        void UnspawnHandler(GameObject spawned) => Return(spawned);
 
         void OnDestroy()
         {
