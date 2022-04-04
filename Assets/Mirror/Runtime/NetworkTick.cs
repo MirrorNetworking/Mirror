@@ -1,4 +1,6 @@
-﻿namespace Mirror
+﻿using UnityEngine;
+
+namespace Mirror
 {
      public class NetworkTick {
     /* Configuratuins */
