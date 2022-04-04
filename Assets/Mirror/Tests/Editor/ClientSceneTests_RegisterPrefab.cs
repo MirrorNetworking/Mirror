@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -197,9 +198,9 @@ namespace Mirror.Tests.ClientSceneTests
 
             string msg = OverloadWithHandler(overload)
                 ? $"Replacing existing spawnHandlers for prefab '{validPrefab.name}' with assetId '{guid}'"
-                : $"Adding prefab '{validPrefab.name}' with assetId '{guid}' when spawnHandlers with same assetId already exists.";
+                : $"Adding prefab '{validPrefab.name}' with assetId '{guid}' when spawnHandlers with same assetId already exists..*";
 
-            LogAssert.Expect(LogType.Warning, msg);
+            LogAssert.Expect(LogType.Warning, new Regex(msg));
             CallRegisterPrefab(validPrefab, overload);
         }
 
