@@ -4,6 +4,9 @@ namespace Mirror.Examples
 {
     public class PrefabPoolManager : MonoBehaviour
     {
+        // singleton for easier access from other scripts
+        public static PrefabPoolManager singleton;
+
         [Header("Settings")]
         public GameObject prefab;
 
@@ -14,6 +17,7 @@ namespace Mirror.Examples
         void Start()
         {
             InitializePool();
+            singleton = this;
             NetworkClient.RegisterPrefab(prefab, SpawnHandler, UnspawnHandler);
         }
 

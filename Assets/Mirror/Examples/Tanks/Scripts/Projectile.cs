@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Mirror.Examples.Tanks
 {
@@ -26,9 +25,8 @@ namespace Mirror.Examples.Tanks
         void DestroySelf()
         {
             // return to prefab pool
-            PrefabPoolManager pool = FindObjectOfType<PrefabPoolManager>();
             NetworkServer.UnSpawn(gameObject);
-            pool.Return(gameObject);
+            PrefabPoolManager.singleton.Return(gameObject);
             Debug.Log("[Server]: Returned projectile to pool");
             //NetworkServer.Destroy(gameObject);
         }
