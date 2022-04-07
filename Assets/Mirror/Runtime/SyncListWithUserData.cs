@@ -64,6 +64,100 @@ namespace Mirror
             InternalUserData.Clear();
         }
 
+        #region List Methods
+
+        /// Gets / sets the list entry at the specified index. Note: Set is Server Only.
+        public T this[int index]
+        {
+            get => objects[index];
+            set
+            {
+                // Server Only
+                if (!comparer.Equals(objects[index], value))
+                {
+                    T oldItem = objects[index];
+                    objects[index] = value;
+                    AddOperation(Operation.OP_SET, index, oldItem, value, default);
+                }
+            }
+        }
+
+        public int IndexOf(T item)
+        {
+            for (int i = 0; i < objects.Count; ++i)
+                if (comparer.Equals(item, objects[i]))
+                    return i;
+            return -1;
+        }
+
+        public List<T> FindAll(Predicate<T> match)
+        {
+            List<T> results = new List<T>();
+            for (int i = 0; i < objects.Count; ++i)
+                if (match(objects[i]))
+                    results.Add(objects[i]);
+
+            return results;
+        }
+
+        public T Find(Predicate<T> match)
+        {
+            int i = FindIndex(match);
+            return (i != -1) ? objects[i] : default;
+        }
+
+        public int FindIndex(Predicate<T> match)
+        {
+            for (int i = 0; i < objects.Count; ++i)
+                if (match(objects[i]))
+                    return i;
+
+            return -1;
+        }
+
+        public bool Contains(T item) => IndexOf(item) >= 0;
+
+        public void CopyTo(T[] array, int index) => objects.CopyTo(array, index);
+
+        #endregion
+
+        #region Enumeration
+
+        public Enumerator GetEnumerator() => new Enumerator(this);
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
+
+        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
+
+        public struct Enumerator : IEnumerator<T>
+        {
+            readonly SyncListWithUserData<T, TUserData> list;
+            int index;
+            public T Current { get; private set; }
+
+            public Enumerator(SyncListWithUserData<T, TUserData> list)
+            {
+                this.list = list;
+                index = -1;
+                Current = default;
+            }
+
+            public bool MoveNext()
+            {
+                if (++index >= list.Count)
+                    return false;
+
+                Current = list[index];
+                return true;
+            }
+
+            public void Reset() => index = -1;
+            object IEnumerator.Current => Current;
+            public void Dispose() { }
+        }
+
+        #endregion
+
         #region Server Only
 
         struct Change
@@ -129,10 +223,10 @@ namespace Mirror
             }
         }
 
-        public void Add(T item)
+        public void Clear()
         {
-            objects.Add(item);
-            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, default);
+            objects.Clear();
+            AddOperation(Operation.OP_CLEAR, 0, default, default, default);
         }
 
         public void AddRange(IEnumerable<T> range)
@@ -141,47 +235,10 @@ namespace Mirror
                 Add(entry);
         }
 
-        public void Clear()
+        public void Add(T item)
         {
-            objects.Clear();
-            AddOperation(Operation.OP_CLEAR, 0, default, default, default);
-        }
-
-        public bool Contains(T item) => IndexOf(item) >= 0;
-
-        public void CopyTo(T[] array, int index) => objects.CopyTo(array, index);
-
-        public int IndexOf(T item)
-        {
-            for (int i = 0; i < objects.Count; ++i)
-                if (comparer.Equals(item, objects[i]))
-                    return i;
-            return -1;
-        }
-
-        public int FindIndex(Predicate<T> match)
-        {
-            for (int i = 0; i < objects.Count; ++i)
-                if (match(objects[i]))
-                    return i;
-
-            return -1;
-        }
-
-        public T Find(Predicate<T> match)
-        {
-            int i = FindIndex(match);
-            return (i != -1) ? objects[i] : default;
-        }
-
-        public List<T> FindAll(Predicate<T> match)
-        {
-            List<T> results = new List<T>();
-            for (int i = 0; i < objects.Count; ++i)
-                if (match(objects[i]))
-                    results.Add(objects[i]);
-
-            return results;
+            objects.Add(item);
+            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, default);
         }
 
         public void InsertRange(int index, IEnumerable<T> range)
@@ -227,20 +284,6 @@ namespace Mirror
             T oldItem = objects[index];
             objects.RemoveAt(index);
             AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, default);
-        }
-
-        public T this[int i]
-        {
-            get => objects[i];
-            set
-            {
-                if (!comparer.Equals(objects[i], value))
-                {
-                    T oldItem = objects[i];
-                    objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, oldItem, value, default);
-                }
-            }
         }
 
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, TUserData userData)
@@ -327,8 +370,11 @@ namespace Mirror
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
-                            InternalUserData.Clear();
+                            // commenting these out and running them below after the Callback?.Invoke
+                            // so user code has access to the full list and can use GetUserData for
+                            // references to the corresponding InternalUserData entries.
+                            //objects.Clear();
+                            //InternalUserData.Clear();
                         }
                         break;
 
@@ -365,7 +411,17 @@ namespace Mirror
                 }
 
                 if (apply)
+                {
                     Callback?.Invoke(operation, index, oldItem, newItem, userData);
+                    if (operation == Operation.OP_CLEAR)
+                    {
+                        // Delayed clearing until after the Callback?.Invoke so user
+                        // code has access to the full list and can use GetUserData for
+                        // references to the corresponding InternalUserData entries.
+                        objects.Clear();
+                        InternalUserData.Clear();
+                    }
+                }
                 else
                     // we just skipped this change
                     changesAhead--;
@@ -377,39 +433,6 @@ namespace Mirror
         public int GetIndex(TUserData userData) => InternalUserData.IndexOf(userData);
 
         public void SetUserData(int index, TUserData data) => InternalUserData[index] = data;
-
-        public Enumerator GetEnumerator() => new Enumerator(this);
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
-
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
-
-        public struct Enumerator : IEnumerator<T>
-        {
-            readonly SyncListWithUserData<T, TUserData> list;
-            int index;
-            public T Current { get; private set; }
-
-            public Enumerator(SyncListWithUserData<T, TUserData> list)
-            {
-                this.list = list;
-                index = -1;
-                Current = default;
-            }
-
-            public bool MoveNext()
-            {
-                if (++index >= list.Count)
-                    return false;
-
-                Current = list[index];
-                return true;
-            }
-
-            public void Reset() => index = -1;
-            object IEnumerator.Current => Current;
-            public void Dispose() { }
-        }
 
         #endregion
     }
