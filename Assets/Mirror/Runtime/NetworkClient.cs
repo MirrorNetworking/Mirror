@@ -77,7 +77,9 @@ namespace Mirror
         public static readonly Dictionary<Guid, GameObject> prefabs =
             new Dictionary<Guid, GameObject>();
 
-        // spawn handlers
+        // custom spawn / unspawn handlers.
+        // useful to support prefab pooling etc.:
+        // https://mirror-networking.gitbook.io/docs/guides/gameobjects/custom-spawnfunctions
         internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers =
             new Dictionary<Guid, SpawnHandlerDelegate>();
         internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers =
@@ -536,7 +538,7 @@ namespace Mirror
 
             if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
             {
-                Debug.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists.");
+                Debug.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists. If you want to use custom spawn handling, then remove the prefab from NetworkManager's registered prefabs first.");
             }
 
             // Debug.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
@@ -1078,12 +1080,13 @@ namespace Mirror
 
         static NetworkIdentity SpawnPrefab(SpawnMessage message)
         {
-            if (GetPrefab(message.assetId, out GameObject prefab))
-            {
-                GameObject obj = GameObject.Instantiate(prefab, message.position, message.rotation);
-                //Debug.Log($"Client spawn handler instantiating [netId{message.netId} asset ID:{message.assetId} pos:{message.position} rotation:{message.rotation}]");
-                return obj.GetComponent<NetworkIdentity>();
-            }
+            // custom spawn handler for this prefab? (for prefab pools etc.)
+            //
+            // IMPORTANT: look for spawn handlers BEFORE looking for registered
+            //            prefabs. Unspawning also looks for unspawn handlers
+            //            before falling back to regular Destroy. this needs to
+            //            be consistent.
+            //            https://github.com/vis2k/Mirror/issues/2705
             if (spawnHandlers.TryGetValue(message.assetId, out SpawnHandlerDelegate handler))
             {
                 GameObject obj = handler(message);
@@ -1100,6 +1103,15 @@ namespace Mirror
                 }
                 return identity;
             }
+
+            // otherwise look in NetworkManager registered prefabs
+            if (GetPrefab(message.assetId, out GameObject prefab))
+            {
+                GameObject obj = GameObject.Instantiate(prefab, message.position, message.rotation);
+                //Debug.Log($"Client spawn handler instantiating [netId{message.netId} asset ID:{message.assetId} pos:{message.position} rotation:{message.rotation}]");
+                return obj.GetComponent<NetworkIdentity>();
+            }
+
             Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={message.assetId} netId={message.netId}");
             return null;
         }
@@ -1348,13 +1360,13 @@ namespace Mirror
 
                 localObject.OnStopClient();
 
-                // user handling
+                // custom unspawn handler for this prefab? (for prefab pools etc.)
                 if (InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
                 {
                     // reset object after user's handler
                     localObject.Reset();
                 }
-                // default handling
+                // otherwise fall back to default Destroy
                 else if (localObject.sceneId == 0)
                 {
                     // don't call reset before destroy so that values are still set in OnDestroy

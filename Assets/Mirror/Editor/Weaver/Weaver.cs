@@ -24,6 +24,12 @@ namespace Mirror.Weaver
         AssemblyDefinition CurrentAssembly;
         Writers writers;
         Readers readers;
+
+        // in case of weaver errors, we don't stop immediately.
+        // we log all errors and then eventually return false if
+        // weaving has failed.
+        // this way the user can fix multiple errors at once, instead of having
+        // to fix -> recompile -> fix -> recompile for one error at a time.
         bool WeavingFailed;
 
         // logger functions can be set from the outside.
