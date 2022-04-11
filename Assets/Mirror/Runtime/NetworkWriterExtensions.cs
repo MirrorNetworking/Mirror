@@ -20,82 +20,61 @@ namespace Mirror
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteByteNullable(this NetworkWriter writer, byte? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteSByte(this NetworkWriter writer, sbyte value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteSByteNullable(this NetworkWriter writer, sbyte? value) => writer.WriteBlittableNullable(value);
 
         // char is not blittable. convert to ushort.
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteChar(this NetworkWriter writer, char value) => writer.WriteBlittable((ushort)value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteCharNullable(this NetworkWriter writer, char? value) => writer.WriteBlittableNullable((ushort?)value);
 
         // bool is not blittable. convert to byte.
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteBool(this NetworkWriter writer, bool value) => writer.WriteBlittable((byte)(value ? 1 : 0));
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteBoolNullable(this NetworkWriter writer, bool? value) => writer.WriteBlittableNullable(value.HasValue ? ((byte)(value.Value ? 1 : 0)) : new byte?());
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteShort(this NetworkWriter writer, short value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteShortNullable(this NetworkWriter writer, short? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUShort(this NetworkWriter writer, ushort value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUShortNullable(this NetworkWriter writer, ushort? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteInt(this NetworkWriter writer, int value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteIntNullable(this NetworkWriter writer, int? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUInt(this NetworkWriter writer, uint value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUIntNullable(this NetworkWriter writer, uint? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteLong(this NetworkWriter writer, long value)  => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteLongNullable(this NetworkWriter writer, long? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteULong(this NetworkWriter writer, ulong value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteULongNullable(this NetworkWriter writer, ulong? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteFloat(this NetworkWriter writer, float value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteFloatNullable(this NetworkWriter writer, float? value) => writer.WriteBlittableNullable(value);
-
+  
         [StructLayout(LayoutKind.Explicit)]
         internal struct UIntDouble
         {
@@ -116,17 +95,13 @@ namespace Mirror
 
             writer.WriteBlittable(value);
         }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteDoubleNullable(this NetworkWriter writer, double? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteDecimal(this NetworkWriter writer, decimal value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteDecimalNullable(this NetworkWriter writer, decimal? value) => writer.WriteBlittableNullable(value);
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteString(this NetworkWriter writer, string value)
@@ -155,7 +130,6 @@ namespace Mirror
             writer.WriteUShort(checked((ushort)(size + 1)));
             writer.WriteBytes(stringBuffer, 0, size);
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
@@ -191,7 +165,6 @@ namespace Mirror
             writer.WriteBytes(buffer, offset, count);
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteArraySegment<T>(this NetworkWriter writer, ArraySegment<T> segment)
         {
@@ -203,90 +176,65 @@ namespace Mirror
             }
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector2(this NetworkWriter writer, Vector2 value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector2Nullable(this NetworkWriter writer, Vector2? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector3(this NetworkWriter writer, Vector3 value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector3Nullable(this NetworkWriter writer, Vector3? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector4(this NetworkWriter writer, Vector4 value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector4Nullable(this NetworkWriter writer, Vector4? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector2Int(this NetworkWriter writer, Vector2Int value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector2IntNullable(this NetworkWriter writer, Vector2Int? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector3Int(this NetworkWriter writer, Vector3Int value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteVector3IntNullable(this NetworkWriter writer, Vector3Int? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteColor(this NetworkWriter writer, Color value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteColorNullable(this NetworkWriter writer, Color? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteColor32(this NetworkWriter writer, Color32 value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteColor32Nullable(this NetworkWriter writer, Color32? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteQuaternionNullable(this NetworkWriter writer, Quaternion? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteRect(this NetworkWriter writer, Rect value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteRectNullable(this NetworkWriter writer, Rect? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WritePlane(this NetworkWriter writer, Plane value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WritePlaneNullable(this NetworkWriter writer, Plane? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteRay(this NetworkWriter writer, Ray value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteRayNullable(this NetworkWriter writer, Ray? value) => writer.WriteBlittableNullable(value);
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value) => writer.WriteBlittable(value);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value) => writer.WriteBlittableNullable(value);
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteGuid(this NetworkWriter writer, Guid value)
@@ -294,7 +242,6 @@ namespace Mirror
             byte[] data = value.ToByteArray();
             writer.WriteBytes(data, 0, data.Length);
         }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
         {
@@ -302,7 +249,7 @@ namespace Mirror
             if (value.HasValue)
                 writer.WriteGuid(value.Value);
         }
-
+      
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteNetworkIdentity(this NetworkWriter writer, NetworkIdentity value)
         {
@@ -402,20 +349,17 @@ namespace Mirror
                 writer.Write(array[i]);
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
             writer.WriteString(uri?.ToString());
         }
 
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteTexture2D(this NetworkWriter writer, Texture2D texture2D)
         {
             writer.WriteArray(texture2D.GetPixels32());
         }
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteSprite(this NetworkWriter writer, Sprite sprite)
