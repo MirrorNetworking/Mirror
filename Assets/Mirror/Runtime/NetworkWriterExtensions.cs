@@ -413,7 +413,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteTexture2D(this NetworkWriter writer, Texture2D texture2D)
         {
-            writer.Write(texture2D.GetPixels32());
+            writer.WriteArray(texture2D.GetPixels32());
         }
 
 
