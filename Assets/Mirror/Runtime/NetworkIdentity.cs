@@ -1097,15 +1097,7 @@ namespace Mirror
             NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
             if (!RemoteProcedureCalls.Invoke(functionIndex, remoteCallType, reader, invokeComponent, senderConnection))
             {
-#if UNITY_SERVER
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Found no receiver for incoming {remoteCallType} [{functionIndex}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances[netId ={netId}] on conn {connectionToClient}.");
-                Console.ResetColor();
-                connectionToClient.Disconnect();
-#else
-                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionIndex}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}] on conn {connectionToClient}.");
-                return;
-#endif
+                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionIndex}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
             }
         }
 
