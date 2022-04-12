@@ -138,47 +138,6 @@ namespace Mirror.Weaver
             return modified;
         }
 
-        // helper function to add [RuntimeInitializeOnLoad] attribute to method
-        static void AddRuntimeInitializeOnLoadAttribute(AssemblyDefinition assembly, WeaverTypes weaverTypes, MethodDefinition method)
-        {
-            // NOTE: previously we used reflection because according paul,
-            // 'weaving Mirror.dll caused unity to rebuild all dlls but in wrong
-            //  order, which breaks rewired'
-            // it's not obvious why importing an attribute via reflection instead
-            // of cecil would break anything. let's use cecil.
-
-            // to add a CustomAttribute, we need the attribute's constructor.
-            // in this case, there are two: empty, and RuntimeInitializeOnLoadType.
-            // we want the last one, with the type parameter.
-            MethodDefinition ctor = weaverTypes.runtimeInitializeOnLoadMethodAttribute.GetConstructors().Last();
-            //MethodDefinition ctor = weaverTypes.runtimeInitializeOnLoadMethodAttribute.GetConstructors().First();
-            // using ctor directly throws: ArgumentException: Member 'System.Void UnityEditor.InitializeOnLoadMethodAttribute::.ctor()' is declared in another module and needs to be imported
-            // we need to import it first.
-            CustomAttribute attribute = new CustomAttribute(assembly.MainModule.ImportReference(ctor));
-            // add the RuntimeInitializeLoadType.BeforeSceneLoad argument to ctor
-            attribute.ConstructorArguments.Add(new CustomAttributeArgument(weaverTypes.Import<RuntimeInitializeLoadType>(), RuntimeInitializeLoadType.BeforeSceneLoad));
-            method.CustomAttributes.Add(attribute);
-        }
-
-        // helper function to add [InitializeOnLoad] attribute to method
-        // (only works in Editor assemblies. check IsEditorAssembly first.)
-        static void AddInitializeOnLoadAttribute(AssemblyDefinition assembly, WeaverTypes weaverTypes, MethodDefinition method)
-        {
-            // NOTE: previously we used reflection because according paul,
-            // 'weaving Mirror.dll caused unity to rebuild all dlls but in wrong
-            //  order, which breaks rewired'
-            // it's not obvious why importing an attribute via reflection instead
-            // of cecil would break anything. let's use cecil.
-
-            // to add a CustomAttribute, we need the attribute's constructor.
-            // in this case, there's only one - and it's an empty constructor.
-            MethodDefinition ctor = weaverTypes.initializeOnLoadMethodAttribute.GetConstructors().First();
-            // using ctor directly throws: ArgumentException: Member 'System.Void UnityEditor.InitializeOnLoadMethodAttribute::.ctor()' is declared in another module and needs to be imported
-            // we need to import it first.
-            CustomAttribute attribute = new CustomAttribute(assembly.MainModule.ImportReference(ctor));
-            method.CustomAttributes.Add(attribute);
-        }
-
         // adds Mirror.GeneratedNetworkCode.InitReadWriters() method that
         // registers all generated writers into Mirror.Writer<T> static class.
         // -> uses [RuntimeInitializeOnLoad] attribute so it's invoke at runtime
@@ -193,12 +152,12 @@ namespace Mirror.Weaver
                     weaverTypes.Import(typeof(void)));
 
             // add [RuntimeInitializeOnLoad] in any case
-            AddRuntimeInitializeOnLoadAttribute(currentAssembly, weaverTypes, initReadWriters);
+            Helpers.AddRuntimeInitializeOnLoadAttribute(currentAssembly, weaverTypes, initReadWriters);
 
             // add [InitializeOnLoad] if UnityEditor is referenced
             if (Helpers.IsEditorAssembly(currentAssembly))
             {
-                AddInitializeOnLoadAttribute(currentAssembly, weaverTypes, initReadWriters);
+                Helpers.AddInitializeOnLoadAttribute(currentAssembly, weaverTypes, initReadWriters);
             }
 
             // fill function body with reader/writer initializers
