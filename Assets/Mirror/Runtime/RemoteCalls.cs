@@ -34,6 +34,14 @@ namespace Mirror.RemoteCalls
         // one lookup for all remote calls.
         // allows us to easily add more remote call types without duplicating code.
         // note: do not clear those with [RuntimeInitializeOnLoad]
+        //
+        // IMPORTANT: cmd/rpc functions are identified via **HASHES**.
+        //   an index would requires half the bandwidth, but introduces issues
+        //   where static constructors are lazily called, so index order isn't
+        //   guaranteed:
+        //     https://github.com/vis2k/Mirror/pull/3135
+        //     https://github.com/vis2k/Mirror/issues/3138
+        //   keep the 4 byte hash for stability!
         static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
         static bool CheckIfDelegateExists(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate func, int functionHash)
