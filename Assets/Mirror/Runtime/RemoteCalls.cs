@@ -31,45 +31,18 @@ namespace Mirror.RemoteCalls
     /// <summary>Used to help manage remote calls for NetworkBehaviours</summary>
     public static class RemoteProcedureCalls
     {
-        // sending rpc/cmd function hash would require 4 bytes each time.
-        // instead, let's only send the index to save bandwidth.
-        // => 1 byte index with 255 rpcs in total would not be enough.
-        // => 1 byte index with 255 rpcs per type is doable but lookup is hard,
-        //    because an rpc might be in the actual type or in the base type etc
-        // => 2 byte index allows for 64k Rpcs and is very easy to implement
-        //    with a SortedList + .IndexOfKey.
+        // one lookup for all remote calls.
+        // allows us to easily add more remote call types without duplicating code.
+        // note: do not clear those with [RuntimeInitializeOnLoad]
         //
-        // NOTE: this could be 1 byte most of the time via VarInt!
-        //       but requires custom serialization for Command/RpcMessages.
-        //
-        // SortedList still doesn't allow duplicate keys, which is good.
-        // But it allows accessing keys by index.
-        static readonly SortedList<int, Invoker> remoteCallDelegates = new SortedList<int, Invoker>();
-
-        // hash -> index reverse lookup to cache .IndexOfKey() binary search.
-        static readonly Dictionary<int, ushort> remoteCallIndexLookup = new Dictionary<int, ushort>();
-
-        // helper function to get rpc/cmd index from function name / hash.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ushort GetIndexFromFunctionHash(string functionFullName)
-        {
-            int hash = functionFullName.GetStableHashCode();
-
-            // IndexOfKey runs a binary search.
-            // cache results in lookup.
-            // IMPORTANT: can't cache results when registering rpcs/cmds as the
-            //            indices would only be valid after ALL were registered.
-            // return (ushort)remoteCallDelegates.IndexOfKey(hash);
-
-            // reuse cached index if possible
-            if (remoteCallIndexLookup.TryGetValue(hash, out ushort index))
-                return index;
-
-            // otherwise search and cache
-            ushort searchedIndex = (ushort)remoteCallDelegates.IndexOfKey(hash);
-            remoteCallIndexLookup[hash] = searchedIndex;
-            return searchedIndex;
-        }
+        // IMPORTANT: cmd/rpc functions are identified via **HASHES**.
+        //   an index would requires half the bandwidth, but introduces issues
+        //   where static constructors are lazily called, so index order isn't
+        //   guaranteed:
+        //     https://github.com/vis2k/Mirror/pull/3135
+        //     https://github.com/vis2k/Mirror/issues/3138
+        //   keep the 4 byte hash for stability!
+        static readonly Dictionary<int, Invoker> remoteCallDelegates = new Dictionary<int, Invoker>();
 
         static bool CheckIfDelegateExists(Type componentType, RemoteCallType remoteCallType, RemoteCallDelegate func, int functionHash)
         {

@@ -1276,8 +1276,8 @@ namespace Mirror
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity))
             {
                 using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(message.payload))
-                    identity.HandleRemoteCall(message.componentIndex, message.functionIndex, RemoteCallType.ClientRpc, networkReader);
-            }
+                    identity.HandleRemoteCall(message.componentIndex, message.functionHash, RemoteCallType.ClientRpc, networkReader);
+}
         }
 
         static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
