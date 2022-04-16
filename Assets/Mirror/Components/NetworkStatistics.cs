@@ -3,6 +3,15 @@ using UnityEngine;
 
 namespace Mirror
 {
+    /// <summary>
+    /// Shows Network messages and bytes sent & received per second.
+    /// </summary>
+    /// <remarks>
+    /// <para>Add this component to the same object as Network Manager.</para>
+    /// </remarks>
+    [AddComponentMenu("Network/Network Statistics")]
+    [DisallowMultipleComponent]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-statistics")]
     public class NetworkStatistics : MonoBehaviour
     {
         // update interval
@@ -94,6 +103,18 @@ namespace Mirror
             serverIntervalSentBytes += data.Count;
         }
 
+        void Update()
+        {
+            // calculate results every second
+            if (NetworkTime.localTime >= intervalStartTime + 1)
+            {
+                if (NetworkClient.active) UpdateClient();
+                if (NetworkServer.active) UpdateServer();
+
+                intervalStartTime = NetworkTime.localTime;
+            }
+        }
+
         void UpdateClient()
         {
             clientReceivedPacketsPerSecond = clientIntervalReceivedPackets;
@@ -120,15 +141,21 @@ namespace Mirror
             serverIntervalSentBytes = 0;
         }
 
-        void Update()
+        void OnGUI()
         {
-            // calculate results every second
-            if (NetworkTime.localTime >= intervalStartTime + 1)
+            // only show if either server or client active
+            if (NetworkClient.active || NetworkServer.active)
             {
-                if (NetworkClient.active) UpdateClient();
-                if (NetworkServer.active) UpdateServer();
+                // create main GUI area
+                // 105 is below NetworkManager HUD in all cases.
+                GUILayout.BeginArea(new Rect(10, 105, 215, 300));
 
-                intervalStartTime = NetworkTime.localTime;
+                // show client / server stats if active
+                if (NetworkClient.active) OnClientGUI();
+                if (NetworkServer.active) OnServerGUI();
+
+                // end of GUI area
+                GUILayout.EndArea();
             }
         }
 
@@ -162,24 +189,6 @@ namespace Mirror
 
             // end background
             GUILayout.EndVertical();
-        }
-
-        void OnGUI()
-        {
-            // only show if either server or client active
-            if (NetworkClient.active || NetworkServer.active)
-            {
-                // create main GUI area
-                // 105 is below NetworkManager HUD in all cases.
-                GUILayout.BeginArea(new Rect(10, 105, 215, 300));
-
-                // show client / server stats if active
-                if (NetworkClient.active) OnClientGUI();
-                if (NetworkServer.active) OnServerGUI();
-
-                // end of GUI area
-                GUILayout.EndArea();
-            }
         }
     }
 }
