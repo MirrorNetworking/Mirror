@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Mono.CecilX;
 using Mono.CecilX.Cil;
-using UnityEngine;
 
 namespace Mirror.Weaver
 {
@@ -275,32 +274,6 @@ namespace Mirror.Weaver
                         MethodAttributes.RTSpecialName |
                         MethodAttributes.Static,
                         weaverTypes.Import(typeof(void)));
-            }
-
-            // Static constructors are lazily called when the class is first "used"
-            // https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/static-constructors
-            // > It is called automatically before the first instance is created or any static members are referenced.
-            //
-            // This means, in particular circumstances, client and server may diverge on which classes they have "loaded"
-            // and thus the rpc index will be desynced
-            //
-            // One such example would be on-demand-loading of prefabs via custom spawn handlers:
-            //   A game might not want to preload all its monster prefabs since there's quite many of them
-            //   and it is practically impossible to encounter them all (or even a majority of them) in a single play
-            //   session.
-            //   So a custom spawn handler is used to load the monster prefabs on demand.
-            //   All monsters would have the "Monster" NetworkBehaviour class, which would have a few RPCs on it.
-            //   Since the monster prefabs are loaded ONLY when needed via a custom spawn handler and the Monster class
-            //   itself isn't referenced or "loaded" by anything else other than the prefab, the monster classes static
-            //   constructor will not have been called when a client first joins a game, while it may have been called
-            //   on the server/host. This will in turn cause Rpc indexes to not match up between client/server
-            //
-            // By just forcing the static constructors to run via the [RuntimeInitializeOnLoadMethod] attribute
-            // this is not a problem anymore, since all static constructors are always run and all RPCs will
-            // always be registered by the time they are used
-            if (!cctor.HasCustomAttribute<RuntimeInitializeOnLoadMethodAttribute>())
-            {
-                Helpers.AddRuntimeInitializeOnLoadAttribute(assembly, weaverTypes, cctor);
             }
 
             ILProcessor cctorWorker = cctor.Body.GetILProcessor();

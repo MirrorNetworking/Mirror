@@ -966,7 +966,7 @@ namespace Mirror
             // Commands can be for player objects, OR other objects with client-authority
             // -> so if this connection's controller has a different netId then
             //    only allow the command if clientAuthorityOwner
-            bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionIndex);
+            bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
             if (requiresAuthority && identity.connectionToClient != conn)
             {
                 Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
@@ -976,7 +976,7 @@ namespace Mirror
             // Debug.Log($"OnCommandMessage for netId:{msg.netId} conn:{conn}");
 
             using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(msg.payload))
-                identity.HandleRemoteCall(msg.componentIndex, msg.functionIndex, RemoteCallType.Command, networkReader, conn as NetworkConnectionToClient);
+                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, RemoteCallType.Command, networkReader, conn as NetworkConnectionToClient);
         }
 
         // spawning ////////////////////////////////////////////////////////////

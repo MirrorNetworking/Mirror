@@ -1071,12 +1071,12 @@ namespace Mirror
         }
 
         // Helper function to handle Command/Rpc
-        internal void HandleRemoteCall(byte componentIndex, ushort functionIndex, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
+        internal void HandleRemoteCall(byte componentIndex, int functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             // check if unity object has been destroyed
             if (this == null)
             {
-                Debug.LogWarning($"{remoteCallType} [{functionIndex}] received for deleted object [netId={netId}]");
+                Debug.LogWarning($"{remoteCallType} [{functionHash}] received for deleted object [netId={netId}]");
                 return;
             }
 
@@ -1088,9 +1088,9 @@ namespace Mirror
             }
 
             NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-            if (!RemoteProcedureCalls.Invoke(functionIndex, remoteCallType, reader, invokeComponent, senderConnection))
+            if (!RemoteProcedureCalls.Invoke(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
             {
-                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionIndex}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
+                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
             }
         }
 

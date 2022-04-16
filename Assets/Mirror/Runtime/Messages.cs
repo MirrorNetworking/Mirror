@@ -28,9 +28,7 @@ namespace Mirror
     {
         public uint netId;
         public byte componentIndex;
-        // NOTE: this could be 1 byte most of the time via VarInt!
-        //       but requires custom serialization for Command/RpcMessages.
-        public ushort functionIndex;
+        public int functionHash;
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;
@@ -40,9 +38,7 @@ namespace Mirror
     {
         public uint netId;
         public byte componentIndex;
-        // NOTE: this could be 1 byte most of the time via VarInt!
-        //       but requires custom serialization for Command/RpcMessages.
-        public ushort functionIndex;
+        public int functionHash;
         // the parameters for the Cmd function
         // -> ArraySegment to avoid unnecessary allocations
         public ArraySegment<byte> payload;

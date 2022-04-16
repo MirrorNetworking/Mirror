@@ -1,7 +1,6 @@
 // base class for networking tests to make things easier.
 using System.Collections.Generic;
 using System.Linq;
-using Mirror.RemoteCalls;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -49,10 +48,6 @@ namespace Mirror.Tests
             GameObject.DestroyImmediate(transport.gameObject);
             Transport.activeTransport = null;
             NetworkManager.singleton = null;
-
-            // clear rpc lookup caches.
-            // this can cause problems in tests otherwise.
-            RemoteProcedureCalls.ResetStatics();
         }
 
         // create a tracked GameObject for tests without Networkidentity
