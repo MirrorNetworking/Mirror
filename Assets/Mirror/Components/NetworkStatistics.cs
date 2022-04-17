@@ -4,9 +4,11 @@ using UnityEngine;
 namespace Mirror
 {
     /// <summary>
-    /// Shows Network messages and bytes sent & received per second.
-    /// <para>Add this component to the same object as Network Manager.</para>
+    /// Shows Network messages and bytes sent and received per second.
     /// </summary>
+    /// <remarks>
+    /// <para>Add this component to the same object as Network Manager.</para>
+    /// </remarks>
     [AddComponentMenu("Network/Network Statistics")]
     [DisallowMultipleComponent]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-statistics")]
