@@ -22,8 +22,8 @@ namespace Mirror
             string currentTeam = networkTeam.teamId;
             lastObjectTeam[identity] = currentTeam;
 
-            // string.Empty is never a valid teamId...do not add to teamObjects collection
-            if (currentTeam == string.Empty)
+            // Null / Empty string is never a valid teamId...do not add to teamObjects collection
+            if (string.IsNullOrWhiteSpace(currentTeam))
                 return;
 
             // Debug.Log($"MatchInterestManagement.OnSpawned({identity.name}) currentMatch: {currentTeam}");
@@ -38,10 +38,14 @@ namespace Mirror
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            lastObjectTeam.TryGetValue(identity, out string currentTeam);
-            lastObjectTeam.Remove(identity);
-            if (currentTeam != string.Empty && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
-                RebuildTeamObservers(currentTeam);
+            if (lastObjectTeam.TryGetValue(identity, out string currentTeam))
+            {
+                lastObjectTeam.Remove(identity);
+                if (!string.IsNullOrWhiteSpace(currentTeam)
+                    && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects)
+                    && objects.Remove(identity))
+                    RebuildTeamObservers(currentTeam);
+            }
         }
 
         // internal so we can update from tests
@@ -62,7 +66,7 @@ namespace Mirror
                 if (!lastObjectTeam.TryGetValue(netIdentity, out string currentTeam))
                     continue;
 
-                // string.Empty is never a valid teamId
+                // Null / Empty string is never a valid teamId
                 // Nothing to do if teamId hasn't changed
                 if (string.IsNullOrWhiteSpace(newTeam) || newTeam == currentTeam)
                     continue;
@@ -84,8 +88,8 @@ namespace Mirror
 
         void UpdateDirtyTeams(string newTeam, string currentTeam)
         {
-            // string.Empty is never a valid teamId
-            if (currentTeam != string.Empty)
+            // Null / Empty string is never a valid teamId
+            if (!string.IsNullOrWhiteSpace(currentTeam))
                 dirtyTeams.Add(currentTeam);
 
             dirtyTeams.Add(newTeam);
@@ -136,7 +140,7 @@ namespace Mirror
             if (newObserverNetworkTeam.forceShown)
                 return true;
 
-            // string.Empty is never a valid teamId
+            // Null / Empty string is never a valid teamId
             if (string.IsNullOrWhiteSpace(newObserverNetworkTeam.teamId))
                 return false;
 
@@ -160,8 +164,8 @@ namespace Mirror
                 return;
             }
 
-            // string.Empty is never a valid teamId
-            if (networkTeam.teamId == string.Empty)
+            // Null / Empty string is never a valid teamId
+            if (string.IsNullOrWhiteSpace(networkTeam.teamId))
                 return;
 
             // Abort if this team hasn't been created yet by OnSpawned or UpdateTeamObjects
