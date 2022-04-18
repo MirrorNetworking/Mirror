@@ -570,14 +570,6 @@ namespace Mirror
             OnTeleport(destination, rotation);
         }
 
-        // Deprecated 2022-01-19
-        [Obsolete("Use RpcTeleport(Vector3, Quaternion) instead.")]
-        [ClientRpc]
-        public void RpcTeleportAndRotate(Vector3 destination, Quaternion rotation)
-        {
-            OnTeleport(destination, rotation);
-        }
-
         // client->server teleport to force position without interpolation.
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
@@ -619,16 +611,6 @@ namespace Mirror
             // TODO or not? if client ONLY calls Teleport(pos), the position
             //      would only be set after the rpc. unless the client calls
             //      BOTH Teleport(pos) and targetComponent.position=pos
-            RpcTeleport(destination, rotation);
-        }
-
-        // Deprecated 2022-01-19
-        [Obsolete("Use CmdTeleport(Vector3, Quaternion) instead.")]
-        [Command]
-        public void CmdTeleportAndRotate(Vector3 destination, Quaternion rotation)
-        {
-            if (!clientAuthority) return;
-            OnTeleport(destination, rotation);
             RpcTeleport(destination, rotation);
         }
 
