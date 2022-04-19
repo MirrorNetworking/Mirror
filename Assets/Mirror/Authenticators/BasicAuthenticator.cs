@@ -153,7 +153,7 @@ namespace Mirror.Authenticators
         }
 
         /// <summary>
-        /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
+        /// Called on client from OnClientConnectInternal in the NetworkManager class when a client needs to authenticate
         /// </summary>
         public override void OnClientAuthenticate()
         {
