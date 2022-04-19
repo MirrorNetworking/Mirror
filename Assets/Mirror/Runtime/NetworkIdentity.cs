@@ -1071,7 +1071,7 @@ namespace Mirror
         }
 
         // Helper function to handle Command/Rpc
-        internal void HandleRemoteCall(byte componentIndex, int functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
+        internal void HandleRemoteCall(byte componentIndex, ushort functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
             // check if unity object has been destroyed
             if (this == null)
