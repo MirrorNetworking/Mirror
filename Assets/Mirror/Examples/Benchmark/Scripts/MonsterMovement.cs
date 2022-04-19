@@ -38,15 +38,11 @@ namespace Mirror.Examples.Benchmark
                 {
                     Vector2 circlePos = Random.insideUnitCircle;
                     Vector3 dir = new Vector3(circlePos.x, 0, circlePos.y);
-                    Vector3 dest = transform.position + dir * movementDistance;
 
-                    // within move dist around start?
+                    // set destination on random pos in a circle around start.
                     // (don't want to wander off)
-                    if (Vector3.Distance(start, dest) <= movementDistance)
-                    {
-                        destination = dest;
-                        moving = true;
-                    }
+                    destination = start + dir * movementDistance;
+                    moving = true;
                 }
             }
         }
