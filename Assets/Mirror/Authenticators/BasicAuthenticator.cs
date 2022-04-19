@@ -60,7 +60,7 @@ namespace Mirror.Authenticators
         }
 
         /// <summary>
-        /// Called on server from OnServerAuthenticateInternal when a client needs to authenticate
+        /// Called on server from OnServerConnectInternal when a client needs to authenticate
         /// </summary>
         /// <param name="conn">Connection to client.</param>
         public override void OnServerAuthenticate(NetworkConnectionToClient conn)
@@ -153,7 +153,7 @@ namespace Mirror.Authenticators
         }
 
         /// <summary>
-        /// Called on client from OnClientAuthenticateInternal when a client needs to authenticate
+        /// Called on client from OnClientConnectInternal when a client needs to authenticate
         /// </summary>
         public override void OnClientAuthenticate()
         {

@@ -25,7 +25,7 @@ namespace Mirror
         /// <summary>Called when server stops, used to unregister message handlers if needed.</summary>
         public virtual void OnStopServer() {}
 
-        /// <summary>Called on server from OnServerAuthenticateInternal when a client needs to authenticate</summary>
+        /// <summary>Called on server from OnServerConnectInternal when a client needs to authenticate</summary>
         public virtual void OnServerAuthenticate(NetworkConnectionToClient conn) {}
 
         protected void ServerAccept(NetworkConnectionToClient conn)
@@ -44,7 +44,7 @@ namespace Mirror
         /// <summary>Called when client stops, used to unregister message handlers if needed.</summary>
         public virtual void OnStopClient() {}
 
-        /// <summary>Called on client from OnClientAuthenticateInternal when a client needs to authenticate</summary>
+        /// <summary>Called on client from OnClientConnectInternal when a client needs to authenticate</summary>
         public virtual void OnClientAuthenticate() {}
 
         protected void ClientAccept()
