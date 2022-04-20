@@ -82,6 +82,9 @@ namespace Mirror
         //   WriteBlittable assumes same endianness for server & client.
         //   All Unity 2018+ platforms are little endian.
         //   => run NetworkWriterTests.BlittableOnThisPlatform() to verify!
+        //
+        // Note: inlining WriteBlittable is enough. don't inline WriteInt etc.
+        //       we don't want WriteBlittable to be copied in place everywhere.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe void WriteBlittable<T>(T value)
             where T : unmanaged
@@ -148,12 +151,10 @@ namespace Mirror
                 WriteBlittable(value.Value);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteByte(byte value) => WriteBlittable(value);
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteBytes(byte[] buffer, int offset, int count)
         {
             EnsureCapacity(Position + count);
