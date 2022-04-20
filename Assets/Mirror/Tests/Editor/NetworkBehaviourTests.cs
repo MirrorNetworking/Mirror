@@ -185,7 +185,7 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            int registeredHash1 = RemoteProcedureCalls.RegisterDelegate(
+            ushort registeredHash1 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 RemoteCallType.Command,
@@ -194,7 +194,7 @@ namespace Mirror.Tests
 
             // registering the exact same one should be fine. it should simply
             // do nothing.
-            int registeredHash2 = RemoteProcedureCalls.RegisterDelegate(
+            ushort registeredHash2 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 RemoteCallType.Command,
@@ -204,7 +204,7 @@ namespace Mirror.Tests
             // registering the same name with a different callback shouldn't
             // work
             LogAssert.Expect(LogType.Error, $"Function {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate)} and {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate2)} have the same hash.  Please rename one of them");
-            int registeredHash3 = RemoteProcedureCalls.RegisterDelegate(
+            ushort registeredHash3 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 RemoteCallType.Command,
@@ -222,7 +222,7 @@ namespace Mirror.Tests
         {
             // registerdelegate is protected, but we can use
             // RegisterCommandDelegate which calls RegisterDelegate
-            int registeredHash = RemoteProcedureCalls.RegisterDelegate(
+            ushort registeredHash = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
                 RemoteCallType.Command,
@@ -230,7 +230,7 @@ namespace Mirror.Tests
                 false);
 
             // get handler
-            int cmdHash = nameof(NetworkBehaviourDelegateComponent.Delegate).GetStableHashCode();
+            ushort cmdHash = (ushort)nameof(NetworkBehaviourDelegateComponent.Delegate).GetStableHashCode();
             RemoteCallDelegate func = RemoteProcedureCalls.GetDelegate(cmdHash);
             RemoteCallDelegate expected = NetworkBehaviourDelegateComponent.Delegate;
             Assert.That(func, Is.EqualTo(expected));
