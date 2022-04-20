@@ -71,6 +71,9 @@ namespace Mirror
         // Note:
         //   ReadBlittable assumes same endianness for server & client.
         //   All Unity 2018+ platforms are little endian.
+        //
+        // Note: inlining ReadBlittable is enough. don't inline ReadInt etc.
+        //       we don't want ReadBlittable to be copied in place everywhere.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal unsafe T ReadBlittable<T>()
             where T : unmanaged
@@ -134,12 +137,10 @@ namespace Mirror
             where T : unmanaged =>
                 ReadByte() != 0 ? ReadBlittable<T>() : default(T?);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte ReadByte() => ReadBlittable<byte>();
 
         /// <summary>Read 'count' bytes into the bytes array</summary>
         // NOTE: returns byte[] because all reader functions return something.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte[] ReadBytes(byte[] bytes, int count)
         {
             // check if passed byte array is big enough
@@ -159,7 +160,6 @@ namespace Mirror
         }
 
         /// <summary>Read 'count' bytes allocation-free as ArraySegment that points to the internal array.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
             // check if within buffer limits
