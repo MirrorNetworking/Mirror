@@ -1418,7 +1418,8 @@ namespace Mirror
 
         // allocate newObservers helper HashSet only once
         // internal for tests
-        internal static readonly HashSet<NetworkConnectionToClient> newObservers = new HashSet<NetworkConnectionToClient>();
+        internal static readonly HashSet<NetworkConnectionToClient> newObservers =
+            new HashSet<NetworkConnectionToClient>();
 
         // rebuild observers default method (no AOI) - adds all connections
         static void RebuildObserversDefault(NetworkIdentity identity, bool initialize)
