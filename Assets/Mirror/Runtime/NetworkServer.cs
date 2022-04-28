@@ -74,6 +74,25 @@ namespace Mirror
         public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
         public static Action<NetworkConnectionToClient, Exception> OnErrorEvent;
 
+        // sorter for observing SortedSet.
+        // note that it's a class, so we can modify the player position inside
+        // the sorter when rebuilding.
+        //
+        // IMPORTANT
+        // SortedSet does NOT allow two entries with same order.
+        // one entry would be discarded automatically.
+        // but we DO need to allow two NetworkIdentities at the same position.
+        // => SamePosition_NotDiscarded test guarantees this.
+        //
+        // IMPORTANT: always clear .observing before modifying the sorter
+        // origin! otherwise the SortedSet may wind up in corrupted state.
+        static readonly NetworkIdentitySorter sorter = new NetworkIdentitySorter();
+
+        // allocate newObservers helper HashSet only once
+        // internal for tests
+        internal static readonly SortedSet<NetworkConnectionToClient> newObservers =
+            new SortedSet<NetworkConnectionToClient>();
+
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
         {
@@ -1435,11 +1454,6 @@ namespace Mirror
                 identity.AddObserver(localConnection);
             }
         }
-
-        // allocate newObservers helper HashSet only once
-        // internal for tests
-        internal static readonly HashSet<NetworkConnectionToClient> newObservers =
-            new HashSet<NetworkConnectionToClient>();
 
         // rebuild observers default method (no AOI) - adds all connections
         static void RebuildObserversDefault(NetworkIdentity identity, bool initialize)
