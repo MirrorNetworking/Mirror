@@ -52,6 +52,7 @@ Obj
 *.mdb
 *.mdb.meta
 ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json
+ProjectSettings/RiderScriptEditorPersistedState.asset
 UserSettings/
 # Packages/manifest.json is enough. lock is auto generated from it.
 Packages/packages-lock.json
