@@ -5,13 +5,19 @@ using UnityEngine;
 
 namespace Mirror.Tests
 {
-    public class NetworkIdentitySorterTests : MirrorTest
+    public class NetworkConnectionDistanceSorterTests : MirrorTest
     {
+        NetworkConnectionToClient connectionA;
+        NetworkConnectionToClient connectionB;
+        NetworkConnectionToClient connectionC;
+        NetworkConnectionToClient connectionD;
+
         NetworkIdentity A;
         NetworkIdentity B;
         NetworkIdentity C;
         NetworkIdentity D;
-        NetworkIdentitySorter sorter;
+
+        NetworkConnectionDistanceSorter sorter;
 
         [SetUp]
         public override void SetUp()
@@ -20,20 +26,29 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
-            sorter = new NetworkIdentitySorter();
+            connectionA = new FakeNetworkConnection();
+            connectionB = new FakeNetworkConnection();
+            connectionC = new FakeNetworkConnection();
+            connectionD = new FakeNetworkConnection();
+
+            sorter = new NetworkConnectionDistanceSorter();
 
             // create networked AND SPAWN so that netId is set for sorter to use
             CreateNetworkedAndSpawn(out _, out A, out _, out _);
             A.transform.position = new Vector3(-2, -2, -2);
+            connectionA.identity = A;
 
             CreateNetworkedAndSpawn(out _, out B, out _, out _);
             B.transform.position = new Vector3(-1, -1, -1);
+            connectionB.identity = B;
 
             CreateNetworkedAndSpawn(out _, out C, out _, out _);
             C.transform.position = new Vector3(1, 1, 1);
+            connectionC.identity = C;
 
             CreateNetworkedAndSpawn(out _, out D, out _, out _);
             D.transform.position = new Vector3(3, 3, 3);
+            connectionD.identity = D;
         }
 
         [TearDown]
@@ -46,25 +61,25 @@ namespace Mirror.Tests
         public void Compare()
         {
             sorter.Reset(Vector3.zero, 0);
-            Assert.That(sorter.Compare(A, A), Is.EqualTo(0));  // compare with self should always be 0. only allow one entry.
-            Assert.That(sorter.Compare(A, B), Is.EqualTo(1));  //  1 because A further from center than B
-            Assert.That(sorter.Compare(A, C), Is.EqualTo(1));  //  1 because A further from center than C
-            Assert.That(sorter.Compare(A, D), Is.EqualTo(-1)); // -1 because A closer to center than D
+            Assert.That(sorter.Compare(connectionA, connectionA), Is.EqualTo( 0)); // compare with self should always be 0. only allow one entry.
+            Assert.That(sorter.Compare(connectionA, connectionB), Is.EqualTo( 1)); //  1 because A further from center than B
+            Assert.That(sorter.Compare(connectionA, connectionC), Is.EqualTo( 1)); //  1 because A further from center than C
+            Assert.That(sorter.Compare(connectionA, connectionD), Is.EqualTo(-1)); // -1 because A closer to center than D
 
-            Assert.That(sorter.Compare(B, A), Is.EqualTo(-1));
-            Assert.That(sorter.Compare(B, B), Is.EqualTo(0));  // compare with self should always be 0. only allow one entry.
-            Assert.That(sorter.Compare(B, C), !Is.EqualTo(0)); // same distance, falls back to hashcode comparison. should be != 0.
-            Assert.That(sorter.Compare(B, D), Is.EqualTo(-1));
+            Assert.That(sorter.Compare(connectionB, connectionA), Is.EqualTo(-1));
+            Assert.That(sorter.Compare(connectionB, connectionB), Is.EqualTo( 0)); // compare with self should always be 0. only allow one entry.
+            Assert.That(sorter.Compare(connectionB, connectionC), !Is.EqualTo(0)); // same distance, falls back to hashcode comparison. should be != 0.
+            Assert.That(sorter.Compare(connectionB, connectionD), Is.EqualTo(-1));
 
-            Assert.That(sorter.Compare(C, A), Is.EqualTo(-1));
-            Assert.That(sorter.Compare(C, B), !Is.EqualTo(0)); // same distance, falls back to hashcode comparison. should be != 0.
-            Assert.That(sorter.Compare(C, C), Is.EqualTo(0));  // compare with self should always be 0. only allow one entry.
-            Assert.That(sorter.Compare(C, D), Is.EqualTo(-1));
+            Assert.That(sorter.Compare(connectionC, connectionA), Is.EqualTo(-1));
+            Assert.That(sorter.Compare(connectionC, connectionB), !Is.EqualTo(0)); // same distance, falls back to hashcode comparison. should be != 0.
+            Assert.That(sorter.Compare(connectionC, connectionC), Is.EqualTo( 0)); // compare with self should always be 0. only allow one entry.
+            Assert.That(sorter.Compare(connectionC, connectionD), Is.EqualTo(-1));
 
-            Assert.That(sorter.Compare(D, A), Is.EqualTo(1));
-            Assert.That(sorter.Compare(D, B), Is.EqualTo(1));
-            Assert.That(sorter.Compare(D, C), Is.EqualTo(1));
-            Assert.That(sorter.Compare(D, D), Is.EqualTo(0));  // compare with self should always be 0. only allow one entry.
+            Assert.That(sorter.Compare(connectionD, connectionA), Is.EqualTo(1));
+            Assert.That(sorter.Compare(connectionD, connectionB), Is.EqualTo(1));
+            Assert.That(sorter.Compare(connectionD, connectionC), Is.EqualTo(1));
+            Assert.That(sorter.Compare(connectionD, connectionD), Is.EqualTo(0)); // compare with self should always be 0. only allow one entry.
         }
 
         // IMPORTANT
@@ -76,11 +91,11 @@ namespace Mirror.Tests
         public void SamePosition_NotDiscarded()
         {
             sorter.Reset(Vector3.zero, 0);
-            SortedSet<NetworkIdentity> sorted = new SortedSet<NetworkIdentity>(sorter);
+            SortedSet<NetworkConnectionToClient> sorted = new SortedSet<NetworkConnectionToClient>(sorter);
 
             A.transform.position = B.transform.position;
-            sorted.Add(A);
-            sorted.Add(B);
+            sorted.Add(connectionA);
+            sorted.Add(connectionB);
 
             Assert.That(sorted.Count, Is.EqualTo(2));
         }
@@ -94,14 +109,14 @@ namespace Mirror.Tests
         public void SameDistance_NotDiscarded()
         {
             sorter.Reset(Vector3.zero, 0);
-            SortedSet<NetworkIdentity> sorted = new SortedSet<NetworkIdentity>(sorter);
+            SortedSet<NetworkConnectionToClient> sorted = new SortedSet<NetworkConnectionToClient>(sorter);
 
             // above test checks same POSITION
             // but it's also possible that two entities are different positions
             // but same DISTANCE to the comparing position.
             A.transform.position = -B.transform.position;
-            sorted.Add(A);
-            sorted.Add(B);
+            sorted.Add(connectionA);
+            sorted.Add(connectionB);
 
             Assert.That(sorted.Count, Is.EqualTo(2));
         }
@@ -114,7 +129,7 @@ namespace Mirror.Tests
         public void SameDistance_NextToOthers()
         {
             sorter.Reset(Vector3.zero, 0);
-            SortedSet<NetworkIdentity> sorted = new SortedSet<NetworkIdentity>(sorter);
+            SortedSet<NetworkConnectionToClient> sorted = new SortedSet<NetworkConnectionToClient>(sorter);
 
             // B & C should have the same distance to make sure we trigger the
             // edge case.
@@ -123,10 +138,10 @@ namespace Mirror.Tests
             Assert.That(bDistance, Is.EqualTo(cDistance));
 
             // add all
-            sorted.Add(A);
-            sorted.Add(B);
-            sorted.Add(C);
-            sorted.Add(D);
+            sorted.Add(connectionA);
+            sorted.Add(connectionB);
+            sorted.Add(connectionC);
+            sorted.Add(connectionD);
 
             // B and C have same distance so should fall back being sorted by
             // hashcode.
@@ -135,8 +150,8 @@ namespace Mirror.Tests
             // => then A
             // => then D
             Assert.That(sorted.Count, Is.EqualTo(4));
-            Assert.That(sorted.SequenceEqual(new []{B, C, A, D}) ||
-                        sorted.SequenceEqual(new []{C, B, A, D}));
+            Assert.That(sorted.SequenceEqual(new []{connectionB, connectionC, connectionA, connectionD}) ||
+                        sorted.SequenceEqual(new []{connectionC, connectionB, connectionA, connectionD}));
         }
 
         // guarantee that adding the same NetworkIdentity only keeps one entry!
@@ -145,9 +160,9 @@ namespace Mirror.Tests
         public void SortedSet_NoDuplicates()
         {
             sorter.Reset(Vector3.zero, 0);
-            SortedSet<NetworkIdentity> sorted = new SortedSet<NetworkIdentity>(sorter);
-            sorted.Add(A);
-            sorted.Add(A);
+            SortedSet<NetworkConnectionToClient> sorted = new SortedSet<NetworkConnectionToClient>(sorter);
+            sorted.Add(connectionA);
+            sorted.Add(connectionA);
             Assert.That(sorted.Count, Is.EqualTo(1));
         }
 
@@ -168,12 +183,12 @@ namespace Mirror.Tests
             sorter.Reset(Vector3.zero, C.netId);
 
             // sort. player should still be highest priority.
-            SortedSet<NetworkIdentity> sorted = new SortedSet<NetworkIdentity>(sorter);
-            sorted.Add(A);
-            sorted.Add(B);
-            sorted.Add(C);
-            sorted.Add(D);
-            Assert.That(sorted.SequenceEqual(new []{C, A, B, D}));
+            SortedSet<NetworkConnectionToClient> sorted = new SortedSet<NetworkConnectionToClient>(sorter);
+            sorted.Add(connectionA);
+            sorted.Add(connectionB);
+            sorted.Add(connectionC);
+            sorted.Add(connectionD);
+            Assert.That(sorted.SequenceEqual(new []{connectionC, connectionA, connectionB, connectionD}));
         }
     }
 }

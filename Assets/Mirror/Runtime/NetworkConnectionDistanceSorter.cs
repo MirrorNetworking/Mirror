@@ -1,5 +1,7 @@
 // comparer to sort NetworkIdentity observing list by distance to main player
 // for LocalWorldState.
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,7 +12,7 @@ namespace Mirror
     // - we can modify .position every time and reuse the object for sorting.
     //
     // IMPORTANT: make sure to clear
-    public class NetworkIdentitySorter : IComparer<NetworkIdentity>
+    public class NetworkConnectionDistanceSorter : IComparer<NetworkConnectionToClient>
     {
         // store value types for sorting.
         // storing NetworkIdentity would be a bit risky:
@@ -28,8 +30,19 @@ namespace Mirror
             netId = playerNetId;
         }
 
-        public int Compare(NetworkIdentity a, NetworkIdentity b)
+        public int Compare(NetworkConnectionToClient connectionA, NetworkConnectionToClient connectionB)
         {
+            // they should always have their main players set.
+            // otherwise they wouldn't be in rebuilt observers.
+            if (connectionA.identity == null)
+                throw new NullReferenceException($"connectionId {connectionA.connectionId} is missing a .identity when sorting. This should never happen.");
+
+            if (connectionB.identity == null)
+                throw new NullReferenceException($"connectionId {connectionB.connectionId} is missing a .identity when sorting. This should never happen.");
+
+            NetworkIdentity a = connectionA.identity;
+            NetworkIdentity b = connectionB.identity;
+
             // IMPORTANT
             // guarantee the player is ALWAYS included (=highest priority).
             // otherwise if >N players are all at the exact same position
@@ -39,7 +52,7 @@ namespace Mirror
             // => need to guarantee the player can not be despawned by others!
             // => see test: PlayerAlwaysHighestPriority()
             if (a.netId == netId) return -1; // a < b if b is player
-            if (b.netId == netId) return 1;  // a > b if b is player
+            if (b.netId == netId) return  1; // a > b if b is player
 
             // otherwise compare distance as usual
             float aDistance = Vector3.Distance(a.transform.position, position);
