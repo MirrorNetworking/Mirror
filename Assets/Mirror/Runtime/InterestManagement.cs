@@ -9,6 +9,24 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public abstract class InterestManagement : MonoBehaviour
     {
+        // bandwidth is finite.
+        // we need a way to limit how much we sent to each connection.
+        // otherwise a player with a slow connection might walk into a densely
+        // populate area, server would try to send everything, buffers get full
+        // and the client gets disconnected.
+        // https://github.com/vis2k/Mirror/issues/2962
+        //
+        // note that LocalWorldState with exact byte size limit would be ideal.
+        //
+        // limiting observers size allows us to have _some_ size limit very easily.
+        // even though we don't limit by an exact byte size, which is dependent
+        // on the individual entity's serialization size.
+        //
+        // most games (even MMOs) don't allow too many observers.
+        // 64 should be a reasonably large default.
+        [Tooltip("A player might walk into a densely populated which would require more bandwidth than the connection can handle. Limit max observers to put a practical limit on max bandwidth in order to to avoid disconnects for slow connections.\nEven for high speed connections it's recommended to limit how much we send at max in order to control server resource usage.")]
+        public int maxObservers = 64;
+
         // Awake configures InterestManagement in NetworkServer/Client
         // Do NOT check for active server or client here.
         // Awake must always set the static aoi references.
