@@ -12,6 +12,26 @@ namespace Mirror
         static bool initialized;
         public static int maxConnections;
 
+        // bandwidth is finite.
+        // we need a way to limit how much we sent to each connection.
+        // otherwise a player with a slow connection might walk into a densely
+        // populate area, server would try to send everything, buffers get full
+        // and the client gets disconnected.
+        // https://github.com/vis2k/Mirror/issues/2962
+        //
+        // note that LocalWorldState with exact byte size limit would be ideal.
+        //
+        // limiting observers size allows us to have _some_ size limit very easily.
+        // even though we don't limit by an exact byte size, which is dependent
+        // on the individual entity's serialization size.
+        //
+        // most games (even MMOs) don't allow too many observers.
+        // 64 should be a reasonably large default.
+        //
+        // => needs to be in NetworkServer because Interest Management is
+        //    optional. non AOI 'everyone sees everyone' should have a limit too.
+        public static int maxObservers = 64;
+
         /// <summary>Connection to host mode client (if any)</summary>
         public static NetworkConnectionToClient localConnection { get; private set; }
 
@@ -1548,6 +1568,11 @@ namespace Mirror
         //
         // Mirror maintains .observing automatically in the background. best of
         // both worlds without any worrying now!
+        //
+        // maxObservers allows limiting max local world size per connection.
+        // avoids players on slow connections possibly getting disconnected when
+        // walking into densely populated areas that require more bandwidth than
+        // what is available.
         public static void RebuildObservers(NetworkIdentity identity, bool initialize)
         {
             // observers are null until OnStartServer creates them
@@ -1558,13 +1583,15 @@ namespace Mirror
             // or if 'force shown' then add all connections
             if (aoi == null || identity.visible == Visibility.ForceShown)
             {
-                RebuildObserversDefault(identity, initialize);
+                RebuildObserversDefault(identity, maxObservers, initialize);
             }
             // otherwise let interest management system rebuild
             else
             {
-                RebuildObserversCustom(identity, initialize);
+                RebuildObserversCustom(identity, maxObservers, initialize);
             }
+
+            // TODO cap observers here maybe? or where/when
         }
 
         // broadcasting ////////////////////////////////////////////////////////

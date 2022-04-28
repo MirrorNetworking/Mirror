@@ -37,6 +37,24 @@ namespace Mirror
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
 
+        // bandwidth is finite.
+        // we need a way to limit how much we sent to each connection.
+        // otherwise a player with a slow connection might walk into a densely
+        // populate area, server would try to send everything, buffers get full
+        // and the client gets disconnected.
+        // https://github.com/vis2k/Mirror/issues/2962
+        //
+        // note that LocalWorldState with exact byte size limit would be ideal.
+        //
+        // limiting observers size allows us to have _some_ size limit very easily.
+        // even though we don't limit by an exact byte size, which is dependent
+        // on the individual entity's serialization size.
+        //
+        // most games (even MMOs) don't allow too many observers.
+        // 64 should be a reasonably large default.
+        [Tooltip("A player might walk into a densely populated which would require more bandwidth than the connection can handle. Limit max observers to put a practical limit on max bandwidth in order to to avoid disconnects for slow connections.\nEven for high speed connections it's recommended to limit how much we send at max in order to control server resource usage.")]
+        public int maxObservers = 64;
+
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
         [Scene]
@@ -248,6 +266,8 @@ namespace Mirror
             }
 
             ConfigureHeadlessFrameRate();
+
+            NetworkServer.maxObservers = maxObservers;
 
             // start listening to network connections
             NetworkServer.Listen(maxConnections);
