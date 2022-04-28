@@ -86,18 +86,24 @@ namespace Mirror
         //
         // IMPORTANT: always clear .observing before modifying the sorter
         // origin! otherwise the SortedSet may wind up in corrupted state.
-        static readonly NetworkIdentitySorter sorter = new NetworkIdentitySorter();
+        static readonly NetworkConnectionDistanceSorter sorter =
+            new NetworkConnectionDistanceSorter();
 
         // allocate newObservers helper HashSet only once
         // internal for tests
-        internal static readonly SortedSet<NetworkConnectionToClient> newObservers =
-            new SortedSet<NetworkConnectionToClient>();
+        internal static readonly SortedSet<NetworkConnectionToClient> newObservers;
+
+        static NetworkServer()
+        {
+            newObservers = new SortedSet<NetworkConnectionToClient>(sorter);
+        }
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
         {
             if (initialized)
                 return;
+
 
             // Debug.Log($"NetworkServer Created version {Version.Current}");
 
@@ -1473,8 +1479,12 @@ namespace Mirror
         // rebuild observers via interest management system
         static void RebuildObserversCustom(NetworkIdentity identity, bool initialize)
         {
-            // clear newObservers hashset before using it
+            // assign a new sorter origin AND clear the .observing SortedSet.
+            // otherwise the SortedSet would wind up in corrupted state if we
+            // change the sorter while it still has entries.
+            // TODO is this safe though? what about already allocated items in the HashSet?
             newObservers.Clear();
+            sorter.Reset(identity.transform.position, identity.netId);
 
             // not force hidden?
             if (identity.visible != Visibility.ForceHidden)
@@ -1494,7 +1504,7 @@ namespace Mirror
                 newObservers.Add(identity.connectionToClient);
             }
 
-            // TODO sort & cap newObserver
+            // TODO cap
 
 
             bool changed = false;
@@ -1607,8 +1617,6 @@ namespace Mirror
             {
                 RebuildObserversCustom(identity, initialize);
             }
-
-            // TODO cap observers here maybe? or where/when
         }
 
         // broadcasting ////////////////////////////////////////////////////////
