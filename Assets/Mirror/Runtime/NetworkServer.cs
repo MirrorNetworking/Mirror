@@ -1480,6 +1480,9 @@ namespace Mirror
                 newObservers.Add(identity.connectionToClient);
             }
 
+            // TODO sort & cap newObserver
+
+
             bool changed = false;
 
             // add all newObservers that aren't in .observers yet
@@ -1583,12 +1586,12 @@ namespace Mirror
             // or if 'force shown' then add all connections
             if (aoi == null || identity.visible == Visibility.ForceShown)
             {
-                RebuildObserversDefault(identity, maxObservers, initialize);
+                RebuildObserversDefault(identity, initialize);
             }
             // otherwise let interest management system rebuild
             else
             {
-                RebuildObserversCustom(identity, maxObservers, initialize);
+                RebuildObserversCustom(identity, initialize);
             }
 
             // TODO cap observers here maybe? or where/when
