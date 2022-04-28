@@ -271,6 +271,10 @@ namespace Mirror
 
         public static Texture2D ReadTexture2D(this NetworkReader reader)
         {
+            int length = reader.ReadInt();
+            if (length < 0)
+                return null;
+
             Texture2D texture2D = new Texture2D(32, 32);
             texture2D.SetPixels32(reader.Read<Color32[]>());
             texture2D.Apply();
@@ -279,6 +283,10 @@ namespace Mirror
 
         public static Sprite ReadSprite(this NetworkReader reader)
         {
+            int length = reader.ReadInt();
+            if (length < 0)
+                return null;
+
             return Sprite.Create(reader.ReadTexture2D(), reader.ReadRect(), reader.ReadVector2());
         }
     }

@@ -42,7 +42,7 @@ namespace Mirror
         public static void WriteUInt(this NetworkWriter writer, uint value) => writer.WriteBlittable(value);
         public static void WriteUIntNullable(this NetworkWriter writer, uint? value) => writer.WriteBlittableNullable(value);
 
-        public static void WriteLong(this NetworkWriter writer, long value)  => writer.WriteBlittable(value);
+        public static void WriteLong(this NetworkWriter writer, long value) => writer.WriteBlittable(value);
         public static void WriteLongNullable(this NetworkWriter writer, long? value) => writer.WriteBlittableNullable(value);
 
         public static void WriteULong(this NetworkWriter writer, ulong value) => writer.WriteBlittable(value);
@@ -291,11 +291,21 @@ namespace Mirror
 
         public static void WriteTexture2D(this NetworkWriter writer, Texture2D texture2D)
         {
+            if (texture2D is null)
+            {
+                writer.WriteInt(-1);
+                return;
+            }
             writer.WriteArray(texture2D.GetPixels32());
         }
 
         public static void WriteSprite(this NetworkWriter writer, Sprite sprite)
         {
+            if (sprite is null)
+            {
+                writer.WriteInt(-1);
+                return;
+            }
             writer.WriteTexture2D(sprite.texture);
             writer.WriteRect(sprite.rect);
             writer.WriteVector2(sprite.pivot);
