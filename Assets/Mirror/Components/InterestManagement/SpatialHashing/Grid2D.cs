@@ -50,7 +50,7 @@ namespace Mirror
         // -> result is passed as parameter to avoid allocations
         // -> result is not cleared before. this allows us to pass the HashSet from
         //    GetWithNeighbours and avoid .UnionWith which is very expensive.
-        void GetAt(Vector2Int position, HashSet<T> result)
+        void GetAt(Vector2Int position, ISet<T> result)
         {
             // return the set at position
             if (grid.TryGetValue(position, out HashSet<T> hashSet))
@@ -62,7 +62,8 @@ namespace Mirror
 
         // helper function to get at position and it's 8 neighbors without worrying
         // -> result is passed as parameter to avoid allocations
-        public void GetWithNeighbours(Vector2Int position, HashSet<T> result)
+        // -> ISet so it works with both HashSet and SortedSet.
+        public void GetWithNeighbours(Vector2Int position, ISet<T> result)
         {
             // clear result first
             result.Clear();
