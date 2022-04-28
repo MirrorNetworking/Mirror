@@ -52,7 +52,7 @@ namespace Mirror
             return (projected - observerProjected).sqrMagnitude <= 2;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
+        public override void OnRebuildObservers(NetworkIdentity identity, ISet<NetworkConnectionToClient> newObservers)
         {
             // add everyone in 9 neighbour grid
             // -> pass observers to GetWithNeighbours directly to avoid allocations

@@ -137,7 +137,7 @@ namespace Mirror
             return identityNetworkMatch.matchId == newObserverNetworkMatch.matchId;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
+        public override void OnRebuildObservers(NetworkIdentity identity, ISet<NetworkConnectionToClient> newObservers)
         {
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                 return;

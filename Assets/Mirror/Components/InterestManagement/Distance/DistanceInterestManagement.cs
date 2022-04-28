@@ -32,7 +32,7 @@ namespace Mirror
             return Vector3.Distance(identity.transform.position, newObserver.identity.transform.position) < range;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
+        public override void OnRebuildObservers(NetworkIdentity identity, ISet<NetworkConnectionToClient> newObservers)
         {
             // cache range and .transform because both call GetComponent.
             int range = GetVisRange(identity);

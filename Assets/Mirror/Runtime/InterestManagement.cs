@@ -54,7 +54,9 @@ namespace Mirror
         //
         // Mirror maintains .observing automatically in the background. best of
         // both worlds without any worrying now!
-        public abstract void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers);
+        //
+        // ISet<T> to support both HashSet and SortedSet.
+        public abstract void OnRebuildObservers(NetworkIdentity identity, ISet<NetworkConnectionToClient> newObservers);
 
         // helper function to trigger a full rebuild.
         // most implementations should call this in a certain interval.
