@@ -1507,6 +1507,9 @@ namespace Mirror
             // cap to maxObservers before handling added/removed.
             // this is 100% safe and allows us to limit local world size
             // without worrying about observers+fitted observers for Rpcs etc.
+            //
+            // note that AOI can NOT only add if Count < maxObservers.
+            // since another player might be closer and needs to be inserted.
             newObservers.Trim(maxObservers);
 
             bool changed = false;
