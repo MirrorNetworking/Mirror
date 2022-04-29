@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Mirror.Tests.RemoteAttrributeTest;
 using NUnit.Framework;
@@ -1448,6 +1449,40 @@ namespace Mirror.Tests
             LogAssert.Expect(LogType.Warning, new Regex("Attempted to serialize unspawned.*"));
             NetworkWriter writer = new NetworkWriter();
             writer.WriteNetworkIdentity(identity);
+        }
+
+        [Test]
+        public void WriteTexture2D_black()
+        {
+            // write
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteTexture2D(Texture2D.blackTexture);
+
+            // read
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Texture2D texture = reader.ReadTexture2D();
+
+            // compare
+            Assert.That(texture.width, Is.EqualTo(Texture2D.blackTexture.width));
+            Assert.That(texture.height, Is.EqualTo(Texture2D.blackTexture.height));
+            Assert.That(texture.GetPixels32().SequenceEqual(Texture2D.blackTexture.GetPixels32()));
+        }
+
+        [Test]
+        public void WriteTexture2D_normal()
+        {
+            // write
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteTexture2D(Texture2D.normalTexture);
+
+            // read
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Texture2D texture = reader.ReadTexture2D();
+
+            // compare
+            Assert.That(texture.width, Is.EqualTo(Texture2D.normalTexture.width));
+            Assert.That(texture.height, Is.EqualTo(Texture2D.normalTexture.height));
+            Assert.That(texture.GetPixels32().SequenceEqual(Texture2D.normalTexture.GetPixels32()));
         }
     }
 }
