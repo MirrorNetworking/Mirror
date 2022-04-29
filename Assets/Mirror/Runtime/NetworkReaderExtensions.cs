@@ -271,8 +271,17 @@ namespace Mirror
 
         public static Texture2D ReadTexture2D(this NetworkReader reader)
         {
-            Texture2D texture2D = new Texture2D(32, 32);
-            texture2D.SetPixels32(reader.ReadArray<Color32>());
+            // TODO allocation protection when sending textures to server.
+            //      currently can allocate 32k x 32k x 4 byte = 3.8 GB
+
+            // read width & height
+            short width = reader.ReadShort();
+            short height = reader.ReadShort();
+            Texture2D texture2D = new Texture2D(width, height);
+
+            // read pixel content
+            Color32[] pixels = reader.ReadArray<Color32>();
+            texture2D.SetPixels32(pixels);
             texture2D.Apply();
             return texture2D;
         }

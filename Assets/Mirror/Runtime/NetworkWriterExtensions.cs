@@ -291,6 +291,13 @@ namespace Mirror
 
         public static void WriteTexture2D(this NetworkWriter writer, Texture2D texture2D)
         {
+            // TODO allocation protection when sending textures to server.
+            //      currently can allocate 32k x 32k x 4 byte = 3.8 GB
+
+            // write dimensions first so reader can create the texture with size
+            // 32k x 32k short is more than enough
+            writer.WriteShort((short)texture2D.width);
+            writer.WriteShort((short)texture2D.height);
             writer.WriteArray(texture2D.GetPixels32());
         }
 
