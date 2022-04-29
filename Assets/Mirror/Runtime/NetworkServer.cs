@@ -1504,8 +1504,10 @@ namespace Mirror
                 newObservers.Add(identity.connectionToClient);
             }
 
-            // TODO cap
-
+            // cap to maxObservers before handling added/removed.
+            // this is 100% safe and allows us to limit local world size
+            // without worrying about observers+fitted observers for Rpcs etc.
+            newObservers.Trim(maxObservers);
 
             bool changed = false;
 
