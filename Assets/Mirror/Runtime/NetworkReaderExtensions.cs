@@ -272,7 +272,7 @@ namespace Mirror
         public static Texture2D ReadTexture2D(this NetworkReader reader)
         {
             Texture2D texture2D = new Texture2D(32, 32);
-            texture2D.SetPixels32(reader.Read<Color32[]>());
+            texture2D.SetPixels32(reader.ReadArray<Color32>());
             texture2D.Apply();
             return texture2D;
         }
