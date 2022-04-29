@@ -53,5 +53,16 @@ namespace Mirror
             return false;
         }
 #endif
+
+        // helper function to trim a set to a max length
+        public static void Trim<T>(this SortedSet<T> set, int maxLength)
+        {
+            // make sure we don't deadlock for negative length
+            if (maxLength < 0) return;
+
+            // remove while count > max
+            while (set.Count > maxLength)
+                set.Remove(set.Max);
+        }
     }
 }
