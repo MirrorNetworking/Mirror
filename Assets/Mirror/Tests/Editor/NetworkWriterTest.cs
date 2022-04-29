@@ -1498,5 +1498,27 @@ namespace Mirror.Tests
             Texture2D texture = reader.ReadTexture2D();
             Assert.That(texture, Is.Null);
         }
+
+        [Test]
+        public void WriteSprite_normal()
+        {
+            // create a test sprite
+            Sprite example = Sprite.Create(Texture2D.normalTexture, new Rect(1, 1, 2, 2), Vector2.zero);
+
+            // write
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteSprite(example);
+
+            // read
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Sprite sprite = reader.ReadSprite();
+
+            // compare
+            Assert.That(sprite.rect, Is.EqualTo(example.rect));
+            Assert.That(sprite.pivot, Is.EqualTo(example.pivot));
+            Assert.That(sprite.texture.width, Is.EqualTo(example.texture.width));
+            Assert.That(sprite.texture.height, Is.EqualTo(example.texture.height));
+            Assert.That(sprite.texture.GetPixels32().SequenceEqual(example.texture.GetPixels32()));
+        }
     }
 }
