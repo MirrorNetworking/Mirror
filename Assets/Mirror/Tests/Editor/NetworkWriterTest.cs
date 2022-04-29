@@ -1520,5 +1520,19 @@ namespace Mirror.Tests
             Assert.That(sprite.texture.height, Is.EqualTo(example.texture.height));
             Assert.That(sprite.texture.GetPixels32().SequenceEqual(example.texture.GetPixels32()));
         }
+
+        // test to prevent https://github.com/vis2k/Mirror/issues/3144
+        [Test]
+        public void WriteSprite_Null()
+        {
+            // write
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteSprite(null);
+
+            // read
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Sprite sprite = reader.ReadSprite();
+            Assert.That(sprite, Is.Null);
+        }
     }
 }

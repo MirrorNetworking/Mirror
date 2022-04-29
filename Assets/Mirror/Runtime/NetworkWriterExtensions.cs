@@ -312,6 +312,15 @@ namespace Mirror
 
         public static void WriteSprite(this NetworkWriter writer, Sprite sprite)
         {
+            // support 'null' textures for [SyncVar]s etc.
+            // https://github.com/vis2k/Mirror/issues/3144
+            // simply send a 'null' for texture content.
+            if (sprite == null)
+            {
+                writer.WriteTexture2D(null);
+                return;
+            }
+
             writer.WriteTexture2D(sprite.texture);
             writer.WriteRect(sprite.rect);
             writer.WriteVector2(sprite.pivot);

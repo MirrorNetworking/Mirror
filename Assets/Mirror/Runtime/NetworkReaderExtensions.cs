@@ -292,7 +292,13 @@ namespace Mirror
 
         public static Sprite ReadSprite(this NetworkReader reader)
         {
-            return Sprite.Create(reader.ReadTexture2D(), reader.ReadRect(), reader.ReadVector2());
+            // support 'null' textures for [SyncVar]s etc.
+            // https://github.com/vis2k/Mirror/issues/3144
+            Texture2D texture = reader.ReadTexture2D();
+            if (texture == null) return null;
+
+            // otherwise create a valid sprite
+            return Sprite.Create(texture, reader.ReadRect(), reader.ReadVector2());
         }
     }
 }
