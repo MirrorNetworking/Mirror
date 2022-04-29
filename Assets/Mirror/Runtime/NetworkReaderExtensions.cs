@@ -274,8 +274,12 @@ namespace Mirror
             // TODO allocation protection when sending textures to server.
             //      currently can allocate 32k x 32k x 4 byte = 3.8 GB
 
-            // read width & height
+            // support 'null' textures for [SyncVar]s etc.
+            // https://github.com/vis2k/Mirror/issues/3144
             short width = reader.ReadShort();
+            if (width == -1) return null;
+
+            // read height
             short height = reader.ReadShort();
             Texture2D texture2D = new Texture2D(width, height);
 

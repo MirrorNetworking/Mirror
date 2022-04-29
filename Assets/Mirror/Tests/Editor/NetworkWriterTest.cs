@@ -1484,5 +1484,19 @@ namespace Mirror.Tests
             Assert.That(texture.height, Is.EqualTo(Texture2D.normalTexture.height));
             Assert.That(texture.GetPixels32().SequenceEqual(Texture2D.normalTexture.GetPixels32()));
         }
+
+        // test to prevent https://github.com/vis2k/Mirror/issues/3144
+        [Test]
+        public void WriteTexture2D_Null()
+        {
+            // write
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteTexture2D(null);
+
+            // read
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Texture2D texture = reader.ReadTexture2D();
+            Assert.That(texture, Is.Null);
+        }
     }
 }
