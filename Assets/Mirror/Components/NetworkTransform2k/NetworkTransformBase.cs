@@ -368,7 +368,20 @@ namespace Mirror
                 );
 #endif
 
-                lastServerSendTime = NetworkTime.localTime;
+                // Increment by send interval so that time is not lost due to late sends,
+                // which would accumulate and cause the send rate to be lower than specified.
+                // See issue: #3120
+                lastServerSendTime += sendInterval;
+
+                // Reset lastServerSendTime to current time if lagging behind by at least an entire send interval.
+                // Lagging behind is caused by FPS < send rate or freezes/stutters,
+                // or from not sending updates due to only syncing on change.
+                // Reseting prevents spam sending updates until caught up.
+                if (NetworkTime.localTime - lastServerSendTime > sendInterval)
+                {
+                    lastServerSendTime = NetworkTime.localTime;
+                }
+
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 if (cachedSnapshotComparison)
                 {
@@ -461,7 +474,20 @@ namespace Mirror
                     );
 #endif
 
-                    lastClientSendTime = NetworkTime.localTime;
+                    // Increment by send interval so that time is not lost due to late sends,
+                    // which would accumulate and cause the send rate to be lower than specified.
+                    // See issue: #3120
+                    lastClientSendTime += sendInterval;
+
+                    // Reset lastClientSendTime to current time if lagging behind by at least an entire send interval.
+                    // Lagging behind is caused by FPS < send rate or freezes/stutters,
+                    // or from not sending updates due to only syncing on change.
+                    // Reseting prevents spam sending updates until caught up.
+                    if (NetworkTime.localTime - lastClientSendTime > sendInterval)
+                    {
+                        lastClientSendTime = NetworkTime.localTime;
+                    }
+
 #if onlySyncOnChange_BANDWIDTH_SAVING
                     if (cachedSnapshotComparison)
                     {

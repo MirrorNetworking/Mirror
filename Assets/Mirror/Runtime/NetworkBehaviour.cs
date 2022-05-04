@@ -27,6 +27,9 @@ namespace Mirror
         [HideInInspector] public float syncInterval = 0.1f;
         internal double lastSyncTime;
 
+        // True when sync interval elapsed but was not dirty, indicating lastSyncTime will need to be reset.
+        bool lastSyncWaitedTillDirty;
+
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
         // server itself is active rather than this object being active.
@@ -123,10 +126,21 @@ namespace Mirror
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         public bool IsDirty()
         {
-            if (NetworkTime.localTime - lastSyncTime >= syncInterval)
+            if (NetworkTime.localTime >= lastSyncTime + syncInterval)
             {
                 // OR both bitmasks. != 0 if either was dirty.
-                return (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
+                bool dirty = (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
+
+                // If sync interval has elapsed but not dirty, lastSyncTime will need to be reset when finally dirty.
+                //
+                // Note: if lastSyncTime was not reset, it would accumulate time error as though the sync was late,
+                // when it is actually just waiting to become dirty.
+                if (!dirty)
+                {
+                    lastSyncWaitedTillDirty = true;
+                }
+
+                return dirty;
             }
             return false;
         }
@@ -136,7 +150,29 @@ namespace Mirror
         // be called manually as well.
         public void ClearAllDirtyBits()
         {
-            lastSyncTime = NetworkTime.localTime;
+            // Sync interval elapsed normally and was dirty
+            if (!lastSyncWaitedTillDirty && NetworkTime.localTime >= lastSyncTime + syncInterval)
+            {
+                // Increment by sync interval so that time is not lost due to late syncs,
+                // which would accumulate and cause the sync rate to be lower than specified.
+                // See issue: #3120
+                lastSyncTime += syncInterval;
+
+                // Reset lastSyncTime to current time if lagging behind by at least an entire sync interval.
+                // Lagging behind is caused by FPS < sync rate or freezes/stutters.
+                // Reseting prevents spam syncing updates until caught up.
+                if (NetworkTime.localTime - lastSyncTime > syncInterval)
+                {
+                    lastSyncTime = NetworkTime.localTime;
+                }
+            }
+            // Manual clear, or sync interval elapsed but had to wait until dirty so need to reset lastSyncTime.
+            else
+            {
+                lastSyncTime = NetworkTime.localTime;
+            }
+
+            lastSyncWaitedTillDirty = false;
             syncVarDirtyBits = 0L;
             syncObjectDirtyBits = 0L;
 

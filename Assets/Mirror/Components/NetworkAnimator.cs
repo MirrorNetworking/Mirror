@@ -47,7 +47,7 @@ namespace Mirror
         int[] animationHash;
         int[] transitionHash;
         float[] layerWeight;
-        double nextSendTime;
+        double lastSendTime;
 
         bool SendMessagesAllowed
         {
@@ -188,10 +188,20 @@ namespace Mirror
 
         void CheckSendRate()
         {
-            double now = NetworkTime.localTime;
-            if (SendMessagesAllowed && syncInterval >= 0 && now > nextSendTime)
+            if (SendMessagesAllowed && NetworkTime.localTime >= lastSendTime + syncInterval)
             {
-                nextSendTime = now + syncInterval;
+                // Increment by sync interval so that time is not lost due to late sends,
+                // which would accumulate and cause the sync rate to be lower than specified.
+                // See issue: #3120
+                lastSendTime += syncInterval;
+
+                // Reset lastSendTime to current time if lagging behind by at least an entire sync interval.
+                // Lagging behind is caused by FPS < sync rate or freezes/stutters.
+                // Reseting prevents spam sending updates until caught up.
+                if (NetworkTime.localTime - lastSendTime > syncInterval)
+                {
+                    lastSendTime = NetworkTime.localTime;
+                }
 
                 using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
