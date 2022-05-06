@@ -10,16 +10,18 @@ namespace kcp2k
         public Action OnConnected;
         public Action<ArraySegment<byte>, KcpChannel> OnData;
         public Action OnDisconnected;
+        public Action<Exception> OnError;
 
         // state
         public KcpClientConnection connection;
         public bool connected;
 
-        public KcpClient(Action OnConnected, Action<ArraySegment<byte>, KcpChannel> OnData, Action OnDisconnected)
+        public KcpClient(Action OnConnected, Action<ArraySegment<byte>, KcpChannel> OnData, Action OnDisconnected, Action<Exception> OnError)
         {
             this.OnConnected = OnConnected;
             this.OnData = OnData;
             this.OnDisconnected = OnDisconnected;
+            this.OnError = OnError;
         }
 
         // CreateConnection can be overwritten for where-allocation:
@@ -66,6 +68,10 @@ namespace kcp2k
                 connected = false;
                 connection = null;
                 OnDisconnected.Invoke();
+            };
+            connection.OnError = (exception) =>
+            {
+                OnError?.Invoke(exception);
             };
 
             // connect

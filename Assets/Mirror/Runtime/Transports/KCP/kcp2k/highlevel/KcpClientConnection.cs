@@ -23,7 +23,7 @@ namespace kcp2k
             }
             catch (SocketException)
             {
-                Log.Info($"Failed to resolve host: {hostname}");
+                Log.Warning($"Failed to resolve host: {hostname}");
                 addresses = null;
                 return false;
             }
@@ -95,7 +95,11 @@ namespace kcp2k
                 RawReceive();
             }
             // otherwise call OnDisconnected to let the user know.
-            else OnDisconnected();
+            else
+            {
+                OnError?.Invoke(new System.Exception($"Cannot resolve {host}"));
+                Disconnect();
+            }
         }
 
         // call from transport update
@@ -119,14 +123,20 @@ namespace kcp2k
                         }
                         else
                         {
-                            Log.Error($"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.");
+                            string msg = $"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.";
+                            Log.Error(msg);
+                            OnError?.Invoke(new System.Exception(msg));
                             Disconnect();
                         }
                     }
                 }
             }
             // this is fine, the socket might have been closed in the other end
-            catch (SocketException) {}
+            catch (SocketException ex) 
+            {
+                Log.Info(ex.ToString());
+                OnError?.Invoke(ex);
+            }
         }
 
         protected override void Dispose()

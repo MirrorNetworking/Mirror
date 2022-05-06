@@ -90,11 +90,13 @@ namespace kcp2k
                 ? new KcpClientNonAlloc(
                       () => OnClientConnected.Invoke(),
                       (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                      () => OnClientDisconnected.Invoke())
+                      () => OnClientDisconnected.Invoke(),
+                      (excepton) => OnClientError.Invoke(excepton))
                 : new KcpClient(
                       () => OnClientConnected.Invoke(),
                       (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                      () => OnClientDisconnected.Invoke());
+                      () => OnClientDisconnected.Invoke(),
+                      (excepton) => OnClientError.Invoke(excepton));
 
             // server
             server = NonAlloc
@@ -102,6 +104,7 @@ namespace kcp2k
                       (connectionId) => OnServerConnected.Invoke(connectionId),
                       (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      (connectionId, exception) => OnServerError.Invoke(connectionId, exception),
                       DualMode,
                       NoDelay,
                       Interval,
@@ -116,6 +119,7 @@ namespace kcp2k
                       (connectionId) => OnServerConnected.Invoke(connectionId),
                       (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      (connectionId, exception) => OnServerError.Invoke(connectionId, exception),
                       DualMode,
                       NoDelay,
                       Interval,
@@ -133,7 +137,7 @@ namespace kcp2k
             Debug.Log("KcpTransport initialized!");
         }
 
-        private void OnValidate()
+        void OnValidate()
         {
             // show max message sizes in inspector for convenience
             ReliableMaxMessageSize = KcpConnection.ReliableMaxMessageSize(ReceiveWindowSize);
