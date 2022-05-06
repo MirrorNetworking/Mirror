@@ -62,6 +62,13 @@ namespace Mirror
         //   otherwise they may not remember to call OnError in all places.
         // + allows handling disconnects & errors in one place.
         //
+        // We use "string error" instead of "Enum error" for several reasons:
+        // + different transports may have vastly different errors.
+        //   tcp/udp/websockets/relays etc.
+        //   relay may be over paid quota, websockets may have ssl issues etc.
+        // + debugging is easier when players can see the detailed transport
+        //   error in a popup. instead of only seeing 'Timeout'.
+        //
         // 'error' should be 'null' for voluntary disconnects.
         public Action<string> OnClientDisconnected;
 
