@@ -50,6 +50,7 @@ namespace Mirror
         public Action<ArraySegment<byte>, int> OnClientDataSent;
 
         /// <summary>Called by Transport when the client encountered an error.</summary>
+        [Obsolete("Use Transport.OnClientDisconnected(reason) instead of OnClientError. Transports should either work, or disconnect in case of any errors.")]
         public Action<Exception> OnClientError;
 
         /// <summary>Called by Transport when the client disconnected from the server.</summary>
