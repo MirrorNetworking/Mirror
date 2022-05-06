@@ -71,6 +71,7 @@ namespace Mirror
         // => public so that custom NetworkManagers can hook into it
         public static Action OnConnectedEvent;
         public static Action<string> OnDisconnectedEvent;
+        [Obsolete("Use OnDisconnected(error) instead of OnError. Transports should either work, or disconnect in case of any errors.")]
         public static Action<Exception> OnErrorEvent;
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>
