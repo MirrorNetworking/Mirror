@@ -112,10 +112,12 @@ namespace Mirror
 
         /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
         /// If a Disconnect will also be raised, raise the Error first.
+        [Obsolete("Use Transport.OnServerDisconnected(error) instead of OnServerError. Transports should either work, or disconnect in case of any errors.")]
         public Action<int, Exception> OnServerError;
 
-        /// <summary>Called by Transport when a client disconnected from the server.</summary>
-        public Action<int> OnServerDisconnected;
+        /// <summary>Called by Transport when a client disconnected from the server. If the Disconnect was caused by a network error, it will be passed as 'error' parameter.</summary>
+        // (see OnClientDisconnected for 'error' parameter explanations)
+        public Action<int, string> OnServerDisconnected;
 
         /// <summary>True if the server is currently listening for connections.</summary>
         public abstract bool ServerActive();

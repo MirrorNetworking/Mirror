@@ -51,7 +51,9 @@ namespace Mirror
         // behaviour.
         // => public so that custom NetworkManagers can hook into it
         public static Action<NetworkConnectionToClient> OnConnectedEvent;
-        public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
+        public static Action<NetworkConnectionToClient, string> OnDisconnectedEvent;
+
+        [Obsolete("Use OnDisconnected(error) instead of OnError. Transports should either work, or disconnect in case of any errors.")]
         public static Action<NetworkConnectionToClient, Exception> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
@@ -84,7 +86,6 @@ namespace Mirror
             Transport.activeTransport.OnServerConnected += OnTransportConnected;
             Transport.activeTransport.OnServerDataReceived += OnTransportData;
             Transport.activeTransport.OnServerDisconnected += OnTransportDisconnected;
-            Transport.activeTransport.OnServerError += OnError;
         }
 
         static void RemoveTransportHandlers()
@@ -93,7 +94,6 @@ namespace Mirror
             Transport.activeTransport.OnServerConnected -= OnTransportConnected;
             Transport.activeTransport.OnServerDataReceived -= OnTransportData;
             Transport.activeTransport.OnServerDisconnected -= OnTransportDisconnected;
-            Transport.activeTransport.OnServerError -= OnError;
         }
 
         // calls OnStartClient for all SERVER objects in host mode once.
@@ -567,11 +567,19 @@ namespace Mirror
         //            the disconnect immediately.
         //            => which is fine as long as we guarantee it only runs once
         //            => which we do by removing the connection!
-        internal static void OnTransportDisconnected(int connectionId)
+        internal static void OnTransportDisconnected(int connectionId, string error)
         {
             // Debug.Log($"Server disconnect client:{connectionId}");
             if (connections.TryGetValue(connectionId, out NetworkConnectionToClient conn))
             {
+                // disconnected because of a network error?
+                if (error != null)
+                {
+                    // log a warning. network errors happen.
+                    // TODO or is passing it to OnDisconnectedEvent enough?
+                    Debug.LogWarning($"Disconnected because of a network error: {error}");
+                }
+
                 RemoveConnection(connectionId);
                 // Debug.Log($"Server lost client:{connectionId}");
 
@@ -580,7 +588,7 @@ namespace Mirror
                 // where players shouldn't be able to escape combat instantly.
                 if (OnDisconnectedEvent != null)
                 {
-                    OnDisconnectedEvent.Invoke(conn);
+                    OnDisconnectedEvent.Invoke(conn, error);
                 }
                 // if nobody hooked into it, then simply call DestroyPlayerForConnection
                 else
@@ -588,14 +596,6 @@ namespace Mirror
                     DestroyPlayerForConnection(conn);
                 }
             }
-        }
-
-        static void OnError(int connectionId, Exception exception)
-        {
-            Debug.LogException(exception);
-            // try get connection. passes null otherwise.
-            connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
-            OnErrorEvent?.Invoke(conn, exception);
         }
 
         // message handlers ////////////////////////////////////////////////////
@@ -693,7 +693,7 @@ namespace Mirror
                 // call OnDisconnected unless local player in host mod
                 // TODO unnecessary check?
                 if (conn.connectionId != NetworkConnection.LocalConnectionId)
-                    OnTransportDisconnected(conn.connectionId);
+                    OnTransportDisconnected(conn.connectionId, null);
             }
 
             // cleanup

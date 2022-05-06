@@ -418,6 +418,7 @@ namespace Mirror
             if (error != null)
             {
                 // log a warning. network errors happen.
+                    // TODO or is passing it to OnDisconnectedEvent enough?
                 Debug.LogWarning($"Disconnected because of a network error: {error}");
             }
 

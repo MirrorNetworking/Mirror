@@ -516,7 +516,7 @@ namespace Mirror
             // so that the host client receives a DisconnectMessage
             // TODO reevaluate if this is still needed after all the disconnect
             //      fixes, and try to put this into LocalConnection.Disconnect!
-            NetworkServer.OnTransportDisconnected(NetworkConnection.LocalConnectionId);
+            NetworkServer.OnTransportDisconnected(NetworkConnection.LocalConnectionId, null);
 
             StopClient();
             StopServer();
