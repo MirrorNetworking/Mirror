@@ -344,7 +344,7 @@ namespace Mirror
                 MessagePacking.Pack(message, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                foreach (NetworkConnection conn in identity.observers.Values)
+                foreach (NetworkConnectionToClient conn in identity.observers.Values)
                 {
                     conn.Send(segment, channelId);
                 }
