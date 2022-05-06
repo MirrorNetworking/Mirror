@@ -133,7 +133,7 @@ namespace kcp2k
             Debug.Log("KcpTransport initialized!");
         }
 
-        private void OnValidate()
+        void OnValidate()
         {
             // show max message sizes in inspector for convenience
             ReliableMaxMessageSize = KcpConnection.ReliableMaxMessageSize(ReceiveWindowSize);
