@@ -92,7 +92,6 @@ namespace Mirror
                     available = transport;
                     transport.OnClientConnected = OnClientConnected;
                     transport.OnClientDataReceived = OnClientDataReceived;
-                    transport.OnClientError = OnClientError;
                     transport.OnClientDisconnected = OnClientDisconnected;
                     transport.ClientConnect(address);
                     return;
@@ -112,7 +111,6 @@ namespace Mirror
                         available = transport;
                         transport.OnClientConnected = OnClientConnected;
                         transport.OnClientDataReceived = OnClientDataReceived;
-                        transport.OnClientError = OnClientError;
                         transport.OnClientDisconnected = OnClientDisconnected;
                         transport.ClientConnect(uri);
                         return;

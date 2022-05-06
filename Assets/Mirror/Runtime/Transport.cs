@@ -53,8 +53,17 @@ namespace Mirror
         [Obsolete("Use Transport.OnClientDisconnected(reason) instead of OnClientError. Transports should either work, or disconnect in case of any errors.")]
         public Action<Exception> OnClientError;
 
-        /// <summary>Called by Transport when the client disconnected from the server.</summary>
-        public Action OnClientDisconnected;
+        /// <summary>Called by Transport when the client disconnected from the server. If the Disconnect was caused by a network error, it will be passed as 'error' parameter.</summary>
+        //
+        // We use OnDisconnect(error) instead of OnError for several reasons:
+        // + easier API. Transports should either work or call OnDisconnected.
+        //   OnError implies that there could be errors while still connected.
+        // + forces Transports to always pass the error reason.
+        //   otherwise they may not remember to call OnError in all places.
+        // + allows handling disconnects & errors in one place.
+        //
+        // 'error' should be 'null' for voluntary disconnects.
+        public Action<string> OnClientDisconnected;
 
         /// <summary>True if the client is currently connected to the server.</summary>
         public abstract bool ClientConnected();

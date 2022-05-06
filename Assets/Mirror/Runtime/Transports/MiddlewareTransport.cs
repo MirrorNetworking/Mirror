@@ -25,7 +25,6 @@ namespace Mirror
             inner.OnClientConnected = OnClientConnected;
             inner.OnClientDataReceived = OnClientDataReceived;
             inner.OnClientDisconnected = OnClientDisconnected;
-            inner.OnClientError = OnClientError;
             inner.ClientConnect(address);
         }
 

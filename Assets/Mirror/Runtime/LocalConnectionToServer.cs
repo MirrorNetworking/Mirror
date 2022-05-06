@@ -87,7 +87,7 @@ namespace Mirror
             if (disconnectedEventPending)
             {
                 disconnectedEventPending = false;
-                NetworkClient.OnDisconnectedEvent?.Invoke();
+                NetworkClient.OnDisconnectedEvent?.Invoke(null);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Mirror
             // callbacks & cleanups.
             // => otherwise OnClientDisconnected() is never called!
             // => see NetworkClientTests.DisconnectCallsOnClientDisconnect_HostMode()
-            NetworkClient.OnTransportDisconnected();
+            NetworkClient.OnTransportDisconnected(null);
         }
 
         // true because local connections never timeout

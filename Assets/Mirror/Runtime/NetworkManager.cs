@@ -1177,10 +1177,10 @@ namespace Mirror
             }
         }
 
-        void OnClientDisconnectInternal()
+        void OnClientDisconnectInternal(string error)
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
-            OnClientDisconnect();
+            OnClientDisconnect(error);
         }
 
         void OnClientNotReadyMessageInternal(NotReadyMessage msg)
@@ -1271,7 +1271,7 @@ namespace Mirror
         }
 
         /// <summary>Called on clients when disconnected from a server.</summary>
-        public virtual void OnClientDisconnect()
+        public virtual void OnClientDisconnect(string error)
         {
             if (mode == NetworkManagerMode.Offline)
                 return;

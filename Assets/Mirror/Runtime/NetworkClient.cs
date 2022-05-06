@@ -70,7 +70,7 @@ namespace Mirror
         // behaviour.
         // => public so that custom NetworkManagers can hook into it
         public static Action OnConnectedEvent;
-        public static Action OnDisconnectedEvent;
+        public static Action<string> OnDisconnectedEvent;
         public static Action<Exception> OnErrorEvent;
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>
@@ -109,7 +109,6 @@ namespace Mirror
             Transport.activeTransport.OnClientConnected += OnTransportConnected;
             Transport.activeTransport.OnClientDataReceived += OnTransportData;
             Transport.activeTransport.OnClientDisconnected += OnTransportDisconnected;
-            Transport.activeTransport.OnClientError += OnError;
         }
 
         static void RemoveTransportHandlers()
@@ -118,7 +117,6 @@ namespace Mirror
             Transport.activeTransport.OnClientConnected -= OnTransportConnected;
             Transport.activeTransport.OnClientDataReceived -= OnTransportData;
             Transport.activeTransport.OnClientDisconnected -= OnTransportDisconnected;
-            Transport.activeTransport.OnClientError -= OnError;
         }
 
         internal static void RegisterSystemHandlers(bool hostMode)
@@ -408,16 +406,23 @@ namespace Mirror
         //            the disconnect immediately.
         //            => which is fine as long as we guarantee it only runs once
         //            => which we do by setting the state to Disconnected!
-        internal static void OnTransportDisconnected()
+        internal static void OnTransportDisconnected(string error)
         {
             // StopClient called from user code triggers Disconnected event
             // from transport which calls StopClient again, so check here
             // and short circuit running the Shutdown process twice.
             if (connectState == ConnectState.Disconnected) return;
 
+            // disconnected because of a network error?
+            if (error != null)
+            {
+                // log a warning. network errors happen.
+                Debug.LogWarning($"Disconnected because of a network error: {error}");
+            }
+
             // Raise the event before changing ConnectState
             // because 'active' depends on this during shutdown
-            if (connection != null) OnDisconnectedEvent?.Invoke();
+            if (connection != null) OnDisconnectedEvent?.Invoke(error);
 
             connectState = ConnectState.Disconnected;
             ready = false;
@@ -430,12 +435,6 @@ namespace Mirror
             // transport handlers are only added when connecting.
             // so only remove when actually disconnecting.
             RemoveTransportHandlers();
-        }
-
-        static void OnError(Exception exception)
-        {
-            Debug.LogException(exception);
-            OnErrorEvent?.Invoke(exception);
         }
 
         // send ////////////////////////////////////////////////////////////////
