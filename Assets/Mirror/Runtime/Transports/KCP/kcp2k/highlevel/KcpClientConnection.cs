@@ -98,7 +98,7 @@ namespace kcp2k
             else
             {
                 OnError?.Invoke(new System.Exception($"Cannot resolve {host}"));
-                Disconnect();
+                OnDisconnected.Invoke();
             }
         }
 
