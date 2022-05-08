@@ -84,7 +84,7 @@ namespace Mirror
             Transport.activeTransport.OnServerConnected += OnTransportConnected;
             Transport.activeTransport.OnServerDataReceived += OnTransportData;
             Transport.activeTransport.OnServerDisconnected += OnTransportDisconnected;
-            Transport.activeTransport.OnServerError += OnError;
+            Transport.activeTransport.OnServerError += OnTransportError;
         }
 
         static void RemoveTransportHandlers()
@@ -93,7 +93,7 @@ namespace Mirror
             Transport.activeTransport.OnServerConnected -= OnTransportConnected;
             Transport.activeTransport.OnServerDataReceived -= OnTransportData;
             Transport.activeTransport.OnServerDisconnected -= OnTransportDisconnected;
-            Transport.activeTransport.OnServerError -= OnError;
+            Transport.activeTransport.OnServerError -= OnTransportError;
         }
 
         // calls OnStartClient for all SERVER objects in host mode once.
@@ -590,7 +590,8 @@ namespace Mirror
             }
         }
 
-        static void OnError(int connectionId, Exception exception)
+        // transport errors are forwarded to high level
+        static void OnTransportError(int connectionId, Exception exception)
         {
             Debug.LogException(exception);
             // try get connection. passes null otherwise.
