@@ -147,7 +147,7 @@ namespace Mirror.SimpleWeb
             client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.Reliable);
             client.onError += (Exception e) =>
             {
-                OnClientError.Invoke(e);
+                OnClientError.Invoke(e.ToString());
                 ClientDisconnect();
             };
 
@@ -212,7 +212,7 @@ namespace Mirror.SimpleWeb
             server.onConnect += OnServerConnected.Invoke;
             server.onDisconnect += OnServerDisconnected.Invoke;
             server.onData += (int connId, ArraySegment<byte> data) => OnServerDataReceived.Invoke(connId, data, Channels.Reliable);
-            server.onError += OnServerError.Invoke;
+            server.onError += (connId, ex) => OnServerError.Invoke(connId, ex.ToString());
 
             SendLoopConfig.batchSend = batchSend || waitBeforeSend;
             SendLoopConfig.sleepBeforeSend = waitBeforeSend;

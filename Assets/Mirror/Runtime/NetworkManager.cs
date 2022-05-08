@@ -1244,7 +1244,7 @@ namespace Mirror
         }
 
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
-        public virtual void OnServerError(NetworkConnectionToClient conn, Exception exception) {}
+        public virtual void OnServerError(NetworkConnectionToClient conn, string error) {}
 
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
@@ -1280,7 +1280,7 @@ namespace Mirror
         }
 
         /// <summary>Called on client when transport raises an exception.</summary>
-        public virtual void OnClientError(Exception exception) {}
+        public virtual void OnClientError(string error) {}
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         public virtual void OnClientNotReady() {}
