@@ -593,7 +593,9 @@ namespace Mirror
         // transport errors are forwarded to high level
         static void OnTransportError(int connectionId, Exception exception)
         {
-            Debug.LogException(exception);
+            // transport errors will happen. logging a warning is enough.
+            // make sure the user does not panic.
+            Debug.LogWarning($"Server Transport Error for connId={connectionId}: {exception}. This is fine.");
             // try get connection. passes null otherwise.
             connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
             OnErrorEvent?.Invoke(conn, exception);

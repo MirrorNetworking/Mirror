@@ -435,7 +435,9 @@ namespace Mirror
         // transport errors are forwarded to high level
         static void OnTransportError(Exception exception)
         {
-            Debug.LogException(exception);
+            // transport errors will happen. logging a warning is enough.
+            // make sure the user does not panic.
+            Debug.LogWarning($"Client Transport Error: {exception}. This is fine.");
             OnErrorEvent?.Invoke(exception);
         }
 
