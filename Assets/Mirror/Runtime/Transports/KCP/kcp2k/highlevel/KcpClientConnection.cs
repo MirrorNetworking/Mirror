@@ -21,9 +21,9 @@ namespace kcp2k
                 addresses = Dns.GetHostAddresses(hostname);
                 return addresses.Length >= 1;
             }
-            catch (SocketException)
+            catch (SocketException exception)
             {
-                Log.Info($"Failed to resolve host: {hostname}");
+                Log.Info($"Failed to resolve host: {hostname} reason: {exception}");
                 addresses = null;
                 return false;
             }
@@ -95,7 +95,12 @@ namespace kcp2k
                 RawReceive();
             }
             // otherwise call OnDisconnected to let the user know.
-            else OnDisconnected();
+            else
+            {
+                // pass error to user callback. no need to log it manually.
+                OnError($"Failed to resolve host: {host}");
+                OnDisconnected();
+            }
         }
 
         // call from transport update
@@ -119,14 +124,22 @@ namespace kcp2k
                         }
                         else
                         {
-                            Log.Error($"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.");
+                            // pass error to user callback. no need to log it manually.
+                            OnError($"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.");
                             Disconnect();
                         }
                     }
                 }
             }
             // this is fine, the socket might have been closed in the other end
-            catch (SocketException) {}
+            catch (SocketException ex)
+            {
+                // the other end closing the connection is not an 'error'.
+                // but connections should never just end silently.
+                // at least log a message for easier debugging.
+                Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                Disconnect();
+            }
         }
 
         protected override void Dispose()

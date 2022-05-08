@@ -90,11 +90,13 @@ namespace kcp2k
                 ? new KcpClientNonAlloc(
                       () => OnClientConnected.Invoke(),
                       (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                      () => OnClientDisconnected.Invoke())
+                      () => OnClientDisconnected.Invoke(),
+                      (error) => OnClientError.Invoke(new Exception(error)))
                 : new KcpClient(
                       () => OnClientConnected.Invoke(),
                       (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                      () => OnClientDisconnected.Invoke());
+                      () => OnClientDisconnected.Invoke(),
+                      (error) => OnClientError.Invoke(new Exception(error)));
 
             // server
             server = NonAlloc
@@ -102,6 +104,7 @@ namespace kcp2k
                       (connectionId) => OnServerConnected.Invoke(connectionId),
                       (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      (connectionId, error) => OnServerError.Invoke(connectionId, new Exception(error)),
                       DualMode,
                       NoDelay,
                       Interval,
@@ -116,6 +119,7 @@ namespace kcp2k
                       (connectionId) => OnServerConnected.Invoke(connectionId),
                       (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                      (connectionId, error) => OnServerError.Invoke(connectionId, new Exception(error)),
                       DualMode,
                       NoDelay,
                       Interval,
@@ -196,7 +200,11 @@ namespace kcp2k
             OnServerDataSent?.Invoke(connectionId, segment, channelId);
         }
         public override void ServerDisconnect(int connectionId) =>  server.Disconnect(connectionId);
-        public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
+        public override string ServerGetClientAddress(int connectionId)
+        {
+            IPEndPoint endPoint = server.GetClientEndPoint(connectionId);
+            return endPoint != null ? endPoint.Address.ToString() : "";
+        }
         public override void ServerStop() => server.Stop();
         public override void ServerEarlyUpdate()
         {

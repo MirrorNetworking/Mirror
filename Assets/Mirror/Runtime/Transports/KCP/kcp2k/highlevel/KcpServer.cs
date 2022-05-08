@@ -13,6 +13,10 @@ namespace kcp2k
         public Action<int> OnConnected;
         public Action<int, ArraySegment<byte>, KcpChannel> OnData;
         public Action<int> OnDisconnected;
+        // error callback instead of logging.
+        // allows libraries to show popups etc.
+        // (string instead of Exception for ease of use)
+        public Action<int, string> OnError;
 
         // socket configuration
         // DualMode uses both IPv6 and IPv4. not all platforms support it.
@@ -66,6 +70,7 @@ namespace kcp2k
         public KcpServer(Action<int> OnConnected,
                          Action<int, ArraySegment<byte>, KcpChannel> OnData,
                          Action<int> OnDisconnected,
+                         Action<int, string> OnError,
                          bool DualMode,
                          bool NoDelay,
                          uint Interval,
@@ -80,6 +85,7 @@ namespace kcp2k
             this.OnConnected = OnConnected;
             this.OnData = OnData;
             this.OnDisconnected = OnDisconnected;
+            this.OnError = OnError;
             this.DualMode = DualMode;
             this.NoDelay = NoDelay;
             this.Interval = Interval;
@@ -161,13 +167,14 @@ namespace kcp2k
             }
         }
 
-        public string GetClientAddress(int connectionId)
+        // expose the whole IPEndPoint, not just the IP address. some need it.
+        public IPEndPoint GetClientEndPoint(int connectionId)
         {
             if (connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                return (connection.GetRemoteEndPoint() as IPEndPoint).Address.ToString();
+                return (connection.GetRemoteEndPoint() as IPEndPoint);
             }
-            return "";
+            return null;
         }
 
         // EndPoint & Receive functions can be overwritten for where-allocation:
@@ -276,12 +283,18 @@ namespace kcp2k
 
                                     // call mirror event
                                     Log.Info($"KCP: OnServerDisconnected({connectionId})");
-                                    OnDisconnected.Invoke(connectionId);
+                                    OnDisconnected(connectionId);
+                                };
+
+                                // setup error event
+                                connection.OnError = (error) =>
+                                {
+                                    OnError(connectionId, error);
                                 };
 
                                 // finally, call mirror OnConnected event
                                 Log.Info($"KCP: OnServerConnected({connectionId})");
-                                OnConnected.Invoke(connectionId);
+                                OnConnected(connectionId);
                             };
 
                             // now input the message & process received ones
@@ -308,7 +321,13 @@ namespace kcp2k
                     }
                 }
                 // this is fine, the socket might have been closed in the other end
-                catch (SocketException) {}
+                catch (SocketException ex)
+                {
+                    // the other end closing the connection is not an 'error'.
+                    // but connections should never just end silently.
+                    // at least log a message for easier debugging.
+                    Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                }
             }
 
             // process inputs for all server connections

@@ -1,3 +1,16 @@
+V1.18 [2022-05-08]
+- feature: OnError to allow higher level to show popups etc.
+- feature: KcpServer.GetClientAddress is now GetClientEndPoint in order to
+  expose more details
+- ResolveHostname: include exception in log for easier debugging
+- fix: KcpClientConnection.RawReceive now logs the SocketException even if
+  it was expected. makes debugging easier.
+- fix: KcpServer.TickIncoming now logs the SocketException even if it was
+  expected. makes debugging easier.
+- fix: KcpClientConnection.RawReceive now calls Disconnect() if the other end
+  has closed the connection. better than just remaining in a state with unusable
+  sockets.
+
 V1.17 [2022-01-09]
 - perf: server/client MaximizeSendReceiveBuffersToOSLimit option to set send/recv
   buffer sizes to OS limit. avoids drops due to small buffers under heavy load.
