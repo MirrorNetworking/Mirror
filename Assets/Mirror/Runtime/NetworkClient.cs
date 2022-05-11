@@ -1167,7 +1167,15 @@ namespace Mirror
                 // add all unspawned NetworkIdentities to spawnable objects
                 if (ConsiderForSpawning(identity))
                 {
-                    spawnableObjects.Add(identity.sceneId, identity);
+                    if (spawnableObjects.TryGetValue(identity.sceneId, out NetworkIdentity existingIdentity))
+                    {
+                        string errorMsg = $"NetworkClient: Duplicate sceneId {identity.sceneId} detected on {identity.gameObject.name} and {existingIdentity.gameObject.name}\n" +
+                            $"This can happen if a networked object is persisted in DontDestroyOnLoad through loading / changing to the scene where it originated,\n" +
+                            $"otherwise you may need to open and re-save the {identity.gameObject.scene} to reset scene id's.";
+                        Debug.LogWarning(errorMsg, identity.gameObject);
+                    }
+                    else
+                        spawnableObjects.Add(identity.sceneId, identity);
                 }
             }
         }
