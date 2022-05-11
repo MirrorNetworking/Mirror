@@ -1175,7 +1175,9 @@ namespace Mirror
                         Debug.LogWarning(msg, identity.gameObject);
                     }
                     else
+                    {
                         spawnableObjects.Add(identity.sceneId, identity);
+                    }
                 }
             }
         }
