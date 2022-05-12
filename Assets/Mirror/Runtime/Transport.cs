@@ -30,12 +30,14 @@ namespace Mirror
     /// <summary>Abstract transport layer component</summary>
     public abstract class Transport : MonoBehaviour
     {
+        // common //////////////////////////////////////////////////////////////
         /// <summary>The current transport used by Mirror.</summary>
         public static Transport activeTransport;
 
         /// <summary>Is this transport available in the current platform?</summary>
         public abstract bool Available();
 
+        // client //////////////////////////////////////////////////////////////
         /// <summary>Called by Transport when the client connected to the server.</summary>
         public Action OnClientConnected;
 
@@ -55,6 +57,28 @@ namespace Mirror
         /// <summary>Called by Transport when the client disconnected from the server.</summary>
         public Action OnClientDisconnected;
 
+        // server //////////////////////////////////////////////////////////////
+        /// <summary>Called by Transport when a new client connected to the server.</summary>
+        public Action<int> OnServerConnected;
+
+        /// <summary>Called by Transport when the server received a message from a client.</summary>
+        public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
+
+        /// <summary>Called by Transport when the server sent a message to a client.</summary>
+        // Transports are responsible for calling it because:
+        // - groups it together with OnReceived responsibility
+        // - allows transports to decide if anything was sent or not
+        // - allows transports to decide the actual used channel (i.e. tcp always sending reliable)
+        public Action<int, ArraySegment<byte>, int> OnServerDataSent;
+
+        /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
+        /// If a Disconnect will also be raised, raise the Error first.
+        public Action<int, Exception> OnServerError;
+
+        /// <summary>Called by Transport when a client disconnected from the server.</summary>
+        public Action<int> OnServerDisconnected;
+
+        // client functions ////////////////////////////////////////////////////
         /// <summary>True if the client is currently connected to the server.</summary>
         public abstract bool ClientConnected();
 
@@ -76,29 +100,10 @@ namespace Mirror
         /// <summary>Disconnects the client from the server</summary>
         public abstract void ClientDisconnect();
 
+        // server functions ////////////////////////////////////////////////////
         /// <summary>Returns server address as Uri.</summary>
         // Useful for NetworkDiscovery.
         public abstract Uri ServerUri();
-
-        /// <summary>Called by Transport when a new client connected to the server.</summary>
-        public Action<int> OnServerConnected;
-
-        /// <summary>Called by Transport when the server received a message from a client.</summary>
-        public Action<int, ArraySegment<byte>, int> OnServerDataReceived;
-
-        /// <summary>Called by Transport when the server sent a message to a client.</summary>
-        // Transports are responsible for calling it because:
-        // - groups it together with OnReceived responsibility
-        // - allows transports to decide if anything was sent or not
-        // - allows transports to decide the actual used channel (i.e. tcp always sending reliable)
-        public Action<int, ArraySegment<byte>, int> OnServerDataSent;
-
-        /// <summary>Called by Transport when a server's connection encountered a problem.</summary>
-        /// If a Disconnect will also be raised, raise the Error first.
-        public Action<int, Exception> OnServerError;
-
-        /// <summary>Called by Transport when a client disconnected from the server.</summary>
-        public Action<int> OnServerDisconnected;
 
         /// <summary>True if the server is currently listening for connections.</summary>
         public abstract bool ServerActive();
