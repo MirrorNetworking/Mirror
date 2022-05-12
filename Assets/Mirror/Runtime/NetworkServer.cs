@@ -52,7 +52,7 @@ namespace Mirror
         // => public so that custom NetworkManagers can hook into it
         public static Action<NetworkConnectionToClient> OnConnectedEvent;
         public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
-        public static Action<NetworkConnectionToClient, Exception> OnErrorEvent;
+        public static Action<NetworkConnectionToClient, TransportError, string> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
@@ -591,14 +591,14 @@ namespace Mirror
         }
 
         // transport errors are forwarded to high level
-        static void OnTransportError(int connectionId, Exception exception)
+        static void OnTransportError(int connectionId, TransportError error, string reason)
         {
             // transport errors will happen. logging a warning is enough.
             // make sure the user does not panic.
-            Debug.LogWarning($"Server Transport Error for connId={connectionId}: {exception}. This is fine.");
+            Debug.LogWarning($"Server Transport Error for connId={connectionId}: {error}: {reason}. This is fine.");
             // try get connection. passes null otherwise.
             connections.TryGetValue(connectionId, out NetworkConnectionToClient conn);
-            OnErrorEvent?.Invoke(conn, exception);
+            OnErrorEvent?.Invoke(conn, error, reason);
         }
 
         // message handlers ////////////////////////////////////////////////////
