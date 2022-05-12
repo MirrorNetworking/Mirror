@@ -12,14 +12,18 @@ namespace kcp2k
         public Action OnDisconnected;
         // error callback instead of logging.
         // allows libraries to show popups etc.
-        // (string instead of Exception for ease of use)
-        public Action<string> OnError;
+        // (string instead of Exception for ease of use and to avoid user panic)
+        public Action<ErrorCode, string> OnError;
 
         // state
         public KcpClientConnection connection;
         public bool connected;
 
-        public KcpClient(Action OnConnected, Action<ArraySegment<byte>, KcpChannel> OnData, Action OnDisconnected, Action<string> OnError)
+        public KcpClient(Action OnConnected,
+                         Action<ArraySegment<byte>,
+                         KcpChannel> OnData,
+                         Action OnDisconnected,
+                         Action<ErrorCode, string> OnError)
         {
             this.OnConnected = OnConnected;
             this.OnData = OnData;
@@ -72,9 +76,9 @@ namespace kcp2k
                 connection = null;
                 OnDisconnected();
             };
-            connection.OnError = (exception) =>
+            connection.OnError = (error, reason) =>
             {
-                OnError(exception);
+                OnError(error, reason);
             };
 
             // connect

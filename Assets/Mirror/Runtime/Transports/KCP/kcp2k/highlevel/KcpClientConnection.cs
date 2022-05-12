@@ -98,7 +98,7 @@ namespace kcp2k
             else
             {
                 // pass error to user callback. no need to log it manually.
-                OnError($"Failed to resolve host: {host}");
+                OnError(ErrorCode.DnsResolve, $"Failed to resolve host: {host}");
                 OnDisconnected();
             }
         }
@@ -125,7 +125,7 @@ namespace kcp2k
                         else
                         {
                             // pass error to user callback. no need to log it manually.
-                            OnError($"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.");
+                            OnError(ErrorCode.InvalidReceive, $"KCP ClientConnection: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting.");
                             Disconnect();
                         }
                     }

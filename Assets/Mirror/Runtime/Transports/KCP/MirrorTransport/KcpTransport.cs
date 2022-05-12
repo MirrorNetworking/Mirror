@@ -91,12 +91,12 @@ namespace kcp2k
                       () => OnClientConnected.Invoke(),
                       (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
                       () => OnClientDisconnected.Invoke(),
-                      (error) => OnClientError.Invoke(new Exception(error)))
+                      (error, reason) => OnClientError.Invoke(new Exception(reason)))
                 : new KcpClient(
                       () => OnClientConnected.Invoke(),
                       (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
                       () => OnClientDisconnected.Invoke(),
-                      (error) => OnClientError.Invoke(new Exception(error)));
+                      (error, reason) => OnClientError.Invoke(new Exception(reason)));
 
             // server
             server = NonAlloc
@@ -104,7 +104,7 @@ namespace kcp2k
                       (connectionId) => OnServerConnected.Invoke(connectionId),
                       (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
-                      (connectionId, error) => OnServerError.Invoke(connectionId, new Exception(error)),
+                      (connectionId, error, reason) => OnServerError.Invoke(connectionId, new Exception(reason)),
                       DualMode,
                       NoDelay,
                       Interval,
@@ -119,7 +119,7 @@ namespace kcp2k
                       (connectionId) => OnServerConnected.Invoke(connectionId),
                       (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
-                      (connectionId, error) => OnServerError.Invoke(connectionId, new Exception(error)),
+                      (connectionId, error, reason) => OnServerError.Invoke(connectionId, new Exception(reason)),
                       DualMode,
                       NoDelay,
                       Interval,

@@ -21,8 +21,8 @@ namespace kcp2k
         public Action OnDisconnected;
         // error callback instead of logging.
         // allows libraries to show popups etc.
-        // (string instead of Exception for ease of use)
-        public Action<string> OnError;
+        // (string instead of Exception for ease of use and to avoid user panic)
+        public Action<ErrorCode, string> OnError;
 
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
@@ -171,7 +171,7 @@ namespace kcp2k
             if (time >= lastReceiveTime + timeout)
             {
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP: Connection timed out after not receiving any message for {timeout}ms. Disconnecting.");
+                OnError(ErrorCode.Timeout, $"KCP: Connection timed out after not receiving any message for {timeout}ms. Disconnecting.");
                 Disconnect();
             }
         }
@@ -182,7 +182,7 @@ namespace kcp2k
             if (kcp.state == -1)
             {
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP Connection dead_link detected: a message was retransmitted {kcp.dead_link} times without ack. Disconnecting.");
+                OnError(ErrorCode.Timeout, $"KCP Connection dead_link detected: a message was retransmitted {kcp.dead_link} times without ack. Disconnecting.");
                 Disconnect();
             }
         }
@@ -210,7 +210,8 @@ namespace kcp2k
             if (total >= QueueDisconnectThreshold)
             {
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP: disconnecting connection because it can't process data fast enough.\n" +
+                OnError(ErrorCode.Congestion,
+                        $"KCP: disconnecting connection because it can't process data fast enough.\n" +
                         $"Queue total {total}>{QueueDisconnectThreshold}. rcv_queue={kcp.rcv_queue.Count} snd_queue={kcp.snd_queue.Count} rcv_buf={kcp.rcv_buf.Count} snd_buf={kcp.snd_buf.Count}\n" +
                         $"* Try to Enable NoDelay, decrease INTERVAL, disable Congestion Window (= enable NOCWND!), increase SEND/RECV WINDOW or compress data.\n" +
                         $"* Or perhaps the network is simply too slow on our end, or on the other end.");
@@ -250,7 +251,7 @@ namespace kcp2k
                     {
                         // if receive failed, close everything
                         // pass error to user callback. no need to log it manually.
-                        OnError($"Receive failed with error={received}. closing connection.");
+                        OnError(ErrorCode.InvalidReceive, $"Receive failed with error={received}. closing connection.");
                         Disconnect();
                     }
                 }
@@ -259,7 +260,7 @@ namespace kcp2k
                 else
                 {
                     // pass error to user callback. no need to log it manually.
-                    OnError($"KCP: possible allocation attack for msgSize {msgSize} > buffer {kcpMessageBuffer.Length}. Disconnecting the connection.");
+                    OnError(ErrorCode.InvalidReceive, $"KCP: possible allocation attack for msgSize {msgSize} > buffer {kcpMessageBuffer.Length}. Disconnecting the connection.");
                     Disconnect();
                 }
             }
@@ -302,7 +303,7 @@ namespace kcp2k
                     {
                         // everything else is not allowed during handshake!
                         // pass error to user callback. no need to log it manually.
-                        OnError($"KCP: received invalid header {header} while Connected. Disconnecting the connection.");
+                        OnError(ErrorCode.InvalidReceive, $"KCP: received invalid header {header} while Connected. Disconnecting the connection.");
                         Disconnect();
                         break;
                     }
@@ -343,7 +344,7 @@ namespace kcp2k
                         else
                         {
                             // pass error to user callback. no need to log it manually.
-                            OnError("KCP: received empty Data message while Authenticated. Disconnecting the connection.");
+                            OnError(ErrorCode.InvalidReceive, "KCP: received empty Data message while Authenticated. Disconnecting the connection.");
                             Disconnect();
                         }
                         break;
@@ -393,21 +394,21 @@ namespace kcp2k
             {
                 // this is ok, the connection was closed
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KCP Connection: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (ObjectDisposedException exception)
             {
                 // fine, socket was closed
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KCP Connection: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (Exception exception)
             {
                 // unexpected
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP Connection: unexpected Exception: {exception}");
+                OnError(ErrorCode.Unexpected, $"KCP Connection: unexpected Exception: {exception}");
                 Disconnect();
             }
         }
@@ -438,21 +439,21 @@ namespace kcp2k
             {
                 // this is ok, the connection was closed
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KCP Connection: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (ObjectDisposedException exception)
             {
                 // fine, socket was closed
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP Connection: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KCP Connection: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (Exception exception)
             {
                 // unexpected
                 // pass error to user callback. no need to log it manually.
-                OnError($"KCP Connection: unexpected exception: {exception}");
+                OnError(ErrorCode.Unexpected, $"KCP Connection: unexpected exception: {exception}");
                 Disconnect();
             }
         }
@@ -515,7 +516,7 @@ namespace kcp2k
                         {
                             // should never happen
                             // pass error to user callback. no need to log it manually.
-                            OnError($"KCP: received unreliable message in state {state}. Disconnecting the connection.");
+                            OnError(ErrorCode.InvalidReceive, $"KCP: received unreliable message in state {state}. Disconnecting the connection.");
                             Disconnect();
                         }
                         break;
@@ -524,7 +525,7 @@ namespace kcp2k
                     {
                         // not a valid channel. random data or attacks.
                         // pass error to user callback. no need to log it manually.
-                        OnError($"Disconnecting connection because of invalid channel header: {channel}");
+                        OnError(ErrorCode.InvalidReceive, $"Disconnecting connection because of invalid channel header: {channel}");
                         Disconnect();
                         break;
                     }
@@ -600,7 +601,7 @@ namespace kcp2k
             if (data.Count == 0)
             {
                 // pass error to user callback. no need to log it manually.
-                OnError("KcpConnection: tried sending empty message. This should never happen. Disconnecting.");
+                OnError(ErrorCode.InvalidSend, "KcpConnection: tried sending empty message. This should never happen. Disconnecting.");
                 Disconnect();
                 return;
             }

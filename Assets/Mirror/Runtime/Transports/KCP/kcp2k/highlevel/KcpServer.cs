@@ -15,8 +15,8 @@ namespace kcp2k
         public Action<int> OnDisconnected;
         // error callback instead of logging.
         // allows libraries to show popups etc.
-        // (string instead of Exception for ease of use)
-        public Action<int, string> OnError;
+        // (string instead of Exception for ease of use and to avoid user panic)
+        public Action<int, ErrorCode, string> OnError;
 
         // socket configuration
         // DualMode uses both IPv6 and IPv4. not all platforms support it.
@@ -70,7 +70,7 @@ namespace kcp2k
         public KcpServer(Action<int> OnConnected,
                          Action<int, ArraySegment<byte>, KcpChannel> OnData,
                          Action<int> OnDisconnected,
-                         Action<int, string> OnError,
+                         Action<int, ErrorCode, string> OnError,
                          bool DualMode,
                          bool NoDelay,
                          uint Interval,
@@ -287,9 +287,9 @@ namespace kcp2k
                                 };
 
                                 // setup error event
-                                connection.OnError = (error) =>
+                                connection.OnError = (error, reason) =>
                                 {
-                                    OnError(connectionId, error);
+                                    OnError(connectionId, error, reason);
                                 };
 
                                 // finally, call mirror OnConnected event

@@ -14,7 +14,7 @@ namespace kcp2k
         public KcpServerNonAlloc(Action<int> OnConnected,
                                  Action<int, ArraySegment<byte>, KcpChannel> OnData,
                                  Action<int> OnDisconnected,
-                                 Action<int, string> OnError,
+                                 Action<int, ErrorCode, string> OnError,
                                  bool DualMode,
                                  bool NoDelay,
                                  uint Interval,
