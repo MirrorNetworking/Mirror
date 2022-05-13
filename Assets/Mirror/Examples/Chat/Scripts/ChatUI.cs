@@ -8,24 +8,29 @@ namespace Mirror.Examples.Chat
     public class ChatUI : NetworkBehaviour
     {
         [Header("UI Elements")]
-        public InputField chatMessage;
-        public Text chatHistory;
-        public Scrollbar scrollbar;
+        [SerializeField] Text chatHistory;
+        [SerializeField] Scrollbar scrollbar;
+        [SerializeField] InputField chatMessage;
+        [SerializeField] Button sendButton;
 
-        [Header("Diagnostic - Do Not Edit")]
-        public string localPlayerName;
+        // This is only set on client to the name of the local player
+        internal static string localPlayerName;
 
-        Dictionary<NetworkConnectionToClient, string> connNames = new Dictionary<NetworkConnectionToClient, string>();
+        // Server-only cross-reference of connections to player names
+        internal static readonly Dictionary<NetworkConnectionToClient, string> connNames = new Dictionary<NetworkConnectionToClient, string>();
 
-        public static ChatUI instance;
-
-        void Awake()
+        public override void OnStartServer()
         {
-            instance = this;
+            connNames.Clear();
+        }
+
+        public override void OnStartClient()
+        {
+            chatHistory.text = "";
         }
 
         [Command(requiresAuthority = false)]
-        public void CmdSend(string message, NetworkConnectionToClient sender = null)
+        void CmdSend(string message, NetworkConnectionToClient sender = null)
         {
             if (!connNames.ContainsKey(sender))
                 connNames.Add(sender, sender.identity.GetComponent<Player>().playerName);
@@ -35,12 +40,42 @@ namespace Mirror.Examples.Chat
         }
 
         [ClientRpc]
-        public void RpcReceive(string playerName, string message)
+        void RpcReceive(string playerName, string message)
         {
             string prettyMessage = playerName == localPlayerName ?
                 $"<color=red>{playerName}:</color> {message}" :
                 $"<color=blue>{playerName}:</color> {message}";
             AppendMessage(prettyMessage);
+        }
+
+        void AppendMessage(string message)
+        {
+            StartCoroutine(AppendAndScroll(message));
+        }
+
+        IEnumerator AppendAndScroll(string message)
+        {
+            chatHistory.text += message + "\n";
+
+            // it takes 2 frames for the UI to update ?!?!
+            yield return null;
+            yield return null;
+
+            // slam the scrollbar down
+            scrollbar.value = 0;
+        }
+
+        public void ExitButtonClick()
+        {
+            // StopHost calls both StopClient and StopServer
+            // StopServer does nothing on remote clients
+            NetworkManager.singleton.StopHost();
+        }
+
+        // Called by UI element MessageField.OnValueChanged
+        public void ToggleButton(string input)
+        {
+            sendButton.interactable = !string.IsNullOrWhiteSpace(input);
         }
 
         // Called by UI element MessageField.OnEndEdit
@@ -59,23 +94,6 @@ namespace Mirror.Examples.Chat
                 chatMessage.text = string.Empty;
                 chatMessage.ActivateInputField();
             }
-        }
-
-        internal void AppendMessage(string message)
-        {
-            StartCoroutine(AppendAndScroll(message));
-        }
-
-        IEnumerator AppendAndScroll(string message)
-        {
-            chatHistory.text += message + "\n";
-
-            // it takes 2 frames for the UI to update ?!?!
-            yield return null;
-            yield return null;
-
-            // slam the scrollbar down
-            scrollbar.value = 0;
         }
     }
 }
