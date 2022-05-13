@@ -256,23 +256,19 @@ namespace Mirror.Tests
         [Test]
         public void TestClientErrorCallback()
         {
-            Exception exception = new InvalidDataException();
-
             int called = 0;
-            middleware.OnClientError = (e) =>
+            middleware.OnClientError = (error, reason) =>
             {
                 called++;
-                Assert.That(e, Is.EqualTo(exception));
+                Assert.That(error, Is.EqualTo(TransportError.Unexpected));
             };
             // connect to give callback to inner
             middleware.ClientConnect("localhost");
 
-            inner.OnClientError.Invoke(exception);
+            inner.OnClientError.Invoke(TransportError.Unexpected, "");
             Assert.That(called, Is.EqualTo(1));
 
-            exception = new NullReferenceException();
-
-            inner.OnClientError.Invoke(exception);
+            inner.OnClientError.Invoke(TransportError.Unexpected, "");
             Assert.That(called, Is.EqualTo(2));
         }
 
@@ -362,24 +358,20 @@ namespace Mirror.Tests
         [TestCase(19)]
         public void TestServerErrorCallback(int id)
         {
-            Exception exception = new InvalidDataException();
-
             int called = 0;
-            middleware.OnServerError = (i, e) =>
+            middleware.OnServerError = (i, error, reason) =>
             {
                 called++;
                 Assert.That(i, Is.EqualTo(id));
-                Assert.That(e, Is.EqualTo(exception));
+                Assert.That(error, Is.EqualTo(TransportError.Unexpected));
             };
             // start to give callback to inner
             middleware.ServerStart();
 
-            inner.OnServerError.Invoke(id, exception);
+            inner.OnServerError.Invoke(id, TransportError.Unexpected, "");
             Assert.That(called, Is.EqualTo(1));
 
-            exception = new NullReferenceException();
-
-            inner.OnServerError.Invoke(id, exception);
+            inner.OnServerError.Invoke(id, TransportError.Unexpected, "");
             Assert.That(called, Is.EqualTo(2));
         }
     }

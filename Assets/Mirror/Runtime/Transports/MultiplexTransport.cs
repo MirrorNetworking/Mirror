@@ -185,9 +185,9 @@ namespace Mirror
                     OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data, channel);
                 };
 
-                transport.OnServerError = (baseConnectionId, error) =>
+                transport.OnServerError = (baseConnectionId, error, reason) =>
                 {
-                    OnServerError.Invoke(FromBaseId(locali, baseConnectionId), error);
+                    OnServerError.Invoke(FromBaseId(locali, baseConnectionId), error, reason);
                 };
                 transport.OnServerDisconnected = baseConnectionId =>
                 {
