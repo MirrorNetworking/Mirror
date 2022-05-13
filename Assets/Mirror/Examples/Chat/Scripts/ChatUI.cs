@@ -65,7 +65,8 @@ namespace Mirror.Examples.Chat
             scrollbar.value = 0;
         }
 
-        public void ExitButtonClick()
+        // Called by UI element ExitButton.OnClick
+        public void ExitButtonOnClick()
         {
             // StopHost calls both StopClient and StopServer
             // StopServer does nothing on remote clients

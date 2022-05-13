@@ -3091,7 +3091,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 719572998}
         m_TargetAssemblyTypeName: Mirror.Examples.Chat.ChatUI, Mirror.Examples
-        m_MethodName: ExitButtonClick
+        m_MethodName: ExitButtonOnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
