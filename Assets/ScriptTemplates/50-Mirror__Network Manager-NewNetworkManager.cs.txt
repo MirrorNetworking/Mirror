@@ -169,7 +169,7 @@ public class #SCRIPTNAME# : NetworkManager
     /// </summary>
     /// <param name="conn">Connection of the client...may be null</param>
     /// <param name="exception">Exception thrown from the Transport.</param>
-    public override void OnServerError(NetworkConnectionToClient conn, Exception exception) { }
+    public override void OnServerError(NetworkConnectionToClient conn, TransportError transportError, string message) { }
 
     #endregion
 
@@ -203,7 +203,7 @@ public class #SCRIPTNAME# : NetworkManager
     /// Called on client when transport raises an exception.</summary>
     /// </summary>
     /// <param name="exception">Exception thrown from the Transport.</param>
-    public override void OnClientError(Exception exception) { }
+    public override void OnClientError(TransportError transportError, string message) { }
 
     #endregion
 
