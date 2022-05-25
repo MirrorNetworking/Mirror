@@ -183,7 +183,7 @@ namespace Mirror
             //       to avoid Wrapper functions. a lot of people requested this.
             if (!NetworkClient.active)
             {
-                Debug.LogError($"Command Function {functionFullName} called without an active client.");
+                Debug.LogError($"Command Function {functionFullName} called on {name} without an active client.", gameObject);
                 return;
             }
 
@@ -195,14 +195,14 @@ namespace Mirror
                 // or client may have been set NotReady intentionally, so
                 // only warn if on the reliable channel.
                 if (channelId == Channels.Reliable)
-                    Debug.LogWarning("Send command attempted while NetworkClient is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                    Debug.LogWarning($"Command Function {functionFullName} called on {name} while NetworkClient is not ready.\nThis may be ignored if client intentionally set NotReady.", gameObject);
                 return;
             }
 
             // local players can always send commands, regardless of authority, other objects must have authority.
             if (!(!requiresAuthority || isLocalPlayer || hasAuthority))
             {
-                Debug.LogWarning($"Trying to send command for object without authority. {functionFullName}");
+                Debug.LogWarning($"Command Function {functionFullName} called on {name} without authority.", gameObject);
                 return;
             }
 
@@ -213,7 +213,7 @@ namespace Mirror
             // => see also: https://github.com/vis2k/Mirror/issues/2629
             if (NetworkClient.connection == null)
             {
-                Debug.LogError("Send command attempted with no client running.");
+                Debug.LogError($"Command Function {functionFullName} called on {name} with no client running.", gameObject);
                 return;
             }
 
@@ -242,14 +242,14 @@ namespace Mirror
             // this was in Weaver before
             if (!NetworkServer.active)
             {
-                Debug.LogError($"RPC Function {functionFullName} called on Client.");
+                Debug.LogError($"RPC Function {functionFullName} called on Client.", gameObject);
                 return;
             }
 
             // This cannot use NetworkServer.active, as that is not specific to this object.
             if (!isServer)
             {
-                Debug.LogWarning($"ClientRpc {functionFullName} called on un-spawned object: {name}");
+                Debug.LogWarning($"ClientRpc {functionFullName} called on un-spawned object: {name}", gameObject);
                 return;
             }
 
@@ -272,13 +272,13 @@ namespace Mirror
         {
             if (!NetworkServer.active)
             {
-                Debug.LogError($"TargetRPC {functionFullName} called when server not active");
+                Debug.LogError($"TargetRPC {functionFullName} called on {name} when server not active", gameObject);
                 return;
             }
 
             if (!isServer)
             {
-                Debug.LogWarning($"TargetRpc {functionFullName} called on {name} but that object has not been spawned or has been unspawned");
+                Debug.LogWarning($"TargetRpc {functionFullName} called on {name} but that object has not been spawned or has been unspawned", gameObject);
                 return;
             }
 
@@ -291,13 +291,13 @@ namespace Mirror
             // if still null
             if (conn is null)
             {
-                Debug.LogError($"TargetRPC {functionFullName} was given a null connection, make sure the object has an owner or you pass in the target connection");
+                Debug.LogError($"TargetRPC {functionFullName} was given a null connection, make sure the object {name} has an owner or you pass in the target connection", gameObject);
                 return;
             }
 
             if (!(conn is NetworkConnectionToClient))
             {
-                Debug.LogError($"TargetRPC {functionFullName} requires a NetworkConnectionToClient but was given {conn.GetType().Name}");
+                Debug.LogError($"TargetRPC {functionFullName} called on {name} requires a NetworkConnectionToClient but was given {conn.GetType().Name}", gameObject);
                 return;
             }
 
