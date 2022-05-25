@@ -195,7 +195,7 @@ namespace Mirror
                 // or client may have been set NotReady intentionally, so
                 // only warn if on the reliable channel.
                 if (channelId == Channels.Reliable)
-                    Debug.LogWarning("Send command attempted while NetworkClient is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                    Debug.LogWarning($"Command Function {functionFullName} called while NetworkClient is not ready.\nThis may be ignored if client intentionally set NotReady.");
                 return;
             }
 
