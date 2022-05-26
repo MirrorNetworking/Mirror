@@ -930,7 +930,9 @@ namespace Mirror
                     // observers writer too
                     int startPosition = ownerWriter.Position;
 
-                    // write index as byte [0..255]
+                    // write index as byte [0..255].
+                    // necessary because deserialize may only get data for some
+                    // components because not dirty, not owner, etc.
                     ownerWriter.WriteByte((byte)i);
 
                     // serialize into ownerWriter first
