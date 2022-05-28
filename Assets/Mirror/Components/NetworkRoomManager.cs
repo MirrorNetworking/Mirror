@@ -32,6 +32,10 @@ namespace Mirror
         [Tooltip("This flag controls whether the default UI is shown for the room")]
         public bool showRoomGUI = true;
 
+        [Tooltip("Allows players to join when the game scene is active")]
+        [SerializeField]
+        public bool AllowJoinGameInProgress;
+
         [FormerlySerializedAs("m_MinPlayers")]
         [SerializeField]
         [Tooltip("Minimum number of players to auto-start the game")]
@@ -254,7 +258,7 @@ namespace Mirror
             }
 
             // cannot join game in progress
-            if (!IsSceneActive(RoomScene))
+            if (!IsSceneActive(RoomScene) && !AllowJoinGameInProgress)
             {
                 conn.Disconnect();
                 return;
@@ -319,23 +323,30 @@ namespace Mirror
             // increment the index before adding the player, so first player starts at 1
             clientIndex++;
 
-            if (IsSceneActive(RoomScene))
+            if (!AllowJoinGameInProgress && !IsSceneActive(RoomScene))
             {
-                if (roomSlots.Count == maxConnections)
-                    return;
-
-                allPlayersReady = false;
-
-                //Debug.Log("NetworkRoomManager.OnServerAddPlayer playerPrefab: {roomPlayerPrefab.name}");
-
-                GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
-                if (newRoomGameObject == null)
-                    newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
-
-                NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
-            }
-            else
                 OnRoomServerAddPlayer(conn);
+                return;
+            }
+            
+            if (roomSlots.Count == maxConnections)
+                return;
+
+            allPlayersReady = false;
+
+            //Debug.Log("NetworkRoomManager.OnServerAddPlayer playerPrefab: {roomPlayerPrefab.name}");
+
+            GameObject newRoomGameObject = OnRoomServerCreateRoomPlayer(conn);
+            if (newRoomGameObject == null)
+                newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
+
+            NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
+
+            if (!IsSceneActive(RoomScene))
+            {
+                SceneLoadedForPlayer(conn, conn.identity.gameObject);
+                OnRoomServerPlayerJoinedInProgress(conn);
+            }
         }
 
         [Server]
@@ -603,6 +614,13 @@ namespace Mirror
         {
             return true;
         }
+
+        /// <summary>
+        /// This allows custom late joiner code to be ran on the room.
+        /// <para>This is called on the server after a player has joined a game that has already started.</para>
+        /// <param name="conn">The connection of the player</param>
+        /// </summary>
+        public virtual void OnRoomServerPlayerJoinedInProgress(NetworkConnection conn) { }
 
         /// <summary>
         /// This is called on the server when all the players in the room are ready.
