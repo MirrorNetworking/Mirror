@@ -341,6 +341,8 @@ namespace Mirror
                 newRoomGameObject = Instantiate(roomPlayerPrefab.gameObject, Vector3.zero, Quaternion.identity);
 
             NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
+            roomSlots.Add(newRoomGameObject.GetComponent<NetworkRoomPlayer>());
+            RecalculateRoomPlayerIndices();
 
             if (!IsSceneActive(RoomScene))
             {

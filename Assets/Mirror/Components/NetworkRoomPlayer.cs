@@ -51,10 +51,8 @@ namespace Mirror
                 if (room.dontDestroyOnLoad)
                     DontDestroyOnLoad(gameObject);
 
-                room.roomSlots.Add(this);
-
-                if (NetworkServer.active)
-                    room.RecalculateRoomPlayerIndices();
+                if (!isServer)
+                    room.roomSlots.Add(this);
 
                 if (NetworkClient.active)
                     room.CallOnClientEnterRoom();
