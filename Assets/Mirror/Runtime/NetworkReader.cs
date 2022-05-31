@@ -72,6 +72,23 @@ namespace Mirror
         //   ReadBlittable assumes same endianness for server & client.
         //   All Unity 2018+ platforms are little endian.
         //
+        // This is not safe to expose to random structs.
+        //   * StructLayout.Sequential is the default, which is safe.
+        //     if the struct contains a reference type, it is converted to Auto.
+        //     but since all structs here are unmanaged blittable, it's safe.
+        //     see also: https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.layoutkind?view=netframework-4.8#system-runtime-interopservices-layoutkind-sequential
+        //   * StructLayout.Pack depends on CPU word size.
+        //     this may be different 4 or 8 on some ARM systems, etc.
+        //     this is not safe, and would cause bytes/shorts etc. to be padded.
+        //     see also: https://docs.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.structlayoutattribute.pack?view=net-6.0
+        //   * If we force pack all to '1', they would have no padding which is
+        //     great for bandwidth. but on some android systems, CPU can't read
+        //     unaligned memory.
+        //     see also: https://github.com/vis2k/Mirror/issues/3044
+        //   * The only option would be to force explicit layout with multiples
+        //     of word size. but this requires lots of weaver checking and is
+        //     still questionable (IL2CPP etc.).
+        //
         // Note: inlining ReadBlittable is enough. don't inline ReadInt etc.
         //       we don't want ReadBlittable to be copied in place everywhere.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
