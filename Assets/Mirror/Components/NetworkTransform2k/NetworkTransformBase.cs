@@ -398,7 +398,8 @@ namespace Mirror
                     bufferTime, serverBuffer,
                     catchupThreshold, catchupMultiplier,
                     Interpolate,
-                    out NTSnapshot computed))
+                    out NTSnapshot computed,
+                    out _))
                 {
                     NTSnapshot start = serverBuffer.Values[0];
                     NTSnapshot goal = serverBuffer.Values[1];
@@ -487,7 +488,8 @@ namespace Mirror
                     bufferTime, clientBuffer,
                     catchupThreshold, catchupMultiplier,
                     Interpolate,
-                    out NTSnapshot computed))
+                    out NTSnapshot computed,
+                    out _))
                 {
                     NTSnapshot start = clientBuffer.Values[0];
                     NTSnapshot goal = clientBuffer.Values[1];
@@ -645,7 +647,7 @@ namespace Mirror
             // buffer limit should be at least multiplier to have enough in there
             bufferSizeLimit = Mathf.Max(bufferTimeMultiplier, bufferSizeLimit);
         }
-        
+
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             // sync target component's position on spawn.

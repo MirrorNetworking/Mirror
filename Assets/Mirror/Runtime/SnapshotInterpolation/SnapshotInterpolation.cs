@@ -151,6 +151,7 @@ namespace Mirror
         //   => needs to be Func<T> instead of a function in the Snapshot
         //      interface because that would require boxing.
         //   => make sure to only allocate that function once.
+        // out catchup: useful for debugging only.
         //
         // returns
         //   'true' if it spit out a snapshot to apply.
@@ -164,7 +165,8 @@ namespace Mirror
             int catchupThreshold,
             float catchupMultiplier,
             Func<T, T, double, T> Interpolate,
-            out T computed)
+            out T computed,
+            out double catchup)
                 where T : Snapshot
         {
             // we buffer snapshots for 'bufferTime'
@@ -183,7 +185,7 @@ namespace Mirror
             //    with high latency
             // -> at any given time, we are interpolating from snapshot A to B
             // => seems like A.timestamp += deltaTime is a good way to do it
-
+            catchup = 0;
             computed = default;
             //Debug.Log($"{name} snapshotbuffer={buffer.Count}");
 
@@ -201,7 +203,7 @@ namespace Mirror
             //
             // if '0' catchup then we multiply by '1', which changes nothing.
             // (faster branch prediction)
-            double catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
+            catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
             deltaTime *= (1 + catchup);
 
             // interpolationTime starts at 0 and we add deltaTime to move
