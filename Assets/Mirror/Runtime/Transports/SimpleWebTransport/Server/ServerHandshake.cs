@@ -15,7 +15,7 @@ namespace Mirror.SimpleWeb
         const int ResponseLength = 129;
         const int KeyLength = 24;
         const int MergedKeyLength = 60;
-        const string KeyHeaderString = "Sec-WebSocket-Key: ";
+        const string KeyHeaderString = "\r\nSec-WebSocket-Key: ";
         // this isn't an official max, just a reasonable size for a websocket handshake
         readonly int maxHttpHeaderSize = 3000;
 
