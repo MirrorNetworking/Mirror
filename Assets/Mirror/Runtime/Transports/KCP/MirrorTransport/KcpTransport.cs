@@ -70,17 +70,17 @@ namespace kcp2k
 
         TransportError ToTransportError(ErrorCode error)
         {
-            return error switch
+            switch(error)
             {
-                ErrorCode.DnsResolve => TransportError.DnsResolve,
-                ErrorCode.Timeout => TransportError.Timeout,
-                ErrorCode.Congestion => TransportError.Congestion,
-                ErrorCode.InvalidReceive => TransportError.InvalidReceive,
-                ErrorCode.InvalidSend => TransportError.InvalidSend,
-                ErrorCode.ConnectionClosed => TransportError.ConnectionClosed,
-                ErrorCode.Unexpected => TransportError.Unexpected,
-                _ => throw new InvalidCastException($"KCP: missing error translation for {error}")
-            };
+                case ErrorCode.DnsResolve: return TransportError.DnsResolve;
+                case ErrorCode.Timeout: return TransportError.Timeout;
+                case ErrorCode.Congestion: return TransportError.Congestion;
+                case ErrorCode.InvalidReceive: return TransportError.InvalidReceive;
+                case ErrorCode.InvalidSend: return TransportError.InvalidSend;
+                case ErrorCode.ConnectionClosed: return TransportError.ConnectionClosed;
+                case ErrorCode.Unexpected: return TransportError.Unexpected;
+                default: return throw new InvalidCastException($"KCP: missing error translation for {error}");
+            }
         }
 
         void Awake()
