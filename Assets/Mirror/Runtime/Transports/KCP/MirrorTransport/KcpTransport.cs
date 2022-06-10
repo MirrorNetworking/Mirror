@@ -79,7 +79,7 @@ namespace kcp2k
                 case ErrorCode.InvalidSend: return TransportError.InvalidSend;
                 case ErrorCode.ConnectionClosed: return TransportError.ConnectionClosed;
                 case ErrorCode.Unexpected: return TransportError.Unexpected;
-                default: return throw new InvalidCastException($"KCP: missing error translation for {error}");
+                default: throw new InvalidCastException($"KCP: missing error translation for {error}");
             }
         }
 
