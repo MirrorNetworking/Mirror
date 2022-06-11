@@ -93,7 +93,7 @@ namespace Mirror.Examples.SnapshotInterpolation
         {
             // display buffer size as number for easier debugging.
             // catchup is displayed as color state in Update() already.
-            const int width = 10;
+            const int width = 30; // fit 3 digits
             const int height = 20;
             Vector2 screen = Camera.main.WorldToScreenPoint(transform.position);
             string str = $"{snapshots.Count}";
