@@ -84,7 +84,7 @@ namespace Mirror.Examples.SnapshotInterpolation
             }
 
             // color material while catching up
-            render.sharedMaterial.color = lastCatchup > 0
+            render.material.color = lastCatchup > 0
                 ? catchupColor
                 : defaultColor;
         }
