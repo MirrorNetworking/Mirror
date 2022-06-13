@@ -18,14 +18,12 @@ namespace Mirror.Examples.SnapshotInterpolation
         float lastSendTime;
 
         [Header("Latency Simulation")]
-        [Tooltip("Spike latency via perlin(Time * speedMultiplier) * spikeMultiplier")]
-        [Range(0, 1)] public float latencySpikeMultiplier = 0.5f;
-        [Tooltip("Spike latency via perlin(Time * speedMultiplier) * spikeMultiplier")]
-        public float latencySpikeSpeedMultiplier = 0.5f;
-        [Tooltip("Packet loss in %")]
-        [Range(0, 1)] public float loss = 0.1f;
         [Tooltip("Latency in seconds")]
         public float latency = 0.05f; // 50 ms
+        [Tooltip("Latency jitter, randomly added to latency.")]
+        [Range(0, 1)] public float jitter = 0.05f;
+        [Tooltip("Packet loss in %")]
+        [Range(0, 1)] public float loss = 0.1f;
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
         [Range(0, 1)] public float scramble = 0.1f;
 
@@ -39,19 +37,9 @@ namespace Mirror.Examples.SnapshotInterpolation
         // hold on to snapshots for a little while to simulate latency
         List<(float, Vector3)> queue = new List<(float, Vector3)>();
 
-        // noise for latency simulation
-        static float Noise(float t) => Mathf.PerlinNoise(t, t);
-
-        // latency simulation
-        float SimulateLatency()
-        {
-            // spike over perlin noise.
-            // no spikes isn't realistic.
-            // sin is too predictable / not realistic.
-            // perlin is still deterministic and random enough.
-            float spike = Noise(Time.unscaledTime * latencySpikeSpeedMultiplier) * latencySpikeMultiplier;
-            return latency + spike;
-        }
+        // latency simulation:
+        // always a fixed value + some jitter.
+        float SimulateLatency() => latency + Random.value * jitter;
 
         void Start()
         {
