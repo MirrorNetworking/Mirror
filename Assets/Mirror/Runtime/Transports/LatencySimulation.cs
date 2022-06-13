@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Mirror
 {
@@ -26,10 +27,12 @@ namespace Mirror
         public Transport wrap;
 
         [Header("Common")]
-        [Tooltip("Spike latency via perlin(Time * speedMultiplier) * spikeMultiplier")]
-        [Range(0, 1)] public float latencySpikeMultiplier;
-        [Tooltip("Spike latency via perlin(Time * speedMultiplier) * spikeMultiplier")]
-        public float latencySpikeSpeedMultiplier = 1;
+        [Tooltip("Jitter latency via perlin(Time * jitterSpeed) * jitter")]
+        [FormerlySerializedAs("latencySpikeMultiplier")]
+        [Range(0, 1)] public float jitter;
+        [Tooltip("Jitter latency via perlin(Time * jitterSpeed) * jitter")]
+        [FormerlySerializedAs("latencySpikeSpeedMultiplier")]
+        public float jitterSpeed = 1;
 
         [Header("Reliable Messages")]
         [Tooltip("Reliable latency in seconds")]
@@ -80,7 +83,7 @@ namespace Mirror
             // no spikes isn't realistic.
             // sin is too predictable / no realistic.
             // perlin is still deterministic and random enough.
-            float spike = Noise(Time.unscaledTime * latencySpikeSpeedMultiplier) * latencySpikeMultiplier;
+            float spike = Noise(Time.unscaledTime * jitterSpeed) * jitter;
 
             // base latency
             switch (channeldId)
