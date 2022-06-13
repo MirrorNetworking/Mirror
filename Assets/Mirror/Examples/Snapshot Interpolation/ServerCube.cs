@@ -34,8 +34,9 @@ namespace Mirror.Examples.SnapshotInterpolation
         // => NextDouble() is ALWAYS < 1 so loss=1 always drops!
         System.Random random = new System.Random();
 
-        // hold on to snapshots for a little while to simulate latency
-        List<(float, Vector3)> queue = new List<(float, Vector3)>();
+        // hold on to snapshots for a little while before delivering
+        // <deliveryTime, snapshot>
+        List<(double, Snapshot3D)> queue = new List<(double, Snapshot3D)>();
 
         // latency simulation:
         // always a fixed value + some jitter.
@@ -64,6 +65,9 @@ namespace Mirror.Examples.SnapshotInterpolation
 
         void Send(Vector3 position)
         {
+            // create snapshot
+            Snapshot3D snap = new Snapshot3D(Time.timeAsDouble, 0, position);
+
             // simulate packet loss
             bool drop = random.NextDouble() < loss;
             if (!drop)
@@ -75,7 +79,8 @@ namespace Mirror.Examples.SnapshotInterpolation
 
                 // simulate latency
                 float simulatedLatency = SimulateLatency();
-                queue.Insert(index, (Time.time + simulatedLatency, position));
+                double deliveryTime = Time.timeAsDouble + simulatedLatency;
+                queue.Insert(index, (deliveryTime, snap));
             }
         }
 
@@ -84,10 +89,9 @@ namespace Mirror.Examples.SnapshotInterpolation
             // flush ready snapshots to client
             for (int i = 0; i < queue.Count; ++i)
             {
-                (float threshold, Vector3 position) = queue[i];
-                if (Time.time >= threshold)
+                (double deliveryTime, Snapshot3D snap) = queue[i];
+                if (Time.timeAsDouble >= deliveryTime)
                 {
-                    Snapshot3D snap = new Snapshot3D(Time.time, 0, position);
                     client.OnMessage(snap);
                     queue.RemoveAt(i);
                     --i;
