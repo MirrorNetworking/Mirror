@@ -857,8 +857,11 @@ namespace Mirror
             conn.isReady = true;
 
             // client is ready to start spawning objects
-            if (conn.identity != null)
-                SpawnObserversForConnection(conn);
+
+            // Disregard identity check in-case a client isn't used as a player but as spectator
+            // if (conn.identity != null)
+            
+            SpawnObserversForConnection(conn);
         }
 
         /// <summary>Marks the client of the connection to be not-ready.</summary>
