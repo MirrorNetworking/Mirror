@@ -2,7 +2,7 @@
 // this way we can place cubes on different Y
 using UnityEngine;
 
-namespace Mirror.Examples.SnapshotInterpolation
+namespace Mirror.Examples.SnapshotInterpolationDemo
 {
     // a simple snapshot with timestamp & interpolation
     public struct Snapshot3D : Snapshot

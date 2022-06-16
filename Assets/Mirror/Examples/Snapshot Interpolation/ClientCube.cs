@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Mirror.Examples.SnapshotInterpolation
+
+namespace Mirror.Examples.SnapshotInterpolationDemo
 {
     public class ClientCube : MonoBehaviour
     {
@@ -48,7 +49,7 @@ namespace Mirror.Examples.SnapshotInterpolation
         public void OnMessage(Snapshot3D snap)
         {
             snap.localTimestamp = Time.time;
-            Mirror.SnapshotInterpolation.InsertIfNewEnough(snap, snapshots);
+            SnapshotInterpolation.InsertIfNewEnough(snap, snapshots);
         }
 
         void Update()
@@ -58,7 +59,7 @@ namespace Mirror.Examples.SnapshotInterpolation
             {
                 // compute snapshot interpolation & apply if any was spit out
                 // TODO we don't have Time.deltaTime double yet. float is fine.
-                if (Mirror.SnapshotInterpolation.Compute(
+                if (SnapshotInterpolation.Compute(
                     Time.time,
                     Time.deltaTime,
                     ref serverInterpolationTime,
