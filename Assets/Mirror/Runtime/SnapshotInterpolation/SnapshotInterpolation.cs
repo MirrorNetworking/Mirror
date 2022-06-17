@@ -261,10 +261,16 @@ namespace Mirror
             T fromSnap = buffer.Values[from];
             T toSnap = buffer.Values[to];
             computed = Interpolate(fromSnap, toSnap, t);
+            // UnityEngine.Debug.Log($"step from: {from} to {to}");
 
             // remove older snapshots that we definitely don't need anymore.
             // after(!) using the indices.
-            buffer.RemoveRange(from - 1);
+            //
+            // if we have 3 snapshots and we are between 2nd and 3rd:
+            //   from = 1, to = 2
+            // then we need to remove the first one, which is exactly 'from'.
+            // because 'from-1' = 0 would remove none.
+            buffer.RemoveRange(from);
 
             // return the interpolated snapshot
             return true;
