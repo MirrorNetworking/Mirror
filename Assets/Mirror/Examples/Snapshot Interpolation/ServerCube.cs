@@ -14,7 +14,9 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         Vector3 start;
 
         [Header("Snapshot Interpolation")]
-        public float sendInterval = 0.05f; // send every 50 ms
+        [Tooltip("Send N snapshots per second. Multiples of frame rate make sense.")]
+        public int sendRate = 30; // in Hz. easier to work with as int for EMA. easier to display '30' than '0.333333333'
+        public float sendInterval => 1f / sendRate;
         float lastSendTime;
 
         [Header("Latency Simulation")]

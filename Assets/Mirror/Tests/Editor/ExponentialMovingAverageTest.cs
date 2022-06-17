@@ -12,7 +12,7 @@ namespace Mirror.Tests
             ema.Add(3);
 
             Assert.That(ema.Value, Is.EqualTo(3));
-            Assert.That(ema.Var, Is.EqualTo(0));
+            Assert.That(ema.Variance, Is.EqualTo(0));
         }
 
         [Test]
@@ -24,7 +24,7 @@ namespace Mirror.Tests
             ema.Add(6);
 
             Assert.That(ema.Value, Is.EqualTo(5.1818).Within(0.0001f));
-            Assert.That(ema.Var, Is.EqualTo(0.1487).Within(0.0001f));
+            Assert.That(ema.Variance, Is.EqualTo(0.1487).Within(0.0001f));
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace Mirror.Tests
             ema.Add(6);
             ema.Add(7);
 
-            Assert.That(ema.Var, Is.EqualTo(0.6134).Within(0.0001f));
+            Assert.That(ema.Variance, Is.EqualTo(0.6134).Within(0.0001f));
         }
     }
 }

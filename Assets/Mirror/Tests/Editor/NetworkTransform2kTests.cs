@@ -108,7 +108,7 @@ namespace Mirror.Tests.NetworkTransform2k
             // construct snapshot
             double time = NetworkTime.localTime;
             NTSnapshot snapshot = component.ConstructSnapshot();
-            Assert.That(snapshot.remoteTimestamp, Is.EqualTo(time).Within(0.01));
+            Assert.That(snapshot.remoteTime, Is.EqualTo(time).Within(0.01));
             Assert.That(snapshot.position, Is.EqualTo(new Vector3(1, 2, 3)));
             Assert.That(snapshot.rotation, Is.EqualTo(Quaternion.identity));
             Assert.That(snapshot.scale, Is.EqualTo(new Vector3(4, 5, 6)));

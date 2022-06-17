@@ -61,7 +61,7 @@ namespace Mirror
 
         /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
-        public static double timeVariance => _offset.Var;
+        public static double timeVariance => _offset.Variance;
 
         /// <summary>Time standard deviation. The highe, the less accurate the time is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
@@ -75,7 +75,7 @@ namespace Mirror
 
         /// <summary>Round trip time variance. The higher, the less accurate the rtt is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time
-        public static double rttVariance => _rtt.Var;
+        public static double rttVariance => _rtt.Variance;
 
         /// <summary>Round trip time standard deviation. The higher, the less accurate the rtt is.</summary>
         // TODO does this need to be public? user should only need NetworkTime.time

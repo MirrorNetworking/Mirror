@@ -216,7 +216,7 @@ namespace Mirror
             {
                 double timeIntervalCheck = bufferResetMultiplier * sendInterval;
 
-                if (serverBuffer.Count > 0 && serverBuffer.Values[serverBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
+                if (serverBuffer.Count > 0 && serverBuffer.Values[serverBuffer.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
                     Reset();
                 }
@@ -243,7 +243,8 @@ namespace Mirror
             );
 
             // add to buffer (or drop if older than first element)
-            SnapshotInterpolation.InsertIfNewEnough(snapshot, serverBuffer);
+            // TODO
+            // SnapshotInterpolation.InsertIfNewEnough(snapshot, serverBuffer);
         }
 
         // rpc /////////////////////////////////////////////////////////////////
@@ -279,7 +280,7 @@ namespace Mirror
             {
                 double timeIntervalCheck = bufferResetMultiplier * sendInterval;
 
-                if (clientBuffer.Count > 0 && clientBuffer.Values[clientBuffer.Count - 1].remoteTimestamp + timeIntervalCheck < timestamp)
+                if (clientBuffer.Count > 0 && clientBuffer.Values[clientBuffer.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
                     Reset();
                 }
@@ -306,7 +307,8 @@ namespace Mirror
             );
 
             // add to buffer (or drop if older than first element)
-            SnapshotInterpolation.InsertIfNewEnough(snapshot, clientBuffer);
+            // TODO
+            // SnapshotInterpolation.InsertIfNewEnough(snapshot, clientBuffer);
         }
 
         // update //////////////////////////////////////////////////////////////
@@ -392,19 +394,20 @@ namespace Mirror
             {
                 // compute snapshot interpolation & apply if any was spit out
                 // TODO we don't have Time.deltaTime double yet. float is fine.
-                if (SnapshotInterpolation.Compute(
-                    NetworkTime.localTime, Time.deltaTime,
-                    ref serverInterpolationTime,
-                    bufferTime, serverBuffer,
-                    catchupThreshold, catchupMultiplier,
-                    Interpolate,
-                    out NTSnapshot computed,
-                    out _))
-                {
-                    NTSnapshot start = serverBuffer.Values[0];
-                    NTSnapshot goal = serverBuffer.Values[1];
-                    ApplySnapshot(start, goal, computed);
-                }
+                // TODO
+                // if (SnapshotInterpolation.Compute(
+                //     NetworkTime.localTime, Time.deltaTime,
+                //     ref serverInterpolationTime,
+                //     bufferTime, serverBuffer,
+                //     catchupThreshold, catchupMultiplier,
+                //     Interpolate,
+                //     out NTSnapshot computed,
+                //     out _))
+                // {
+                //     NTSnapshot start = serverBuffer.Values[0];
+                //     NTSnapshot goal = serverBuffer.Values[1];
+                //     ApplySnapshot(start, goal, computed);
+                // }
             }
         }
 
@@ -482,19 +485,20 @@ namespace Mirror
             {
                 // compute snapshot interpolation & apply if any was spit out
                 // TODO we don't have Time.deltaTime double yet. float is fine.
-                if (SnapshotInterpolation.Compute(
-                    NetworkTime.localTime, Time.deltaTime,
-                    ref clientInterpolationTime,
-                    bufferTime, clientBuffer,
-                    catchupThreshold, catchupMultiplier,
-                    Interpolate,
-                    out NTSnapshot computed,
-                    out _))
-                {
-                    NTSnapshot start = clientBuffer.Values[0];
-                    NTSnapshot goal = clientBuffer.Values[1];
-                    ApplySnapshot(start, goal, computed);
-                }
+                // TODO
+                // if (SnapshotInterpolation.Compute(
+                //     NetworkTime.localTime, Time.deltaTime,
+                //     ref clientInterpolationTime,
+                //     bufferTime, clientBuffer,
+                //     catchupThreshold, catchupMultiplier,
+                //     Interpolate,
+                //     out NTSnapshot computed,
+                //     out _))
+                // {
+                //     NTSnapshot start = clientBuffer.Values[0];
+                //     NTSnapshot goal = clientBuffer.Values[1];
+                //     ApplySnapshot(start, goal, computed);
+                // }
             }
         }
 
@@ -734,7 +738,7 @@ namespace Mirror
             {
                 // color depends on if old enough or not
                 NTSnapshot entry = buffer.Values[i];
-                bool oldEnough = entry.localTimestamp <= threshold;
+                bool oldEnough = entry.localTime <= threshold;
                 Gizmos.color = oldEnough ? oldEnoughColor : notOldEnoughColor;
                 Gizmos.DrawCube(entry.position, Vector3.one);
             }

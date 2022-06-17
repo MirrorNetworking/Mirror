@@ -6,15 +6,12 @@ namespace Mirror
 {
     public interface Snapshot
     {
-        // snapshots have two timestamps:
-        // -> the remote timestamp (when it was sent by the remote)
-        //    used to interpolate.
-        // -> the local timestamp (when we received it)
-        //    used to know if the first two snapshots are old enough to start.
-        //
-        // IMPORTANT: the timestamp does _NOT_ need to be sent over the
-        //            network. simply get it from batching.
-        double remoteTimestamp { get; set; }
-        double localTimestamp { get; set; }
+        // the remote timestamp (when it was sent by the remote)
+        double remoteTime { get; set; }
+
+        // the local timestamp (when it was received on our end)
+        // technically not needed for basic snapshot interpolation.
+        // only for dynamic buffer time adjustment.
+        double localTime { get; set; }
     }
 }
