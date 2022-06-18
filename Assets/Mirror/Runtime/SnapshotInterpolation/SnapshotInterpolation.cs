@@ -27,8 +27,10 @@ namespace Mirror
 
     public static class SnapshotInterpolation
     {
-
         // calculate timescale for catch-up / slow-down
+        // note that negative threshold should be <0.
+        //   caller should verify (i.e. Unity OnValidate).
+        //   improves branch prediction.
         public static double Timescale(
             double drift,                    // how far we are off from bufferTime
             double catchupSpeed,             // in % [0,1]
@@ -42,7 +44,7 @@ namespace Mirror
             if (drift > catchupPositiveThreshold)
             {
                 // localTimeline += 0.001; // too simple, this would ping pong
-                return 1 + catchupSpeed;   // n% faster
+                return 1 + catchupSpeed; // n% faster
             }
 
             // if the drift time is too small, it means we are ahead of time.
@@ -51,7 +53,7 @@ namespace Mirror
             if (drift < catchupNegativeThreshold)
             {
                 // localTimeline -= 0.001; // too simple, this would ping pong
-                return 1 - slowdownSpeed;  // n% slower
+                return 1 - slowdownSpeed; // n% slower
             }
 
             // keep constant timescale while within threshold.
@@ -69,10 +71,8 @@ namespace Mirror
             // delivery time is made up of 'sendInterval+jitter'.
             //   .Average would be dampened by the constant sendInterval
             //   .StandardDeviation is the changes in 'jitter' that we want
-            double averageJitter = jitterStandardDeviation;
-
-            // now that we have the average jitter, add it to send interval again
-            double intervalWithJitter = sendInterval + averageJitter;
+            // so add it to send interval again.
+            double intervalWithJitter = sendInterval + jitterStandardDeviation;
 
             // how many multiples of sendInterval is that?
             // we want to convert to bufferTimeMultiplier later.
@@ -87,18 +87,18 @@ namespace Mirror
         // call this for every received snapshot.
         // adds / inserts it to the list & initializes local time if needed.
         public static void Insert<T>(
-            SortedList<double, T> buffer,                     // snapshot buffer
-            T snapshot,                                       // the newly received snapshot
-            ref double localTimeline,                         // local interpolation time based on server time
-            ref double localTimescale,                        // timeline multiplier to apply catchup / slowdown over time
-            float sendInterval,                               // for debugging
-            double bufferTime,                                // offset for buffering
-            double catchupSpeed,                              // in % [0,1]
-            double slowdownSpeed,                             // in % [0,1]
-            ref ExponentialMovingAverage driftEma,            // for catchup / slowdown
-            float catchupNegativeThreshold,                   // in % of sendInteral (careful, we may run out of snapshots)
-            float catchupPositiveThreshold,                   // in % of sendInterval
-            ref ExponentialMovingAverage deliveryTimeEma)     // for dynamic buffer time adjustment
+            SortedList<double, T> buffer,                 // snapshot buffer
+            T snapshot,                                   // the newly received snapshot
+            ref double localTimeline,                     // local interpolation time based on server time
+            ref double localTimescale,                    // timeline multiplier to apply catchup / slowdown over time
+            float sendInterval,                           // for debugging
+            double bufferTime,                            // offset for buffering
+            double catchupSpeed,                          // in % [0,1]
+            double slowdownSpeed,                         // in % [0,1]
+            ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
+            float catchupNegativeThreshold,               // in % of sendInteral (careful, we may run out of snapshots)
+            float catchupPositiveThreshold,               // in % of sendInterval
+            ref ExponentialMovingAverage deliveryTimeEma) // for dynamic buffer time adjustment
             where T : Snapshot
         {
             // first snapshot?
@@ -126,8 +126,19 @@ namespace Mirror
                 // dynamic buffer adjustment needs delivery interval jitter
                 if (buffer.Count >= 2)
                 {
-                    double previousLocalTime  = buffer.Values[buffer.Count - 2].localTime;
-                    double lastestLocalTime   = buffer.Values[buffer.Count - 1].localTime;
+                    // note that this is not entirely accurate for scrambled inserts.
+                    //
+                    // we always use the last two, not what we just inserted
+                    // even if we were to use the diff for what we just inserted,
+                    // a scrambled insert would still not be 100% accurate:
+                    // => assume a buffer of AC, with delivery time C-A
+                    // => we then insert B, with delivery time B-A
+                    // => but then technically the first C-A wasn't correct,
+                    //    as it would have to be C-B
+                    //
+                    // in practice, scramble is rare and won't make much difference
+                    double previousLocalTime = buffer.Values[buffer.Count - 2].localTime;
+                    double lastestLocalTime  = buffer.Values[buffer.Count - 1].localTime;
 
                     // this is the delivery time since last snapshot
                     double localDeliveryTime = lastestLocalTime - previousLocalTime;
@@ -143,10 +154,11 @@ namespace Mirror
                 // because that is when we add new values to our EMA.
 
                 // we want localTimeline to be about 'bufferTime' behind.
-                // so first, calculate how far we are behind.
-                // by simply subtracting latest snapshot time - local time.
-                double latestRemoteTime = buffer.Values[buffer.Count - 1].remoteTime;
-                double timeDiff = latestRemoteTime - localTimeline;
+                // for that, we need the delivery time EMA.
+                // snapshots may arrive out of order, we can not use last-timeline.
+                // we need to use the inserted snapshot's time - timeline.
+                double latestRemoteTime = snapshot.remoteTime;
+                double timeDiff         = latestRemoteTime - localTimeline;
 
                 // next, calculate average of a few seconds worth of timediffs.
                 // this gives smoother results.
@@ -203,8 +215,8 @@ namespace Mirror
             for (int i = 0; i < buffer.Count - 1; ++i)
             {
                 // is local time between these two?
-                T first = buffer.Values[i];
-                T second = buffer.Values[i+1];
+                T first  = buffer.Values[i];
+                T second = buffer.Values[i + 1];
                 if (localTimeline >= first.remoteTime &&
                     localTimeline <= second.remoteTime)
                 {
@@ -216,7 +228,7 @@ namespace Mirror
                 }
             }
 
-            // didn't find two snapshots between local time.
+            // didn't find two snapshots around local time.
             // so pick either the first or last, depending on which is closer.
 
             // oldest snapshot ahead of local time?
@@ -259,7 +271,7 @@ namespace Mirror
 
             // now interpolate between from & to (clamped)
             T fromSnap = buffer.Values[from];
-            T toSnap = buffer.Values[to];
+            T toSnap   = buffer.Values[to];
             computed = Interpolate(fromSnap, toSnap, t);
             // UnityEngine.Debug.Log($"step from: {from} to {to}");
 

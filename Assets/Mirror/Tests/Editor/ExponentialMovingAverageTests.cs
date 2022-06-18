@@ -1,4 +1,6 @@
+// tests from Mirror
 using NUnit.Framework;
+
 namespace Mirror.Tests
 {
     [TestFixture]
@@ -37,6 +39,19 @@ namespace Mirror.Tests
             ema.Add(7);
 
             Assert.That(ema.Variance, Is.EqualTo(0.6134).Within(0.0001f));
+        }
+
+        [Test]
+        public void TestStd()
+        {
+            ExponentialMovingAverage ema = new ExponentialMovingAverage(10);
+
+            // large numbers to show that standard deviation is an absolute value
+            ema.Add(5);
+            ema.Add(600);
+            ema.Add(70);
+
+            Assert.That(ema.StandardDeviation, Is.EqualTo(208.2470).Within(0.0001f));
         }
     }
 }
