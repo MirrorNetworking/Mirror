@@ -1,22 +1,19 @@
-
-using System;
 using NUnit.Framework;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Mirror.Tests
 {
     // a simple snapshot with timestamp & interpolation
     struct SimpleSnapshot : Snapshot
     {
-        public double remoteTimestamp { get; set; }
-        public double localTimestamp { get; set; }
+        public double remoteTime { get; set; }
+        public double localTime  { get; set; }
         public double value;
 
-        public SimpleSnapshot(double remoteTimestamp, double localTimestamp, double value)
+        public SimpleSnapshot(double remoteTime, double localTime, double value)
         {
-            this.remoteTimestamp = remoteTimestamp;
-            this.localTimestamp = localTimestamp;
+            this.remoteTime = remoteTime;
+            this.localTime = localTime;
             this.value = value;
         }
 
@@ -34,6 +31,12 @@ namespace Mirror.Tests
         // buffer for convenience so we don't have to create it manually each time
         SortedList<double, SimpleSnapshot> buffer;
 
+        // some defaults
+        const double catchupSpeed   = 0.02;
+        const double slowdownSpeed  = 0.04;
+        const double negativeThresh = -0.10;
+        const double positiveThresh =  0.10;
+
         [SetUp]
         public void SetUp()
         {
@@ -41,684 +44,351 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void InsertIfNewEnough()
+        public void RemoveRange()
         {
-            // inserting a first value should always work
-            SimpleSnapshot first = new SimpleSnapshot(1, 1, 0);
-            SnapshotInterpolation.InsertIfNewEnough(first, buffer);
-            Assert.That(buffer.Count, Is.EqualTo(1));
-
-            // insert before first should not work
-            SimpleSnapshot before = new SimpleSnapshot(0.5, 0.5, 0);
-            SnapshotInterpolation.InsertIfNewEnough(before, buffer);
-            Assert.That(buffer.Count, Is.EqualTo(1));
-
-            // insert after first should work
-            SimpleSnapshot second = new SimpleSnapshot(2, 2, 0);
-            SnapshotInterpolation.InsertIfNewEnough(second, buffer);
-            Assert.That(buffer.Count, Is.EqualTo(2));
-            Assert.That(buffer.Values[0], Is.EqualTo(first));
-            Assert.That(buffer.Values[1], Is.EqualTo(second));
-
-            // insert after second should work
-            SimpleSnapshot after = new SimpleSnapshot(2.5, 2.5, 0);
-            SnapshotInterpolation.InsertIfNewEnough(after, buffer);
-            Assert.That(buffer.Count, Is.EqualTo(3));
-            Assert.That(buffer.Values[0], Is.EqualTo(first));
-            Assert.That(buffer.Values[1], Is.EqualTo(second));
-            Assert.That(buffer.Values[2], Is.EqualTo(after));
-        }
-
-        // the 'ACB' problem:
-        //   if we have a snapshot A at t=0 and C at t=2,
-        //   we start interpolating between them.
-        //   if suddenly B at t=1 comes in unexpectely,
-        //   we should NOT suddenly steer towards B.
-        // => inserting between the first two snapshot should never be allowed
-        //    in order to avoid all kinds of edge cases.
-        [Test]
-        public void InsertIfNewEnough_ACB_Problem()
-        {
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
-
-            // insert A and C
-            SnapshotInterpolation.InsertIfNewEnough(a, buffer);
-            SnapshotInterpolation.InsertIfNewEnough(c, buffer);
-
-            // trying to insert B between the first two snapshots should fail
-            SnapshotInterpolation.InsertIfNewEnough(b, buffer);
-            Assert.That(buffer.Count, Is.EqualTo(2));
-            Assert.That(buffer.Values[0], Is.EqualTo(a));
-            Assert.That(buffer.Values[1], Is.EqualTo(c));
-        }
-
-        // the 'first is lagging' problem:
-        //   server sends A, B.
-        //   A is lagging behind by 2000ms for whatever reason.
-        //   we get B first.
-        //   B should remain the first snapshot, the lagging A should be dropped
-        [Test]
-        public void InsertIfNewEnough_FirstIsLagging_Problem()
-        {
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-
-            // insert B. A is still delayed.
-            SnapshotInterpolation.InsertIfNewEnough(b, buffer);
-
-            // now the delayed A comes in.
-            // timestamp is before B though.
-            // but it should still be dropped.
-            SnapshotInterpolation.InsertIfNewEnough(a, buffer);
-            Assert.That(buffer.Count, Is.EqualTo(1));
-            Assert.That(buffer.Values[0], Is.EqualTo(b));
-        }
-
-        [Test]
-        public void HasAmountOlderThan_NotEnough()
-        {
-            // only add two
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            buffer.Add(a.remoteTimestamp, a);
-            buffer.Add(b.remoteTimestamp, b);
-
-            // shouldn't have more old enough than two
-            // because we don't have more than two
-            Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 0, 3), Is.False);
-        }
-
-        [Test]
-        public void HasAmountOlderThan_EnoughButNotOldEnough()
-        {
-            // add three
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
-            buffer.Add(a.remoteTimestamp, a);
-            buffer.Add(b.remoteTimestamp, b);
-            buffer.Add(c.remoteTimestamp, c);
-
-            // check at time = 1.9, where third one would not be old enough.
-            Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 1.9, 3), Is.False);
-        }
-
-        [Test]
-        public void HasAmountOlderThan_EnoughAndOldEnough()
-        {
-            // add three
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
-            buffer.Add(a.remoteTimestamp, a);
-            buffer.Add(b.remoteTimestamp, b);
-            buffer.Add(c.remoteTimestamp, c);
-
-            // check at time = 2.1, where third one would be old enough.
-            Assert.That(SnapshotInterpolation.HasAmountOlderThan(buffer, 2.1, 3), Is.True);
-        }
-
-        // UDP messages might arrive twice sometimes.
-        // make sure InsertIfNewEnough can handle it.
-        [Test]
-        public void InsertIfNewEnough_Duplicate()
-        {
-            SimpleSnapshot a = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot b = new SimpleSnapshot(1, 1, 0);
-            SimpleSnapshot c = new SimpleSnapshot(2, 2, 0);
-
-            // add two valid snapshots first.
-            // we can't add 'duplicates' before 3rd and 4th anyway.
-            SnapshotInterpolation.InsertIfNewEnough(a, buffer);
-            SnapshotInterpolation.InsertIfNewEnough(b, buffer);
-
-            // insert C which is newer than B.
-            // then insert it again because it arrive twice.
-            SnapshotInterpolation.InsertIfNewEnough(c, buffer);
-            SnapshotInterpolation.InsertIfNewEnough(c, buffer);
-
-            // count should still be 3.
-            Assert.That(buffer.Count, Is.EqualTo(3));
-        }
-
-        [Test]
-        public void CalculateCatchup_Empty()
-        {
-            // make sure nothing happens with buffer size = 0
-            Assert.That(SnapshotInterpolation.CalculateCatchup(buffer, 0, 10), Is.EqualTo(0));
-        }
-
-        [Test]
-        public void CalculateCatchup_None()
-        {
-            // add one
-            buffer.Add(0, default);
-
-            // catch-up starts at threshold = 1. so nothing.
-            Assert.That(SnapshotInterpolation.CalculateCatchup(buffer, 1, 10), Is.EqualTo(0));
-        }
-
-        [Test]
-        public void GetFirstSecondAndDelta()
-        {
-            // add three
-            SimpleSnapshot a = new SimpleSnapshot(0, 1, 0);
-            SimpleSnapshot b = new SimpleSnapshot(2, 3, 0);
-            SimpleSnapshot c = new SimpleSnapshot(10, 20, 0);
-            buffer.Add(a.remoteTimestamp, a);
-            buffer.Add(b.remoteTimestamp, b);
-            buffer.Add(c.remoteTimestamp, c);
-
-            SnapshotInterpolation.GetFirstSecondAndDelta(buffer, out SimpleSnapshot first, out SimpleSnapshot second, out double delta);
-            Assert.That(first, Is.EqualTo(a));
-            Assert.That(second, Is.EqualTo(b));
-            Assert.That(delta, Is.EqualTo(b.remoteTimestamp - a.remoteTimestamp));
-        }
-
-        [Test]
-        public void CalculateCatchup_Multiple()
-        {
-            // add three
-            buffer.Add(0, default);
             buffer.Add(1, default);
             buffer.Add(2, default);
+            buffer.Add(3, default);
 
-            // catch-up starts at threshold = 1. so two are multiplied by 10.
-            Assert.That(SnapshotInterpolation.CalculateCatchup(buffer, 1, 10), Is.EqualTo(20));
-        }
+            // remove negative
+            buffer.RemoveRange(-1);
+            Assert.That(buffer.Count, Is.EqualTo(3));
 
-        // first step: with empty buffer and defaults, nothing should happen
-        [Test]
-        public void Compute_Step1_DefaultDoesNothing()
-        {
-            // compute with defaults
-            double localTime = 0;
-            double deltaTime = 0;
-            double interpolationTime = 0;
-            float bufferTime = 0;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
+            // remove none
+            buffer.RemoveRange(0);
+            Assert.That(buffer.Count, Is.EqualTo(3));
 
-            // should not spit out any snapshot to apply
-            Assert.That(result, Is.False);
-            // no interpolation should have happened yet
-            Assert.That(interpolationTime, Is.EqualTo(0));
-            // buffer should still be untouched
+            // remove multiple
+            buffer.RemoveRange(2);
+            Assert.That(buffer.Count, Is.EqualTo(1));
+            Assert.That(buffer.ContainsKey(3), Is.True);
+
+            // remove more than it has
+            buffer.RemoveRange(2);
             Assert.That(buffer.Count, Is.EqualTo(0));
         }
 
-        // third step: compute should always wait until the first two snapshots
-        //             are older than the time we buffer ('bufferTime')
-        //             => test for both snapshots not old enough
         [Test]
-        public void Compute_Step3_WaitsUntilBufferTime()
+        public void Timescale()
         {
-            // add two snapshots that are barely not old enough
-            // (localTime - bufferTime)
-            // IMPORTANT: use a 'definitely old enough' remoteTime to make sure
-            //            that compute() actually checks LOCAL, not REMOTE time!
-            SimpleSnapshot first = new SimpleSnapshot(0.1, 0.1, 0);
-            SimpleSnapshot second = new SimpleSnapshot(0.9, 1.1, 0);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
+            // no drift: linear time
+            Assert.That(SnapshotInterpolation.Timescale(0, catchupSpeed, slowdownSpeed, negativeThresh, positiveThresh), Is.EqualTo(1.0));
 
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            double localTime = 3;
-            double deltaTime = 0.5;
-            double interpolationTime = 0;
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
+            // near negative thresh but not under it: linear time
+            Assert.That(SnapshotInterpolation.Timescale(-0.09, catchupSpeed, slowdownSpeed, negativeThresh, positiveThresh), Is.EqualTo(1.0));
 
-            // should not spit out any snapshot to apply
-            Assert.That(result, Is.False);
-            // no interpolation should happen yet (not old enough)
-            Assert.That(interpolationTime, Is.EqualTo(0));
-            // buffer should be untouched
-            Assert.That(buffer.Count, Is.EqualTo(2));
+            // near positive thresh but not above it: linear time
+            Assert.That(SnapshotInterpolation.Timescale(0.09, catchupSpeed, slowdownSpeed, negativeThresh, positiveThresh), Is.EqualTo(1.0));
+
+            // below negative thresh: catchup
+            Assert.That(SnapshotInterpolation.Timescale(-0.11, catchupSpeed, slowdownSpeed, negativeThresh, positiveThresh), Is.EqualTo(0.96));
+
+            // above positive thresh: slowdown
+            Assert.That(SnapshotInterpolation.Timescale(0.11, catchupSpeed, slowdownSpeed, negativeThresh, positiveThresh), Is.EqualTo(1.02));
         }
 
-        // third step: compute should always wait until the first two snapshots
-        //             are older than the time we buffer ('bufferTime')
-        //             => test for only one snapshot which is old enough
         [Test]
-        public void Compute_Step3_WaitsForSecondSnapshot()
+        public void DynamicAdjustment()
         {
-            // add a snapshot at t = 0
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 0);
-            buffer.Add(first.remoteTimestamp, first);
+            // 100ms send interval, 0ms std jitter, 0.5 (50%) tolerance
+            // -> sendInterval+jitter = 100ms
+            // -> that's 1x sendInterval
+            // -> add 0.5x tolerance
+            // => 1.5x buffer multiplier
+            Assert.That(SnapshotInterpolation.DynamicAdjustment(0.100, 0.000, 0.5), Is.EqualTo(1.5).Within(0.0001));
 
-            // compute at localTime = 2 with bufferTime = 1
-            // so the threshold is anything < t=1
-            double localTime = 2;
-            double deltaTime = 0;
-            double interpolationTime = 0;
-            float bufferTime = 1;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
+            // 100ms send interval, 10ms std jitter, 0.5 (50%) tolerance
+            // -> sendInterval+jitter = 110ms
+            // -> that's 1.1x sendInterval
+            // -> add 0.5x tolerance
+            // => 1.6x buffer multiplier
+            Assert.That(SnapshotInterpolation.DynamicAdjustment(0.100, 0.010, 0.5), Is.EqualTo(1.6).Within(0.0001));
+        }
 
-            // should not spit out any snapshot to apply
-            Assert.That(result, Is.False);
-            // no interpolation should happen yet (not enough snapshots)
-            Assert.That(interpolationTime, Is.EqualTo(0));
-            // buffer should be untouched
+        // UDP packets may arrive twice with the same snapshot.
+        // inserting twice needs to be handled without throwing exceptions.
+        [Test]
+        public void InsertTwice()
+        {
+            // defaults
+            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage deliveryIntervalEma = default;
+            SimpleSnapshot           snap                = default;
+
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // insert twice
+            SnapshotInterpolation.Insert(buffer, snap, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, snap, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // should only be inserted once
             Assert.That(buffer.Count, Is.EqualTo(1));
         }
 
-        // fourth step: compute should begin if we have two old enough snapshots
         [Test]
-        public void Compute_Step4_InterpolateWithTwoOldEnoughSnapshots()
+        public void Insert_Sorts()
         {
-            // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            // IMPORTANT: second snapshot delta is != 1 so we can be sure that
-            //            interpolationTime result is actual time, not 't' ratio.
-            //            for a delta of 1, absolute and relative values would
-            //            return the same results.
-            SimpleSnapshot second = new SimpleSnapshot(2, 2, 2);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
+            // defaults
+            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage deliveryIntervalEma = default;
 
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            double localTime = 4;
-            double deltaTime = 1.5;
-            double interpolationTime = 0;
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
+            double localTimeline  = 0;
+            double localTimescale = 0;
 
-            // should spit out the interpolated snapshot
-            Assert.That(result, Is.True);
-            // interpolation started just now, from 0.
-            // and deltaTime is 1.5, so we should be at 1.5 now.
-            Assert.That(interpolationTime, Is.EqualTo(1.5));
-            // buffer should be untouched, we are still interpolating between the two
+            // example snaps
+            SimpleSnapshot a = new SimpleSnapshot(2, 0, 42);
+            SimpleSnapshot b = new SimpleSnapshot(3, 0, 43);
+
+            // insert in reverse order
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // should be in sorted order
             Assert.That(buffer.Count, Is.EqualTo(2));
-            // interpolationTime is at 1.5, so 3/4 between first & second.
-            // computed snapshot should be interpolated at 3/4ths.
-            Assert.That(computed.value, Is.EqualTo(1.75).Within(Mathf.Epsilon));
+            Assert.That(buffer.Values[0], Is.EqualTo(a));
+            Assert.That(buffer.Values[1], Is.EqualTo(b));
         }
 
-        // fourth step: compute should begin if we have two old enough snapshots
-        //              => test with 3 snapshots to make sure the third one
-        //                 isn't touched while t between [0,1]
         [Test]
-        public void Compute_Step4_InterpolateWithThreeOldEnoughSnapshots()
+        public void Insert_InitializesLocalTimeline()
         {
-            // add three old enough snapshots.
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
-            SimpleSnapshot third = new SimpleSnapshot(2, 2, 2);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
-            buffer.Add(third.remoteTimestamp, third);
+            // defaults
+            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage deliveryIntervalEma = default;
 
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            double localTime = 4;
-            double deltaTime = 0.5;
-            double interpolationTime = 0;
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
+            double localTimeline  = 0;
+            double localTimescale = 0;
 
-            // should spit out the interpolated snapshot
-            Assert.That(result, Is.True);
-            // interpolation started just now, from 0.
-            // and deltaTime is 0.5, so we should be at 0.5 now.
-            Assert.That(interpolationTime, Is.EqualTo(0.5));
-            // buffer should be untouched, we are still interpolating between
-            // the first two. third should still be there.
-            Assert.That(buffer.Count, Is.EqualTo(3));
-            // computed snapshot should be interpolated in the middle
-            Assert.That(computed.value, Is.EqualTo(1.5).Within(Mathf.Epsilon));
+            // example snaps
+            SimpleSnapshot a = new SimpleSnapshot(2, 0, 42);
+            SimpleSnapshot b = new SimpleSnapshot(3, 0, 43);
+
+            // first insertion should initialize the local timeline to remote time
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            Assert.That(localTimeline, Is.EqualTo(2));
+
+            // second insertion should not modify the timeline again
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            Assert.That(localTimeline, Is.EqualTo(2));
         }
 
-        // fourth step: simulate interpolation after a long time of no updates.
-        //              for example, a mobile user might put the app in the
-        //              background for a minute.
         [Test]
-        public void Compute_Step4_InterpolateAfterLongPause()
+        public void Insert_ComputesAverageDrift()
         {
-            // add two immediate, and one that arrives 100s later
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 0);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 1);
-            SimpleSnapshot third = new SimpleSnapshot(101, 2, 101);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
-            buffer.Add(third.remoteTimestamp, third);
+            // defaults: drift ema with 3 values
+            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(3);
+            ExponentialMovingAverage deliveryIntervalEma = default;
 
-            // compute where we are half way between first and second,
-            // and now are updated 1 minute later.
-            double localTime = 103; // 1011+bufferTime so third snapshot is old enough
-            double deltaTime = 98.5; // 99s - interpolation time
-            double interpolationTime = 0.5; // half way between first and second
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
+            double localTimeline  = 0;
+            double localTimescale = 0;
 
-            // should spit out the interpolated snapshot
-            Assert.That(result, Is.True);
-            // interpolation started at 0.5, right between first & second.
-            // we received another snapshot at t=101.
-            // delta = 98.5 seconds
-            // => interpolationTime = 99
-            // => overshoots second goal, so we move to third goal and subtract 1
-            // => so we should be at 98 now
-            Assert.That(interpolationTime, Is.EqualTo(98));
-            // we moved to the next snapshot. so only 2 should be in buffer now.
+            // example snaps
+            SimpleSnapshot a = new SimpleSnapshot(2, 0, 42);
+            SimpleSnapshot b = new SimpleSnapshot(3, 0, 43);
+            SimpleSnapshot c = new SimpleSnapshot(5, 0, 43);
+
+            // insert in order
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // first insertion initializes localTime to '2'.
+            // so the timediffs to '2' are: 0, 1, 3.
+            // which gives an ema of 1.75
+            Assert.That(driftEma.Value, Is.EqualTo(1.75));
+        }
+
+        [Test]
+        public void Insert_ComputesAverageDrift_Scrambled()
+        {
+            // defaults: drift ema with 3 values
+            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(3);
+            ExponentialMovingAverage deliveryIntervalEma = default;
+
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // example snaps
+            SimpleSnapshot a = new SimpleSnapshot(2, 0, 42);
+            SimpleSnapshot b = new SimpleSnapshot(3, 0, 43);
+            SimpleSnapshot c = new SimpleSnapshot(5, 0, 43);
+
+            // insert scrambled (not in order)
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // first insertion initializes localTime to '2'.
+            // so the timediffs to '2' are: 0, 3, 1.
+            // which gives an ema of 1.25
+            //
+            // originally timeDiff was always computed from buffer[count-1],
+            // which would be 0, 3, 3, which would give a (wrong) ema of 2.25.
+            Assert.That(driftEma.Value, Is.EqualTo(1.25));
+        }
+
+        [Test]
+        public void Insert_ComputesAverageDeliveryInterval()
+        {
+            // defaults: delivery ema with 2 values
+            // because delivery time ema is always between 2 snaps.
+            // so for 3 values, it's only computed twice.
+            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(2);
+            ExponentialMovingAverage deliveryIntervalEma = new ExponentialMovingAverage(2);
+
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // example snaps with local arrival times
+            SimpleSnapshot a = new SimpleSnapshot(2, 3, 42);
+            SimpleSnapshot b = new SimpleSnapshot(3, 4, 43);
+            SimpleSnapshot c = new SimpleSnapshot(5, 6, 43);
+
+            // insert in order
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // first insertion doesn't compute delivery interval because we need 2 snaps.
+            // second insertion computes 4-3 = 1
+            // third insertion computes  6-4 = 2
+            // which gives an ema of:         2.2222
+            // with a standard deviation of:  1.1331
+            Assert.That(driftEma.Value, Is.EqualTo(2.2222).Within(0.0001));
+            Assert.That(driftEma.StandardDeviation, Is.EqualTo(1.1331).Within(0.0001));
+        }
+
+        [Test, Ignore("Delivery Time EMA doesn't handle scrambled packages differently yet")]
+        public void Insert_ComputesAverageDeliveryInterval_Scrambled()
+        {
+            // defaults: delivery ema with 2 values
+            // because delivery time ema is always between 2 snaps.
+            // so for 3 values, it's only computed twice.
+            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(2);
+            ExponentialMovingAverage deliveryIntervalEma = new ExponentialMovingAverage(2);
+
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // example snaps with local arrival times
+            SimpleSnapshot a = new SimpleSnapshot(2, 3, 42);
+            SimpleSnapshot b = new SimpleSnapshot(3, 4, 43);
+            SimpleSnapshot c = new SimpleSnapshot(5, 6, 43);
+
+            // insert in order
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // first insertion doesn't compute delivery interval because we need 2 snaps.
+            // second insertion computes 4-3 = 1
+            // third insertion computes  6-4 = 2
+            // which gives an ema of:         2.2222
+            // with a standard deviation of:  1.1331
+            Assert.That(driftEma.Value, Is.EqualTo(2.2222).Within(0.0001));
+            Assert.That(driftEma.StandardDeviation, Is.EqualTo(1.1331).Within(0.0001));
+        }
+
+        [Test]
+        public void Sample()
+        {
+            // defaults
+            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage deliveryIntervalEma = default;
+
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // example snaps
+            SimpleSnapshot a = new SimpleSnapshot(10, 0, 42);
+            SimpleSnapshot b = new SimpleSnapshot(20, 0, 43);
+            SimpleSnapshot c = new SimpleSnapshot(30, 0, 44);
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // sample at a time before the first snapshot
+            SnapshotInterpolation.Sample(buffer, 9, out int from, out int to, out double t);
+            Assert.That(from, Is.EqualTo(0));
+            Assert.That(to, Is.EqualTo(0));
+            Assert.That(t, Is.EqualTo(0));
+
+            // sample inbetween 2nd and 3rd snapshots
+            SnapshotInterpolation.Sample(buffer, 22.5, out from, out to, out t);
+            Assert.That(from, Is.EqualTo(1)); // second
+            Assert.That(to, Is.EqualTo(2));   // third
+            Assert.That(t, Is.EqualTo(0.25)); // exactly in the middle
+
+            // sample at a time after the third snapshot
+            SnapshotInterpolation.Sample(buffer, 31, out from, out to, out t);
+            Assert.That(from, Is.EqualTo(2)); // third
+            Assert.That(to, Is.EqualTo(2));   // third
+            Assert.That(t, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Step_Empty()
+        {
+            // defaults
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // step shouldn't do anything if buffer is still empty
+            Assert.False(SnapshotInterpolation.Step(buffer, 0, ref localTimeline, localTimescale, SimpleSnapshot.Interpolate, out SimpleSnapshot computed));
+        }
+
+        [Test]
+        public void Step()
+        {
+            // defaults
+            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage deliveryIntervalEma = default;
+
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // example snaps
+            SimpleSnapshot a = new SimpleSnapshot(10, 0, 42);
+            SimpleSnapshot b = new SimpleSnapshot(20, 0, 43);
+            SimpleSnapshot c = new SimpleSnapshot(30, 0, 44);
+
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // step half way to the next snapshot
+            Assert.True(SnapshotInterpolation.Step(buffer, 5, ref localTimeline, localTimescale, SimpleSnapshot.Interpolate, out SimpleSnapshot computed));
+            Assert.That(computed.value, Is.EqualTo(42.5));
+        }
+
+        [Test]
+        public void Step_RemovesOld()
+        {
+            // defaults
+            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage deliveryIntervalEma = default;
+
+            double localTimeline  = 0;
+            double localTimescale = 0;
+
+            // example snaps
+            SimpleSnapshot a = new SimpleSnapshot(10, 0, 42);
+            SimpleSnapshot b = new SimpleSnapshot(20, 0, 43);
+            SimpleSnapshot c = new SimpleSnapshot(30, 0, 44);
+
+            SnapshotInterpolation.Insert(buffer, a, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, b, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+            SnapshotInterpolation.Insert(buffer, c, ref localTimeline, ref localTimescale, 0, 0, 0.01, 0.01, ref driftEma, 0, 0, ref deliveryIntervalEma);
+
+            // step 1.5 snapshots worth, so way past the first one
+            Assert.True(SnapshotInterpolation.Step(buffer, 15, ref localTimeline, localTimescale, SimpleSnapshot.Interpolate, out SimpleSnapshot computed));
+            Assert.That(computed.value, Is.EqualTo(43.5));
+
+            // first snapshot should've been removed since we stepped past it
             Assert.That(buffer.Count, Is.EqualTo(2));
-            // delta between second and third is 100.
-            // interpolationTime is at 98
-            // interpolationTime is relative to second.time
-            // => InverseLerp(1, 101, 1 + 98) = 0.98
-            // which is at 98% of the value
-            // => Lerp(1, 101, 0.98): 101-1 is 100. 98% are 98. relative to '1'
-            //    makes it 99.
-            Assert.That(computed.value, Is.EqualTo(99).Within(Mathf.Epsilon));
-        }
-
-        // fourth step: catchup should be considered if buffer gets too large
-        [Test]
-        public void Compute_Step4_InterpolateWithCatchup()
-        {
-            // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
-
-            // start applying 25% catchup per excess when > 2.
-            int catchupThreshold = 2;
-            float catchupMultiplier = 0.25f;
-
-            // two excess snapshots to make sure that multiplier is accumulated
-            SimpleSnapshot excess1 = new SimpleSnapshot(2, 2, 3);
-            SimpleSnapshot excess2 = new SimpleSnapshot(3, 3, 4);
-            buffer.Add(excess1.remoteTimestamp, excess1);
-            buffer.Add(excess2.remoteTimestamp, excess2);
-
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            double localTime = 3;
-            double deltaTime = 0.5;
-            double interpolationTime = 0;
-            float bufferTime = 2;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
-
-            // should spit out the interpolated snapshot
-            Assert.That(result, Is.True);
-            // interpolation started just now, from 0.
-            // and deltaTime is 0.5 + 50% catchup, so we should be at 0.75 now
-            Assert.That(interpolationTime, Is.EqualTo(0.75));
-            // buffer should be untouched, we are still interpolating between
-            // the first two.
-            Assert.That(buffer.Count, Is.EqualTo(4));
-            // computed snapshot should be interpolated in 3/4 because
-            // interpolationTime is at 3/4
-            Assert.That(computed.value, Is.EqualTo(1.75).Within(Mathf.Epsilon));
-        }
-
-        // fifth step: interpolation time overshoots the end while waiting for
-        //             more snapshots.
-        //
-        // IMPORTANT: we should NOT extrapolate & predict while waiting for more
-        //            snapshots as this would introduce a whole range of issues:
-        //            * player might be extrapolated WAY out if we wait for long
-        //            * player might be extrapolated behind walls
-        //            * once we receive a new snapshot, we would interpolate
-        //              not from the last valid position, but from the
-        //              extrapolated position. this could be ANYWHERE. the
-        //              player might get stuck in walls, etc.
-        //            => we are NOT doing client side prediction & rollback here
-        //            => we are simply interpolating with known, valid positions
-        //
-        // NOTE: to reproduce the issue in a real example:
-        //       * open mirror benchmark example
-        //       * editor=host 1000+ monsters & deep profiling for LOW FPS
-        //       * build=client
-        //       * move around client
-        //       * see it all over the place in editor because it extrapolates,
-        //         ends up at the wrong start positions and gets worse from
-        //         there.
-        //
-        // video: https://gyazo.com/8de68f0a821449d7b9a8424e2c9e3ff8
-        // (or see Mirror/Docs/Screenshots/NT Snap. Interp./extrapolation issues)
-        [Test]
-        public void Compute_Step5_OvershootWithoutEnoughSnapshots()
-        {
-            // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
-
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            // -> interpolation time is already at '1' at the end.
-            // -> compute will add 0.5 deltaTime
-            // -> so we should NOT overshoot aka extrapolate beyond second snap.
-            double localTime = 3;
-            double deltaTime = 0.5;
-            double interpolationTime = 1;
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
-
-            // should spit out the interpolated snapshot
-            Assert.That(result, Is.True);
-            // interpolation started at the end = 1
-            // and deltaTime is 0.5, so it's at 1.5 internally.
-            //
-            // BUT there's NO reason to overshoot interpolationTime if there's
-            // no other snapshots to move to.
-            // interpolationTime overshoot is only for smooth transitions WHILE
-            // moving.
-            // for example, if we keep overshooting to 100, then we would
-            // instantly skip the next 20 snapshots.
-            // => so it should be capped at second.remoteTime
-            Assert.That(interpolationTime, Is.EqualTo(1));
-            // buffer should be untouched, we are still interpolating between the two
-            Assert.That(buffer.Count, Is.EqualTo(2));
-            // computed snapshot should NOT extrapolate beyond second snap.
-            Assert.That(computed.value, Is.EqualTo(2).Within(Mathf.Epsilon));
-        }
-
-        // fifth step: interpolation time overshoots the end while having more
-        //             snapshots available.
-        //             BUT: the next snapshot isn't old enough yet.
-        //                  we shouldn't move there until old enough.
-        //                  for the same reason we don't move to first, second
-        //                  until they are old enough.
-        //                  => always need to be 'bufferTime' old.
-        [Test]
-        public void Compute_Step5_OvershootWithEnoughSnapshots_NextIsntOldEnough()
-        {
-            // add two old enough snapshots
-            // (localTime - bufferTime)
-            //
-            // IMPORTANT: second.time needs to be != second.time-first.time
-            //            to guarantee that we cap interpolationTime (which is
-            //            RELATIVE from 0..delta) at delta, not at second.time.
-            //            this was a bug before.
-            SimpleSnapshot first = new SimpleSnapshot(1, 1, 1);
-            SimpleSnapshot second = new SimpleSnapshot(2, 2, 2);
-            // IMPORTANT: third snapshot needs to be:
-            // - a different time delta
-            //   to test if overflow is correct if deltas are different.
-            //   it's not obvious if we ever use t ratio between [0,1] where an
-            //   overflow of 0.1 between A,B could speed up B,C interpolation if
-            //   that's not the same delta, since t is a ratio.
-            // - a different value delta to check if it really _interpolates_,
-            //   not just extrapolates further after A,B
-            SimpleSnapshot third = new SimpleSnapshot(4, 4, 4);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
-            buffer.Add(third.remoteTimestamp, third);
-
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            // -> interpolation time is already at '1' at the end.
-            // -> compute will add 0.5 deltaTime
-            // -> so we overshoot beyond the second one and move to the next
-            //
-            // localTime is at 4
-            // third snapshot localTime is at 4.
-            // bufferTime is 2, so it is NOT old enough and we should wait!
-            double localTime = 4;
-            double deltaTime = 0.5;
-            double interpolationTime = 1;
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
-
-            // should still spit out a result between first & second.
-            Assert.That(result, Is.True);
-            // interpolation started at the end = 1
-            // and deltaTime is 0.5, so we were at 1.5 internally.
-            //
-            // BUT there's NO reason to overshoot interpolationTime while we
-            // wait for the next snapshot which isn't old enough.
-            // we stopped movement anyway.
-            // interpolationTime overshoot is only for smooth transitions WHILE
-            // moving.
-            // for example, if we overshoot to 100 while waiting, then we would
-            // instantly skip the next 20 snapshots.
-            // => so it should be capped at max
-            // => which is always 0..delta, NOT first.time .. second.time!!
-            Assert.That(interpolationTime, Is.EqualTo(1));
-            // buffer should be untouched. shouldn't have moved to third yet.
-            Assert.That(buffer.Count, Is.EqualTo(3));
-            // computed snapshot should be all the way at second snapshot.
-            Assert.That(computed.value, Is.EqualTo(2).Within(Mathf.Epsilon));
-        }
-
-        // fifth step: interpolation time overshoots the end while having more
-        //             snapshots available.
-        [Test]
-        public void Compute_Step5_OvershootWithEnoughSnapshots_MovesToNextSnapshotIfOldEnough()
-        {
-            // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
-            // IMPORTANT: third snapshot needs to be:
-            // - a different time delta
-            //   to test if overflow is correct if deltas are different.
-            //   it's not obvious if we ever use t ratio between [0,1] where an
-            //   overflow of 0.1 between A,B could speed up B,C interpolation if
-            //   that's not the same delta, since t is a ratio.
-            // - a different value delta to check if it really _interpolates_,
-            //   not just extrapolates further after A,B
-            SimpleSnapshot third = new SimpleSnapshot(3, 3, 4);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
-            buffer.Add(third.remoteTimestamp, third);
-
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            // -> interpolation time is already at '1' at the end.
-            // -> compute will add 0.5 deltaTime
-            // -> so we overshoot beyond the second one and move to the next
-            //
-            // localTime is 5. third snapshot localTime is at 3.
-            // bufferTime is 2.
-            // so third is exactly old enough and we should move there.
-            double localTime = 5;
-            double deltaTime = 0.5;
-            double interpolationTime = 1;
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
-
-            // should spit out the interpolated snapshot
-            Assert.That(result, Is.True);
-            // interpolation started at the end = 1
-            // and deltaTime is 0.5, so we were at 1.5 internally.
-            // we have more snapshots, so we jump to the next and subtract '1'
-            // 1 + 0.5 = 1.5 => -1 => 0.5
-            Assert.That(interpolationTime, Is.EqualTo(0.5));
-            // buffer's first entry should have been removed
-            Assert.That(buffer.Count, Is.EqualTo(2));
-            // computed snapshot should be 1/4 way between second and third
-            // because delta is 2 and interpolationTime is at 0.5 which is 1/4
-            Assert.That(computed.value, Is.EqualTo(2.5).Within(Mathf.Epsilon));
-        }
-
-        // fifth step: interpolation time overshoots 2x the end while having
-        //             >= 2 more snapshots available. it should correctly jump
-        //             ahead the first pending one to the second one.
-        [Test]
-        public void Compute_Step5_OvershootWithEnoughSnapshots_2x_MovesToSecondNextSnapshot()
-        {
-            // add two old enough snapshots
-            // (localTime - bufferTime)
-            SimpleSnapshot first = new SimpleSnapshot(0, 0, 1);
-            SimpleSnapshot second = new SimpleSnapshot(1, 1, 2);
-            // IMPORTANT: third snapshot needs to be:
-            // - a different time delta
-            //   to test if overflow is correct if deltas are different.
-            //   it's not obvious if we ever use t ratio between [0,1] where an
-            //   overflow of 0.1 between A,B could speed up B,C interpolation if
-            //   that's not the same delta, since t is a ratio.
-            // - a different value delta to check if it really _interpolates_,
-            //   not just extrapolates further after A,B
-            SimpleSnapshot third = new SimpleSnapshot(3, 3, 4);
-            SimpleSnapshot fourth = new SimpleSnapshot(5, 5, 6);
-            buffer.Add(first.remoteTimestamp, first);
-            buffer.Add(second.remoteTimestamp, second);
-            buffer.Add(third.remoteTimestamp, third);
-            buffer.Add(fourth.remoteTimestamp, fourth);
-
-            // compute with initialized remoteTime and buffer time of 2 seconds
-            // and a delta time to be sure that we move along it no matter what.
-            // -> interpolation time is already at '1' at the end.
-            // -> compute will add 1.5 deltaTime
-            // -> so we should overshoot beyond second and third even
-            //
-            // localTime is 7. fourth snapshot localTime is at 5.
-            // bufferTime is 2.
-            // so fourth is exactly old enough and we should move there.
-            double localTime = 7;
-            double deltaTime = 2.5;
-            double interpolationTime = 1;
-            float bufferTime = 2;
-            int catchupThreshold = Int32.MaxValue;
-            float catchupMultiplier = 0;
-            bool result = SnapshotInterpolation.Compute(localTime, deltaTime, ref interpolationTime, bufferTime, buffer, catchupThreshold, catchupMultiplier, SimpleSnapshot.Interpolate, out SimpleSnapshot computed, out _);
-
-            // should spit out the interpolated snapshot
-            Assert.That(result, Is.True);
-            // interpolation started at the end = 1
-            // and deltaTime is 2.5, so we were at 4.5 internally.
-            // we have more snapshots, so we:
-            //   * jump to third, subtract delta of 1-0 = 1 => 2.5
-            //   * jump to fourth, subtract delta of 3-1 = 2 => 0.5
-            //   * end up at 0.5 again, between third and fourth
-            Assert.That(interpolationTime, Is.EqualTo(0.5));
-            // buffer's first entry should have been removed
-            Assert.That(buffer.Count, Is.EqualTo(2));
-            // computed snapshot should be 1/4 way between second and third
-            // because delta is 2 and interpolationTime is at 0.5 which is 1/4
-            Assert.That(computed.value, Is.EqualTo(4.5).Within(Mathf.Epsilon));
+            Assert.That(buffer.Values[0], Is.EqualTo(b));
+            Assert.That(buffer.Values[1], Is.EqualTo(c));
         }
     }
 }

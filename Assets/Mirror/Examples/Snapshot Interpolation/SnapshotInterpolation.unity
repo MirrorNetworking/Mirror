@@ -171,10 +171,17 @@ MonoBehaviour:
   server: {fileID: 474480122}
   render: {fileID: 1292704310}
   interpolate: 1
-  catchupThreshold: 4
-  catchupMultiplier: 0.1
   bufferTimeMultiplier: 1
+  catchupNegativeThreshold: -1
+  catchupPositiveThreshold: 1
+  catchupSpeed: 0.009999999776482582
+  slowdownSpeed: 0.009999999776482582
+  driftEmaDuration: 1
+  dynamicAdjustment: 1
+  dynamicAdjustmentTolerance: 1
+  deliveryTimeEmaDuration: 2
   catchupColor: {r: 1, g: 0, b: 0, a: 1}
+  slowdownColor: {r: 0, g: 0, b: 1, a: 1}
 --- !u!1 &474480117
 GameObject:
   m_ObjectHideFlags: 0
@@ -274,11 +281,10 @@ MonoBehaviour:
   client: {fileID: 89338756}
   distance: 10
   speed: 3
-  sendInterval: 0.05
-  latencySpikeMultiplier: 0.05
-  latencySpikeSpeedMultiplier: 0.5
-  loss: 0.05
+  sendRate: 30
   latency: 0.05
+  jitter: 0.05
+  loss: 0.05
   scramble: 0.05
 --- !u!1 &1292704307
 GameObject:

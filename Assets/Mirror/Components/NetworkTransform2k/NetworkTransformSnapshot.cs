@@ -23,19 +23,19 @@ namespace Mirror
         //
         // [REMOTE TIME, NOT LOCAL TIME]
         // => DOUBLE for long term accuracy & batching gives us double anyway
-        public double remoteTimestamp { get; set; }
+        public double remoteTime { get; set; }
         // the local timestamp (when we received it)
         // used to know if the first two snapshots are old enough to start.
-        public double localTimestamp { get; set; }
+        public double localTime { get; set; }
 
         public Vector3 position;
         public Quaternion rotation;
         public Vector3 scale;
 
-        public NTSnapshot(double remoteTimestamp, double localTimestamp, Vector3 position, Quaternion rotation, Vector3 scale)
+        public NTSnapshot(double remoteTime, double localTime, Vector3 position, Quaternion rotation, Vector3 scale)
         {
-            this.remoteTimestamp = remoteTimestamp;
-            this.localTimestamp = localTimestamp;
+            this.remoteTime = remoteTime;
+            this.localTime = localTime;
             this.position = position;
             this.rotation = rotation;
             this.scale = scale;

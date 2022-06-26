@@ -1,326 +1,290 @@
-// snapshot interpolation algorithms only,
-// independent from Unity/NetworkTransform/MonoBehaviour/Mirror/etc.
-// the goal is to remove all the magic from it.
-// => a standalone snapshot interpolation algorithm
-// => that can be simulated with unit tests easily
+// snapshot interpolation V2 by mischa
 //
-// BOXING: in C#, uses <T> does not box! passing the interface would box!
+// Unity independent to be engine agnostic & easy to test.
+// boxing: in C#, uses <T> does not box! passing the interface would box!
+//
+// credits:
+//   glenn fiedler: https://gafferongames.com/post/snapshot_interpolation/
+//   fholm: netcode streams
+//   fakebyte: standard deviation for dynamic adjustment
+//   ninjakicka: math & debugging
 using System;
 using System.Collections.Generic;
 
 namespace Mirror
 {
+    public static class SortedListExtensions
+    {
+        // removes the first 'amount' elements from the sorted list
+        public static void RemoveRange<T, U>(this SortedList<T, U> list, int amount)
+        {
+            // remove the first element 'amount' times.
+            // handles -1 and > count safely.
+            for (int i = 0; i < amount && i < list.Count; ++i)
+                list.RemoveAt(0);
+        }
+    }
+
     public static class SnapshotInterpolation
     {
-        // insert into snapshot buffer if newer than first entry
-        // this should ALWAYS be used when inserting into a snapshot buffer!
-        public static void InsertIfNewEnough<T>(T snapshot, SortedList<double, T> buffer)
-            where T : Snapshot
+        // calculate timescale for catch-up / slow-down
+        // note that negative threshold should be <0.
+        //   caller should verify (i.e. Unity OnValidate).
+        //   improves branch prediction.
+        public static double Timescale(
+            double drift,                    // how far we are off from bufferTime
+            double catchupSpeed,             // in % [0,1]
+            double slowdownSpeed,            // in % [0,1]
+            double catchupNegativeThreshold, // in % of sendInteral (careful, we may run out of snapshots)
+            double catchupPositiveThreshold) // in % of sendInterval)
         {
-            // we need to drop any snapshot which is older ('<=')
-            // the snapshots we are already working with.
-            double timestamp = snapshot.remoteTimestamp;
+            // if the drift time is too large, it means we are behind more time.
+            // so we need to speed up the timescale.
+            // note the threshold should be sendInterval * catchupThreshold.
+            if (drift > catchupPositiveThreshold)
+            {
+                // localTimeline += 0.001; // too simple, this would ping pong
+                return 1 + catchupSpeed; // n% faster
+            }
 
-            // if size == 1, then only add snapshots that are newer.
-            // for example, a snapshot before the first one might have been
-            // lagging.
-            if (buffer.Count == 1 &&
-                timestamp <= buffer.Values[0].remoteTimestamp)
-                return;
+            // if the drift time is too small, it means we are ahead of time.
+            // so we need to slow down the timescale.
+            // note the threshold should be sendInterval * catchupThreshold.
+            if (drift < catchupNegativeThreshold)
+            {
+                // localTimeline -= 0.001; // too simple, this would ping pong
+                return 1 - slowdownSpeed; // n% slower
+            }
 
-            // for size >= 2, we are already interpolating between the first two
-            // so only add snapshots that are newer than the second entry.
-            // aka the 'ACB' problem:
-            //   if we have a snapshot A at t=0 and C at t=2,
-            //   we start interpolating between them.
-            //   if suddenly B at t=1 comes in unexpectely,
-            //   we should NOT suddenly steer towards B.
-            if (buffer.Count >= 2 &&
-                timestamp <= buffer.Values[1].remoteTimestamp)
-                return;
-
-            // otherwise sort it into the list
-            // an UDP messages might arrive twice sometimes.
-            // SortedList throws if key already exists, so check.
-            if (!buffer.ContainsKey(timestamp))
-                buffer.Add(timestamp, snapshot);
+            // keep constant timescale while within threshold.
+            // this way we have perfectly smooth speed most of the time.
+            return 1;
         }
 
-        // helper function to check if we have 'bufferTime' worth of snapshots
-        // to start.
-        //
-        // glenn fiedler article:
-        // "Now for the trick with snapshots. What we do is instead of
-        //  immediately rendering snapshot data received is that we buffer
-        //  snapshots for a short amount of time in an interpolation buffer.
-        //  This interpolation buffer holds on to snapshots for a period of time
-        //  such that you have not only the snapshot you want to render but also,
-        //  statistically speaking, you are very likely to have the next snapshot
-        //  as well."
-        //
-        // => 'statistically' implies that we always wait for a fixed amount
-        //    aka LOCAL TIME has passed.
-        // => it does NOT imply to wait for a remoteTime span of bufferTime.
-        //    that would not be 'statistically'. it would be 'exactly'.
-        public static bool HasAmountOlderThan<T>(SortedList<double, T> buffer, double threshold, int amount)
-            where T : Snapshot =>
-                buffer.Count >= amount &&
-                buffer.Values[amount - 1].localTimestamp <= threshold;
-
-        // for convenience, hide the 'bufferTime worth of snapshots' check in an
-        // easy to use function. this way we can have several conditions etc.
-        public static bool HasEnough<T>(SortedList<double, T> buffer, double time, double bufferTime)
-            where T : Snapshot =>
-                // two snapshots with local time older than threshold?
-                HasAmountOlderThan(buffer, time - bufferTime, 2);
-
-        // sometimes we need to know if it's still safe to skip past the first
-        // snapshot.
-        public static bool HasEnoughWithoutFirst<T>(SortedList<double, T> buffer, double time, double bufferTime)
-            where T : Snapshot =>
-                // still two snapshots with local time older than threshold if
-                // we remove the first one? (in other words, need three older)
-                HasAmountOlderThan(buffer, time - bufferTime, 3);
-
-        // calculate catchup.
-        // the goal is to buffer 'bufferTime' snapshots.
-        // for whatever reason, we might see growing buffers.
-        // in which case we should speed up to avoid ever growing delay.
-        // -> everything after 'threshold' is multiplied by 'multiplier'
-        public static double CalculateCatchup<T>(SortedList<double, T> buffer, int catchupThreshold, double catchupMultiplier)
-            where T : Snapshot
+        // calculate dynamic buffer time adjustment
+        public static double DynamicAdjustment(
+            double sendInterval,
+            double jitterStandardDeviation,
+            double dynamicAdjustmentTolerance)
         {
-            // NOTE: we count ALL buffer entires > threshold as excess.
-            //       not just the 'old enough' ones.
-            //       if buffer keeps growing, we have to catch up no matter what.
-            int excess = buffer.Count - catchupThreshold;
-            return excess > 0 ? excess * catchupMultiplier : 0;
+            // jitter is equal to delivery time standard variation.
+            // delivery time is made up of 'sendInterval+jitter'.
+            //   .Average would be dampened by the constant sendInterval
+            //   .StandardDeviation is the changes in 'jitter' that we want
+            // so add it to send interval again.
+            double intervalWithJitter = sendInterval + jitterStandardDeviation;
+
+            // how many multiples of sendInterval is that?
+            // we want to convert to bufferTimeMultiplier later.
+            double multiples = intervalWithJitter / sendInterval;
+
+            // add the tolerance
+            double safezone = multiples + dynamicAdjustmentTolerance;
+            // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} jitter std={jitterStandardDeviation:F3} => that is ~{multiples:F1} x sendInterval + {dynamicAdjustmentTolerance} => dynamic bufferTimeMultiplier={safezone}");
+            return safezone;
         }
 
-        // get first & second buffer entries and delta between them.
-        // helper function because we use this several times.
-        // => assumes at least two entries in buffer.
-        public static void GetFirstSecondAndDelta<T>(SortedList<double, T> buffer, out T first, out T second, out double delta)
+        // call this for every received snapshot.
+        // adds / inserts it to the list & initializes local time if needed.
+        public static void Insert<T>(
+            SortedList<double, T> buffer,                 // snapshot buffer
+            T snapshot,                                   // the newly received snapshot
+            ref double localTimeline,                     // local interpolation time based on server time
+            ref double localTimescale,                    // timeline multiplier to apply catchup / slowdown over time
+            float sendInterval,                           // for debugging
+            double bufferTime,                            // offset for buffering
+            double catchupSpeed,                          // in % [0,1]
+            double slowdownSpeed,                         // in % [0,1]
+            ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
+            float catchupNegativeThreshold,               // in % of sendInteral (careful, we may run out of snapshots)
+            float catchupPositiveThreshold,               // in % of sendInterval
+            ref ExponentialMovingAverage deliveryTimeEma) // for dynamic buffer time adjustment
             where T : Snapshot
         {
-            // get first & second
-            first = buffer.Values[0];
-            second = buffer.Values[1];
-
-            // delta between first & second is needed a lot
-            delta = second.remoteTimestamp - first.remoteTimestamp;
-        }
-
-        // the core snapshot interpolation algorithm.
-        // for a given remoteTime, interpolationTime and buffer,
-        // we tick the snapshot simulation once.
-        // => it's the same one on server and client
-        // => should be called every Update() depending on authority
-        //
-        // time: LOCAL time since startup in seconds. like Unity's Time.time.
-        // deltaTime: Time.deltaTime from Unity. parameter for easier tests.
-        // interpolationTime: time in interpolation. moved along deltaTime.
-        //                    between [0, delta] where delta is snapshot
-        //                    B.timestamp - A.timestamp.
-        //   IMPORTANT:
-        //      => we use actual time instead of a relative
-        //         t [0,1] because overshoot is easier to handle.
-        //         if relative t overshoots but next snapshots are
-        //         further apart than the current ones, it's not
-        //         obvious how to calculate it.
-        //      => for example, if t = 3 every time we skip we would have to
-        //         make sure to adjust the subtracted value relative to the
-        //         skipped delta. way too complex.
-        //      => actual time can overshoot without problems.
-        //         we know it's always by actual time.
-        // bufferTime: time in seconds that we buffer snapshots.
-        // buffer: our buffer of snapshots.
-        //         Compute() assumes full integrity of the snapshots.
-        //         for example, when interpolating between A=0 and C=2,
-        //         make sure that you don't add B=1 between A and C if that
-        //         snapshot arrived after we already started interpolating.
-        //      => InsertIfNewEnough needs to protect against the 'ACB' problem
-        // catchupThreshold: amount of buffer entries after which we start to
-        //                   accelerate to catch up.
-        //                   if 'bufferTime' is 'sendInterval * 3', then try
-        //                   a value > 3 like 6.
-        // catchupMultiplier: catchup by % per additional excess buffer entry
-        //                    over the amount of 'catchupThreshold'.
-        // Interpolate: interpolates one snapshot to another, returns the result
-        //   T Interpolate(T from, T to, double t);
-        //   => needs to be Func<T> instead of a function in the Snapshot
-        //      interface because that would require boxing.
-        //   => make sure to only allocate that function once.
-        // out catchup: useful for debugging only.
-        //
-        // returns
-        //   'true' if it spit out a snapshot to apply.
-        //   'false' means computation moved along, but nothing to apply.
-        public static bool Compute<T>(
-            double time,
-            double deltaTime,
-            ref double interpolationTime,
-            double bufferTime,
-            SortedList<double, T> buffer,
-            int catchupThreshold,
-            float catchupMultiplier,
-            Func<T, T, double, T> Interpolate,
-            out T computed,
-            out double catchup)
-                where T : Snapshot
-        {
-            // we buffer snapshots for 'bufferTime'
-            // for example:
-            //   * we buffer for 3 x sendInterval = 300ms
-            //   * the idea is to wait long enough so we at least have a few
-            //     snapshots to interpolate between
-            //   * we process anything older 100ms immediately
+            // first snapshot?
+            // initialize local timeline.
+            // we want it to be behind by 'offset'.
             //
-            // IMPORTANT: snapshot timestamps are _remote_ time
-            // we need to interpolate and calculate buffer lifetimes based on it.
-            // -> we don't know remote's current time
-            // -> NetworkTime.time fluctuates too much, that's no good
-            // -> we _could_ calculate an offset when the first snapshot arrives,
-            //    but if there was high latency then we'll always calculate time
-            //    with high latency
-            // -> at any given time, we are interpolating from snapshot A to B
-            // => seems like A.timestamp += deltaTime is a good way to do it
-            catchup = 0;
-            computed = default;
-            //Debug.Log($"{name} snapshotbuffer={buffer.Count}");
+            // note that the first snapshot may be a lagging packet.
+            // so we would always be behind by that lag.
+            // this requires catchup later.
+            if (buffer.Count == 0)
+                localTimeline = snapshot.remoteTime - bufferTime;
 
-            // do we have enough buffered to start interpolating?
-            if (!HasEnough(buffer, time, bufferTime))
+            // insert into the buffer.
+            //
+            // note that we might insert it between our current interpolation
+            // which is fine, it adds another data point for accuracy.
+            //
+            // note that insert may be called twice for the same key.
+            // by default, this would throw.
+            // need to handle it silently.
+            if (!buffer.ContainsKey(snapshot.remoteTime))
+            {
+                buffer.Add(snapshot.remoteTime, snapshot);
+
+                // dynamic buffer adjustment needs delivery interval jitter
+                if (buffer.Count >= 2)
+                {
+                    // note that this is not entirely accurate for scrambled inserts.
+                    //
+                    // we always use the last two, not what we just inserted
+                    // even if we were to use the diff for what we just inserted,
+                    // a scrambled insert would still not be 100% accurate:
+                    // => assume a buffer of AC, with delivery time C-A
+                    // => we then insert B, with delivery time B-A
+                    // => but then technically the first C-A wasn't correct,
+                    //    as it would have to be C-B
+                    //
+                    // in practice, scramble is rare and won't make much difference
+                    double previousLocalTime = buffer.Values[buffer.Count - 2].localTime;
+                    double lastestLocalTime  = buffer.Values[buffer.Count - 1].localTime;
+
+                    // this is the delivery time since last snapshot
+                    double localDeliveryTime = lastestLocalTime - previousLocalTime;
+
+                    // feed the local delivery time to the EMA.
+                    // this is what the original stream did too.
+                    // our final dynamic buffer adjustment is different though.
+                    // we use standard deviation instead of average.
+                    deliveryTimeEma.Add(localDeliveryTime);
+                }
+
+                // adjust timescale to catch up / slow down after each insertion
+                // because that is when we add new values to our EMA.
+
+                // we want localTimeline to be about 'bufferTime' behind.
+                // for that, we need the delivery time EMA.
+                // snapshots may arrive out of order, we can not use last-timeline.
+                // we need to use the inserted snapshot's time - timeline.
+                double latestRemoteTime = snapshot.remoteTime;
+                double timeDiff         = latestRemoteTime - localTimeline;
+
+                // next, calculate average of a few seconds worth of timediffs.
+                // this gives smoother results.
+                //
+                // to calculate the average, we could simply loop through the
+                // last 'n' seconds worth of timediffs, but:
+                // - our buffer may only store a few snapshots (bufferTime)
+                // - looping through seconds worth of snapshots every time is
+                //   expensive
+                //
+                // to solve this, we use an exponential moving average.
+                // https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+                // which is basically fancy math to do the same but faster.
+                // additionally, it allows us to look at more timeDiff values
+                // than we sould have access to in our buffer :)
+                driftEma.Add(timeDiff);
+
+                // next up, calculate how far we are currently away from bufferTime
+                double drift = driftEma.Value - bufferTime;
+
+                // convert relative thresholds to absolute values based on sendInterval
+                double absoluteNegativeThreshold = sendInterval * catchupNegativeThreshold;
+                double absolutePositiveThreshold = sendInterval * catchupPositiveThreshold;
+
+                // next, set localTimescale to catchup consistently in Update().
+                // we quantize between default/catchup/slowdown,
+                // this way we have 'default' speed most of the time(!).
+                // and only catch up / slow down for a little bit occasionally.
+                // a consistent multiplier would never be exactly 1.0.
+                localTimescale = Timescale(drift, catchupSpeed, slowdownSpeed, absoluteNegativeThreshold, absolutePositiveThreshold);
+
+                // debug logging
+                // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
+            }
+        }
+
+        // sample snapshot buffer to find the pair around the given time.
+        // returns indices so we can use it with RemoveRange to clear old snaps.
+        // make sure to use use buffer.Values[from/to], not buffer[from/to].
+        // make sure to only call this is we have > 0 snapshots.
+        public static void Sample<T>(
+            SortedList<double, T> buffer, // snapshot buffer
+            double localTimeline,         // local interpolation time based on server time
+            out int from,                 // the snapshot <= time
+            out int to,                   // the snapshot >= time
+            out double t)                 // interpolation factor
+            where T : Snapshot
+        {
+            from = -1;
+            to = -1;
+            t = 0;
+
+            // sample from [0,count-1] so we always have two at 'i' and 'i+1'.
+            for (int i = 0; i < buffer.Count - 1; ++i)
+            {
+                // is local time between these two?
+                T first  = buffer.Values[i];
+                T second = buffer.Values[i + 1];
+                if (localTimeline >= first.remoteTime &&
+                    localTimeline <= second.remoteTime)
+                {
+                    // use these two snapshots
+                    from = i;
+                    to = i + 1;
+                    t = Mathd.InverseLerp(first.remoteTime, second.remoteTime, localTimeline);
+                    return;
+                }
+            }
+
+            // didn't find two snapshots around local time.
+            // so pick either the first or last, depending on which is closer.
+
+            // oldest snapshot ahead of local time?
+            if (buffer.Values[0].remoteTime > localTimeline)
+            {
+                from = to = 0;
+                t = 0;
+            }
+            // otherwise initialize both to the last one
+            else
+            {
+                from = to = buffer.Count - 1;
+                t = 0;
+            }
+        }
+
+        // update time, sample, clear old.
+        // call this every update.
+        // returns true if there is anything to apply (requires at least 1 snap)
+        public static bool Step<T>(
+            SortedList<double, T> buffer,      // snapshot buffer
+            double deltaTime,                  // engine delta time (unscaled)
+            ref double localTimeline,          // local interpolation time based on server time
+            double localTimescale,             // catchup / slowdown is applied to time every update
+            Func<T, T, double, T> Interpolate, // interpolates snapshot between two snapshots
+            out T computed)
+            where T : Snapshot
+        {
+            computed = default;
+
+            // nothing to do if there are no snapshots at all yet
+            if (buffer.Count == 0)
                 return false;
 
-            // multiply deltaTime by catchup.
-            // for example, assuming a catch up of 50%:
-            // - deltaTime = 1s => 1.5s
-            // - deltaTime = 0.1s => 0.15s
-            // in other words, variations in deltaTime don't matter.
-            // simply multiply. that's just how time works.
-            // (50% catch up means 0.5, so we multiply by 1.5)
-            //
-            // if '0' catchup then we multiply by '1', which changes nothing.
-            // (faster branch prediction)
-            catchup = CalculateCatchup(buffer, catchupThreshold, catchupMultiplier);
-            deltaTime *= (1 + catchup);
+            // move local forward in time, scaled with catchup / slowdown applied
+            localTimeline += deltaTime * localTimescale;
 
-            // interpolationTime starts at 0 and we add deltaTime to move
-            // along the interpolation.
-            //
-            // ONLY while we have snapshots to interpolate.
-            // otherwise we might increase it to infinity which would lead
-            // to skipping the next snapshots entirely.
-            //
-            // IMPORTANT: interpolationTime as actual time instead of
-            // t [0,1] allows us to overshoot and subtract easily.
-            // if t was [0,1], and we overshoot by 0.1, that's a
-            // RELATIVE overshoot for the delta between B.time - A.time.
-            // => if the next C.time - B.time is not the same delta,
-            //    then the relative overshoot would speed up or slow
-            //    down the interpolation! CAREFUL.
-            //
-            // IMPORTANT: we NEVER add deltaTime to 'time'.
-            //            'time' is already NOW. that's how Unity works.
-            interpolationTime += deltaTime;
+            // sample snapshot buffer at local interpolation time
+            Sample(buffer, localTimeline, out int from, out int to, out double t);
 
-            // get first & second & delta
-            GetFirstSecondAndDelta(buffer, out T first, out T second, out double delta);
+            // now interpolate between from & to (clamped)
+            T fromSnap = buffer.Values[from];
+            T toSnap   = buffer.Values[to];
+            computed = Interpolate(fromSnap, toSnap, t);
+            // UnityEngine.Debug.Log($"step from: {from} to {to}");
 
-            // reached goal and have more old enough snapshots in buffer?
-            // then skip and move to next.
-            // for example, if we have snapshots at t=1,2,3
-            // and we are at interpolationTime = 2.5, then
-            // we should skip the first one, subtract delta and interpolate
-            // between 2,3 instead.
+            // remove older snapshots that we definitely don't need anymore.
+            // after(!) using the indices.
             //
-            // IMPORTANT: we only ever use old enough snapshots.
-            //            if we wouldn't check for old enough, then we would
-            //            move to the next one, interpolate a little bit,
-            //            and then in next compute() wait again because it
-            //            wasn't old enough yet.
-            while (interpolationTime >= delta &&
-                   HasEnoughWithoutFirst(buffer, time, bufferTime))
-            {
-                // subtract exactly delta from interpolation time
-                // instead of setting to '0', where we would lose the
-                // overshoot part and see jitter again.
-                //
-                // IMPORTANT: subtracting delta TIME works perfectly.
-                //            subtracting '1' from a ratio of t [0,1] would
-                //            leave the overshoot as relative between the
-                //            next delta. if next delta is different, then
-                //            overshoot would be bigger than planned and
-                //            speed up the interpolation.
-                interpolationTime -= delta;
-                //Debug.LogWarning($"{name} overshot and is now at: {interpolationTime}");
+            // if we have 3 snapshots and we are between 2nd and 3rd:
+            //   from = 1, to = 2
+            // then we need to remove the first one, which is exactly 'from'.
+            // because 'from-1' = 0 would remove none.
+            buffer.RemoveRange(from);
 
-                // remove first, get first, second & delta again after change.
-                buffer.RemoveAt(0);
-                GetFirstSecondAndDelta(buffer, out first, out second, out delta);
-
-                // NOTE: it's worth consider spitting out all snapshots
-                // that we skipped, in case someone still wants to move
-                // along them to avoid physics collisions.
-                // * for NetworkTransform it's unnecessary as we always
-                //   set transform.position, which can go anywhere.
-                // * for CharacterController it's worth considering
-            }
-
-            // interpolationTime is actual time, NOT a 't' ratio [0,1].
-            // we need 't' between [0,1] relative.
-            // InverseLerp calculates just that.
-            // InverseLerp CLAMPS between [0,1] and DOES NOT extrapolate!
-            // => we already skipped ahead as many as possible above.
-            // => we do NOT extrapolate for the reasons below.
-            //
-            // IMPORTANT:
-            //   we should NOT extrapolate & predict while waiting for more
-            //   snapshots as this would introduce a whole range of issues:
-            //   * player might be extrapolated WAY out if we wait for long
-            //   * player might be extrapolated behind walls
-            //   * once we receive a new snapshot, we would interpolate
-            //     not from the last valid position, but from the
-            //     extrapolated position. this could be ANYWHERE. the
-            //     player might get stuck in walls, etc.
-            //   => we are NOT doing client side prediction & rollback here
-            //   => we are simply interpolating with known, valid positions
-            //
-            // SEE TEST: Compute_Step5_OvershootWithoutEnoughSnapshots_NeverExtrapolates()
-            double t = Mathd.InverseLerp(first.remoteTimestamp, second.remoteTimestamp, first.remoteTimestamp + interpolationTime);
-            //Debug.Log($"InverseLerp({first.remoteTimestamp:F2}, {second.remoteTimestamp:F2}, {first.remoteTimestamp} + {interpolationTime:F2}) = {t:F2} snapshotbuffer={buffer.Count}");
-
-            // interpolate snapshot, return true to indicate we computed one
-            computed = Interpolate(first, second, t);
-
-            // interpolationTime:
-            // overshooting is ONLY allowed for smooth transitions when
-            // immediately moving to the NEXT snapshot afterwards.
-            //
-            // if there is ANY break, for example:
-            // * reached second snapshot and waiting for more
-            // * reached second snapshot and next one isn't old enough yet
-            //
-            // then we SHOULD NOT overshoot because:
-            // * increasing interpolationTime by deltaTime while waiting
-            //   would make it grow HUGE to 100+.
-            // * once we have more snapshots, we would skip most of them
-            //   instantly instead of actually interpolating through them.
-            //
-            // in other words: cap time if we WOULDN'T have enough after removing
-            if (!HasEnoughWithoutFirst(buffer, time, bufferTime))
-            {
-                // interpolationTime is always from 0..delta.
-                // so we cap it at delta.
-                // DO NOT cap it at second.remoteTimestamp.
-                // (that's why when interpolating the third parameter is
-                //  first.time + interpolationTime)
-                // => covered with test:
-                //    Compute_Step5_OvershootWithEnoughSnapshots_NextIsntOldEnough()
-                interpolationTime = Math.Min(interpolationTime, delta);
-            }
-
+            // return the interpolated snapshot
             return true;
         }
     }
