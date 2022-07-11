@@ -6,7 +6,13 @@ namespace Mirror.Tests
 {
     public class Grid2DTests
     {
-        Grid2D<int> grid = new Grid2D<int>();
+        Grid2D<int> grid;
+
+        [SetUp]
+        public void SetUp()
+        {
+            grid = new Grid2D<int>();
+        }
 
         [Test]
         public void AddAndGetNeighbours()
