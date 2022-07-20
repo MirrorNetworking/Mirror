@@ -69,6 +69,12 @@ Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbo
 
 _Soon to be released for PC & mobile!_
 
+### [Dinkum](https://store.steampowered.com/app/1062520/Dinkum/))
+[![dinkum](https://user-images.githubusercontent.com/16416509/180051810-50c9ebfd-973b-4f2f-8448-d599443d9ce3.jpg)](https://store.steampowered.com/app/1062520/Dinkum/)
+Set in the Australian Outback, Dinkum is a relaxing farming & survival game. Made by just one developer, Dinkum already reached 1000+ "Overwhelmingly Positive" reviews 1 week after its early access release. 
+
+James Bendon initially made the game with UNET, and then [switched to Mirror](https://www.playdinkum.com/blog/2019/1/11/devlog-13-biomes-and-traps) in 2019.
+
 ### [A Glimpse of Luna](https://www.glimpse-luna.com/)
 [![a glimpse of luna](https://user-images.githubusercontent.com/16416509/178148229-5b619655-055a-4583-a1d3-18455bde631f.jpg)](https://www.glimpse-luna.com/)
 [A Glimpse of Luna](https://www.glimpse-luna.com/) - a tactical multiplayer card battle game with the most beautiful concept art & soundtrack.
