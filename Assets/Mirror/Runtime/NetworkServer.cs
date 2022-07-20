@@ -859,6 +859,8 @@ namespace Mirror
             // client is ready to start spawning objects
             if (conn.identity != null)
                 SpawnObserversForConnection(conn);
+            else
+                conn.Send(new ObjectSpawnFinishedMessage());
         }
 
         /// <summary>Marks the client of the connection to be not-ready.</summary>
