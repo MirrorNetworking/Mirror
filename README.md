@@ -69,7 +69,7 @@ Nudge Nudge Games' first title: the colorful, post-apocalyptic open world sandbo
 
 _Soon to be released for PC & mobile!_
 
-### [Dinkum](https://store.steampowered.com/app/1062520/Dinkum/))
+### [Dinkum](https://store.steampowered.com/app/1062520/Dinkum/)
 [![dinkum](https://user-images.githubusercontent.com/16416509/180051810-50c9ebfd-973b-4f2f-8448-d599443d9ce3.jpg)](https://store.steampowered.com/app/1062520/Dinkum/)
 Set in the Australian Outback, Dinkum is a relaxing farming & survival game. Made by just one developer, Dinkum already reached 1000+ "Overwhelmingly Positive" reviews 1 week after its early access release. 
 
