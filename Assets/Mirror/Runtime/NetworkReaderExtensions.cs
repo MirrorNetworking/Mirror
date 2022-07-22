@@ -147,7 +147,18 @@ namespace Mirror
         public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader)=> reader.ReadBlittable<Matrix4x4>();
         public static Matrix4x4? ReadMatrix4x4Nullable(this NetworkReader reader) => reader.ReadBlittableNullable<Matrix4x4>();
 
-        public static Guid ReadGuid(this NetworkReader reader) => new Guid(reader.ReadBytes(16));
+        public static Guid ReadGuid(this NetworkReader reader)
+        {
+            // ReadBlittable(Guid) isn't safe. see ReadBlittable comments.
+            // Guid is Sequential, but we can't guarantee packing.
+            if (reader.Remaining >= 16)
+            {
+                ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(reader.buffer.Array, reader.buffer.Offset + reader.Position, 16);
+                reader.Position += 16;
+                return new Guid(span);
+            }
+            throw new EndOfStreamException($"ReadGuid out of range: {reader}");
+        }
         public static Guid? ReadGuidNullable(this NetworkReader reader) => reader.ReadBool() ? ReadGuid(reader) : default(Guid?);
 
         public static NetworkIdentity ReadNetworkIdentity(this NetworkReader reader)

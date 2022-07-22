@@ -13,7 +13,7 @@ namespace Mirror
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         // note: BinaryWriter allocates too much, so we only use a MemoryStream
         // => 1500 bytes by default because on average, most packets will be <= MTU
-        byte[] buffer = new byte[1500];
+        internal byte[] buffer = new byte[1500];
 
         /// <summary>Next position to write to the buffer</summary>
         public int Position;
@@ -31,7 +31,7 @@ namespace Mirror
         // 1. 'has space' checks are necessary even for fixed sized writers.
         // 2. all writers will eventually be large enough to stop resizing.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void EnsureCapacity(int value)
+        internal void EnsureCapacity(int value)
         {
             if (buffer.Length < value)
             {

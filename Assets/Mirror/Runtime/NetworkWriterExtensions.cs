@@ -181,8 +181,12 @@ namespace Mirror
 
         public static void WriteGuid(this NetworkWriter writer, Guid value)
         {
-            byte[] data = value.ToByteArray();
-            writer.WriteBytes(data, 0, data.Length);
+            // WriteBlittable(Guid) isn't safe. see WriteBlittable comments.
+            // Guid is Sequential, but we can't guarantee packing.
+            // TryWriteBytes is safe and allocation free.
+            writer.EnsureCapacity(writer.Position + 16);
+            value.TryWriteBytes(new Span<byte>(writer.buffer, writer.Position, 16));
+            writer.Position += 16;
         }
         public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
         {
