@@ -164,7 +164,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
                 Assert.Fail("Event should not be invoked with error");
             };
             NetworkServer.active = false;
-            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called when server not active");
+            LogAssert.Expect(LogType.Error, new Regex($".*when server not active"));
             serverComponent.SendInt(someInt);
         }
 
