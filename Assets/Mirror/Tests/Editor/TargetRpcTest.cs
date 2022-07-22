@@ -122,7 +122,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Error, $"TargetRPC System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendIntWithTarget(Mirror.NetworkConnection,System.Int32) was given a null connection, make sure the object has an owner or you pass in the target connection");
+            LogAssert.Expect(LogType.Error, new Regex($".*was given a null connection.*"));
             serverComponent.SendIntWithTarget(null, someInt);
         }
 
