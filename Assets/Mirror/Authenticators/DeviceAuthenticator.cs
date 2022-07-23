@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Mirror.Authenticators
 {
     /// <summary>
-    /// An authenicator that identifies the user by their device.
+    /// An authenticator that identifies the user by their device.
     /// <para>A GUID is used as a fallback when the platform doesn't support SystemInfo.deviceUniqueIdentifier.</para>
     /// <para>Note: deviceUniqueIdentifier can be spoofed, so security is not guaranteed.</para>
     /// <para>See https://docs.unity3d.com/ScriptReference/SystemInfo-deviceUniqueIdentifier.html for details.</para>

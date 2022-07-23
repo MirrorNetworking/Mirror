@@ -636,7 +636,7 @@ namespace Mirror
             // TODO
             // what if we still receive a snapshot from before the interpolation?
             // it could easily happen over unreliable.
-            // -> maybe add destionation as first entry?
+            // -> maybe add destination as first entry?
         }
 
         // common Teleport code for client->server and server->client
@@ -653,7 +653,7 @@ namespace Mirror
             // TODO
             // what if we still receive a snapshot from before the interpolation?
             // it could easily happen over unreliable.
-            // -> maybe add destionation as first entry?
+            // -> maybe add destination as first entry?
         }
 
         // server->client teleport to force position without interpolation.
@@ -832,7 +832,7 @@ namespace Mirror
             // only draw if we have at least two entries
             if (buffer.Count < 2) return;
 
-            // calcluate threshold for 'old enough' snapshots
+            // calculate threshold for 'old enough' snapshots
             double threshold = NetworkTime.localTime - bufferTime;
             Color oldEnoughColor = new Color(0, 1, 0, 0.5f);
             Color notOldEnoughColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
