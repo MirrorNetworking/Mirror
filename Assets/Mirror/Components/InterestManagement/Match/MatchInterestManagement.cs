@@ -75,7 +75,7 @@ namespace Mirror
                 UpdateMatchObjects(netIdentity, newMatch, currentMatch);
             }
 
-            // rebuild all dirty matchs
+            // rebuild all dirty matches
             foreach (Guid dirtyMatch in dirtyMatches)
                 RebuildMatchObservers(dirtyMatch);
 

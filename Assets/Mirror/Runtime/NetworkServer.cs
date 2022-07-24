@@ -22,7 +22,7 @@ namespace Mirror
         public static Dictionary<int, NetworkConnectionToClient> connections =
             new Dictionary<int, NetworkConnectionToClient>();
 
-        /// <summary>Message Handlers dictionary, with mesageId as key</summary>
+        /// <summary>Message Handlers dictionary, with messageId as key</summary>
         internal static Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
 
@@ -679,7 +679,7 @@ namespace Mirror
             // we are iterating here.
             //   see also: https://github.com/vis2k/Mirror/issues/2357
             // this whole process should be simplified some day.
-            // until then, let's copy .Values to avoid InvalidOperatinException.
+            // until then, let's copy .Values to avoid InvalidOperationException.
             // note that this is only called when stopping the server, so the
             // copy is no performance problem.
             foreach (NetworkConnectionToClient conn in connections.Values.ToList())
@@ -1295,7 +1295,7 @@ namespace Mirror
             // fixes https://github.com/vis2k/Mirror/issues/2737
             // -> cleaning those up in NetworkConnection.Disconnect is NOT enough
             //    because voluntary disconnects from the other end don't call
-            //    NetworkConnectionn.Disconnect()
+            //    NetworkConnection.Disconnect()
             conn.RemoveFromObservingsObservers();
             conn.identity = null;
         }
@@ -1489,7 +1489,7 @@ namespace Mirror
                 {
                     // removed observer
                     conn.RemoveFromObserving(identity, false);
-                    // Debug.Log($"Removed Observer for {gameObjec} {conn}");
+                    // Debug.Log($"Removed Observer for {gameObject} {conn}");
                     changed = true;
                 }
             }

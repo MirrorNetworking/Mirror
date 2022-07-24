@@ -17,12 +17,12 @@ namespace Mirror
 
         /// <summary>Used internally to check if we are currently tracking changes.</summary>
         // prevents ever growing .changes lists:
-        // if a monster has no observers but we keep modifing a SyncObject,
+        // if a monster has no observers but we keep modifying a SyncObject,
         // then the changes would never be flushed and keep growing,
         // because OnSerialize isn't called without observers.
         // => Func so we can set it to () => observers.Count > 0
         //    without depending on NetworkComponent/NetworkIdentity here.
-        // => virtual so it sipmly always records by default
+        // => virtual so it simply always records by default
         public Func<bool> IsRecording = () => true;
 
         /// <summary>Discard all the queued changes</summary>
