@@ -66,7 +66,7 @@ namespace Mirror
         public void Awake()
         {
             if (wrap == null)
-                throw new Exception("PressureDrop requires an underlying transport to wrap around.");
+                throw new Exception("LatencySimulationTransport requires an underlying transport to wrap around.");
         }
 
         // forward enable/disable to the wrapped transport
