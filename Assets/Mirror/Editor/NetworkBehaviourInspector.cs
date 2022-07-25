@@ -3,6 +3,11 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
+// Provides support for OdinInspector
+#if (ODIN_INSPECTOR || ODIN_INSPECTOR_3)
+using Sirenix.OdinInspector.Editor;
+#endif
+
 namespace Mirror
 {
     [CustomEditor(typeof(NetworkBehaviour), true)]
@@ -11,6 +16,10 @@ namespace Mirror
     {
         bool syncsAnything;
         SyncObjectCollectionsDrawer syncObjectCollectionsDrawer;
+
+#if (ODIN_INSPECTOR || ODIN_INSPECTOR_3)
+        PropertyTree propertyTree;
+#endif
 
         // does this type sync anything? otherwise we don't need to show syncInterval
         bool SyncsAnything(Type scriptClass)
@@ -54,11 +63,33 @@ namespace Mirror
             syncObjectCollectionsDrawer = new SyncObjectCollectionsDrawer(serializedObject.targetObject);
 
             syncsAnything = SyncsAnything(scriptClass);
+
+#if (ODIN_INSPECTOR || ODIN_INSPECTOR_3)
+            // use PropertyTree draw OdinInspector attributes
+            // and draw MonoScriptObject field on inspector
+            propertyTree = PropertyTree.Create(serializedObject);
+            propertyTree.DrawMonoScriptObjectField = true;
+#endif
         }
+
+#if (ODIN_INSPECTOR || ODIN_INSPECTOR_3)
+        private void OnDisable()
+        {
+            propertyTree.Dispose();
+            propertyTree = null;
+        }
+#endif
+
 
         public override void OnInspectorGUI()
         {
+
+#if (ODIN_INSPECTOR || ODIN_INSPECTOR_3)
+            propertyTree.Draw();
+#else
             DrawDefaultInspector();
+#endif
+
             DrawSyncObjectCollections();
             DrawDefaultSyncSettings();
         }
