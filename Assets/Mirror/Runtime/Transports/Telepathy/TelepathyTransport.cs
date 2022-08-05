@@ -130,6 +130,8 @@ namespace Mirror
         {
             client?.Disconnect();
             client = null;
+            // client triggers the disconnected event in client.Tick() which won't be run anymore
+            OnClientDisconnected?.Invoke();
         }
 
         // messages should always be processed in early update
