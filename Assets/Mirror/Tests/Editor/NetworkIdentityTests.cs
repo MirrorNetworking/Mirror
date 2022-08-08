@@ -272,6 +272,24 @@ namespace Mirror.Tests
             Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
         }
 
+        // check isClient/isServer/isLocalPlayer in server-only mode
+        [Test]
+        public void ServerMode_IsFlags_Identity_Test()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity, out IsClientServerCheckComponent component);
+
+            // start the server
+            NetworkServer.Listen(1000);
+
+            // spawn it
+            NetworkServer.Spawn(identity);
+
+            // OnStartServer should have been called. check the flags.
+            Assert.That(component.OnStartServer_isClient, Is.EqualTo(false));
+            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(false));
+            Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
+        }
+
         // check isClient/isServer/isLocalPlayer in host mode
         [Test]
         public void HostMode_IsFlags_Test()
@@ -289,6 +307,33 @@ namespace Mirror.Tests
 
             // spawn it
             NetworkServer.Spawn(gameObject);
+
+            // OnStartServer should have been called. check the flags.
+            Assert.That(component.OnStartServer_isClient, Is.EqualTo(true));
+            Assert.That(component.OnStartServer_isLocalPlayer, Is.EqualTo(true));
+            Assert.That(component.OnStartServer_isServer, Is.EqualTo(true));
+
+            // stop the client
+            NetworkServer.RemoveLocalConnection();
+        }
+
+        // check isClient/isServer/isLocalPlayer in host mode
+        [Test]
+        public void HostMode_IsFlags_Identity_Test()
+        {
+            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out IsClientServerCheckComponent component);
+
+            // start the server
+            NetworkServer.Listen(1000);
+
+            // start the client
+            NetworkClient.ConnectHost();
+
+            // set is as local player
+            NetworkClient.InternalAddPlayer(identity);
+
+            // spawn it
+            NetworkServer.Spawn(identity);
 
             // OnStartServer should have been called. check the flags.
             Assert.That(component.OnStartServer_isClient, Is.EqualTo(true));

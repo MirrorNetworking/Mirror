@@ -62,6 +62,8 @@ namespace Mirror.Tests.Runtime
 
             NetworkIdentity identity1 = SpawnPrefab(prefab);
             NetworkIdentity identity2 = SpawnPrefab(prefab);
+            NetworkIdentity identity3 = SpawnNetworkPrefab(prefab);
+            NetworkIdentity identity4 = SpawnNetworkPrefab(prefab);
 
             // shutdown, wait 1 frame for unity to destroy objects
             NetworkServer.Shutdown();
@@ -71,6 +73,8 @@ namespace Mirror.Tests.Runtime
             // need to use untiy `==` check
             Assert.IsTrue(identity1 == null);
             Assert.IsTrue(identity2 == null);
+            Assert.IsTrue(identity3 == null);
+            Assert.IsTrue(identity4 == null);
 
             Assert.That(NetworkServer.spawned, Is.Empty);
         }
@@ -82,6 +86,14 @@ namespace Mirror.Tests.Runtime
             NetworkIdentity identity1 = clone1.GetComponent<NetworkIdentity>();
             Assert.IsTrue(NetworkServer.spawned.ContainsValue(identity1));
             return identity1;
+        }
+
+        NetworkIdentity SpawnNetworkPrefab(GameObject prefab)
+        {
+            NetworkIdentity clone1 = GameObject.Instantiate(prefab).GetComponent<NetworkIdentity>();
+            NetworkServer.Spawn(clone1);
+            Assert.IsTrue(NetworkServer.spawned.ContainsValue(clone1));
+            return clone1;
         }
 
         [Test]
@@ -104,7 +116,7 @@ namespace Mirror.Tests.Runtime
             Assert.IsTrue(identity1 != null);
             Assert.IsTrue(identity2 != null);
             Assert.IsFalse(identity1.gameObject.activeSelf);
-            Assert.IsFalse(identity1.gameObject.activeSelf);
+            Assert.IsFalse(identity2.gameObject.activeSelf);
 
             Assert.That(NetworkServer.spawned, Is.Empty);
         }
