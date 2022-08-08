@@ -1094,12 +1094,78 @@ namespace Mirror
             RebuildObservers(identity, true);
         }
 
+        static void SpawnObject(NetworkIdentity identity, NetworkConnection ownerConnection)
+        {
+            GameObject obj = identity.gameObject;
+
+            // verify if we can spawn this
+            if (Utils.IsPrefab(obj))
+            {
+                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. Instantiate it first.");
+                return;
+            }
+
+            if (!active)
+            {
+                Debug.LogError($"SpawnObject for {obj}, NetworkServer is not active. Cannot spawn objects without an active server.");
+                return;
+            }
+
+            if (identity == null)
+            {
+                Debug.LogError($"SpawnObject {obj} has no NetworkIdentity. Please add a NetworkIdentity to {obj}");
+                return;
+            }
+
+            if (identity.SpawnedFromInstantiate)
+            {
+                // Using Instantiate on SceneObject is not allowed, so stop spawning here
+                // NetworkIdentity.Awake already logs error, no need to log a second error here
+                return;
+            }
+
+            identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
+
+            // special case to make sure hasAuthority is set
+            // on start server in host mode
+            if (ownerConnection is LocalConnectionToClient)
+                identity.hasAuthority = true;
+
+            identity.OnStartServer();
+
+            // Debug.Log($"SpawnObject instance ID {identity.netId} asset ID {identity.assetId}");
+
+            if (aoi)
+            {
+                // This calls user code which might throw exceptions
+                // We don't want this to leave us in bad state
+                try
+                {
+                    aoi.OnSpawned(identity);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            }
+
+            RebuildObservers(identity, true);
+        }
+
         /// <summary>Spawn the given game object on all clients which are ready.</summary>
         // This will cause a new object to be instantiated from the registered
         // prefab, or from a custom spawn function.
         public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
         {
             SpawnObject(obj, ownerConnection);
+        }
+
+        /// <summary>Spawn the given game object on all clients which are ready.</summary>
+        // This will cause a new object to be instantiated from the registered
+        // prefab, or from a custom spawn function.
+        public static void Spawn(NetworkIdentity identity, NetworkConnection ownerConnection = null)
+        {
+            SpawnObject(identity, ownerConnection);
         }
 
         /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
@@ -1124,6 +1190,45 @@ namespace Mirror
 
         /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
         // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
+        public static void Spawn(NetworkIdentity spawnIdentity, GameObject ownerPlayer)
+        {
+            NetworkIdentity ownerIdentity = ownerPlayer.GetComponent<NetworkIdentity>();
+            if (ownerIdentity == null)
+            {
+                Debug.LogError("Player object has no NetworkIdentity");
+                return;
+            }
+
+            if (ownerIdentity.connectionToClient == null)
+            {
+                Debug.LogError("Player object is not a player.");
+                return;
+            }
+
+            Spawn(spawnIdentity, ownerIdentity.connectionToClient);
+        }
+
+        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
+        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
+        public static void Spawn(NetworkIdentity spawnIdentity, NetworkIdentity ownerIdentity)
+        {
+            if (ownerIdentity == null)
+            {
+                Debug.LogError("Player object has no NetworkIdentity");
+                return;
+            }
+
+            if (ownerIdentity.connectionToClient == null)
+            {
+                Debug.LogError("Player object is not a player.");
+                return;
+            }
+
+            Spawn(spawnIdentity, ownerIdentity.connectionToClient);
+        }
+
+        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
+        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
         public static void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
         {
             if (GetNetworkIdentity(obj, out NetworkIdentity identity))
@@ -1131,6 +1236,14 @@ namespace Mirror
                 identity.assetId = assetId;
             }
             SpawnObject(obj, ownerConnection);
+        }
+
+        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
+        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
+        public static void Spawn(NetworkIdentity identity, Guid assetId, NetworkConnection ownerConnection = null)
+        {
+            identity.assetId = assetId;
+            SpawnObject(identity, ownerConnection);
         }
 
         internal static bool ValidateSceneObject(NetworkIdentity identity)
