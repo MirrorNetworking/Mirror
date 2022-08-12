@@ -154,10 +154,6 @@ namespace Telepathy
                 // this happens if (for example) the ip address is correct
                 // but there is no server running on that ip/port
                 Log.Info("Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
-
-                // add 'Disconnected' event to receive pipe so that the caller
-                // knows that the Connect failed. otherwise they will never know
-                state.receivePipe.Enqueue(0, EventType.Disconnected, default);
             }
             catch (ThreadInterruptedException)
             {
@@ -177,7 +173,10 @@ namespace Telepathy
                 // something went wrong. probably important.
                 Log.Error("Client Recv Exception: " + exception);
             }
-
+            // add 'Disconnected' event to receive pipe so that the caller
+            // knows that the Connect failed. otherwise they will never know
+            state.receivePipe.Enqueue(0, EventType.Disconnected, default);
+            
             // sendthread might be waiting on ManualResetEvent,
             // so let's make sure to end it if the connection
             // closed.
