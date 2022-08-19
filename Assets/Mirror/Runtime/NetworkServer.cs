@@ -1066,6 +1066,16 @@ namespace Mirror
                 return;
             }
 
+            if (spawned.ContainsKey(identity.netId))
+            {
+                String warning = $"GameObject {obj} has already been spawned. Make sure this is what you want to do.";
+                if (ownerConnection != null)
+                {
+                    warning += $" OwnerConnection {ownerConnection} will be assigned but authority will not be given.";
+                }
+                Debug.LogWarning(warning);
+            }
+
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
             // special case to make sure hasAuthority is set
