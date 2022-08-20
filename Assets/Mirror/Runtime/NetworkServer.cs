@@ -1338,6 +1338,12 @@ namespace Mirror
 
             // send object destroy message to all observers, clear observers
             SendToObservers(identity, new ObjectDestroyMessage{netId = identity.netId});
+
+            if(identity.observers.Count > 0)
+            {
+                identity.OnDisableServer();
+            }
+
             identity.ClearObservers();
 
             // in host mode, call OnStopClient/OnStopLocalPlayer manually
@@ -1507,6 +1513,14 @@ namespace Mirror
                 {
                     if (conn != null && conn.isReady)
                         identity.observers.Add(conn.connectionId, conn);
+                }
+
+                if(newObservers.Count > 0)
+                {
+                    identity.OnEnableServer();
+                } else
+                {
+                    identity.OnDisableServer();
                 }
             }
 

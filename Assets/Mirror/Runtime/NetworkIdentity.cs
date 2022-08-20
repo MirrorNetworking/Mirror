@@ -94,7 +94,10 @@ namespace Mirror
         /// <summary>True on client or host if the object is enabled</summary>
         // note: can be used if the client is trying to access an NetworkBehaviour which is not visible
         //     (or Destroyed depending on the spawn handling) to prevent exceptions.
-        public bool isEnabled { get; internal set; }
+        public bool isClientEnabled { get; internal set; }
+
+        /// <summary>True on server or host if the object is enabled (Visible by atleast 1 Client or the host)</summary>
+        public bool isServerEnabled { get; internal set; }
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
         // note: null until OnStartServer was called. this is necessary for
@@ -744,9 +747,9 @@ namespace Mirror
 
         internal void OnEnableClient()
         {
-            if(isEnabled)
+            if(isClientEnabled)
                 return;
-            isEnabled = true;
+            isClientEnabled = true;
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -754,8 +757,29 @@ namespace Mirror
                 // component's exception doesn't stop all other components
                 try
                 {
-                    // user implemented startup
+                    // user implemented enable
                     comp.OnEnableClient();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, comp);
+                }
+            }
+        }
+
+        internal void OnEnableServer()
+        {
+            if(isServerEnabled)
+                return;
+            isServerEnabled = true;
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnEnableServer should be caught, so that one
+                // component's exception doesn't stop all other components
+                try
+                {
+                    // user implemented enable
+                    comp.OnEnableServer();
                 }
                 catch (Exception e)
                 {
@@ -786,9 +810,9 @@ namespace Mirror
 
         internal void OnDisableClient()
         {
-            if(!isEnabled)
+            if(!isClientEnabled)
                 return;
-            isEnabled = false;
+            isClientEnabled = false;
 
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
@@ -796,7 +820,7 @@ namespace Mirror
                 // component's exception doesn't stop all other components
                 try
                 {
-                    // user implemented startup
+                    // user implemented disable
                     comp.OnDisableClient();
                 }
                 catch (Exception e)
@@ -805,6 +829,28 @@ namespace Mirror
                 }
             }
         }
+
+        internal void OnDisableServer()
+        {
+            if(!isServerEnabled)
+                return;
+            isServerEnabled = false;
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnDisableServer should be caught, so that one
+                // component's exception doesn't stop all other components
+                try
+                {
+                    // user implemented disable
+                    comp.OnDisableServer();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, comp);
+                }
+            }
+        }
+
 
         // TODO any way to make this not static?
         // introduced in https://github.com/vis2k/Mirror/commit/c7530894788bb843b0f424e8f25029efce72d8ca#diff-dc8b7a5a67840f75ccc884c91b9eb76ab7311c9ca4360885a7e41d980865bdc2

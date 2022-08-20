@@ -50,7 +50,10 @@ namespace Mirror
         /// <summary>True on client or host if the object is enabled</summary>
         // note: can be used if the client is trying to access this NetworkBehaviour which may not be visible
         //     (or Destroyed depending on the spawn handling) to prevent exceptions.
-        public bool isEnabled => netIdentity.isEnabled;
+        public bool isClientEnabled => netIdentity.isClientEnabled;
+        
+        /// <summary>True on server or host if the object is enabled (Visible by atleast 1 Client or the host)</summary>
+        public bool isServerEnabled => netIdentity.isServerEnabled;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
@@ -1083,6 +1086,12 @@ namespace Mirror
 
         /// <summary>Stop event, only called for objects the client has authority over.</summary>
         public virtual void OnStopAuthority() {}
+
+        /// <summary>Like OnEnable(), called on server and host - will be called if the object becomes visible to atleast 1 client and was hidden (Disabled) before</summary>
+        public virtual void OnEnableServer() { }
+
+        /// <summary>Like OnEnable(), called on server and host - will be called if the object gets hidden and no one can see it anymore or if the object gets destroyed and the object is visible to atleast 1 client</summary>
+        public virtual void OnDisableServer() { }
 
         /// <summary>Like OnEnable(), called on client and host - will also be called if the aoi shows this object</summary>
         public virtual void OnEnableClient() { }
