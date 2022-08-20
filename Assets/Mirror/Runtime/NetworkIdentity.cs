@@ -91,6 +91,11 @@ namespace Mirror
         /// <summary>True on client if that component has been assigned to the client. E.g. player, pets, henchmen.</summary>
         public bool hasAuthority { get; internal set; }
 
+        /// <summary>True on client or host if the object is enabled</summary>
+        // note: can be used if the client is trying to access an NetworkBehaviour which is not visible
+        //     (or Destroyed depending on the spawn handling) to prevent exceptions.
+        public bool isEnabled { get; internal set; }
+
         /// <summary>The set of network connections (players) that can see this object.</summary>
         // note: null until OnStartServer was called. this is necessary for
         //       SendTo* to work properly in server-only mode.
@@ -737,6 +742,28 @@ namespace Mirror
             }
         }
 
+        internal void OnEnableClient()
+        {
+            if(isEnabled)
+                return;
+            isEnabled = true;
+
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnEnableClient should be caught, so that one
+                // component's exception doesn't stop all other components
+                try
+                {
+                    // user implemented startup
+                    comp.OnEnableClient();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, comp);
+                }
+            }
+        }
+
         internal void OnStopClient()
         {
             foreach (NetworkBehaviour comp in NetworkBehaviours)
@@ -749,6 +776,28 @@ namespace Mirror
                 try
                 {
                     comp.OnStopClient();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, comp);
+                }
+            }
+        }
+
+        internal void OnDisableClient()
+        {
+            if(!isEnabled)
+                return;
+            isEnabled = false;
+
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnEnableClient should be caught, so that one
+                // component's exception doesn't stop all other components
+                try
+                {
+                    // user implemented startup
+                    comp.OnDisableClient();
                 }
                 catch (Exception e)
                 {

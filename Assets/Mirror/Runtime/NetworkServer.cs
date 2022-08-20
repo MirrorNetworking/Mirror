@@ -1331,6 +1331,11 @@ namespace Mirror
 
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
+            if (NetworkClient.active && localClientActive)
+            {
+                identity.OnDisableClient();
+            }
+
             // send object destroy message to all observers, clear observers
             SendToObservers(identity, new ObjectDestroyMessage{netId = identity.netId});
             identity.ClearObservers();

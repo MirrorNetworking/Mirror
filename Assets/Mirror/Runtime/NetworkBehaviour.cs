@@ -47,6 +47,11 @@ namespace Mirror
         /// <summary>True on client if that component has been assigned to the client. E.g. player, pets, henchmen.</summary>
         public bool hasAuthority => netIdentity.hasAuthority;
 
+        /// <summary>True on client or host if the object is enabled</summary>
+        // note: can be used if the client is trying to access this NetworkBehaviour which may not be visible
+        //     (or Destroyed depending on the spawn handling) to prevent exceptions.
+        public bool isEnabled => netIdentity.isEnabled;
+
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
 
@@ -1078,5 +1083,11 @@ namespace Mirror
 
         /// <summary>Stop event, only called for objects the client has authority over.</summary>
         public virtual void OnStopAuthority() {}
+
+        /// <summary>Like OnEnable(), called on client and host - will also be called if the aoi shows this object</summary>
+        public virtual void OnEnableClient() { }
+
+        /// <summary>Like OnDisable(), called on client and host - will also be called if the aoi hides this object</summary>
+        public virtual void OnDisableClient() { }
     }
 }

@@ -1044,6 +1044,8 @@ namespace Mirror
                 identity.OnStartClient();
                 CheckForLocalPlayer(identity);
             }
+
+            identity.OnEnableClient();
         }
 
         // Finds Existing Object with NetId or spawns a new one using AssetId or sceneId
@@ -1245,6 +1247,8 @@ namespace Mirror
             {
                 if (aoi != null)
                     aoi.SetHostVisibility(localObject, false);
+
+                localObject.OnDisableClient();
             }
         }
 
@@ -1268,6 +1272,7 @@ namespace Mirror
                     aoi.SetHostVisibility(localObject, true);
 
                 CheckForLocalPlayer(localObject);
+                localObject.OnEnableClient();
             }
         }
 
@@ -1372,6 +1377,8 @@ namespace Mirror
                     localObject.OnStopLocalPlayer();
 
                 localObject.OnStopClient();
+
+                localObject.OnDisableClient();
 
                 // custom unspawn handler for this prefab? (for prefab pools etc.)
                 if (InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
