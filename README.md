@@ -81,6 +81,12 @@ James Bendon initially made the game with UNET, and then [switched to Mirror](ht
 
 Made with Mirror by two brothers with [no prior game development](https://www.youtube.com/watch?v=5J2wj8l4pFA&start=12) experience.
 
+### [Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/)
+[![sun haven](https://user-images.githubusercontent.com/16416509/178148229-5b619655-055a-4583-a1d3-18455bde631f.jpg)](https://store.steampowered.com/app/1432860/Sun_Haven/)
+[Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/) - A beautiful human town, a hidden elven village, and a monster city filled with farming, magic, dragons, and adventure.
+
+After their successful [Kickstarter](https://www.kickstarter.com/projects/sunhaven/sunhaven/description), Sun Haven was released on Steam in 2021 and later on ported to Mirror in 2022.
+
 ### [Inferna](https://inferna.net/)
 [![Inferna MMORPG](https://user-images.githubusercontent.com/16416509/178148768-5ba9ea5b-bcf1-4ace-ad7e-591f2185cbd5.jpg)](https://inferna.net/)
 One of the first MMORPGs made with Mirror, released in 2019.
