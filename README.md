@@ -82,7 +82,7 @@ James Bendon initially made the game with UNET, and then [switched to Mirror](ht
 Made with Mirror by two brothers with [no prior game development](https://www.youtube.com/watch?v=5J2wj8l4pFA&start=12) experience.
 
 ### [Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/)
-[![sun haven](https://user-images.githubusercontent.com/16416509/185834242-a1423860-73fa-4e59-9e96-ec6ae71fc9f9.jpg)](https://store.steampowered.com/app/1432860/Sun_Haven/)
+[![sun haven](https://user-images.githubusercontent.com/16416509/185836661-2bfd6cd0-523a-4af4-bac7-c202ed01de7d.jpg)](https://store.steampowered.com/app/1432860/Sun_Haven/)
 [Sun Haven](https://store.steampowered.com/app/1432860/Sun_Haven/) - A beautiful human town, a hidden elven village, and a monster city filled with farming, magic, dragons, and adventure.
 
 After their successful [Kickstarter](https://www.kickstarter.com/projects/sunhaven/sunhaven/description), Sun Haven was released on Steam in 2021 and later on ported to Mirror in 2022.
