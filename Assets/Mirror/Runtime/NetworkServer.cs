@@ -1066,14 +1066,11 @@ namespace Mirror
                 return;
             }
 
+            // Spawn should only be called once per netId
             if (spawned.ContainsKey(identity.netId))
             {
-                String warning = $"GameObject {obj} has already been spawned. Make sure this is what you want to do.";
-                if (ownerConnection != null)
-                {
-                    warning += $" OwnerConnection {ownerConnection} will be assigned but authority will not be given.";
-                }
-                Debug.LogWarning(warning);
+                Debug.LogWarning($"{identity} with netId={identity.netId} was already spawned.");
+                return;
             }
 
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
