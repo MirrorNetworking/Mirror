@@ -1066,6 +1066,13 @@ namespace Mirror
                 return;
             }
 
+            // Spawn should only be called once per netId
+            if (spawned.ContainsKey(identity.netId))
+            {
+                Debug.LogWarning($"{identity} with netId={identity.netId} was already spawned.");
+                return;
+            }
+
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
             // special case to make sure hasAuthority is set
