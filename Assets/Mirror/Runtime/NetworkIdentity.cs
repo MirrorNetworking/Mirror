@@ -968,7 +968,11 @@ namespace Mirror
             // (otherwise [SyncVar] changes would never be serialized in tests)
             //
             // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick || !Application.isPlaying)
+            if (lastSerialization.tick != tick
+#if UNITY_EDITOR
+                || !Application.isPlaying
+#endif
+               )
             {
                 // reset
                 lastSerialization.ownerWriter.Position = 0;
