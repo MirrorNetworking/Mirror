@@ -1145,9 +1145,14 @@ namespace Mirror
         }
 
         // Checks if identity is not spawned yet, not hidden and has sceneId
+        // TODO merge with ValidateSceneObject on server
         static bool ConsiderForSpawning(NetworkIdentity identity)
         {
             // not spawned yet, not hidden, etc.?
+
+            // need to ensure it's not active yet because
+            // PrepareToSpawnSceneObjects may be called multiple times in case
+            // the ObjectSpawnStarted message is received multiple times.
             return !identity.gameObject.activeSelf &&
                    identity.gameObject.hideFlags != HideFlags.NotEditable &&
                    identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&

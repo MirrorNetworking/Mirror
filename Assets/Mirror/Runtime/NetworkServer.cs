@@ -1140,6 +1140,7 @@ namespace Mirror
             SpawnObject(obj, ownerConnection);
         }
 
+        // TODO merge with ConsiderForSpawning on client
         internal static bool ValidateSceneObject(NetworkIdentity identity)
         {
             if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
@@ -1147,6 +1148,8 @@ namespace Mirror
                 return false;
 
 #if UNITY_EDITOR
+            // this never seems to trigger.
+            // even if a prefab is dragged into the scene.
             if (UnityEditor.EditorUtility.IsPersistent(identity.gameObject))
                 return false;
 #endif
