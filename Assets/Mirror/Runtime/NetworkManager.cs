@@ -1053,7 +1053,7 @@ namespace Mirror
         }
 
         /// <summary>Get the next NetworkStartPosition based on the selected PlayerSpawnMethod.</summary>
-        public Transform GetStartPosition()
+        public virtual Transform GetStartPosition()
         {
             // first remove any dead transforms
             startPositions.RemoveAll(t => t == null);
