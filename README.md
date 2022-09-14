@@ -134,7 +134,7 @@ The [France based team](https://naicaonline.com/en/news/view/1) was one of Mirro
 <a href="https://nightz.io"><img src="https://user-images.githubusercontent.com/16416509/130729336-9c4e95d9-69bc-4410-b894-b2677159a472.jpg" height="100" title="Nightz.io"/></a>
 <a href="https://store.steampowered.com/app/1016030/Wawa_United/"><img src="https://user-images.githubusercontent.com/16416509/162982300-c29d89bc-210a-43ef-8cce-6e5555bb09bc.png" height="100" title="Wawa united"/></a>
 <a href="https://store.steampowered.com/app/1745640/MACE_Mapinguaris_Temple/"><img src="https://user-images.githubusercontent.com/16416509/166089837-bbecf190-0f06-4c88-910d-1ce87e2f171d.png" title="MACE" height="100"/></a>
-<a href="https://www.adversator.com//"><img src="https://user-images.githubusercontent.com/16416509/178641128-37dc270c-bedf-4891-8284-33573d1776b9.jpg" title="Adversator" height="100"/></a>
+<a href="https://www.adversator.com/"><img src="https://user-images.githubusercontent.com/16416509/178641128-37dc270c-bedf-4891-8284-33573d1776b9.jpg" title="Adversator" height="100"/></a><a href="https://store.steampowered.com/app/670260/Solace_Crafting/"><img src="https://user-images.githubusercontent.com/16416509/190058119-d9d62b95-5fd4-4823-bd6e-67833253c752.png" title="Solace Crafting" height="100"/></a>
 
 ## Mirror LTS (Long Term Support)
 
