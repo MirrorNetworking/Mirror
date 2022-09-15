@@ -51,5 +51,17 @@ namespace Mirror.Tests
             Assert.That(Utils.PrettyBytes(1024L * 1024L * (1024L + 512L)), Is.EqualTo($"{1.5:F2} GB"));
             Assert.That(Utils.PrettyBytes(1024L * 1024L * 1024L * 2L), Is.EqualTo($"{2.0:F2} GB"));
         }
+
+        [Test]
+        public void PrettySeconds()
+        {
+            Assert.That(Utils.PrettySeconds(0), Is.EqualTo("0s"));
+            Assert.That(Utils.PrettySeconds(0.5f), Is.EqualTo("0.5s"));
+            Assert.That(Utils.PrettySeconds(1), Is.EqualTo("1s"));
+            Assert.That(Utils.PrettySeconds(1.5f), Is.EqualTo("1.5s"));
+            Assert.That(Utils.PrettySeconds(65), Is.EqualTo("1m 5s"));
+            Assert.That(Utils.PrettySeconds(60 * 61 + 5), Is.EqualTo("1h 1m 5s"));
+            Assert.That(Utils.PrettySeconds(24 * 60 * 60 + 60 * 61 + 5), Is.EqualTo("1d 1h 1m 5s"));
+        }
     }
 }
