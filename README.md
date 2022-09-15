@@ -112,9 +112,8 @@ After their successful [Kickstarter](https://www.kickstarter.com/projects/untame
 The game has over **50 million** downloads on [Google Play](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US), with Wildlife Studios as one of the top 10 largest mobile gaming companies in the world.
 
 ### [Portals](https://theportal.to/)
-![portals](https://user-images.githubusercontent.com/16416509/190314078-294c3cac-e9dc-4d73-85b4-0e21e9767242.png)(https://theportal.to)
+[![portals](https://user-images.githubusercontent.com/16416509/190314078-294c3cac-e9dc-4d73-85b4-0e21e9767242.png)(https://theportal.to)]
 A browser-based metaverse, Portals is an immersive social space where you can explore, make your own, and gather with others.
-
 
 ### [SCP: Secret Laboratory](https://scpslgame.com/)
 [![scp - secret laboratory_smaller](https://user-images.githubusercontent.com/16416509/178142224-413b3455-cdff-472e-b918-4246631af12f.jpg)](https://scpslgame.com/)
