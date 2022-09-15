@@ -150,5 +150,21 @@ namespace Mirror
 
             return null;
         }
+
+        // keep a GUI window in screen.
+        // for example. if it's at x=1000 and screen is resized to w=500,
+        // it won't get lost in the invisible area etc.
+        public static Rect KeepInScreen(Rect rect)
+        {
+            // ensure min
+            rect.x = Math.Max(rect.x, 0);
+            rect.y = Math.Max(rect.y, 0);
+
+            // ensure max
+            rect.x = Math.Min(rect.x, Screen.width - rect.width);
+            rect.y = Math.Min(rect.y, Screen.width - rect.height);
+
+            return rect;
+        }
     }
 }
