@@ -1141,7 +1141,7 @@ namespace Mirror
         }
 
         // TODO merge with ConsiderForSpawning on client
-        internal static bool ValidateSceneObject(NetworkIdentity identity)
+        internal static bool IsSceneObject(NetworkIdentity identity)
         {
             if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
                 identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
@@ -1173,7 +1173,7 @@ namespace Mirror
             // first pass: activate all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                if (ValidateSceneObject(identity))
+                if (IsSceneObject(identity))
                 {
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
                     identity.gameObject.SetActive(true);
@@ -1193,7 +1193,7 @@ namespace Mirror
             // second pass: spawn all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                if (ValidateSceneObject(identity))
+                if (IsSceneObject(identity))
                     // pass connection so that authority is not lost when server loads a scene
                     // https://github.com/vis2k/Mirror/pull/2987
                     Spawn(identity.gameObject, identity.connectionToClient);
