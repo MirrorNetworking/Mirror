@@ -18,22 +18,27 @@ namespace Mirror
         // => makes the code a lot easier too
         // => this is FINE because in the worst case, every grid position in the
         //    game world is filled with a player anyway!
-        readonly Dictionary<Vector2Int, HashSet<T>> grid =
-            new Dictionary<Vector2Int, HashSet<T>>();
+        readonly Dictionary<Vector2Int, HashSet<T>> grid;
 
         // cache a 9 neighbor grid of vector2 offsets so we can use them more easily
-        readonly Vector2Int[] neighbourOffsets =
+        readonly Vector2Int[] neighbourOffsets;
+
+        public Grid2D(int initialCapacity)
         {
-            Vector2Int.up,
-            Vector2Int.up + Vector2Int.left,
-            Vector2Int.up + Vector2Int.right,
-            Vector2Int.left,
-            Vector2Int.zero,
-            Vector2Int.right,
-            Vector2Int.down,
-            Vector2Int.down + Vector2Int.left,
-            Vector2Int.down + Vector2Int.right
-        };
+            grid = new Dictionary<Vector2Int, HashSet<T>>(initialCapacity);
+
+            neighbourOffsets = new[] {
+                Vector2Int.up,
+                Vector2Int.up + Vector2Int.left,
+                Vector2Int.up + Vector2Int.right,
+                Vector2Int.left,
+                Vector2Int.zero,
+                Vector2Int.right,
+                Vector2Int.down,
+                Vector2Int.down + Vector2Int.left,
+                Vector2Int.down + Vector2Int.right
+            };
+        }
 
         // helper function so we can add an entry without worrying
         public void Add(Vector2Int position, T value)
@@ -41,7 +46,10 @@ namespace Mirror
             // initialize set in grid if it's not in there yet
             if (!grid.TryGetValue(position, out HashSet<T> hashSet))
             {
-                hashSet = new HashSet<T>();
+                // each grid entry may hold hundreds of entities.
+                // let's create the HashSet with a large initial capacity
+                // in order to avoid resizing & allocations.
+                hashSet = new HashSet<T>(128);
                 grid[position] = hashSet;
             }
 

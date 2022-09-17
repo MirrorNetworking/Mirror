@@ -11,7 +11,7 @@ namespace Mirror.Tests
         [SetUp]
         public void SetUp()
         {
-            grid = new Grid2D<int>();
+            grid = new Grid2D<int>(10);
         }
 
         [Test]

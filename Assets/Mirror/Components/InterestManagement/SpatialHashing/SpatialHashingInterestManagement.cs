@@ -40,7 +40,8 @@ namespace Mirror
         public bool showSlider;
 
         // the grid
-        Grid2D<NetworkConnectionToClient> grid = new Grid2D<NetworkConnectionToClient>();
+        // begin with a large capacity to avoid resizing & allocations.
+        Grid2D<NetworkConnectionToClient> grid = new Grid2D<NetworkConnectionToClient>(1024);
 
         // project 3d world position to grid position
         Vector2Int ProjectToGrid(Vector3 position) =>
