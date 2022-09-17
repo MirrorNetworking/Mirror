@@ -14,7 +14,6 @@ namespace Mirror
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms
         static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
-        static readonly byte[] stringBuffer = new byte[NetworkWriter.MaxStringLength];
 
         public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteBlittable(value);
         public static void WriteByteNullable(this NetworkWriter writer, byte? value) => writer.WriteBlittableNullable(value);
@@ -87,17 +86,20 @@ namespace Mirror
                 return;
             }
 
-            // write string with same method as NetworkReader
-            // convert to byte[]
-            int size = encoding.GetBytes(value, 0, value.Length, stringBuffer, 0);
+            // encode it into the buffer first.
+            // reserve 2 bytes for header after we know how much was written.
+            int written = encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);
 
             // check if within max size
-            if (size >= NetworkWriter.MaxStringLength)
-                throw new IndexOutOfRangeException($"NetworkWriter.Write(string) too long: {size}. Limit: {NetworkWriter.MaxStringLength}");
+            if (written >= NetworkWriter.MaxStringLength)
+                throw new IndexOutOfRangeException($"NetworkWriter.Write(string) too long: {written}. Limit: {NetworkWriter.MaxStringLength}");
 
-            // write size and bytes
-            writer.WriteUShort(checked((ushort)(size + 1)));
-            writer.WriteBytes(stringBuffer, 0, size);
+            // .Position is unchanged, so fill in the size header now.
+            // we already ensured that max size fits into ushort.max-1.
+            writer.WriteUShort(checked((ushort)(written + 1))); // Position += 2
+
+            // now update position by what was written above
+            writer.Position += written;
         }
 
         public static void WriteBytesAndSizeSegment(this NetworkWriter writer, ArraySegment<byte> buffer)
