@@ -136,7 +136,7 @@ namespace Mirror
         static ulong NetworkBehaviourToULong(T value)
         {
             // pack netId, componentIndex to ulong
-            return value != null ? Pack(value.netId, (byte)value.ComponentIndex) : 0;
+            return value != null ? Pack(value.netId, value.ComponentIndex) : 0;
         }
 
         // Serialize should only write 4+1 bytes, not 8 bytes ulong

@@ -224,7 +224,7 @@ namespace Mirror
                 return;
             }
             writer.WriteUInt(value.netId);
-            writer.WriteByte((byte)value.ComponentIndex);
+            writer.WriteByte(value.ComponentIndex);
         }
 
         public static void WriteTransform(this NetworkWriter writer, Transform value)

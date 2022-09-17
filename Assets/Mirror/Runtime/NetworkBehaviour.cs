@@ -71,7 +71,7 @@ namespace Mirror
         public NetworkIdentity netIdentity { get; internal set; }
 
         /// <summary>Returns the index of the component on this object</summary>
-        public int ComponentIndex { get; internal set; }
+        public byte ComponentIndex { get; internal set; }
 
         // to avoid fully serializing entities every time, we have two options:
         // * run a delta compression algorithm
@@ -221,7 +221,7 @@ namespace Mirror
             CommandMessage message = new CommandMessage
             {
                 netId = netId,
-                componentIndex = (byte)ComponentIndex,
+                componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = (ushort)functionFullName.GetStableHashCode(),
                 // segment to avoid reader allocations
@@ -257,7 +257,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage
             {
                 netId = netId,
-                componentIndex = (byte)ComponentIndex,
+                componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = (ushort)functionFullName.GetStableHashCode(),
                 // segment to avoid reader allocations
@@ -305,7 +305,7 @@ namespace Mirror
             RpcMessage message = new RpcMessage
             {
                 netId = netId,
-                componentIndex = (byte)ComponentIndex,
+                componentIndex = ComponentIndex,
                 // type+func so Inventory.RpcUse != Equipment.RpcUse
                 functionHash = (ushort)functionFullName.GetStableHashCode(),
                 // segment to avoid reader allocations
@@ -826,7 +826,7 @@ namespace Mirror
         protected static bool SyncVarNetworkBehaviourEqual<T>(T newBehaviour, NetworkBehaviourSyncVar syncField) where T : NetworkBehaviour
         {
             uint newNetId = 0;
-            int newComponentIndex = 0;
+            byte newComponentIndex = 0;
             if (newBehaviour != null)
             {
                 newNetId = newBehaviour.netId;
@@ -849,7 +849,7 @@ namespace Mirror
                 return;
 
             uint newNetId = 0;
-            int componentIndex = 0;
+            byte componentIndex = 0;
             if (newBehaviour != null)
             {
                 newNetId = newBehaviour.netId;

@@ -319,7 +319,7 @@ namespace Mirror
             {
                 NetworkBehaviour component = NetworkBehaviours[i];
                 component.netIdentity = this;
-                component.ComponentIndex = i;
+                component.ComponentIndex = (byte)i;
             }
         }
 
