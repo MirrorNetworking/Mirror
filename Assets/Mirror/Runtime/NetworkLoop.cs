@@ -26,17 +26,8 @@
 //      to the beginning of PostLateUpdate doesn't actually work.
 using System;
 using UnityEngine;
-
-// PlayerLoop and LowLevel were in the Experimental namespace until 2019.3
-// https://docs.unity3d.com/2019.2/Documentation/ScriptReference/Experimental.LowLevel.PlayerLoop.html
-// https://docs.unity3d.com/2019.3/Documentation/ScriptReference/LowLevel.PlayerLoop.html
-#if UNITY_2019_3_OR_NEWER
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
-#else
-using UnityEngine.Experimental.LowLevel;
-using UnityEngine.Experimental.PlayerLoop;
-#endif
 
 namespace Mirror
 {
@@ -45,7 +36,7 @@ namespace Mirror
         // helper enum to add loop to begin/end of subSystemList
         internal enum AddMode { Beginning, End }
 
-        // callbacks in case someone needs to use early/lateupdate too.
+        // callbacks for others to hook into if they need Early/LateUpdate.
         public static Action OnEarlyUpdate;
         public static Action OnLateUpdate;
 
@@ -166,12 +157,7 @@ namespace Mirror
             // 2019 has GetCURRENTPlayerLoop which is safe to use without
             // breaking other custom system's custom loops.
             // see also: https://github.com/vis2k/Mirror/pull/2627/files
-            PlayerLoopSystem playerLoop =
-#if UNITY_2019_3_OR_NEWER
-                PlayerLoop.GetCurrentPlayerLoop();
-#else
-                PlayerLoop.GetDefaultPlayerLoop();
-#endif
+            PlayerLoopSystem playerLoop = PlayerLoop.GetCurrentPlayerLoop();
 
             // add NetworkEarlyUpdate to the end of EarlyUpdate so it runs after
             // any Unity initializations but before the first Update/FixedUpdate
