@@ -183,6 +183,11 @@ namespace Mirror
             observersWriter = new NetworkWriter()
         };
 
+        // assetId.get calls 'new Guid(m_assetId) which is extremely expensive.
+        // profiling benchmark demo, this used over 30ms.
+        // let's cache it instead.
+        Guid assetIdCached = Guid.Empty;
+
         /// <summary>Prefab GUID used to spawn prefabs across the network.</summary>
         //
         // The AssetId trick:
@@ -206,9 +211,13 @@ namespace Mirror
                 if (string.IsNullOrWhiteSpace(m_AssetId))
                     SetupIDs();
 #endif
-                // convert string to Guid and use .Empty to avoid exception if
-                // we would use 'new Guid("")'
-                return string.IsNullOrWhiteSpace(m_AssetId) ? Guid.Empty : new Guid(m_AssetId);
+                // assetId.get calls 'new Guid(m_assetId) which is extremely expensive.
+                // profiling benchmark demo, this used over 30ms.
+                // let's cache it instead.
+                if (assetIdCached == Guid.Empty && !string.IsNullOrWhiteSpace(m_AssetId))
+                    assetIdCached = new Guid(m_AssetId);
+
+                return assetIdCached;
             }
             internal set
             {
@@ -237,6 +246,7 @@ namespace Mirror
 
                 // old is empty
                 m_AssetId = newAssetIdString;
+                assetIdCached = new Guid(m_AssetId);
                 // Debug.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
             }
         }
