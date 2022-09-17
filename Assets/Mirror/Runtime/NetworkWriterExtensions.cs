@@ -93,9 +93,7 @@ namespace Mirror
 
             // check if within max size
             if (size >= NetworkWriter.MaxStringLength)
-            {
                 throw new IndexOutOfRangeException($"NetworkWriter.Write(string) too long: {size}. Limit: {NetworkWriter.MaxStringLength}");
-            }
 
             // write size and bytes
             writer.WriteUShort(checked((ushort)(size + 1)));
