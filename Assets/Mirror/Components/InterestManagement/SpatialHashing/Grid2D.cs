@@ -16,10 +16,11 @@ namespace Mirror
         // => makes the code a lot easier too
         // => this is FINE because in the worst case, every grid position in the
         //    game world is filled with a player anyway!
-        Dictionary<Vector2Int, HashSet<T>> grid = new Dictionary<Vector2Int, HashSet<T>>();
+        readonly Dictionary<Vector2Int, HashSet<T>> grid =
+            new Dictionary<Vector2Int, HashSet<T>>();
 
         // cache a 9 neighbor grid of vector2 offsets so we can use them more easily
-        Vector2Int[] neighbourOffsets =
+        readonly Vector2Int[] neighbourOffsets =
         {
             Vector2Int.up,
             Vector2Int.up + Vector2Int.left,
