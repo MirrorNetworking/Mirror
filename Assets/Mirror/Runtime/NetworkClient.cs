@@ -1146,7 +1146,7 @@ namespace Mirror
 
         // Checks if identity is not spawned yet, not hidden and has sceneId
         // TODO merge with ValidateSceneObject on server
-        static bool ConsiderForSpawning(NetworkIdentity identity)
+        static bool IsSceneObject(NetworkIdentity identity)
         {
             // not spawned yet, not hidden, etc.?
 
@@ -1170,7 +1170,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in allIdentities)
             {
                 // add all unspawned NetworkIdentities to spawnable objects
-                if (ConsiderForSpawning(identity))
+                if (IsSceneObject(identity))
                 {
                     if (spawnableObjects.TryGetValue(identity.sceneId, out NetworkIdentity existingIdentity))
                     {
