@@ -69,7 +69,7 @@ namespace Mirror
             // recursively keep looking
             if (playerLoop.subSystemList != null)
             {
-                for(int i = 0; i < playerLoop.subSystemList.Length; ++i)
+                for (int i = 0; i < playerLoop.subSystemList.Length; ++i)
                 {
                     int index = FindPlayerLoopEntryIndex(function, playerLoop.subSystemList[i], playerLoopSystemType);
                     if (index != -1) return index;
@@ -128,7 +128,6 @@ namespace Mirror
                     // shift to the right, write into first array element
                     Array.Copy(playerLoop.subSystemList, 0, playerLoop.subSystemList, 1, playerLoop.subSystemList.Length - 1);
                     playerLoop.subSystemList[0] = system;
-
                 }
                 // append our custom loop to the end
                 else if (addMode == AddMode.End)
@@ -148,7 +147,7 @@ namespace Mirror
             // recursively keep looking
             if (playerLoop.subSystemList != null)
             {
-                for(int i = 0; i < playerLoop.subSystemList.Length; ++i)
+                for (int i = 0; i < playerLoop.subSystemList.Length; ++i)
                 {
                     if (AddToPlayerLoop(function, ownerType, ref playerLoop.subSystemList[i], playerLoopSystemType, addMode))
                         return true;
