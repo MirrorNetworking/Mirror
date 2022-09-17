@@ -1032,18 +1032,18 @@ namespace Mirror.Tests
             identity.sceneId = 42;
 
             // should be valid as long as it has a sceneId
-            Assert.That(NetworkServer.IsSceneObject(identity), Is.True);
+            Assert.That(Utils.IsSceneObject(identity), Is.True);
 
             // shouldn't be valid with 0 sceneID
             identity.sceneId = 0;
-            Assert.That(NetworkServer.IsSceneObject(identity), Is.False);
+            Assert.That(Utils.IsSceneObject(identity), Is.False);
             identity.sceneId = 42;
 
             // shouldn't be valid for certain hide flags
             go.hideFlags = HideFlags.NotEditable;
-            Assert.That(NetworkServer.IsSceneObject(identity), Is.False);
+            Assert.That(Utils.IsSceneObject(identity), Is.False);
             go.hideFlags = HideFlags.HideAndDontSave;
-            Assert.That(NetworkServer.IsSceneObject(identity), Is.False);
+            Assert.That(Utils.IsSceneObject(identity), Is.False);
         }
 
         [Test]

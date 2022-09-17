@@ -1144,21 +1144,6 @@ namespace Mirror
             return null;
         }
 
-        // Checks if identity is not spawned yet, not hidden and has sceneId
-        // TODO merge with ValidateSceneObject on server
-        static bool IsSceneObject(NetworkIdentity identity)
-        {
-            // not spawned yet, not hidden, etc.?
-
-            // need to ensure it's not active yet because
-            // PrepareToSpawnSceneObjects may be called multiple times in case
-            // the ObjectSpawnStarted message is received multiple times.
-            return !identity.gameObject.activeSelf &&
-                   identity.gameObject.hideFlags != HideFlags.NotEditable &&
-                   identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
-                   identity.sceneId != 0;
-        }
-
         /// <summary>Call this after loading/unloading a scene in the client after connection to register the spawnable objects</summary>
         public static void PrepareToSpawnSceneObjects()
         {
@@ -1170,7 +1155,11 @@ namespace Mirror
             foreach (NetworkIdentity identity in allIdentities)
             {
                 // add all unspawned NetworkIdentities to spawnable objects
-                if (IsSceneObject(identity))
+                // need to ensure it's not active yet because
+                // PrepareToSpawnSceneObjects may be called multiple times in case
+                // the ObjectSpawnStarted message is received multiple times.
+                if (Utils.IsSceneObject(identity) &&
+                    !identity.gameObject.activeSelf)
                 {
                     if (spawnableObjects.TryGetValue(identity.sceneId, out NetworkIdentity existingIdentity))
                     {

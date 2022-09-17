@@ -51,6 +51,22 @@ namespace Mirror
 #endif
         }
 
+        // simplified IsSceneObject check from Mirror II
+        public static bool IsSceneObject(NetworkIdentity identity)
+        {
+            // original UNET / Mirror still had the IsPersistent check.
+            // it never fires though. even for Prefabs dragged to the Scene.
+            // (see Scene Objects example scene.)
+            // #if UNITY_EDITOR
+            //             if (UnityEditor.EditorUtility.IsPersistent(identity.gameObject))
+            //                 return false;
+            // #endif
+
+            return identity.gameObject.hideFlags != HideFlags.NotEditable &&
+                identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
+                identity.sceneId != 0;
+        }
+
         public static bool IsSceneObjectWithPrefabParent(GameObject gameObject, out GameObject prefab)
         {
             prefab = null;

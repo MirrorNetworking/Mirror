@@ -1140,24 +1140,6 @@ namespace Mirror
             SpawnObject(obj, ownerConnection);
         }
 
-        // TODO merge with ConsiderForSpawning on client
-        internal static bool IsSceneObject(NetworkIdentity identity)
-        {
-            if (identity.gameObject.hideFlags == HideFlags.NotEditable ||
-                identity.gameObject.hideFlags == HideFlags.HideAndDontSave)
-                return false;
-
-#if UNITY_EDITOR
-            // this never seems to trigger.
-            // even if a prefab is dragged into the scene.
-            if (UnityEditor.EditorUtility.IsPersistent(identity.gameObject))
-                return false;
-#endif
-
-            // If not a scene object
-            return identity.sceneId != 0;
-        }
-
         /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
         // NetworkIdentity objects in a scene are disabled by default. Calling
         // SpawnObjects() causes these scene objects to be enabled and spawned.
@@ -1173,7 +1155,7 @@ namespace Mirror
             // first pass: activate all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                if (IsSceneObject(identity))
+                if (Utils.IsSceneObject(identity))
                 {
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
                     identity.gameObject.SetActive(true);
@@ -1193,7 +1175,7 @@ namespace Mirror
             // second pass: spawn all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                if (IsSceneObject(identity))
+                if (Utils.IsSceneObject(identity))
                     // pass connection so that authority is not lost when server loads a scene
                     // https://github.com/vis2k/Mirror/pull/2987
                     Spawn(identity.gameObject, identity.connectionToClient);
