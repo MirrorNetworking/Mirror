@@ -397,7 +397,7 @@ namespace Mirror.Weaver
 
             MethodDefinition serialize = new MethodDefinition(SerializeMethodName,
                     MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                    weaverTypes.Import<bool>());
+                    weaverTypes.Import(typeof(void)));
 
             serialize.Parameters.Add(new ParameterDefinition("writer", ParameterAttributes.None, weaverTypes.Import<NetworkWriter>()));
             serialize.Parameters.Add(new ParameterDefinition("forceAll", ParameterAttributes.None, weaverTypes.Import<bool>()));
@@ -405,11 +405,7 @@ namespace Mirror.Weaver
 
             serialize.Body.InitLocals = true;
 
-            // loc_0,  this local variable is to determine if any variable was dirty
-            VariableDefinition dirtyLocal = new VariableDefinition(weaverTypes.Import<bool>());
-            serialize.Body.Variables.Add(dirtyLocal);
-
-            // bool result = base.SerializeSyncVars(writer, forceAll);
+            // base.SerializeSyncVars(writer, forceAll);
             MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, assembly, SerializeMethodName);
             if (baseSerialize != null)
             {
@@ -420,8 +416,6 @@ namespace Mirror.Weaver
                 // forceAll
                 worker.Emit(OpCodes.Ldarg_2);
                 worker.Emit(OpCodes.Call, baseSerialize);
-                // set dirtyLocal to result of base.OnSerialize()
-                worker.Emit(OpCodes.Stloc_0);
             }
 
             // Generates:
@@ -429,7 +423,6 @@ namespace Mirror.Weaver
             //   {
             //       writer.WriteInt(health);
             //       ...
-            //       return true;
             //   }
             Instruction initialStateLabel = worker.Create(OpCodes.Nop);
             // forceAll
@@ -463,8 +456,7 @@ namespace Mirror.Weaver
                 }
             }
 
-            // if (forceAll) then always return true at the end of the 'if' case
-            worker.Emit(OpCodes.Ldc_I4_1);
+            // if (forceAll) then always return at the end of the 'if' case
             worker.Emit(OpCodes.Ret);
 
             // end the 'if' case for "if (forceAll)"
@@ -488,7 +480,6 @@ namespace Mirror.Weaver
             int dirtyBit = syncVarAccessLists.GetSyncVarStart(netBehaviourSubclass.BaseType.FullName);
             foreach (FieldDefinition syncVarDef in syncVars)
             {
-
                 FieldReference syncVar = syncVarDef;
                 if (netBehaviourSubclass.HasGenericParameters)
                 {
@@ -524,11 +515,6 @@ namespace Mirror.Weaver
                     return;
                 }
 
-                // something was dirty
-                worker.Emit(OpCodes.Ldc_I4_1);
-                // set dirtyLocal to true
-                worker.Emit(OpCodes.Stloc_0);
-
                 worker.Append(varLabel);
                 dirtyBit += 1;
             }
@@ -537,8 +523,7 @@ namespace Mirror.Weaver
             //worker.Emit(OpCodes.Ldstr, $"Injected Serialize {netBehaviourSubclass.Name}");
             //worker.Emit(OpCodes.Call, WeaverTypes.logErrorReference);
 
-            // generate: return dirtyLocal
-            worker.Emit(OpCodes.Ldloc_0);
+            // generate: return
             worker.Emit(OpCodes.Ret);
             netBehaviourSubclass.Methods.Add(serialize);
         }

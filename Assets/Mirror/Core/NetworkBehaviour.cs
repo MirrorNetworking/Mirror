@@ -971,10 +971,8 @@ namespace Mirror
         }
 
         // USED BY WEAVER
-        protected virtual bool SerializeSyncVars(NetworkWriter writer, bool initialState)
+        protected virtual void SerializeSyncVars(NetworkWriter writer, bool initialState)
         {
-            return false;
-
             // SyncVar are written here in subclass
 
             // if initialState
@@ -996,21 +994,17 @@ namespace Mirror
             //   read dirty SyncVars
         }
 
-        public bool SerializeObjectsAll(NetworkWriter writer)
+        public void SerializeObjectsAll(NetworkWriter writer)
         {
-            bool dirty = false;
             for (int i = 0; i < syncObjects.Count; i++)
             {
                 SyncObject syncObject = syncObjects[i];
                 syncObject.OnSerializeAll(writer);
-                dirty = true;
             }
-            return dirty;
         }
 
-        public bool SerializeObjectsDelta(NetworkWriter writer)
+        public void SerializeObjectsDelta(NetworkWriter writer)
         {
-            bool dirty = false;
             // write the mask
             writer.WriteULong(syncObjectDirtyBits);
             // serializable objects, such as synclists
@@ -1021,10 +1015,8 @@ namespace Mirror
                 if ((syncObjectDirtyBits & (1UL << i)) != 0)
                 {
                     syncObject.OnSerializeDelta(writer);
-                    dirty = true;
                 }
             }
-            return dirty;
         }
 
         internal void DeSerializeObjectsAll(NetworkReader reader)
