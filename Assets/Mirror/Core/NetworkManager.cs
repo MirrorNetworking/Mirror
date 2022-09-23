@@ -52,8 +52,7 @@ namespace Mirror
         // transport layer
         [Header("Network Info")]
         [Tooltip("Transport component attached to this object that server and client will use to connect")]
-        [SerializeField]
-        protected Transport transport;
+        public Transport transport;
 
         /// <summary>Server's address for clients to connect to.</summary>
         [FormerlySerializedAs("m_NetworkAddress")]
