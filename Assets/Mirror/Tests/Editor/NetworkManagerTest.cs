@@ -15,6 +15,7 @@ namespace Mirror.Tests
         {
             base.SetUp();
             manager = gameObject.AddComponent<NetworkManager>();
+            manager.transport = transport;
         }
 
         [Test]
