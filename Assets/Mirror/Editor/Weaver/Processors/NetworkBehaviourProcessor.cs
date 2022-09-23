@@ -409,6 +409,7 @@ namespace Mirror.Weaver
             VariableDefinition dirtyLocal = new VariableDefinition(weaverTypes.Import<bool>());
             serialize.Body.Variables.Add(dirtyLocal);
 
+            // bool result = base.SerializeSyncVars(writer, forceAll);
             MethodReference baseSerialize = Resolvers.TryResolveMethodInParents(netBehaviourSubclass.BaseType, assembly, SerializeMethodName);
             if (baseSerialize != null)
             {
@@ -423,12 +424,19 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Stloc_0);
             }
 
-            // Generates: if (forceAll);
+            // Generates:
+            //   if (forceAll)
+            //   {
+            //       writer.WriteInt(health);
+            //       ...
+            //       return true;
+            //   }
             Instruction initialStateLabel = worker.Create(OpCodes.Nop);
             // forceAll
             worker.Emit(OpCodes.Ldarg_2);
             worker.Emit(OpCodes.Brfalse, initialStateLabel);
 
+            // generates write.Write(syncVar) for each SyncVar in forceAll case
             foreach (FieldDefinition syncVarDef in syncVars)
             {
                 FieldReference syncVar = syncVarDef;
@@ -455,14 +463,14 @@ namespace Mirror.Weaver
                 }
             }
 
-            // always return true if forceAll
-
-            // Generates: return true
+            // if (forceAll) then always return true at the end of the 'if' case
             worker.Emit(OpCodes.Ldc_I4_1);
             worker.Emit(OpCodes.Ret);
 
-            // Generates: end if (forceAll);
+            // end the 'if' case for "if (forceAll)"
             worker.Append(initialStateLabel);
+
+            ////////////////////////////////////////////////////////////////////
 
             // write dirty bits before the data fields
             // Generates: writer.WritePackedUInt64 (base.get_syncVarDirtyBits ());
