@@ -161,24 +161,6 @@ namespace Mirror
                     return;
                 }
             }
-
-            // add transport if there is none yet. makes upgrading easier.
-            if (transport == null)
-            {
-#if UNITY_EDITOR
-                // RecordObject needs to be called before we make the change
-                UnityEditor.Undo.RecordObject(gameObject, "Added default Transport");
-#endif
-
-                transport = GetComponent<Transport>();
-
-                // was a transport added yet? if not, add one
-                if (transport == null)
-                {
-                    transport = gameObject.AddComponent<KcpTransport>();
-                    Debug.Log("NetworkManager: added default Transport because there was none yet.");
-                }
-            }
         }
 
         // virtual so that inheriting classes' Awake() can call base.Awake() too
