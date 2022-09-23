@@ -433,8 +433,8 @@ namespace Mirror.Weaver
             //   }
             Instruction initialStateLabel = worker.Create(OpCodes.Nop);
             // forceAll
-            worker.Emit(OpCodes.Ldarg_2);
-            worker.Emit(OpCodes.Brfalse, initialStateLabel);
+            worker.Emit(OpCodes.Ldarg_2);                    // load 'forceAll' flag
+            worker.Emit(OpCodes.Brfalse, initialStateLabel); // start the 'if forceAll' branch
 
             // generates write.Write(syncVar) for each SyncVar in forceAll case
             foreach (FieldDefinition syncVarDef in syncVars)
