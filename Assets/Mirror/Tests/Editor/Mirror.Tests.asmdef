@@ -10,7 +10,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Unity.Mirror.CodeGen",
-        "WeaverTestExtraAssembly"
+        "WeaverTestExtraAssembly",
+        "MultiplexTransport"
     ],
     "includePlatforms": [
         "Editor"
