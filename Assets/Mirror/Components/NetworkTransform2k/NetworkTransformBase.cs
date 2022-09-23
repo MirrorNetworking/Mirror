@@ -759,7 +759,7 @@ namespace Mirror
             bufferSizeLimit = Mathf.Max((int)bufferTimeMultiplier, bufferSizeLimit);
         }
 
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             // sync target component's position on spawn.
             // fixes https://github.com/vis2k/Mirror/pull/3051/
@@ -769,9 +769,7 @@ namespace Mirror
                 if (syncPosition) writer.WriteVector3(targetComponent.localPosition);
                 if (syncRotation) writer.WriteQuaternion(targetComponent.localRotation);
                 if (syncScale)    writer.WriteVector3(targetComponent.localScale);
-                return true;
             }
-            return false;
         }
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)

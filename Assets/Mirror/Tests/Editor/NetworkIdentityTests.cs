@@ -131,10 +131,9 @@ namespace Mirror.Tests
     class SerializeTest1NetworkBehaviour : NetworkBehaviour
     {
         public int value;
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             writer.WriteInt(value);
-            return true;
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
@@ -145,10 +144,9 @@ namespace Mirror.Tests
     class SerializeTest2NetworkBehaviour : NetworkBehaviour
     {
         public string value;
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             writer.WriteString(value);
-            return true;
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
@@ -158,7 +156,7 @@ namespace Mirror.Tests
 
     class SerializeExceptionNetworkBehaviour : NetworkBehaviour
     {
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             throw new Exception("some exception");
         }
@@ -171,12 +169,11 @@ namespace Mirror.Tests
     class SerializeMismatchNetworkBehaviour : NetworkBehaviour
     {
         public int value;
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             writer.WriteInt(value);
             // one too many
             writer.WriteInt(value);
-            return true;
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {

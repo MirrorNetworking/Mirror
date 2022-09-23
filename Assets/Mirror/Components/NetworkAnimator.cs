@@ -362,9 +362,9 @@ namespace Mirror
             }
         }
 
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
-            bool changed = base.OnSerialize(writer, initialState);
+            base.OnSerialize(writer, initialState);
             if (initialState)
             {
                 for (int i = 0; i < animator.layerCount; i++)
@@ -384,9 +384,7 @@ namespace Mirror
                     writer.WriteFloat(animator.GetLayerWeight(i));
                 }
                 WriteParameters(writer, initialState);
-                return true;
             }
-            return changed;
         }
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)

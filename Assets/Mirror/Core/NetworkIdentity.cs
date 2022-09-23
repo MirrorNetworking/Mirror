@@ -880,7 +880,7 @@ namespace Mirror
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
         //    -> it will be impossible to read too many or too few bytes in OnDeserialize
         //    -> we can properly track down errors
-        bool OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
+        void OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // write placeholder length bytes
             // (jumping back later is WAY faster than allocating a temporary
@@ -891,10 +891,10 @@ namespace Mirror
             int contentPosition = writer.Position;
 
             // write payload
-            bool result = false;
             try
             {
-                result = comp.OnSerialize(writer, initialState);
+                // note this may not write anything if no syncIntervals elapsed
+                comp.OnSerialize(writer, initialState);
             }
             catch (Exception e)
             {
@@ -909,8 +909,6 @@ namespace Mirror
             writer.Position = endPosition;
 
             //Debug.Log($"OnSerializeSafely written for object {comp.name} component:{comp.GetType()} sceneId:{sceneId:X} header:{headerPosition} content:{contentPosition} end:{endPosition} contentSize:{endPosition - contentPosition}");
-
-            return result;
         }
 
         // serialize all components using dirtyComponentsMask

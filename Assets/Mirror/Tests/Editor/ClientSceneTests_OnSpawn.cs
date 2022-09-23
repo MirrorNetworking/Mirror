@@ -14,7 +14,7 @@ namespace Mirror.Tests.ClientSceneTests
         public event Action OnDeserializeCalled;
         public event Action OnSerializeCalled;
 
-        public override bool OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             base.OnSerialize(writer, initialState);
 
@@ -22,8 +22,6 @@ namespace Mirror.Tests.ClientSceneTests
             writer.WriteVector3(direction);
 
             OnSerializeCalled?.Invoke();
-
-            return true;
         }
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {

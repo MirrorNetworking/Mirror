@@ -943,13 +943,16 @@ namespace Mirror
         //
         // initialState is true for full spawns, false for delta syncs.
         //   note: SyncVar hooks are only called when inital=false
-        public virtual bool OnSerialize(NetworkWriter writer, bool initialState)
+        public virtual void OnSerialize(NetworkWriter writer, bool initialState)
         {
             // if initialState: write all SyncVars.
             // otherwise write dirtyBits+dirty SyncVars
-            bool objectWritten = initialState ? SerializeObjectsAll(writer) : SerializeObjectsDelta(writer);
-            bool syncVarWritten = SerializeSyncVars(writer, initialState);
-            return objectWritten || syncVarWritten;
+            if (initialState)
+                SerializeObjectsAll(writer);
+            else
+                SerializeObjectsDelta(writer);
+
+            SerializeSyncVars(writer, initialState);
         }
 
         /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
