@@ -362,12 +362,6 @@ namespace Mirror
             }
         }
 
-        /// <summary>
-        /// Custom Serialization
-        /// </summary>
-        /// <param name="writer"></param>
-        /// <param name="initialState"></param>
-        /// <returns></returns>
         public override bool OnSerialize(NetworkWriter writer, bool initialState)
         {
             bool changed = base.OnSerialize(writer, initialState);
@@ -395,11 +389,6 @@ namespace Mirror
             return changed;
         }
 
-        /// <summary>
-        /// Custom Deserialization
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <param name="initialState"></param>
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
             base.OnDeserialize(reader, initialState);
@@ -476,9 +465,7 @@ namespace Mirror
             ResetTrigger(Animator.StringToHash(triggerName));
         }
 
-        /// <summary>
-        /// Causes an animation trigger to be reset for a networked object.
-        /// </summary>
+        /// <summary>Causes an animation trigger to be reset for a networked object.</summary>
         /// <param name="hash">Hash id of trigger (from the Animator).</param>
         public void ResetTrigger(int hash)
         {
