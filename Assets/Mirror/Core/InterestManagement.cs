@@ -12,7 +12,8 @@ namespace Mirror
         // Awake configures InterestManagement in NetworkServer/Client
         // Do NOT check for active server or client here.
         // Awake must always set the static aoi references.
-        void Awake()
+        // make sure to call base.Awake when overwriting!
+        protected virtual void Awake()
         {
             if (NetworkServer.aoi == null)
             {
