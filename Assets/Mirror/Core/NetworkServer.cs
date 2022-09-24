@@ -54,6 +54,23 @@ namespace Mirror
         public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
         public static Action<NetworkConnectionToClient, TransportError, string> OnErrorEvent;
 
+        // keep track of actual achieved tick rate.
+        // might become lower under heavy load.
+        // very useful for profiling etc.
+        // measured over 1s each, same as frame rate. no EMA here.
+        public static int actualTickRate;
+        static double     actualTickRateStart;   // start time when counting
+        static int        actualTickRateCounter; // current counter since start
+
+        // profiling
+        // includes transport update time, because transport calls handlers etc.
+        // averaged over 1s by passing 'tickRate' to constructor.
+        public static TimeSample earlyUpdateDuration;
+        public static TimeSample lateUpdateDuration;
+
+        // capture full Unity update time from before Early- to after LateUpdate
+        public static TimeSample fullUpdateDuration;
+
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
         {
@@ -76,6 +93,11 @@ namespace Mirror
             AddTransportHandlers();
 
             initialized = true;
+
+            // profiling
+            earlyUpdateDuration = new TimeSample(NetworkManager.singleton.serverTickRate);
+            lateUpdateDuration  = new TimeSample(NetworkManager.singleton.serverTickRate);
+            fullUpdateDuration  = new TimeSample(NetworkManager.singleton.serverTickRate);
         }
 
         static void AddTransportHandlers()
@@ -1691,13 +1713,25 @@ namespace Mirror
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkEarlyUpdate()
         {
+            // measure update time for profiling.
+            if (active)
+            {
+                earlyUpdateDuration.Begin();
+                fullUpdateDuration.Begin();
+            }
+
             // process all incoming messages first before updating the world
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ServerEarlyUpdate();
+
+            if (active) earlyUpdateDuration.End();
         }
 
         internal static void NetworkLateUpdate()
         {
+            // measure update time for profiling.
+            if (active) lateUpdateDuration.Begin();
+
             // only broadcast world if active
             if (active)
                 Broadcast();
@@ -1706,6 +1740,26 @@ namespace Mirror
             // (even if not active. still want to process disconnects etc.)
             if (Transport.activeTransport != null)
                 Transport.activeTransport.ServerLateUpdate();
+
+            // measure actual tick rate every second.
+            if (active)
+            {
+                ++actualTickRateCounter;
+                if (Time.timeAsDouble >= actualTickRateStart + 1)
+                {
+                    // calculate avg by exact elapsed time.
+                    // assuming 1s wouldn't be accurate, usually a few more ms passed.
+                    float elapsed         = (float)(Time.timeAsDouble - actualTickRateStart);
+                    actualTickRate        = Mathf.RoundToInt(actualTickRateCounter / elapsed);
+                    actualTickRateStart   = Time.timeAsDouble;
+                    actualTickRateCounter = 0;
+                }
+
+                // measure total update time. including transport.
+                // because in early update, transport update calls handlers.
+                lateUpdateDuration.End();
+                fullUpdateDuration.End();
+            }
         }
     }
 }
