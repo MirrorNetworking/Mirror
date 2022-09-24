@@ -32,6 +32,9 @@ namespace Mirror
         [FormerlySerializedAs("startOnHeadless")]
         public bool autoStartServerBuild = true;
 
+        [Tooltip("Automatically connect the client in headless builds. Useful for CCU tests with bot clients.\n\nAddress may be passed as command line argument.\n\nMake sure that only 'autostartServer' or 'autoconnectClient' is enabled, not both!")]
+        public bool autoConnectClientBuild;
+
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         public int serverTickRate = 30;
@@ -189,6 +192,11 @@ namespace Mirror
             if (autoStartServerBuild)
             {
                 StartServer();
+            }
+            // only start server or client, never both
+            else if(autoConnectClientBuild)
+            {
+                StartClient();
             }
 #endif
         }
