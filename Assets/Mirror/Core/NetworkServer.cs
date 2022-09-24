@@ -746,7 +746,7 @@ namespace Mirror
             // set ready if not set yet
             SetClientReady(conn);
 
-            // Debug.Log($"Adding new playerGameObject object netId: {identity.netId} asset ID: {identity.assetId}");
+            // Debug.Log($"Adding new playerGameObject object netId: {identity.netId} asset ID: {identity.assetId:X4}");
 
             Respawn(identity);
             return true;
@@ -759,7 +759,7 @@ namespace Mirror
         // for that object. This function is used for "adding" a player, not for
         // "replacing" the player on a connection. If there is already a player
         // on this playerControllerId for this connection, this will fail.
-        public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player, Guid assetId)
+        public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player, uint assetId)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
@@ -810,7 +810,7 @@ namespace Mirror
             // IMPORTANT: do this in AddPlayerForConnection & ReplacePlayerForConnection!
             SpawnObserversForConnection(conn);
 
-            //Debug.Log($"Replacing playerGameObject object netId:{player.GetComponent<NetworkIdentity>().netId} asset ID {player.GetComponent<NetworkIdentity>().assetId}");
+            //Debug.Log($"Replacing playerGameObject object netId:{player.GetComponent<NetworkIdentity>().netId} asset ID {player.GetComponent<NetworkIdentity>().assetId:X4}");
 
             Respawn(identity);
 
@@ -832,7 +832,7 @@ namespace Mirror
         /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
         // This does NOT change the ready state of the connection, so it can
         // safely be used while changing scenes.
-        public static bool ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, Guid assetId, bool keepAuthority = false)
+        public static bool ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, uint assetId, bool keepAuthority = false)
         {
             if (GetNetworkIdentity(player, out NetworkIdentity identity))
             {
@@ -1082,7 +1082,7 @@ namespace Mirror
 
             identity.OnStartServer();
 
-            // Debug.Log($"SpawnObject instance ID {identity.netId} asset ID {identity.assetId}");
+            // Debug.Log($"SpawnObject instance ID {identity.netId} asset ID {identity.assetId:X4}");
 
             if (aoi)
             {
@@ -1131,7 +1131,7 @@ namespace Mirror
 
         /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
         // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
-        public static void Spawn(GameObject obj, Guid assetId, NetworkConnection ownerConnection = null)
+        public static void Spawn(GameObject obj, uint assetId, NetworkConnection ownerConnection = null)
         {
             if (GetNetworkIdentity(obj, out NetworkIdentity identity))
             {

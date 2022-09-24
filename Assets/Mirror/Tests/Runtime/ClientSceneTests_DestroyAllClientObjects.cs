@@ -34,7 +34,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
 
     public class ClientSceneTests_DestroyAllClientObjects : MirrorPlayModeTest
     {
-        Dictionary<Guid, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
+        Dictionary<uint, UnSpawnDelegate> unspawnHandlers => NetworkClient.unspawnHandlers;
 
         NetworkConnectionToClient connectionToClient;
 
@@ -108,11 +108,11 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             // sceneId 0 is prefab
             CreateAndAddObject(0, out TestListenerBehaviour serverComp, out TestListenerBehaviour clientComp);
 
-            Guid guid1 = Guid.NewGuid();
+            uint assetId1 = 1;
 
             int unspawnCalled = 0;
-            unspawnHandlers.Add(guid1, x => unspawnCalled++);
-            clientComp.GetComponent<NetworkIdentity>().assetId = guid1;
+            unspawnHandlers.Add(assetId1, x => unspawnCalled++);
+            clientComp.GetComponent<NetworkIdentity>().assetId = assetId1;
 
             int disableCalled = 0;
 

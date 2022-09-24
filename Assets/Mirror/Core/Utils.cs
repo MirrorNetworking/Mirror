@@ -9,7 +9,7 @@ namespace Mirror
     public delegate void NetworkMessageDelegate(NetworkConnection conn, NetworkReader reader, int channelId);
 
     // Handles requests to spawn objects on the client
-    public delegate GameObject SpawnDelegate(Vector3 position, Guid assetId);
+    public delegate GameObject SpawnDelegate(Vector3 position, uint assetId);
 
     public delegate GameObject SpawnHandlerDelegate(SpawnMessage msg);
 

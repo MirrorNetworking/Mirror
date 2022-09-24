@@ -104,6 +104,66 @@ namespace Mirror
         [FormerlySerializedAs("m_SceneId"), HideInInspector]
         public ulong sceneId;
 
+        // assetId used to spawn prefabs across the network.
+        // originally a Guid, but a 4 byte uint is sufficient
+        // (as suggested by james)
+        //
+        // it's also easier to work with for serialization etc.
+        // serialized and visible in inspector for easier debugging
+        [SerializeField] uint _assetId;
+
+        // The AssetId trick:
+        //   Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
+        //   serialize it because Guid's internal bytes are private
+        //
+        //   Using just the Guid string would work, but it's 32 chars long and
+        //   would then be sent over the network as 64 instead of 16 bytes
+        //
+        // => The solution is to serialize the string internally here and then
+        //    use the real 'Guid' type for everything else via .assetId
+        public uint assetId
+        {
+            get
+            {
+#if UNITY_EDITOR
+                // old UNET comment:
+                // This is important because sometimes OnValidate does not run
+                // (like when adding NetworkIdentity to prefab with no child links)
+                if (_assetId == 0)
+                    SetupIDs();
+#endif
+                return _assetId;
+            }
+            // note this setter isn't used atm.
+            // will only be useful for assetId spawn overwrites again.
+            internal set
+            {
+                // they are the same, do nothing
+                if (_assetId == value)
+                {
+                    return;
+                }
+
+                // new is empty
+                if (value == 0)
+                {
+                    Debug.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{_assetId:X4}'");
+                    return;
+                }
+
+                // old not empty
+                if (_assetId != 0)
+                {
+                    Debug.LogError($"Can not Set AssetId on NetworkIdentity '{name}' because it already had an assetId, current assetId '{_assetId:X4}', attempted new assetId '{value:X4}'");
+                    return;
+                }
+
+                // old is empty
+                _assetId = value;
+                // Debug.Log($"Setting AssetId on NetworkIdentity '{name}', new assetId '{value:X4}'");
+            }
+        }
+
         /// <summary>Make this object only exist when the game is running as a server (or host).</summary>
         [FormerlySerializedAs("m_ServerOnly")]
         [Tooltip("Prevents this object from being spawned / enabled on clients")]
@@ -182,75 +242,6 @@ namespace Mirror
             ownerWriter = new NetworkWriter(),
             observersWriter = new NetworkWriter()
         };
-
-        // assetId.get calls 'new Guid(m_assetId) which is extremely expensive.
-        // profiling benchmark demo, this used over 30ms.
-        // let's cache it instead.
-        Guid assetIdCached = Guid.Empty;
-
-        /// <summary>Prefab GUID used to spawn prefabs across the network.</summary>
-        //
-        // The AssetId trick:
-        //   Ideally we would have a serialized 'Guid m_AssetId' but Unity can't
-        //   serialize it because Guid's internal bytes are private
-        //
-        //   UNET used 'NetworkHash128' originally, with byte0, ..., byte16
-        //   which works, but it just unnecessary extra code
-        //
-        //   Using just the Guid string would work, but it's 32 chars long and
-        //   would then be sent over the network as 64 instead of 16 bytes
-        //
-        // => The solution is to serialize the string internally here and then
-        //    use the real 'Guid' type for everything else via .assetId
-        public Guid assetId
-        {
-            get
-            {
-#if UNITY_EDITOR
-                // This is important because sometimes OnValidate does not run (like when adding view to prefab with no child links)
-                if (string.IsNullOrWhiteSpace(m_AssetId))
-                    SetupIDs();
-#endif
-                // assetId.get calls 'new Guid(m_assetId) which is extremely expensive.
-                // profiling benchmark demo, this used over 30ms.
-                // let's cache it instead.
-                if (assetIdCached == Guid.Empty && !string.IsNullOrWhiteSpace(m_AssetId))
-                    assetIdCached = new Guid(m_AssetId);
-
-                return assetIdCached;
-            }
-            internal set
-            {
-                string newAssetIdString = value == Guid.Empty ? string.Empty : value.ToString("N");
-                string oldAssetIdString = m_AssetId;
-
-                // they are the same, do nothing
-                if (oldAssetIdString == newAssetIdString)
-                {
-                    return;
-                }
-
-                // new is empty
-                if (string.IsNullOrWhiteSpace(newAssetIdString))
-                {
-                    Debug.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{oldAssetIdString}'");
-                    return;
-                }
-
-                // old not empty
-                if (!string.IsNullOrWhiteSpace(oldAssetIdString))
-                {
-                    Debug.LogError($"Can not Set AssetId on NetworkIdentity '{name}' because it already had an assetId, current assetId '{oldAssetIdString}', attempted new assetId '{newAssetIdString}'");
-                    return;
-                }
-
-                // old is empty
-                m_AssetId = newAssetIdString;
-                assetIdCached = new Guid(m_AssetId);
-                // Debug.Log($"Settings AssetId on NetworkIdentity '{name}', new assetId '{newAssetIdString}'");
-            }
-        }
-        [SerializeField, HideInInspector] string m_AssetId;
 
         // Keep track of all sceneIds to detect scene duplicates
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
@@ -368,7 +359,10 @@ namespace Mirror
         {
             // only set if not empty. fixes https://github.com/vis2k/Mirror/issues/2765
             if (!string.IsNullOrWhiteSpace(path))
-                m_AssetId = AssetDatabase.AssetPathToGUID(path);
+            {
+                Guid guid = new Guid(AssetDatabase.AssetPathToGUID(path));
+                assetId = (uint)guid.GetHashCode(); // deterministic
+            }
         }
 
         void AssignAssetID(GameObject prefab) => AssignAssetID(AssetDatabase.GetAssetPath(prefab));
@@ -567,7 +561,7 @@ namespace Mirror
                 //    anymore because assetId was cleared
                 if (!EditorApplication.isPlaying)
                 {
-                    m_AssetId = "";
+                    _assetId = 0;
                 }
                 // don't log. would show a lot when pressing play in uMMORPG/uSurvival/etc.
                 //else Debug.Log($"Avoided clearing assetId at runtime for {name} after (probably) clicking any of the NetworkIdentity properties.");

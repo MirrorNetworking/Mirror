@@ -74,16 +74,16 @@ namespace Mirror
         public static Action<TransportError, string> OnErrorEvent;
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>
-        public static readonly Dictionary<Guid, GameObject> prefabs =
-            new Dictionary<Guid, GameObject>();
+        public static readonly Dictionary<uint, GameObject> prefabs =
+            new Dictionary<uint, GameObject>();
 
-        // custom spawn / unspawn handlers.
+        // custom spawn / unspawn handlers by assetId.
         // useful to support prefab pooling etc.:
         // https://mirror-networking.gitbook.io/docs/guides/gameobjects/custom-spawnfunctions
-        internal static readonly Dictionary<Guid, SpawnHandlerDelegate> spawnHandlers =
-            new Dictionary<Guid, SpawnHandlerDelegate>();
-        internal static readonly Dictionary<Guid, UnSpawnDelegate> unspawnHandlers =
-            new Dictionary<Guid, UnSpawnDelegate>();
+        internal static readonly Dictionary<uint, SpawnHandlerDelegate> spawnHandlers =
+            new Dictionary<uint, SpawnHandlerDelegate>();
+        internal static readonly Dictionary<uint, UnSpawnDelegate> unspawnHandlers =
+            new Dictionary<uint, UnSpawnDelegate>();
 
         // spawning
         // internal for tests
@@ -505,17 +505,18 @@ namespace Mirror
         // spawnable prefabs ///////////////////////////////////////////////////
         /// <summary>Find the registered prefab for this asset id.</summary>
         // Useful for debuggers
-        public static bool GetPrefab(Guid assetId, out GameObject prefab)
+        public static bool GetPrefab(uint assetId, out GameObject prefab)
         {
             prefab = null;
-            return assetId != Guid.Empty &&
-                   prefabs.TryGetValue(assetId, out prefab) && prefab != null;
+            return assetId != 0 &&
+                   prefabs.TryGetValue(assetId, out prefab) &&
+                   prefab != null;
         }
 
         /// <summary>Validates Prefab then adds it to prefabs dictionary.</summary>
         static void RegisterPrefabIdentity(NetworkIdentity prefab)
         {
-            if (prefab.assetId == Guid.Empty)
+            if (prefab.assetId == 0)
             {
                 Debug.LogError($"Can not Register '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
                 return;
@@ -536,15 +537,15 @@ namespace Mirror
             if (prefabs.ContainsKey(prefab.assetId))
             {
                 GameObject existingPrefab = prefabs[prefab.assetId];
-                Debug.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
+                Debug.LogWarning($"Replacing existing prefab with assetId '{prefab.assetId:X4}'. Old prefab '{existingPrefab.name}', New prefab '{prefab.name}'");
             }
 
             if (spawnHandlers.ContainsKey(prefab.assetId) || unspawnHandlers.ContainsKey(prefab.assetId))
             {
-                Debug.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId}' when spawnHandlers with same assetId already exists. If you want to use custom spawn handling, then remove the prefab from NetworkManager's registered prefabs first.");
+                Debug.LogWarning($"Adding prefab '{prefab.name}' with assetId '{prefab.assetId:X4}' when spawnHandlers with same assetId already exists. If you want to use custom spawn handling, then remove the prefab from NetworkManager's registered prefabs first.");
             }
 
-            // Debug.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId}");
+            // Debug.Log($"Registering prefab '{prefab.name}' as asset:{prefab.assetId:X4}");
 
             prefabs[prefab.assetId] = prefab.gameObject;
         }
@@ -553,7 +554,7 @@ namespace Mirror
         // Note: newAssetId can not be set on GameObjects that already have an assetId
         // Note: registering with assetId is useful for assetbundles etc. a lot
         //       of people use this.
-        public static void RegisterPrefab(GameObject prefab, Guid newAssetId)
+        public static void RegisterPrefab(GameObject prefab, uint newAssetId)
         {
             if (prefab == null)
             {
@@ -561,7 +562,7 @@ namespace Mirror
                 return;
             }
 
-            if (newAssetId == Guid.Empty)
+            if (newAssetId == 0)
             {
                 Debug.LogError($"Could not register '{prefab.name}' with new assetId because the new assetId was empty");
                 return;
@@ -574,9 +575,9 @@ namespace Mirror
                 return;
             }
 
-            if (identity.assetId != Guid.Empty && identity.assetId != newAssetId)
+            if (identity.assetId != 0 && identity.assetId != newAssetId)
             {
-                Debug.LogError($"Could not register '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
+                Debug.LogError($"Could not register '{prefab.name}' to {newAssetId:X4} because it already had an AssetId, Existing assetId {identity.assetId:X4}");
                 return;
             }
 
@@ -609,12 +610,12 @@ namespace Mirror
         // Note: registering with assetId is useful for assetbundles etc. a lot
         //       of people use this.
         // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
-        public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterPrefab(GameObject prefab, uint newAssetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             // We need this check here because we don't want a null handler in the lambda expression below
             if (spawnHandler == null)
             {
-                Debug.LogError($"Can not Register null SpawnHandler for {newAssetId}");
+                Debug.LogError($"Can not Register null SpawnHandler for {newAssetId:X4}");
                 return;
             }
 
@@ -644,9 +645,7 @@ namespace Mirror
                 return;
             }
 
-            Guid assetId = identity.assetId;
-
-            if (assetId == Guid.Empty)
+            if (identity.assetId == 0)
             {
                 Debug.LogError($"Can not Register handler for '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
                 return;
@@ -655,7 +654,7 @@ namespace Mirror
             // We need this check here because we don't want a null handler in the lambda expression below
             if (spawnHandler == null)
             {
-                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null SpawnHandler for {identity.assetId:X4}");
                 return;
             }
 
@@ -667,9 +666,9 @@ namespace Mirror
         // Note: registering with assetId is useful for assetbundles etc. a lot
         //       of people use this.
         // TODO why do we have one with SpawnDelegate and one with SpawnHandlerDelegate?
-        public static void RegisterPrefab(GameObject prefab, Guid newAssetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterPrefab(GameObject prefab, uint newAssetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
-            if (newAssetId == Guid.Empty)
+            if (newAssetId == 0)
             {
                 Debug.LogError($"Could not register handler for '{prefab.name}' with new assetId because the new assetId was empty");
                 return;
@@ -688,9 +687,9 @@ namespace Mirror
                 return;
             }
 
-            if (identity.assetId != Guid.Empty && identity.assetId != newAssetId)
+            if (identity.assetId != 0 && identity.assetId != newAssetId)
             {
-                Debug.LogError($"Could not register Handler for '{prefab.name}' to {newAssetId} because it already had an AssetId, Existing assetId {identity.assetId}");
+                Debug.LogError($"Could not register Handler for '{prefab.name}' to {newAssetId:X4} because it already had an AssetId, Existing assetId {identity.assetId:X4}");
                 return;
             }
 
@@ -701,29 +700,29 @@ namespace Mirror
             }
 
             identity.assetId = newAssetId;
-            Guid assetId = identity.assetId;
+            uint assetId = identity.assetId;
 
             if (spawnHandler == null)
             {
-                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId:X4}");
                 return;
             }
 
             if (unspawnHandler == null)
             {
-                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId:X4}");
                 return;
             }
 
             if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
             {
-                Debug.LogWarning($"Replacing existing spawnHandlers for prefab '{prefab.name}' with assetId '{assetId}'");
+                Debug.LogWarning($"Replacing existing spawnHandlers for prefab '{prefab.name}' with assetId '{assetId:X4}'");
             }
 
             if (prefabs.ContainsKey(assetId))
             {
                 // this is error because SpawnPrefab checks prefabs before handler
-                Debug.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}', unregister the prefab first before trying to add handler");
+                Debug.LogError($"assetId '{assetId:X4}' is already used by prefab '{prefabs[assetId].name}', unregister the prefab first before trying to add handler");
             }
 
             NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
@@ -732,7 +731,7 @@ namespace Mirror
                 Debug.LogError($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
             }
 
-            //Debug.Log($"Registering custom prefab {prefab.name} as asset:{assetId} {spawnHandler.GetMethodName()}/{unspawnHandler.GetMethodName()}");
+            //Debug.Log($"Registering custom prefab {prefab.name} as asset:{assetId:X4} {spawnHandler.GetMethodName()}/{unspawnHandler.GetMethodName()}");
 
             spawnHandlers[assetId] = spawnHandler;
             unspawnHandlers[assetId] = unspawnHandler;
@@ -761,9 +760,9 @@ namespace Mirror
                 return;
             }
 
-            Guid assetId = identity.assetId;
+            uint assetId = identity.assetId;
 
-            if (assetId == Guid.Empty)
+            if (assetId == 0)
             {
                 Debug.LogError($"Can not Register handler for '{prefab.name}' because it had empty assetid. If this is a scene Object use RegisterSpawnHandler instead");
                 return;
@@ -771,25 +770,25 @@ namespace Mirror
 
             if (spawnHandler == null)
             {
-                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId:X4}");
                 return;
             }
 
             if (unspawnHandler == null)
             {
-                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId:X4}");
                 return;
             }
 
             if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
             {
-                Debug.LogWarning($"Replacing existing spawnHandlers for prefab '{prefab.name}' with assetId '{assetId}'");
+                Debug.LogWarning($"Replacing existing spawnHandlers for prefab '{prefab.name}' with assetId '{assetId:X4}'");
             }
 
             if (prefabs.ContainsKey(assetId))
             {
                 // this is error because SpawnPrefab checks prefabs before handler
-                Debug.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}', unregister the prefab first before trying to add handler");
+                Debug.LogError($"assetId '{assetId:X4}' is already used by prefab '{prefabs[assetId].name}', unregister the prefab first before trying to add handler");
             }
 
             NetworkIdentity[] identities = prefab.GetComponentsInChildren<NetworkIdentity>();
@@ -798,7 +797,7 @@ namespace Mirror
                 Debug.LogError($"Prefab '{prefab.name}' has multiple NetworkIdentity components. There should only be one NetworkIdentity on a prefab, and it must be on the root object.");
             }
 
-            //Debug.Log($"Registering custom prefab {prefab.name} as asset:{assetId} {spawnHandler.GetMethodName()}/{unspawnHandler.GetMethodName()}");
+            //Debug.Log($"Registering custom prefab {prefab.name} as asset:{assetId:X4} {spawnHandler.GetMethodName()}/{unspawnHandler.GetMethodName()}");
 
             spawnHandlers[assetId] = spawnHandler;
             unspawnHandlers[assetId] = unspawnHandler;
@@ -820,7 +819,7 @@ namespace Mirror
                 return;
             }
 
-            Guid assetId = identity.assetId;
+            uint assetId = identity.assetId;
 
             prefabs.Remove(assetId);
             spawnHandlers.Remove(assetId);
@@ -834,12 +833,12 @@ namespace Mirror
         // prefab. This should be used when no prefab exists for the spawned
         // objects - such as when they are constructed dynamically at runtime
         // from configuration data.
-        public static void RegisterSpawnHandler(Guid assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterSpawnHandler(uint assetId, SpawnDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             // We need this check here because we don't want a null handler in the lambda expression below
             if (spawnHandler == null)
             {
-                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId:X4}");
                 return;
             }
 
@@ -852,45 +851,45 @@ namespace Mirror
         // prefab. This should be used when no prefab exists for the spawned
         // objects - such as when they are constructed dynamically at runtime
         // from configuration data.
-        public static void RegisterSpawnHandler(Guid assetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
+        public static void RegisterSpawnHandler(uint assetId, SpawnHandlerDelegate spawnHandler, UnSpawnDelegate unspawnHandler)
         {
             if (spawnHandler == null)
             {
-                Debug.LogError($"Can not Register null SpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null SpawnHandler for {assetId:X4}");
                 return;
             }
 
             if (unspawnHandler == null)
             {
-                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId}");
+                Debug.LogError($"Can not Register null UnSpawnHandler for {assetId:X4}");
                 return;
             }
 
-            if (assetId == Guid.Empty)
+            if (assetId == 0)
             {
-                Debug.LogError("Can not Register SpawnHandler for empty Guid");
+                Debug.LogError("Can not Register SpawnHandler for empty assetId");
                 return;
             }
 
             if (spawnHandlers.ContainsKey(assetId) || unspawnHandlers.ContainsKey(assetId))
             {
-                Debug.LogWarning($"Replacing existing spawnHandlers for {assetId}");
+                Debug.LogWarning($"Replacing existing spawnHandlers for {assetId:X4}");
             }
 
             if (prefabs.ContainsKey(assetId))
             {
                 // this is error because SpawnPrefab checks prefabs before handler
-                Debug.LogError($"assetId '{assetId}' is already used by prefab '{prefabs[assetId].name}'");
+                Debug.LogError($"assetId '{assetId:X4}' is already used by prefab '{prefabs[assetId].name}'");
             }
 
-            // Debug.Log("RegisterSpawnHandler asset {assetId} {spawnHandler.GetMethodName()}/{unspawnHandler.GetMethodName()}");
+            // Debug.Log("RegisterSpawnHandler asset {assetId:X4} {spawnHandler.GetMethodName()}/{unspawnHandler.GetMethodName()}");
 
             spawnHandlers[assetId] = spawnHandler;
             unspawnHandlers[assetId] = unspawnHandler;
         }
 
         /// <summary> Removes a registered spawn handler function that was registered with NetworkClient.RegisterHandler().</summary>
-        public static void UnregisterSpawnHandler(Guid assetId)
+        public static void UnregisterSpawnHandler(uint assetId)
         {
             spawnHandlers.Remove(assetId);
             unspawnHandlers.Remove(assetId);
@@ -904,7 +903,7 @@ namespace Mirror
             unspawnHandlers.Clear();
         }
 
-        internal static bool InvokeUnSpawnHandler(Guid assetId, GameObject obj)
+        internal static bool InvokeUnSpawnHandler(uint assetId, GameObject obj)
         {
             if (unspawnHandlers.TryGetValue(assetId, out UnSpawnDelegate handler) && handler != null)
             {
@@ -1002,7 +1001,7 @@ namespace Mirror
         // spawning ////////////////////////////////////////////////////////////
         internal static void ApplySpawnPayload(NetworkIdentity identity, SpawnMessage message)
         {
-            if (message.assetId != Guid.Empty)
+            if (message.assetId != 0)
                 identity.assetId = message.assetId;
 
             if (!identity.gameObject.activeSelf)
@@ -1058,7 +1057,7 @@ namespace Mirror
                 return true;
             }
 
-            if (message.assetId == Guid.Empty && message.sceneId == 0)
+            if (message.assetId == 0 && message.sceneId == 0)
             {
                 Debug.LogError($"OnSpawn message with netId '{message.netId}' has no AssetId or sceneId");
                 return false;
@@ -1068,7 +1067,7 @@ namespace Mirror
 
             if (identity == null)
             {
-                Debug.LogError($"Could not spawn assetId={message.assetId} scene={message.sceneId:X} netId={message.netId}");
+                Debug.LogError($"Could not spawn assetId={message.assetId:X4} scene={message.sceneId:X} netId={message.netId}");
                 return false;
             }
 
@@ -1095,13 +1094,13 @@ namespace Mirror
                 GameObject obj = handler(message);
                 if (obj == null)
                 {
-                    Debug.LogError($"Spawn Handler returned null, Handler assetId '{message.assetId}'");
+                    Debug.LogError($"Spawn Handler returned null, Handler assetId '{message.assetId:X4}'");
                     return null;
                 }
                 NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
                 if (identity == null)
                 {
-                    Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{message.assetId}'");
+                    Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{message.assetId:X4}'");
                     return null;
                 }
                 return identity;
@@ -1111,11 +1110,11 @@ namespace Mirror
             if (GetPrefab(message.assetId, out GameObject prefab))
             {
                 GameObject obj = GameObject.Instantiate(prefab, message.position, message.rotation);
-                //Debug.Log($"Client spawn handler instantiating [netId{message.netId} asset ID:{message.assetId} pos:{message.position} rotation:{message.rotation}]");
+                //Debug.Log($"Client spawn handler instantiating [netId{message.netId} asset ID:{message.assetId:X4} pos:{message.position} rotation:{message.rotation}]");
                 return obj.GetComponent<NetworkIdentity>();
             }
 
-            Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={message.assetId} netId={message.netId}");
+            Debug.LogError($"Failed to spawn server object, did you forget to add it to the NetworkManager? assetId={message.assetId:X4} netId={message.netId}");
             return null;
         }
 
@@ -1293,7 +1292,7 @@ namespace Mirror
 
         internal static void OnSpawn(SpawnMessage message)
         {
-            // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId} sceneId={msg.sceneId:X} pos={msg.position}");
+            // Debug.Log($"Client spawn handler instantiating netId={msg.netId} assetID={msg.assetId:X4} sceneId={msg.sceneId:X} pos={msg.position}");
             if (FindOrSpawnObject(message, out NetworkIdentity identity))
             {
                 ApplySpawnPayload(identity, message);

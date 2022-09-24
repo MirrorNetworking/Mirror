@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using UnityEngine;
 
 namespace Mirror.Tests.ClientSceneTests
@@ -9,7 +8,7 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ReturnsFalseForEmptyGuid()
         {
-            bool result = NetworkClient.GetPrefab(new Guid(), out GameObject prefab);
+            bool result = NetworkClient.GetPrefab(0, out GameObject prefab);
 
             Assert.IsFalse(result);
             Assert.IsNull(prefab);
@@ -18,19 +17,17 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ReturnsFalseForPrefabNotFound()
         {
-            Guid guid = Guid.NewGuid();
-            bool result = NetworkClient.GetPrefab(guid, out GameObject prefab);
+            bool result = NetworkClient.GetPrefab(42, out GameObject prefab);
 
             Assert.IsFalse(result);
             Assert.IsNull(prefab);
         }
 
         [Test]
-        public void ReturnsFalseForPrefabIsNull()
+        public void ReturnsFalseForNullPrefab()
         {
-            Guid guid = Guid.NewGuid();
-            NetworkClient.prefabs.Add(guid, null);
-            bool result = NetworkClient.GetPrefab(guid, out GameObject prefab);
+            NetworkClient.prefabs.Add(42, null);
+            bool result = NetworkClient.GetPrefab(42, out GameObject prefab);
 
             Assert.IsFalse(result);
             Assert.IsNull(prefab);
@@ -39,8 +36,8 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ReturnsTrueWhenPrefabIsFound()
         {
-            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
-            bool result = NetworkClient.GetPrefab(validPrefabGuid, out GameObject prefab);
+            NetworkClient.prefabs.Add(validPrefabAssetId, validPrefab);
+            bool result = NetworkClient.GetPrefab(validPrefabAssetId, out GameObject prefab);
 
             Assert.IsTrue(result);
             Assert.NotNull(prefab);
@@ -49,14 +46,14 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void HasOutPrefabWithCorrectGuid()
         {
-            NetworkClient.prefabs.Add(validPrefabGuid, validPrefab);
-            NetworkClient.GetPrefab(validPrefabGuid, out GameObject prefab);
+            NetworkClient.prefabs.Add(validPrefabAssetId, validPrefab);
+            NetworkClient.GetPrefab(validPrefabAssetId, out GameObject prefab);
 
 
             Assert.NotNull(prefab);
 
             NetworkIdentity networkID = prefab.GetComponent<NetworkIdentity>();
-            Assert.AreEqual(networkID.assetId, validPrefabGuid);
+            Assert.AreEqual(networkID.assetId, validPrefabAssetId);
         }
     }
 }

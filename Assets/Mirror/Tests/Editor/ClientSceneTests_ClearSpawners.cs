@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Mirror.Tests.ClientSceneTests
 {
@@ -8,8 +7,8 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void RemovesAllPrefabsFromDictionary()
         {
-            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
-            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(1, null);
+            NetworkClient.prefabs.Add(2, null);
 
             NetworkClient.ClearSpawners();
             Assert.IsEmpty(NetworkClient.prefabs);
@@ -18,8 +17,8 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void RemovesAllSpawnHandlersFromDictionary()
         {
-            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
-            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(1, null);
+            NetworkClient.spawnHandlers.Add(2, null);
 
             NetworkClient.ClearSpawners();
             Assert.IsEmpty(NetworkClient.spawnHandlers);
@@ -28,8 +27,8 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void RemovesAllUnspawnHandlersFromDictionary()
         {
-            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
-            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(1, null);
+            NetworkClient.unspawnHandlers.Add(2, null);
 
             NetworkClient.ClearSpawners();
 
@@ -39,14 +38,14 @@ namespace Mirror.Tests.ClientSceneTests
         [Test]
         public void ClearsAllDictionary()
         {
-            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
-            NetworkClient.prefabs.Add(Guid.NewGuid(), null);
+            NetworkClient.prefabs.Add(1, null);
+            NetworkClient.prefabs.Add(2, null);
 
-            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
-            NetworkClient.spawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.spawnHandlers.Add(1, null);
+            NetworkClient.spawnHandlers.Add(2, null);
 
-            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
-            NetworkClient.unspawnHandlers.Add(Guid.NewGuid(), null);
+            NetworkClient.unspawnHandlers.Add(1, null);
+            NetworkClient.unspawnHandlers.Add(2, null);
 
             NetworkClient.ClearSpawners();
 

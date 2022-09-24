@@ -53,7 +53,7 @@ namespace Mirror
         public bool isOwner;
         public ulong sceneId;
         // If sceneId != 0 then it is used instead of assetId
-        public Guid assetId;
+        public uint assetId;
         // Local position
         public Vector3 position;
         // Local rotation

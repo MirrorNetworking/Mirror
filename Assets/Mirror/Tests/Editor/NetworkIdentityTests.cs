@@ -301,12 +301,11 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
-            // assign a guid
-            Guid guid = new Guid(0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B);
-            identity.assetId = guid;
+            // assign a assetId
+            identity.assetId = 42;
 
             // did it work?
-            Assert.That(identity.assetId, Is.EqualTo(guid));
+            Assert.That(identity.assetId, Is.EqualTo(42));
         }
 
         [Test]
@@ -314,20 +313,20 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
-            if (identity.assetId == Guid.Empty)
+            if (identity.assetId == 0)
             {
-                identity.assetId = Guid.NewGuid();
+                identity.assetId = 42;
             }
 
-            Guid guid1 = identity.assetId;
+            uint assetId1 = identity.assetId;
 
             // assign a guid
-            Guid guid2 = Guid.NewGuid();
-            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{guid1:N}', attempted new assetId '{guid2:N}'");
-            identity.assetId = guid2;
+            uint assetId2 = 43;
+            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{assetId1:X4}', attempted new assetId '{assetId2:X4}'");
+            identity.assetId = assetId2;
 
             // guid was changed
-            Assert.That(identity.assetId, Is.EqualTo(guid1));
+            Assert.That(identity.assetId, Is.EqualTo(assetId1));
         }
 
         [Test]
@@ -335,20 +334,20 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
-            if (identity.assetId == Guid.Empty)
+            if (identity.assetId == 0)
             {
-                identity.assetId = Guid.NewGuid();
+                identity.assetId = 42;
             }
 
-            Guid guid1 = identity.assetId;
+            uint assetId1 = identity.assetId;
 
             // assign a guid
-            Guid guid2 = new Guid();
-            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{guid1:N}'");
-            identity.assetId = guid2;
+            uint assetId2 = 0;
+            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{assetId1:X4}'");
+            identity.assetId = assetId2;
 
             // guid was NOT changed
-            Assert.That(identity.assetId, Is.EqualTo(guid1));
+            Assert.That(identity.assetId, Is.EqualTo(assetId1));
         }
 
         [Test]
@@ -356,14 +355,14 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
 
-            Debug.Assert(identity.assetId == Guid.Empty, "assetId needs to be empty at the start of this test");
+            Debug.Assert(identity.assetId == 0, "assetId needs to be empty at the start of this test");
             // assign a guid
-            Guid guid2 = new Guid();
+            uint assetId2 = 0;
             // expect no errors
-            identity.assetId = guid2;
+            identity.assetId = assetId2;
 
             // guid was still empty
-            Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
+            Assert.That(identity.assetId, Is.EqualTo(0));
         }
 
         [Test]
@@ -455,7 +454,7 @@ namespace Mirror.Tests
 
             // OnValidate will have been called. make sure that assetId was set
             // to 0 empty and not anything else, because this is a scene object
-            Assert.That(identity.assetId, Is.EqualTo(Guid.Empty));
+            Assert.That(identity.assetId, Is.EqualTo(0));
         }
 
         [Test]
