@@ -29,9 +29,12 @@ namespace Mirror
                 - Batcher.HeaderSize;
         }
 
-        // paul: 16 bits is enough to avoid collisions
-        //  - keeps the message size small
-        //  - in case of collisions,  Mirror will display an error
+        // automated message id from type hash.
+        // platform independent via stable hashcode.
+        // => convenient so we don't need to track messageIds across projects
+        // => addons can work with each other without knowing their ids before
+        // => 2 bytes is enough to avoid collisions.
+        //    registering a messageId twice will log a warning anyway.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort GetId<T>() where T : struct, NetworkMessage =>
             (ushort)(typeof(T).FullName.GetStableHashCode());
