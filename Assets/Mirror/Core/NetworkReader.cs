@@ -162,8 +162,8 @@ namespace Mirror
         /// <summary>Read 'count' bytes allocation-free as ArraySegment that points to the internal array.</summary>
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
-            // check if within buffer limits
-            if (Position + count > buffer.Count)
+            // ensure remaining
+            if (Remaining < count)
             {
                 throw new EndOfStreamException($"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}");
             }
