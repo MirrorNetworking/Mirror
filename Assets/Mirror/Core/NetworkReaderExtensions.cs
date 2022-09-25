@@ -261,7 +261,7 @@ namespace Mirror
             // this assumes that a reader for T reads at least 1 bytes
             // we can't know the exact size of T because it could have a user created reader
             // NOTE: don't add to length as it could overflow if value is int.max
-            if (length > reader.Capacity - reader.Position)
+            if (length > reader.Remaining)
             {
                 throw new EndOfStreamException($"Received array that is too large: {length}");
             }
