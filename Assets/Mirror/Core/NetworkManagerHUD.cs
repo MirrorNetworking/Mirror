@@ -104,17 +104,17 @@ namespace Mirror
             //   Client: ...
             if (NetworkServer.active && NetworkClient.active)
             {
-                GUILayout.Label($"<b>Host</b>: running via {Transport.activeTransport}");
+                GUILayout.Label($"<b>Host</b>: running via {Transport.active}");
             }
             // server only
             else if (NetworkServer.active)
             {
-                GUILayout.Label($"<b>Server</b>: running via {Transport.activeTransport}");
+                GUILayout.Label($"<b>Server</b>: running via {Transport.active}");
             }
             // client only
             else if (NetworkClient.isConnected)
             {
-                GUILayout.Label($"<b>Client</b>: connected to {manager.networkAddress} via {Transport.activeTransport}");
+                GUILayout.Label($"<b>Client</b>: connected to {manager.networkAddress} via {Transport.active}");
             }
         }
 

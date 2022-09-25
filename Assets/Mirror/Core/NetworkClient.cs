@@ -106,19 +106,19 @@ namespace Mirror
         static void AddTransportHandlers()
         {
             // += so that other systems can also hook into it (i.e. statistics)
-            Transport.activeTransport.OnClientConnected += OnTransportConnected;
-            Transport.activeTransport.OnClientDataReceived += OnTransportData;
-            Transport.activeTransport.OnClientDisconnected += OnTransportDisconnected;
-            Transport.activeTransport.OnClientError += OnTransportError;
+            Transport.active.OnClientConnected += OnTransportConnected;
+            Transport.active.OnClientDataReceived += OnTransportData;
+            Transport.active.OnClientDisconnected += OnTransportDisconnected;
+            Transport.active.OnClientError += OnTransportError;
         }
 
         static void RemoveTransportHandlers()
         {
             // -= so that other systems can also hook into it (i.e. statistics)
-            Transport.activeTransport.OnClientConnected -= OnTransportConnected;
-            Transport.activeTransport.OnClientDataReceived -= OnTransportData;
-            Transport.activeTransport.OnClientDisconnected -= OnTransportDisconnected;
-            Transport.activeTransport.OnClientError -= OnTransportError;
+            Transport.active.OnClientConnected -= OnTransportConnected;
+            Transport.active.OnClientDataReceived -= OnTransportData;
+            Transport.active.OnClientDisconnected -= OnTransportDisconnected;
+            Transport.active.OnClientError -= OnTransportError;
         }
 
         internal static void RegisterSystemHandlers(bool hostMode)
@@ -160,14 +160,14 @@ namespace Mirror
         public static void Connect(string address)
         {
             // Debug.Log($"Client Connect: {address}");
-            Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
+            Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
 
             RegisterSystemHandlers(false);
-            Transport.activeTransport.enabled = true;
+            Transport.active.enabled = true;
             AddTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(address);
+            Transport.active.ClientConnect(address);
 
             connection = new NetworkConnectionToServer();
         }
@@ -176,14 +176,14 @@ namespace Mirror
         public static void Connect(Uri uri)
         {
             // Debug.Log($"Client Connect: {uri}");
-            Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.activeTransport' first");
+            Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
 
             RegisterSystemHandlers(false);
-            Transport.activeTransport.enabled = true;
+            Transport.active.enabled = true;
             AddTransportHandlers();
 
             connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect(uri);
+            Transport.active.ClientConnect(uri);
 
             connection = new NetworkConnectionToServer();
         }
@@ -1399,8 +1399,8 @@ namespace Mirror
         internal static void NetworkEarlyUpdate()
         {
             // process all incoming messages first before updating the world
-            if (Transport.activeTransport != null)
-                Transport.activeTransport.ClientEarlyUpdate();
+            if (Transport.active != null)
+                Transport.active.ClientEarlyUpdate();
         }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
@@ -1427,8 +1427,8 @@ namespace Mirror
             }
 
             // process all outgoing messages after updating the world
-            if (Transport.activeTransport != null)
-                Transport.activeTransport.ClientLateUpdate();
+            if (Transport.active != null)
+                Transport.active.ClientLateUpdate();
         }
 
         // shutdown ////////////////////////////////////////////////////////////
@@ -1527,8 +1527,8 @@ namespace Mirror
             // we do NOT call Transport.Shutdown, because someone only called
             // NetworkClient.Shutdown. we can't assume that the server is
             // supposed to be shut down too!
-            if (Transport.activeTransport != null)
-                Transport.activeTransport.ClientDisconnect();
+            if (Transport.active != null)
+                Transport.active.ClientDisconnect();
 
             // reset statics
             connectState = ConnectState.None;

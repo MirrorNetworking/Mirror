@@ -72,7 +72,7 @@ namespace Mirror
             // reset NetworkTime
             NetworkTime.ResetStatics();
 
-            Debug.Assert(Transport.activeTransport != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.activeTransport' first");
+            Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkServer.Listen, If you are calling Listen manually then make sure to set 'Transport.active' first");
             AddTransportHandlers();
 
             initialized = true;
@@ -81,19 +81,19 @@ namespace Mirror
         static void AddTransportHandlers()
         {
             // += so that other systems can also hook into it (i.e. statistics)
-            Transport.activeTransport.OnServerConnected += OnTransportConnected;
-            Transport.activeTransport.OnServerDataReceived += OnTransportData;
-            Transport.activeTransport.OnServerDisconnected += OnTransportDisconnected;
-            Transport.activeTransport.OnServerError += OnTransportError;
+            Transport.active.OnServerConnected += OnTransportConnected;
+            Transport.active.OnServerDataReceived += OnTransportData;
+            Transport.active.OnServerDisconnected += OnTransportDisconnected;
+            Transport.active.OnServerError += OnTransportError;
         }
 
         static void RemoveTransportHandlers()
         {
             // -= so that other systems can also hook into it (i.e. statistics)
-            Transport.activeTransport.OnServerConnected -= OnTransportConnected;
-            Transport.activeTransport.OnServerDataReceived -= OnTransportData;
-            Transport.activeTransport.OnServerDisconnected -= OnTransportDisconnected;
-            Transport.activeTransport.OnServerError -= OnTransportError;
+            Transport.active.OnServerConnected -= OnTransportConnected;
+            Transport.active.OnServerDataReceived -= OnTransportData;
+            Transport.active.OnServerDisconnected -= OnTransportDisconnected;
+            Transport.active.OnServerError -= OnTransportError;
         }
 
         // calls OnStartClient for all SERVER objects in host mode once.
@@ -126,7 +126,7 @@ namespace Mirror
             // only start server if we want to listen
             if (!dontListen)
             {
-                Transport.activeTransport.ServerStart();
+                Transport.active.ServerStart();
                 //Debug.Log("Server started listening");
             }
 
@@ -183,7 +183,7 @@ namespace Mirror
                 //       someone might enabled dontListen at runtime.
                 //       but we still need to stop the server.
                 //       fixes https://github.com/vis2k/Mirror/issues/2536
-                Transport.activeTransport.ServerStop();
+                Transport.active.ServerStop();
 
                 // transport handlers are hooked into when initializing.
                 // so only remove them when shutting down.
@@ -403,14 +403,14 @@ namespace Mirror
             if (connectionId == 0)
             {
                 Debug.LogError($"Server.HandleConnect: invalid connectionId: {connectionId} . Needs to be != 0, because 0 is reserved for local player.");
-                Transport.activeTransport.ServerDisconnect(connectionId);
+                Transport.active.ServerDisconnect(connectionId);
                 return;
             }
 
             // connectionId not in use yet?
             if (connections.ContainsKey(connectionId))
             {
-                Transport.activeTransport.ServerDisconnect(connectionId);
+                Transport.active.ServerDisconnect(connectionId);
                 // Debug.Log($"Server connectionId {connectionId} already in use...kicked client");
                 return;
             }
@@ -429,7 +429,7 @@ namespace Mirror
             else
             {
                 // kick
-                Transport.activeTransport.ServerDisconnect(connectionId);
+                Transport.active.ServerDisconnect(connectionId);
                 // Debug.Log($"Server full, kicked client {connectionId}");
             }
         }
@@ -1692,8 +1692,8 @@ namespace Mirror
         internal static void NetworkEarlyUpdate()
         {
             // process all incoming messages first before updating the world
-            if (Transport.activeTransport != null)
-                Transport.activeTransport.ServerEarlyUpdate();
+            if (Transport.active != null)
+                Transport.active.ServerEarlyUpdate();
         }
 
         internal static void NetworkLateUpdate()
@@ -1704,8 +1704,8 @@ namespace Mirror
 
             // process all outgoing messages after updating the world
             // (even if not active. still want to process disconnects etc.)
-            if (Transport.activeTransport != null)
-                Transport.activeTransport.ServerLateUpdate();
+            if (Transport.active != null)
+                Transport.active.ServerLateUpdate();
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Mirror
             if (!batches.TryGetValue(channelId, out batch))
             {
                 // get max batch size for this channel
-                int threshold = Transport.activeTransport.GetBatchThreshold(channelId);
+                int threshold = Transport.active.GetBatchThreshold(channelId);
 
                 // create batcher
                 batch = new Batcher(threshold);
@@ -107,7 +107,7 @@ namespace Mirror
         // => it's important to log errors, so the user knows what went wrong.
         protected static bool ValidatePacketSize(ArraySegment<byte> segment, int channelId)
         {
-            int max = Transport.activeTransport.GetMaxPacketSize(channelId);
+            int max = Transport.active.GetMaxPacketSize(channelId);
             if (segment.Count > max)
             {
                 Debug.LogError($"NetworkConnection.ValidatePacketSize: cannot send packet larger than {max} bytes, was {segment.Count} bytes");

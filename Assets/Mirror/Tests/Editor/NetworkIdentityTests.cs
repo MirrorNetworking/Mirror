@@ -701,7 +701,7 @@ namespace Mirror.Tests
             NetworkClient.Connect("localhost");
 
             // manually invoke transport.OnConnected so that NetworkClient.active is set to true
-            Transport.activeTransport.OnClientConnected.Invoke();
+            Transport.active.OnClientConnected.Invoke();
             Assert.That(NetworkClient.active, Is.True);
 
             // isClient needs to be true in OnStartServer if in host mode.

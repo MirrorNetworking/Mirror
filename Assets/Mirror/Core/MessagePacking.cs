@@ -21,9 +21,9 @@ namespace Mirror
         public static int MaxContentSize
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Transport.activeTransport.GetMaxPacketSize()
-                   - HeaderSize
-                   - Batcher.HeaderSize;
+            get => Transport.active.GetMaxPacketSize()
+                - HeaderSize
+                - Batcher.HeaderSize;
         }
 
         // paul: 16 bits is enough to avoid collisions

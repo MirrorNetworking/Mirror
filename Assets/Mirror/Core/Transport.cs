@@ -32,7 +32,11 @@ namespace Mirror
     {
         // common //////////////////////////////////////////////////////////////
         /// <summary>The current transport used by Mirror.</summary>
+        [Obsolete(".activeTransport was renamed to .active")] // 2021-09-25
         public static Transport activeTransport;
+
+        /// <summary>The current transport used by Mirror.</summary>
+        public static Transport active;
 
         /// <summary>Is this transport available in the current platform?</summary>
         public abstract bool Available();

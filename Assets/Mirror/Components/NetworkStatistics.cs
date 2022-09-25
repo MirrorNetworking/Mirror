@@ -50,12 +50,12 @@ namespace Mirror
         [HideInInspector] public int serverSentPacketsPerSecond;
         [HideInInspector] public long serverSentBytesPerSecond;
 
-        // NetworkManager sets Transport.activeTransport in Awake().
+        // NetworkManager sets Transport.active in Awake().
         // so let's hook into it in Start().
         void Start()
         {
             // find available transport
-            Transport transport = Transport.activeTransport;
+            Transport transport = Transport.active;
             if (transport != null)
             {
                 transport.OnClientDataReceived += OnClientReceive;
@@ -69,7 +69,7 @@ namespace Mirror
         void OnDestroy()
         {
             // remove transport hooks
-            Transport transport = Transport.activeTransport;
+            Transport transport = Transport.active;
             if (transport != null)
             {
                 transport.OnClientDataReceived -= OnClientReceive;

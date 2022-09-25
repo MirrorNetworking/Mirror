@@ -7,7 +7,7 @@ namespace Mirror
     public class NetworkConnectionToClient : NetworkConnection
     {
         public override string address =>
-            Transport.activeTransport.ServerGetClientAddress(connectionId);
+            Transport.active.ServerGetClientAddress(connectionId);
 
         /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
@@ -29,7 +29,7 @@ namespace Mirror
         // Send stage three: hand off to transport
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
-            Transport.activeTransport.ServerSend(connectionId, segment, channelId);
+            Transport.active.ServerSend(connectionId, segment, channelId);
 
         /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
@@ -37,7 +37,7 @@ namespace Mirror
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
-            Transport.activeTransport.ServerDisconnect(connectionId);
+            Transport.active.ServerDisconnect(connectionId);
 
             // IMPORTANT: NetworkConnection.Disconnect() is NOT called for
             // voluntary disconnects from the other end.

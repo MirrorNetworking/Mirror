@@ -677,7 +677,7 @@ namespace Mirror
 
             // set active transport AFTER setting singleton.
             // so only if we didn't destroy ourselves.
-            Transport.activeTransport = transport;
+            Transport.active = transport;
             return true;
         }
 

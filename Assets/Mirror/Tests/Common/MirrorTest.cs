@@ -27,7 +27,7 @@ namespace Mirror.Tests
             holder = new GameObject("MirrorTest.holder");
 
             // need a transport to send & receive
-            Transport.activeTransport = transport = holder.AddComponent<MemoryTransport>();
+            Transport.active = transport = holder.AddComponent<MemoryTransport>();
         }
 
         public virtual void TearDown()
@@ -46,7 +46,7 @@ namespace Mirror.Tests
                     GameObject.DestroyImmediate(go);
 
             GameObject.DestroyImmediate(transport.gameObject);
-            Transport.activeTransport = null;
+            Transport.active = null;
             NetworkManager.singleton = null;
         }
 
