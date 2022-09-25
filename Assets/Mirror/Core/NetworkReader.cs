@@ -31,11 +31,6 @@ namespace Mirror
         [Obsolete("NetworkReader.Length was renamed to Capacity")] // 2022-09-25
         public int Length => Capacity;
 
-        public NetworkReader(byte[] bytes)
-        {
-            buffer = new ArraySegment<byte>(bytes);
-        }
-
         public NetworkReader(ArraySegment<byte> segment)
         {
             buffer = segment;
