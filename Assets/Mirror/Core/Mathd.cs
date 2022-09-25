@@ -5,11 +5,6 @@ namespace Mirror
 {
     public static class Mathd
     {
-        /// <summary>Linearly interpolates between a and b by t with no limit to t.</summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double LerpUnclamped(double a, double b, double t) =>
-            a + (b - a) * t;
-
         /// <summary>Clamps value between 0 and 1 and returns value.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Clamp01(double value)
@@ -23,5 +18,10 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double InverseLerp(double a, double b, double value) =>
             a != b ? Clamp01((value - a) / (b - a)) : 0;
+
+        /// <summary>Linearly interpolates between a and b by t with no limit to t.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double LerpUnclamped(double a, double b, double t) =>
+            a + (b - a) * t;
     }
 }
