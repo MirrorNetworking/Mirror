@@ -187,7 +187,7 @@ namespace Mirror
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;
             if (readerDelegate == null)
             {
-                Debug.LogError($"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader");
+                Debug.LogError($"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader extension for {typeof(T)}.");
                 return default;
             }
             return readerDelegate(this);
