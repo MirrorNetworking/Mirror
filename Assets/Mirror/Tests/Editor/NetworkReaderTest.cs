@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -102,6 +103,31 @@ namespace Mirror.Tests
                 ArraySegment<byte> result = reader.ReadBytesSegment(-1);
             });
         }
+
+        // an attacker might try to send invalid utf to throw exceptions.
+        // bytes 192, 193, and 245-255 will throw:
+        //
+        // System.Text.DecoderFallbackException : Unable to translate bytes [C0]
+        // at index 0 from specified code page to Unicode.
+        //
+        // need to ensure the code never throws. simply return "" if invalid.
+        [Test]
+        public void ReadString_InvalidUTF8()
+        {
+            byte[] data =
+            {
+                0x03, 0x00,                              // size header for 2 bytes (it's always +1)
+                0x61,                                    // "a"
+                192,                                     // invalid byte
+                0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00 // fixed size worth
+            };
+            NetworkReader reader = new NetworkReader(data);
+            Assert.Throws<DecoderFallbackException>(() =>
+            {
+                string value = reader.ReadString();
+            });
+        }
+
         // NetworkReader.ToString actually contained a bug once.
         // ensure this never happens again.
         [Test]

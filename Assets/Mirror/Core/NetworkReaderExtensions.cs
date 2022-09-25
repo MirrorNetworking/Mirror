@@ -76,6 +76,7 @@ namespace Mirror
 
             // convert directly from buffer to string via encoding
             // throws in case of invalid utf8.
+            // see test: ReadString_InvalidUTF8()
             return reader.encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
