@@ -46,10 +46,7 @@ namespace Mirror
         public static void Pack<T>(T message, NetworkWriter writer)
             where T : struct, NetworkMessage
         {
-            ushort msgType = GetId<T>();
-            writer.WriteUShort(msgType);
-
-            // serialize message into writer
+            writer.WriteUShort(GetId<T>());
             writer.Write(message);
         }
 
