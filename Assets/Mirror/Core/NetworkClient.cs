@@ -347,7 +347,7 @@ namespace Mirror
                        unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
                     // enough to read at least header size?
-                    if (reader.Remaining >= MessagePacking.HeaderSize)
+                    if (reader.Remaining >= MessagePacking.IdSize)
                     {
                         // make remoteTimeStamp available to the user
                         connection.remoteTimeStamp = remoteTimestamp;

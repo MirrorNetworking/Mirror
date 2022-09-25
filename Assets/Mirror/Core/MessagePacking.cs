@@ -11,8 +11,11 @@ namespace Mirror
     //   Content     (ContentSize bytes)
     public static class MessagePacking
     {
-        // message header size
-        public const int HeaderSize = sizeof(ushort);
+        [Obsolete("HeaderSize was renamed to IdSize")] // 2022-09-25
+        public static int HeaderSize => IdSize;
+
+        // size of message id header in bytes
+        public const int IdSize = sizeof(ushort);
 
         // max message content size (without header) calculation for convenience
         // -> Transport.GetMaxPacketSize is the raw maximum
@@ -22,7 +25,7 @@ namespace Mirror
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Transport.active.GetMaxPacketSize()
-                - HeaderSize
+                - IdSize
                 - Batcher.HeaderSize;
         }
 
