@@ -34,7 +34,7 @@ namespace Mirror
         //  - in case of collisions,  Mirror will display an error
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort GetId<T>() where T : struct, NetworkMessage =>
-            (ushort)(typeof(T).FullName.GetStableHashCode() & 0xFFFF);
+            (ushort)(typeof(T).FullName.GetStableHashCode());
 
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
