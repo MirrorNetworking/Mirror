@@ -102,5 +102,28 @@ namespace Mirror.Tests
                 ArraySegment<byte> result = reader.ReadBytesSegment(-1);
             });
         }
+        // NetworkReader.ToString actually contained a bug once.
+        // ensure this never happens again.
+        [Test]
+        public void ToStringTest()
+        {
+            // byte[] with offset and count that's smaller than total length
+            byte[] data = {0xA1, 0xB2, 0xC3, 0xD4, 0xE5};
+            ArraySegment<byte> segment = new ArraySegment<byte>(data, 1, 3);
+            NetworkReader reader = new NetworkReader(segment);
+            Assert.That(reader.ToString(), Is.EqualTo("[B2-C3-D4 @ 0/3]"));
+
+            // different position
+            reader.Position = 1;
+            Assert.That(reader.ToString(), Is.EqualTo("[B2-C3-D4 @ 1/3]"));
+
+            // byte[] with no offset and exact count
+            NetworkReader reader2 = new NetworkReader(data);
+            Assert.That(reader2.ToString(), Is.EqualTo("[A1-B2-C3-D4-E5 @ 0/5]"));
+
+            // different position
+            reader2.Position = 1;
+            Assert.That(reader2.ToString(), Is.EqualTo("[A1-B2-C3-D4-E5 @ 1/5]"));
+        }
     }
 }

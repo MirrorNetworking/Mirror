@@ -182,7 +182,7 @@ namespace Mirror
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
-            $"NetworkReader pos={Position} capacity={Capacity} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
+            $"[{buffer.ToHexString()} @ {Position}/{Capacity}]";
 
         /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
