@@ -22,18 +22,18 @@ namespace Mirror
         // -> converting long to int is fine until 2GB of data (MAX_INT), so we don't have to worry about overflows here
         public int Position;
 
-        /// <summary>Total number of bytes to read from buffer</summary>
-        public int Length
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => buffer.Count;
-        }
-
         /// <summary>Remaining bytes that can be read, for convenience.</summary>
         public int Remaining
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Length - Position;
+        }
+
+        /// <summary>Total number of bytes to read from buffer</summary>
+        public int Length
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => buffer.Count;
         }
 
         public NetworkReader(byte[] bytes)
@@ -152,7 +152,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal T? ReadBlittableNullable<T>()
             where T : unmanaged =>
-                ReadByte() != 0 ? ReadBlittable<T>() : default(T?);
+            ReadByte() != 0 ? ReadBlittable<T>() : default(T?);
 
         public byte ReadByte() => ReadBlittable<byte>();
 
