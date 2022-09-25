@@ -9,11 +9,12 @@ namespace Mirror
     public class NetworkWriter
     {
         public const int MaxStringLength = 1024 * 32;
+        public const int DefaultCapacity = 1500;
 
         // create writer immediately with it's own buffer so no one can mess with it and so that we can resize it.
         // note: BinaryWriter allocates too much, so we only use a MemoryStream
         // => 1500 bytes by default because on average, most packets will be <= MTU
-        internal byte[] buffer = new byte[1500];
+        internal byte[] buffer = new byte[DefaultCapacity];
 
         /// <summary>Next position to write to the buffer</summary>
         public int Position;
