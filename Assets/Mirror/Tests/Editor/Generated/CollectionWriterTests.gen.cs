@@ -8,7 +8,7 @@ namespace Mirror.Tests.Generated.CollectionWriters
 {
     public struct FloatStringStruct
     {
-        public float value;
+        public float  value;
         public string anotherValue;
     }
 
@@ -27,14 +27,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             int[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -43,14 +40,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new int[] {}
-            };
+            Message message = new Message {collection = new int[] {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             int[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -60,17 +54,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new int[]
-                {
-                    3, 4, 5
-                }
-            };
+            Message message = new Message {collection = new int[] {3, 4, 5}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             int[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -91,14 +79,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             string[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -107,14 +92,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new string[] {}
-            };
+            Message message = new Message {collection = new string[] {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             string[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -124,17 +106,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new string[]
-                {
-                    "Some", "String", "Value"
-                }
-            };
+            Message message = new Message {collection = new string[] {"Some", "String", "Value"}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             string[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -155,14 +131,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -171,14 +144,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new Vector3[] {}
-            };
+            Message message = new Message {collection = new Vector3[] {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -188,17 +158,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new Vector3[]
-                {
-                    new Vector3(1, 2, 3), new Vector3(4, 5, 6), new Vector3(7, 8, 9)
-                }
-            };
+            Message message = new Message {collection = new Vector3[] {new Vector3(1, 2, 3), new Vector3(4, 5, 6), new Vector3(7, 8, 9)}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             Vector3[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -219,14 +183,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -235,14 +196,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new FloatStringStruct[] {}
-            };
+            Message message = new Message {collection = new FloatStringStruct[] {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -252,24 +210,18 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new FloatStringStruct[]
-                {
-                    new FloatStringStruct { value = 3, anotherValue = "Some" }, new FloatStringStruct { value = 4, anotherValue = "String" }, new FloatStringStruct { value = 5, anotherValue = "Values" }
-                }
-            };
+            Message message = new Message {collection = new FloatStringStruct[] {new FloatStringStruct {value = 3, anotherValue = "Some"}, new FloatStringStruct {value = 4, anotherValue = "String"}, new FloatStringStruct {value = 5, anotherValue = "Values"}}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             FloatStringStruct[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
             Assert.IsNotEmpty(unpackedCollection);
-            Assert.That(unpackedCollection[0], Is.EqualTo(new FloatStringStruct { value = 3, anotherValue = "Some" }));
-            Assert.That(unpackedCollection[1], Is.EqualTo(new FloatStringStruct { value = 4, anotherValue = "String" }));
-            Assert.That(unpackedCollection[2], Is.EqualTo(new FloatStringStruct { value = 5, anotherValue = "Values" }));
+            Assert.That(unpackedCollection[0], Is.EqualTo(new FloatStringStruct {value = 3, anotherValue = "Some"}));
+            Assert.That(unpackedCollection[1], Is.EqualTo(new FloatStringStruct {value = 4, anotherValue = "String"}));
+            Assert.That(unpackedCollection[2], Is.EqualTo(new FloatStringStruct {value = 5, anotherValue = "Values"}));
         }
     }
 
@@ -283,14 +235,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -299,14 +248,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new ClassWithNoConstructor[] {}
-            };
+            Message message = new Message {collection = new ClassWithNoConstructor[] {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -316,24 +262,18 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new ClassWithNoConstructor[]
-                {
-                    new ClassWithNoConstructor { a = 3 }, new ClassWithNoConstructor { a = 4 }, new ClassWithNoConstructor { a = 5 }
-                }
-            };
+            Message message = new Message {collection = new ClassWithNoConstructor[] {new ClassWithNoConstructor {a = 3}, new ClassWithNoConstructor {a = 4}, new ClassWithNoConstructor {a = 5}}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ClassWithNoConstructor[] unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
             Assert.IsNotEmpty(unpackedCollection);
-            Assert.That(unpackedCollection[0].a, Is.EqualTo(new ClassWithNoConstructor { a = 3 }.a));
-            Assert.That(unpackedCollection[1].a, Is.EqualTo(new ClassWithNoConstructor { a = 4 }.a));
-            Assert.That(unpackedCollection[2].a, Is.EqualTo(new ClassWithNoConstructor { a = 5 }.a));
+            Assert.That(unpackedCollection[0].a, Is.EqualTo(new ClassWithNoConstructor {a = 3}.a));
+            Assert.That(unpackedCollection[1].a, Is.EqualTo(new ClassWithNoConstructor {a = 4}.a));
+            Assert.That(unpackedCollection[2].a, Is.EqualTo(new ClassWithNoConstructor {a = 5}.a));
         }
     }
 
@@ -347,14 +287,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -363,21 +300,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            int[] array = new int[]
-            {
-                default,
-                default,
-                default,
-            };
+            int[] array = new int[] {default, default, default,};
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<int>(array, 0, 0)
-            };
+            Message message = new Message {collection = new ArraySegment<int>(array, 0, 0)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -387,24 +316,14 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            int[] array = new int[]
-            {
-                default,
-                3, 4, 5,
-                default,
-                default,
-                default,
-            };
+            int[] array = new int[] {default, 3, 4, 5, default, default, default,};
 
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<int>(array, 1, 3)
-            };
+            Message message = new Message {collection = new ArraySegment<int>(array, 1, 3)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -425,14 +344,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -441,21 +357,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            string[] array = new string[]
-            {
-                default,
-                default,
-                default,
-            };
+            string[] array = new string[] {default, default, default,};
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<string>(array, 0, 0)
-            };
+            Message message = new Message {collection = new ArraySegment<string>(array, 0, 0)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -465,24 +373,14 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            string[] array = new string[]
-            {
-                default,
-                "Some", "String", "Value",
-                default,
-                default,
-                default,
-            };
+            string[] array = new string[] {default, "Some", "String", "Value", default, default, default,};
 
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<string>(array, 1, 3)
-            };
+            Message message = new Message {collection = new ArraySegment<string>(array, 1, 3)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -503,14 +401,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -519,21 +414,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Vector3[] array = new Vector3[]
-            {
-                default,
-                default,
-                default,
-            };
+            Vector3[] array = new Vector3[] {default, default, default,};
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<Vector3>(array, 0, 0)
-            };
+            Message message = new Message {collection = new ArraySegment<Vector3>(array, 0, 0)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -543,24 +430,14 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Vector3[] array = new Vector3[]
-            {
-                default,
-                new Vector3(1, 2, 3), new Vector3(4, 5, 6), new Vector3(7, 8, 9),
-                default,
-                default,
-                default,
-            };
+            Vector3[] array = new Vector3[] {default, new Vector3(1, 2, 3), new Vector3(4, 5, 6), new Vector3(7, 8, 9), default, default, default,};
 
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<Vector3>(array, 1, 3)
-            };
+            Message message = new Message {collection = new ArraySegment<Vector3>(array, 1, 3)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -581,14 +458,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -597,21 +471,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            FloatStringStruct[] array = new FloatStringStruct[]
-            {
-                default,
-                default,
-                default,
-            };
+            FloatStringStruct[] array = new FloatStringStruct[] {default, default, default,};
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<FloatStringStruct>(array, 0, 0)
-            };
+            Message message = new Message {collection = new ArraySegment<FloatStringStruct>(array, 0, 0)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -621,31 +487,21 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            FloatStringStruct[] array = new FloatStringStruct[]
-            {
-                default,
-                new FloatStringStruct { value = 3, anotherValue = "Some" }, new FloatStringStruct { value = 4, anotherValue = "String" }, new FloatStringStruct { value = 5, anotherValue = "Values" },
-                default,
-                default,
-                default,
-            };
+            FloatStringStruct[] array = new FloatStringStruct[] {default, new FloatStringStruct {value = 3, anotherValue = "Some"}, new FloatStringStruct {value = 4, anotherValue = "String"}, new FloatStringStruct {value = 5, anotherValue = "Values"}, default, default, default,};
 
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<FloatStringStruct>(array, 1, 3)
-            };
+            Message message = new Message {collection = new ArraySegment<FloatStringStruct>(array, 1, 3)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
             Assert.IsNotEmpty(unpackedCollection.Array);
-            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 0], Is.EqualTo(new FloatStringStruct { value = 3, anotherValue = "Some" }));
-            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 1], Is.EqualTo(new FloatStringStruct { value = 4, anotherValue = "String" }));
-            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 2], Is.EqualTo(new FloatStringStruct { value = 5, anotherValue = "Values" }));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 0], Is.EqualTo(new FloatStringStruct {value = 3, anotherValue = "Some"}));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 1], Is.EqualTo(new FloatStringStruct {value = 4, anotherValue = "String"}));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 2], Is.EqualTo(new FloatStringStruct {value = 5, anotherValue = "Values"}));
         }
     }
 
@@ -659,14 +515,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection.Array, Is.Null.Or.Empty);
@@ -675,21 +528,13 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            ClassWithNoConstructor[] array = new ClassWithNoConstructor[]
-            {
-                default,
-                default,
-                default,
-            };
+            ClassWithNoConstructor[] array = new ClassWithNoConstructor[] {default, default, default,};
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<ClassWithNoConstructor>(array, 0, 0)
-            };
+            Message message = new Message {collection = new ArraySegment<ClassWithNoConstructor>(array, 0, 0)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
@@ -699,31 +544,21 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            ClassWithNoConstructor[] array = new ClassWithNoConstructor[]
-            {
-                default,
-                new ClassWithNoConstructor { a = 3 }, new ClassWithNoConstructor { a = 4 }, new ClassWithNoConstructor { a = 5 },
-                default,
-                default,
-                default,
-            };
+            ClassWithNoConstructor[] array = new ClassWithNoConstructor[] {default, new ClassWithNoConstructor {a = 3}, new ClassWithNoConstructor {a = 4}, new ClassWithNoConstructor {a = 5}, default, default, default,};
 
 
-            Message message = new Message
-            {
-                collection = new ArraySegment<ClassWithNoConstructor>(array, 1, 3)
-            };
+            Message message = new Message {collection = new ArraySegment<ClassWithNoConstructor>(array, 1, 3)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             ArraySegment<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection.Array);
             Assert.IsNotEmpty(unpackedCollection.Array);
-            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 0].a, Is.EqualTo(new ClassWithNoConstructor { a = 3 }.a));
-            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 1].a, Is.EqualTo(new ClassWithNoConstructor { a = 4 }.a));
-            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 2].a, Is.EqualTo(new ClassWithNoConstructor { a = 5 }.a));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 0].a, Is.EqualTo(new ClassWithNoConstructor {a = 3}.a));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 1].a, Is.EqualTo(new ClassWithNoConstructor {a = 4}.a));
+            Assert.That(unpackedCollection.Array[unpackedCollection.Offset + 2].a, Is.EqualTo(new ClassWithNoConstructor {a = 5}.a));
         }
     }
 
@@ -737,14 +572,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -753,14 +585,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new List<int> {}
-            };
+            Message message = new Message {collection = new List<int> {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -770,17 +599,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new List<int>
-                {
-                    3, 4, 5
-                }
-            };
+            Message message = new Message {collection = new List<int> {3, 4, 5}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<int> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -801,14 +624,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -817,14 +637,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new List<string> {}
-            };
+            Message message = new Message {collection = new List<string> {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -834,17 +651,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new List<string>
-                {
-                    "Some", "String", "Value"
-                }
-            };
+            Message message = new Message {collection = new List<string> {"Some", "String", "Value"}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<string> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -865,14 +676,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -881,14 +689,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new List<Vector3> {}
-            };
+            Message message = new Message {collection = new List<Vector3> {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -898,17 +703,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new List<Vector3>
-                {
-                    new Vector3(1, 2, 3), new Vector3(4, 5, 6), new Vector3(7, 8, 9)
-                }
-            };
+            Message message = new Message {collection = new List<Vector3> {new Vector3(1, 2, 3), new Vector3(4, 5, 6), new Vector3(7, 8, 9)}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<Vector3> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -929,14 +728,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -945,14 +741,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new List<FloatStringStruct> {}
-            };
+            Message message = new Message {collection = new List<FloatStringStruct> {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -962,24 +755,18 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new List<FloatStringStruct>
-                {
-                    new FloatStringStruct { value = 3, anotherValue = "Some" }, new FloatStringStruct { value = 4, anotherValue = "String" }, new FloatStringStruct { value = 5, anotherValue = "Values" }
-                }
-            };
+            Message message = new Message {collection = new List<FloatStringStruct> {new FloatStringStruct {value = 3, anotherValue = "Some"}, new FloatStringStruct {value = 4, anotherValue = "String"}, new FloatStringStruct {value = 5, anotherValue = "Values"}}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<FloatStringStruct> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
             Assert.IsNotEmpty(unpackedCollection);
-            Assert.That(unpackedCollection[0], Is.EqualTo(new FloatStringStruct { value = 3, anotherValue = "Some" }));
-            Assert.That(unpackedCollection[1], Is.EqualTo(new FloatStringStruct { value = 4, anotherValue = "String" }));
-            Assert.That(unpackedCollection[2], Is.EqualTo(new FloatStringStruct { value = 5, anotherValue = "Values" }));
+            Assert.That(unpackedCollection[0], Is.EqualTo(new FloatStringStruct {value = 3, anotherValue = "Some"}));
+            Assert.That(unpackedCollection[1], Is.EqualTo(new FloatStringStruct {value = 4, anotherValue = "String"}));
+            Assert.That(unpackedCollection[2], Is.EqualTo(new FloatStringStruct {value = 5, anotherValue = "Values"}));
         }
     }
 
@@ -993,14 +780,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsNull()
         {
-            Message message = new Message
-            {
-                collection = default
-            };
+            Message message = new Message {collection = default};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.That(unpackedCollection, Is.Null.Or.Empty);
@@ -1009,14 +793,11 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsEmpty()
         {
-            Message message = new Message
-            {
-                collection = new List<ClassWithNoConstructor> {}
-            };
+            Message message = new Message {collection = new List<ClassWithNoConstructor> {}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
@@ -1026,24 +807,18 @@ namespace Mirror.Tests.Generated.CollectionWriters
         [Test]
         public void SendsData()
         {
-            Message message = new Message
-            {
-                collection = new List<ClassWithNoConstructor>
-                {
-                    new ClassWithNoConstructor { a = 3 }, new ClassWithNoConstructor { a = 4 }, new ClassWithNoConstructor { a = 5 }
-                }
-            };
+            Message message = new Message {collection = new List<ClassWithNoConstructor> {new ClassWithNoConstructor {a = 3}, new ClassWithNoConstructor {a = 4}, new ClassWithNoConstructor {a = 5}}};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
 
-            Message unpacked = MessagePackingTest.UnpackFromByteArray<Message>(data);
+            Message unpacked = NetworkMessagesTest.UnpackFromByteArray<Message>(data);
             List<ClassWithNoConstructor> unpackedCollection = unpacked.collection;
 
             Assert.IsNotNull(unpackedCollection);
             Assert.IsNotEmpty(unpackedCollection);
-            Assert.That(unpackedCollection[0].a, Is.EqualTo(new ClassWithNoConstructor { a = 3 }.a));
-            Assert.That(unpackedCollection[1].a, Is.EqualTo(new ClassWithNoConstructor { a = 4 }.a));
-            Assert.That(unpackedCollection[2].a, Is.EqualTo(new ClassWithNoConstructor { a = 5 }.a));
+            Assert.That(unpackedCollection[0].a, Is.EqualTo(new ClassWithNoConstructor {a = 3}.a));
+            Assert.That(unpackedCollection[1].a, Is.EqualTo(new ClassWithNoConstructor {a = 4}.a));
+            Assert.That(unpackedCollection[2].a, Is.EqualTo(new ClassWithNoConstructor {a = 5}.a));
         }
     }
 }

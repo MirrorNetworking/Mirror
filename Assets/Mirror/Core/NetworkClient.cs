@@ -280,7 +280,7 @@ namespace Mirror
         // helper function
         static bool UnpackAndInvoke(NetworkReader reader, int channelId)
         {
-            if (MessagePacking.UnpackId(reader, out ushort msgType))
+            if (NetworkMessages.UnpackId(reader, out ushort msgType))
             {
                 // try to invoke the handler for that message
                 if (handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))
@@ -347,7 +347,7 @@ namespace Mirror
                        unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
                     // enough to read at least header size?
-                    if (reader.Remaining >= MessagePacking.IdSize)
+                    if (reader.Remaining >= NetworkMessages.IdSize)
                     {
                         // make remoteTimeStamp available to the user
                         connection.remoteTimeStamp = remoteTimestamp;
@@ -462,16 +462,17 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            ushort msgType = MessagePacking.GetId<T>();
+            ushort msgType = NetworkMessages.GetId<T>();
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
             }
+
             // we use the same WrapHandler function for server and client.
             // so let's wrap it to ignore the NetworkConnection parameter.
             // it's not needed on client. it's always NetworkClient.connection.
             void HandlerWrapped(NetworkConnection _, T value) => handler(value);
-            handlers[msgType] = MessagePacking.WrapHandler((Action<NetworkConnection, T>) HandlerWrapped, requireAuthentication);
+            handlers[msgType] = NetworkMessages.WrapHandler((Action<NetworkConnection, T>)HandlerWrapped, requireAuthentication);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -480,8 +481,8 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            ushort msgType = MessagePacking.GetId<T>();
-            handlers[msgType] = MessagePacking.WrapHandler(handler, requireAuthentication);
+            ushort msgType = NetworkMessages.GetId<T>();
+            handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
         /// <summary>Replace a handler for a particular message type. Should require authentication by default.</summary>
@@ -498,7 +499,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // use int to minimize collisions
-            ushort msgType = MessagePacking.GetId<T>();
+            ushort msgType = NetworkMessages.GetId<T>();
             return handlers.Remove(msgType);
         }
 

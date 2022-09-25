@@ -4,7 +4,7 @@ namespace Mirror.Tests.MessageTests
 {
     struct TestMessage : NetworkMessage
     {
-        public int IntValue;
+        public int    IntValue;
         public string StringValue;
         public double DoubleValue;
 
@@ -32,7 +32,7 @@ namespace Mirror.Tests.MessageTests
 
     struct StructWithEmptyMethodMessage : NetworkMessage
     {
-        public int IntValue;
+        public int    IntValue;
         public string StringValue;
         public double DoubleValue;
     }
@@ -44,8 +44,8 @@ namespace Mirror.Tests.MessageTests
         [Test]
         public void StructWithMethods()
         {
-            byte[] bytes = MessagePackingTest.PackToByteArray(new TestMessage(1, "2", 3.3));
-            TestMessage message = MessagePackingTest.UnpackFromByteArray<TestMessage>(bytes);
+            byte[] bytes = NetworkMessagesTest.PackToByteArray(new TestMessage(1, "2", 3.3));
+            TestMessage message = NetworkMessagesTest.UnpackFromByteArray<TestMessage>(bytes);
 
             Assert.AreEqual(1, message.IntValue);
         }
@@ -54,8 +54,8 @@ namespace Mirror.Tests.MessageTests
         [Test]
         public void StructWithEmptyMethods()
         {
-            byte[] bytes = MessagePackingTest.PackToByteArray(new StructWithEmptyMethodMessage { IntValue = 1, StringValue = "2", DoubleValue = 3.3 });
-            StructWithEmptyMethodMessage message = MessagePackingTest.UnpackFromByteArray<StructWithEmptyMethodMessage>(bytes);
+            byte[] bytes = NetworkMessagesTest.PackToByteArray(new StructWithEmptyMethodMessage {IntValue = 1, StringValue = "2", DoubleValue = 3.3});
+            StructWithEmptyMethodMessage message = NetworkMessagesTest.UnpackFromByteArray<StructWithEmptyMethodMessage>(bytes);
 
             Assert.AreEqual(1, message.IntValue);
             Assert.AreEqual("2", message.StringValue);

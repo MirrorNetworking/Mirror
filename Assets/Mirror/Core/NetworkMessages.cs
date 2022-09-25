@@ -4,12 +4,33 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [Obsolete("MessagePacking.* was renamed to NetworkMessages.*")] // 2022-09-25
+    public static class MessagePacking
+    {
+        public static int HeaderSize => IdSize;
+        public static int IdSize => NetworkMessages.IdSize;
+        public static int MaxContentSize => NetworkMessages.MaxContentSize;
+        public static ushort GetId<T>() where T : struct, NetworkMessage => NetworkMessages.GetId<T>();
+        public static void Pack<T>(T message, NetworkWriter writer)
+            where T : struct, NetworkMessage =>
+            NetworkMessages.Pack(message, writer);
+        public static bool Unpack(NetworkReader reader, out ushort messageId) => NetworkMessages.UnpackId(reader, out messageId);
+        public static bool UnpackId(NetworkReader reader, out ushort messageId) => NetworkMessages.UnpackId(reader, out messageId);
+        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T, int> handler, bool requireAuthentication)
+            where T : struct, NetworkMessage
+            where C : NetworkConnection
+            => (conn, reader, channelId) => NetworkMessages.WrapHandler(handler, requireAuthentication);
+        internal static NetworkMessageDelegate WrapHandler<T, C>(Action<C, T> handler, bool requireAuthentication)
+            where T : struct, NetworkMessage
+            where C : NetworkConnection => NetworkMessages.WrapHandler(handler, requireAuthentication);
+    }
+
     // message packing all in one place, instead of constructing headers in all
     // kinds of different places
     //
     //   MsgType     (2 bytes)
     //   Content     (ContentSize bytes)
-    public static class MessagePacking
+    public static class NetworkMessages
     {
         [Obsolete("HeaderSize was renamed to IdSize")] // 2022-09-25
         public static int HeaderSize => IdSize;

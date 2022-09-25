@@ -40,13 +40,10 @@ namespace Mirror.Tests
         [Test]
         public void TestCustomRW()
         {
-            QuestMessage message = new QuestMessage
-            {
-                quest = new MockQuest(100)
-            };
+            QuestMessage message = new QuestMessage {quest = new MockQuest(100)};
 
-            byte[] data = MessagePackingTest.PackToByteArray(message);
-            QuestMessage unpacked = MessagePackingTest.UnpackFromByteArray<QuestMessage>(data);
+            byte[] data = NetworkMessagesTest.PackToByteArray(message);
+            QuestMessage unpacked = NetworkMessagesTest.UnpackFromByteArray<QuestMessage>(data);
             Assert.That(unpacked.quest.Id, Is.EqualTo(100));
         }
     }

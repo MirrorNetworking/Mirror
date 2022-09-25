@@ -398,7 +398,7 @@ namespace Mirror.Tests
             ConnectClientBlocking(out _);
 
             // send message & process
-            int max = MessagePacking.MaxContentSize;
+            int max = NetworkMessages.MaxContentSize;
             NetworkClient.Send(new VariableSizedMessage(max));
             ProcessMessages();
 
@@ -419,7 +419,7 @@ namespace Mirror.Tests
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message & process
-            int max = MessagePacking.MaxContentSize;
+            int max = NetworkMessages.MaxContentSize;
             connectionToClient.Send(new VariableSizedMessage(max));
             ProcessMessages();
 
@@ -443,7 +443,7 @@ namespace Mirror.Tests
 
             // send message & process
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
-            int messageMax = MessagePacking.MaxContentSize;
+            int messageMax = NetworkMessages.MaxContentSize;
             LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
             NetworkClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
@@ -466,7 +466,7 @@ namespace Mirror.Tests
 
             // send message & process
             int transportMax = transport.GetMaxPacketSize(Channels.Reliable);
-            int messageMax = MessagePacking.MaxContentSize;
+            int messageMax = NetworkMessages.MaxContentSize;
             LogAssert.Expect(LogType.Error, $"NetworkConnection.ValidatePacketSize: cannot send packet larger than {transportMax} bytes, was {transportMax + 1} bytes");
             connectionToClient.Send(new VariableSizedMessage(messageMax + 1));
             ProcessMessages();
@@ -712,7 +712,7 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // serialize a test message into an arraysegment
-            byte[] message = MessagePackingTest.PackToByteArray(new TestMessage1());
+            byte[] message = NetworkMessagesTest.PackToByteArray(new TestMessage1());
 
             // call transport.OnDataReceived with an invalid connectionId
             // an error log is expected.

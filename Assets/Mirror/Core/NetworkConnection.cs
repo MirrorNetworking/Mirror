@@ -134,7 +134,7 @@ namespace Mirror
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
                 // pack message and send allocation free
-                MessagePacking.Pack(message, writer);
+                NetworkMessages.Pack(message, writer);
                 NetworkDiagnostics.OnSend(message, channelId, writer.Position, 1);
                 Send(writer.ToArraySegment(), channelId);
             }
