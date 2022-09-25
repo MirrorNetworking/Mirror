@@ -23,21 +23,13 @@ namespace Mirror
         public int Position;
 
         /// <summary>Remaining bytes that can be read, for convenience.</summary>
-        public int Remaining
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => buffer.Count - Position;
-        }
+        public int Remaining => buffer.Count - Position;
+
+        /// <summary>Total buffer capacity, independent of reader position.</summary>
+        public int Capacity => buffer.Count;
 
         [Obsolete("NetworkReader.Length was renamed to Capacity")] // 2022-09-25
         public int Length => Capacity;
-
-        /// <summary>Total buffer capacity, independent of reader position.</summary>
-        public int Capacity
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => buffer.Count;
-        }
 
         public NetworkReader(byte[] bytes)
         {
