@@ -180,10 +180,6 @@ namespace Mirror
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override string ToString() =>
-            $"[{buffer.ToHexString()} @ {Position}/{Capacity}]";
-
         /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Read<T>()
@@ -196,6 +192,10 @@ namespace Mirror
             }
             return readerDelegate(this);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override string ToString() =>
+            $"[{buffer.ToHexString()} @ {Position}/{Capacity}]";
     }
 
     /// <summary>Helper class that weaver populates with all reader types.</summary>
