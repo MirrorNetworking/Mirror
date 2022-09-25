@@ -165,6 +165,9 @@ namespace Mirror
         /// <summary>Read 'count' bytes allocation-free as ArraySegment that points to the internal array.</summary>
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
+            // user may call ReadBytes(ReadInt()). ensure positive count.
+            if (count < 0) throw new ArgumentOutOfRangeException("ReadBytesSegment requires count >= 0");
+
             // ensure remaining
             if (Remaining < count)
             {
