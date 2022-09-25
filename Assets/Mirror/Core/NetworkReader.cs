@@ -94,10 +94,10 @@ namespace Mirror
             // https://docs.microsoft.com/en-us/dotnet/standard/native-interop/best-practices
             int size = sizeof(T);
 
-            // enough data to read?
-            if (Position + size > buffer.Count)
+            // ensure remaining
+            if (Remaining < size)
             {
-                throw new EndOfStreamException($"ReadBlittable<{typeof(T)}> out of range: {ToString()}");
+                throw new EndOfStreamException($"ReadBlittable<{typeof(T)}> not enough data in buffer to read {size} bytes: {ToString()}");
             }
 
             // read blittable
