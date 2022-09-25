@@ -50,22 +50,20 @@ namespace Mirror
             writer.Write(message);
         }
 
-        // unpack message after receiving
-        // -> pass NetworkReader so it's less strange if we create it in here
-        //    and pass it upwards.
-        // -> NetworkReader will point at content afterwards!
+        // read only the message id.
+        // common function in case we ever change the header size.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Unpack(NetworkReader messageReader, out ushort msgType)
+        public static bool Unpack(NetworkReader reader, out ushort messageId)
         {
             // read message type
             try
             {
-                msgType = messageReader.ReadUShort();
+                messageId = reader.ReadUShort();
                 return true;
             }
             catch (System.IO.EndOfStreamException)
             {
-                msgType = 0;
+                messageId = 0;
                 return false;
             }
         }
