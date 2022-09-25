@@ -39,13 +39,6 @@ namespace Mirror
         // sometimes it's useful to point a reader on another buffer instead of
         // allocating a new reader (e.g. NetworkReaderPool)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBuffer(byte[] bytes)
-        {
-            buffer = new ArraySegment<byte>(bytes);
-            Position = 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBuffer(ArraySegment<byte> segment)
         {
             buffer = segment;
