@@ -6,6 +6,9 @@ namespace Mirror
 {
     public static class Extensions
     {
+        public static string ToHexString(this ArraySegment<byte> segment) =>
+            BitConverter.ToString(segment.Array, segment.Offset, segment.Count);
+
         // string.GetHashCode is not guaranteed to be the same on all machines, but
         // we need one that is the same on all machines. simple and stupid:
         public static int GetStableHashCode(this string text)
