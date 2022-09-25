@@ -26,7 +26,7 @@ namespace Mirror
         public int Remaining
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Length - Position;
+            get => buffer.Count - Position;
         }
 
         /// <summary>Total number of bytes to read from buffer</summary>
