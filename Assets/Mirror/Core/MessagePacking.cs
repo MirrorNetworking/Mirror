@@ -77,63 +77,63 @@ namespace Mirror
             where T : struct, NetworkMessage
             where C : NetworkConnection
             => (conn, reader, channelId) =>
-        {
-            // protect against DOS attacks if attackers try to send invalid
-            // data packets to crash the server/client. there are a thousand
-            // ways to cause an exception in data handling:
-            // - invalid headers
-            // - invalid message ids
-            // - invalid data causing exceptions
-            // - negative ReadBytesAndSize prefixes
-            // - invalid utf8 strings
-            // - etc.
-            //
-            // let's catch them all and then disconnect that connection to avoid
-            // further attacks.
-            T message = default;
-            // record start position for NetworkDiagnostics because reader might contain multiple messages if using batching
-            int startPos = reader.Position;
-            try
             {
-                if (requireAuthentication && !conn.isAuthenticated)
+                // protect against DOS attacks if attackers try to send invalid
+                // data packets to crash the server/client. there are a thousand
+                // ways to cause an exception in data handling:
+                // - invalid headers
+                // - invalid message ids
+                // - invalid data causing exceptions
+                // - negative ReadBytesAndSize prefixes
+                // - invalid utf8 strings
+                // - etc.
+                //
+                // let's catch them all and then disconnect that connection to avoid
+                // further attacks.
+                T message = default;
+                // record start position for NetworkDiagnostics because reader might contain multiple messages if using batching
+                int startPos = reader.Position;
+                try
                 {
-                    // message requires authentication, but the connection was not authenticated
-                    Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
+                    if (requireAuthentication && !conn.isAuthenticated)
+                    {
+                        // message requires authentication, but the connection was not authenticated
+                        Debug.LogWarning($"Closing connection: {conn}. Received message {typeof(T)} that required authentication, but the user has not authenticated yet");
+                        conn.Disconnect();
+                        return;
+                    }
+
+                    //Debug.Log($"ConnectionRecv {conn} msgType:{typeof(T)} content:{BitConverter.ToString(reader.buffer.Array, reader.buffer.Offset, reader.buffer.Count)}");
+
+                    // if it is a value type, just use default(T)
+                    // otherwise allocate a new instance
+                    message = reader.Read<T>();
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError($"Closed connection: {conn}. This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: {exception}");
                     conn.Disconnect();
                     return;
                 }
+                finally
+                {
+                    int endPos = reader.Position;
+                    // TODO: Figure out the correct channel
+                    NetworkDiagnostics.OnReceive(message, channelId, endPos - startPos);
+                }
 
-                //Debug.Log($"ConnectionRecv {conn} msgType:{typeof(T)} content:{BitConverter.ToString(reader.buffer.Array, reader.buffer.Offset, reader.buffer.Count)}");
-
-                // if it is a value type, just use default(T)
-                // otherwise allocate a new instance
-                message = reader.Read<T>();
-            }
-            catch (Exception exception)
-            {
-                Debug.LogError($"Closed connection: {conn}. This can happen if the other side accidentally (or an attacker intentionally) sent invalid data. Reason: {exception}");
-                conn.Disconnect();
-                return;
-            }
-            finally
-            {
-                int endPos = reader.Position;
-                // TODO: Figure out the correct channel
-                NetworkDiagnostics.OnReceive(message, channelId, endPos - startPos);
-            }
-
-            // user handler exception should not stop the whole server
-            try
-            {
-                // user implemented handler
-                handler((C)conn, message, channelId);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Disconnecting connId={conn.connectionId} to prevent exploits from an Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
-                conn.Disconnect();
-            }
-        };
+                // user handler exception should not stop the whole server
+                try
+                {
+                    // user implemented handler
+                    handler((C)conn, message, channelId);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Disconnecting connId={conn.connectionId} to prevent exploits from an Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
+                    conn.Disconnect();
+                }
+            };
 
         // version for handlers without channelId
         // TODO obsolete this some day to always use the channelId version.
@@ -145,7 +145,7 @@ namespace Mirror
         {
             // wrap action as channelId version, call original
             void Wrapped(C conn, T msg, int _) => handler(conn, msg);
-            return WrapHandler((Action<C, T, int>) Wrapped, requireAuthentication);
+            return WrapHandler((Action<C, T, int>)Wrapped, requireAuthentication);
         }
     }
 }
