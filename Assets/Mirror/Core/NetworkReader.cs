@@ -148,8 +148,8 @@ namespace Mirror
             {
                 throw new EndOfStreamException($"ReadBytes can't read {count} + bytes because the passed byte[] only has length {bytes.Length}");
             }
-            // check if within buffer limits
-            if (Position + count > buffer.Count)
+            // ensure remaining
+            if (Remaining < count)
             {
                 throw new EndOfStreamException($"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}");
             }
