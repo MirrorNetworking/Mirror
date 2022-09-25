@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
@@ -30,6 +31,18 @@ namespace Mirror
 
         [Obsolete("NetworkReader.Length was renamed to Capacity")] // 2022-09-25
         public int Length => Capacity;
+
+        // cache encoding for ReadString instead of creating it with each time
+        // 1000 readers before:  1MB GC, 30ms
+        // 1000 readers after: 0.8MB GC, 18ms
+        // member(!) to avoid static state.
+        //
+        // throwOnInvalidBytes is true.
+        // if false, it would silently ignore the invalid bytes but continue
+        // with the valid ones, creating strings like "a�������".
+        // instead, we want to catch it manually and return String.Empty.
+        // this is safer. see test: ReadString_InvalidUTF8().
+        internal readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
         public NetworkReader(ArraySegment<byte> segment)
         {

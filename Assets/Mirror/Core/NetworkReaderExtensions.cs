@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using UnityEngine;
 
 namespace Mirror
@@ -10,11 +9,6 @@ namespace Mirror
     // but they do all need to be extensions.
     public static class NetworkReaderExtensions
     {
-        // cache encoding instead of creating it each time
-        // 1000 readers before:  1MB GC, 30ms
-        // 1000 readers after: 0.8MB GC, 18ms
-        static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
-
         public static byte ReadByte(this NetworkReader reader) => reader.ReadBlittable<byte>();
         public static byte? ReadByteNullable(this NetworkReader reader) => reader.ReadBlittableNullable<byte>();
 
@@ -81,7 +75,8 @@ namespace Mirror
             ArraySegment<byte> data = reader.ReadBytesSegment(realSize);
 
             // convert directly from buffer to string via encoding
-            return encoding.GetString(data.Array, data.Offset, data.Count);
+            // throws in case of invalid utf8.
+            return reader.encoding.GetString(data.Array, data.Offset, data.Count);
         }
 
         /// <exception cref="T:OverflowException">if count is invalid</exception>
