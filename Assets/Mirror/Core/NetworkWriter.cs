@@ -197,6 +197,12 @@ namespace Mirror
                 writeDelegate(this, value);
             }
         }
+
+        // print with buffer content for easier debugging.
+        // [content, position / capacity].
+        // showing "position / space" would be too confusing.
+        public override string ToString() =>
+            $"[{ToArraySegment().ToHexString()} @ {Position}/{Capacity}]";
     }
 
     /// <summary>Helper class that weaver populates with all writer types.</summary>

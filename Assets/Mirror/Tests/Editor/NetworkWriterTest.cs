@@ -45,6 +45,18 @@ namespace Mirror.Tests
             Assert.That(BitConverter.IsLittleEndian, Is.True);
         }
 
+        [Test]
+        public void ToStringTest()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            writer.WriteUInt(0xAABBCCDD);
+            writer.WriteByte(0xFF);
+            // should show [content, position / capacity].
+            // showing "position / space] is too confusing.
+            Assert.That(writer.ToString(), Is.EqualTo($"[DD-CC-BB-AA-FF @ 5/{NetworkWriter.DefaultCapacity}]"));
+        }
+
         // some platforms may not support unaligned *(T*) reads/writes.
         // but it still needs to work with our workaround.
         // let's have an editor test to maybe catch it early.
