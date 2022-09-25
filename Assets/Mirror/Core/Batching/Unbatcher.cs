@@ -101,7 +101,7 @@ namespace Mirror
             }
 
             // was our reader pointed to anything yet?
-            if (reader.Length == 0)
+            if (reader.Capacity == 0)
             {
                 remoteTimeStamp = 0;
                 return false;

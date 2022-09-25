@@ -33,7 +33,7 @@ namespace Mirror.Tests.Batching
             // get next message, pretend we read the whole thing
             bool result = unbatcher.GetNextMessage(out NetworkReader reader, out _);
             Assert.That(result, Is.True);
-            reader.Position = reader.Length;
+            reader.Position = reader.Capacity;
 
             // shouldn't get another one
             result = unbatcher.GetNextMessage(out reader, out _);

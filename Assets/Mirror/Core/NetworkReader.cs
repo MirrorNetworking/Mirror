@@ -29,8 +29,11 @@ namespace Mirror
             get => buffer.Count - Position;
         }
 
-        /// <summary>Total number of bytes to read from buffer</summary>
-        public int Length
+        [Obsolete("NetworkReader.Length was renamed to Capacity")] // 2022-09-25
+        public int Length => Capacity;
+
+        /// <summary>Total buffer capacity, independent of reader position.</summary>
+        public int Capacity
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => buffer.Count;
@@ -193,7 +196,7 @@ namespace Mirror
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override string ToString() =>
-            $"NetworkReader pos={Position} len={Length} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
+            $"NetworkReader pos={Position} capacity={Capacity} buffer={BitConverter.ToString(buffer.Array, buffer.Offset, buffer.Count)}";
 
         /// <summary>Reads any data type that mirror supports. Uses weaver populated Reader(T).read</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

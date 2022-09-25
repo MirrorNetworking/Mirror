@@ -144,7 +144,7 @@ namespace Mirror
         public static Ray ReadRay(this NetworkReader reader) => reader.ReadBlittable<Ray>();
         public static Ray? ReadRayNullable(this NetworkReader reader) => reader.ReadBlittableNullable<Ray>();
 
-        public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader)=> reader.ReadBlittable<Matrix4x4>();
+        public static Matrix4x4 ReadMatrix4x4(this NetworkReader reader) => reader.ReadBlittable<Matrix4x4>();
         public static Matrix4x4? ReadMatrix4x4Nullable(this NetworkReader reader) => reader.ReadBlittableNullable<Matrix4x4>();
 
         public static Guid ReadGuid(this NetworkReader reader)
@@ -198,8 +198,8 @@ namespace Mirror
             NetworkIdentity identity = Utils.GetSpawnedInServerOrClient(netId);
 
             return identity != null
-                   ? identity.NetworkBehaviours[componentIndex]
-                   : null;
+                ? identity.NetworkBehaviours[componentIndex]
+                : null;
         }
 
         public static T ReadNetworkBehaviour<T>(this NetworkReader reader) where T : NetworkBehaviour
@@ -261,7 +261,7 @@ namespace Mirror
             // this assumes that a reader for T reads at least 1 bytes
             // we can't know the exact size of T because it could have a user created reader
             // NOTE: don't add to length as it could overflow if value is int.max
-            if (length > reader.Length - reader.Position)
+            if (length > reader.Capacity - reader.Position)
             {
                 throw new EndOfStreamException($"Received array that is too large: {length}");
             }
