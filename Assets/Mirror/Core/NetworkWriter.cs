@@ -187,10 +187,10 @@ namespace Mirror
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
-        public void WriteBytes(byte[] buffer, int offset, int count)
+        public void WriteBytes(byte[] array, int offset, int count)
         {
             EnsureCapacity(Position + count);
-            Array.ConstrainedCopy(buffer, offset, this.buffer, Position, count);
+            Array.ConstrainedCopy(array, offset, this.buffer, Position, count);
             Position += count;
         }
 
