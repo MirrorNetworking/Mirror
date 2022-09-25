@@ -18,6 +18,9 @@ namespace Mirror
         /// <summary>Next position to write to the buffer</summary>
         public int Position;
 
+        /// <summary>Current capacity. Automatically resized if necessary.</summary>
+        public int Capacity => buffer.Length;
+
         /// <summary>Reset both the position and length of the stream</summary>
         // Leaves the capacity the same so that we can reuse this writer without
         // extra allocations
