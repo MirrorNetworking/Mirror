@@ -60,25 +60,16 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ReadBytesCountTooBigTest()
+        public void ReadBytes_CountTooBig()
         {
             // calling ReadBytes with a count bigger than what is in Reader
             // should throw an exception
-            byte[] bytes = { 0x00, 0x01 };
-
-            using (NetworkReaderPooled reader = NetworkReaderPool.Get(bytes))
+            byte[] bytes = {0x00, 0x01};
+            NetworkReader reader = new NetworkReader(bytes);
+            Assert.Throws<EndOfStreamException>(() =>
             {
-                try
-                {
-                    byte[] result = reader.ReadBytes(bytes, bytes.Length + 1);
-                    // BAD: IF WE GOT HERE, THEN NO EXCEPTION WAS THROWN
-                    Assert.Fail();
-                }
-                catch (EndOfStreamException)
-                {
-                    // GOOD
-                }
-            }
+                byte[] result = reader.ReadBytes(bytes, bytes.Length + 1);
+            });
         }
     }
 }
