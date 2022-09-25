@@ -445,7 +445,7 @@ namespace Mirror
 
         static bool UnpackAndInvoke(NetworkConnectionToClient connection, NetworkReader reader, int channelId)
         {
-            if (MessagePacking.Unpack(reader, out ushort msgType))
+            if (MessagePacking.UnpackId(reader, out ushort msgType))
             {
                 // try to invoke the handler for that message
                 if (handlers.TryGetValue(msgType, out NetworkMessageDelegate handler))

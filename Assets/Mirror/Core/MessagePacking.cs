@@ -50,10 +50,14 @@ namespace Mirror
             writer.Write(message);
         }
 
+        [Obsolete("Unpack was renamed to UnpackId for consistency with GetId etc.")] // 2022-09-25
+        public static bool Unpack(NetworkReader reader, out ushort messageId) =>
+            UnpackId(reader, out messageId);
+
         // read only the message id.
         // common function in case we ever change the header size.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Unpack(NetworkReader reader, out ushort messageId)
+        public static bool UnpackId(NetworkReader reader, out ushort messageId)
         {
             // read message type
             try
