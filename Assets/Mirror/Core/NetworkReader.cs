@@ -193,7 +193,7 @@ namespace Mirror
             return readerDelegate(this);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // print the full buffer with position / capacity.
         public override string ToString() =>
             $"[{buffer.ToHexString()} @ {Position}/{Capacity}]";
     }
