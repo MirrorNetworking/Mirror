@@ -143,6 +143,9 @@ namespace Mirror
         // NOTE: returns byte[] because all reader functions return something.
         public byte[] ReadBytes(byte[] bytes, int count)
         {
+            // user may call ReadBytes(ReadInt()). ensure positive count.
+            if (count < 0) throw new ArgumentOutOfRangeException("ReadBytes requires count >= 0");
+
             // check if passed byte array is big enough
             if (count > bytes.Length)
             {

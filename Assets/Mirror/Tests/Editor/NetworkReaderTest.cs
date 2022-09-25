@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using NUnit.Framework;
 
@@ -69,6 +70,21 @@ namespace Mirror.Tests
             Assert.Throws<EndOfStreamException>(() =>
             {
                 byte[] result = reader.ReadBytes(bytes, bytes.Length + 1);
+            });
+        }
+
+        // a user might call ReadBytes(ReadInt()) without verifying size.
+        // ReadBytes behaviour with negative count needs to be clearly defined.
+        [Test]
+        public void ReadBytes_CountNegative()
+        {
+            // calling ReadBytes with a count bigger than what is in Reader
+            // should throw an exception
+            byte[] bytes = {0xFF, 0xDD, 0xCC, 0xBB, 0xAA};
+            NetworkReader reader = new NetworkReader(bytes);
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                byte[] result = reader.ReadBytes(bytes, -1);
             });
         }
     }
