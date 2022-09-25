@@ -5,7 +5,7 @@ namespace Mirror.Tests.Batching
 {
     public class UnbatcherTests
     {
-        Unbatcher unbatcher;
+        Unbatcher    unbatcher;
         const double TimeStamp = Math.PI;
 
         [SetUp]
@@ -48,7 +48,7 @@ namespace Mirror.Tests.Batching
         public void GetNextMessage_OneBatch()
         {
             // add one batch
-            byte[] batch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02});
+            byte[] batch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[] {0x01, 0x02});
             unbatcher.AddBatch(new ArraySegment<byte>(batch));
 
             // get next message, read first byte
@@ -72,11 +72,11 @@ namespace Mirror.Tests.Batching
         public void GetNextMessage_MultipleBatches()
         {
             // add first batch
-            byte[] firstBatch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02});
+            byte[] firstBatch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[] {0x01, 0x02});
             unbatcher.AddBatch(new ArraySegment<byte>(firstBatch));
 
             // add second batch
-            byte[] secondBatch = BatcherTests.ConcatTimestamp(TimeStamp + 1, new byte[]{0x03, 0x04});
+            byte[] secondBatch = BatcherTests.ConcatTimestamp(TimeStamp + 1, new byte[] {0x03, 0x04});
             unbatcher.AddBatch(new ArraySegment<byte>(secondBatch));
 
             // get next message, read everything
@@ -108,7 +108,7 @@ namespace Mirror.Tests.Batching
         public void RetireBatchAndTryNewBatch()
         {
             // add first batch
-            byte[] firstBatch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[]{0x01, 0x02});
+            byte[] firstBatch = BatcherTests.ConcatTimestamp(TimeStamp, new byte[] {0x01, 0x02});
             unbatcher.AddBatch(new ArraySegment<byte>(firstBatch));
 
             // read everything
@@ -124,7 +124,7 @@ namespace Mirror.Tests.Batching
             Assert.That(result, Is.False);
 
             // add new batch
-            byte[] secondBatch = BatcherTests.ConcatTimestamp(TimeStamp + 1, new byte[]{0x03, 0x04});
+            byte[] secondBatch = BatcherTests.ConcatTimestamp(TimeStamp + 1, new byte[] {0x03, 0x04});
             unbatcher.AddBatch(new ArraySegment<byte>(secondBatch));
 
             // read everything
