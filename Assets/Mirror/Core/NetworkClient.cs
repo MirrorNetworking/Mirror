@@ -69,8 +69,8 @@ namespace Mirror
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
         // => public so that custom NetworkManagers can hook into it
-        public static Action OnConnectedEvent;
-        public static Action OnDisconnectedEvent;
+        public static Action                         OnConnectedEvent;
+        public static Action                         OnDisconnectedEvent;
         public static Action<TransportError, string> OnErrorEvent;
 
         /// <summary>Registered spawnable prefabs by assetId.</summary>

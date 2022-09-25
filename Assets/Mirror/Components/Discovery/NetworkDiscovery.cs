@@ -68,11 +68,9 @@ namespace Mirror.Discovery
                 throw;
             }
         }
-
         #endregion
 
         #region Client
-
         /// <summary>
         /// Create a message that will be broadcasted on the network to discover servers
         /// </summary>
@@ -108,7 +106,6 @@ namespace Mirror.Discovery
 
             OnServerFound.Invoke(response);
         }
-
         #endregion
     }
 }

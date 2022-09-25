@@ -21,16 +21,16 @@ namespace Mirror
 
         // CLIENT (public fields for other components to grab statistics)
         // long bytes to support >2GB
-        [HideInInspector] public int clientIntervalReceivedPackets;
+        [HideInInspector] public int  clientIntervalReceivedPackets;
         [HideInInspector] public long clientIntervalReceivedBytes;
-        [HideInInspector] public int clientIntervalSentPackets;
+        [HideInInspector] public int  clientIntervalSentPackets;
         [HideInInspector] public long clientIntervalSentBytes;
 
         // results from last interval
         // long bytes to support >2GB
-        [HideInInspector] public int clientReceivedPacketsPerSecond;
+        [HideInInspector] public int  clientReceivedPacketsPerSecond;
         [HideInInspector] public long clientReceivedBytesPerSecond;
-        [HideInInspector] public int clientSentPacketsPerSecond;
+        [HideInInspector] public int  clientSentPacketsPerSecond;
         [HideInInspector] public long clientSentBytesPerSecond;
 
         // ---------------------------------------------------------------------
@@ -38,16 +38,16 @@ namespace Mirror
         // SERVER (public fields for other components to grab statistics)
         // capture interval
         // long bytes to support >2GB
-        [HideInInspector] public int serverIntervalReceivedPackets;
+        [HideInInspector] public int  serverIntervalReceivedPackets;
         [HideInInspector] public long serverIntervalReceivedBytes;
-        [HideInInspector] public int serverIntervalSentPackets;
+        [HideInInspector] public int  serverIntervalSentPackets;
         [HideInInspector] public long serverIntervalSentBytes;
 
         // results from last interval
         // long bytes to support >2GB
-        [HideInInspector] public int serverReceivedPacketsPerSecond;
+        [HideInInspector] public int  serverReceivedPacketsPerSecond;
         [HideInInspector] public long serverReceivedBytesPerSecond;
-        [HideInInspector] public int serverSentPacketsPerSecond;
+        [HideInInspector] public int  serverSentPacketsPerSecond;
         [HideInInspector] public long serverSentBytesPerSecond;
 
         // NetworkManager sets Transport.active in Awake().

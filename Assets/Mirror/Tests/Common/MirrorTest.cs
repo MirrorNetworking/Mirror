@@ -16,7 +16,7 @@ namespace Mirror.Tests
         public List<GameObject> instantiated;
 
         // we usually need the memory transport
-        public GameObject holder;
+        public GameObject      holder;
         public MemoryTransport transport;
 
         public virtual void SetUp()

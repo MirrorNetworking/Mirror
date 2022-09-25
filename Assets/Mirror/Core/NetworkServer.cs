@@ -50,8 +50,8 @@ namespace Mirror
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
         // => public so that custom NetworkManagers can hook into it
-        public static Action<NetworkConnectionToClient> OnConnectedEvent;
-        public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
+        public static Action<NetworkConnectionToClient>                         OnConnectedEvent;
+        public static Action<NetworkConnectionToClient>                         OnDisconnectedEvent;
         public static Action<NetworkConnectionToClient, TransportError, string> OnErrorEvent;
 
         // initialization / shutdown ///////////////////////////////////////////
@@ -900,10 +900,7 @@ namespace Mirror
 
         internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
-            ObjectHideMessage msg = new ObjectHideMessage
-            {
-                netId = identity.netId
-            };
+            ObjectHideMessage msg = new ObjectHideMessage {netId = identity.netId};
             conn.Send(msg);
         }
 
