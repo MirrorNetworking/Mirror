@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 using UnityEngine;
 
 namespace Mirror
@@ -10,11 +9,6 @@ namespace Mirror
     // but they do all need to be extensions.
     public static class NetworkWriterExtensions
     {
-        // cache encoding instead of creating it with BinaryWriter each time
-        // 1000 readers before:  1MB GC, 30ms
-        // 1000 readers after: 0.8MB GC, 18ms
-        static readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
-
         public static void WriteByte(this NetworkWriter writer, byte value) => writer.WriteBlittable(value);
         public static void WriteByteNullable(this NetworkWriter writer, byte? value) => writer.WriteBlittableNullable(value);
 
@@ -88,7 +82,7 @@ namespace Mirror
 
             // encode it into the buffer first.
             // reserve 2 bytes for header after we know how much was written.
-            int written = encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);
+            int written = writer.encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);
 
             // check if within max size
             if (written >= NetworkWriter.MaxStringLength)

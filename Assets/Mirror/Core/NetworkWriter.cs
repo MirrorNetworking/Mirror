@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
@@ -21,6 +22,16 @@ namespace Mirror
 
         /// <summary>Current capacity. Automatically resized if necessary.</summary>
         public int Capacity => buffer.Length;
+
+        // cache encoding for WriteString instead of creating it each time.
+        // 1000 readers before:  1MB GC, 30ms
+        // 1000 readers after: 0.8MB GC, 18ms
+        // not(!) static for thread safety.
+        //
+        // throwOnInvalidBytes is true.
+        // writer should throw and user should fix if this ever happens.
+        // unlike reader, which needs to expect it to happen from attackers.
+        internal readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
 
         /// <summary>Reset both the position and length of the stream</summary>
         // Leaves the capacity the same so that we can reuse this writer without
