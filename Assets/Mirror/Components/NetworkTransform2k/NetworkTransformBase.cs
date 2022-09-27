@@ -67,7 +67,7 @@ namespace Mirror
 
         [Tooltip("Local timeline acceleration in % while catching up.")]
         [Range(0, 1)]
-        public double catchupSpeed = 0.01f;  // 1%
+        public double catchupSpeed = 0.01f; // 1%
 
         [Tooltip("Local timeline slowdown in % while slowing down.")]
         [Range(0, 1)]
@@ -108,7 +108,7 @@ namespace Mirror
         public float dynamicAdjustmentTolerance = 1; // 1 is realistically just fine, 2 is very very safe even for 20% jitter. can be half a frame too. (see above comments)
 
         [Tooltip("Dynamic adjustment is computed over n-second exponential moving average standard deviation.")]
-        public int deliveryTimeEmaDuration = 2;      // 1-2s recommended to capture average delivery time
+        public int deliveryTimeEmaDuration = 2; // 1-2s recommended to capture average delivery time
 
         ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
         ExponentialMovingAverage clientDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
@@ -155,7 +155,7 @@ namespace Mirror
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
-        public float scaleSensitivity = 0.01f;
+        public float scaleSensitivity    = 0.01f;
 
         protected bool positionChanged;
         protected bool rotationChanged;
@@ -170,7 +170,7 @@ namespace Mirror
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
         public bool syncRotation = true;
-        public bool syncScale = false; // rare. off by default.
+        public bool syncScale    = false; // rare. off by default.
 
         double lastClientSendTime;
         double lastServerSendTime;
@@ -178,7 +178,7 @@ namespace Mirror
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool showGizmos;
-        public bool showOverlay;
+        public bool  showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
         // initialization //////////////////////////////////////////////////////
