@@ -66,10 +66,8 @@ namespace Mirror
 
         /// <summary>Returns allocation-free ArraySegment until 'Position'.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ArraySegment<byte> ToArraySegment()
-        {
-            return new ArraySegment<byte>(buffer, 0, Position);
-        }
+        public ArraySegment<byte> ToArraySegment() =>
+            new ArraySegment<byte>(buffer, 0, Position);
 
         // WriteBlittable<T> from DOTSNET.
         // this is extremely fast, but only works for blittable types.
