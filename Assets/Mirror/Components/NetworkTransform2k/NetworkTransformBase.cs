@@ -127,10 +127,6 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
 
-        // only convert the static Interpolation function to Func<T> once to
-        // avoid allocations
-        Func<TransformSnapshot, TransformSnapshot, double, TransformSnapshot> Interpolate = TransformSnapshot.Interpolate;
-
         // for smooth interpolation, we need to interpolate along server time.
         // any other time (arrival on client, client local time, etc.) is not
         // going to give smooth results.
@@ -322,7 +318,7 @@ namespace Mirror
             }
 
             // insert into the server buffer & initialize / adjust / catchup
-            SnapshotInterpolation.Insert(
+            SnapshotInterpolation.InsertAndAdjust(
                 serverSnapshots,
                 snapshot,
                 ref serverTimeline,
@@ -411,7 +407,7 @@ namespace Mirror
             }
 
             // insert into the client buffer & initialize / adjust / catchup
-            SnapshotInterpolation.Insert(
+            SnapshotInterpolation.InsertAndAdjust(
                 clientSnapshots,
                 snapshot,
                 ref clientTimeline,
@@ -510,17 +506,19 @@ namespace Mirror
             {
                 if (serverSnapshots.Count > 0)
                 {
-                    // compute snapshot interpolation & apply if any was spit out
-                    if (SnapshotInterpolation.Step(
+                    // step
+                    SnapshotInterpolation.Step(
                         serverSnapshots,
                         Time.unscaledDeltaTime,
                         ref serverTimeline,
                         serverTimescale,
-                        Interpolate,
-                        out TransformSnapshot computed))
-                    {
-                        ApplySnapshot(computed);
-                    }
+                        out TransformSnapshot fromSnapshot,
+                        out TransformSnapshot toSnapshot,
+                        out double t);
+
+                    // interpolate & apply
+                    TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                    ApplySnapshot(computed);
                 }
             }
         }
@@ -599,17 +597,20 @@ namespace Mirror
             {
                 if (clientSnapshots.Count > 0)
                 {
-                    // compute snapshot interpolation & apply if any was spit out
-                    if (SnapshotInterpolation.Step(
+                    // step
+                    SnapshotInterpolation.Step(
                         clientSnapshots,
                         Time.unscaledDeltaTime,
                         ref clientTimeline,
                         clientTimescale,
-                        Interpolate,
-                        out TransformSnapshot computed))
-                    {
-                        ApplySnapshot(computed);
-                    }
+                        out TransformSnapshot fromSnapshot,
+                        out TransformSnapshot toSnapshot,
+                        out double t);
+
+                    // interpolate and apply
+                    // interpolate & apply
+                    TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                    ApplySnapshot(computed);
                 }
             }
         }

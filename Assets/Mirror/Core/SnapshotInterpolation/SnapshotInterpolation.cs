@@ -8,8 +8,8 @@
 //   fholm: netcode streams
 //   fakebyte: standard deviation for dynamic adjustment
 //   ninjakicka: math & debugging
-using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
@@ -84,9 +84,31 @@ namespace Mirror
             return safezone;
         }
 
+        // helper function to insert a snapshot if it doesn't exist yet.
+        // extra function so we can use it for both cases:
+        //   NetworkClient global timeline insertions & adjustments via Insert<T>.
+        //   NetworkBehaviour local insertion without any time adjustments.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool InsertIfNotExists<T>(
+            SortedList<double, T> buffer, // snapshot buffer
+            T snapshot)                   // the newly received snapshot
+            where T : Snapshot
+        {
+            // SortedList does not allow duplicates.
+            // we don't need to check ContainsKey (which is expensive).
+            // simply add and compare count before/after for the return value.
+
+            //if (buffer.ContainsKey(snapshot.remoteTime)) return false; // too expensive
+            // buffer.Add(snapshot.remoteTime, snapshot);                // throws if key exists
+
+            int before = buffer.Count;
+            buffer[snapshot.remoteTime] = snapshot; // overwrites if key exists
+            return buffer.Count > before;
+        }
+
         // call this for every received snapshot.
         // adds / inserts it to the list & initializes local time if needed.
-        public static void Insert<T>(
+        public static void InsertAndAdjust<T>(
             SortedList<double, T> buffer,                 // snapshot buffer
             T snapshot,                                   // the newly received snapshot
             ref double localTimeline,                     // local interpolation time based on server time
@@ -119,10 +141,8 @@ namespace Mirror
             // note that insert may be called twice for the same key.
             // by default, this would throw.
             // need to handle it silently.
-            if (!buffer.ContainsKey(snapshot.remoteTime))
+            if (InsertIfNotExists(buffer, snapshot))
             {
-                buffer.Add(snapshot.remoteTime, snapshot);
-
                 // dynamic buffer adjustment needs delivery interval jitter
                 if (buffer.Count >= 2)
                 {
@@ -245,35 +265,50 @@ namespace Mirror
             }
         }
 
-        // update time, sample, clear old.
-        // call this every update.
-        // returns true if there is anything to apply (requires at least 1 snap)
-        public static bool Step<T>(
-            SortedList<double, T> buffer,      // snapshot buffer
-            double deltaTime,                  // engine delta time (unscaled)
-            ref double localTimeline,          // local interpolation time based on server time
-            double localTimescale,             // catchup / slowdown is applied to time every update
-            Func<T, T, double, T> Interpolate, // interpolates snapshot between two snapshots
-            out T computed)
-            where T : Snapshot
+        // progress local timeline every update.
+        //
+        // ONLY CALL IF SNAPSHOTS.COUNT > 0!
+        //
+        // decoupled from Step<T> for easier testing and so we can progress
+        // time only once in NetworkClient, while stepping for each component.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void StepTime(
+            double deltaTime,         // engine delta time (unscaled)
+            ref double localTimeline, // local interpolation time based on server time
+            double localTimescale)    // catchup / slowdown is applied to time every update)
         {
-            computed = default;
-
-            // nothing to do if there are no snapshots at all yet
-            if (buffer.Count == 0)
-                return false;
-
             // move local forward in time, scaled with catchup / slowdown applied
             localTimeline += deltaTime * localTimescale;
+        }
+
+        // sample, clear old.
+        // call this every update.
+        //
+        // ONLY CALL IF SNAPSHOTS.COUNT > 0!
+        //
+        // returns true if there is anything to apply (requires at least 1 snap)
+        //   from/to/t are out parameters instead of an interpolated 'computed'.
+        //   this allows us to store from/to/t globally (i.e. in NetworkClient)
+        //   and have each component apply the interpolation manually.
+        //   besides, passing "Func Interpolate" would allocate anyway.
+        public static void StepInterpolation<T>(
+            SortedList<double, T> buffer, // snapshot buffer
+            double localTimeline,         // local interpolation time based on server time
+            out T fromSnapshot,           // we interpolate 'from' this snapshot
+            out T toSnapshot,             // 'to' this snapshot
+            out double t)                 // at ratio 't' [0,1]
+            where T : Snapshot
+        {
+            // check this in caller:
+            // nothing to do if there are no snapshots at all yet
+            // if (buffer.Count == 0) return false;
 
             // sample snapshot buffer at local interpolation time
-            Sample(buffer, localTimeline, out int from, out int to, out double t);
+            Sample(buffer, localTimeline, out int from, out int to, out t);
 
-            // now interpolate between from & to (clamped)
-            T fromSnap = buffer.Values[from];
-            T toSnap   = buffer.Values[to];
-            computed = Interpolate(fromSnap, toSnap, t);
-            // UnityEngine.Debug.Log($"step from: {from} to {to}");
+            // save from/to
+            fromSnapshot = buffer.Values[from];
+            toSnapshot   = buffer.Values[to];
 
             // remove older snapshots that we definitely don't need anymore.
             // after(!) using the indices.
@@ -283,9 +318,30 @@ namespace Mirror
             // then we need to remove the first one, which is exactly 'from'.
             // because 'from-1' = 0 would remove none.
             buffer.RemoveRange(from);
+        }
 
-            // return the interpolated snapshot
-            return true;
+        // update time, sample, clear old.
+        // call this every update.
+        //
+        // ONLY CALL IF SNAPSHOTS.COUNT > 0!
+        //
+        // returns true if there is anything to apply (requires at least 1 snap)
+        //   from/to/t are out parameters instead of an interpolated 'computed'.
+        //   this allows us to store from/to/t globally (i.e. in NetworkClient)
+        //   and have each component apply the interpolation manually.
+        //   besides, passing "Func Interpolate" would allocate anyway.
+        public static void Step<T>(
+            SortedList<double, T> buffer, // snapshot buffer
+            double deltaTime,             // engine delta time (unscaled)
+            ref double localTimeline,     // local interpolation time based on server time
+            double localTimescale,        // catchup / slowdown is applied to time every update
+            out T fromSnapshot,           // we interpolate 'from' this snapshot
+            out T toSnapshot,             // 'to' this snapshot
+            out double t)                 // at ratio 't' [0,1]
+            where T : Snapshot
+        {
+            StepTime(deltaTime, ref localTimeline, localTimescale);
+            StepInterpolation(buffer, localTimeline, out fromSnapshot, out toSnapshot, out t);
         }
     }
 }
