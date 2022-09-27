@@ -57,6 +57,17 @@ namespace Mirror.Tests
             Assert.That(writer.ToString(), Is.EqualTo($"[DD-CC-BB-AA-FF @ 5/{NetworkWriter.DefaultCapacity}]"));
         }
 
+        [Test]
+        public void SegmentImplicit()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            writer.WriteUInt(0xAABBCCDD);
+            writer.WriteByte(0xFF);
+            ArraySegment<byte> segment = writer;
+            Assert.That(segment.SequenceEqual(new byte[] {0xDD, 0xCC, 0xBB, 0xAA, 0xFF}));
+        }
+
         // some platforms may not support unaligned *(T*) reads/writes.
         // but it still needs to work with our workaround.
         // let's have an editor test to maybe catch it early.

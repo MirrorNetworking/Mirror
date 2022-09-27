@@ -69,6 +69,11 @@ namespace Mirror
         public ArraySegment<byte> ToArraySegment() =>
             new ArraySegment<byte>(buffer, 0, Position);
 
+        // implicit conversion for convenience
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ArraySegment<byte>(NetworkWriter w) =>
+            w.ToArraySegment();
+
         // WriteBlittable<T> from DOTSNET.
         // this is extremely fast, but only works for blittable types.
         //

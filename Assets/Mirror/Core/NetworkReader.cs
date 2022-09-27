@@ -11,6 +11,10 @@ namespace Mirror
     // Note: This class is intended to be extremely pedantic,
     // and throw exceptions whenever stuff is going slightly wrong.
     // The exceptions will be handled in NetworkServer/NetworkClient.
+    //
+    // Note that NetworkWriter can be passed in constructor thanks to implicit
+    // ArraySegment conversion:
+    //   NetworkReader reader = new NetworkReader(writer);
     public class NetworkReader
     {
         // internal buffer
