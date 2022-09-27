@@ -9,8 +9,8 @@ namespace Mirror.Tests.NetworkTransform2k
     // helper class to expose some of the protected methods
     public class NetworkTransformExposed : NetworkTransform
     {
-        public new NTSnapshot ConstructSnapshot() => base.ConstructSnapshot();
-        public new void ApplySnapshot(NTSnapshot interpolated) =>
+        public new TransformSnapshot ConstructSnapshot() => base.ConstructSnapshot();
+        public new void ApplySnapshot(TransformSnapshot interpolated) =>
             base.ApplySnapshot(interpolated);
         public new void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             base.OnClientToServerSync(position, rotation, scale);
@@ -22,8 +22,8 @@ namespace Mirror.Tests.NetworkTransform2k
     {
         // networked and spawned NetworkTransform
         NetworkConnectionToClient connectionToClient;
-        Transform transform;
-        NetworkTransformExposed component;
+        Transform                 transform;
+        NetworkTransformExposed   component;
 
         [SetUp]
         public override void SetUp()
@@ -57,7 +57,7 @@ namespace Mirror.Tests.NetworkTransform2k
         [Test]
         public void Interpolate()
         {
-            NTSnapshot from = new NTSnapshot(
+            TransformSnapshot from = new TransformSnapshot(
                 1,
                 1,
                 new Vector3(1, 1, 1),
@@ -65,7 +65,7 @@ namespace Mirror.Tests.NetworkTransform2k
                 new Vector3(3, 3, 3)
             );
 
-            NTSnapshot to = new NTSnapshot(
+            TransformSnapshot to = new TransformSnapshot(
                 2,
                 2,
                 new Vector3(2, 2, 2),
@@ -74,7 +74,7 @@ namespace Mirror.Tests.NetworkTransform2k
             );
 
             // interpolate
-            NTSnapshot between = NTSnapshot.Interpolate(from, to, 0.5);
+            TransformSnapshot between = TransformSnapshot.Interpolate(from, to, 0.5);
 
             // note: timestamp interpolation isn't needed. we don't use it.
             //Assert.That(between.remoteTimestamp, Is.EqualTo(1.5).Within(Mathf.Epsilon));
@@ -107,7 +107,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // construct snapshot
             double time = NetworkTime.localTime;
-            NTSnapshot snapshot = component.ConstructSnapshot();
+            TransformSnapshot snapshot = component.ConstructSnapshot();
             Assert.That(snapshot.remoteTime, Is.EqualTo(time).Within(0.01));
             Assert.That(snapshot.position, Is.EqualTo(new Vector3(1, 2, 3)));
             Assert.That(snapshot.rotation, Is.EqualTo(Quaternion.identity));
@@ -126,7 +126,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.syncPosition = true;
             component.syncRotation = true;
             component.syncScale = true;
-            component.ApplySnapshot(new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
@@ -146,7 +146,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.syncPosition = false;
             component.syncRotation = true;
             component.syncScale = true;
-            component.ApplySnapshot(new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(Vector3.zero));
@@ -166,7 +166,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.syncPosition = true;
             component.syncRotation = false;
             component.syncScale = true;
-            component.ApplySnapshot(new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
@@ -186,7 +186,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.syncPosition = true;
             component.syncRotation = true;
             component.syncScale = false;
-            component.ApplySnapshot(new NTSnapshot(0, 0, position, rotation, scale));
+            component.ApplySnapshot(new TransformSnapshot(0, 0, position, rotation, scale));
 
             // was it applied?
             Assert.That(transform.position, Is.EqualTo(position));
@@ -242,7 +242,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.clientAuthority = true;
             component.OnClientToServerSync(new Vector3?(), new Quaternion?(), new Vector3?());
             Assert.That(component.serverSnapshots.Count, Is.EqualTo(1));
-            NTSnapshot first = component.serverSnapshots.Values[0];
+            TransformSnapshot first = component.serverSnapshots.Values[0];
             Assert.That(first.position, Is.EqualTo(Vector3.left));
             Assert.That(first.rotation, Is.EqualTo(Quaternion.identity));
             Assert.That(first.scale, Is.EqualTo(Vector3.right));
@@ -318,7 +318,7 @@ namespace Mirror.Tests.NetworkTransform2k
             // to make sure it uses the last valid position then.
             component.OnServerToClientSync(new Vector3?(), new Quaternion?(), new Vector3?());
             Assert.That(component.clientSnapshots.Count, Is.EqualTo(1));
-            NTSnapshot first = component.clientSnapshots.Values[0];
+            TransformSnapshot first = component.clientSnapshots.Values[0];
             Assert.That(first.position, Is.EqualTo(Vector3.left));
             Assert.That(first.rotation, Is.EqualTo(Quaternion.identity));
             Assert.That(first.scale, Is.EqualTo(Vector3.right));

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Mirror
 {
     // NetworkTransform Snapshot
-    public struct NTSnapshot : Snapshot
+    public struct TransformSnapshot : Snapshot
     {
         // time or sequence are needed to throw away older snapshots.
         //
@@ -24,15 +24,16 @@ namespace Mirror
         // [REMOTE TIME, NOT LOCAL TIME]
         // => DOUBLE for long term accuracy & batching gives us double anyway
         public double remoteTime { get; set; }
+
         // the local timestamp (when we received it)
         // used to know if the first two snapshots are old enough to start.
         public double localTime { get; set; }
 
-        public Vector3 position;
+        public Vector3    position;
         public Quaternion rotation;
-        public Vector3 scale;
+        public Vector3    scale;
 
-        public NTSnapshot(double remoteTime, double localTime, Vector3 position, Quaternion rotation, Vector3 scale)
+        public TransformSnapshot(double remoteTime, double localTime, Vector3 position, Quaternion rotation, Vector3 scale)
         {
             this.remoteTime = remoteTime;
             this.localTime = localTime;
@@ -41,12 +42,12 @@ namespace Mirror
             this.scale = scale;
         }
 
-        public static NTSnapshot Interpolate(NTSnapshot from, NTSnapshot to, double t)
+        public static TransformSnapshot Interpolate(TransformSnapshot from, TransformSnapshot to, double t)
         {
             // NOTE:
             // Vector3 & Quaternion components are float anyway, so we can
             // keep using the functions with 't' as float instead of double.
-            return new NTSnapshot(
+            return new TransformSnapshot(
                 // interpolated snapshot is applied directly. don't need timestamps.
                 0, 0,
                 // lerp position/rotation/scale unclamped in case we ever need

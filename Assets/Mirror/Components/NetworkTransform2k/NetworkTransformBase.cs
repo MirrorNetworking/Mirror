@@ -124,12 +124,12 @@ namespace Mirror
         //
         // IMPORTANT: of explicit 'NTSnapshot' type instead of 'Snapshot'
         //            interface because List<interface> allocates through boxing
-        internal SortedList<double, NTSnapshot> serverSnapshots = new SortedList<double, NTSnapshot>();
-        internal SortedList<double, NTSnapshot> clientSnapshots = new SortedList<double, NTSnapshot>();
+        internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
+        internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
 
         // only convert the static Interpolation function to Func<T> once to
         // avoid allocations
-        Func<NTSnapshot, NTSnapshot, double, NTSnapshot> Interpolate = NTSnapshot.Interpolate;
+        Func<TransformSnapshot, TransformSnapshot, double, TransformSnapshot> Interpolate = TransformSnapshot.Interpolate;
 
         // for smooth interpolation, we need to interpolate along server time.
         // any other time (arrival on client, client local time, etc.) is not
@@ -162,9 +162,9 @@ namespace Mirror
         protected bool scaleChanged;
 
         // Used to store last sent snapshots
-        protected NTSnapshot lastSnapshot;
-        protected bool cachedSnapshotComparison;
-        protected bool hasSentUnchangedPosition;
+        protected TransformSnapshot lastSnapshot;
+        protected bool              cachedSnapshotComparison;
+        protected bool              hasSentUnchangedPosition;
 #endif
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
@@ -197,10 +197,10 @@ namespace Mirror
         // snapshot functions //////////////////////////////////////////////////
         // construct a snapshot of the current state
         // => internal for testing
-        protected virtual NTSnapshot ConstructSnapshot()
+        protected virtual TransformSnapshot ConstructSnapshot()
         {
             // NetworkTime.localTime for double precision until Unity has it too
-            return new NTSnapshot(
+            return new TransformSnapshot(
                 // our local time is what the other end uses as remote time
                 NetworkTime.localTime,
                 // the other end fills out local time itself
@@ -221,7 +221,7 @@ namespace Mirror
         //
         // NOTE: stuck detection is unnecessary here.
         //       we always set transform.position anyway, we can't get stuck.
-        protected virtual void ApplySnapshot(NTSnapshot interpolated)
+        protected virtual void ApplySnapshot(TransformSnapshot interpolated)
         {
             // local position/rotation for VR support
             //
@@ -242,7 +242,7 @@ namespace Mirror
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
         // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-        protected virtual bool CompareSnapshots(NTSnapshot currentSnapshot)
+        protected virtual bool CompareSnapshots(TransformSnapshot currentSnapshot)
         {
             positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
             rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
@@ -302,7 +302,7 @@ namespace Mirror
             if (!scale.HasValue) scale = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale : targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
-            NTSnapshot snapshot = new NTSnapshot(
+            TransformSnapshot snapshot = new TransformSnapshot(
                 timestamp,
                 NetworkTime.localTime,
                 position.Value, rotation.Value, scale.Value
@@ -391,7 +391,7 @@ namespace Mirror
             if (!scale.HasValue) scale = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
-            NTSnapshot snapshot = new NTSnapshot(
+            TransformSnapshot snapshot = new TransformSnapshot(
                 timestamp,
                 NetworkTime.localTime,
                 position.Value, rotation.Value, scale.Value
@@ -464,7 +464,7 @@ namespace Mirror
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
-                NTSnapshot snapshot = ConstructSnapshot();
+                TransformSnapshot snapshot = ConstructSnapshot();
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 cachedSnapshotComparison = CompareSnapshots(snapshot);
                 if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
@@ -517,7 +517,7 @@ namespace Mirror
                         ref serverTimeline,
                         serverTimescale,
                         Interpolate,
-                        out NTSnapshot computed))
+                        out TransformSnapshot computed))
                     {
                         ApplySnapshot(computed);
                     }
@@ -557,7 +557,7 @@ namespace Mirror
                 {
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
-                    NTSnapshot snapshot = ConstructSnapshot();
+                    TransformSnapshot snapshot = ConstructSnapshot();
 #if onlySyncOnChange_BANDWIDTH_SAVING
                     cachedSnapshotComparison = CompareSnapshots(snapshot);
                     if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
@@ -606,7 +606,7 @@ namespace Mirror
                         ref clientTimeline,
                         clientTimescale,
                         Interpolate,
-                        out NTSnapshot computed))
+                        out TransformSnapshot computed))
                     {
                         ApplySnapshot(computed);
                     }
@@ -825,7 +825,7 @@ namespace Mirror
             }
         }
 
-        protected virtual void DrawGizmos(SortedList<double, NTSnapshot> buffer)
+        protected virtual void DrawGizmos(SortedList<double, TransformSnapshot> buffer)
         {
             // only draw if we have at least two entries
             if (buffer.Count < 2) return;
@@ -840,7 +840,7 @@ namespace Mirror
             for (int i = 0; i < buffer.Count; ++i)
             {
                 // color depends on if old enough or not
-                NTSnapshot entry = buffer.Values[i];
+                TransformSnapshot entry = buffer.Values[i];
                 bool oldEnough = entry.localTime <= threshold;
                 Gizmos.color = oldEnough ? oldEnoughColor : notOldEnoughColor;
                 Gizmos.DrawCube(entry.position, Vector3.one);
