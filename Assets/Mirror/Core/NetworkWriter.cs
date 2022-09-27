@@ -56,6 +56,7 @@ namespace Mirror
         }
 
         /// <summary>Copies buffer until 'Position' to a new array.</summary>
+        // Try to use ToArraySegment instead to avoid allocations!
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte[] ToArray()
         {
