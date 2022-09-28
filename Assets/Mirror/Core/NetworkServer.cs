@@ -9,8 +9,8 @@ namespace Mirror
     /// <summary>NetworkServer handles remote connections and has a local connection for a local client.</summary>
     public static partial class NetworkServer
     {
-        static bool initialized;
-        public static int maxConnections;
+        static        bool initialized;
+        public static int  maxConnections;
 
         /// <summary>Connection to host mode client (if any)</summary>
         public static NetworkConnectionToClient localConnection { get; private set; }
@@ -1321,7 +1321,7 @@ namespace Mirror
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
             // send object destroy message to all observers, clear observers
-            SendToObservers(identity, new ObjectDestroyMessage{netId = identity.netId});
+            SendToObservers(identity, new ObjectDestroyMessage {netId = identity.netId});
             identity.ClearObservers();
 
             // in host mode, call OnStopClient/OnStopLocalPlayer manually
