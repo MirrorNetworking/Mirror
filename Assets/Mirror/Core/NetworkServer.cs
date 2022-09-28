@@ -81,19 +81,19 @@ namespace Mirror
         static void AddTransportHandlers()
         {
             // += so that other systems can also hook into it (i.e. statistics)
-            Transport.active.OnServerConnected += OnTransportConnected;
+            Transport.active.OnServerConnected    += OnTransportConnected;
             Transport.active.OnServerDataReceived += OnTransportData;
             Transport.active.OnServerDisconnected += OnTransportDisconnected;
-            Transport.active.OnServerError += OnTransportError;
+            Transport.active.OnServerError        += OnTransportError;
         }
 
         static void RemoveTransportHandlers()
         {
             // -= so that other systems can also hook into it (i.e. statistics)
-            Transport.active.OnServerConnected -= OnTransportConnected;
+            Transport.active.OnServerConnected    -= OnTransportConnected;
             Transport.active.OnServerDataReceived -= OnTransportData;
             Transport.active.OnServerDisconnected -= OnTransportDisconnected;
-            Transport.active.OnServerError -= OnTransportError;
+            Transport.active.OnServerError        -= OnTransportError;
         }
 
         // calls OnStartClient for all SERVER objects in host mode once.

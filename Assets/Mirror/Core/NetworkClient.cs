@@ -106,19 +106,19 @@ namespace Mirror
         static void AddTransportHandlers()
         {
             // += so that other systems can also hook into it (i.e. statistics)
-            Transport.active.OnClientConnected += OnTransportConnected;
+            Transport.active.OnClientConnected    += OnTransportConnected;
             Transport.active.OnClientDataReceived += OnTransportData;
             Transport.active.OnClientDisconnected += OnTransportDisconnected;
-            Transport.active.OnClientError += OnTransportError;
+            Transport.active.OnClientError        += OnTransportError;
         }
 
         static void RemoveTransportHandlers()
         {
             // -= so that other systems can also hook into it (i.e. statistics)
-            Transport.active.OnClientConnected -= OnTransportConnected;
+            Transport.active.OnClientConnected    -= OnTransportConnected;
             Transport.active.OnClientDataReceived -= OnTransportData;
             Transport.active.OnClientDisconnected -= OnTransportDisconnected;
-            Transport.active.OnClientError -= OnTransportError;
+            Transport.active.OnClientError        -= OnTransportError;
         }
 
         internal static void RegisterSystemHandlers(bool hostMode)
