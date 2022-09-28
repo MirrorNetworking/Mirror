@@ -18,7 +18,7 @@ namespace Mirror
     }
 
     /// <summary>NetworkClient with connection to server.</summary>
-    public static class NetworkClient
+    public static partial class NetworkClient
     {
         // message handlers by messageId
         internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
