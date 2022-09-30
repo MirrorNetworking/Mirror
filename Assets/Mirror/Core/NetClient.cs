@@ -4,7 +4,8 @@
 // transition steps:
 //   1. NetClient as component & static NetworkClient points to .instance
 //   2. "Fake statics" via .NetworkClient on NetworkBehavious etc.
-//   3. Remove static NetworkClient, rename NetClient to NetworkClient
+//   3. Replace static NetworkClient access with fake statics gradually.
+//   3. Remove static NetworkClient, rename NetClient to NetworkClient.
 using System;
 using System.Collections.Generic;
 using System.Linq;
