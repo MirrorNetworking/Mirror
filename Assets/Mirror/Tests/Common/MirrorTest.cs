@@ -19,12 +19,19 @@ namespace Mirror.Tests
         public GameObject      holder;
         public MemoryTransport transport;
 
+        // "fake statics"
+        protected NetClient NetworkClient;
+
         public virtual void SetUp()
         {
             instantiated = new List<GameObject>();
 
             // need a holder GO. with name for easier debugging.
             holder = new GameObject("MirrorTest.holder");
+
+            // need a NetClient component
+            NetworkClient = holder.AddComponent<NetClient>();
+            NetworkClient.Awake(); // not called automatically in tests.
 
             // need a transport to send & receive
             Transport.active = transport = holder.AddComponent<MemoryTransport>();
