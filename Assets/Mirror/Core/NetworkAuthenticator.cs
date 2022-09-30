@@ -4,12 +4,17 @@ using UnityEngine.Events;
 
 namespace Mirror
 {
-    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnectionToClient> {}
+    [Serializable] public class UnityEventNetworkConnection : UnityEvent<NetworkConnectionToClient>
+    {
+    }
 
     /// <summary>Base class for implementing component-based authentication during the Connect phase</summary>
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators")]
     public abstract class NetworkAuthenticator : MonoBehaviour
     {
+        // "fake statics"
+        protected NetClient NetworkClient;
+
         /// <summary>Notify subscribers on the server when a client is authenticated</summary>
         [Header("Event Listeners (optional)")]
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
@@ -18,6 +23,13 @@ namespace Mirror
         /// <summary>Notify subscribers on the client when the client is authenticated</summary>
         [Tooltip("Mirror has an internal subscriber to this event. You can add your own here.")]
         public UnityEvent OnClientAuthenticated = new UnityEvent();
+
+        protected virtual void Awake()
+        {
+            // get components
+            NetworkClient = GetComponent<NetClient>();
+            if (NetworkClient == null) throw new Exception($"{GetType()} is missing a NetClient component on {name}. Please add one.");
+        }
 
         /// <summary>Called when server starts, used to register message handlers if needed.</summary>
         public virtual void OnStartServer() {}
@@ -60,12 +72,12 @@ namespace Mirror
             // disconnect the client
             NetworkClient.connection.Disconnect();
         }
-        
+
         // Reset() instead of OnValidate():
-        // Any NetworkAuthenticator assigns itself to the NetworkManager, this is fine on first adding it, 
-        // but if someone intentionally sets Authenticator to null on the NetworkManager again then the 
+        // Any NetworkAuthenticator assigns itself to the NetworkManager, this is fine on first adding it,
+        // but if someone intentionally sets Authenticator to null on the NetworkManager again then the
         // Authenticator will reassign itself if a value in the inspector is changed.
-        // My change switches OnValidate to Reset since Reset is only called when the component is first 
+        // My change switches OnValidate to Reset since Reset is only called when the component is first
         // added (or reset is pressed).
         void Reset()
         {
