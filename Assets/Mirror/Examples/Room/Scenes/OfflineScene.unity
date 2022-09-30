@@ -43,7 +43,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
+  serializedVersion: 12
   m_GIWorkflowMode: 0
   m_GISettings:
     serializedVersion: 2
@@ -98,7 +98,8 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 584444e25eb944c13b8d173067976b7c,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -118,6 +119,8 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
@@ -191,6 +194,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -206,6 +210,7 @@ GameObject:
   - component: {fileID: 2008127832}
   - component: {fileID: 2008127833}
   - component: {fileID: 2008127831}
+  - component: {fileID: 2008127834}
   - component: {fileID: 2008127830}
   m_Layer: 0
   m_Name: NetworkRoomManager
@@ -235,7 +240,11 @@ MonoBehaviour:
   CongestionWindow: 0
   SendWindowSize: 4096
   ReceiveWindowSize: 4096
+  MaxRetransmit: 40
   NonAlloc: 1
+  MaximizeSendReceiveBuffersToOSLimit: 1
+  ReliableMaxMessageSize: 298449
+  UnreliableMaxMessageSize: 1199
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
@@ -252,17 +261,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
-  PersistNetworkManagerToOfflineScene: 0
   runInBackground: 1
   autoStartServerBuild: 1
+  autoConnectClientBuild: 0
   serverTickRate: 30
   offlineScene: Assets/Mirror/Examples/Room/Scenes/OfflineScene.unity
   onlineScene: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
   transport: {fileID: 2008127830}
   networkAddress: localhost
   maxConnections: 5
-  disconnectInactiveConnections: 0
-  disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 1480027675339556, guid: 21daf89214c6ee443ad6875b73083c60,
     type: 3}
@@ -291,6 +298,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -307,6 +315,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  showGUI: 1
   offsetX: 0
   offsetY: 0
+--- !u!114 &2008127834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2008127829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8415527b0bb40e0b92c49f79727256e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ready: 0
+  aoi: {fileID: 0}
+  isLoadingScene: 0

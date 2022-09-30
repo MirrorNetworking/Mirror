@@ -43,7 +43,7 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 11
+  serializedVersion: 12
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -98,7 +98,8 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 02dc2331c2428407bad09ee737d883ce,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -118,6 +119,8 @@ NavMeshSettings:
     manualTileSize: 0
     tileSize: 256
     accuratePlacement: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
@@ -200,6 +203,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -237,6 +241,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -269,6 +274,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1300359894}
   m_RootOrder: 0
@@ -288,6 +294,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1074858617}
   - component: {fileID: 1074858616}
+  - component: {fileID: 1074858619}
   - component: {fileID: 1074858615}
   - component: {fileID: 1074858614}
   - component: {fileID: 1074858618}
@@ -333,7 +340,11 @@ MonoBehaviour:
   CongestionWindow: 0
   SendWindowSize: 4096
   ReceiveWindowSize: 4096
+  MaxRetransmit: 40
   NonAlloc: 1
+  MaximizeSendReceiveBuffersToOSLimit: 1
+  ReliableMaxMessageSize: 298449
+  UnreliableMaxMessageSize: 1199
   debugLog: 0
   statisticsGUI: 0
   statisticsLog: 0
@@ -350,9 +361,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
-  PersistNetworkManagerToOfflineScene: 0
   runInBackground: 1
   autoStartServerBuild: 1
+  autoConnectClientBuild: 0
   serverTickRate: 30
   offlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/Offline.unity
   onlineScene: Assets/Mirror/Examples/AdditiveLevels/Scenes/Online.unity
@@ -379,6 +390,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1300359894}
   m_Father: {fileID: 0}
@@ -396,6 +408,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b979f26c95d34324ba005bfacfa9c4fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1074858619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074858613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8415527b0bb40e0b92c49f79727256e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ready: 0
+  aoi: {fileID: 0}
+  isLoadingScene: 0
 --- !u!1 &1300359889
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,6 +479,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &1300359893
 Canvas:
   m_ObjectHideFlags: 0
@@ -483,6 +511,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1040404847}
   m_Father: {fileID: 1074858617}
