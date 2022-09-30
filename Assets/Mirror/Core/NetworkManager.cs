@@ -13,8 +13,12 @@ namespace Mirror
     [DisallowMultipleComponent]
     [AddComponentMenu("Network/Network Manager")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-manager")]
+    [RequireComponent(typeof(NetClient))]
     public class NetworkManager : MonoBehaviour
     {
+        // "fake statics"
+        protected NetClient NetworkClient;
+
         /// <summary>Enable to keep NetworkManager alive when changing scenes.</summary>
         // This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
         [Header("Configuration")]
@@ -180,6 +184,10 @@ namespace Mirror
             if (!InitializeSingleton()) return;
 
             Debug.Log("Mirror | mirror-networking.com | discord.gg/N9QVxbM");
+
+            // get components
+            NetworkClient = GetComponent<NetClient>();
+            if (NetworkClient == null) throw new Exception($"NetworkManager is missing a NetClient component on {name}. Please add one.");
 
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
@@ -778,7 +786,10 @@ namespace Mirror
             if (NetworkServer.active)
             {
                 // notify all clients about the new scene
-                NetworkServer.SendToAll(new SceneMessage { sceneName = newSceneName });
+                NetworkServer.SendToAll(new SceneMessage
+                {
+                    sceneName = newSceneName
+                });
             }
 
             startPositionIndex = 0;
@@ -1098,7 +1109,10 @@ namespace Mirror
             // proceed with the login handshake by calling OnServerConnect
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
+                SceneMessage msg = new SceneMessage()
+                {
+                    sceneName = networkSceneName
+                };
                 conn.Send(msg);
             }
 
