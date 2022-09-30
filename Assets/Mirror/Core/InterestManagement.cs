@@ -1,5 +1,6 @@
 // interest management component for custom solutions like
 // distance based, spatial hashing, raycast based, etc.
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,12 +10,19 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public abstract class InterestManagement : MonoBehaviour
     {
+        // "fake statics"
+        protected NetClient NetworkClient;
+
         // Awake configures InterestManagement in NetworkServer/Client
         // Do NOT check for active server or client here.
         // Awake must always set the static aoi references.
         // make sure to call base.Awake when overwriting!
         protected virtual void Awake()
         {
+            // get components
+            NetworkClient = GetComponent<NetClient>();
+            if (NetworkClient == null) throw new Exception($"InterestManagement is missing a NetClient component on {name}. Please add one.");
+
             if (NetworkServer.aoi == null)
             {
                 NetworkServer.aoi = this;
