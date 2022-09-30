@@ -1138,7 +1138,7 @@ namespace Mirror
             // otherwise look in NetworkManager registered prefabs
             if (GetPrefab(message.assetId, out GameObject prefab))
             {
-                GameObject obj = GameObject.Instantiate(prefab, message.position, message.rotation);
+                GameObject obj = Instantiate(prefab, message.position, message.rotation);
                 //Debug.Log($"Client spawn handler instantiating [netId{message.netId} asset ID:{message.assetId:X4} pos:{message.position} rotation:{message.rotation}]");
                 return obj.GetComponent<NetworkIdentity>();
             }
