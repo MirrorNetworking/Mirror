@@ -14,6 +14,17 @@ using UnityEngine;
 
 namespace Mirror
 {
+    public enum ConnectState
+    {
+        None,
+        // connecting between Connect() and OnTransportConnected()
+        Connecting,
+        Connected,
+        // disconnecting between Disconnect() and OnTransportDisconnected()
+        Disconnecting,
+        Disconnected
+    }
+
     public partial class NetClient : MonoBehaviour
     {
         // singleton for static NetworkClient to point to.

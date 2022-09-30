@@ -7,17 +7,6 @@ using UnityEngine;
 
 namespace Mirror
 {
-    public enum ConnectState
-    {
-        None,
-        // connecting between Connect() and OnTransportConnected()
-        Connecting,
-        Connected,
-        // disconnecting between Disconnect() and OnTransportDisconnected()
-        Disconnecting,
-        Disconnected
-    }
-
     /// <summary>NetworkClient with connection to server.</summary>
     public static partial class NetworkClient
     {
