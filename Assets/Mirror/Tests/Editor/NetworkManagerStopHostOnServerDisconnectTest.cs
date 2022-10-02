@@ -10,7 +10,7 @@ namespace Mirror.Tests
             base.OnServerDisconnect(conn);
             ++called;
         }
-}
+    }
 
     [TestFixture]
     public class NetworkManagerStopHostOnServerDisconnectTest : MirrorEditModeTest

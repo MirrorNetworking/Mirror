@@ -504,7 +504,7 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
+                    connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
                     // enough to read at least header size?
                     if (reader.Remaining >= NetworkMessages.IdSize)
@@ -900,7 +900,10 @@ namespace Mirror
 
         internal static void HideForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
-            ObjectHideMessage msg = new ObjectHideMessage {netId = identity.netId};
+            ObjectHideMessage msg = new ObjectHideMessage
+            {
+                netId = identity.netId
+            };
             conn.Send(msg);
         }
 
@@ -1321,7 +1324,10 @@ namespace Mirror
             identity.connectionToClient?.RemoveOwnedObject(identity);
 
             // send object destroy message to all observers, clear observers
-            SendToObservers(identity, new ObjectDestroyMessage {netId = identity.netId});
+            SendToObservers(identity, new ObjectDestroyMessage
+            {
+                netId = identity.netId
+            });
             identity.ClearObservers();
 
             // in host mode, call OnStopClient/OnStopLocalPlayer manually
