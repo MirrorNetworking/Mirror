@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Mirror
 {
@@ -22,7 +21,8 @@ namespace Mirror
         // configuration settings are in .config.
 
         // <servertime, snaps>
-        public static SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
+        public static SortedList<double, TimeSnapshot> snapshots =
+            new SortedList<double, TimeSnapshot>();
 
         // for smooth interpolation, we need to interpolate along server time.
         // any other time (arrival on client, client local time, etc.) is not
