@@ -99,8 +99,7 @@ namespace Mirror
 
         public override void OnValidate()
         {
-            // always >= 0
-            maxConnections = Mathf.Max(maxConnections, 0);
+            base.OnValidate();
 
             // always <= maxConnections
             minPlayers = Mathf.Min(minPlayers, maxConnections);
@@ -117,8 +116,6 @@ namespace Mirror
                     Debug.LogError("RoomPlayer prefab must have a NetworkIdentity component.");
                 }
             }
-
-            base.OnValidate();
         }
 
         public void ReadyStatusChanged()
