@@ -23,6 +23,9 @@ namespace Mirror
         public float tickInterval =>
             tickRate < int.MaxValue ? 1f / tickRate : 0; // for 30 Hz, that's 33ms
 
+        // Mirror currently sends every tick
+        public float sendInterval => tickInterval;
+
         // default settings in one place. used by both NetworkServer & Manager.
         public static readonly NetworkServerConfig Default = new NetworkServerConfig
         {
