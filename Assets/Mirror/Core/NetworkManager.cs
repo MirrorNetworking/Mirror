@@ -17,7 +17,7 @@ namespace Mirror
     {
         /// <summary>Enable to keep NetworkManager alive when changing scenes.</summary>
         // This should be set if your game has a single NetworkManager that exists for the lifetime of the process. If there is a NetworkManager in each scene, then this should not be set.</para>
-        [Header("Configuration")]
+        [Header("General")]
         [FormerlySerializedAs("m_DontDestroyOnLoad")]
         [Tooltip("Should the Network Manager object be persisted through scene changes?")]
         public bool dontDestroyOnLoad = true;
@@ -30,10 +30,12 @@ namespace Mirror
         // server/client configs are copied to static NetworkServer/Client.
         // instead of duplicating every setting manually.
         // initialized to default settings so all values aren't 0 initially.
+        [Header("Configs")]
         public NetworkServerConfig serverConfig = NetworkServerConfig.Default;
         public NetworkClientConfig clientConfig = NetworkClientConfig.Default;
 
         /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
+        [Header("Headless Builds")]
         [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
         [FormerlySerializedAs("startOnHeadless")]
         public bool autoStartServerBuild = true;
