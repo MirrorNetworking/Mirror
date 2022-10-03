@@ -304,6 +304,20 @@ namespace Mirror
             }
         }
 
+        void SetupClient()
+        {
+            InitializeSingleton();
+
+            if (runInBackground)
+                Application.runInBackground = true;
+
+            if (authenticator != null)
+            {
+                authenticator.OnStartClient();
+                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
+            }
+        }
+
         /// <summary>Starts the client, connects it to the server with networkAddress.</summary>
         public void StartClient()
         {
@@ -315,16 +329,7 @@ namespace Mirror
 
             mode = NetworkManagerMode.ClientOnly;
 
-            InitializeSingleton();
-
-            if (runInBackground)
-                Application.runInBackground = true;
-
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
+            SetupClient();
 
             // In case this is a headless client...
             ConfigureHeadlessFrameRate();
@@ -354,16 +359,7 @@ namespace Mirror
 
             mode = NetworkManagerMode.ClientOnly;
 
-            InitializeSingleton();
-
-            if (runInBackground)
-                Application.runInBackground = true;
-
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
+            SetupClient();
 
             RegisterClientMessages();
 
@@ -486,11 +482,7 @@ namespace Mirror
         {
             //Debug.Log("NetworkManager ConnectLocalClient");
 
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
+            SetupClient();
 
             networkAddress = "localhost";
             NetworkServer.ActivateHostScene();
