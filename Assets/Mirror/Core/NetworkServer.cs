@@ -47,7 +47,7 @@ namespace Mirror
         static bool initialized;
 
         [Obsolete("NetworkServer.maxConnection is now in NetworkServer.config.maxConnections so we can expose server settings in NetworkManager more easily.")]
-        public static int  maxConnections => config.maxConnections;
+        public static int maxConnections => config.maxConnections;
 
         /// <summary>Connection to host mode client (if any)</summary>
         public static NetworkConnectionToClient localConnection { get; private set; }
