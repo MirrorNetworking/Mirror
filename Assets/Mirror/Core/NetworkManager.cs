@@ -27,6 +27,12 @@ namespace Mirror
         [Tooltip("Multiplayer games should always run in the background so the network doesn't time out.")]
         public bool runInBackground = true;
 
+        // server/client configs are copied to static NetworkServer/Client.
+        // instead of duplicating every setting manually.
+        // initialized to default settings so all values aren't 0 initially.
+        public NetworkServerConfig serverConfig = NetworkServerConfig.Default;
+        public NetworkClientConfig clientConfig = NetworkClientConfig.Default;
+
         /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
         [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
         [FormerlySerializedAs("startOnHeadless")]
@@ -135,6 +141,9 @@ namespace Mirror
         // virtual so that inheriting classes' OnValidate() can call base.OnValidate() too
         public virtual void OnValidate()
         {
+            serverConfig.OnValidate();
+            clientConfig.OnValidate();
+
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
@@ -244,6 +253,8 @@ namespace Mirror
                 authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
 
+            NetworkServer.config = serverConfig;
+
             ConfigureHeadlessFrameRate();
 
             // start listening to network connections
@@ -316,6 +327,8 @@ namespace Mirror
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
+
+            NetworkClient.config = clientConfig;
         }
 
         /// <summary>Starts the client, connects it to the server with networkAddress.</summary>

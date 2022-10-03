@@ -17,9 +17,27 @@ namespace Mirror
         Disconnected
     }
 
+    [Serializable]
+    public struct NetworkClientConfig
+    {
+        // default settings in one place. used by both NetworkClient & Manager.
+        public static readonly NetworkClientConfig Default = new NetworkClientConfig
+        {
+        };
+
+        // call this from Unity's OnValidate
+        public void OnValidate()
+        {
+        }
+    }
+
     /// <summary>NetworkClient with connection to server.</summary>
     public static partial class NetworkClient
     {
+        // configuration as struct to be exposable in NetworkManager easily.
+        // initialized to default settings so all values aren't 0 initially.
+        public static NetworkClientConfig config = NetworkClientConfig.Default;
+
         // message handlers by messageId
         internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();

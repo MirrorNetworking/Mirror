@@ -6,9 +6,27 @@ using UnityEngine;
 
 namespace Mirror
 {
+    [Serializable]
+    public struct NetworkServerConfig
+    {
+        // default settings in one place. used by both NetworkServer & Manager.
+        public static readonly NetworkServerConfig Default = new NetworkServerConfig
+        {
+        };
+
+        // call this from Unity's OnValidate
+        public void OnValidate()
+        {
+        }
+    }
+
     /// <summary>NetworkServer handles remote connections and has a local connection for a local client.</summary>
     public static partial class NetworkServer
     {
+        // configuration as struct to be exposable in NetworkManager easily.
+        // initialized to default settings so all values aren't 0 initially.
+        public static NetworkServerConfig config = NetworkServerConfig.Default;
+
         static        bool initialized;
         public static int  maxConnections;
 
