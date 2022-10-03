@@ -248,6 +248,10 @@ namespace Mirror
         /// <summary>Shutdown the client.</summary>
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void Shutdown() => NetClient.instance?.Shutdown();
+        public static void Shutdown()
+        {
+            NetClient.instance?.Shutdown();
+            NetClient.instance = null;
+        }
     }
 }
