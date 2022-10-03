@@ -258,7 +258,7 @@ namespace Mirror.Tests
             CreateNetworked(out GameObject gameObject, out NetworkIdentity _, out IsClientServerCheckComponent component);
 
             // start the server
-            NetworkServer.Listen(1000);
+            NetworkServer.Listen();
 
             // spawn it
             NetworkServer.Spawn(gameObject);
@@ -276,7 +276,7 @@ namespace Mirror.Tests
             CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out IsClientServerCheckComponent component);
 
             // start the server
-            NetworkServer.Listen(1000);
+            NetworkServer.Listen();
 
             // start the client
             NetworkClient.ConnectHost();
@@ -576,7 +576,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.False);
 
             // server is needed
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // call OnStartServer so that isServer is true
             identity.OnStartServer();

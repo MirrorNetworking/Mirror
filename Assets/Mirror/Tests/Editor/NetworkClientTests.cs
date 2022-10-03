@@ -10,7 +10,7 @@ namespace Mirror.Tests
         {
             base.SetUp();
             // we need a server to connect to
-            NetworkServer.Listen(10);
+            NetworkServer.Listen();
         }
 
         [Test]

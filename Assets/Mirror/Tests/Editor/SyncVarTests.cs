@@ -14,7 +14,7 @@ namespace Mirror.Tests
 
             // SyncVar<T> hooks are only called while client is active for now.
             // so we need an active client.
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
         }
 

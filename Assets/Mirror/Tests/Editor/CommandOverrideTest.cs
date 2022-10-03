@@ -57,7 +57,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         {
             base.SetUp();
             // start server/client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
         }
 

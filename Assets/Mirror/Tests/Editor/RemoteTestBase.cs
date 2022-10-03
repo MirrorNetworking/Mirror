@@ -8,7 +8,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
         public void Setup()
         {
             // start server/client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
         }
     }

@@ -143,7 +143,7 @@ namespace Mirror.Tests.NetworkBehaviourSerialize
 
             // SyncLists are only set dirty while owner has observers.
             // need a connection.
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
         }
 

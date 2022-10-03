@@ -66,7 +66,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
             base.SetUp();
 
             // start server & connect client because we need spawn functions
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // we are testing server->client syncs.
             // so we need truly separted server & client, not host.

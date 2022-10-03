@@ -12,7 +12,7 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
         {
             base.SetUp();
 
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
         }
 

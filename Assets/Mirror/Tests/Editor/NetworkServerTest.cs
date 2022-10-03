@@ -64,7 +64,7 @@ namespace Mirror.Tests
         public void IsActive()
         {
             Assert.That(NetworkServer.active, Is.False);
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             Assert.That(NetworkServer.active, Is.True);
             NetworkServer.Shutdown();
             Assert.That(NetworkServer.active, Is.False);
@@ -74,7 +74,8 @@ namespace Mirror.Tests
         public void MaxConnections()
         {
             // listen with maxconnections=1
-            NetworkServer.Listen(1);
+            NetworkServer.config.maxConnections = 1;
+            NetworkServer.Listen();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first: should work
@@ -94,7 +95,7 @@ namespace Mirror.Tests
             NetworkServer.OnConnectedEvent = conn => connectCalled = true;
 
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             transport.OnServerConnected.Invoke(42);
             Assert.That(connectCalled, Is.True);
         }
@@ -107,7 +108,7 @@ namespace Mirror.Tests
             NetworkServer.OnDisconnectedEvent = conn => disconnectCalled = true;
 
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             transport.OnServerConnected.Invoke(42);
 
             // disconnect
@@ -119,7 +120,7 @@ namespace Mirror.Tests
         public void ConnectionsDict()
         {
             // listen
-            NetworkServer.Listen(2);
+            NetworkServer.Listen();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(0));
 
             // connect first
@@ -150,7 +151,7 @@ namespace Mirror.Tests
             // <0 is never used
 
             // listen
-            NetworkServer.Listen(2);
+            NetworkServer.Listen();
 
             // connect with connectionId == 0 should fail
             // (it will show an error message, which is expected)
@@ -164,7 +165,7 @@ namespace Mirror.Tests
         public void ConnectDuplicateConnectionIds()
         {
             // listen
-            NetworkServer.Listen(2);
+            NetworkServer.Listen();
 
             // connect first
             transport.OnServerConnected.Invoke(42);
@@ -181,7 +182,7 @@ namespace Mirror.Tests
         public void SetLocalConnection()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // set local connection
             LocalConnectionToClient localConnection = new LocalConnectionToClient();
@@ -193,7 +194,7 @@ namespace Mirror.Tests
         public void SetLocalConnection_PreventsOverwrite()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // set local connection
             LocalConnectionToClient localConnection = new LocalConnectionToClient();
@@ -211,7 +212,7 @@ namespace Mirror.Tests
         public void RemoveLocalConnection()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // set local connection
             CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
@@ -226,7 +227,7 @@ namespace Mirror.Tests
         public void LocalClientActive()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             Assert.That(NetworkServer.localClientActive, Is.False);
 
             // set local connection
@@ -238,7 +239,7 @@ namespace Mirror.Tests
         public void AddConnection()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // add first connection
             NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
@@ -258,7 +259,7 @@ namespace Mirror.Tests
         public void AddConnection_PreventsDuplicates()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // add a connection
             NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
@@ -277,7 +278,7 @@ namespace Mirror.Tests
         public void RemoveConnection()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // add connection
             NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
@@ -293,7 +294,7 @@ namespace Mirror.Tests
         public void DisconnectAllTest_RemoteConnection()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // add connection
             NetworkConnectionToClient conn42 = new NetworkConnectionToClient(42);
@@ -309,7 +310,7 @@ namespace Mirror.Tests
         public void DisconnectAllTest_LocalConnection()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // set local connection
             LocalConnectionToClient localConnection = new LocalConnectionToClient();
@@ -325,7 +326,7 @@ namespace Mirror.Tests
         public void Destroy_HostMode_CallsOnStopAuthority()
         {
             // listen & connect a HOST client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             // spawn a player(!) object
@@ -355,7 +356,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // send message & process
@@ -374,7 +375,7 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message & process
@@ -394,7 +395,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // send message & process
@@ -415,7 +416,7 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message & process
@@ -436,7 +437,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // calculate max := transport.max - message header
@@ -461,7 +462,7 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message & process
@@ -491,7 +492,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // send message & process
@@ -519,7 +520,7 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<VariableSizedMessage>(msg => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send large message & process
@@ -544,7 +545,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<VariableSizedMessage>((conn, msg) => received.Add("big"), false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // send small message first
@@ -576,7 +577,7 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<VariableSizedMessage>(msg => received.Add("big"), false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send small message first
@@ -605,7 +606,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message
@@ -638,7 +639,7 @@ namespace Mirror.Tests
         public void Send_ClientToServerMessage_UnknownMessageIdDisconnects()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send a message without a registered handler
@@ -657,7 +658,7 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
 
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send message
@@ -690,7 +691,7 @@ namespace Mirror.Tests
         public void Send_ServerToClientMessage_UnknownMessageIdDisconnects()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient connectionToClient);
 
             // send a message without a registered handler
@@ -709,7 +710,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++called, false);
 
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // serialize a test message into an arraysegment
             byte[] message = NetworkMessagesTest.PackToByteArray(new TestMessage1());
@@ -727,7 +728,7 @@ namespace Mirror.Tests
         [Test]
         public void SetClientReadyAndNotReady()
         {
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
             Assert.That(connectionToClient.isReady, Is.False);
 
@@ -741,7 +742,7 @@ namespace Mirror.Tests
         [Test]
         public void SetAllClientsNotReady()
         {
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
             Assert.That(connectionToClient.isReady, Is.True);
 
@@ -754,7 +755,7 @@ namespace Mirror.Tests
         public void ReadyMessageSetsClientReady()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
             Assert.That(connectionToClient.isReady, Is.True);
         }
@@ -764,7 +765,7 @@ namespace Mirror.Tests
         public void SendCommand()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
@@ -784,7 +785,7 @@ namespace Mirror.Tests
         public void SendCommand_CalledOnCorrectComponent()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components.
@@ -803,7 +804,7 @@ namespace Mirror.Tests
         public void SendCommand_OnlyAllowedOnOwnedObjects()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             // add an identity with two networkbehaviour components
@@ -824,7 +825,7 @@ namespace Mirror.Tests
         public void SendCommand_RequiresAuthority()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // add an identity with two networkbehaviour components
@@ -843,7 +844,7 @@ namespace Mirror.Tests
         public void ActivateHostSceneCallsOnStartClient()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // spawn identity with a networkbehaviour.
@@ -869,7 +870,7 @@ namespace Mirror.Tests
             NetworkClient.RegisterHandler<TestMessage1>(msg => ++called, false);
 
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // send & process
@@ -888,7 +889,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++variant1Called, false);
 
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // send a message, check if it was handled
@@ -911,7 +912,7 @@ namespace Mirror.Tests
             NetworkServer.RegisterHandler<TestMessage1>((conn, msg) => ++variant1Called, false);
 
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out _);
 
             // send a message, check if it was handled
@@ -955,7 +956,7 @@ namespace Mirror.Tests
         public void ShowForConnection()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
@@ -980,7 +981,7 @@ namespace Mirror.Tests
         {
             // listen & connect
             // DO NOT set ready this time
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticated(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
@@ -1004,7 +1005,7 @@ namespace Mirror.Tests
         public void HideForConnection()
         {
             // listen & connect
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // overwrite spawn message handler
@@ -1060,7 +1061,7 @@ namespace Mirror.Tests
             go2.SetActive(false);
 
             // start server
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // SpawnObjects() should return true and activate the scene object
             Assert.That(NetworkServer.SpawnObjects(), Is.True);
@@ -1132,7 +1133,7 @@ namespace Mirror.Tests
         public void Shutdown_CallsSceneObjectsOnStopServer()
         {
             // listen & connect a client
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlocking(out NetworkConnectionToClient _);
 
             // create & spawn an object
@@ -1152,7 +1153,7 @@ namespace Mirror.Tests
         public void ShutdownCleanup()
         {
             // listen
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // add some test event hooks to make sure they are cleaned up.
             // there used to be a bug where they wouldn't be cleaned up.
@@ -1254,7 +1255,7 @@ namespace Mirror.Tests
         public void UpdateDetectsNullEntryInObserving()
         {
             // start
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // add a connection that is observed by a null entity
             NetworkServer.connections[42] = new FakeNetworkConnection{isReady=true};
@@ -1274,7 +1275,7 @@ namespace Mirror.Tests
         public void UpdateDetectsDestroyedEntryInObserving()
         {
             // start
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // add a connection that is observed by a destroyed entity
             CreateNetworked(out GameObject go, out NetworkIdentity ni);
@@ -1294,7 +1295,7 @@ namespace Mirror.Tests
         [Test]
         public void SyncObjectChanges_DontGrowWithoutObservers()
         {
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // one monster
@@ -1319,7 +1320,7 @@ namespace Mirror.Tests
         [Test]
         public void RemovePlayerForConnection_CallsOnStopLocalPlayer()
         {
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // spawn owned object
@@ -1341,7 +1342,7 @@ namespace Mirror.Tests
         [Test]
         public void ReplacePlayerForConnection_CallsOnStartLocalPlayer()
         {
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // spawn owned object
@@ -1371,7 +1372,7 @@ namespace Mirror.Tests
         [Test]
         public void ReplacePlayerForConnection_CallsOnStopLocalPlayer()
         {
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out NetworkConnectionToClient connectionToClient);
 
             // spawn owned object

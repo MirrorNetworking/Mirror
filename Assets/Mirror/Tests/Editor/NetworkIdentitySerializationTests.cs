@@ -18,7 +18,7 @@ namespace Mirror.Tests
             ownerWriter = new NetworkWriter();
             observersWriter = new NetworkWriter();
 
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
         }
 

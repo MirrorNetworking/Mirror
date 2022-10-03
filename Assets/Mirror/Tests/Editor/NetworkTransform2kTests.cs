@@ -34,7 +34,7 @@ namespace Mirror.Tests.NetworkTransform2k
             //      we can use CreateNetworkedAndSpawn that creates on sv & cl.
             //      then move on server, update, verify client position etc.
             base.SetUp();
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
             connectionToClient = NetworkServer.localConnection;
 

@@ -44,7 +44,8 @@ namespace Mirror.Tests.Runtime.ClientSceneTests
             yield return base.UnitySetUp();
 
             // start server & client and wait 1 frame
-            NetworkServer.Listen(1);
+            NetworkServer.config.maxConnections = 1;
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out connectionToClient);
             yield return null;
         }

@@ -78,9 +78,8 @@ namespace Mirror
         public string networkAddress = "localhost";
 
         /// <summary>The maximum number of concurrent network connections to support.</summary>
-        [FormerlySerializedAs("m_MaxConnections")]
-        [Tooltip("Maximum number of concurrent connections.")]
-        public int maxConnections = 100;
+        [Obsolete("NetworkManager.maxConnections was moved to NetworkManager.serverConfig.maxConnections")] // 2022-10-03
+        public int maxConnections => serverConfig.maxConnections;
 
         [Header("Authentication")]
         [Tooltip("Authentication component attached to this object")]
@@ -143,9 +142,6 @@ namespace Mirror
         {
             serverConfig.OnValidate();
             clientConfig.OnValidate();
-
-            // always >= 0
-            maxConnections = Mathf.Max(maxConnections, 0);
 
             if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
             {
@@ -257,8 +253,8 @@ namespace Mirror
 
             ConfigureHeadlessFrameRate();
 
-            // start listening to network connections
-            NetworkServer.Listen(maxConnections);
+            // start listening to network connections (after configuration)
+            NetworkServer.Listen();
 
             // call OnStartServer AFTER Listen, so that NetworkServer.active is
             // true and we can call NetworkServer.Spawn in OnStartServer

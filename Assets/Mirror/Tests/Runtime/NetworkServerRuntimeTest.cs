@@ -15,7 +15,8 @@ namespace Mirror.Tests.Runtime
             yield return base.UnitySetUp();
 
             // start server & client and wait 1 frame
-            NetworkServer.Listen(1);
+            NetworkServer.config.maxConnections = 1;
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
             yield return null;
         }
@@ -55,7 +56,8 @@ namespace Mirror.Tests.Runtime
         public IEnumerator Shutdown_DestroysAllSpawnedPrefabs()
         {
             // setup
-            NetworkServer.Listen(1);
+            NetworkServer.config.maxConnections = 1;
+            NetworkServer.Listen();
 
             const string ValidPrefabAssetGuid = "33169286da0313d45ab5bfccc6cf3775";
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(ValidPrefabAssetGuid));
@@ -88,7 +90,7 @@ namespace Mirror.Tests.Runtime
         public void Shutdown_DisablesAllSpawnedPrefabs()
         {
             // setup
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // spawn two scene objects
             CreateNetworkedAndSpawn(out _, out NetworkIdentity identity1);

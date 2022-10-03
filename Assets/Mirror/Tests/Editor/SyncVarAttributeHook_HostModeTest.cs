@@ -10,7 +10,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
             base.SetUp();
 
             // start server & connect client because we need spawn functions
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
 
             // need host mode!
             ConnectHostClientBlockingAuthenticatedAndReady();

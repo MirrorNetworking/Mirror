@@ -36,7 +36,7 @@ namespace Mirror.Tests
             NetworkServer.spawned[0xBB] = identityB;
 
             // need to start server so that interest management works
-            NetworkServer.Listen(10);
+            NetworkServer.Listen();
 
             // add both connections
             NetworkServer.connections[connectionA.connectionId] = connectionA;

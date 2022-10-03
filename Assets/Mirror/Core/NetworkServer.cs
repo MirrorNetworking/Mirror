@@ -9,14 +9,18 @@ namespace Mirror
     [Serializable]
     public struct NetworkServerConfig
     {
+        public int maxConnections;
+
         // default settings in one place. used by both NetworkServer & Manager.
         public static readonly NetworkServerConfig Default = new NetworkServerConfig
         {
+            maxConnections = 1000
         };
 
         // call this from Unity's OnValidate
         public void OnValidate()
         {
+            maxConnections = Mathf.Max(maxConnections, 0); // >= 0
         }
     }
 
@@ -27,8 +31,10 @@ namespace Mirror
         // initialized to default settings so all values aren't 0 initially.
         public static NetworkServerConfig config = NetworkServerConfig.Default;
 
-        static        bool initialized;
-        public static int  maxConnections;
+        static bool initialized;
+
+        [Obsolete("NetworkServer.maxConnection is now in NetworkServer.config.maxConnections so we can expose server settings in NetworkManager more easily.")]
+        public static int  maxConnections => config.maxConnections;
 
         /// <summary>Connection to host mode client (if any)</summary>
         public static NetworkConnectionToClient localConnection { get; private set; }
@@ -136,10 +142,17 @@ namespace Mirror
         }
 
         /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
+        [Obsolete("Listen(maxConnections) is obsolete. Set NetworkServer.config.maxConnections along with the rest of the server's settings, then call Listen() without parameters.")]
         public static void Listen(int maxConns)
         {
+            config.maxConnections = maxConns;
+            Listen();
+        }
+
+        /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
+        public static void Listen()
+        {
             Initialize();
-            maxConnections = maxConns;
 
             // only start server if we want to listen
             if (!dontListen)
@@ -438,7 +451,7 @@ namespace Mirror
             //  less code and third party transport might not do that anyway)
             // (this way we could also send a custom 'tooFull' message later,
             //  Transport can't do that)
-            if (connections.Count < maxConnections)
+            if (connections.Count < config.maxConnections)
             {
                 // add connection
                 NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
@@ -522,7 +535,7 @@ namespace Mirror
                 //       the next time.
                 //       => consider moving processing to NetworkEarlyUpdate.
                 while (!isLoadingScene &&
-                       connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
+                    connection.unbatcher.GetNextMessage(out NetworkReader reader, out double remoteTimestamp))
                 {
                     // enough to read at least header size?
                     if (reader.Remaining >= NetworkMessages.IdSize)

@@ -17,7 +17,7 @@ namespace Mirror.Tests
             base.SetUp();
 
             // need a connected client & server so we can have spawned identities
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
             // need a spawned NetworkIdentity with a netId (we store by netId)

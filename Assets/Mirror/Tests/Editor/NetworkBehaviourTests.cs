@@ -597,7 +597,7 @@ namespace Mirror.Tests
         public void GetSyncVarGameObjectOnClient()
         {
             // start server & connect client because we need spawn functions
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
@@ -755,7 +755,7 @@ namespace Mirror.Tests
         public void GetSyncVarNetworkIdentityOnClient()
         {
             // start server & connect client because we need spawn functions
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
@@ -826,7 +826,7 @@ namespace Mirror.Tests
         {
             // SyncLists are only set dirty while owner has observers.
             // need a connection.
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectClientBlockingAuthenticatedAndReady(out _);
 
             CreateNetworkedAndSpawn(out _, out _, out NetworkBehaviourWithSyncVarsAndCollections comp,

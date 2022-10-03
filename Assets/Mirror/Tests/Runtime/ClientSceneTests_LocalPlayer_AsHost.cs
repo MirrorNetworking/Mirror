@@ -11,7 +11,7 @@ namespace Mirror.Tests.Runtime
         {
             yield return base.UnitySetUp();
 
-            NetworkServer.Listen(1);
+            NetworkServer.Listen();
             ConnectHostClientBlockingAuthenticatedAndReady();
         }
 
