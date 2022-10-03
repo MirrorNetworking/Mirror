@@ -60,11 +60,22 @@ namespace Mirror
             deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.config.sendRate * config.deliveryTimeEmaDuration);
         }
 
+        // server sends TimeSnapshotMessage every sendInterval.
+        // batching already includes the remoteTimestamp.
+        // we simply insert it on-message here.
+        // => only for reliable channel. unreliable would always arrive earlier.
+        static void OnTimeSnapshotMessage(TimeSnapshotMessage _)
+        {
+            // insert another snapshot for snapshot interpolation.
+            // before calling OnDeserialize so components can use
+            // NetworkTime.time and NetworkTime.timeStamp.
+            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
+        }
+
         // see comments at the top of this file
         public static void OnTimeSnapshot(TimeSnapshot snap)
         {
-            // set local timestamp (= when it was received on our end)
-            snap.localTime = Time.timeAsDouble;
+            // Debug.Log($"NetworkClient: OnTimeSnapshot @ {snap.remoteTime:F3}");
 
             // (optional) dynamic adjustment
             if (config.dynamicAdjustment)

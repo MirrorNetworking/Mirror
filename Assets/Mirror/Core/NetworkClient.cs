@@ -237,6 +237,7 @@ namespace Mirror
             }
 
             // These handlers are the same for host and remote clients
+            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
             RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }

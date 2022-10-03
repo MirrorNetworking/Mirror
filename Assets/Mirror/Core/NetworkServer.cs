@@ -1704,6 +1704,10 @@ namespace Mirror
                 //   pull in UpdateVarsMessage for each entity it observes
                 if (connection.isReady)
                 {
+                    // send time for snapshot interpolation every sendInterval.
+                    // BroadcastToConnection() may not send if nothing is new.
+                    connection.Send(new TimeSnapshotMessage());
+
                     // broadcast world state to this connection
                     BroadcastToConnection(connection);
                 }
