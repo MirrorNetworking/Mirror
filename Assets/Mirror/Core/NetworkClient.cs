@@ -93,6 +93,9 @@ namespace Mirror
         // call this from Unity's OnValidate
         public void OnValidate()
         {
+            // snapshot interpolation thresholds need to be <0 and >0
+            catchupNegativeThreshold = Math.Min(catchupNegativeThreshold, 0);
+            catchupPositiveThreshold = Math.Max(catchupPositiveThreshold, 0);
         }
     }
 
@@ -245,6 +248,7 @@ namespace Mirror
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
 
+            InitTimeInterpolation();
             RegisterSystemHandlers(false);
             Transport.active.enabled = true;
             AddTransportHandlers();
@@ -261,6 +265,7 @@ namespace Mirror
             // Debug.Log($"Client Connect: {uri}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
 
+            InitTimeInterpolation();
             RegisterSystemHandlers(false);
             Transport.active.enabled = true;
             AddTransportHandlers();
@@ -1485,6 +1490,9 @@ namespace Mirror
             // process all incoming messages first before updating the world
             if (Transport.active != null)
                 Transport.active.ClientEarlyUpdate();
+
+            // time snapshot interpolation
+            UpdateTimeInterpolation();
         }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
