@@ -770,7 +770,10 @@ namespace Mirror
             if (NetworkServer.active)
             {
                 // notify all clients about the new scene
-                NetworkServer.SendToAll(new SceneMessage { sceneName = newSceneName });
+                NetworkServer.SendToAll(new SceneMessage
+                {
+                    sceneName = newSceneName
+                });
             }
 
             startPositionIndex = 0;
@@ -1090,7 +1093,10 @@ namespace Mirror
             // proceed with the login handshake by calling OnServerConnect
             if (networkSceneName != "" && networkSceneName != offlineScene)
             {
-                SceneMessage msg = new SceneMessage() { sceneName = networkSceneName };
+                SceneMessage msg = new SceneMessage()
+                {
+                    sceneName = networkSceneName
+                };
                 conn.Send(msg);
             }
 
