@@ -105,6 +105,9 @@ namespace Mirror
         public static List<Transform> startPositions = new List<Transform>();
         public static int startPositionIndex;
 
+        [Header("Debug")]
+        public bool timeInterpolationGui = false;
+
         /// <summary>The one and only NetworkManager</summary>
         public static NetworkManager singleton { get; internal set; }
 
@@ -1342,5 +1345,12 @@ namespace Mirror
 
         /// <summary>This is called when a host is stopped.</summary>
         public virtual void OnStopHost() {}
+
+        // GUI /////////////////////////////////////////////////////////////////
+        void OnGUI()
+        {
+            if (!timeInterpolationGui) return;
+            NetworkClient.OnGUI();
+        }
     }
 }
