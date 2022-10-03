@@ -41,18 +41,10 @@ namespace Mirror
         [Tooltip("Automatically connect the client in headless builds. Useful for CCU tests with bot clients.\n\nAddress may be passed as command line argument.\n\nMake sure that only 'autostartServer' or 'autoconnectClient' is enabled, not both!")]
         public bool autoConnectClientBuild;
 
-        /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
-        [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
-        public int serverTickRate = 30;
-
-        // tick rate is in Hz.
-        // convert to interval in seconds for convenience where needed.
-        //
-        // send interval is 1 / sendRate.
-        // but for tests we need a way to set it to exactly 0.
-        // 1 / int.max would not be exactly 0, so handel that manually.
-        public float serverTickInterval =>
-            serverTickRate < int.MaxValue ? 1f / serverTickRate : 0; // for 30 Hz, that's 33ms
+        [Obsolete("NetworkManager.serverTickRate was moved to .serverConfig.tickRate")] // 2022-10-03
+        public int serverTickRate => serverConfig.tickRate;
+        [Obsolete("NetworkManager.serverTickInterval was moved to .serverConfig.tickInterval")] // 2022-10-03
+        public float serverTickInterval => serverConfig.tickInterval;
 
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
@@ -640,7 +632,7 @@ namespace Mirror
         public virtual void ConfigureHeadlessFrameRate()
         {
 #if UNITY_SERVER
-            Application.targetFrameRate = serverTickRate;
+            Application.targetFrameRate = serverConfig.tickRate;
             // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
 #endif
         }
