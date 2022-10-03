@@ -1706,6 +1706,10 @@ namespace Mirror
                 {
                     // send time for snapshot interpolation every sendInterval.
                     // BroadcastToConnection() may not send if nothing is new.
+                    //
+                    // TODO non-headless servers don't set tick rate.
+                    // this would be sent every tick, which isn't necessary.
+                    // use accurateInterval or similar
                     connection.Send(new TimeSnapshotMessage());
 
                     // broadcast world state to this connection
