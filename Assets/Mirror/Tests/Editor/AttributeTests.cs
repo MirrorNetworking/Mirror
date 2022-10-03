@@ -73,11 +73,10 @@ namespace Mirror.Tests.Attributes
         }
     }
 
-
     public class AttributeTest_NetworkBehaviour
     {
         AttributeBehaviour_NetworkBehaviour behaviour;
-        GameObject go;
+        GameObject                          go;
 
         [SetUp]
         public void SetUp()
@@ -93,7 +92,6 @@ namespace Mirror.Tests.Attributes
             NetworkServer.active = false;
             UnityEngine.Object.DestroyImmediate(go);
         }
-
 
         [Test]
         [TestCase(true)]
@@ -207,7 +205,10 @@ namespace Mirror.Tests.Attributes
     public class AttributeBehaviour_MonoBehaviour : MonoBehaviour
     {
         public static readonly float Expected_float = 2020f;
-        public static readonly ClassWithNoConstructor Expected_ClassWithNoConstructor = new ClassWithNoConstructor { a = 10 };
+        public static readonly ClassWithNoConstructor Expected_ClassWithNoConstructor = new ClassWithNoConstructor
+        {
+            a = 10
+        };
         public static readonly ClassWithConstructor Expected_ClassWithConstructor = new ClassWithConstructor(29);
 
         [Client]
@@ -355,17 +356,19 @@ namespace Mirror.Tests.Attributes
         }
     }
 
-
     public class AttributeTest_MonoBehaviour
     {
         AttributeBehaviour_MonoBehaviour behaviour;
-        GameObject go;
+        NetClient                        NetworkClient;
+        GameObject                       go;
 
         [SetUp]
         public void SetUp()
         {
             go = new GameObject();
             behaviour = go.AddComponent<AttributeBehaviour_MonoBehaviour>();
+            NetworkClient = go.AddComponent<NetClient>();
+            NetworkClient.Awake();
         }
 
         [TearDown]
@@ -375,7 +378,6 @@ namespace Mirror.Tests.Attributes
             NetworkServer.active = false;
             UnityEngine.Object.DestroyImmediate(go);
         }
-
 
         [Test]
         [TestCase(true)]
