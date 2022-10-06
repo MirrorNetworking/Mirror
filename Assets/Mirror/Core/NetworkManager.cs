@@ -28,6 +28,7 @@ namespace Mirror
         public bool runInBackground = true;
 
         /// <summary>Should the server auto-start when 'Server Build' is checked in build settings</summary>
+        [Header("Headless Builds")]
         [Tooltip("Should the server auto-start when 'Server Build' is checked in build settings")]
         [FormerlySerializedAs("startOnHeadless")]
         public bool autoStartServerBuild = true;
