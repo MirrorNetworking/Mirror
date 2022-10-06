@@ -45,8 +45,8 @@ namespace Mirror
         // send interval is 1 / sendRate.
         // but for tests we need a way to set it to exactly 0.
         // 1 / int.max would not be exactly 0, so handel that manually.
-        public float serverTickInterval =>
-            serverTickRate < int.MaxValue ? 1f / serverTickRate : 0; // for 30 Hz, that's 33ms
+        [Obsolete("NetworkManager.serverTickInterval was moved to NetworkServer.tickInterval for consistency.")]
+        public float serverTickInterval => NetworkServer.tickInterval;
 
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
@@ -243,6 +243,9 @@ namespace Mirror
                 authenticator.OnStartServer();
                 authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
+
+            // copy exposed settings to static NetworkServer
+            NetworkServer.tickRate = serverTickRate;
 
             ConfigureHeadlessFrameRate();
 
