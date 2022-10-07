@@ -25,6 +25,13 @@ namespace Mirror
         public static float tickInterval =>
             tickRate < int.MaxValue ? 1f / tickRate : 0; // for 30 Hz, that's 33ms
 
+        // broadcast() runs every tick.
+        // -> components are only synced when dirty though
+        // -> Timesnapshots are sent every sendRate
+        public static int sendRate       => tickRate;
+        public static float sendInterval => tickInterval;
+        static double lastSendTime;
+
         /// <summary>Connection to host mode client (if any)</summary>
         public static NetworkConnectionToClient localConnection { get; private set; }
 
@@ -209,6 +216,7 @@ namespace Mirror
             dontListen = false;
             active = false;
             isLoadingScene = false;
+            lastSendTime = 0;
 
             localConnection = null;
 
@@ -1716,7 +1724,19 @@ namespace Mirror
         {
             // only broadcast world if active
             if (active)
-                Broadcast();
+            {
+                // broadcast every sendInterval.
+                // AccurateInterval to avoid update frequency inaccuracy issues:
+                // https://github.com/vis2k/Mirror/pull/3153
+                //
+                // for example, host mode server doesn't set .targetFrameRate.
+                // Broadcast() would be called every tick.
+                // snapshots might be sent way too often, etc.
+                if (AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
+                {
+                    Broadcast();
+                }
+            }
 
             // process all outgoing messages after updating the world
             // (even if not active. still want to process disconnects etc.)
