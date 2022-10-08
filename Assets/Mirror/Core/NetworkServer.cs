@@ -1732,7 +1732,10 @@ namespace Mirror
                 // for example, host mode server doesn't set .targetFrameRate.
                 // Broadcast() would be called every tick.
                 // snapshots might be sent way too often, etc.
-                if (AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
+                //
+                // during tests, we always call Broadcast() though.
+                if (!Application.isPlaying ||
+                    AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
                 {
                     Broadcast();
                 }
