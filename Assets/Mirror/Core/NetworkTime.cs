@@ -1,4 +1,9 @@
-using System;
+// NetworkTime now uses NetworkClient's snapshot interpolated timeline.
+// this gives ideal results & ensures everything is on the same timeline.
+// previously, NetworkTransforms were on separate timelines.
+//
+// however, some of the old NetworkTime code remains for ping time (rtt).
+// some users may still be using that.
 using System.Runtime.CompilerServices;
 using UnityEngine;
 #if !UNITY_2020_3_OR_NEWER
@@ -11,7 +16,7 @@ namespace Mirror
     public static class NetworkTime
     {
         /// <summary>Ping message frequency, used to calculate network time and RTT</summary>
-        public static float PingFrequency = 2.0f;
+        public static float PingFrequency = 2;
 
         /// <summary>Average out the last few results from Ping</summary>
         public static int PingWindowSize = 10;
@@ -19,11 +24,6 @@ namespace Mirror
         static double lastPingTime;
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
-        static ExponentialMovingAverage _offset = new ExponentialMovingAverage(10);
-
-        // the true offset guaranteed to be in this range
-        static double offsetMin = double.MinValue;
-        static double offsetMax = double.MaxValue;
 
         /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
 #if UNITY_2020_3_OR_NEWER
@@ -42,6 +42,8 @@ namespace Mirror
 #endif
 
         /// <summary>The time in seconds since the server started.</summary>
+        // via global NetworkClient snapshot interpolated timeline (if client).
+        // on server, this is simply Time.timeAsDouble.
         //
         // I measured the accuracy of float and I got this:
         // for the same day,  accuracy is better than 1 ms
@@ -51,47 +53,30 @@ namespace Mirror
         // after 60 days, accuracy is 454 ms
         // in other words,  if the server is running for 2 months,
         // and you cast down to float,  then the time will jump in 0.4s intervals.
-        //
-        // TODO consider using Unbatcher's remoteTime for NetworkTime
         public static double time
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => localTime - _offset.Value;
+            get => NetworkServer.active
+                ? localTime
+                : NetworkClient.localTimeline;
         }
 
-        /// <summary>Time measurement variance. The higher, the less accurate the time is.</summary>
-        // TODO does this need to be public? user should only need NetworkTime.time
-        public static double timeVariance => _offset.Variance;
-
-        /// <summary>Time standard deviation. The highe, the less accurate the time is.</summary>
-        // TODO does this need to be public? user should only need NetworkTime.time
-        public static double timeStandardDeviation => Math.Sqrt(timeVariance);
-
         /// <summary>Clock difference in seconds between the client and the server. Always 0 on server.</summary>
-        public static double offset => _offset.Value;
+        // original implementation used 'client - server' time. keep it this way.
+        // TODO obsolete later. people shouldn't worry about this.
+        public static double offset => localTime - time;
 
         /// <summary>Round trip time (in seconds) that it takes a message to go client->server->client.</summary>
         public static double rtt => _rtt.Value;
 
-        /// <summary>Round trip time variance. The higher, the less accurate the rtt is.</summary>
-        // TODO does this need to be public? user should only need NetworkTime.time
-        public static double rttVariance => _rtt.Variance;
-
-        /// <summary>Round trip time standard deviation. The higher, the less accurate the rtt is.</summary>
-        // TODO does this need to be public? user should only need NetworkTime.time
-        public static double rttStandardDeviation => Math.Sqrt(rttVariance);
-
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
         {
-            PingFrequency = 2.0f;
+            PingFrequency = 2;
             PingWindowSize = 10;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
-            _offset = new ExponentialMovingAverage(PingWindowSize);
-            offsetMin = double.MinValue;
-            offsetMax = double.MaxValue;
 #if !UNITY_2020_3_OR_NEWER
             stopwatch.Restart();
 #endif
@@ -127,33 +112,9 @@ namespace Mirror
         // and update time offset
         internal static void OnClientPong(NetworkPongMessage message)
         {
-            double now = localTime;
-
             // how long did this message take to come back
-            double newRtt = now - message.clientTime;
+            double newRtt = localTime - message.clientTime;
             _rtt.Add(newRtt);
-
-            // the difference in time between the client and the server
-            // but subtract half of the rtt to compensate for latency
-            // half of rtt is the best approximation we have
-            double newOffset = now - newRtt * 0.5f - message.serverTime;
-
-            double newOffsetMin = now - newRtt - message.serverTime;
-            double newOffsetMax = now - message.serverTime;
-            offsetMin = Math.Max(offsetMin, newOffsetMin);
-            offsetMax = Math.Min(offsetMax, newOffsetMax);
-
-            if (_offset.Value < offsetMin || _offset.Value > offsetMax)
-            {
-                // the old offset was offrange,  throw it away and use new one
-                _offset = new ExponentialMovingAverage(PingWindowSize);
-                _offset.Add(newOffset);
-            }
-            else if (newOffset >= offsetMin || newOffset <= offsetMax)
-            {
-                // new offset looks reasonable,  add to the average
-                _offset.Add(newOffset);
-            }
         }
     }
 }
