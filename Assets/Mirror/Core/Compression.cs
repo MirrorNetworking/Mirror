@@ -195,7 +195,7 @@ namespace Mirror
 
         // varint compression //////////////////////////////////////////////////
         // compress ulong varint.
-        // same result for int, short and byte. only need one function.
+        // same result for ulong, uint, ushort and byte. only need one function.
         // NOT an extension. otherwise weaver might accidentally use it.
         public static void CompressVarUInt(NetworkWriter writer, ulong value)
         {
