@@ -52,7 +52,7 @@ namespace Mirror.Tests
 
             // deserialize client object with OWNER payload
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            clientIdentity.DeserializeAll(reader, true);
+            clientIdentity.Deserialize(reader, true);
             Assert.That(clientComp1.value, Is.EqualTo(42));
             Assert.That(clientComp2.value, Is.EqualTo("42"));
 
@@ -62,7 +62,7 @@ namespace Mirror.Tests
 
             // deserialize client object with OBSERVERS payload
             reader = new NetworkReader(observersWriter.ToArray());
-            clientIdentity.DeserializeAll(reader, true);
+            clientIdentity.Deserialize(reader, true);
             Assert.That(clientComp1.value, Is.EqualTo(42)); // observers mode should be in data
             Assert.That(clientComp2.value, Is.EqualTo(null)); // owner mode shouldn't be in data
         }
@@ -100,7 +100,7 @@ namespace Mirror.Tests
             // should work even if compExc throws an exception
             // error log because of the exception is expected
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            clientIdentity.DeserializeAll(reader, true);
+            clientIdentity.Deserialize(reader, true);
             Assert.That(clientComp2.value, Is.EqualTo("42"));
 
             // reset component values
@@ -110,7 +110,7 @@ namespace Mirror.Tests
             // should work even if compExc throws an exception
             // error log because of the exception is expected
             reader = new NetworkReader(observersWriter.ToArray());
-            clientIdentity.DeserializeAll(reader, true);
+            clientIdentity.Deserialize(reader, true);
             Assert.That(clientComp2.value, Is.EqualTo(null)); // owner mode should be in data
 
             // restore error checks
@@ -178,7 +178,7 @@ namespace Mirror.Tests
             // ignore warning log because of serialization mismatch
             LogAssert.ignoreFailingMessages = true;
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            clientIdentity.DeserializeAll(reader, true);
+            clientIdentity.Deserialize(reader, true);
             LogAssert.ignoreFailingMessages = false;
 
             // the mismatch component will fail, but the one before and after
