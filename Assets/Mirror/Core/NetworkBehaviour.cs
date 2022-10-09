@@ -1044,11 +1044,15 @@ namespace Mirror
             }
         }
 
-        // vis2k: readstring bug prevention: https://github.com/vis2k/Mirror/issues/2617
-        // -> OnSerialize writes length,componentData,length,componentData,...
-        // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
-        //    -> it will be impossible to read too many or too few bytes in OnDeserialize
-        //    -> we can properly track down errors
+        // safely serialize each component in a way that one reading too much or
+        // too few bytes will show obvious, easy to resolve error messages.
+        //
+        // prevents the original UNET bug which started Mirror:
+        // https://github.com/vis2k/Mirror/issues/2617
+        // where one component would read too much, and then all following reads
+        // on other entities would be mismatched, causing the weirdest errors.
+        //
+        // reads <<len, payload, len, payload, ...>> for 100% safety.
         internal void Serialize(NetworkWriter writer, bool initialState)
         {
             // write placeholder length bytes
