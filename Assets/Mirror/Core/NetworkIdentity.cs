@@ -889,7 +889,7 @@ namespace Mirror
                 // check if dirty.
                 // for owner, it's always included if dirty.
                 // for observers, it's only included if dirty AND syncmode to observers.
-                bool ownerDirty = initialState || component.IsDirty();
+                bool ownerDirty    = initialState || component.IsDirty();
                 bool observerDirty = ownerDirty && component.syncMode == SyncMode.Observers;
 
                 // set the n-th bit.
@@ -899,32 +899,6 @@ namespace Mirror
             }
 
             return (ownerMask, observerMask);
-        }
-
-
-        // build dirty mask for observers (= all dirty components with observers mode)
-        ulong ObserverDirtyMask(bool initialState)
-        {
-            ulong mask = 0;
-
-            NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < components.Length; ++i)
-            {
-                // check if dirty
-                NetworkBehaviour component = components[i];
-                bool dirty = initialState || component.IsDirty();
-
-                // only include if observers syncmode
-                dirty &= component.syncMode == SyncMode.Observers;
-
-                // set the n-th bit.
-                // shifting from small to large numbers is varint-efficient.
-                byte flag = (byte)(dirty ? 1 : 0);
-                ulong nthBit = (ulong)(flag << i);
-                mask |= nthBit;
-            }
-
-            return mask;
         }
 
         // check if n-th component is dirty.
