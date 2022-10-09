@@ -1101,10 +1101,26 @@ namespace Mirror
             //Debug.Log($"OnSerializeSafely written for object {name} component:{GetType()} sceneId:{sceneId:X} header:{headerPosition} content:{contentPosition} end:{endPosition} contentSize:{endPosition - contentPosition}");
         }
 
+        // correct the read size with the 1 byte length hash (by mischa).
+        // -> the component most likely read a few too many/few bytes.
+        // -> we know the correct last byte of the expected size (=the safety).
+        // -> attempt to reconstruct the size via safety byte.
+        //    it will be correct unless someone wrote way way too much,
+        //    as in > 255 bytes worth too much.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int ErrorCorrection(int size, byte safety)
+        {
+            // clear the last byte which most likely contains the error
+            uint cleared = (uint)size & 0xFFFFFF00;
+
+            // insert the safety which we know to be correct
+            return (int)(cleared | safety);
+        }
+
         internal void Deserialize(NetworkReader reader, bool initialState)
         {
             // read 1 byte length hash safety & capture beginning for size check
-            int safety = reader.ReadByte();
+            byte safety = reader.ReadByte();
             int chunkStart = reader.Position;
 
             // call OnDeserialize and wrap it in a try-catch block so there's no
@@ -1134,25 +1150,12 @@ namespace Mirror
                 Debug.LogWarning($"{name} (netId={netId}): {GetType()} OnDeserialize size mismatch. It read {size} bytes, which caused a size hash mismatch of {sizeHash:X2} vs. {safety:X2}. Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
 
                 // attempt to fix the position, so the following components
-                // don't all fail.
-                // -> the component most likely read a few too many/few bytes.
-                // -> we know the exact last byte of the expected size though.
-                // -> attempt to reconstruct the size via safety byte.
-                //    it will be correct unless someone wrote way way too much,
-                //    as in > 255 bytes worth too much.
+                // don't all fail. this is very likely to work, unless the user
+                // read more than 255 bytes too many / too few.
                 //
-                // see test: SerializationSizeMismatch !
-
-                // TODO static testable correct function
-
-                // clear the last byte which most likely contains the error
-                uint cleared = (uint)size & 0xFFFFFF00;
-
-                // insert the safety which we know to be correct
-                uint corrected = (uint)(cleared | safety);
-
-                // attempt to restore the position with the corrected size.
-                reader.Position = chunkStart + (int)corrected;
+                // see test: SerializationSizeMismatch.
+                int correctedSize = ErrorCorrection(size, safety);
+                reader.Position = chunkStart + correctedSize;
             }
         }
 
