@@ -1015,7 +1015,7 @@ namespace Mirror
             return lastSerialization;
         }
 
-        void OnDeserializeSafely(NetworkBehaviour comp, NetworkReader reader, bool initialState)
+        void Deserialize(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
             // read header as 4 bytes and calculate this chunk's start+end
             int contentSize = reader.ReadInt();
@@ -1073,7 +1073,7 @@ namespace Mirror
                 if (index < components.Length)
                 {
                     // deserialize this component
-                    OnDeserializeSafely(components[index], reader, initialState);
+                    Deserialize(components[index], reader, initialState);
                 }
             }
         }
