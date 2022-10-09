@@ -1043,6 +1043,42 @@ namespace Mirror
             }
         }
 
+        // vis2k: readstring bug prevention: https://github.com/vis2k/Mirror/issues/2617
+        // -> OnSerialize writes length,componentData,length,componentData,...
+        // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
+        //    -> it will be impossible to read too many or too few bytes in OnDeserialize
+        //    -> we can properly track down errors
+        internal void Serialize(NetworkWriter writer, bool initialState)
+        {
+            // write placeholder length bytes
+            // (jumping back later is WAY faster than allocating a temporary
+            //  writer for the payload, then writing payload.size, payload)
+            int headerPosition = writer.Position;
+            // no varint because we don't know the final size yet
+            writer.WriteInt(0);
+            int contentPosition = writer.Position;
+
+            // write payload
+            try
+            {
+                // note this may not write anything if no syncIntervals elapsed
+                OnSerialize(writer, initialState);
+            }
+            catch (Exception e)
+            {
+                // show a detailed error and let the user know what went wrong
+                Debug.LogError($"OnSerialize failed for: object={name} component={GetType()} sceneId={netIdentity.sceneId:X}\n\n{e}");
+            }
+            int endPosition = writer.Position;
+
+            // fill in length now
+            writer.Position = headerPosition;
+            writer.WriteInt(endPosition - contentPosition);
+            writer.Position = endPosition;
+
+            //Debug.Log($"OnSerializeSafely written for object {name} component:{GetType()} sceneId:{sceneId:X} header:{headerPosition} content:{contentPosition} end:{endPosition} contentSize:{endPosition - contentPosition}");
+        }
+
         internal void ResetSyncObjects()
         {
             foreach (SyncObject syncObject in syncObjects)
