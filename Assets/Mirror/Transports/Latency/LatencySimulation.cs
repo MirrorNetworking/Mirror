@@ -214,34 +214,34 @@ namespace Mirror
         public override void ServerEarlyUpdate() => wrap.ServerEarlyUpdate();
         public override void ClientLateUpdate()
         {
-            // flush reliable messages after latency
-            while (reliableClientToServer.Count > 0)
+            // flush reliable messages after latency.
+            // need to iterate all, since queue isn't a sortedlist.
+            for (int i = 0; i < reliableClientToServer.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = reliableClientToServer[0];
+                // message ready to be sent?
+                QueuedMessage message = reliableClientToServer[i];
                 if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
                     wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Reliable);
-                    reliableClientToServer.RemoveAt(0);
+                    reliableClientToServer.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
-            // flush unreliable messages after latency
-            while (unreliableClientToServer.Count > 0)
+            // flush unreliable messages after latency.
+            // need to iterate all, since queue isn't a sortedlist.
+            for (int i = 0; i < unreliableClientToServer.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = unreliableClientToServer[0];
+                // message ready to be sent?
+                QueuedMessage message = unreliableClientToServer[i];
                 if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
-                    wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Unreliable);
-                    unreliableClientToServer.RemoveAt(0);
+                    wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Reliable);
+                    unreliableClientToServer.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
             // update wrapped transport too
@@ -249,34 +249,36 @@ namespace Mirror
         }
         public override void ServerLateUpdate()
         {
-            // flush reliable messages after latency
-            while (reliableServerToClient.Count > 0)
+
+            // flush reliable messages after latency.
+            // need to iterate all, since queue isn't a sortedlist.
+            for (int i = 0; i < reliableServerToClient.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = reliableServerToClient[0];
+                // message ready to be sent?
+                QueuedMessage message = reliableServerToClient[i];
                 if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
                     wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Reliable);
-                    reliableServerToClient.RemoveAt(0);
+                    reliableServerToClient.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
-            // flush unreliable messages after latency
-            while (unreliableServerToClient.Count > 0)
+
+            // flush unreliable messages after latency.
+            // need to iterate all, since queue isn't a sortedlist.
+            for (int i = 0; i < unreliableServerToClient.Count; ++i)
             {
-                // check the first message time
-                QueuedMessage message = unreliableServerToClient[0];
+                // message ready to be sent?
+                QueuedMessage message = unreliableServerToClient[i];
                 if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
-                    wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Unreliable);
-                    unreliableServerToClient.RemoveAt(0);
+                    wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Reliable);
+                    unreliableServerToClient.RemoveAt(i);
+                    --i;
                 }
-                // not enough time elapsed yet
-                break;
             }
 
             // update wrapped transport too
