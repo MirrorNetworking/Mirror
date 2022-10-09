@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace Mirror
 {
+    // SyncMode decides if a component is synced to all observers, or only owner
     public enum SyncMode { Observers, Owner }
 
     /// <summary>Base class for networked components.</summary>
