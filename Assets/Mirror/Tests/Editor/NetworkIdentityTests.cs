@@ -717,27 +717,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void CreatingNetworkBehavioursCacheShouldLogErrorForTooComponents()
-        {
-            CreateNetworked(out GameObject gameObject, out NetworkIdentity identity);
-
-            // add byte.MaxValue+1 components
-            for (int i = 0; i < byte.MaxValue + 1; ++i)
-            {
-                gameObject.AddComponent<SerializeTest1NetworkBehaviour>();
-            }
-
-            // CreateNetworked already initializes the components.
-            // let's reset and initialize again with the added ones.
-            identity.Reset();
-            identity.Awake();
-
-            // call NetworkBehaviours property to create the cache
-            LogAssert.Expect(LogType.Error, new Regex($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity.+"));
-            _ = identity.NetworkBehaviours;
-        }
-
-        [Test]
         public void OnStartLocalPlayer()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
