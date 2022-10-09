@@ -874,26 +874,31 @@ namespace Mirror
             }
         }
 
-        // build dirty mask for owner (= all dirty components)
-        ulong OwnerDirtyMask(bool initialState)
+        // build dirty mask for owner & observer (= all dirty components).
+        // faster to do it in one iteration instead of iterating separately.
+        (ulong, ulong) DirtyMasks(bool initialState)
         {
-            ulong mask = 0;
+            ulong ownerMask    = 0;
+            ulong observerMask = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
             {
-                // check if dirty
                 NetworkBehaviour component = components[i];
-                bool dirty = initialState || component.IsDirty();
+
+                // check if dirty.
+                // for owner, it's always included if dirty.
+                // for observers, it's only included if dirty AND syncmode to observers.
+                bool ownerDirty = initialState || component.IsDirty();
+                bool observerDirty = ownerDirty && component.syncMode == SyncMode.Observers;
 
                 // set the n-th bit.
                 // shifting from small to large numbers is varint-efficient.
-                byte flag = (byte)(dirty ? 1 : 0);
-                ulong nthBit = (ulong)(flag << i);
-                mask |= nthBit;
+                ownerMask    |= (ulong)(ownerDirty    ? 1 : 0) << i;
+                observerMask |= (ulong)(observerDirty ? 1 : 0) << i;
             }
 
-            return mask;
+            return (ownerMask, observerMask);
         }
 
 
@@ -946,8 +951,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong ownerMask    = OwnerDirtyMask(initialState);
-            ulong observerMask = ObserverDirtyMask(initialState);
+            (ulong ownerMask, ulong observerMask) = DirtyMasks(initialState);
 
             // write the mask, but as varint.
             // most NetworkIdentities have very few components.
