@@ -31,7 +31,7 @@ namespace Mirror.Tests
         // serialize -> deserialize. multiple components to be sure.
         // one for Owner, one for Observer
         [Test]
-        public void OnSerializeAndDeserializeAllSafely()
+        public void SerializeAndDeserializeAll()
         {
             // need two of both versions so we can serialize -> deserialize
             CreateNetworkedAndSpawn(
@@ -48,7 +48,7 @@ namespace Mirror.Tests
             serverComp2.value = "42";
 
             // serialize server object
-            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeAll(true, ownerWriter, observersWriter);
 
             // deserialize client object with OWNER payload
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
@@ -94,7 +94,7 @@ namespace Mirror.Tests
             // serialize server object
             // should work even if compExc throws an exception.
             // error log because of the exception is expected.
-            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeAll(true, ownerWriter, observersWriter);
 
             // deserialize client object with OWNER payload
             // should work even if compExc throws an exception
@@ -148,7 +148,7 @@ namespace Mirror.Tests
             LogAssert.ignoreFailingMessages = false;
 
             // try to serialize
-            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeAll(true, ownerWriter, observersWriter);
 
             // Should still write with too many Components because NetworkBehavioursCache should handle the error
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
@@ -172,7 +172,7 @@ namespace Mirror.Tests
             serverComp.value = "42";
 
             // serialize server object
-            serverIdentity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeAll(true, ownerWriter, observersWriter);
 
             // deserialize on client
             // ignore warning log because of serialization mismatch

@@ -909,7 +909,7 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void OnSerializeAllSafely(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal void SerializeAll(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // check if components are in byte.MaxRange just to be 100% sure
             // that we avoid overflows
@@ -926,7 +926,7 @@ namespace Mirror
                 NetworkBehaviour comp = components[i];
                 if (initialState || comp.IsDirty())
                 {
-                    //Debug.Log($"OnSerializeAllSafely: {name} -> {comp.GetType()} initial:{ initialState}");
+                    //Debug.Log($"SerializeAll: {name} -> {comp.GetType()} initial:{ initialState}");
 
                     // remember start position in case we need to copy it into
                     // observers writer too
@@ -981,9 +981,9 @@ namespace Mirror
                 lastSerialization.observersWriter.Position = 0;
 
                 // serialize
-                OnSerializeAllSafely(false,
-                                     lastSerialization.ownerWriter,
-                                     lastSerialization.observersWriter);
+                SerializeAll(false,
+                             lastSerialization.ownerWriter,
+                             lastSerialization.observersWriter);
 
                 // clear dirty bits for the components that we serialized.
                 // previously we did this in NetworkServer.BroadcastToConnection
@@ -992,7 +992,7 @@ namespace Mirror
                 // 'lastSerialization.tick != tick' scope.
                 // so only do it once.
                 //
-                // NOTE: not in OnSerializeAllSafely as that should only do one
+                // NOTE: not in Serializell as that should only do one
                 //       thing: serialize data.
                 //
                 //

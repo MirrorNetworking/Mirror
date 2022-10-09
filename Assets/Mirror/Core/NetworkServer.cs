@@ -989,7 +989,7 @@ namespace Mirror
         // spawning ////////////////////////////////////////////////////////////
         static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, NetworkWriterPooled ownerWriter, NetworkWriterPooled observersWriter)
         {
-            // Only call OnSerializeAllSafely if there are NetworkBehaviours
+            // Only call SerializeAll if there are NetworkBehaviours
             if (identity.NetworkBehaviours.Length == 0)
             {
                 return default;
@@ -997,7 +997,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.OnSerializeAllSafely(true, ownerWriter, observersWriter);
+            identity.SerializeAll(true, ownerWriter, observersWriter);
 
             // convert to ArraySegment to avoid reader allocations
             // if nothing was written, .ToArraySegment returns an empty segment.
