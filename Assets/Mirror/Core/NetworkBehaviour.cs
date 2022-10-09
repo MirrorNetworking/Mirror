@@ -1066,6 +1066,8 @@ namespace Mirror
             //   multiplied by 255 in order to miss the check.
             //   with barriers, reading 1 byte too much may still succeed if the
             //   next component's first byte matches the expected barrier.
+            // - we can still attempt to correct the invalid position via the
+            //   safety length byte (we know that one is correct).
             //
             // it's just overall cleaner, and still low on bandwidth.
 
@@ -1073,7 +1075,6 @@ namespace Mirror
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
             int headerPosition = writer.Position;
-            // no varint because we don't know the final size yet
             writer.WriteByte(0);
             int contentPosition = writer.Position;
 
@@ -1093,7 +1094,8 @@ namespace Mirror
             // fill in length hash as the last byte of the 4 byte length
             writer.Position = headerPosition;
             int size = endPosition - contentPosition;
-            writer.WriteByte((byte)(size & 0xFF));
+            byte safety = (byte)(size & 0xFF);
+            writer.WriteByte(safety);
             writer.Position = endPosition;
 
             //Debug.Log($"OnSerializeSafely written for object {name} component:{GetType()} sceneId:{sceneId:X} header:{headerPosition} content:{contentPosition} end:{endPosition} contentSize:{endPosition - contentPosition}");
@@ -1131,12 +1133,26 @@ namespace Mirror
                 // warn the user.
                 Debug.LogWarning($"{name} (netId={netId}): {GetType()} OnDeserialize size mismatch. It read {size} bytes, which caused a size hash mismatch of {sizeHash:X2} vs. {safety:X2}. Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
 
-                // note that the following components will also fail (if any).
-                // we can't fix the position without writing the full size header,
-                // but that's just not worth the extra bandwidth.
-                // (technically we could attempt to fix the position by
-                //  correcting the last byte with 'safety' and jumping to that
-                //  position)
+                // attempt to fix the position, so the following components
+                // don't all fail.
+                // -> the component most likely read a few too many/few bytes.
+                // -> we know the exact last byte of the expected size though.
+                // -> attempt to reconstruct the size via safety byte.
+                //    it will be correct unless someone wrote way way too much,
+                //    as in > 255 bytes worth too much.
+                //
+                // see test: SerializationSizeMismatch !
+
+                // TODO static testable correct function
+
+                // clear the last byte which most likely contains the error
+                uint cleared = (uint)size & 0xFFFFFF00;
+
+                // insert the safety which we know to be correct
+                uint corrected = (uint)(cleared | safety);
+
+                // attempt to restore the position with the corrected size.
+                reader.Position = chunkStart + (int)corrected;
             }
         }
 
