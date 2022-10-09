@@ -184,17 +184,6 @@ namespace Mirror.Tests
         public void VarInt()
         {
             NetworkWriter writer = new NetworkWriter();
-            Compression.CompressVarUInt(writer, 0);
-            Compression.CompressVarUInt(writer, 234);
-            Compression.CompressVarUInt(writer, 2284);
-            Compression.CompressVarUInt(writer, 67821);
-            Compression.CompressVarUInt(writer, 16777210);
-            Compression.CompressVarUInt(writer, 16777219);
-            Compression.CompressVarUInt(writer, 4294967295);
-            Compression.CompressVarUInt(writer, 1099511627775);
-            Compression.CompressVarUInt(writer, 281474976710655);
-            Compression.CompressVarUInt(writer, 72057594037927935);
-            Compression.CompressVarUInt(writer, ulong.MaxValue);
 
             Compression.CompressVarInt(writer, long.MinValue);
             Compression.CompressVarInt(writer, -72057594037927935);
@@ -219,17 +208,6 @@ namespace Mirror.Tests
             Compression.CompressVarInt(writer, long.MaxValue);
 
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(0));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(234));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(2284));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(67821));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(16777210));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(16777219));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(4294967295));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(1099511627775));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(281474976710655));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(72057594037927935));
-            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue));
 
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(long.MinValue));
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(-72057594037927935));
@@ -252,6 +230,36 @@ namespace Mirror.Tests
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(281474976710655));
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(72057594037927935));
             Assert.That(Compression.DecompressVarInt(reader), Is.EqualTo(long.MaxValue));
+        }
+
+        [Test]
+        public void VarUInt()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            Compression.CompressVarUInt(writer, 0);
+            Compression.CompressVarUInt(writer, 234);
+            Compression.CompressVarUInt(writer, 2284);
+            Compression.CompressVarUInt(writer, 67821);
+            Compression.CompressVarUInt(writer, 16777210);
+            Compression.CompressVarUInt(writer, 16777219);
+            Compression.CompressVarUInt(writer, 4294967295);
+            Compression.CompressVarUInt(writer, 1099511627775);
+            Compression.CompressVarUInt(writer, 281474976710655);
+            Compression.CompressVarUInt(writer, 72057594037927935);
+            Compression.CompressVarUInt(writer, ulong.MaxValue);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(0));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(234));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(2284));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(67821));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(16777210));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(16777219));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(4294967295));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(1099511627775));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(281474976710655));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(72057594037927935));
+            Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue));
         }
     }
 }
