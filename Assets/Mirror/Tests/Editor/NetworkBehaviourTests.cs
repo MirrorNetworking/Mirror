@@ -815,7 +815,7 @@ namespace Mirror.Tests
 
             // deserialize it
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            comp.DeSerializeObjectsAll(reader);
+            comp.DeserializeObjectsAll(reader);
             Assert.That(comp.list.Count, Is.EqualTo(2));
             Assert.That(comp.list[0], Is.EqualTo(42));
             Assert.That(comp.list[1], Is.EqualTo(43));
@@ -846,7 +846,7 @@ namespace Mirror.Tests
 
             // deserialize it
             NetworkReader reader = new NetworkReader(writer.ToArray());
-            comp.DeSerializeObjectsDelta(reader);
+            comp.DeserializeObjectsDelta(reader);
             Assert.That(comp.list.Count, Is.EqualTo(2));
             Assert.That(comp.list[0], Is.EqualTo(42));
             Assert.That(comp.list[1], Is.EqualTo(43));

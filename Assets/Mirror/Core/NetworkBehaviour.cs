@@ -961,11 +961,11 @@ namespace Mirror
         {
             if (initialState)
             {
-                DeSerializeObjectsAll(reader);
+                DeserializeObjectsAll(reader);
             }
             else
             {
-                DeSerializeObjectsDelta(reader);
+                DeserializeObjectsDelta(reader);
             }
 
             DeserializeSyncVars(reader, initialState);
@@ -1021,7 +1021,7 @@ namespace Mirror
             }
         }
 
-        internal void DeSerializeObjectsAll(NetworkReader reader)
+        internal void DeserializeObjectsAll(NetworkReader reader)
         {
             for (int i = 0; i < syncObjects.Count; i++)
             {
@@ -1030,7 +1030,7 @@ namespace Mirror
             }
         }
 
-        internal void DeSerializeObjectsDelta(NetworkReader reader)
+        internal void DeserializeObjectsDelta(NetworkReader reader)
         {
             ulong dirty = reader.ReadULong();
             for (int i = 0; i < syncObjects.Count; i++)
