@@ -318,7 +318,7 @@ namespace Mirror
             // instead of 1 byte index per dirty component.
             // which means we can't allow > 64 components (it's enough).
             if (NetworkBehaviours.Length > 64)
-                Debug.LogError($"Only {64} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the dirty mask as 64 bit ulong in order to save bandwidth.", this);
+                Debug.LogError($"NetworkIdentity {name} has too many components: only {64} NetworkBehaviour components are allowed because we send the dirty mask as 64 bit ulong in order to save bandwidth.", this);
 
             // initialize each one
             for (int i = 0; i < NetworkBehaviours.Length; ++i)
