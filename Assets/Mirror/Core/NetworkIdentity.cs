@@ -927,8 +927,8 @@ namespace Mirror
             // the ulong is also varint compressed for minimum bandwidth.
             (ulong ownerMask, ulong observerMask) = DirtyMasks(initialState);
 
-            // write the mask, but as varint.
-            // most NetworkIdentities have very few components.
+            // varint compresses the mask to 1 byte in most cases.
+            // instead of writing an 8 byte ulong.
             Compression.CompressVarUInt(ownerWriter,     ownerMask);
             Compression.CompressVarUInt(observersWriter, observerMask);
 
