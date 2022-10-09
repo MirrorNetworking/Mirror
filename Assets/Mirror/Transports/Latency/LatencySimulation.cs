@@ -143,18 +143,18 @@ namespace Mirror
 
         public override void ClientConnect(string address)
         {
-            wrap.OnClientConnected = OnClientConnected;
+            wrap.OnClientConnected    = OnClientConnected;
             wrap.OnClientDataReceived = OnClientDataReceived;
-            wrap.OnClientError = OnClientError;
+            wrap.OnClientError        = OnClientError;
             wrap.OnClientDisconnected = OnClientDisconnected;
             wrap.ClientConnect(address);
         }
 
         public override void ClientConnect(Uri uri)
         {
-            wrap.OnClientConnected = OnClientConnected;
+            wrap.OnClientConnected    = OnClientConnected;
             wrap.OnClientDataReceived = OnClientDataReceived;
-            wrap.OnClientError = OnClientError;
+            wrap.OnClientError        = OnClientError;
             wrap.OnClientDisconnected = OnClientDisconnected;
             wrap.ClientConnect(uri);
         }
