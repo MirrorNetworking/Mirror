@@ -98,7 +98,13 @@ namespace Mirror
         }
 
         // helper function to simulate a send with latency/loss/scramble
-        void SimulateSend(int connectionId, ArraySegment<byte> segment, int channelId, float latency, List<QueuedMessage> reliableQueue, List<QueuedMessage> unreliableQueue)
+        void SimulateSend(
+            int connectionId,
+            ArraySegment<byte> segment,
+            int channelId,
+            float latency,
+            List<QueuedMessage> reliableQueue,
+            List<QueuedMessage> unreliableQueue)
         {
             // segment is only valid after returning. copy it.
             // (allocates for now. it's only for testing anyway.)
