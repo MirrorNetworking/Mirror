@@ -884,12 +884,12 @@ namespace Mirror
             {
                 // check if dirty
                 NetworkBehaviour component = components[i];
-                bool dirty = initialState || components[i].IsDirty();
+                bool dirty = initialState || component.IsDirty();
 
                 // set the n-th bit.
                 byte flag = (byte)(dirty ? 1 : 0);
                 // TODO ensure we set it in a varint-friendly way
-                ulong nthBit = (ulong)(flag >> i);
+                ulong nthBit = (ulong)(flag << i);
                 mask |= nthBit;
             }
 
@@ -915,7 +915,7 @@ namespace Mirror
                 // set the n-th bit.
                 byte flag = (byte)(dirty ? 1 : 0);
                 // TODO ensure we set it in a varint-friendly way
-                ulong nthBit = (ulong)(flag >> i);
+                ulong nthBit = (ulong)(flag << i);
                 mask |= nthBit;
             }
 
@@ -927,7 +927,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDirty(ulong mask, int index)
         {
-            ulong nthBit = (ulong)(1 >> index);
+            ulong nthBit = (ulong)(1 << index);
             return (mask & nthBit) != 0;
         }
 
