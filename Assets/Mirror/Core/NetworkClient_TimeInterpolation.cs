@@ -100,7 +100,6 @@ namespace Mirror
         public static int deliveryTimeEmaDuration = 2;   // 1-2s recommended to capture average delivery time
         static ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
 
-
         // OnValidate: see NetworkClient.cs
         // add snapshot & initialize client interpolation time if needed
 
