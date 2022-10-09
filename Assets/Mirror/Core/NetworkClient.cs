@@ -1561,6 +1561,7 @@ namespace Mirror
             OnDisconnectedEvent = null;
             OnErrorEvent = null;
         }
+
         // GUI /////////////////////////////////////////////////////////////////
         // called from NetworkManager to display timeline interpolation status.
         // useful to indicate catchup / slowdown / dynamic adjustment etc.
