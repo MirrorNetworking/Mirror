@@ -347,6 +347,7 @@ MonoBehaviour:
   playerSpawnMethod: 1
   spawnPrefabs:
   - {fileID: 449802645721213856, guid: 30b8f251d03d84284b70601e691d474f, type: 3}
+  timeInterpolationGui: 1
   spawnPrefab: {fileID: 449802645721213856, guid: 30b8f251d03d84284b70601e691d474f,
     type: 3}
   spawnAmount: 1000

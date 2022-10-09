@@ -151,6 +151,7 @@ namespace Mirror
             }
 
             // These handlers are the same for host and remote clients
+            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
             RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
             RegisterHandler<RpcMessage>(OnRPCMessage);
         }
@@ -161,6 +162,10 @@ namespace Mirror
         {
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
+
+            // reset time interpolation on every new connect.
+            // ensures last sessions' state is cleared before starting again.
+            InitTimeInterpolation();
 
             RegisterSystemHandlers(false);
             Transport.active.enabled = true;
@@ -177,6 +182,10 @@ namespace Mirror
         {
             // Debug.Log($"Client Connect: {uri}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
+
+            // reset time interpolation on every new connect.
+            // ensures last sessions' state is cleared before starting again.
+            InitTimeInterpolation();
 
             RegisterSystemHandlers(false);
             Transport.active.enabled = true;
@@ -421,6 +430,8 @@ namespace Mirror
 
             connectState = ConnectState.Disconnected;
             ready = false;
+            snapshots.Clear();
+            localTimeline = 0;
 
             // now that everything was handled, clear the connection.
             // previously this was done in Disconnect() already, but we still
@@ -1402,6 +1413,9 @@ namespace Mirror
             // process all incoming messages first before updating the world
             if (Transport.active != null)
                 Transport.active.ClientEarlyUpdate();
+
+            // time snapshot interpolation
+            UpdateTimeInterpolation();
         }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
@@ -1546,6 +1560,30 @@ namespace Mirror
             OnConnectedEvent = null;
             OnDisconnectedEvent = null;
             OnErrorEvent = null;
+        }
+
+        // GUI /////////////////////////////////////////////////////////////////
+        // called from NetworkManager to display timeline interpolation status.
+        // useful to indicate catchup / slowdown / dynamic adjustment etc.
+        internal static void OnGUI()
+        {
+            // only if in world
+            if (!ready) return;
+
+            GUILayout.BeginArea(new Rect(10, 5, 400, 50));
+
+            GUILayout.BeginHorizontal("Box");
+            GUILayout.Label("Snapshot Interp.:");
+            // color while catching up / slowing down
+            if      (localTimescale > 1) GUI.color = Color.green; // green traffic light = go fast
+            else if (localTimescale < 1) GUI.color = Color.red;   // red traffic light = go slow
+            else                         GUI.color = Color.white;
+            GUILayout.Box($"timeline: {localTimeline:F2}");
+            GUILayout.Box($"buffer: {snapshots.Count}");
+            GUILayout.Box($"timescale: {localTimescale:F2}");
+            GUILayout.EndHorizontal();
+
+            GUILayout.EndArea();
         }
     }
 }
