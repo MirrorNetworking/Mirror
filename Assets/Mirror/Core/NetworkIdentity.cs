@@ -313,8 +313,12 @@ namespace Mirror
             // Get all NetworkBehaviours
             // (never null. GetComponents returns [] if none found)
             NetworkBehaviours = GetComponents<NetworkBehaviour>();
-            if (NetworkBehaviours.Length > byte.MaxValue)
-                Debug.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
+
+            // to save bandwidth, we send one 64 bit dirty mask
+            // instead of 1 byte index per dirty component.
+            // which means we can't allow > 64 components (it's enough).
+            if (NetworkBehaviours.Length > 64)
+                Debug.LogError($"Only {64} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the dirty mask as 64 bit ulong in order to save bandwidth.", this);
 
             // initialize each one
             for (int i = 0; i < NetworkBehaviours.Length; ++i)
@@ -1002,14 +1006,18 @@ namespace Mirror
 
             // deserialize all components that were received
             NetworkBehaviour[] components = NetworkBehaviours;
-            while (reader.Remaining > 0)
+
+            // first we deserialize the varinted dirty mask
+            ulong mask = Compression.DecompressVarUInt(reader);
+
+            // now deserialize every dirty component
+            for (int i = 0; i < components.Length; ++i)
             {
-                // read & check index [0..255]
-                byte index = reader.ReadByte();
-                if (index < components.Length)
+                // was this one dirty?
+                if (IsDirty(mask, i))
                 {
                     // deserialize this component
-                    components[index].Deserialize(reader, initialState);
+                    components[i].Deserialize(reader, initialState);
                 }
             }
         }
