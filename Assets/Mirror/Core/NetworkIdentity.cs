@@ -960,61 +960,6 @@ namespace Mirror
             }
         }
 
-        // get cached serialization for this tick (or serialize if none yet)
-        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
-        internal NetworkIdentitySerialization GetSerializationAtTick(int tick)
-        {
-            // only rebuild serialization once per tick. reuse otherwise.
-            // except for tests, where Time.frameCount never increases.
-            // so during tests, we always rebuild.
-            // (otherwise [SyncVar] changes would never be serialized in tests)
-            //
-            // NOTE: != instead of < because int.max+1 overflows at some point.
-            if (lastSerialization.tick != tick
-#if UNITY_EDITOR
-                || !Application.isPlaying
-#endif
-               )
-            {
-                // reset
-                lastSerialization.ownerWriter.Position = 0;
-                lastSerialization.observersWriter.Position = 0;
-
-                // serialize
-                SerializeAll(false,
-                             lastSerialization.ownerWriter,
-                             lastSerialization.observersWriter);
-
-                // clear dirty bits for the components that we serialized.
-                // previously we did this in NetworkServer.BroadcastToConnection
-                // for every connection, for every entity.
-                // but we only serialize each entity once, right here in this
-                // 'lastSerialization.tick != tick' scope.
-                // so only do it once.
-                //
-                // NOTE: not in Serializell as that should only do one
-                //       thing: serialize data.
-                //
-                //
-                // NOTE: DO NOT clear ALL component's dirty bits, because
-                //       components can have different syncIntervals and we
-                //       don't want to reset dirty bits for the ones that were
-                //       not synced yet.
-                //
-                // NOTE: this used to be very important to avoid ever growing
-                //       SyncList changes if they had no observers, but we've
-                //       added SyncObject.isRecording since.
-                ClearDirtyComponentsDirtyBits();
-
-                // set tick
-                lastSerialization.tick = tick;
-                //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
-            }
-
-            // return it
-            return lastSerialization;
-        }
-
         void Deserialize(NetworkBehaviour comp, NetworkReader reader, bool initialState)
         {
             // read header as 4 bytes and calculate this chunk's start+end
@@ -1076,6 +1021,61 @@ namespace Mirror
                     Deserialize(components[index], reader, initialState);
                 }
             }
+        }
+
+        // get cached serialization for this tick (or serialize if none yet)
+        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
+        internal NetworkIdentitySerialization GetSerializationAtTick(int tick)
+        {
+            // only rebuild serialization once per tick. reuse otherwise.
+            // except for tests, where Time.frameCount never increases.
+            // so during tests, we always rebuild.
+            // (otherwise [SyncVar] changes would never be serialized in tests)
+            //
+            // NOTE: != instead of < because int.max+1 overflows at some point.
+            if (lastSerialization.tick != tick
+#if UNITY_EDITOR
+                || !Application.isPlaying
+#endif
+               )
+            {
+                // reset
+                lastSerialization.ownerWriter.Position = 0;
+                lastSerialization.observersWriter.Position = 0;
+
+                // serialize
+                SerializeAll(false,
+                             lastSerialization.ownerWriter,
+                             lastSerialization.observersWriter);
+
+                // clear dirty bits for the components that we serialized.
+                // previously we did this in NetworkServer.BroadcastToConnection
+                // for every connection, for every entity.
+                // but we only serialize each entity once, right here in this
+                // 'lastSerialization.tick != tick' scope.
+                // so only do it once.
+                //
+                // NOTE: not in Serializell as that should only do one
+                //       thing: serialize data.
+                //
+                //
+                // NOTE: DO NOT clear ALL component's dirty bits, because
+                //       components can have different syncIntervals and we
+                //       don't want to reset dirty bits for the ones that were
+                //       not synced yet.
+                //
+                // NOTE: this used to be very important to avoid ever growing
+                //       SyncList changes if they had no observers, but we've
+                //       added SyncObject.isRecording since.
+                ClearDirtyComponentsDirtyBits();
+
+                // set tick
+                lastSerialization.tick = tick;
+                //Debug.Log($"{name} (netId={netId}) serialized for tick={tickTimeStamp}");
+            }
+
+            // return it
+            return lastSerialization;
         }
 
         // Helper function to handle Command/Rpc
