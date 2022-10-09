@@ -19,7 +19,6 @@
 //         buffer for bufferTime but end up closer to the original time
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,104 +38,22 @@ namespace Mirror
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
-        [Header("Synchronization")]
-        [Tooltip("Send N snapshots per second. Multiples of frame rate make sense.")]
-        public int sendRate = 30; // in Hz. easier to work with as int for EMA. easier to display '30' than '0.333333333'
-        public float sendInterval => 1f / sendRate;
-
-        // decrease bufferTime at runtime to see the catchup effect.
-        // increase to see slowdown.
-        // 'double' so we can have very precise dynamic adjustment without rounding
-        [Header("Buffering")]
-        [Tooltip("Local simulation is behind by sendInterval * multiplier seconds.\n\nThis guarantees that we always have enough snapshots in the buffer to mitigate lags & jitter.\n\nIncrease this if the simulation isn't smooth. By default, it should be around 2.")]
-        public double bufferTimeMultiplier = 2;
-        public double bufferTime => sendInterval * bufferTimeMultiplier;
-
         [Tooltip("Buffer size limit to avoid ever growing list memory consumption attacks.")]
         public int bufferSizeLimit = 64;
 
-        // catchup /////////////////////////////////////////////////////////////
-        // catchup thresholds in 'frames'.
-        // half a frame might be too aggressive.
-        [Header("Catchup / Slowdown")]
-        [Tooltip("Slowdown begins when the local timeline is moving too fast towards remote time. Threshold is in frames worth of snapshots.\n\nThis needs to be negative.\n\nDon't modify unless you know what you are doing.")]
-        public float catchupNegativeThreshold = -1; // careful, don't want to run out of snapshots
-
-        [Tooltip("Catchup begins when the local timeline is moving too slow and getting too far away from remote time. Threshold is in frames worth of snapshots.\n\nThis needs to be positive.\n\nDon't modify unless you know what you are doing.")]
-        public float catchupPositiveThreshold =  1;
-
-        [Tooltip("Local timeline acceleration in % while catching up.")]
-        [Range(0, 1)]
-        public double catchupSpeed = 0.01f; // 1%
-
-        [Tooltip("Local timeline slowdown in % while slowing down.")]
-        [Range(0, 1)]
-        public double slowdownSpeed = 0.01f; // 1%
-
-        [Tooltip("Catchup/Slowdown is adjusted over n-second exponential moving average.")]
-        public int driftEmaDuration = 1; // shouldn't need to modify this, but expose it anyway
-
-        // we use EMA to average the last second worth of snapshot time diffs.
-        // manually averaging the last second worth of values with a for loop
-        // would be the same, but a moving average is faster because we only
-        // ever add one value.
-        ExponentialMovingAverage serverDriftEma;
-        ExponentialMovingAverage clientDriftEma;
-
-        // dynamic buffer time adjustment //////////////////////////////////////
-        // dynamically adjusts bufferTimeMultiplier for smooth results.
-        // to understand how this works, try this manually:
-        //
-        // - disable dynamic adjustment
-        // - set jitter = 0.2 (20% is a lot!)
-        // - notice some stuttering
-        // - disable interpolation to see just how much jitter this really is(!)
-        // - enable interpolation again
-        // - manually increase bufferTimeMultiplier to 3-4
-        //   ... the cube slows down (blue) until it's smooth
-        // - with dynamic adjustment enabled, it will set 4 automatically
-        //   ... the cube slows down (blue) until it's smooth as well
-        //
-        // note that 20% jitter is extreme.
-        // for this to be perfectly smooth, set the safety tolerance to '2'.
-        // but realistically this is not necessary, and '1' is enough.
-        [Header("Dynamic Adjustment")]
-        [Tooltip("Automatically adjust bufferTimeMultiplier for smooth results.\nSets a low multiplier on stable connections, and a high multiplier on jittery connections.")]
-        public bool dynamicAdjustment = true;
-
-        [Tooltip("Safety buffer that is always added to the dynamic bufferTimeMultiplier adjustment.")]
-        public float dynamicAdjustmentTolerance = 1; // 1 is realistically just fine, 2 is very very safe even for 20% jitter. can be half a frame too. (see above comments)
-
-        [Tooltip("Dynamic adjustment is computed over n-second exponential moving average standard deviation.")]
-        public int deliveryTimeEmaDuration = 2; // 1-2s recommended to capture average delivery time
-
-        ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
-        ExponentialMovingAverage clientDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
-
-        // buffers & time //////////////////////////////////////////////////////
-        // snapshots sorted by timestamp
-        // in the original article, glenn fiedler drops any snapshots older than
-        // the last received snapshot.
-        // -> instead, we insert into a sorted buffer
-        // -> the higher the buffer information density, the better
-        // -> we still drop anything older than the first element in the buffer
-        // => internal for testing
-        //
-        // IMPORTANT: of explicit 'NTSnapshot' type instead of 'Snapshot'
-        //            interface because List<interface> allocates through boxing
-        internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
+        internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
-        // for smooth interpolation, we need to interpolate along server time.
-        // any other time (arrival on client, client local time, etc.) is not
-        // going to give smooth results.
+        // in host mode, we apply snapshot interpolation to for each connection.
+        // this way other players are still smooth on hosted games.
+        // in other words, we still need ema etc. for server here.
+        ExponentialMovingAverage serverDriftEma;
+        ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
         double serverTimeline;
         double serverTimescale;
+        public static double serverBufferTimeMultiplier = 2;
+        public static double serverBufferTime => NetworkServer.sendInterval * serverBufferTimeMultiplier;
 
-        // catchup / slowdown adjustments are applied to timescale,
-        // to be adjusted in every update instead of when receiving messages.
-        double clientTimeline;
-        double clientTimescale;
 
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
@@ -184,10 +101,8 @@ namespace Mirror
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            serverDriftEma = new ExponentialMovingAverage(sendRate * driftEmaDuration);
-            clientDriftEma = new ExponentialMovingAverage(sendRate * driftEmaDuration);
-            serverDeliveryTimeEma = new ExponentialMovingAverage(sendRate * deliveryTimeEmaDuration);
-            clientDeliveryTimeEma = new ExponentialMovingAverage(sendRate * deliveryTimeEmaDuration);
+            serverDriftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
+            serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
         }
 
         // snapshot functions //////////////////////////////////////////////////
@@ -198,7 +113,7 @@ namespace Mirror
             // NetworkTime.localTime for double precision until Unity has it too
             return new TransformSnapshot(
                 // our local time is what the other end uses as remote time
-                NetworkTime.localTime,
+                Time.timeAsDouble,
                 // the other end fills out local time itself
                 0,
                 targetComponent.localPosition,
@@ -276,7 +191,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -295,7 +210,7 @@ namespace Mirror
             // replay it for 10 seconds.
             if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : targetComponent.localPosition;
             if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : targetComponent.localRotation;
-            if (!scale.HasValue) scale = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale : targetComponent.localScale;
+            if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
             TransformSnapshot snapshot = new TransformSnapshot(
@@ -305,14 +220,14 @@ namespace Mirror
             );
 
             // (optional) dynamic adjustment
-            if (dynamicAdjustment)
+            if (NetworkClient.dynamicAdjustment)
             {
                 // set bufferTime on the fly.
                 // shows in inspector for easier debugging :)
-                bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    sendInterval,
+                serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
+                    NetworkServer.sendInterval,
                     serverDeliveryTimeEma.StandardDeviation,
-                    dynamicAdjustmentTolerance
+                    NetworkClient.dynamicAdjustmentTolerance
                 );
                 // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
             }
@@ -323,13 +238,13 @@ namespace Mirror
                 snapshot,
                 ref serverTimeline,
                 ref serverTimescale,
-                sendInterval,
-                bufferTime,
-                catchupSpeed,
-                slowdownSpeed,
+                NetworkServer.sendInterval,
+                serverBufferTime,
+                NetworkClient.catchupSpeed,
+                NetworkClient.slowdownSpeed,
                 ref serverDriftEma,
-                catchupNegativeThreshold,
-                catchupPositiveThreshold,
+                NetworkClient.catchupNegativeThreshold,
+                NetworkClient.catchupPositiveThreshold,
                 ref serverDeliveryTimeEma
             );
         }
@@ -365,7 +280,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * sendInterval;
+                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -386,41 +301,14 @@ namespace Mirror
             if (!rotation.HasValue) rotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : targetComponent.localRotation;
             if (!scale.HasValue) scale = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : targetComponent.localScale;
 
-            // construct snapshot with batch timestamp to save bandwidth
-            TransformSnapshot snapshot = new TransformSnapshot(
-                timestamp,
-                NetworkTime.localTime,
-                position.Value, rotation.Value, scale.Value
-            );
-
-            // (optional) dynamic adjustment
-            if (dynamicAdjustment)
-            {
-                // set bufferTime on the fly.
-                // shows in inspector for easier debugging :)
-                bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    sendInterval,
-                    clientDeliveryTimeEma.StandardDeviation,
-                    dynamicAdjustmentTolerance
-                );
-                // Debug.Log($"[Client]: {name} delivery std={clientDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
-            }
-
-            // insert into the client buffer & initialize / adjust / catchup
-            SnapshotInterpolation.InsertAndAdjust(
-                clientSnapshots,
-                snapshot,
-                ref clientTimeline,
-                ref clientTimescale,
-                sendInterval,
-                bufferTime,
-                catchupSpeed,
-                slowdownSpeed,
-                ref clientDriftEma,
-                catchupNegativeThreshold,
-                catchupPositiveThreshold,
-                ref clientDeliveryTimeEma
-            );
+            // insert snapshot
+            SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
+                timestamp,         // arrival remote timestamp. NOT remote time.
+                Time.timeAsDouble, // local time of this client
+                position.Value,
+                rotation.Value,
+                scale.Value
+            ));
         }
 
         // update //////////////////////////////////////////////////////////////
@@ -455,7 +343,8 @@ namespace Mirror
             // since host does not send anything to update the server, any client
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
-            if (NetworkTime.localTime >= lastServerSendTime + sendInterval &&
+            // TODO send same time that NetworkServer sends time snapshot?
+            if (NetworkTime.localTime >= lastServerSendTime + NetworkServer.sendInterval &&
                 (!clientAuthority || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
@@ -551,7 +440,7 @@ namespace Mirror
                 // DO NOT send nulls if not changed 'since last send' either. we
                 // send unreliable and don't know which 'last send' the other end
                 // received successfully.
-                if (NetworkTime.localTime >= lastClientSendTime + sendInterval)
+                if (NetworkTime.localTime >= lastClientSendTime + NetworkServer.sendInterval)
                 {
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
@@ -573,7 +462,7 @@ namespace Mirror
                         // only sync what the user wants to sync
                         syncPosition ? snapshot.position : default(Vector3?),
                         syncRotation ? snapshot.rotation : default(Quaternion?),
-                        syncScale ? snapshot.scale : default(Vector3?)
+                        syncScale    ? snapshot.scale    : default(Vector3?)
                     );
 #endif
 
@@ -595,21 +484,20 @@ namespace Mirror
             // we need to apply snapshots from the buffer
             else
             {
+                // only while we have snapshots
                 if (clientSnapshots.Count > 0)
                 {
-                    // step
-                    SnapshotInterpolation.Step(
+                    // step the interpolation without touching time.
+                    // NetworkClient is responsible for time globally.
+                    SnapshotInterpolation.StepInterpolation(
                         clientSnapshots,
-                        Time.unscaledDeltaTime,
-                        ref clientTimeline,
-                        clientTimescale,
-                        out TransformSnapshot fromSnapshot,
-                        out TransformSnapshot toSnapshot,
+                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                        out TransformSnapshot from,
+                        out TransformSnapshot to,
                         out double t);
 
-                    // interpolate and apply
                     // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     ApplySnapshot(computed);
                 }
             }
@@ -743,8 +631,6 @@ namespace Mirror
             // reset interpolation time too so we start at t=0 next time
             serverTimeline  = 0;
             serverTimescale = 0;
-            clientTimeline  = 0;
-            clientTimescale = 0;
         }
 
         protected virtual void OnDisable() => Reset();
@@ -752,12 +638,8 @@ namespace Mirror
 
         protected virtual void OnValidate()
         {
-            // thresholds need to be <0 and >0
-            catchupNegativeThreshold = Math.Min(catchupNegativeThreshold, 0);
-            catchupPositiveThreshold = Math.Max(catchupPositiveThreshold, 0);
-
             // buffer limit should be at least multiplier to have enough in there
-            bufferSizeLimit = Mathf.Max((int)bufferTimeMultiplier, bufferSizeLimit);
+            bufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, bufferSizeLimit);
         }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
@@ -782,7 +664,7 @@ namespace Mirror
             {
                 if (syncPosition) targetComponent.localPosition = reader.ReadVector3();
                 if (syncRotation) targetComponent.localRotation = reader.ReadQuaternion();
-                if (syncScale)    targetComponent.localScale = reader.ReadVector3();
+                if (syncScale)    targetComponent.localScale    = reader.ReadVector3();
             }
         }
 
@@ -810,16 +692,10 @@ namespace Mirror
                 // always show both client & server buffers so it's super
                 // obvious if we accidentally populate both.
                 if (serverSnapshots.Count > 0)
-                {
                     GUILayout.Label($"Server Buffer:{serverSnapshots.Count}");
-                    GUILayout.Label($"Server Timescale:{serverTimescale * 100:F2}%");
-                }
 
                 if (clientSnapshots.Count > 0)
-                {
                     GUILayout.Label($"Client Buffer:{clientSnapshots.Count}");
-                    GUILayout.Label($"Client Timescale:{clientTimescale * 100:F2}%");
-                }
 
                 GUILayout.EndArea();
                 GUI.color = Color.white;
@@ -832,7 +708,7 @@ namespace Mirror
             if (buffer.Count < 2) return;
 
             // calculate threshold for 'old enough' snapshots
-            double threshold = NetworkTime.localTime - bufferTime;
+            double threshold = NetworkTime.localTime - NetworkClient.bufferTime;
             Color oldEnoughColor = new Color(0, 1, 0, 0.5f);
             Color notOldEnoughColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
 
