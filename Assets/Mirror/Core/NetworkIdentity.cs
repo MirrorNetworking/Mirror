@@ -873,7 +873,7 @@ namespace Mirror
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void SerializeAll(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal void Serialize(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // check if components are in byte.MaxRange just to be 100% sure
             // that we avoid overflows
@@ -970,7 +970,7 @@ namespace Mirror
                 lastSerialization.observersWriter.Position = 0;
 
                 // serialize
-                SerializeAll(false,
+                Serialize(false,
                              lastSerialization.ownerWriter,
                              lastSerialization.observersWriter);
 

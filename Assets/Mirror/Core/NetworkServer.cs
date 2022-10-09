@@ -997,7 +997,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.SerializeAll(true, ownerWriter, observersWriter);
+            identity.Serialize(true, ownerWriter, observersWriter);
 
             // convert to ArraySegment to avoid reader allocations
             // if nothing was written, .ToArraySegment returns an empty segment.
