@@ -1008,6 +1008,7 @@ namespace Mirror
         {
             // write the mask
             writer.WriteULong(syncObjectDirtyBits);
+
             // serializable objects, such as synclists
             for (int i = 0; i < syncObjects.Count; i++)
             {
