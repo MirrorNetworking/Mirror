@@ -414,7 +414,7 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             // apply all the data from the server object
             NetworkReader reader = new NetworkReader(ownerWriter.ToArray());
-            clientIdentity.OnDeserializeAllSafely(reader, true);
+            clientIdentity.DeserializeAll(reader, true);
 
             // check that the syncvars got updated
             Assert.That(clientBehaviour.monster1, Is.EqualTo(serverBehaviour.monster1), "Data should be synchronized");

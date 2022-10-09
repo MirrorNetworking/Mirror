@@ -1037,7 +1037,7 @@ namespace Mirror
             {
                 using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
                 {
-                    identity.OnDeserializeAllSafely(payloadReader, true);
+                    identity.DeserializeAll(payloadReader, true);
                 }
             }
 
@@ -1283,7 +1283,7 @@ namespace Mirror
             if (spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(message.payload))
-                    localObject.OnDeserializeAllSafely(networkReader, false);
+                    localObject.DeserializeAll(networkReader, false);
             }
             else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }

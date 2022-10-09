@@ -1053,7 +1053,7 @@ namespace Mirror
             }
         }
 
-        internal void OnDeserializeAllSafely(NetworkReader reader, bool initialState)
+        internal void DeserializeAll(NetworkReader reader, bool initialState)
         {
             if (NetworkBehaviours == null)
             {
