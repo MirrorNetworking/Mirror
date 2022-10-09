@@ -887,8 +887,8 @@ namespace Mirror
                 bool dirty = initialState || component.IsDirty();
 
                 // set the n-th bit.
+                // shifting from small to large numbers is varint-efficient.
                 byte flag = (byte)(dirty ? 1 : 0);
-                // TODO ensure we set it in a varint-friendly way
                 ulong nthBit = (ulong)(flag << i);
                 mask |= nthBit;
             }
@@ -913,8 +913,8 @@ namespace Mirror
                 dirty &= component.syncMode == SyncMode.Observers;
 
                 // set the n-th bit.
+                // shifting from small to large numbers is varint-efficient.
                 byte flag = (byte)(dirty ? 1 : 0);
-                // TODO ensure we set it in a varint-friendly way
                 ulong nthBit = (ulong)(flag << i);
                 mask |= nthBit;
             }
