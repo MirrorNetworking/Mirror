@@ -17,7 +17,7 @@ namespace Mirror
     {
         public int connectionId;
         public byte[] bytes;
-        public float time;
+        public double time;
     }
 
     [HelpURL("https://mirror-networking.gitbook.io/docs/transports/latency-simulaton-transport")]
@@ -83,7 +83,7 @@ namespace Mirror
             // no spikes isn't realistic.
             // sin is too predictable / no realistic.
             // perlin is still deterministic and random enough.
-            float spike = Noise(Time.unscaledTime * jitterSpeed) * jitter;
+            float spike = Noise((float)Time.unscaledTimeAsDouble * jitterSpeed) * jitter;
 
             // base latency
             switch (channeldId)
@@ -110,7 +110,7 @@ namespace Mirror
             {
                 connectionId = connectionId,
                 bytes = bytes,
-                time = Time.unscaledTime + latency
+                time = Time.unscaledTimeAsDouble + latency
             };
 
             switch (channelId)
@@ -213,7 +213,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = reliableClientToServer[0];
-                if (message.time <= Time.unscaledTime)
+                if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
                     wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Reliable);
@@ -228,7 +228,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = unreliableClientToServer[0];
-                if (message.time <= Time.unscaledTime)
+                if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
                     wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Unreliable);
@@ -248,7 +248,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = reliableServerToClient[0];
-                if (message.time <= Time.unscaledTime)
+                if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
                     wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Reliable);
@@ -263,7 +263,7 @@ namespace Mirror
             {
                 // check the first message time
                 QueuedMessage message = unreliableServerToClient[0];
-                if (message.time <= Time.unscaledTime)
+                if (message.time <= Time.unscaledTimeAsDouble)
                 {
                     // send and eat
                     wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Unreliable);
