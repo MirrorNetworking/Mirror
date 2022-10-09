@@ -874,7 +874,7 @@ namespace Mirror
         // -> OnDeserialize carefully extracts each data, then deserializes each component with separate readers
         //    -> it will be impossible to read too many or too few bytes in OnDeserialize
         //    -> we can properly track down errors
-        void OnSerializeSafely(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
+        void Serialize(NetworkBehaviour comp, NetworkWriter writer, bool initialState)
         {
             // write placeholder length bytes
             // (jumping back later is WAY faster than allocating a temporary
@@ -939,7 +939,7 @@ namespace Mirror
 
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
-                    OnSerializeSafely(comp, ownerWriter, initialState);
+                    Serialize(comp, ownerWriter, initialState);
 
                     // copy into observersWriter too if SyncMode.Observers
                     // -> we copy instead of calling OnSerialize again because
