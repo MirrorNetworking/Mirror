@@ -929,6 +929,9 @@ namespace Mirror
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
+            //   7 components fit into 1 byte.  (previously  7 bytes)
+            //  11 components fit into 2 bytes. (previously 11 bytes)
+            //  16 components fit into 3 bytes. (previously 16 bytes)
             Compression.CompressVarUInt(ownerWriter,     ownerMask);
             Compression.CompressVarUInt(observersWriter, observerMask);
 
