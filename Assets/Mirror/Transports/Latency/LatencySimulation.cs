@@ -83,7 +83,11 @@ namespace Mirror
             // no spikes isn't realistic.
             // sin is too predictable / no realistic.
             // perlin is still deterministic and random enough.
+#if !UNITY_2020_3_OR_NEWER
+            float spike = Noise((float)NetworkTime.localTime * jitterSpeed) * jitter;
+#else
             float spike = Noise((float)Time.unscaledTimeAsDouble * jitterSpeed) * jitter;
+#endif
 
             // base latency
             switch (channeldId)
@@ -116,7 +120,11 @@ namespace Mirror
             {
                 connectionId = connectionId,
                 bytes = bytes,
+#if !UNITY_2020_3_OR_NEWER
+                time = NetworkTime.localTime + latency
+#else
                 time = Time.unscaledTimeAsDouble + latency
+#endif
             };
 
             switch (channelId)
@@ -220,7 +228,11 @@ namespace Mirror
             {
                 // message ready to be sent?
                 QueuedMessage message = reliableClientToServer[i];
+#if !UNITY_2020_3_OR_NEWER
+                if (message.time <= NetworkTime.localTime)
+#else
                 if (message.time <= Time.unscaledTimeAsDouble)
+#endif
                 {
                     // send and eat
                     wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Reliable);
@@ -235,7 +247,11 @@ namespace Mirror
             {
                 // message ready to be sent?
                 QueuedMessage message = unreliableClientToServer[i];
+#if !UNITY_2020_3_OR_NEWER
+                if (message.time <= NetworkTime.localTime)
+#else
                 if (message.time <= Time.unscaledTimeAsDouble)
+#endif
                 {
                     // send and eat
                     wrap.ClientSend(new ArraySegment<byte>(message.bytes), Channels.Reliable);
@@ -256,7 +272,11 @@ namespace Mirror
             {
                 // message ready to be sent?
                 QueuedMessage message = reliableServerToClient[i];
+#if !UNITY_2020_3_OR_NEWER
+                if (message.time <= NetworkTime.localTime)
+#else
                 if (message.time <= Time.unscaledTimeAsDouble)
+#endif
                 {
                     // send and eat
                     wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Reliable);
@@ -272,7 +292,11 @@ namespace Mirror
             {
                 // message ready to be sent?
                 QueuedMessage message = unreliableServerToClient[i];
+#if !UNITY_2020_3_OR_NEWER
+                if (message.time <= NetworkTime.localTime)
+#else
                 if (message.time <= Time.unscaledTimeAsDouble)
+#endif
                 {
                     // send and eat
                     wrap.ServerSend(message.connectionId, new ArraySegment<byte>(message.bytes), Channels.Reliable);

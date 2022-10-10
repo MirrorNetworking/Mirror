@@ -36,11 +36,11 @@ namespace Mirror.Tests.ClientSceneTests
             Vector3 somePosition = new Vector3(10, 20, 3);
 
             uint assetId = 42;
-            SpawnDelegate spawnHandler = new SpawnDelegate((pos, assetId) =>
+            SpawnDelegate spawnHandler = new SpawnDelegate((pos, id) =>
             {
                 handlerCalled++;
                 Assert.That(pos, Is.EqualTo(somePosition));
-                Assert.That(assetId, Is.EqualTo(assetId));
+                Assert.That(id, Is.EqualTo(assetId));
                 return null;
             });
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
