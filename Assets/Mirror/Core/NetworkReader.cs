@@ -70,6 +70,15 @@ namespace Mirror
             Position = 0;
         }
 
+#if !UNITY_2021_3_OR_NEWER
+        // Unity 2019 doesn't have the implicit byte[] to segment conversion yet
+        public void SetBuffer(byte[] bytes)
+        {
+            buffer = new ArraySegment<byte>(bytes, 0, bytes.Length);
+            Position = 0;
+        }
+#endif
+
         // ReadBlittable<T> from DOTSNET
         // this is extremely fast, but only works for blittable types.
         // => private to make sure nobody accidentally uses it for non-blittable
