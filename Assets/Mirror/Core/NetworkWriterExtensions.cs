@@ -175,12 +175,18 @@ namespace Mirror
 
         public static void WriteGuid(this NetworkWriter writer, Guid value)
         {
+#if !UNITY_2021_3_OR_NEWER
+            // Unity 2019 doesn't have Span yet
+            byte[] data = value.ToByteArray();
+            writer.WriteBytes(data, 0, data.Length);
+#else
             // WriteBlittable(Guid) isn't safe. see WriteBlittable comments.
             // Guid is Sequential, but we can't guarantee packing.
             // TryWriteBytes is safe and allocation free.
             writer.EnsureCapacity(writer.Position + 16);
             value.TryWriteBytes(new Span<byte>(writer.buffer, writer.Position, 16));
             writer.Position += 16;
+#endif
         }
         public static void WriteGuidNullable(this NetworkWriter writer, Guid? value)
         {

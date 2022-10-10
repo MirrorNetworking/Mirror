@@ -145,6 +145,10 @@ namespace Mirror
 
         public static Guid ReadGuid(this NetworkReader reader)
         {
+#if !UNITY_2021_3_OR_NEWER
+            // Unity 2019 doesn't have Span yet
+            return new Guid(reader.ReadBytes(16));
+#else
             // ReadBlittable(Guid) isn't safe. see ReadBlittable comments.
             // Guid is Sequential, but we can't guarantee packing.
             if (reader.Remaining >= 16)
@@ -154,6 +158,7 @@ namespace Mirror
                 return new Guid(span);
             }
             throw new EndOfStreamException($"ReadGuid out of range: {reader}");
+#endif
         }
         public static Guid? ReadGuidNullable(this NetworkReader reader) => reader.ReadBool() ? ReadGuid(reader) : default(Guid?);
 
