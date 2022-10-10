@@ -203,6 +203,10 @@ namespace Mirror
         {
             //Debug.Log("Client Connect Host to Server");
 
+            // reset time interpolation on every new connect.
+            // ensures last sessions' state is cleared before starting again.
+            InitTimeInterpolation();
+
             RegisterSystemHandlers(true);
 
             connectState = ConnectState.Connected;
