@@ -4,6 +4,20 @@ using AOT;
 
 namespace Mirror.SimpleWeb
 {
+#if !UNITY_2021_3_OR_NEWER
+    // Unity 2019 doesn't have ArraySegment.ToArray() yet.
+    public static class Extensions
+    {
+        public static byte[] ToArray(this ArraySegment<byte> segment)
+        {
+            byte[] array = new byte[segment.Count];
+            Array.Copy(segment.Array, segment.Offset, array, 0, segment.Count);
+            return array;
+        }
+    }
+
+#endif
+
     public class WebSocketClientWebGl : SimpleWebClient
     {
         static readonly Dictionary<int, WebSocketClientWebGl> instances = new Dictionary<int, WebSocketClientWebGl>();

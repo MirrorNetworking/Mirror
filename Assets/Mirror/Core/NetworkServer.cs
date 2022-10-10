@@ -1746,7 +1746,12 @@ namespace Mirror
                 //
                 // during tests, we always call Broadcast() though.
                 if (!Application.isPlaying ||
+#if !UNITY_2020_3_OR_NEWER
+                    // Unity 2019 doesn't have Time.timeAsDouble yet
+                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
+#else
                     AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
+#endif
                 {
                     Broadcast();
                 }

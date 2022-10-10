@@ -113,7 +113,11 @@ namespace Mirror
             // NetworkTime.localTime for double precision until Unity has it too
             return new TransformSnapshot(
                 // our local time is what the other end uses as remote time
+#if !UNITY_2020_3_OR_NEWER
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+#else
                 Time.timeAsDouble,
+#endif
                 // the other end fills out local time itself
                 0,
                 targetComponent.localPosition,
@@ -304,7 +308,11 @@ namespace Mirror
             // insert snapshot
             SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
                 timestamp,         // arrival remote timestamp. NOT remote time.
-                Time.timeAsDouble, // local time of this client
+#if !UNITY_2020_3_OR_NEWER
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+#else
+                Time.timeAsDouble,
+#endif
                 position.Value,
                 rotation.Value,
                 scale.Value

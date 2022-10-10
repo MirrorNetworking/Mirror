@@ -126,7 +126,13 @@ namespace Mirror
             // insert another snapshot for snapshot interpolation.
             // before calling OnDeserialize so components can use
             // NetworkTime.time and NetworkTime.timeStamp.
+
+#if !UNITY_2020_3_OR_NEWER
+            // Unity 2019 doesn't have Time.timeAsDouble yet
+            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+#else
             OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
+#endif
         }
 
         // see comments at the top of this file
