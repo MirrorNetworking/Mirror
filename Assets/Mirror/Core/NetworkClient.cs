@@ -157,8 +157,8 @@ namespace Mirror
         }
 
         // connect /////////////////////////////////////////////////////////////
-        /// <summary>Connect client to a NetworkServer by address.</summary>
-        public static void Connect(string address)
+        // initialize is called before every connect
+        static void Initialize(bool hostMode)
         {
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
@@ -167,33 +167,29 @@ namespace Mirror
             // ensures last sessions' state is cleared before starting again.
             InitTimeInterpolation();
 
-            RegisterSystemHandlers(false);
+            RegisterSystemHandlers(hostMode);
             Transport.active.enabled = true;
-            AddTransportHandlers();
+        }
 
+        /// <summary>Connect client to a NetworkServer by address.</summary>
+        public static void Connect(string address)
+        {
+            Initialize(false);
+
+            AddTransportHandlers();
             connectState = ConnectState.Connecting;
             Transport.active.ClientConnect(address);
-
             connection = new NetworkConnectionToServer();
         }
 
         /// <summary>Connect client to a NetworkServer by Uri.</summary>
         public static void Connect(Uri uri)
         {
-            // Debug.Log($"Client Connect: {uri}");
-            Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
+            Initialize(false);
 
-            // reset time interpolation on every new connect.
-            // ensures last sessions' state is cleared before starting again.
-            InitTimeInterpolation();
-
-            RegisterSystemHandlers(false);
-            Transport.active.enabled = true;
             AddTransportHandlers();
-
             connectState = ConnectState.Connecting;
             Transport.active.ClientConnect(uri);
-
             connection = new NetworkConnectionToServer();
         }
 
@@ -201,13 +197,7 @@ namespace Mirror
         // called from NetworkManager.FinishStartHost()
         public static void ConnectHost()
         {
-            //Debug.Log("Client Connect Host to Server");
-
-            // reset time interpolation on every new connect.
-            // ensures last sessions' state is cleared before starting again.
-            InitTimeInterpolation();
-
-            RegisterSystemHandlers(true);
+            Initialize(true);
 
             connectState = ConnectState.Connected;
 
