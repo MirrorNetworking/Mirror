@@ -49,7 +49,12 @@ namespace Mirror
                 // each grid entry may hold hundreds of entities.
                 // let's create the HashSet with a large initial capacity
                 // in order to avoid resizing & allocations.
+#if !UNITY_2021_3_OR_NEWER
+                // Unity 2019 doesn't have "new HashSet(capacity)" yet
+                hashSet = new HashSet<T>();
+#else
                 hashSet = new HashSet<T>(128);
+#endif
                 grid[position] = hashSet;
             }
 
