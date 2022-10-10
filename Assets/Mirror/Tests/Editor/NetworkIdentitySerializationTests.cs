@@ -145,6 +145,30 @@ namespace Mirror.Tests
             // clientIdentity.Awake();
         }
 
+        [Test]
+        public void ErrorCorrection()
+        {
+            int original = 0x12345678;
+            byte safety  =       0x78; // last byte
+
+            // correct size shouldn't be corrected
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 0, safety),  Is.EqualTo(original));
+
+            // read a little too much
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 1, safety),   Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 2, safety),   Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 42, safety),  Is.EqualTo(original));
+
+            // read a little too less
+            Assert.That(NetworkBehaviour.ErrorCorrection(original - 1, safety),   Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original - 2, safety),   Is.EqualTo(original));
+            Assert.That(NetworkBehaviour.ErrorCorrection(original - 42, safety),  Is.EqualTo(original));
+
+            // reading way too much / less is expected to fail.
+            // we can only correct the last byte, not more.
+            Assert.That(NetworkBehaviour.ErrorCorrection(original + 250, safety), !Is.EqualTo(original));
+        }
+
         // OnDeserializeSafely should be able to detect and handle serialization
         // mismatches (= if compA writes 10 bytes but only reads 8 or 12, it
         // shouldn't break compB's serialization. otherwise we end up with

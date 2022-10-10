@@ -1055,12 +1055,27 @@ namespace Mirror
         // reads <<len, payload, len, payload, ...>> for 100% safety.
         internal void Serialize(NetworkWriter writer, bool initialState)
         {
-            // write placeholder length bytes
+            // reserve length header to ensure the correct amount will be read.
+            // originally we used a 4 byte header (too bandwidth heavy).
+            // instead, let's "& 0xFF" the size.
+            //
+            // this is cleaner than barriers at the end of payload, because:
+            // - ensures the correct safety is read _before_ payload.
+            // - it's quite hard to break the check.
+            //   a component would need to read/write the intented amount
+            //   multiplied by 255 in order to miss the check.
+            //   with barriers, reading 1 byte too much may still succeed if the
+            //   next component's first byte matches the expected barrier.
+            // - we can still attempt to correct the invalid position via the
+            //   safety length byte (we know that one is correct).
+            //
+            // it's just overall cleaner, and still low on bandwidth.
+
+            // write placeholder length byte
             // (jumping back later is WAY faster than allocating a temporary
             //  writer for the payload, then writing payload.size, payload)
             int headerPosition = writer.Position;
-            // no varint because we don't know the final size yet
-            writer.WriteInt(0);
+            writer.WriteByte(0);
             int contentPosition = writer.Position;
 
             // write payload
@@ -1076,20 +1091,37 @@ namespace Mirror
             }
             int endPosition = writer.Position;
 
-            // fill in length now
+            // fill in length hash as the last byte of the 4 byte length
             writer.Position = headerPosition;
-            writer.WriteInt(endPosition - contentPosition);
+            int size = endPosition - contentPosition;
+            byte safety = (byte)(size & 0xFF);
+            writer.WriteByte(safety);
             writer.Position = endPosition;
 
             //Debug.Log($"OnSerializeSafely written for object {name} component:{GetType()} sceneId:{sceneId:X} header:{headerPosition} content:{contentPosition} end:{endPosition} contentSize:{endPosition - contentPosition}");
         }
 
+        // correct the read size with the 1 byte length hash (by mischa).
+        // -> the component most likely read a few too many/few bytes.
+        // -> we know the correct last byte of the expected size (=the safety).
+        // -> attempt to reconstruct the size via safety byte.
+        //    it will be correct unless someone wrote way way too much,
+        //    as in > 255 bytes worth too much.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int ErrorCorrection(int size, byte safety)
+        {
+            // clear the last byte which most likely contains the error
+            uint cleared = (uint)size & 0xFFFFFF00;
+
+            // insert the safety which we know to be correct
+            return (int)(cleared | safety);
+        }
+
         internal void Deserialize(NetworkReader reader, bool initialState)
         {
-            // read header as 4 bytes and calculate this chunk's start+end
-            int contentSize = reader.ReadInt();
+            // read 1 byte length hash safety & capture beginning for size check
+            byte safety = reader.ReadByte();
             int chunkStart = reader.Position;
-            int chunkEnd = reader.Position + contentSize;
 
             // call OnDeserialize and wrap it in a try-catch block so there's no
             // way to mess up another component's deserialization
@@ -1101,24 +1133,29 @@ namespace Mirror
             catch (Exception e)
             {
                 // show a detailed error and let the user know what went wrong
-                Debug.LogError($"OnDeserialize failed Exception={e.GetType()} (see below) object={name} component={GetType()} sceneId={netIdentity.sceneId:X} length={contentSize}. Possible Reasons:\n" +
-                               $"  * Do {GetType()}'s OnSerialize and OnDeserialize calls write the same amount of data({contentSize} bytes)? \n" +
+                Debug.LogError($"OnDeserialize failed Exception={e.GetType()} (see below) object={name} component={GetType()} netId={netId}. Possible Reasons:\n" +
+                               $"  * Do {GetType()}'s OnSerialize and OnDeserialize calls write the same amount of data? \n" +
                                $"  * Was there an exception in {GetType()}'s OnSerialize/OnDeserialize code?\n" +
                                $"  * Are the server and client the exact same project?\n" +
                                $"  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" +
                                $"Exception {e}");
             }
 
-            // now the reader should be EXACTLY at 'before + size'.
-            // otherwise the component read too much / too less data.
-            if (reader.Position != chunkEnd)
+            // compare bytes read with length hash
+            int size = reader.Position - chunkStart;
+            byte sizeHash = (byte)(size & 0xFF);
+            if (sizeHash != safety)
             {
-                // warn the user
-                int bytesRead = reader.Position - chunkStart;
-                Debug.LogWarning($"OnDeserialize was expected to read {contentSize} instead of {bytesRead} bytes for object:{name} component={GetType()} sceneId={netIdentity.sceneId:X}. Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
+                // warn the user.
+                Debug.LogWarning($"{name} (netId={netId}): {GetType()} OnDeserialize size mismatch. It read {size} bytes, which caused a size hash mismatch of {sizeHash:X2} vs. {safety:X2}. Make sure that OnSerialize and OnDeserialize write/read the same amount of data in all cases.");
 
-                // fix the position, so the following components don't all fail
-                reader.Position = chunkEnd;
+                // attempt to fix the position, so the following components
+                // don't all fail. this is very likely to work, unless the user
+                // read more than 255 bytes too many / too few.
+                //
+                // see test: SerializationSizeMismatch.
+                int correctedSize = ErrorCorrection(size, safety);
+                reader.Position = chunkStart + correctedSize;
             }
         }
 
