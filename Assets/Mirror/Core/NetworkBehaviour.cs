@@ -123,6 +123,7 @@ namespace Mirror
 
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         // OR both bitmasks. != 0 if either was dirty.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsDirty() =>
             NetworkTime.localTime - lastSyncTime >= syncInterval &&
             (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
