@@ -1,4 +1,5 @@
 // OnDe/SerializeSafely tests.
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -131,28 +132,17 @@ namespace Mirror.Tests
             for (int i = 0; i < 65; ++i)
             {
                 serverGO.AddComponent<SerializeTest1NetworkBehaviour>();
-                clientGO.AddComponent<SerializeTest1NetworkBehaviour>();
+                // clientGO.AddComponent<SerializeTest1NetworkBehaviour>();
             }
 
             // CreateNetworked already initializes the components.
             // let's reset and initialize again with the added ones.
+            // this should show the 'too many components' error
+            LogAssert.Expect(LogType.Error, new Regex(".*too many components.*"));
             serverIdentity.Reset();
-            clientIdentity.Reset();
+            // clientIdentity.Reset();
             serverIdentity.Awake();
-            clientIdentity.Awake();
-
-            // ignore error from creating cache (has its own test)
-            LogAssert.ignoreFailingMessages = true;
-            _ = serverIdentity.NetworkBehaviours;
-            _ = clientIdentity.NetworkBehaviours;
-            LogAssert.ignoreFailingMessages = false;
-
-            // try to serialize
-            serverIdentity.Serialize(true, ownerWriter, observersWriter);
-
-            // Should still write with too many Components because NetworkBehavioursCache should handle the error
-            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
-            Assert.That(observersWriter.Position, Is.GreaterThan(0));
+            // clientIdentity.Awake();
         }
 
         // OnDeserializeSafely should be able to detect and handle serialization

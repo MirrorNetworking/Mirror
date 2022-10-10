@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Mirror.RemoteCalls;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -312,8 +313,12 @@ namespace Mirror
             // Get all NetworkBehaviours
             // (never null. GetComponents returns [] if none found)
             NetworkBehaviours = GetComponents<NetworkBehaviour>();
-            if (NetworkBehaviours.Length > byte.MaxValue)
-                Debug.LogError($"Only {byte.MaxValue} NetworkBehaviour components are allowed for NetworkIdentity: {name} because we send the index as byte.", this);
+
+            // to save bandwidth, we send one 64 bit dirty mask
+            // instead of 1 byte index per dirty component.
+            // which means we can't allow > 64 components (it's enough).
+            if (NetworkBehaviours.Length > 64)
+                Debug.LogError($"NetworkIdentity {name} has too many components: only {64} NetworkBehaviour components are allowed because we send the dirty mask as 64 bit ulong in order to save bandwidth.", this);
 
             // initialize each one
             for (int i = 0; i < NetworkBehaviours.Length; ++i)
@@ -869,6 +874,42 @@ namespace Mirror
             }
         }
 
+        // build dirty mask for owner & observer (= all dirty components).
+        // faster to do it in one iteration instead of iterating separately.
+        (ulong, ulong) DirtyMasks(bool initialState)
+        {
+            ulong ownerMask    = 0;
+            ulong observerMask = 0;
+
+            NetworkBehaviour[] components = NetworkBehaviours;
+            for (int i = 0; i < components.Length; ++i)
+            {
+                NetworkBehaviour component = components[i];
+
+                // check if dirty.
+                // for owner, it's always included if dirty.
+                // for observers, it's only included if dirty AND syncmode to observers.
+                bool ownerDirty    = initialState || component.IsDirty();
+                bool observerDirty = ownerDirty && component.syncMode == SyncMode.Observers;
+
+                // set the n-th bit.
+                // shifting from small to large numbers is varint-efficient.
+                ownerMask    |= (ulong)(ownerDirty    ? 1 : 0) << i;
+                observerMask |= (ulong)(observerDirty ? 1 : 0) << i;
+            }
+
+            return (ownerMask, observerMask);
+        }
+
+        // check if n-th component is dirty.
+        // in other words, if it has the n-th bit set in the dirty mask.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsDirty(ulong mask, int index)
+        {
+            ulong nthBit = (ulong)(1 << index);
+            return (mask & nthBit) != 0;
+        }
+
         // serialize all components using dirtyComponentsMask
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
@@ -881,25 +922,33 @@ namespace Mirror
             if (components.Length > byte.MaxValue)
                 throw new IndexOutOfRangeException($"{name} has more than {byte.MaxValue} components. This is not supported.");
 
+            // instead of writing a 1 byte index per component,
+            // we limit components to 64 bits and write one ulong instead.
+            // the ulong is also varint compressed for minimum bandwidth.
+            (ulong ownerMask, ulong observerMask) = DirtyMasks(initialState);
+
+            // varint compresses the mask to 1 byte in most cases.
+            // instead of writing an 8 byte ulong.
+            //   7 components fit into 1 byte.  (previously  7 bytes)
+            //  11 components fit into 2 bytes. (previously 11 bytes)
+            //  16 components fit into 3 bytes. (previously 16 bytes)
+            Compression.CompressVarUInt(ownerWriter,     ownerMask);
+            Compression.CompressVarUInt(observersWriter, observerMask);
+
             // serialize all components
             for (int i = 0; i < components.Length; ++i)
             {
-                // is this component dirty?
-                // -> always serialize if initialState so all components are included in spawn packet
-                // -> note: IsDirty() is false if the component isn't dirty or sendInterval isn't elapsed yet
                 NetworkBehaviour comp = components[i];
-                if (initialState || comp.IsDirty())
+
+                // is this component dirty?
+                // reuse the mask instead of calling comp.IsDirty() again here.
+                if (IsDirty(ownerMask, i))
                 {
                     //Debug.Log($"SerializeAll: {name} -> {comp.GetType()} initial:{ initialState}");
 
                     // remember start position in case we need to copy it into
                     // observers writer too
                     int startPosition = ownerWriter.Position;
-
-                    // write index as byte [0..255].
-                    // necessary because deserialize may only get data for some
-                    // components because not dirty, not owner, etc.
-                    ownerWriter.WriteByte((byte)i);
 
                     // serialize into ownerWriter first
                     // (owner always gets everything!)
@@ -914,7 +963,8 @@ namespace Mirror
                     //    with the user's OnSerialize timing code etc.
                     // => so we just copy the result without touching
                     //    OnSerialize again
-                    if (comp.syncMode == SyncMode.Observers)
+                    if (IsDirty(observerMask, i))
+                    // if (comp.syncMode == SyncMode.Observers)
                     {
                         ArraySegment<byte> segment = ownerWriter.ToArraySegment();
                         int length = ownerWriter.Position - startPosition;
@@ -937,14 +987,18 @@ namespace Mirror
 
             // deserialize all components that were received
             NetworkBehaviour[] components = NetworkBehaviours;
-            while (reader.Remaining > 0)
+
+            // first we deserialize the varinted dirty mask
+            ulong mask = Compression.DecompressVarUInt(reader);
+
+            // now deserialize every dirty component
+            for (int i = 0; i < components.Length; ++i)
             {
-                // read & check index [0..255]
-                byte index = reader.ReadByte();
-                if (index < components.Length)
+                // was this one dirty?
+                if (IsDirty(mask, i))
                 {
                     // deserialize this component
-                    components[index].Deserialize(reader, initialState);
+                    components[i].Deserialize(reader, initialState);
                 }
             }
         }
