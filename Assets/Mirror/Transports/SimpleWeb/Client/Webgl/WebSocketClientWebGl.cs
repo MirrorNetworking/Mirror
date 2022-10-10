@@ -4,7 +4,7 @@ using AOT;
 
 namespace Mirror.SimpleWeb
 {
-#if UNITY_2019
+#if !UNITY_2021_3_OR_NEWER
     // Unity 2019 doesn't have ArraySegment.ToArray() yet.
     public static class Extensions
     {
