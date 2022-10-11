@@ -15,39 +15,68 @@
 
 <img src="https://user-images.githubusercontent.com/16416509/119117854-3e4e2b80-ba5c-11eb-8236-ce6cfd2b6b07.png" title="Original Concept Art for Games that made us dream. Copyright Blizzard, Blizzard, Riot Games, Joymax in that order."/>
 
-## Mirror
-Mirror is a **high level** Networking library for **Unity 2019/2020 LTS**, compatible with different **low level** [Transports](https://github.com/vis2k/Mirror#low-level-transports).
+## Mirror Networking 
+The **#1** free **open source** game networking library for **Unity 2019 / 2020 / 2021**.
 
-Mirror is for indie games & small [MMOs](https://www.youtube.com/watch?v=mDCNff1S9ZU), made by the developers of [uMMORPG](https://assetstore.unity.com/packages/templates/systems/ummorpg-components-edition-159401) and [Cubica](https://www.youtube.com/watch?v=D_f_MntrLVE).
+Used **in production** by major hits like [**Population: ONE**](https://www.populationonevr.com/) and many [more](#made-with-mirror).
 
-Mirror is optimized for **ease of use** & **probability of success**.
+Originally based on [**UNET**](https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 8 years and counting!
 
-We needed a networking library that allows us to **[launch our games](https://mirror-networking.com/showcase/)** and **survive the next decade**.
+Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](https://github.com/vis2k/Mirror#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even [MMORPGs](https://www.youtube.com/watch?v=mDCNff1S9ZU) 🎮.
 
-Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)** & **[production](https://www.oculus.com/experiences/quest/2564158073609422/)** ready.
+**Made in 🇩🇪🇺🇸🇬🇧🇸🇬🇹🇼 with ❤️**.
 
 ---
-## Free & Open
-Mirror is **free & open source**!
-* Code: MIT licensed.
-* Dedicated Servers: [Anywhere](https://mirror-networking.gitbook.io/docs/guides/server-hosting)!
-* Player Hosted: [Free Epic Relay](https://github.com/FakeByte/EpicOnlineTransport)!
-
-We need Mirror for our own games, which is why we will never charge anything. 
-
-Funded only by [Donations](https://github.com/sponsors/vis2k) from our [fantastic community](https://discordapp.com/invite/N9QVxbM) of over 10,000 people.
-
 ## Architecture
-The **Server & Client** are **ONE project** in order to achieve an order of magnitude gain in productivity.
+The **Server & Client** are **ONE project** in order to achieve maximum productivity.
 
-Making multiplayer games this way is fun & easy. Instead of MonoBehaviour, Mirror provides **NetworkBehaviour** components with:
-* **[Server]** / **[Client]** tags for server-only / client-only code
-* **[Command]** for Client->Server function calls (e.g. UseItem)
-* **[ClientRpc]** / **[TargetRpc]** for Server->Client function calls (e.g. AddChatMessage)
-* **[SyncVar]** / SyncList to automatically synchronize variables from Server->Client
+Simply use **NetworkBehaviour** instead of **MonoBehaviour**.
 
+Making multiplayer games this way is fun & easy:
+
+```cs
+public class Player : NetworkBehaviour
+{
+    // synced automatically
+    [SyncVar] public int health = 100;
+    
+    // lists, dictionaries, sets too
+    SyncList<Item> inventory = new SyncList<Item>();
+    
+    // server/client-only code
+    [Server] void LevelUp() {}
+    [Client] void Animate() {}
+    
+    void Update()
+    {
+        // isServer/isClient for runtime checks
+        if (isServer) Heal();
+        if (isClient) Move();
+    }
+    
+    // zero overhead remote calls
+    [Command]   void CmdUseItem(int slot) {} // client to server
+    [Rpc]       void RpcRespawn() {}         // server to all clients
+    [TargetRpc] void Hello() {}              // server to one client
+}
+```
+
+There's also **NetworkServer** & **NetworkClient**. And that's about it 🤩.
+
+---
+## Free, Open & Community Funded
+Mirror is **free & open source** (MIT Licensed).
+
+"Free" as in free beer, and freedom to use it any way you like.
+ 
+- Run [Dedicated Servers](https://mirror-networking.gitbook.io/docs/guides/server-hosting) anywhere.
+- Free player hosted games thanks to [Epic Relay](https://github.com/FakeByte/EpicOnlineTransport)!
+
+Mirror is funded by [**Donations**](https://github.com/sponsors/vis2k) from our [fantastic community](https://discordapp.com/invite/N9QVxbM) of over 14,000 users!
+
+---
 ## Getting Started
-Get **Unity 2020 LTS**, download [Mirror on the Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
+Get **Unity 2019 / 2020 / 2021 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
 
 Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn how it all works.
 
@@ -153,7 +182,8 @@ If you use Mirror in production, consider Mirror LTS!
 
 All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/MirrorNetworking/Mirror-46-LTS) automatically.
 
-## Low Level Transports
+## Modular Transports
+Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
 * (built in) [KCP](https://github.com/vis2k/kcp2k): reliable UDP
 * (built in) [Telepathy](https://github.com/vis2k/Telepathy): TCP
 * (built in) [Websockets](https://github.com/MirrorNetworking/SimpleWebTransport): Websockets
@@ -167,15 +197,18 @@ All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/M
 * [Oculus P2P](https://github.com/hyferg/MirrorOculusP2P): Oculus Platform Service
 
 ## Benchmarks
-* [uMMORPG 480 CCU](https://youtu.be/mDCNff1S9ZU) (worst case)
-* [Jesus' Benchmarks](https://docs.google.com/document/d/1GMxcWAz3ePt3RioK8k4erpVSpujMkYje4scOuPwM8Ug/edit?usp=sharing)
+* [2022] mischa [400-800 CCU](https://discord.com/channels/343440455738064897/1007519701603205150/1019879180592238603) tests
+* [2021] [Jesus' Benchmarks](https://docs.google.com/document/d/1GMxcWAz3ePt3RioK8k4erpVSpujMkYje4scOuPwM8Ug/edit?usp=sharing)
+* [2019] [uMMORPG 480 CCU](https://youtu.be/mDCNff1S9ZU) (worst case)
 
 ## Development & Contributing
 Mirror is used **in production** by everything from small indie projects to million dollar funded games that will run for a decade or more.
 
-Therefore it is important for us to follow the [KISS principle](https://en.wikipedia.org/wiki/KISS_principle) in order for our games to survive, so that we can still fix networking bugs 10 years from now if needed.
+We prefer to work slow & thoroughly in order to not break everyone's games 🐌.
 
+Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
+---
 # Bug Bounty
 <img src="https://user-images.githubusercontent.com/16416509/110572995-718b5900-8195-11eb-802c-235c82a03bf7.png" height="150">
 
