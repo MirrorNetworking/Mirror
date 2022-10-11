@@ -229,3 +229,24 @@ We are **not** looking for DOS/DDOS attacks. The exploit should be possible with
 
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
+
+---
+# Credits & Thanks 🙏
+🪞 **Alexey Abramychev (UNET)**<br/>
+🪞 **Alan**<br/>
+🪞 **c6burns** <br/>
+🪞 **Coburn** <br/>
+🪞 **cooper** <br/>
+🪞 **FakeByte** <br/>
+🪞 **fholm**<br/>
+🪞 **Gabe** (BigBoxVR)<br/>
+🪞 **imer** <br/>
+🪞 **James Frowen** <br/>
+🪞 **JesusLuvsYooh** <br/>
+🪞 **Mischa** <br/>
+🪞 **Mr. Gadget**<br/>
+🪞 **NinjaKickja** <br/>
+🪞 **Paul Pacheco**<br/>
+🪞 **Sean Riley** (UNET)<br/>
+
+
