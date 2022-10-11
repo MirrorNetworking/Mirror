@@ -22,7 +22,7 @@ Used **in production** by major hits like [**Population: ONE**](https://www.popu
 
 Originally based on [**UNET**](https://blog.unity.com/technology/announcing-unet-new-unity-multiplayer-technology): battle tested **since 2014** for 8 years and counting!
 
-Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](https://github.com/vis2k/Mirror#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even [MMORPGs](https://www.youtube.com/watch?v=mDCNff1S9ZU) 🎮.
+Mirror is **[stable](https://mirror-networking.gitbook.io/docs/general/tests)**, [**modular**](#low-level-transports) & **[easy to use](https://mirror-networking.gitbook.io/)** for all types of games, even small [MMORPGs](#made-with-mirror) 🎮.
 
 **Made in 🇩🇪🇺🇸🇬🇧🇸🇬🇹🇼 with ❤️**.
 
