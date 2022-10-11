@@ -74,6 +74,10 @@ Mirror is **free & open source** (MIT Licensed).
 
 Mirror is funded by [**Donations**](https://github.com/sponsors/vis2k) from our [fantastic community](https://discordapp.com/invite/N9QVxbM) of over 14,000 users!
 
+<img src="https://user-images.githubusercontent.com/16416509/195067704-5577b581-b829-4c9f-80d0-b6270a3a59e7.png" title="Fitzcarraldo"/>
+
+_The top quote is from Fitzcarraldo, which is quite reminiscent of this project._
+
 ---
 ## Getting Started
 Get **Unity 2019 / 2020 / 2021 LTS**, [Download Mirror](https://assetstore.unity.com/packages/tools/network/mirror-129321), open one of the examples & press Play!
