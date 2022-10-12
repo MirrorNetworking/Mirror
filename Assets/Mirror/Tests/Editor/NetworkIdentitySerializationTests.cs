@@ -199,5 +199,28 @@ namespace Mirror.Tests
             // should still work fine. that's the whole point.
             Assert.That(clientComp.value, Is.EqualTo("42"));
         }
+
+        // ensure Serialize writes nothing if not dirty.
+        // previously after the dirty mask improvement, it would write a 1 byte
+        // 0-dirty-mask. instead, we need to ensure it writes nothing.
+        // too easy to miss, with too significant bandwidth implications.
+        [Test]
+        public void Serialize_NotInitial_NotDirty_WritesNothing()
+        {
+            // create spawned so that isServer/isClient is set properly
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SerializeTest1NetworkBehaviour serverComp1, out SerializeTest2NetworkBehaviour serverComp2,
+                out _, out NetworkIdentity clientIdentity, out SerializeTest1NetworkBehaviour clientComp1, out SerializeTest2NetworkBehaviour clientComp2);
+
+            // change nothing
+            // serverComp.value = "42";
+
+            // serialize server object.
+            // 'initial' would write everything.
+            // instead, try 'not initial' with 0 dirty bits
+            serverIdentity.Serialize(false, ownerWriter, observersWriter);
+            Assert.That(ownerWriter.Position, Is.EqualTo(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));
+        }
     }
 }
