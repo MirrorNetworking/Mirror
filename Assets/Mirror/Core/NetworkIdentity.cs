@@ -954,39 +954,43 @@ namespace Mirror
             if (observerMask != 0) Compression.CompressVarUInt(observersWriter, observerMask);
 
             // serialize all components
-            for (int i = 0; i < components.Length; ++i)
+            // perf: only check if either dirty mask has dirty bits.
+            if ((ownerMask | observerMask) != 0)
             {
-                NetworkBehaviour comp = components[i];
-
-                // is this component dirty?
-                // reuse the mask instead of calling comp.IsDirty() again here.
-                if (IsDirty(ownerMask, i))
+                for (int i = 0; i < components.Length; ++i)
                 {
-                    //Debug.Log($"SerializeAll: {name} -> {comp.GetType()} initial:{ initialState}");
+                    NetworkBehaviour comp = components[i];
 
-                    // remember start position in case we need to copy it into
-                    // observers writer too
-                    int startPosition = ownerWriter.Position;
-
-                    // serialize into ownerWriter first
-                    // (owner always gets everything!)
-                    comp.Serialize(ownerWriter, initialState);
-
-                    // copy into observersWriter too if SyncMode.Observers
-                    // -> we copy instead of calling OnSerialize again because
-                    //    we don't know what magic the user does in OnSerialize.
-                    // -> it's not guaranteed that calling it twice gets the
-                    //    same result
-                    // -> it's not guaranteed that calling it twice doesn't mess
-                    //    with the user's OnSerialize timing code etc.
-                    // => so we just copy the result without touching
-                    //    OnSerialize again
-                    if (IsDirty(observerMask, i))
-                    // if (comp.syncMode == SyncMode.Observers)
+                    // is this component dirty?
+                    // reuse the mask instead of calling comp.IsDirty() again here.
+                    if (IsDirty(ownerMask, i))
                     {
-                        ArraySegment<byte> segment = ownerWriter.ToArraySegment();
-                        int length = ownerWriter.Position - startPosition;
-                        observersWriter.WriteBytes(segment.Array, startPosition, length);
+                        //Debug.Log($"SerializeAll: {name} -> {comp.GetType()} initial:{ initialState}");
+
+                        // remember start position in case we need to copy it into
+                        // observers writer too
+                        int startPosition = ownerWriter.Position;
+
+                        // serialize into ownerWriter first
+                        // (owner always gets everything!)
+                        comp.Serialize(ownerWriter, initialState);
+
+                        // copy into observersWriter too if SyncMode.Observers
+                        // -> we copy instead of calling OnSerialize again because
+                        //    we don't know what magic the user does in OnSerialize.
+                        // -> it's not guaranteed that calling it twice gets the
+                        //    same result
+                        // -> it's not guaranteed that calling it twice doesn't mess
+                        //    with the user's OnSerialize timing code etc.
+                        // => so we just copy the result without touching
+                        //    OnSerialize again
+                        if (IsDirty(observerMask, i))
+                        // if (comp.syncMode == SyncMode.Observers)
+                        {
+                            ArraySegment<byte> segment = ownerWriter.ToArraySegment();
+                            int length = ownerWriter.Position - startPosition;
+                            observersWriter.WriteBytes(segment.Array, startPosition, length);
+                        }
                     }
                 }
             }
