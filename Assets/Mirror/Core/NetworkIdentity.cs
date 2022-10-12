@@ -220,6 +220,11 @@ namespace Mirror
         // get all NetworkBehaviour components
         public NetworkBehaviour[] NetworkBehaviours { get; private set; }
 
+        // to save bandwidth, we send one 64 bit dirty mask
+        // instead of 1 byte index per dirty component.
+        // which means we can't allow > 64 components (it's enough).
+        const int MaxNetworkBehaviours = 64;
+
         // current visibility
         //
         // Default = use interest management
@@ -313,13 +318,9 @@ namespace Mirror
             // Get all NetworkBehaviours
             // (never null. GetComponents returns [] if none found)
             NetworkBehaviours = GetComponents<NetworkBehaviour>();
+            EnsureMaxNetworkBehaviours();
 
-            // to save bandwidth, we send one 64 bit dirty mask
-            // instead of 1 byte index per dirty component.
-            // which means we can't allow > 64 components (it's enough).
-            if (NetworkBehaviours.Length > 64)
-                Debug.LogError($"NetworkIdentity {name} has too many components: only {64} NetworkBehaviour components are allowed because we send the dirty mask as 64 bit ulong in order to save bandwidth.", this);
-
+            // ensure max components
             // initialize each one
             for (int i = 0; i < NetworkBehaviours.Length; ++i)
             {
@@ -327,6 +328,12 @@ namespace Mirror
                 component.netIdentity = this;
                 component.ComponentIndex = (byte)i;
             }
+        }
+
+        void EnsureMaxNetworkBehaviours()
+        {
+            if (NetworkBehaviours.Length > MaxNetworkBehaviours)
+                Debug.LogError($"NetworkIdentity {name} has too many NetworkBehaviour components: only {MaxNetworkBehaviours} NetworkBehaviour components are allowed in order to save bandwidth.", this);
         }
 
         // Awake is only called in Play mode.
@@ -919,8 +926,7 @@ namespace Mirror
             // check if components are in byte.MaxRange just to be 100% sure
             // that we avoid overflows
             NetworkBehaviour[] components = NetworkBehaviours;
-            if (components.Length > byte.MaxValue)
-                throw new IndexOutOfRangeException($"{name} has more than {byte.MaxValue} components. This is not supported.");
+            EnsureMaxNetworkBehaviours();
 
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.

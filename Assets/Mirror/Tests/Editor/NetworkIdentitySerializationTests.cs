@@ -138,7 +138,7 @@ namespace Mirror.Tests
             // CreateNetworked already initializes the components.
             // let's reset and initialize again with the added ones.
             // this should show the 'too many components' error
-            LogAssert.Expect(LogType.Error, new Regex(".*too many components.*"));
+            LogAssert.Expect(LogType.Error, new Regex(".*too many NetworkBehaviour.*"));
             serverIdentity.Reset();
             // clientIdentity.Reset();
             serverIdentity.Awake();
