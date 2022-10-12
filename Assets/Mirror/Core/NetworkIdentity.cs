@@ -318,7 +318,7 @@ namespace Mirror
             // Get all NetworkBehaviours
             // (never null. GetComponents returns [] if none found)
             NetworkBehaviours = GetComponents<NetworkBehaviour>();
-            EnsureMaxNetworkBehaviours();
+            ValidateComponents();
 
             // ensure max components
             // initialize each one
@@ -330,10 +330,19 @@ namespace Mirror
             }
         }
 
-        void EnsureMaxNetworkBehaviours()
+        void ValidateComponents()
         {
-            if (NetworkBehaviours.Length > MaxNetworkBehaviours)
+            if (NetworkBehaviours == null)
+            {
+                Debug.LogError($"NetworkBehaviours array is null on {gameObject.name}!\n" +
+                    $"Typically this can happen when a networked object is a child of a " +
+                    $"non-networked parent that's disabled, preventing Awake on the networked object " +
+                    $"from being invoked, where the NetworkBehaviours array is initialized.", gameObject);
+            }
+            else if (NetworkBehaviours.Length > MaxNetworkBehaviours)
+            {
                 Debug.LogError($"NetworkIdentity {name} has too many NetworkBehaviour components: only {MaxNetworkBehaviours} NetworkBehaviour components are allowed in order to save bandwidth.", this);
+            }
         }
 
         // Awake is only called in Play mode.
@@ -923,9 +932,9 @@ namespace Mirror
         // if any Components are dirty before creating writers
         internal void Serialize(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
-            // double check component amount to 100% avoid overflows
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
             NetworkBehaviour[] components = NetworkBehaviours;
-            EnsureMaxNetworkBehaviours();
 
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
@@ -982,16 +991,8 @@ namespace Mirror
 
         internal void Deserialize(NetworkReader reader, bool initialState)
         {
-            if (NetworkBehaviours == null)
-            {
-                Debug.LogError($"NetworkBehaviours array is null on {gameObject.name}!\n" +
-                    $"Typically this can happen when a networked object is a child of a " +
-                    $"non-networked parent that's disabled, preventing Awake on the networked object " +
-                    $"from being invoked, where the NetworkBehaviours array is initialized.", gameObject);
-                return;
-            }
-
-            // deserialize all components that were received
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
             NetworkBehaviour[] components = NetworkBehaviours;
 
             // first we deserialize the varinted dirty mask
