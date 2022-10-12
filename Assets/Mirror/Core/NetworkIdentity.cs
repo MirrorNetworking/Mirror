@@ -923,8 +923,7 @@ namespace Mirror
         // if any Components are dirty before creating writers
         internal void Serialize(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
-            // check if components are in byte.MaxRange just to be 100% sure
-            // that we avoid overflows
+            // double check component amount to 100% avoid overflows
             NetworkBehaviour[] components = NetworkBehaviours;
             EnsureMaxNetworkBehaviours();
 
