@@ -188,7 +188,7 @@ namespace Mirror.Tests
 
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
-                Debug.Assert(clientIdentity.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientIdentity.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
 
             // make sure the client really spawned it.
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
@@ -211,7 +211,7 @@ namespace Mirror.Tests
 
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
-                Debug.Assert(component.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(component.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
         }
 
         // create GameObject + NetworkIdentity + NetworkBehaviour & SPAWN
@@ -247,7 +247,7 @@ namespace Mirror.Tests
 
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
-                Debug.Assert(clientComponent.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponent.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
 
             // make sure the client really spawned it.
             Assert.That(NetworkClient.spawned.ContainsKey(serverIdentity.netId));
@@ -272,8 +272,8 @@ namespace Mirror.Tests
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
             {
-                Debug.Assert(componentA.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
-                Debug.Assert(componentB.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
             }
         }
 
@@ -312,8 +312,8 @@ namespace Mirror.Tests
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
             {
-                Debug.Assert(clientComponentA.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
-                Debug.Assert(clientComponentB.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
             }
 
             // make sure the client really spawned it.
@@ -340,9 +340,9 @@ namespace Mirror.Tests
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
             {
-                Debug.Assert(componentA.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
-                Debug.Assert(componentB.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
-                Debug.Assert(componentC.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(componentC.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
             }
         }
 
@@ -382,9 +382,9 @@ namespace Mirror.Tests
             // double check that we have authority if we passed an owner connection
             if (ownerConnection != null)
             {
-                Debug.Assert(clientComponentA.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
-                Debug.Assert(clientComponentB.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
-                Debug.Assert(clientComponentC.hasAuthority == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentA.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentB.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
+                Debug.Assert(clientComponentC.isOwned == true, $"Behaviour Had Wrong Authority when spawned, This means that the test is broken and will give the wrong results");
             }
 
             // make sure the client really spawned it.

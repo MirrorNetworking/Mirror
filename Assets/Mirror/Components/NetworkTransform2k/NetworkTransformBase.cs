@@ -33,7 +33,7 @@ namespace Mirror
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        protected bool IsClientWithAuthority => hasAuthority && clientAuthority;
+        protected bool IsClientWithAuthority => isOwned && clientAuthority;
 
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
@@ -399,7 +399,7 @@ namespace Mirror
             // -> don't apply for host mode player objects either, even if in
             //    client authority mode. if it doesn't go over the network,
             //    then we don't need to do anything.
-            if (clientAuthority && !hasAuthority)
+            if (clientAuthority && !isOwned)
             {
                 if (serverSnapshots.Count > 0)
                 {

@@ -649,40 +649,40 @@ namespace Mirror.Tests
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out StartAuthorityCalledNetworkBehaviour compStart, out StopAuthorityCalledNetworkBehaviour compStop);
 
             // set authority from false to true, which should call OnStartAuthority
-            identity.hasAuthority = true;
+            identity.isOwned = true;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.hasAuthority, Is.True);
+            Assert.That(identity.isOwned, Is.True);
             // start should be called
             Assert.That(compStart.called, Is.EqualTo(1));
             // stop shouldn't
             Assert.That(compStop.called, Is.EqualTo(0));
 
             // set it to true again, should do nothing because already true
-            identity.hasAuthority = true;
+            identity.isOwned = true;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.hasAuthority, Is.True);
+            Assert.That(identity.isOwned, Is.True);
             // same as before
             Assert.That(compStart.called, Is.EqualTo(1));
             // same as before
             Assert.That(compStop.called, Is.EqualTo(0));
 
             // set it to false, should call OnStopAuthority
-            identity.hasAuthority = false;
+            identity.isOwned = false;
             identity.NotifyAuthority();
             // should be changed
-            Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.isOwned, Is.False);
             // same as before
             Assert.That(compStart.called, Is.EqualTo(1));
             // stop should be called
             Assert.That(compStop.called, Is.EqualTo(1));
 
             // set it to false again, should do nothing because already false
-            identity.hasAuthority = false;
+            identity.isOwned = false;
             identity.NotifyAuthority();
             // shouldn't be touched
-            Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.isOwned, Is.False);
             // same as before
             Assert.That(compStart.called, Is.EqualTo(1));
             // same as before
@@ -973,7 +973,7 @@ namespace Mirror.Tests
             Assert.That(identity.netId, Is.EqualTo(0));
             Assert.That(identity.connectionToClient, Is.Null);
             Assert.That(identity.connectionToServer, Is.Null);
-            Assert.That(identity.hasAuthority, Is.False);
+            Assert.That(identity.isOwned, Is.False);
             Assert.That(identity.observers, Is.Empty);
         }
 

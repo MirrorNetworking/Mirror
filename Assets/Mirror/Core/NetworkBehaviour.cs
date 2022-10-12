@@ -45,8 +45,13 @@ namespace Mirror
         /// <summary>True if this object is on the client-only, not host.</summary>
         public bool isClientOnly => netIdentity.isClientOnly;
 
+        /// <summary>isOwned is true on the client if this NetworkIdentity is one of the .owned entities of our connection on the server.</summary>
+        // for example: main player & pets are owned. monsters & npcs aren't.
+        public bool isOwned => netIdentity.isOwned;
+
         /// <summary>True on client if that component has been assigned to the client. E.g. player, pets, henchmen.</summary>
-        public bool hasAuthority => netIdentity.hasAuthority;
+        [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
+        public bool hasAuthority => isOwned;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
@@ -197,7 +202,7 @@ namespace Mirror
             }
 
             // local players can always send commands, regardless of authority, other objects must have authority.
-            if (!(!requiresAuthority || isLocalPlayer || hasAuthority))
+            if (!(!requiresAuthority || isLocalPlayer || isOwned))
             {
                 Debug.LogWarning($"Command Function {functionFullName} called on {name} without authority.", gameObject);
                 return;

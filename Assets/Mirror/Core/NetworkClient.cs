@@ -1019,7 +1019,7 @@ namespace Mirror
             identity.transform.localPosition = message.position;
             identity.transform.localRotation = message.rotation;
             identity.transform.localScale = message.scale;
-            identity.hasAuthority = message.isOwner;
+            identity.isOwned = message.isOwner;
             identity.netId = message.netId;
 
             if (message.isLocalPlayer)
@@ -1259,7 +1259,7 @@ namespace Mirror
                 if (message.isLocalPlayer)
                     InternalAddPlayer(localObject);
 
-                localObject.hasAuthority = message.isOwner;
+                localObject.isOwned = message.isOwner;
                 localObject.NotifyAuthority();
                 localObject.OnStartClient();
 
@@ -1327,7 +1327,7 @@ namespace Mirror
             }
 
             // set ownership flag (aka authority)
-            identity.hasAuthority = message.isOwner;
+            identity.isOwned = message.isOwner;
             identity.NotifyAuthority();
 
             // set localPlayer flag
