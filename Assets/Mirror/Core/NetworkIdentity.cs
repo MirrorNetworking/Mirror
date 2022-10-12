@@ -954,7 +954,7 @@ namespace Mirror
             if (observerMask != 0) Compression.CompressVarUInt(observersWriter, observerMask);
 
             // serialize all components
-            // perf: only check if either dirty mask has dirty bits.
+            // perf: only iterate if either dirty mask has dirty bits.
             if ((ownerMask | observerMask) != 0)
             {
                 for (int i = 0; i < components.Length; ++i)
