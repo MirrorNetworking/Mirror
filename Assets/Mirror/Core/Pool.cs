@@ -8,7 +8,8 @@ namespace Mirror
 {
     public class Pool<T>
     {
-        // Mirror is single threaded, no need for concurrent collections
+        // Mirror is single threaded, no need for concurrent collections.
+        // stack increases the chance that a reused writer remains in cache.
         readonly Stack<T> objects = new Stack<T>();
 
         // some types might need additional parameters in their constructor, so
