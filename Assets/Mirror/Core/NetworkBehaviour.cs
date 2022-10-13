@@ -50,7 +50,7 @@ namespace Mirror
         public bool isOwned => netIdentity.isOwned;
 
         /// <summary>True on client if that component has been assigned to the client. E.g. player, pets, henchmen.</summary>
-        [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
+        [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")] // 2022-10-13
         public bool hasAuthority => isOwned;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
