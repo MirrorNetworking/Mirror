@@ -271,7 +271,7 @@ namespace Mirror
                 if (roomPlayer != null)
                     roomSlots.Remove(roomPlayer);
 
-                foreach (NetworkIdentity clientOwnedObject in conn.clientOwnedObjects)
+                foreach (NetworkIdentity clientOwnedObject in conn.owned)
                 {
                     roomPlayer = clientOwnedObject.GetComponent<NetworkRoomPlayer>();
                     if (roomPlayer != null)

@@ -47,8 +47,8 @@ namespace Mirror
         //            netId anymore: https://github.com/vis2k/Mirror/issues/1380
         //            Works fine with NetworkIdentity pointers though.
         // DEPRECATED 2022-02-05
-        [Obsolete("Cast to NetworkConnectionToClient to access .clientOwnedObjects")]
-        public HashSet<NetworkIdentity> clientOwnedObjects => ((NetworkConnectionToClient)this).clientOwnedObjects;
+        [Obsolete("Cast to NetworkConnectionToClient to access .owned")]
+        public HashSet<NetworkIdentity> clientOwnedObjects => ((NetworkConnectionToClient)this).owned;
 
         // batching from server to client & client to server.
         // fewer transport calls give us significantly better performance/scale.
