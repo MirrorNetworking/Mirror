@@ -1083,8 +1083,8 @@ namespace Mirror
 
         static NetworkIdentity GetExistingObject(uint netid)
         {
-            spawned.TryGetValue(netid, out NetworkIdentity localObject);
-            return localObject;
+            spawned.TryGetValue(netid, out NetworkIdentity identity);
+            return identity;
         }
 
         static NetworkIdentity SpawnPrefab(SpawnMessage message)
@@ -1245,11 +1245,11 @@ namespace Mirror
         static void OnHostClientObjectHide(ObjectHideMessage message)
         {
             //Debug.Log($"ClientScene::OnLocalObjectObjHide netId:{message.netId}");
-            if (spawned.TryGetValue(message.netId, out NetworkIdentity localObject) &&
-                localObject != null)
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) &&
+                identity != null)
             {
                 if (aoi != null)
-                    aoi.SetHostVisibility(localObject, false);
+                    aoi.SetHostVisibility(identity, false);
             }
         }
 
@@ -1257,23 +1257,23 @@ namespace Mirror
         {
             // on host mode, the object already exist in NetworkServer.spawned.
             // simply add it to NetworkClient.spawned too.
-            if (NetworkServer.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
+            if (NetworkServer.spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
-                spawned[message.netId] = localObject;
-                if (message.isOwner) connection.owned.Add(localObject);
+                spawned[message.netId] = identity;
+                if (message.isOwner) connection.owned.Add(identity);
 
                 // now do the actual 'spawning' on host mode
                 if (message.isLocalPlayer)
-                    InternalAddPlayer(localObject);
+                    InternalAddPlayer(identity);
 
-                localObject.isOwned = message.isOwner;
-                localObject.NotifyAuthority();
-                localObject.OnStartClient();
+                identity.isOwned = message.isOwner;
+                identity.NotifyAuthority();
+                identity.OnStartClient();
 
                 if (aoi != null)
-                    aoi.SetHostVisibility(localObject, true);
+                    aoi.SetHostVisibility(identity, true);
 
-                CheckForLocalPlayer(localObject);
+                CheckForLocalPlayer(identity);
             }
         }
 
@@ -1281,10 +1281,10 @@ namespace Mirror
         static void OnEntityStateMessage(EntityStateMessage message)
         {
             // Debug.Log($"NetworkClient.OnUpdateVarsMessage {msg.netId}");
-            if (spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
-                using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(message.payload))
-                    localObject.Deserialize(networkReader, false);
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    identity.Deserialize(reader, false);
             }
             else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
@@ -1294,8 +1294,8 @@ namespace Mirror
             // Debug.Log($"NetworkClient.OnRPCMessage hash:{msg.functionHash} netId:{msg.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity))
             {
-                using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(message.payload))
-                    identity.HandleRemoteCall(message.componentIndex, message.functionHash, RemoteCallType.ClientRpc, networkReader);
+                using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    identity.HandleRemoteCall(message.componentIndex, message.functionHash, RemoteCallType.ClientRpc, reader);
             }
         }
 
@@ -1372,36 +1372,36 @@ namespace Mirror
         static void DestroyObject(uint netId)
         {
             // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
-            if (spawned.TryGetValue(netId, out NetworkIdentity localObject) && localObject != null)
+            if (spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
             {
-                if (localObject.isLocalPlayer)
-                    localObject.OnStopLocalPlayer();
+                if (identity.isLocalPlayer)
+                    identity.OnStopLocalPlayer();
 
-                localObject.OnStopClient();
+                identity.OnStopClient();
 
                 // custom unspawn handler for this prefab? (for prefab pools etc.)
-                if (InvokeUnSpawnHandler(localObject.assetId, localObject.gameObject))
+                if (InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
                 {
                     // reset object after user's handler
-                    localObject.Reset();
+                    identity.Reset();
                 }
                 // otherwise fall back to default Destroy
-                else if (localObject.sceneId == 0)
+                else if (identity.sceneId == 0)
                 {
                     // don't call reset before destroy so that values are still set in OnDestroy
-                    GameObject.Destroy(localObject.gameObject);
+                    GameObject.Destroy(identity.gameObject);
                 }
                 // scene object.. disable it in scene instead of destroying
                 else
                 {
-                    localObject.gameObject.SetActive(false);
-                    spawnableObjects[localObject.sceneId] = localObject;
+                    identity.gameObject.SetActive(false);
+                    spawnableObjects[identity.sceneId] = identity;
                     // reset for scene objects
-                    localObject.Reset();
+                    identity.Reset();
                 }
 
                 // remove from dictionary no matter how it is unspawned
-                connection.owned.Remove(localObject); // if any
+                connection.owned.Remove(identity); // if any
                 spawned.Remove(netId);
             }
             //else Debug.LogWarning($"Did not find target for destroy message for {netId}");
