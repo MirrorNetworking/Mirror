@@ -89,8 +89,13 @@ namespace Mirror
         /// <summary>True if this object exists on a client that is not also acting as a server.</summary>
         public bool isClientOnly => isClient && !isServer;
 
+        /// <summary>isOwned is true on the client if this NetworkIdentity is one of the .owned entities of our connection on the server.</summary>
+        // for example: main player & pets are owned. monsters & npcs aren't.
+        public bool isOwned { get; internal set; }
+
         /// <summary>True on client if that component has been assigned to the client. E.g. player, pets, henchmen.</summary>
-        public bool hasAuthority { get; internal set; }
+        [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
+        public bool hasAuthority => isOwned;
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
         // note: null until OnStartServer was called. this is necessary for
@@ -843,11 +848,11 @@ namespace Mirror
         bool hadAuthority;
         internal void NotifyAuthority()
         {
-            if (!hadAuthority && hasAuthority)
+            if (!hadAuthority && isOwned)
                 OnStartAuthority();
-            if (hadAuthority && !hasAuthority)
+            if (hadAuthority && !isOwned)
                 OnStopAuthority();
-            hadAuthority = hasAuthority;
+            hadAuthority = isOwned;
         }
 
         internal void OnStartAuthority()
@@ -1251,7 +1256,7 @@ namespace Mirror
             //isLocalPlayer = false; <- cleared AFTER ClearLocalPlayer below!
 
             // remove authority flag. This object may be unspawned, not destroyed, on client.
-            hasAuthority = false;
+            isOwned = false;
             NotifyAuthority();
 
             netId = 0;

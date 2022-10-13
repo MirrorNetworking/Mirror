@@ -73,7 +73,7 @@ namespace Mirror.Experimental
         /// <returns></returns>
         bool IgnoreSync => isServer || ClientWithAuthority;
 
-        bool ClientWithAuthority => clientAuthority && hasAuthority;
+        bool ClientWithAuthority => clientAuthority && isOwned;
 
         void OnVelocityChanged(Vector2 _, Vector2 newValue)
         {
@@ -190,7 +190,7 @@ namespace Mirror.Experimental
         [Client]
         void SendToServer()
         {
-            if (!hasAuthority)
+            if (!isOwned)
             {
                 Debug.LogWarning("SendToServer called without authority");
                 return;

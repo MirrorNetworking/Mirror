@@ -415,11 +415,11 @@ namespace Mirror.Tests.ClientSceneTests
             };
 
             // set to opposite to make sure it is changed
-            identity.hasAuthority = !isOwner;
+            identity.isOwned = !isOwner;
 
             NetworkClient.ApplySpawnPayload(identity, msg);
 
-            Assert.That(identity.hasAuthority, Is.EqualTo(isOwner));
+            Assert.That(identity.isOwned, Is.EqualTo(isOwner));
         }
 
         [Test]
