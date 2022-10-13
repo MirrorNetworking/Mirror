@@ -13,13 +13,6 @@ namespace Mirror
         // TODO move to server's NetworkConnectionToClient?
         public new readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
 
-        /// <summary>All NetworkIdentities owned by this connection. Can be main player, pets, etc.</summary>
-        // IMPORTANT: this needs to be <NetworkIdentity>, not <uint netId>.
-        //            fixes a bug where DestroyOwnedObjects wouldn't find the
-        //            netId anymore: https://github.com/vis2k/Mirror/issues/1380
-        //            Works fine with NetworkIdentity pointers though.
-        public readonly HashSet<NetworkIdentity> owned = new HashSet<NetworkIdentity>();
-
         [Obsolete(".clientOwnedObjects was renamed to .owned :)")] // 2022-10-13
         public new HashSet<NetworkIdentity> clientOwnedObjects => owned;
 

@@ -1364,6 +1364,7 @@ namespace Mirror
                 identity.NotifyAuthority();
 
                 // remove from NetworkClient dictionary
+                NetworkClient.connection.owned.Remove(identity);
                 NetworkClient.spawned.Remove(identity.netId);
             }
 

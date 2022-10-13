@@ -1036,6 +1036,7 @@ namespace Mirror
             }
 
             spawned[message.netId] = identity;
+            if (identity.isOwned) connection?.owned.Add(identity);
 
             // the initial spawn with OnObjectSpawnStarted/Finished calls all
             // object's OnStartClient/OnStartLocalPlayer after they were all
@@ -1233,6 +1234,11 @@ namespace Mirror
         static void OnHostClientObjectDestroy(ObjectDestroyMessage message)
         {
             //Debug.Log($"NetworkClient.OnLocalObjectObjDestroy netId:{message.netId}");
+
+            // remove from owned (if any)
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity))
+                connection.owned.Remove(identity);
+
             spawned.Remove(message.netId);
         }
 
@@ -1254,6 +1260,7 @@ namespace Mirror
             if (NetworkServer.spawned.TryGetValue(message.netId, out NetworkIdentity localObject) && localObject != null)
             {
                 spawned[message.netId] = localObject;
+                if (message.isOwner) connection.owned.Add(localObject);
 
                 // now do the actual 'spawning' on host mode
                 if (message.isLocalPlayer)
@@ -1394,6 +1401,7 @@ namespace Mirror
                 }
 
                 // remove from dictionary no matter how it is unspawned
+                connection.owned.Remove(localObject); // if any
                 spawned.Remove(netId);
             }
             //else Debug.LogWarning($"Did not find target for destroy message for {netId}");
@@ -1497,6 +1505,7 @@ namespace Mirror
                     }
                 }
                 spawned.Clear();
+                connection?.owned.Clear();
             }
             catch (InvalidOperationException e)
             {
@@ -1521,6 +1530,7 @@ namespace Mirror
             DestroyAllClientObjects();
 
             spawned.Clear();
+            connection?.owned.Clear();
             handlers.Clear();
             spawnableObjects.Clear();
 

@@ -98,6 +98,36 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void OwnedObjects()
+        {
+            // create a scene object and set inactive before spawning
+            // CreateNetworked(out GameObject go, out NetworkIdentity identity);
+
+            // listen & connect
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
+            // spawn main player. should be added to .owned.
+            CreateNetworkedAndSpawnPlayer(out _, out NetworkIdentity player, NetworkServer.localConnection);
+            Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(1));
+            Assert.That(NetworkClient.connection.owned.Contains(NetworkClient.localPlayer));
+
+            // spawn an object which is not owned. shouldn't add anything.
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity other);
+            Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(1));
+
+            // spawn an owned object. should add to client's .owned.
+            CreateNetworkedAndSpawn(out _, out NetworkIdentity pet, NetworkServer.localConnection);
+            Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(2));
+
+            // despawn should remove from .owned
+            NetworkServer.Destroy(pet.gameObject);
+            ProcessMessages();
+            Assert.That(NetworkClient.connection.owned.Count, Is.EqualTo(1));
+            Assert.That(NetworkClient.connection.owned.Contains(NetworkClient.localPlayer));
+        }
+
+        [Test]
         public void ShutdownCleanup()
         {
             // add some test event hooks to make sure they are cleaned up.
