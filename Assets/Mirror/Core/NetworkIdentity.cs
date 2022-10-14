@@ -140,8 +140,7 @@ namespace Mirror
 #endif
                 return _assetId;
             }
-            // note this setter isn't used atm.
-            // will only be useful for assetId spawn overwrites again.
+            // assetId is set internally when creating or duplicating a prefab
             internal set
             {
                 // they are the same, do nothing
