@@ -321,7 +321,7 @@ namespace Mirror.Tests
 
             // assign a guid
             uint assetId2 = 0;
-            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{assetId1:X4}'");
+            LogAssert.Expect(LogType.Error, $"Can not set AssetId to empty guid on NetworkIdentity '{identity.name}', old assetId '{assetId1}'");
             identity.assetId = assetId2;
 
             // guid was NOT changed

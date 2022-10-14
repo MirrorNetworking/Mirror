@@ -146,7 +146,7 @@ namespace Mirror
                 // should never be empty
                 if (value == 0)
                 {
-                    Debug.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{_assetId:X4}'");
+                    Debug.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{_assetId}'");
                     return;
                 }
 

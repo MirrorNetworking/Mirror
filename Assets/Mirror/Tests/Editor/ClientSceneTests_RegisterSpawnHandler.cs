@@ -75,7 +75,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnDelegate spawnHandler = null;
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {assetId:X4}");
+            LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
@@ -86,7 +86,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
             UnSpawnDelegate unspawnHandler = null;
 
-            LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {assetId:X4}");
+            LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
@@ -113,7 +113,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnDelegate spawnHandler2 = new SpawnDelegate((x, y) => new GameObject());
             UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
 
-            LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {assetId:X4}");
+            LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler2, unspawnHandler2);
         }
 
@@ -126,7 +126,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnDelegate spawnHandler = new SpawnDelegate((x, y) => null);
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            LogAssert.Expect(LogType.Error, $"assetId '{assetId:X4}' is already used by prefab '{validPrefab.name}'");
+            LogAssert.Expect(LogType.Error, $"assetId '{assetId}' is already used by prefab '{validPrefab.name}'");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
@@ -164,7 +164,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnHandlerDelegate spawnHandler = null;
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => {});
 
-            LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {assetId:X4}");
+            LogAssert.Expect(LogType.Error, $"Can not Register null SpawnHandler for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
@@ -175,7 +175,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => null);
             UnSpawnDelegate unspawnHandler = null;
 
-            LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {assetId:X4}");
+            LogAssert.Expect(LogType.Error, $"Can not Register null UnSpawnHandler for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
@@ -202,7 +202,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnHandlerDelegate spawnHandler2 = new SpawnHandlerDelegate(x => new GameObject());
             UnSpawnDelegate unspawnHandler2 = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
 
-            LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {assetId:X4}");
+            LogAssert.Expect(LogType.Warning, $"Replacing existing spawnHandlers for {assetId}");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler2, unspawnHandler2);
         }
 
@@ -215,7 +215,7 @@ namespace Mirror.Tests.ClientSceneTests
             SpawnHandlerDelegate spawnHandler = new SpawnHandlerDelegate(x => new GameObject());
             UnSpawnDelegate unspawnHandler = new UnSpawnDelegate(x => UnityEngine.Object.Destroy(x));
 
-            LogAssert.Expect(LogType.Error, $"assetId '{assetId:X4}' is already used by prefab '{validPrefab.name}'");
+            LogAssert.Expect(LogType.Error, $"assetId '{assetId}' is already used by prefab '{validPrefab.name}'");
             NetworkClient.RegisterSpawnHandler(assetId, spawnHandler, unspawnHandler);
         }
 
