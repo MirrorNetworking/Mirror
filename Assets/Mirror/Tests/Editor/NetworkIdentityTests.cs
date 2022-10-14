@@ -308,27 +308,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void SetAssetId_GivesErrorIfOneExists()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity);
-
-            if (identity.assetId == 0)
-            {
-                identity.assetId = 42;
-            }
-
-            uint assetId1 = identity.assetId;
-
-            // assign a guid
-            uint assetId2 = 43;
-            LogAssert.Expect(LogType.Error, $"Can not Set AssetId on NetworkIdentity '{identity.name}' because it already had an assetId, current assetId '{assetId1:X4}', attempted new assetId '{assetId2:X4}'");
-            identity.assetId = assetId2;
-
-            // guid was changed
-            Assert.That(identity.assetId, Is.EqualTo(assetId1));
-        }
-
-        [Test]
         public void SetAssetId_GivesErrorForEmptyGuid()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity);
@@ -347,21 +326,6 @@ namespace Mirror.Tests
 
             // guid was NOT changed
             Assert.That(identity.assetId, Is.EqualTo(assetId1));
-        }
-
-        [Test]
-        public void SetAssetId_DoesNotGiveErrorIfBothOldAndNewAreEmpty()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity);
-
-            Debug.Assert(identity.assetId == 0, "assetId needs to be empty at the start of this test");
-            // assign a guid
-            uint assetId2 = 0;
-            // expect no errors
-            identity.assetId = assetId2;
-
-            // guid was still empty
-            Assert.That(identity.assetId, Is.EqualTo(0));
         }
 
         [Test]

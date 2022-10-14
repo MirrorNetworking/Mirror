@@ -143,27 +143,17 @@ namespace Mirror
             // assetId is set internally when creating or duplicating a prefab
             internal set
             {
-                // they are the same, do nothing
-                if (_assetId == value)
-                {
-                    return;
-                }
-
-                // new is empty
+                // should never be empty
                 if (value == 0)
                 {
                     Debug.LogError($"Can not set AssetId to empty guid on NetworkIdentity '{name}', old assetId '{_assetId:X4}'");
                     return;
                 }
 
-                // old not empty
-                if (_assetId != 0)
-                {
-                    Debug.LogError($"Can not Set AssetId on NetworkIdentity '{name}' because it already had an assetId, current assetId '{_assetId:X4}', attempted new assetId '{value:X4}'");
-                    return;
-                }
-
-                // old is empty
+                // always set it otherwise.
+                // for new prefabs,        it will set from 0 to N.
+                // for duplicated prefabs, it will set from N to M.
+                // either way, it's always set to a valid GUID.
                 _assetId = value;
                 // Debug.Log($"Setting AssetId on NetworkIdentity '{name}', new assetId '{value:X4}'");
             }
