@@ -1297,6 +1297,7 @@ namespace Mirror
                 using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                     identity.HandleRemoteCall(message.componentIndex, message.functionHash, RemoteCallType.ClientRpc, reader);
             }
+            // Rpcs often can't be applied if interest management unspawned them
         }
 
         static void OnObjectHide(ObjectHideMessage message) => DestroyObject(message.netId);
