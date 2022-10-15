@@ -180,7 +180,7 @@ namespace Mirror.Tests.RemoteAttrributeTest
             {
                 Assert.Fail("Event should not be invoked with error");
             };
-            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {component.name} but that object has not been spawned or has been unspawned");
+            LogAssert.Expect(LogType.Warning, $"TargetRpc System.Void Mirror.Tests.RemoteAttrributeTest.TargetRpcBehaviour::SendInt(System.Int32) called on {component.name} but that object has not been spawned or has been unspawned.");
             component.SendInt(someInt);
         }
 

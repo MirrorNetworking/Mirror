@@ -274,13 +274,13 @@ namespace Mirror
         {
             if (!NetworkServer.active)
             {
-                Debug.LogError($"TargetRPC {functionFullName} called on {name} when server not active", gameObject);
+                Debug.LogError($"TargetRPC {functionFullName} was called on {name} when server not active.", gameObject);
                 return;
             }
 
             if (!isServer)
             {
-                Debug.LogWarning($"TargetRpc {functionFullName} called on {name} but that object has not been spawned or has been unspawned", gameObject);
+                Debug.LogWarning($"TargetRpc {functionFullName} called on {name} but that object has not been spawned or has been unspawned.", gameObject);
                 return;
             }
 
@@ -293,7 +293,7 @@ namespace Mirror
             // if still null
             if (conn is null)
             {
-                Debug.LogError($"TargetRPC {functionFullName} was given a null connection, make sure the object {name} has an owner or you pass in the target connection", gameObject);
+                Debug.LogError($"TargetRPC {functionFullName} can't be sent because it was given a null connection. Make sure {name} is owned by a connection, or if you pass a connection manually then make sure it's not null. For example, TargetRpcs can be called on Player/Pet which are owned by a connection. However, they can not be called on Monsters/Npcs which don't have an owner connection.", gameObject);
                 return;
             }
 
