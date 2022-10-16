@@ -153,6 +153,16 @@ namespace Mirror.Tests
         }
     }
 
+    class SyncVarTest1NetworkBehaviour : NetworkBehaviour
+    {
+        [SyncVar] public int value;
+    }
+
+    class SyncVarTest2NetworkBehaviour : NetworkBehaviour
+    {
+        [SyncVar] public string value;
+    }
+
     class SerializeExceptionNetworkBehaviour : NetworkBehaviour
     {
         public override void OnSerialize(NetworkWriter writer, bool initialState)

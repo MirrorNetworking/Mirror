@@ -49,6 +49,9 @@ namespace Mirror
         [Obsolete("NetworkManager.serverTickInterval was moved to NetworkServer.tickInterval for consistency.")]
         public float serverTickInterval => NetworkServer.tickInterval;
 
+        [Tooltip("NetworkClient broadcasts dirty CLIENT_TO_SERVER components with the given sendRate.\n\nUnlike server, the client runs at very high tick rate for rendering. So the send interval is not coupled to tickrate.")]
+        public int clientSendRate = 30;
+
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
         [Scene]
@@ -323,6 +326,9 @@ namespace Mirror
                 authenticator.OnStartClient();
                 authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
             }
+
+            // copy exposed settings to static NetworkClient
+            NetworkClient.sendRate = clientSendRate;
         }
 
         /// <summary>Starts the client, connects it to the server with networkAddress.</summary>
