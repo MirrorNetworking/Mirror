@@ -8,6 +8,119 @@ namespace Mirror
     /// <summary>Functions to Compress Quaternions and Floats</summary>
     public static class Compression
     {
+        // divide by precision (functions backported from Mirror II)
+        // for example, 0.1 cm precision converts '5.0f' float to '50' long.
+        //
+        // 'long' instead of 'int' to allow for large enough worlds.
+        // value / precision exceeds int.max range too easily.
+        // Convert.ToInt32/64 would throw.
+        // https://github.com/vis2k/DOTSNET/issues/59
+        //
+        // 'long' and 'int' will result in the same bandwidth though.
+        // for example, ScaleToLong(10.5, 0.1) = 105.
+        //   int:          0x00000069
+        //   long: 0x0000000000000069
+        // delta compression will reduce both to 1 byte.
+        //
+        // returns
+        //   'true' if scaling was possible within 'long' bounds.
+        //   'false' if clamping was necessary.
+        //   never throws. checking result is optional.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ScaleToLong(float value, float precision, out long result)
+        {
+            // user might try to pass precision = 0 to disable rounding.
+            // this is not supported.
+            // throw to make the user fix this immediately.
+            // otherwise we would have to reinterpret-cast if ==0 etc.
+            // this function should be kept simple.
+            // if rounding isn't wanted, this function shouldn't be called.
+            if (precision == 0) throw new DivideByZeroException($"ScaleToLong: precision=0 would cause null division. If rounding isn't wanted, don't call this function.");
+
+            // catch OverflowException if value/precision > long.max.
+            // attackers should never be able to throw exceptions.
+            try
+            {
+                result = Convert.ToInt64(value / precision);
+                return true;
+            }
+            // clamp to .max/.min.
+            // returning '0' would make far away entities reset to origin.
+            // returning 'max' would keep them stuck at the end of the world.
+            // the latter is much easier to debug.
+            catch (OverflowException)
+            {
+                result = value > 0 ? long.MaxValue : long.MinValue;
+                return false;
+            }
+        }
+
+        // returns
+        //   'true' if scaling was possible within 'long' bounds.
+        //   'false' if clamping was necessary.
+        //   never throws. checking result is optional.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ScaleToLong(Vector3 value, float precision, out long x, out long y, out long z)
+        {
+            // attempt to convert every component.
+            // do not return early if one conversion returned 'false'.
+            // the return value is optional. always attempt to convert all.
+            bool result = true;
+            result &= ScaleToLong(value.x, precision, out x);
+            result &= ScaleToLong(value.y, precision, out y);
+            result &= ScaleToLong(value.z, precision, out z);
+            return result;
+        }
+
+        // multiple by precision.
+        // for example, 0.1 cm precision converts '50' long to '5.0f' float.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ScaleToFloat(long value, float precision)
+        {
+            // user might try to pass precision = 0 to disable rounding.
+            // this is not supported.
+            // throw to make the user fix this immediately.
+            // otherwise we would have to reinterpret-cast if ==0 etc.
+            // this function should be kept simple.
+            // if rounding isn't wanted, this function shouldn't be called.
+            if (precision == 0) throw new DivideByZeroException($"ScaleToLong: precision=0 would cause null division. If rounding isn't wanted, don't call this function.");
+
+            return value * precision;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 ScaleToFloat(long x, long y, long z, float precision)
+        {
+            Vector3 v;
+            v.x = ScaleToFloat(x, precision);
+            v.y = ScaleToFloat(y, precision);
+            v.z = ScaleToFloat(z, precision);
+            return v;
+        }
+
+        // scale a float within min/max range to an ushort between min/max range
+        // note: can also use this for byte range from byte.MinValue to byte.MaxValue
+        public static ushort ScaleFloatToUShort(float value, float minValue, float maxValue, ushort minTarget, ushort maxTarget)
+        {
+            // note: C# ushort - ushort => int, hence so many casts
+            // max ushort - min ushort only fits into something bigger
+            int targetRange = maxTarget - minTarget;
+            float valueRange = maxValue - minValue;
+            float valueRelative = value - minValue;
+            return (ushort)(minTarget + (ushort)(valueRelative / valueRange * targetRange));
+        }
+
+        // scale an ushort within min/max range to a float between min/max range
+        // note: can also use this for byte range from byte.MinValue to byte.MaxValue
+        public static float ScaleUShortToFloat(ushort value, ushort minValue, ushort maxValue, float minTarget, float maxTarget)
+        {
+            // note: C# ushort - ushort => int, hence so many casts
+            float targetRange = maxTarget - minTarget;
+            ushort valueRange = (ushort)(maxValue - minValue);
+            ushort valueRelative = (ushort)(value - minValue);
+            return minTarget + (valueRelative / (float)valueRange * targetRange);
+        }
+
         // quaternion compression //////////////////////////////////////////////
         // smallest three: https://gafferongames.com/post/snapshot_compression/
         // compresses 16 bytes quaternion into 4 bytes
@@ -48,29 +161,6 @@ namespace Mirror
             }
 
             return largestIndex;
-        }
-
-        // scale a float within min/max range to an ushort between min/max range
-        // note: can also use this for byte range from byte.MinValue to byte.MaxValue
-        public static ushort ScaleFloatToUShort(float value, float minValue, float maxValue, ushort minTarget, ushort maxTarget)
-        {
-            // note: C# ushort - ushort => int, hence so many casts
-            // max ushort - min ushort only fits into something bigger
-            int targetRange = maxTarget - minTarget;
-            float valueRange = maxValue - minValue;
-            float valueRelative = value - minValue;
-            return (ushort)(minTarget + (ushort)(valueRelative / valueRange * targetRange));
-        }
-
-        // scale an ushort within min/max range to a float between min/max range
-        // note: can also use this for byte range from byte.MinValue to byte.MaxValue
-        public static float ScaleUShortToFloat(ushort value, ushort minValue, ushort maxValue, float minTarget, float maxTarget)
-        {
-            // note: C# ushort - ushort => int, hence so many casts
-            float targetRange = maxTarget - minTarget;
-            ushort valueRange = (ushort)(maxValue - minValue);
-            ushort valueRelative = (ushort)(value - minValue);
-            return minTarget + (valueRelative / (float)valueRange * targetRange);
         }
 
         const float QuaternionMinRange = -0.707107f;
