@@ -241,9 +241,9 @@ namespace Mirror.Tests
 
         // serialize -> deserialize. multiple components to be sure.
         // one for Owner, one for Observer
-        // one SERVER_TO_CLIENT, one CLIENT_TO_SERVER
+        // one ServerToClient, one ClientToServer
         [Test]
-        public void SerializeAndDeserialize_CLIENT_TO_SERVER_NOT_OWNED()
+        public void SerializeAndDeserialize_ClientToServer_NOT_OWNED()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SerializeTest1NetworkBehaviour comp1,
@@ -261,16 +261,16 @@ namespace Mirror.Tests
             // serialize all
             identity.SerializeClient(ownerWriter);
 
-            // shouldn't sync anything. because even though it's CLIENT_TO_SERVER,
+            // shouldn't sync anything. because even though it's ClientToServer,
             // we don't own this one so we shouldn't serialize & sync it.
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
         }
 
-        // even for CLIENT_TO_SERVER components, server still sends initial state.
+        // even for ClientToServer components, server still sends initial state.
         // however, after initial it should never send anything anymore.
         // otherwise for components like NetworkTransform, it would waste bandwidth.
         [Test]
-        public void Serialize_CLIENT_TO_SERVER_ServerOnlySendsInitial()
+        public void Serialize_ClientToServer_ServerOnlySendsInitial()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out SyncVarTest1NetworkBehaviour comp);

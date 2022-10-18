@@ -896,9 +896,9 @@ namespace Mirror
             {
                 NetworkBehaviour component = components[i];
 
-                // initially consider all. afterwards only SERVER_TO_CLIENT comps.
+                // initially consider all. afterwards only ServerToClient comps.
                 // see explanation in SerializeServer().
-                // see test: Serialize_CLIENT_TO_SERVER_ServerOnlySendsInitial().
+                // see test: Serialize_ClientToServer_ServerOnlySendsInitial().
                 if (initialState || component.syncDirection == SyncDirection.ServerToClient)
                 {
                     // check if dirty.
@@ -984,11 +984,11 @@ namespace Mirror
                 {
                     // on the server, we need to consider different sync scenarios:
                     //
-                    //   SERVER_TO_CLIENT SyncDirection:
+                    //   ServerToClient SyncDirection:
                     //     always serialize for owner.
                     //     serialize for observers only if SyncMode == Observers.
                     //
-                    //   CLIENT_TO_SERVER SyncDirection:
+                    //   ClientToServer SyncDirection:
                     //     only serialize 'initial' for spawn data.
                     //     skip if not initial, as it comes from the client.
                     //       for example, the server sets the initial spawn position.
@@ -1069,9 +1069,9 @@ namespace Mirror
                 {
                     // on the client, we need to consider different sync scenarios:
                     //
-                    //   SERVER_TO_CLIENT SyncDirection:
+                    //   ServerToClient SyncDirection:
                     //     do nothing.
-                    //   CLIENT_TO_SERVER SyncDirection:
+                    //   ClientToServer SyncDirection:
                     //     serialize only if owned.
 
                     NetworkBehaviour comp = components[i];
@@ -1079,7 +1079,7 @@ namespace Mirror
                     // is this component dirty?
                     // reuse the mask instead of calling comp.IsDirty() again here.
                     if (IsDirty(dirtyMask, i))
-                    // if (isOwned && component.syncDirection == SyncDirection.CLIENT_TO_SERVER)
+                    // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                     {
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
@@ -1109,7 +1109,7 @@ namespace Mirror
                     NetworkBehaviour comp = components[i];
 
                     // safety check to ensure clients can only modify their own
-                    // CLIENT_TO_SERVER components, nothing else.
+                    // ClientToServer components, nothing else.
                     if (comp.syncDirection == SyncDirection.ClientToServer)
                     {
                         // deserialize this component

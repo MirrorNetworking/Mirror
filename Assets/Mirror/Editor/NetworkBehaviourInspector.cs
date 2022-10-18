@@ -89,7 +89,7 @@ namespace Mirror
             SerializedProperty syncDirection = serializedObject.FindProperty("syncDirection");
             EditorGUILayout.PropertyField(syncDirection);
 
-            // sync mdoe: only show for SERVER_TO_CLIENT components
+            // sync mdoe: only show for ServerToClient components
             if (syncDirection.enumValueIndex == (int)SyncDirection.ServerToClient)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
 

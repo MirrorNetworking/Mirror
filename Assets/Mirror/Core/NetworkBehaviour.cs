@@ -13,7 +13,7 @@ namespace Mirror
     //   * server to all clients
     //   * owner client, to server, to all other clients
     //
-    // naming: 'CLIENT_TO_SERVER' etc. instead of 'ClientAuthority', because
+    // naming: 'ClientToServer' etc. instead of 'ClientAuthority', because
     // that wouldn't be accurate. server's OnDeserialize can still validate
     // client data before applying. it's really about direction, not authority.
     public enum SyncDirection { ServerToClient, ClientToServer }
@@ -24,7 +24,7 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
-        /// <summary>Sync direction for OnSerialize. SERVER_TO_CLIENT by default. CLIENT_TO_SERVER for client authority.</summary>
+        /// <summary>Sync direction for OnSerialize. ServerToClient by default. ClientToServer for client authority.</summary>
         [Tooltip("Server Authority calls OnSerialize on the server and syncs it to clients.\n\nClient Authority calls OnSerialize on the owning client, syncs it to server, which then broadcasts it to all other clients.\n\nUse server authority for cheat safety.")]
         [HideInInspector] public SyncDirection syncDirection = SyncDirection.ServerToClient;
 
@@ -66,7 +66,7 @@ namespace Mirror
         [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")] // 2022-10-13
         public bool hasAuthority => isOwned;
 
-        /// <summary>authority is true if we are allowed to modify this component's state. On server, it's true if SyncDirection is SERVER_TO_CLIENT. On client, it's true if SyncDirection is CLIENT_TO_SERVER and(!) if this object is owned by the client.</summary>
+        /// <summary>authority is true if we are allowed to modify this component's state. On server, it's true if SyncDirection is ServerToClient. On client, it's true if SyncDirection is ClientToServer and(!) if this object is owned by the client.</summary>
         // on the client: if owned and if clientAuthority sync direction
         // on the server: if serverAuthority sync direction
         //

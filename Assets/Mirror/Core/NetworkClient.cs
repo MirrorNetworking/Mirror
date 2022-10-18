@@ -1473,7 +1473,7 @@ namespace Mirror
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
         {
-            // broadcast CLIENT_TO_SERVER components while active
+            // broadcast ClientToServer components while active
             // note that Broadcast() runs every update.
             // on clients with 120 Hz, this will run 120 times per second.
             // however, Broadcast only checks .owned, which usually aren't many.

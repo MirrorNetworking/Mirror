@@ -987,11 +987,11 @@ namespace Mirror
         }
 
         // client to server broadcast //////////////////////////////////////////
-        // for client's owned CLIENT_TO_SERVER components.
+        // for client's owned ClientToServer components.
         static void OnEntityStateMessage(NetworkConnectionToClient connection, EntityStateMessage message)
         {
             // need to validate permissions carefully.
-            // an attacker may attempt to modify a not-owned or not-CLIENT_TO_SERVER component.
+            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
 
             // valid netId?
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
@@ -999,7 +999,7 @@ namespace Mirror
                 // owned by the connection?
                 if (identity.connectionToClient == connection)
                 {
-                    // TODO DeserializeServer should only apply if component is CLIENT_TO_SERVER
+                    // TODO DeserializeServer should only apply if component is ClientToServer
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                         identity.DeserializeServer(reader);
                 }
