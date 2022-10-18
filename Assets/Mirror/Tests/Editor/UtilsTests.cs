@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -62,6 +63,58 @@ namespace Mirror.Tests
             // 8 bytes
             for (int i = 57; i <= 64; ++i)
                 Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(8));
+        }
+
+        [Test]
+        public void BitsRequired()
+        {
+            // min > max should never work
+            Assert.Throws<ArgumentOutOfRangeException>(() => Utils.BitsRequired(2, 1));
+
+            // 2..2 is only ever 1 value = 2, so 0 bits needed
+            Assert.That(Utils.BitsRequired(2, 2), Is.EqualTo(0));
+
+            // 3..4 are 2 values, so 1 bit
+            Assert.That(Utils.BitsRequired(3, 4), Is.EqualTo(1));
+
+            // 0..7 are 8 values, so 3 bits
+            Assert.That(Utils.BitsRequired(0, 7), Is.EqualTo(3));
+
+            // 4..7 are 4 values, so 2 bits
+            Assert.That(Utils.BitsRequired(4, 7), Is.EqualTo(2));
+
+            // 0..255 are 256 values, so 8 bits
+            Assert.That(Utils.BitsRequired(0, 255), Is.EqualTo(8));
+
+            // 128..255 are 128 values, so 7 bits
+            Assert.That(Utils.BitsRequired(128, 255), Is.EqualTo(7));
+
+            // ushort should always fit into 2 bytes
+            Assert.That(Utils.BitsRequired(0, ushort.MaxValue), Is.EqualTo(16));
+
+            // uint should always fit into 4 bytes
+            Assert.That(Utils.BitsRequired(0, uint.MaxValue), Is.EqualTo(32));
+
+            // ulong should always fit into 8 bytes
+            // this is the maximum range that ever fits into an ulong.
+            // a lot of things could go wrong, e.g. if we +1 to that range
+            // without being careful.
+            // THIS TEST IS HUGELY IMPORTANT.
+            Assert.That(Utils.BitsRequired(0, ulong.MaxValue), Is.EqualTo(64));
+
+            // since we hardcoded the values, let's test for 1..63 shifted bits
+            // just to be sure that all of the hard coded values are correct!
+            for (int bits = 1; bits < 64; ++bits)
+            {
+                // 1 bits => bitsMax = 1
+                // 2 bits => bitsMax = 2
+                // 3 bits => bitsMax = 4
+                // etc.
+                // so check 0..bitsMax-1
+                ulong bitsMax = 1ul << bits;
+                //UnityEngine.Debug.Log($"testing bitsMax={bitsMax-1} => bits={bits}");
+                Assert.That(Utils.BitsRequired(0, bitsMax - 1), Is.EqualTo(bits));
+            }
         }
 
         [Test]
