@@ -428,6 +428,22 @@ namespace Mirror
             // fixes https://github.com/vis2k/Mirror/pull/3051/
             // (Spawn message wouldn't sync NTChild positions either)
 
+            // TODO client to server direction support
+            if (syncDirection == SyncDirection.ClientToServer)
+                throw new NotImplementedException("ClientToServer isn't implemented yet");
+
+            // on first spawn, we get the full oncompressed data.
+            if (initialState)
+            {
+                // save it as 'last' to delta decompress against next time
+                // TODO make sure host mode doesn't overwrite server's last
+
+            }
+            else
+            {
+                // delta decompress
+            }
+
             // TODO
 
             /*
