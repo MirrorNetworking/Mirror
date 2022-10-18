@@ -166,30 +166,5 @@ namespace Mirror
 
             return rect;
         }
-
-        // need to round bits to minimum amount of bytes they fit into.
-        // from DOTSNET / Mirror II.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int RoundBitsToFullBytes(int bits)
-        {
-            // special case: for 1 bit we need 1 byte.
-            // for 0 bits we need 0 bytes.
-            // the calculation below would give
-            //   0 - 1 = -1 then / 8 = 0 then + 1 = 1
-            // for 0 byte.
-            if (bits == 0) return 0;
-
-            // calculation example for up to 9 bits:
-            //   1 - 1 =  0 then / 8 = 0 then + 1 = 1
-            //   2 - 1 =  1 then / 8 = 0 then + 1 = 1
-            //   3 - 1 =  2 then / 8 = 0 then + 1 = 1
-            //   4 - 1 =  3 then / 8 = 0 then + 1 = 1
-            //   5 - 1 =  4 then / 8 = 0 then + 1 = 1
-            //   6 - 1 =  5 then / 8 = 0 then + 1 = 1
-            //   7 - 1 =  6 then / 8 = 0 then + 1 = 1
-            //   8 - 1 =  7 then / 8 = 0 then + 1 = 1
-            //   9 - 1 =  8 then / 8 = 1 then + 1 = 2
-            return ((bits - 1) / 8) + 1;
-        }
     }
 }

@@ -63,46 +63,5 @@ namespace Mirror.Tests
             Assert.That(Utils.PrettySeconds(60 * 61 + 5), Is.EqualTo("1h 1m 5s"));
             Assert.That(Utils.PrettySeconds(24 * 60 * 60 + 60 * 61 + 5), Is.EqualTo("1d 1h 1m 5s"));
         }
-
-        [Test]
-        public void RoundBitsToFullBytes()
-        {
-            // special case:
-            // 1 bit requires 1 byte to store it.
-            // 0 bit however requires 0 byte.
-            Assert.That(Utils.RoundBitsToFullBytes(0), Is.EqualTo(0));
-
-            // 1 byte
-            for (int i = 1; i <= 8; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(1));
-
-            // 2 bytes
-            for (int i = 9; i <= 16; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(2));
-
-            // 3 bytes
-            for (int i = 17; i <= 24; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(3));
-
-            // 4 bytes
-            for (int i = 25; i <= 32; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(4));
-
-            // 5 bytes
-            for (int i = 33; i <= 40; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(5));
-
-            // 6 bytes
-            for (int i = 41; i <= 48; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(6));
-
-            // 7 bytes
-            for (int i = 49; i <= 56; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(7));
-
-            // 8 bytes
-            for (int i = 57; i <= 64; ++i)
-                Assert.That(Utils.RoundBitsToFullBytes(i), Is.EqualTo(8));
-        }
     }
 }
