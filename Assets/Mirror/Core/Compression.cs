@@ -447,5 +447,138 @@ namespace Mirror
             ulong data = DecompressVarUInt(reader);
             return ((long)(data >> 1)) ^ -((long)data & 1);
         }
+
+        // manual delta compression ////////////////////////////////////////////
+        // delta compresses similar to DOTSNET/Mirror 2, but manually applied to
+        // a field. writes 1 bit per byte + byte level changes.
+        //
+        // use with care: long etc. is safe, but C# struct packing is complicated.
+        // see WriteBlittable comments for more C# struct layout explanations.
+        internal static unsafe void DeltaCompress(NetworkWriter writer, byte* valuePtr, byte* lastPtr, int size)
+        {
+            // compare each byte.
+            // need to write 1 mask byte for every 8 bytes.
+            // so compare in 8 byte steps each time.
+            for (int i = 0; i < size; i += 8)
+            {
+                byte mask = 0;
+
+                // reserve 1 mask byte in writer
+                int maskPosition = writer.Position;
+                writer.Position += 1;
+
+                // compare each of the next (up to) 8 bytes
+                int remaining = size - i;
+                int limit = Math.Min(8, remaining);
+                for (int n = 0; n < limit; ++n)
+                {
+                    // calculate absolute index in byte* only once
+                    int index = i + n;
+
+                    // changed?
+                    if (valuePtr[index] != lastPtr[index])
+                    {
+                        // set nth bit of the mask, where n [0..7]
+                        byte nthBit = (byte)(1 << n);
+                        mask |= nthBit;
+
+                        // write the changed byte
+                        writer.WriteByte(valuePtr[index]);
+                    }
+                }
+
+                // jump back to insert the mask
+                int position = writer.Position;
+                writer.Position = maskPosition;
+                writer.WriteByte(mask);
+                writer.Position = position;
+            }
+        }
+
+        internal static unsafe void DeltaDecompress(NetworkReader reader, byte* lastPtr, byte* valuePtr, int size)
+        {
+            // decompress each byte.
+            // need to read 1 mask byte for every 8 bytes.
+            // so read in 8 byte steps each time.
+            for (int i = 0; i < size; i += 8)
+            {
+                // read 1 mask byte
+                byte mask = reader.ReadByte();
+
+                // check each of the (up to) 8 bits
+                int remaining = size - i;
+                int limit = Math.Min(8, remaining);
+                for (int n = 0; n < limit; ++n)
+                {
+                    // check nth bit of the mask, where n [0..7]
+                    byte nthBit = (byte)(1 << n);
+                    bool changed = (mask & nthBit) != 0;
+
+                    // calculate absolute index in byte* only once
+                    int index = i + n;
+
+                    // set byte at index to new value, or old value
+                    valuePtr[index] = changed ? reader.ReadByte() : lastPtr[index];
+                }
+            }
+        }
+
+        // int is supported, but only uses 4 bit of the 8 bit mask.
+        // BitWriter would be more efficient later.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void DeltaCompress(NetworkWriter writer, int value, int last)
+            => DeltaCompress(writer, (byte*)&value, (byte*)&last, sizeof(int));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void DeltaCompress(NetworkWriter writer, uint value, uint last)
+            => DeltaCompress(writer, (byte*)&value, (byte*)&last, sizeof(uint));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int DeltaDecompress(NetworkReader reader, int last)
+        {
+            int value = 0;
+            DeltaDecompress(reader, (byte*)&last, (byte*)&value, sizeof(int));
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint DeltaDecompress(NetworkReader reader, uint last)
+        {
+            uint value = 0;
+            DeltaDecompress(reader, (byte*)&last, (byte*)&value, sizeof(uint));
+            return value;
+        }
+
+        // position is precision-rounded to 8 byte ulong.
+        // prefixed by a 1 byte (=8 bit) mask for each changed byte.
+        // like Mirror II / DOTSNET delta compression, but applied manually.
+        //
+        // note that DeltaCompress(writer, byte*, byte*, len) would work,
+        // but for larger types we really need bit-tree compression.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void DeltaCompress(NetworkWriter writer, long value, long last)
+            => DeltaCompress(writer, (byte*)&value, (byte*)&last, sizeof(long));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void DeltaCompress(NetworkWriter writer, ulong value, ulong last)
+            => DeltaCompress(writer, (byte*)&value, (byte*)&last, sizeof(ulong));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe long DeltaDecompress(NetworkReader reader, long last)
+        {
+            long value = 0;
+            DeltaDecompress(reader, (byte*)&last, (byte*)&value, sizeof(long));
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe ulong DeltaDecompress(NetworkReader reader, ulong last)
+        {
+            ulong value = 0;
+            DeltaDecompress(reader, (byte*)&last, (byte*)&value, sizeof(ulong));
+            return value;
+        }
+
+        // float: best to ScaleToULong first for better byte level change detection
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -385,6 +386,258 @@ namespace Mirror.Tests
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(281474976710655));
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(72057594037927935));
             Assert.That(Compression.DecompressVarUInt(reader), Is.EqualTo(ulong.MaxValue));
+        }
+
+        // try with a size > 8 to ensure it really writes 1 mask byte every 8 bytes.
+        // the 'int' test below already tries with <8 bytes.
+        struct longlong
+        {
+            public long lower;
+            public long upper;
+            public longlong(long lower, long upper)
+            {
+                this.lower = lower;
+                this.upper = upper;
+            }
+            public override string ToString() => $"{lower:x8}, {upper:X8}";
+        }
+
+        [Test]
+        public unsafe void DeltaCompress_Generic_MoreThan8()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            // unchanged
+            writer.Position = 0;
+            longlong original = new longlong(0x1122334455667788, 0x1A2A3A4A5A6A7A8A);
+            Compression.DeltaCompress(writer, (byte*)&original, (byte*)&original, 16);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000000, 0b00000000}));
+
+            // some changes
+            writer.Position = 0;
+            longlong some = new longlong(0x1F22334455667788, 0x1A2A3A4A5A6A7A8F);
+            Compression.DeltaCompress(writer, (byte*)&some, (byte*)&original, 16);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]
+            {
+                    0b10000000, 0x1F,
+                    0b00000001, 0x8F
+            }));
+
+            // all changes
+            writer.Position = 0;
+            longlong all = new longlong(0x1F2F3F4F5F6F7F8F, 0x1C2C3C4C5C6C7C8C);
+            Compression.DeltaCompress(writer, (byte*)&all, (byte*)&original, 16);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]
+            {
+                    0b11111111, 0x8F, 0x7F, 0x6F, 0x5F, 0x4F, 0x3F, 0x2F, 0x1F,
+                    0b11111111, 0x8C, 0x7C, 0x6C, 0x5C, 0x4C, 0x3C, 0x2C, 0x1C
+            }));
+        }
+        [Test]
+        public unsafe void DeltaDecompress_Generic_MoreThan8()
+        {
+            // unchanged
+            longlong original = new longlong(0x1122334455667788, 0x1A2A3A4A5A6A7A8A);
+            longlong value = default;
+            Compression.DeltaDecompress(
+                new NetworkReader(new byte[]
+                {
+                    0b00000000, 0b00000000
+                }),
+                (byte*)&original,
+                (byte*)&value,
+                16);
+            Assert.That(value, Is.EqualTo(original));
+
+            // some changes
+            value = default;
+            Compression.DeltaDecompress(
+                new NetworkReader(new byte[]
+                {
+                    0b10000000, 0x1F,
+                    0b00000001, 0x8F
+                }),
+                (byte*)&original,
+                (byte*)&value,
+                16);
+            Assert.That(value, Is.EqualTo(new longlong(0x1F22334455667788, 0x1A2A3A4A5A6A7A8F)));
+
+            // all changes
+            value = default;
+            Compression.DeltaDecompress(
+                new NetworkReader(new byte[]
+                {
+                    0b11111111, 0x8F, 0x7F, 0x6F, 0x5F, 0x4F, 0x3F, 0x2F, 0x1F,
+                    0b11111111, 0x8C, 0x7C, 0x6C, 0x5C, 0x4C, 0x3C, 0x2C, 0x1C
+                }),
+                (byte*)&original,
+                (byte*)&value,
+                16);
+            Assert.That(value, Is.EqualTo(new longlong(0x1F2F3F4F5F6F7F8F, 0x1C2C3C4C5C6C7C8C)));
+        }
+
+        [Test]
+        public void DeltaCompress_Int()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            // unchanged
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x11223344, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000000}));
+
+            // 1st byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x112233_04, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000001, 0x04}));
+
+            // 2nd byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x1122_03_44, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000010, 0x03}));
+
+            // 3rd byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x11_02_3344, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000100, 0x02}));
+
+            // 4th byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x_01_223344, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00001000, 0x01}));
+
+            // multi byte changes: 2 bytes
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x_01_2233_04, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00001001, 0x04, 0x01}));
+
+            // multi byte changes: 3 bytes
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x_01_22_03_04, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00001011, 0x04, 0x03, 0x01}));
+
+            // all changes
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x01020304, 0x11223344);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00001111, 0x04, 0x03, 0x02, 0x01}));
+        }
+
+        [Test]
+        public void DeltaDecompress_Int()
+        {
+            // unchanged
+            int value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00000000}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x11223344));
+
+            // 1st byte changed
+            value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00000001, 0x04}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x112233_04));
+
+            // 2nd byte changed
+            value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00000010, 0x03}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x1122_03_44));
+
+            // 3rd byte changed
+            value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00000100, 0x02}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x11_02_3344));
+
+            // 4th byte changed
+            value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00001000, 0x01}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x_01_223344));
+
+            // multi byte changes: 2 bytes
+            value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00001001, 0x04, 0x01}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x_01_2233_04));
+
+            // multi byte changes: 3 bytes
+            value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00001011, 0x04, 0x03, 0x01}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x_01_22_03_04));
+
+            // all changes
+            value = Compression.DeltaDecompress(
+                 new NetworkReader(new byte[]{0b00001111, 0x04, 0x03, 0x02, 0x01}),
+                 0x11223344);
+            Assert.That(value, Is.EqualTo(0x01020304));
+        }
+
+        [Test]
+        public void DeltaCompress_Long()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            // unchanged
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x1122334455667788, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000000}));
+
+            // 1st byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x11223344556677_08, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000001, 0x08}));
+
+            // 2nd byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x112233445566_07_88, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000010, 0x07}));
+
+            // 3rd byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x1122334455_06_7788, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00000100, 0x06}));
+
+            // 4th byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x11223344_05_667788, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00001000, 0x05}));
+
+            // 5th byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x112233_04_55667788, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00010000, 0x04}));
+
+            // 6th byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x1122_03_4455667788, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b00100000, 0x03}));
+
+            // 7th byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x11_02_334455667788, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b01000000, 0x02}));
+
+            // 8th byte changed
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x_01_22334455667788, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b10000000, 0x01}));
+
+            // multi byte changes: 2 bytes
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x_01_2233445566_07_88, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b10000010, 0x07, 0x01}));
+
+            // multi byte changes: 3 bytes
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x_01_22334455_06_07_88, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b10000110, 0x07, 0x06, 0x01}));
+
+            // all changes
+            writer.Position = 0;
+            Compression.DeltaCompress(writer, 0x0102030405060708, 0x1122334455667788);
+            Assert.That(writer.ToArraySegment().SequenceEqual(new byte[]{0b11111111, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}));
         }
     }
 }
