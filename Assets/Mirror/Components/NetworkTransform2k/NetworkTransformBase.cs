@@ -1,40 +1,20 @@
-// NetworkTransform V2 aka project Oumuamua by vis2k (2021-07)
+// NetworkTransform V3 by mischa (2022-10-17)
 // Snapshot Interpolation: https://gafferongames.com/post/snapshot_interpolation/
 //
 // Base class for NetworkTransform and NetworkTransformChild.
-// => simple unreliable sync without any interpolation for now.
-// => which means we don't need teleport detection either
+// => uses SyncDirection + reliable
+// => this time with better bandwidth
 //
 // NOTE: several functions are virtual in case someone needs to modify a part.
-//
-// Channel: uses UNRELIABLE at all times.
-// -> out of order packets are dropped automatically
-// -> it's better than RELIABLE for several reasons:
-//    * head of line blocking would add delay
-//    * resending is mostly pointless
-//    * bigger data race:
-//      -> if we use a Cmd() at position X over reliable
-//      -> client gets Cmd() and X at the same time, but buffers X for bufferTime
-//      -> for unreliable, it would get X before the reliable Cmd(), still
-//         buffer for bufferTime but end up closer to the original time
-// comment out the below line to quickly revert the onlySyncOnChange feature
-#define onlySyncOnChange_BANDWIDTH_SAVING
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Mirror
 {
     public abstract class NetworkTransformBase : NetworkBehaviour
     {
-        // TODO SyncDirection { ClientToServer, ServerToClient } is easier?
-        [Header("Authority")]
-        [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        public bool clientAuthority;
-
-        // Is this a client with authority over this transform?
-        // This component could be on the player object or any object that has been assigned authority to this client.
-        protected bool IsClientWithAuthority => isOwned && clientAuthority;
-
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
@@ -44,49 +24,27 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
-        // in host mode, we apply snapshot interpolation to for each connection.
-        // this way other players are still smooth on hosted games.
-        // in other words, we still need ema etc. for server here.
-        ExponentialMovingAverage serverDriftEma;
-        ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
-        double serverTimeline;
-        double serverTimescale;
-        public static double serverBufferTimeMultiplier = 2;
-        public static double serverBufferTime => NetworkServer.sendInterval * serverBufferTimeMultiplier;
-
-
-        // only sync when changed hack /////////////////////////////////////////
-#if onlySyncOnChange_BANDWIDTH_SAVING
-        [Header("Sync Only If Changed")]
-        [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
-        public bool onlySyncOnChange = true;
-
-        // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
-        [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
-        public float bufferResetMultiplier = 5;
-
-        [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
-        public float positionSensitivity = 0.01f;
-        public float rotationSensitivity = 0.01f;
-        public float scaleSensitivity    = 0.01f;
-
-        protected bool positionChanged;
-        protected bool rotationChanged;
-        protected bool scaleChanged;
-
-        // Used to store last sent snapshots
-        protected TransformSnapshot lastSnapshot;
-        protected bool              cachedSnapshotComparison;
-        protected bool              hasSentUnchangedPosition;
-#endif
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
         public bool syncRotation = true;
         public bool syncScale    = false; // rare. off by default.
 
-        double lastClientSendTime;
-        double lastServerSendTime;
+        // round position to int for easier compression
+        //
+        // for reference, Mirror II delta compression with position precision:
+        //   benchmark with 0.01 precision: 130 KB/s => 60 KB/s
+        //   benchmark with 0.1  precision: 130 KB/s => 30 KB/s
+        [Header("Precision")]
+        [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float positionPrecision = 0.01f; // 1 cm
+        public float scalePrecision    = 0.01f; // 1 cm
+
+        // delta compression requires one writer for current, one for last.
+        // keep and swap them to avoid extra memcpy to last.
+        NetworkWriter last    = new NetworkWriter();
+        NetworkWriter current = new NetworkWriter();
 
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
@@ -96,13 +54,14 @@ namespace Mirror
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
-        protected virtual void Awake()
+        protected virtual void Awake() {}
+
+        public override void OnStartServer()
         {
-            // initialize EMA with 'emaDuration' seconds worth of history.
-            // 1 second holds 'sendRate' worth of values.
-            // multiplied by emaDuration gives n-seconds.
-            serverDriftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
-            serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
+            // build 'last' serialization once,
+            // so OnSerialize can delta against it.
+            last.Position = 0;
+            SerializeEverything(last);
         }
 
         // snapshot functions //////////////////////////////////////////////////
@@ -136,7 +95,7 @@ namespace Mirror
         //
         // NOTE: stuck detection is unnecessary here.
         //       we always set transform.position anyway, we can't get stuck.
-        protected virtual void ApplySnapshot(TransformSnapshot interpolated)
+        protected virtual void ApplySnapshot(Vector3 localPosition, Quaternion localRotation, Vector3 localScale)
         {
             // local position/rotation for VR support
             //
@@ -145,292 +104,33 @@ namespace Mirror
             // -> we still interpolated
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
-            if (syncPosition)
-                targetComponent.localPosition = interpolated.position;
-
-            if (syncRotation)
-                targetComponent.localRotation = interpolated.rotation;
-
-            if (syncScale)
-                targetComponent.localScale = interpolated.scale;
-        }
-
-#if onlySyncOnChange_BANDWIDTH_SAVING
-        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-        protected virtual bool CompareSnapshots(TransformSnapshot currentSnapshot)
-        {
-            positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
-            rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
-            scaleChanged = Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity;
-
-            return (!positionChanged && !rotationChanged && !scaleChanged);
-        }
-#endif
-        // cmd /////////////////////////////////////////////////////////////////
-        // only unreliable. see comment above of this file.
-        [Command(channel = Channels.Unreliable)]
-        void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            OnClientToServerSync(position, rotation, scale);
-            //For client authority, immediately pass on the client snapshot to all other
-            //clients instead of waiting for server to send its snapshots.
-            if (clientAuthority)
-            {
-                RpcServerToClientSync(position, rotation, scale);
-            }
-        }
-
-        // local authority client sends sync message to server for broadcasting
-        protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            // only apply if in client authority mode
-            if (!clientAuthority) return;
-
-            // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= bufferSizeLimit) return;
-
-            // only player owned objects (with a connection) can send to
-            // server. we can get the timestamp from the connection.
-            double timestamp = connectionToClient.remoteTimeStamp;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-            if (onlySyncOnChange)
-            {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
-
-                if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
-                    Reset();
-                }
-            }
-#endif
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-            if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : targetComponent.localPosition;
-            if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : targetComponent.localRotation;
-            if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : targetComponent.localScale;
-
-            // construct snapshot with batch timestamp to save bandwidth
-            TransformSnapshot snapshot = new TransformSnapshot(
-                timestamp,
-                NetworkTime.localTime,
-                position.Value, rotation.Value, scale.Value
-            );
-
-            // (optional) dynamic adjustment
-            if (NetworkClient.dynamicAdjustment)
-            {
-                // set bufferTime on the fly.
-                // shows in inspector for easier debugging :)
-                serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    NetworkServer.sendInterval,
-                    serverDeliveryTimeEma.StandardDeviation,
-                    NetworkClient.dynamicAdjustmentTolerance
-                );
-                // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
-            }
-
-            // insert into the server buffer & initialize / adjust / catchup
-            SnapshotInterpolation.InsertAndAdjust(
-                serverSnapshots,
-                snapshot,
-                ref serverTimeline,
-                ref serverTimescale,
-                NetworkServer.sendInterval,
-                serverBufferTime,
-                NetworkClient.catchupSpeed,
-                NetworkClient.slowdownSpeed,
-                ref serverDriftEma,
-                NetworkClient.catchupNegativeThreshold,
-                NetworkClient.catchupPositiveThreshold,
-                ref serverDeliveryTimeEma
-            );
-        }
-
-        // rpc /////////////////////////////////////////////////////////////////
-        // only unreliable. see comment above of this file.
-        [ClientRpc(channel = Channels.Unreliable)]
-        void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
-            OnServerToClientSync(position, rotation, scale);
-
-        // server broadcasts sync message to all clients
-        protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
-        {
-            // in host mode, the server sends rpcs to all clients.
-            // the host client itself will receive them too.
-            // -> host server is always the source of truth
-            // -> we can ignore any rpc on the host client
-            // => otherwise host objects would have ever growing clientBuffers
-            // (rpc goes to clients. if isServer is true too then we are host)
-            if (isServer) return;
-
-            // don't apply for local player with authority
-            if (IsClientWithAuthority) return;
-
-            // protect against ever growing buffer size attacks
-            if (clientSnapshots.Count >= bufferSizeLimit) return;
-
-            // on the client, we receive rpcs for all entities.
-            // not all of them have a connectionToServer.
-            // but all of them go through NetworkClient.connection.
-            // we can get the timestamp from there.
-            double timestamp = NetworkClient.connection.remoteTimeStamp;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-            if (onlySyncOnChange)
-            {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
-
-                if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
-                    Reset();
-                }
-            }
-#endif
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-            if (!position.HasValue) position = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].position : targetComponent.localPosition;
-            if (!rotation.HasValue) rotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : targetComponent.localRotation;
-            if (!scale.HasValue) scale = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : targetComponent.localScale;
-
-            // insert snapshot
-            SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
-                timestamp,         // arrival remote timestamp. NOT remote time.
-#if !UNITY_2020_3_OR_NEWER
-                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-#else
-                Time.timeAsDouble,
-#endif
-                position.Value,
-                rotation.Value,
-                scale.Value
-            ));
+            if (syncPosition) targetComponent.localPosition = localPosition;
+            if (syncRotation) targetComponent.localRotation = localRotation;
+            if (syncScale)    targetComponent.localScale    = localScale;
         }
 
         // update //////////////////////////////////////////////////////////////
         void UpdateServer()
         {
-            // broadcast to all clients each 'sendInterval'
-            // (client with authority will drop the rpc)
-            // NetworkTime.localTime for double precision until Unity has it too
-            //
-            // IMPORTANT:
-            // snapshot interpolation requires constant sending.
-            // DO NOT only send if position changed. for example:
-            // ---
-            // * client sends first position at t=0
-            // * ... 10s later ...
-            // * client moves again, sends second position at t=10
-            // ---
-            // * server gets first position at t=0
-            // * server gets second position at t=10
-            // * server moves from first to second within a time of 10s
-            //   => would be a super slow move, instead of a wait & move.
-            //
-            // IMPORTANT:
-            // DO NOT send nulls if not changed 'since last send' either. we
-            // send unreliable and don't know which 'last send' the other end
-            // received successfully.
-            //
-            // Checks to ensure server only sends snapshots if object is
-            // on server authority(!clientAuthority) mode because on client
-            // authority mode snapshots are broadcasted right after the authoritative
-            // client updates server in the command function(see above), OR,
-            // since host does not send anything to update the server, any client
-            // authoritative movement done by the host will have to be broadcasted
-            // here by checking IsClientWithAuthority.
-            // TODO send same time that NetworkServer sends time snapshot?
-            if (NetworkTime.localTime >= lastServerSendTime + NetworkServer.sendInterval &&
-                (!clientAuthority || IsClientWithAuthority))
-            {
-                // send snapshot without timestamp.
-                // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = ConstructSnapshot();
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                cachedSnapshotComparison = CompareSnapshots(snapshot);
-                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-#endif
+            // set as always dirty to trigger OnSerialize every syncInterval.
+            // TODO need SetDirty() for custom OnSerialize
+            SetSyncVarDirtyBit(1);
 
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                RpcServerToClientSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
-#else
-                RpcServerToClientSync(
-                    // only sync what the user wants to sync
-                    syncPosition ? snapshot.position : default(Vector3?),
-                    syncRotation ? snapshot.rotation : default(Quaternion?),
-                    syncScale ? snapshot.scale : default(Vector3?)
-                );
-#endif
-
-                lastServerSendTime = NetworkTime.localTime;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                if (cachedSnapshotComparison)
-                {
-                    hasSentUnchangedPosition = true;
-                }
-                else
-                {
-                    hasSentUnchangedPosition = false;
-                    lastSnapshot = snapshot;
-                }
-#endif
-            }
-
-            // apply buffered snapshots IF client authority
-            // -> in server authority, server moves the object
-            //    so no need to apply any snapshots there.
-            // -> don't apply for host mode player objects either, even if in
-            //    client authority mode. if it doesn't go over the network,
-            //    then we don't need to do anything.
-            if (clientAuthority && !isOwned)
-            {
-                if (serverSnapshots.Count > 0)
-                {
-                    // step
-                    SnapshotInterpolation.Step(
-                        serverSnapshots,
-                        Time.unscaledDeltaTime,
-                        ref serverTimeline,
-                        serverTimescale,
-                        out TransformSnapshot fromSnapshot,
-                        out TransformSnapshot toSnapshot,
-                        out double t);
-
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
-                    ApplySnapshot(computed);
-                }
-            }
+            // TODO interpolate for host?
         }
 
         void UpdateClient()
         {
             // client authority, and local player (= allowed to move myself)?
-            if (IsClientWithAuthority)
+            if (authority)
             {
                 // https://github.com/vis2k/Mirror/pull/2992/
                 if (!NetworkClient.ready) return;
 
-                // send to server each 'sendInterval'
-                // NetworkTime.localTime for double precision until Unity has it too
-                //
+                // set as always dirty to trigger OnSerialize every syncInterval.
+                // TODO need SetDirty() for custom OnSerialize
+                SetSyncVarDirtyBit(1);
+
                 // IMPORTANT:
                 // snapshot interpolation requires constant sending.
                 // DO NOT only send if position changed. for example:
@@ -443,50 +143,6 @@ namespace Mirror
                 // * server gets second position at t=10
                 // * server moves from first to second within a time of 10s
                 //   => would be a super slow move, instead of a wait & move.
-                //
-                // IMPORTANT:
-                // DO NOT send nulls if not changed 'since last send' either. we
-                // send unreliable and don't know which 'last send' the other end
-                // received successfully.
-                if (NetworkTime.localTime >= lastClientSendTime + NetworkServer.sendInterval)
-                {
-                    // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    TransformSnapshot snapshot = ConstructSnapshot();
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                    cachedSnapshotComparison = CompareSnapshots(snapshot);
-                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-#endif
-
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                    CmdClientToServerSync(
-                        // only sync what the user wants to sync
-                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                    );
-#else
-                    CmdClientToServerSync(
-                        // only sync what the user wants to sync
-                        syncPosition ? snapshot.position : default(Vector3?),
-                        syncRotation ? snapshot.rotation : default(Quaternion?),
-                        syncScale    ? snapshot.scale    : default(Vector3?)
-                    );
-#endif
-
-                    lastClientSendTime = NetworkTime.localTime;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                    if (cachedSnapshotComparison)
-                    {
-                        hasSentUnchangedPosition = true;
-                    }
-                    else
-                    {
-                        hasSentUnchangedPosition = false;
-                        lastSnapshot = snapshot;
-                    }
-#endif
-                }
             }
             // for all other clients (and for local player if !authority),
             // we need to apply snapshots from the buffer
@@ -506,7 +162,7 @@ namespace Mirror
 
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    ApplySnapshot(computed);
+                    ApplySnapshot(computed.position, computed.rotation, computed.scale);
                 }
             }
         }
@@ -592,7 +248,7 @@ namespace Mirror
         public void CmdTeleport(Vector3 destination)
         {
             // client can only teleport objects that it has authority over.
-            if (!clientAuthority) return;
+            if (!authority) return;
 
             // TODO what about host mode?
             OnTeleport(destination);
@@ -614,7 +270,7 @@ namespace Mirror
         public void CmdTeleport(Vector3 destination, Quaternion rotation)
         {
             // client can only teleport objects that it has authority over.
-            if (!clientAuthority) return;
+            if (!authority) return;
 
             // TODO what about host mode?
             OnTeleport(destination, rotation);
@@ -629,16 +285,184 @@ namespace Mirror
             RpcTeleport(destination, rotation);
         }
 
+        // serialization ///////////////////////////////////////////////////////
+        // overwrite this to validate movement with ClientToServer sync.
+        // this may check velocity, physics, navmesh, etc.
+        // note those are .localPosition etc.
+        // make sure to consider selective sync settings like syncPosition.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual bool Validate(Vector3 localPosition, Quaternion localRotation, Vector3 localScale) =>
+            true;
+
+        // serialize into writer.
+        // it's then either sent fully (initial) or delta compressed.
+        void SerializeEverything(NetworkWriter writer)
+        {
+            // position, quantized to longs
+            Compression.ScaleToLong(targetComponent.localPosition, positionPrecision, out long pX, out long pY, out long pZ); // local for VR
+            writer.WriteLong(pX);
+            writer.WriteLong(pY);
+            writer.WriteLong(pZ);
+
+            // rotation:
+            // TODO quantization later.
+            // TODO ensure it's exactly the same if not rotated.
+            writer.WriteQuaternion(targetComponent.localRotation);
+
+            // scale, quantized to longs
+            Compression.ScaleToLong(targetComponent.localScale, positionPrecision, out long sX, out long sY, out long sZ); // local for VR
+            writer.WriteLong(sX);
+            writer.WriteLong(sY);
+            writer.WriteLong(sZ);
+        }
+
+        // last serialization for delta compression
+        public override unsafe void OnSerialize(NetworkWriter writer, bool initialState)
+        {
+
+            // TODO ClientToServer support.
+            // - initial is still only called on server
+            // - not initial could just send directly
+            if (syncDirection == SyncDirection.ClientToServer)
+                throw new NotImplementedException("ClientToServer isn't implemented yet");
+
+            // 'last' is expected to be initialized by the time we get here.
+            if (last.Position == 0)
+                throw new Exception("'last' has not been initialized.");
+
+            // for new observers, OnSerialize is called with initialState = true.
+            // send them the current state of the object, fully.
+            // they will save the state and then delta compress against it next time.
+            if (initialState)
+            {
+                // on server, new observers should simply receive 'last' so that
+                // later when they receive 'current', they'll know what to delta against.
+                // TODO is this right?
+
+                if (last.Position == 0)
+                    throw new Exception("'last' has not been initialized.");
+
+                ArraySegment<byte> segment = last.ToArraySegment();
+                writer.WriteBytes(segment.Array, segment.Offset, segment.Count);
+            }
+            // use bit tree delta compression against last if initialState = false.
+            else
+            {
+                // apply delta compression to minimize bandwidth.
+                // need to make sure to always write the same amount of data.
+                // ideally, multiples of 8 so that the mask bytes are fully used.
+                //
+                //   3 x long  for position: 24 bytes
+                //   4 x float for rotation: 16 bytes
+                //   3 x long  for scale:    24 bytes
+                //   => total: 64 bytes
+                //
+                // if unchanged, BitTree will reduce 64 => 8 => 1 byte.
+
+                // serialize into 'current' writer, delta, save as 'last'.
+                current.Position = 0;
+                SerializeEverything(current);
+                BitTree.Compress(last, current, writer);
+                (last, current) = (current, last);
+            }
+        }
+
+        // when syncing from server to client, insert for snapshot interp.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void DeserializeClient(Vector3 position, Quaternion rotation, Vector3 scale, bool initialState)
+        {
+            // deserialize is called on all clients, even with client authority.
+            // because even with client authority, the server still decides
+            // spawn position. otherwise the owner client would have no data to
+            // decide where to spawn, resulting in (0,0,0) at all times.
+            //
+            // for owners with authority, we simply apply spawn position
+            // without adding the snapshot.
+            //
+            // for non owners, we do add the snapshot and also apply the spawn.
+
+            // on the client, we receive rpcs for all entities.
+            // not all of them have a connectionToServer.
+            // but all of them go through NetworkClient.connection.
+            // we can get the timestamp from there.
+
+            // insert snapshot.
+            if (!authority)
+            {
+                SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
+                    NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote time.
+#if !UNITY_2020_3_OR_NEWER
+                    NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
+#else
+                    Time.timeAsDouble,
+#endif
+                    position,
+                    rotation,
+                    scale
+                ));
+            }
+
+            // just spawned with the first snapshot?
+            // then apply it immediately.
+            // otherwise the object would stay at origin for 1 frame.
+            // which is noticeable.
+            if (initialState) ApplySnapshot(position, rotation, scale);
+        }
+
+        // when syncing from client to server, validate and apply directly.
+        // snapshot interpolation is only ever applied on the client for
+        // smooth movement.
+        // the server needs immediate results to not have it lag behind.
+        // besides, nobody is watching the movement on the server :)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void DeserializeServer(Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            // TODO interpolation for host mode?
+            if (Validate(position, rotation, scale))
+                ApplySnapshot(position, rotation, scale);
+        }
+
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            // make sure to sync target component's position on spawn.
+            // fixes https://github.com/vis2k/Mirror/pull/3051/
+            // (Spawn message wouldn't sync NTChild positions either)
+
+            // set defaults to current.
+            // selective sync may not sync i.e. rotation.
+            // easier to still work with default in that case,
+            // especially for Validate().
+            Vector3 position    = targetComponent.localPosition;
+            Quaternion rotation = targetComponent.localRotation;
+            Vector3 scale       = targetComponent.localScale;
+
+            // read selectively
+            if (syncPosition)
+            {
+                // unscale
+                long x = reader.ReadLong();
+                long y = reader.ReadLong();
+                long z = reader.ReadLong();
+                position = Compression.ScaleToFloat(x, y, z, positionPrecision);
+            }
+            if (syncRotation) rotation = reader.ReadQuaternion();
+            if (syncScale)    scale    = reader.ReadVector3();
+
+            // depending on SyncDirection, Deserialize is called on server/client
+            if      (isClient) DeserializeClient(position, rotation, scale, initialState);
+            else if (isServer) DeserializeServer(position, rotation, scale);
+            else throw new Exception("Deserialize called without active server/client. This should never happen.");
+        }
+
+        // other ///////////////////////////////////////////////////////////////
         public virtual void Reset()
         {
             // disabled objects aren't updated anymore.
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
-
-            // reset interpolation time too so we start at t=0 next time
-            serverTimeline  = 0;
-            serverTimescale = 0;
+            last.Position    = 0;
+            current.Position = 0;
         }
 
         protected virtual void OnDisable() => Reset();
@@ -648,32 +472,6 @@ namespace Mirror
         {
             // buffer limit should be at least multiplier to have enough in there
             bufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, bufferSizeLimit);
-        }
-
-        public override void OnSerialize(NetworkWriter writer, bool initialState)
-        {
-            // sync target component's position on spawn.
-            // fixes https://github.com/vis2k/Mirror/pull/3051/
-            // (Spawn message wouldn't sync NTChild positions either)
-            if (initialState)
-            {
-                if (syncPosition) writer.WriteVector3(targetComponent.localPosition);
-                if (syncRotation) writer.WriteQuaternion(targetComponent.localRotation);
-                if (syncScale)    writer.WriteVector3(targetComponent.localScale);
-            }
-        }
-
-        public override void OnDeserialize(NetworkReader reader, bool initialState)
-        {
-            // sync target component's position on spawn.
-            // fixes https://github.com/vis2k/Mirror/pull/3051/
-            // (Spawn message wouldn't sync NTChild positions either)
-            if (initialState)
-            {
-                if (syncPosition) targetComponent.localPosition = reader.ReadVector3();
-                if (syncRotation) targetComponent.localRotation = reader.ReadQuaternion();
-                if (syncScale)    targetComponent.localScale    = reader.ReadVector3();
-            }
         }
 
         // OnGUI allocates even if it does nothing. avoid in release.
