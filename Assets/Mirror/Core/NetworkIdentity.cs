@@ -884,9 +884,9 @@ namespace Mirror
             }
         }
 
-        // build dirty mask for owner & observer (= all dirty components).
+        // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) DirtyMasks(bool initialState)
+        (ulong, ulong) ServerDirtyMasks(bool initialState)
         {
             ulong ownerMask    = 0;
             ulong observerMask = 0;
@@ -896,19 +896,48 @@ namespace Mirror
             {
                 NetworkBehaviour component = components[i];
 
-                // check if dirty.
-                // for owner, it's always included if dirty.
-                // for observers, it's only included if dirty AND syncmode to observers.
-                bool ownerDirty    = initialState || component.IsDirty();
-                bool observerDirty = ownerDirty && component.syncMode == SyncMode.Observers;
+                // initially consider all. afterwards only ServerToClient comps.
+                // see explanation in SerializeServer().
+                // see test: Serialize_ClientToServer_ServerOnlySendsInitial().
+                if (initialState || component.syncDirection == SyncDirection.ServerToClient)
+                {
+                    // check if dirty.
+                    // for owner, it's always included if dirty.
+                    // for observers, it's only included if dirty AND syncmode to observers.
+                    bool ownerDirty    = (initialState || component.IsDirty());
+                    bool observerDirty = ownerDirty && component.syncMode == SyncMode.Observers;
 
-                // set the n-th bit.
-                // shifting from small to large numbers is varint-efficient.
-                ownerMask    |= (ulong)(ownerDirty    ? 1 : 0) << i;
-                observerMask |= (ulong)(observerDirty ? 1 : 0) << i;
+                    // set the n-th bit if dirty.
+                    // shifting from small to large numbers is varint-efficient.
+                    if (ownerDirty)    ownerMask    |= (1u << i);
+                    if (observerDirty) observerMask |= (1u << i);
+                }
             }
 
             return (ownerMask, observerMask);
+        }
+
+        // build dirty mask for client.
+        // server always knows initialState, so we don't need it here.
+        ulong ClientDirtyMask()
+        {
+            ulong mask = 0;
+
+            NetworkBehaviour[] components = NetworkBehaviours;
+            for (int i = 0; i < components.Length; ++i)
+            {
+                NetworkBehaviour component = components[i];
+
+                // on client, only consider owned components with SyncDirection to server
+                if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                {
+                    // set the n-th bit if dirty
+                    // shifting from small to large numbers is varint-efficient.
+                    if (component.IsDirty()) mask |= (1u << i);
+                }
+            }
+
+            return mask;
         }
 
         // check if n-th component is dirty.
@@ -920,11 +949,11 @@ namespace Mirror
             return (mask & nthBit) != 0;
         }
 
-        // serialize all components using dirtyComponentsMask
+        // serialize components into writer on the server.
         // check ownerWritten/observersWritten to know if anything was written
         // We pass dirtyComponentsMask into this function so that we can check
         // if any Components are dirty before creating writers
-        internal void Serialize(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
+        internal void SerializeServer(bool initialState, NetworkWriter ownerWriter, NetworkWriter observersWriter)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -933,7 +962,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = DirtyMasks(initialState);
+            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState);
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -953,6 +982,24 @@ namespace Mirror
             {
                 for (int i = 0; i < components.Length; ++i)
                 {
+                    // on the server, we need to consider different sync scenarios:
+                    //
+                    //   ServerToClient SyncDirection:
+                    //     always serialize for owner.
+                    //     serialize for observers only if SyncMode == Observers.
+                    //
+                    //   ClientToServer SyncDirection:
+                    //     only serialize 'initial' for spawn data.
+                    //     skip if not initial, as it comes from the client.
+                    //       for example, the server sets the initial spawn position.
+                    //       if we wouldn't sync to the owning client too, then it
+                    //       would not have any spawn data and always spawn at (0,0,0).
+                    //     serialize for observers only if SyncMode == Observers.
+                    //
+                    // since we always send to authority owners too, we end up with
+                    // the same behaviour for both authority modes.
+                    // this makes the code a lot easier & better for branch prediction.
+
                     NetworkBehaviour comp = components[i];
 
                     // is this component dirty?
@@ -990,7 +1037,95 @@ namespace Mirror
             }
         }
 
-        internal void Deserialize(NetworkReader reader, bool initialState)
+        // serialize components into writer on the client.
+        internal void SerializeClient(NetworkWriter writer)
+        {
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
+            NetworkBehaviour[] components = NetworkBehaviours;
+
+            // instead of writing a 1 byte index per component,
+            // we limit components to 64 bits and write one ulong instead.
+            // the ulong is also varint compressed for minimum bandwidth.
+            ulong dirtyMask = ClientDirtyMask();
+
+            // varint compresses the mask to 1 byte in most cases.
+            // instead of writing an 8 byte ulong.
+            //   7 components fit into 1 byte.  (previously  7 bytes)
+            //  11 components fit into 2 bytes. (previously 11 bytes)
+            //  16 components fit into 3 bytes. (previously 16 bytes)
+            // TODO imer: server knows amount of comps, write N bytes instead
+
+            // if nothing dirty, then don't even write the mask.
+            // otherwise, every unchanged object would send a 1 byte dirty mask!
+            if (dirtyMask != 0) Compression.CompressVarUInt(writer, dirtyMask);
+
+            // serialize all components
+            // perf: only iterate if dirty mask has dirty bits.
+            if (dirtyMask != 0)
+            {
+                // serialize all components
+                for (int i = 0; i < components.Length; ++i)
+                {
+                    // on the client, we need to consider different sync scenarios:
+                    //
+                    //   ServerToClient SyncDirection:
+                    //     do nothing.
+                    //   ClientToServer SyncDirection:
+                    //     serialize only if owned.
+
+                    NetworkBehaviour comp = components[i];
+
+                    // is this component dirty?
+                    // reuse the mask instead of calling comp.IsDirty() again here.
+                    if (IsDirty(dirtyMask, i))
+                    // if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
+                    {
+                        // serialize into writer.
+                        // server always knows initialState, we never need to send it
+                        comp.Serialize(writer, false);
+                    }
+                }
+            }
+        }
+
+        // deserialize components from the client on the server.
+        // there's no 'initialState'. server always knows the initial state.
+        internal bool DeserializeServer(NetworkReader reader)
+        {
+            // ensure NetworkBehaviours are valid before usage
+            ValidateComponents();
+            NetworkBehaviour[] components = NetworkBehaviours;
+
+            // first we deserialize the varinted dirty mask
+            ulong mask = Compression.DecompressVarUInt(reader);
+
+            // now deserialize every dirty component
+            for (int i = 0; i < components.Length; ++i)
+            {
+                // was this one dirty?
+                if (IsDirty(mask, i))
+                {
+                    NetworkBehaviour comp = components[i];
+
+                    // safety check to ensure clients can only modify their own
+                    // ClientToServer components, nothing else.
+                    if (comp.syncDirection == SyncDirection.ClientToServer)
+                    {
+                        // deserialize this component
+                        // server always knows the initial state (initial=false)
+                        // disconnect if failed, to prevent exploits etc.
+                        if (!comp.Deserialize(reader, false)) return false;
+                    }
+                }
+            }
+
+            // successfully deserialized everything
+            return true;
+        }
+
+        // deserialize components from server on the client.
+        internal void DeserializeClient(NetworkReader reader, bool initialState)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1011,9 +1146,10 @@ namespace Mirror
             }
         }
 
-        // get cached serialization for this tick (or serialize if none yet)
-        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
-        internal NetworkIdentitySerialization GetSerializationAtTick(int tick)
+        // get cached serialization for this tick (or serialize if none yet).
+        // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks.
+        // calls SerializeServer, so this function is to be called on server.
+        internal NetworkIdentitySerialization GetServerSerializationAtTick(int tick)
         {
             // only rebuild serialization once per tick. reuse otherwise.
             // except for tests, where Time.frameCount never increases.
@@ -1032,9 +1168,9 @@ namespace Mirror
                 lastSerialization.observersWriter.Position = 0;
 
                 // serialize
-                Serialize(false,
-                             lastSerialization.ownerWriter,
-                             lastSerialization.observersWriter);
+                SerializeServer(false,
+                                lastSerialization.ownerWriter,
+                                lastSerialization.observersWriter);
 
                 // clear dirty bits for the components that we serialized.
                 // previously we did this in NetworkServer.BroadcastToConnection

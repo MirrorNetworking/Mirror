@@ -1031,7 +1031,7 @@ namespace Mirror
             {
                 using (NetworkReaderPooled payloadReader = NetworkReaderPool.Get(message.payload))
                 {
-                    identity.Deserialize(payloadReader, true);
+                    identity.DeserializeClient(payloadReader, true);
                 }
             }
 
@@ -1284,7 +1284,7 @@ namespace Mirror
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
             {
                 using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
-                    identity.Deserialize(reader, false);
+                    identity.DeserializeClient(reader, false);
             }
             else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
@@ -1408,6 +1408,54 @@ namespace Mirror
             //else Debug.LogWarning($"Did not find target for destroy message for {netId}");
         }
 
+        // broadcast ///////////////////////////////////////////////////////////
+        // make sure Broadcast() is only called every sendInterval.
+        // calling it every update() would require too much bandwidth.
+        static void Broadcast()
+        {
+            // joined the world yet?
+            if (!connection.isReady) return;
+
+            // nothing to do in host mode. server already knows the state.
+            if (NetworkServer.active) return;
+
+            // for each entity that the client owns
+            foreach (NetworkIdentity identity in connection.owned)
+            {
+                // make sure it's not null or destroyed.
+                // (which can happen if someone uses
+                //  GameObject.Destroy instead of
+                //  NetworkServer.Destroy)
+                if (identity != null)
+                {
+                    using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                    {
+                        // get serialization for this entity viewed by this connection
+                        // (if anything was serialized this time)
+                        identity.SerializeClient(writer);
+                        if (writer.Position > 0)
+                        {
+                            // send state update message
+                            EntityStateMessage message = new EntityStateMessage
+                            {
+                                netId = identity.netId,
+                                payload = writer.ToArraySegment()
+                            };
+                            Send(message);
+
+                            // reset dirty bits so it's not resent next time.
+                            identity.ClearDirtyComponentsDirtyBits();
+                        }
+                    }
+                }
+                // spawned list should have no null entries because we
+                // always call Remove in OnObjectDestroy everywhere.
+                // if it does have null then someone used
+                // GameObject.Destroy instead of NetworkServer.Destroy.
+                else Debug.LogWarning($"Found 'null' entry in observing list for connectionId={connection.connectionId}. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+            }
+        }
+
         // update //////////////////////////////////////////////////////////////
         // NetworkEarlyUpdate called before any Update/FixedUpdate
         // (we add this to the UnityEngine in NetworkLoop)
@@ -1425,6 +1473,19 @@ namespace Mirror
         // (we add this to the UnityEngine in NetworkLoop)
         internal static void NetworkLateUpdate()
         {
+            // broadcast ClientToServer components while active
+            // note that Broadcast() runs every update.
+            // on clients with 120 Hz, this will run 120 times per second.
+            // however, Broadcast only checks .owned, which usually aren't many.
+            //
+            // we could use a .sendInterval, but it would also put a minimum
+            // limit to every component's sendInterval automatically.
+            if (active)
+            {
+                Broadcast();
+            }
+
+            // update connections to flush out messages _after_ broadcast
             // local connection?
             if (connection is LocalConnectionToServer localConnection)
             {
