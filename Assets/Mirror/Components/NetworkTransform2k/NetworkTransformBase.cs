@@ -428,6 +428,10 @@ namespace Mirror
             // fixes https://github.com/vis2k/Mirror/pull/3051/
             // (Spawn message wouldn't sync NTChild positions either)
 
+            // TODO
+
+            /*
+
             // set defaults to current.
             // selective sync may not sync i.e. rotation.
             // easier to still work with default in that case,
@@ -452,6 +456,7 @@ namespace Mirror
             if      (isClient) DeserializeClient(position, rotation, scale, initialState);
             else if (isServer) DeserializeServer(position, rotation, scale);
             else throw new Exception("Deserialize called without active server/client. This should never happen.");
+            */
         }
 
         // other ///////////////////////////////////////////////////////////////
