@@ -999,9 +999,16 @@ namespace Mirror
                 // owned by the connection?
                 if (identity.connectionToClient == connection)
                 {
-                    // DeserializeServer checks permissions internally
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
-                        identity.DeserializeServer(reader);
+                    {
+                        // DeserializeServer checks permissions internally.
+                        // failure to deserialize disconnects to prevent exploits.
+                        if (!identity.DeserializeServer(reader))
+                        {
+                            Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                            connection.Disconnect();
+                        }
+                    }
                 }
                 // an attacker may attempt to modify another connection's entity
                 else

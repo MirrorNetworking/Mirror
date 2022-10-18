@@ -1091,7 +1091,7 @@ namespace Mirror
 
         // deserialize components from the client on the server.
         // there's no 'initialState'. server always knows the initial state.
-        internal void DeserializeServer(NetworkReader reader)
+        internal bool DeserializeServer(NetworkReader reader)
         {
             // ensure NetworkBehaviours are valid before usage
             ValidateComponents();
@@ -1115,14 +1115,13 @@ namespace Mirror
                         // deserialize this component
                         // server always knows the initial state (initial=false)
                         // disconnect if failed, to prevent exploits etc.
-                        if (!comp.Deserialize(reader, false))
-                        {
-                            Debug.LogWarning($"Server failed to deserialize client state for {name} with netId={netId} for component={comp.GetType()}, Disconnecting.");
-                            connectionToClient.Disconnect();
-                        }
+                        if (!comp.Deserialize(reader, false)) return false;
                     }
                 }
             }
+
+            // successfully deserialized everything
+            return true;
         }
 
         // deserialize components from server on the client.
