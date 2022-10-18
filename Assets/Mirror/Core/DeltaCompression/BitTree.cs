@@ -1,4 +1,6 @@
 // BitTree delta compression from DOTSNET / Mirror II by vis2k/Mischa.
+// modified to Mirror's resizing NetworkWriter with void returns instead of bool.
+//
 // essentially N-tree / octree applied to a byte stream.
 // https://en.wikipedia.org/wiki/Octree
 //
@@ -128,7 +130,7 @@ namespace Mirror
 
         // pass previous.GetUnsafePtr & current.GetUnsafePtr to avoid having to
         // call GetUnsafePtr, which is quite expensive.
-        static unsafe bool CompressRecursively(byte* previousPtr, byte* currentPtr, int size, NetworkWriter patch)
+        static unsafe void CompressRecursively(byte* previousPtr, byte* currentPtr, int size, NetworkWriter patch)
         {
             //Debug.Log("--------");
             //Debug.Log($"previous={previous.ToHexString()}");
@@ -195,8 +197,7 @@ namespace Mirror
             //Debug.Log(currentStr);
 
             // write encoding
-            if (!patch.WriteByte(encoding))
-                throw new IndexOutOfRangeException($"BitTree Compression: failed to write encoding. This should never happen.");
+            patch.WriteByte(encoding);
 
             // are we down to the lowest level, with size <= 8 and
             // A,B,C,D,E,F,G,H being 1 byte each?
@@ -209,7 +210,6 @@ namespace Mirror
                 //Debug.Log(bottom);
 
                 // write each changed byte.
-                bool res = true;
                 for (int i = 0; i < dimension; ++i)
                 {
                     // make sure we only write within bounds
@@ -217,20 +217,17 @@ namespace Mirror
                     int currentPartLength = lengths[i];
                     if (currentPartLength > 0 && changed[i])
                     {
-                        res &= patch.WriteByte(currentPartPtr[0]);
+                        patch.WriteByte(currentPartPtr[0]);
                     }
                 }
-                return res;
             }
             // continue recursively for all changed parts.
             // even if Length <= 8, we want to split them into A,B,C,D,E,F,G,H bytes.
             else
             {
-                bool result = true;
                 for (int i = 0; i < dimension; ++i)
                     if (changed[i])
-                        result &= CompressRecursively(previousParts[i], currentParts[i], lengths[i], patch);
-                return result;
+                        CompressRecursively(previousParts[i], currentParts[i], lengths[i], patch);
             }
         }
 
@@ -240,7 +237,7 @@ namespace Mirror
         //         just like the rest of DOTSNET>
         // NOTE: respects content before 'patch.Position', for example DOTSNET
         //       has written message id to it already.
-        public static unsafe bool Compress(ArraySegment<byte> previous, ArraySegment<byte> current, NetworkWriter patch)
+        public static unsafe void Compress(ArraySegment<byte> previous, ArraySegment<byte> current, NetworkWriter patch)
         {
             // only same sized arrays are allowed.
             // exception to indicate that this needs to be fixed immediately.
@@ -249,15 +246,15 @@ namespace Mirror
 
             // guarantee that patch writer has enough space for max sized patch.
             // exception to indicate that this needs to be fixed immediately.
-            int maxPatchSize = MaxPatchSize(previous.Count);
-            if (patch.Space < maxPatchSize)
-                //throw new ArgumentException($"DeltaCompression.Compress: patch writer with Position={patch.Position} Space={patch.Space} is too small for max patch size of {maxPatchSize} bytes for input of {length} bytes");
-                return false;
+            // int maxPatchSize = MaxPatchSize(previous.Count);
+            // if (patch.Space < maxPatchSize)
+            //     //throw new ArgumentException($"DeltaCompression.Compress: patch writer with Position={patch.Position} Space={patch.Space} is too small for max patch size of {maxPatchSize} bytes for input of {length} bytes");
+            //     return false;
 
             // write nothing if completely empty.
             // otherwise we would write 8 bit as soon as we go into recursion.
             if (previous.Count == 0)
-                return true;
+                return;
 
             fixed (byte* previousPtr = &previous.Array[previous.Offset],
                          currentPtr = &current.Array[current.Offset])
@@ -265,13 +262,13 @@ namespace Mirror
 
                 //Debug.Log("--------");
                 //Debug.Log($"BitTree Compressing...");
-                return CompressRecursively(previousPtr, currentPtr, previous.Count, patch);
+                CompressRecursively(previousPtr, currentPtr, previous.Count, patch);
             }
         }
 
         // pass previous.GetUnsafePtr & current.GetUnsafePtr to avoid having to
         // call GetUnsafePtr, which is quite expensive.
-        static unsafe bool DecompressRecursively(byte* previousPtr, int size, NetworkReader patch, NetworkWriter current)
+        static unsafe void DecompressRecursively(byte* previousPtr, int size, NetworkReader patch, NetworkWriter current)
         {
             //Debug.Log("--------");
             //Debug.Log($"previous={previous.ToHexString()}");
@@ -290,9 +287,10 @@ namespace Mirror
                 previousParts[i] = previousPtr + offsets[i];
 
             // read encoding
-            if (!patch.ReadByte(out byte encoding))
-                throw new IndexOutOfRangeException($"BitTree Compression: failed to read encoding. This should never happen.");
+            // if (!patch.ReadByte(out byte encoding))
+            //     throw new IndexOutOfRangeException($"BitTree Compression: failed to read encoding. This should never happen.");
             //Debug.Log($"encoding: {Convert.ToString(encoding, 2).PadLeft(8,'0')}");
+            byte encoding = patch.ReadByte();
 
             // read flags, encoded as 8 bits
             for (int i = 0; i < dimension; ++i)
@@ -319,7 +317,6 @@ namespace Mirror
                 //Debug.Log("bottom!");
 
                 // read each byte from original or patch if changed
-                bool res = true;
                 for (int i = 0; i < dimension; ++i)
                 {
                     // make sure we only read within bounds
@@ -328,16 +325,14 @@ namespace Mirror
                     if (previousPartLength > 0)
                     {
                         byte previousByte = previousPartPtr[0];
-                        if (changed[i]) res &= patch.ReadByte(out previousByte);
-                        res &= current.WriteByte(previousByte);
+                        if (changed[i]) previousByte = patch.ReadByte();
+                        current.WriteByte(previousByte);
                     }
                 }
-                return res;
             }
             // reconstruct each part
             else
             {
-                bool result = true;
                 for (int i = 0; i < dimension; ++i)
                 {
                     byte* previousPartPtr = previousParts[i];
@@ -345,19 +340,18 @@ namespace Mirror
 
                     // previous != current: continue recursively
                     if (changed[i])
-                        result &= DecompressRecursively(previousPartPtr, previousPartLength, patch, current);
+                        DecompressRecursively(previousPartPtr, previousPartLength, patch, current);
                     // previous == current: copy original
                     else if (!current.WriteBytes(previousPartPtr, 0, previousPartLength))
                         throw new IndexOutOfRangeException($"BitTree Compression.Decompress: failed to write previous {i} chunk");
                 }
-                return result;
             }
         }
 
         // apply patch onto previous based on block size.
         // writes result into 'current' writer.
         // returns true if succeeded. fails if not enough space in patch/result.
-        public static unsafe bool Decompress(ArraySegment<byte> previous, NetworkReader patch, NetworkWriter current)
+        public static unsafe void Decompress(ArraySegment<byte> previous, NetworkReader patch, NetworkWriter current)
         {
             //Debug.Log("--------");
             //Debug.Log($"BitTree Decompressing...");
@@ -367,20 +361,20 @@ namespace Mirror
 
             // result size will be same as input.
             // make sure writer has enough space.
-            if (current.Space < length)
-                throw new IndexOutOfRangeException($"DeltaCompression.Decompress: input with {length} bytes is too large for writer {current.Space} bytes");
+            // if (current.Space < length)
+            //     throw new IndexOutOfRangeException($"DeltaCompression.Decompress: input with {length} bytes is too large for writer {current.Space} bytes");
 
             // read nothing if completely empty.
             // otherwise we would read 8 bit as soon as we go into recursion.
             if (previous.Count == 0)
-                return true;
+                return;
 
             // IMPORTANT: we DON'T need to read a size header.
             // the size is always == last.size!
 
             fixed (byte* previousPtr = &previous.Array[previous.Offset])
             {
-                return DecompressRecursively(previousPtr, previous.Count, patch, current);
+                DecompressRecursively(previousPtr, previous.Count, patch, current);
             }
         }
     }
