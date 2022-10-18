@@ -20,13 +20,6 @@ namespace Mirror
     /// <summary>NetworkClient with connection to server.</summary>
     public static partial class NetworkClient
     {
-        // broadcast
-        // unlike server, the client usually runs at high tick rate.
-        // send rate is still low, and set separately here.
-        public static int sendRate = 30;
-        public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
-        static double lastSendTime;
-
         // message handlers by messageId
         internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
@@ -169,8 +162,6 @@ namespace Mirror
         {
             // Debug.Log($"Client Connect: {address}");
             Debug.Assert(Transport.active != null, "There was no active transport when calling NetworkClient.Connect, If you are calling Connect manually then make sure to set 'Transport.active' first");
-
-            lastSendTime = 0;
 
             // reset time interpolation on every new connect.
             // ensures last sessions' state is cleared before starting again.
@@ -1483,27 +1474,15 @@ namespace Mirror
         internal static void NetworkLateUpdate()
         {
             // broadcast CLIENT_TO_SERVER components while active
+            // note that Broadcast() runs every update.
+            // on clients with 120 Hz, this will run 120 times per second.
+            // however, Broadcast only checks .owned, which usually aren't many.
+            //
+            // we could use a .sendInterval, but it would also put a minimum
+            // limit to every component's sendInterval automatically.
             if (active)
             {
-                // broadcast every sendInterval.
-                // AccurateInterval to avoid update frequency inaccuracy issues:
-                // https://github.com/vis2k/Mirror/pull/3153
-                //
-                // for example, host mode server doesn't set .targetFrameRate.
-                // Broadcast() would be called every tick.
-                // snapshots might be sent way too often, etc.
-                //
-                // during tests, we always call Broadcast() though.
-                if (!Application.isPlaying ||
-#if !UNITY_2020_3_OR_NEWER
-                    // Unity 2019 doesn't have Time.timeAsDouble yet
-                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
-#else
-                    AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
-#endif
-                {
-                    Broadcast();
-                }
+                Broadcast();
             }
 
             // update connections to flush out messages _after_ broadcast
