@@ -317,7 +317,7 @@ namespace Mirror
         }
 
         // last serialization for delta compression
-        public override unsafe void OnSerialize(NetworkWriter writer, bool initialState)
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
 
             // TODO ClientToServer support.
