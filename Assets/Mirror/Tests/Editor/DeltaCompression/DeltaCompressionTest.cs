@@ -19,9 +19,8 @@ namespace Mirror.Tests
         [SetUp]
         public virtual void SetUp()
         {
-            // writers need to be big enough
-            compressWriter = new NetworkWriter(10_000);
-            decompressWriter = new NetworkWriter(10_000);
+            compressWriter = new NetworkWriter();
+            decompressWriter = new NetworkWriter();
         }
 
         // helper function to compress, decompress, compare expected size & content
@@ -45,7 +44,7 @@ namespace Mirror.Tests
                 Assert.That(compressedSize, Is.EqualTo(expectedPatchSize));
 
             // get patch content from writer (ignoring content before start)
-            ArraySegment<byte> compressedContent = new ArraySegment<byte>(compressWriter.segment.Array, compressWriterStart, compressedSize);
+            ArraySegment<byte> compressedContent = new ArraySegment<byte>(compressWriter.ToArraySegment().Array, compressWriterStart, compressedSize);
 
             // decompress patch against previous
             NetworkReader patch = new NetworkReader(compressedContent);
@@ -53,7 +52,7 @@ namespace Mirror.Tests
             Assert.That(result, Is.True);
 
             // make sure decompressed == current as expected
-            ArraySegment<byte> decompressed = decompressWriter.segment;
+            ArraySegment<byte> decompressed = decompressWriter.ToArraySegment();
             if (!current.SequenceEqual(decompressed))
                 Assert.Fail($"Decompress mismatch!\n  previous={BitConverter.ToString(previous)}\n  current={BitConverter.ToString(current)}\n  decompressed={decompressed.ToHexString()}");
 
@@ -155,6 +154,7 @@ namespace Mirror.Tests
             );
         }
 
+        /* writers auto resize in Mirror
         [Test]
         public void Compress_WriterSmallerThanMaxPatchSize()
         {
@@ -167,6 +167,7 @@ namespace Mirror.Tests
             // should return false
             Assert.That(Compress(aArray, aArray, blockSize, tooSmallWriter), Is.False);
         }
+        */
 
         // test to prevent a previous bug, where
         // - input of 7 bytes
@@ -185,7 +186,7 @@ namespace Mirror.Tests
 
             // compress to generate the patch
             Compress(last, current, blockSize, compressWriter);
-            ArraySegment<byte> patch = compressWriter.segment;
+            ArraySegment<byte> patch = compressWriter.ToArraySegment();
 
             // append data to the patch
             byte[] largerPatch = new byte[patch.Count + 30];
@@ -194,14 +195,15 @@ namespace Mirror.Tests
             NetworkReader patchReader = new NetworkReader(largerPatch);
 
             // lets decompress with that data
-            NetworkWriter resultWriter = new NetworkWriter(last.Length * 2);
+            NetworkWriter resultWriter = new NetworkWriter();
 
             // block size needs to be > patch size of 14
             Decompress(last, patchReader, blockSize, resultWriter);
-            Debug.Log($"decompressed={resultWriter.segment.ToHexString()}");
-            Assert.That(current.SequenceEqual(resultWriter.segment));
+            Debug.Log($"decompressed={resultWriter.ToArraySegment().ToHexString()}");
+            Assert.That(current.SequenceEqual(resultWriter.ToArraySegment()));
         }
 
+        /* writers auto resize in Mirror
         // exception should be thrown immediately if passed writer is too small
         [Test]
         public void Decompress_TooSmallWriter()
@@ -234,6 +236,7 @@ namespace Mirror.Tests
             NetworkWriter tooSmallWriter = new NetworkWriter(aArray.Length);
             CompressAndDecompress(aArray, bArray, compressWriter, tooSmallWriter, blockSize, expectedPatchSize: -1);
         }
+        */
 
         // try a 1mb array. make sure it's still fast, doesn't deadlock etc.
         // and different block sizes to get a feeling for results
@@ -248,8 +251,8 @@ namespace Mirror.Tests
             byte[] largeB = new byte[1 * 1024 * 1024];
 
             int maxPatchSize = MaxPatchSize(largeA.Length, blockSize);
-            NetworkWriter largeCompressWriter = new NetworkWriter(maxPatchSize);
-            NetworkWriter largeDecompressWriter = new NetworkWriter(maxPatchSize);
+            NetworkWriter largeCompressWriter = new NetworkWriter();
+            NetworkWriter largeDecompressWriter = new NetworkWriter();
 
             // change 1% of data
             for (int i = 0; i < largeB.Length; ++i)
@@ -272,8 +275,8 @@ namespace Mirror.Tests
             byte[] largeB = new byte[1 * 1024 * 1024];
 
             int maxPatchSize = MaxPatchSize(largeA.Length, blockSize);
-            NetworkWriter largeCompressWriter = new NetworkWriter(maxPatchSize);
-            NetworkWriter largeDecompressWriter = new NetworkWriter(maxPatchSize);
+            NetworkWriter largeCompressWriter = new NetworkWriter();
+            NetworkWriter largeDecompressWriter = new NetworkWriter();
 
             // change 10% of data
             for (int i = 0; i < largeB.Length; ++i)
@@ -298,7 +301,7 @@ namespace Mirror.Tests
             byte[] B = new byte[1000];
 
             int maxPatchSize = MaxPatchSize(A.Length, blockSize);
-            NetworkWriter writer = new NetworkWriter(maxPatchSize);
+            NetworkWriter writer = new NetworkWriter();
 
             // set actual data != 0, change 1% in B
             for (int i = 0; i < B.Length; ++i)
@@ -337,7 +340,7 @@ namespace Mirror.Tests
             byte[] B = new byte[10_000];
 
             int maxPatchSize = MaxPatchSize(A.Length, blockSize);
-            NetworkWriter writer = new NetworkWriter(maxPatchSize);
+            NetworkWriter writer = new NetworkWriter();
 
             // set actual data != 0, change 1% in B
             for (int i = 0; i < B.Length; ++i)
@@ -376,8 +379,8 @@ namespace Mirror.Tests
             byte[] B = new byte[1000];
 
             int maxPatchSize = MaxPatchSize(A.Length, blockSize);
-            NetworkWriter writer1 = new NetworkWriter(maxPatchSize);
-            NetworkWriter writer2 = new NetworkWriter(maxPatchSize);
+            NetworkWriter writer1 = new NetworkWriter();
+            NetworkWriter writer2 = new NetworkWriter();
 
             // change 1%
             for (int i = 0; i < B.Length; ++i)
@@ -403,8 +406,8 @@ namespace Mirror.Tests
             byte[] B = new byte[1000];
 
             int maxPatchSize = MaxPatchSize(A.Length, blockSize);
-            NetworkWriter writer1 = new NetworkWriter(maxPatchSize);
-            NetworkWriter writer2 = new NetworkWriter(maxPatchSize);
+            NetworkWriter writer1 = new NetworkWriter();
+            NetworkWriter writer2 = new NetworkWriter();
 
             // change 10%
             for (int i = 0; i < B.Length; ++i)
