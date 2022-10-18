@@ -999,7 +999,7 @@ namespace Mirror
                 // owned by the connection?
                 if (identity.connectionToClient == connection)
                 {
-                    // TODO DeserializeServer should only apply if component is ClientToServer
+                    // DeserializeServer checks permissions internally
                     using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
                         identity.DeserializeServer(reader);
                 }
