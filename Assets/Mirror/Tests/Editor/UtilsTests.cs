@@ -14,6 +14,16 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void Pow()
+        {
+            Assert.That(Utils.Pow(2, 0), Is.EqualTo(1));
+            Assert.That(Utils.Pow(2, 1), Is.EqualTo(2));
+            Assert.That(Utils.Pow(2, 2), Is.EqualTo(4));
+            Assert.That(Utils.Pow(2, 3), Is.EqualTo(8));
+            Assert.That(Utils.Pow(2, 4), Is.EqualTo(16));
+        }
+
+        [Test]
         public void IsPointInScreen()
         {
             int width = Screen.width;

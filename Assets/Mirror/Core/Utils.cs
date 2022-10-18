@@ -42,6 +42,20 @@ namespace Mirror
             }
         }
 
+        // Unity's Pow is only for float/double. need one for Int too.
+        public static int Pow(int x, int exponent)
+        {
+            int ret = 1;
+            while (exponent != 0)
+            {
+                if ((exponent & 1) == 1)
+                    ret *= x;
+                x *= x;
+                exponent >>= 1;
+            }
+            return ret;
+        }
+
         public static bool IsPrefab(GameObject obj)
         {
 #if UNITY_EDITOR
