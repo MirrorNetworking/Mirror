@@ -133,6 +133,22 @@ namespace Mirror.Tests
                 Assert.That(deserialized.Array[deserialized.Offset + i], Is.EqualTo(data[i]));
         }
 
+        [Test]
+        public unsafe void WriteBytes_Ptr()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            // make sure this respects position & offset
+            writer.WriteByte(0xFF);
+
+            byte[] bytes = {0x01, 0x02, 0x03, 0x04};
+            fixed (byte* ptr = bytes)
+            {
+                Assert.True(writer.WriteBytes(ptr, 1, 2));
+                Assert.True(writer.ToArraySegment().SequenceEqual(new byte[] {0xFF, 0x02, 0x03}));
+            }
+        }
+
         // write byte[], read segment
         [Test]
         public void TestWritingBytesAndReadingSegment()

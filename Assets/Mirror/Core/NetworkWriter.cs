@@ -197,6 +197,26 @@ namespace Mirror
             Array.ConstrainedCopy(array, offset, this.buffer, Position, count);
             Position += count;
         }
+        // write an unsafe byte* array.
+        // useful for bit tree compression, etc.
+        public unsafe bool WriteBytes(byte* ptr, int offset, int size)
+        {
+            EnsureCapacity(Position + size);
+
+            fixed (byte* destination = &buffer[Position])
+            {
+                // write 'size' bytes at position
+                // 10 mio writes: 868ms
+                //   Array.Copy(value.Array, value.Offset, buffer, Position, value.Count);
+                // 10 mio writes: 775ms
+                //   Buffer.BlockCopy(value.Array, value.Offset, buffer, Position, value.Count);
+                // 10 mio writes: 637ms
+                UnsafeUtility.MemCpy(destination, ptr + offset, size);
+            }
+
+            Position += size;
+            return true;
+        }
 
         /// <summary>Writes any type that mirror supports. Uses weaver populated Writer(T).write.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
