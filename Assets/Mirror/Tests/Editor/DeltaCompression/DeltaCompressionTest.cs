@@ -13,8 +13,8 @@ namespace Mirror.Tests
 
         // implementation specific
         public abstract int MaxPatchSize(int inputLength, int blockSize);
-        public abstract bool Compress(ArraySegment<byte> previous, ArraySegment<byte> current, int blockSize, NetworkWriter patch);
-        public abstract bool Decompress(ArraySegment<byte> previous, NetworkReader patch, int blockSize, NetworkWriter current);
+        public abstract void Compress(ArraySegment<byte> previous, ArraySegment<byte> current, int blockSize, NetworkWriter patch);
+        public abstract void Decompress(ArraySegment<byte> previous, NetworkReader patch, int blockSize, NetworkWriter current);
 
         [SetUp]
         public virtual void SetUp()
@@ -35,8 +35,8 @@ namespace Mirror.Tests
             int compressWriterStart = compressWriter.Position;
 
             // compress with block size into compressWriter
-            bool result = Compress(previous, current, blockSize, compressWriter);
-            Assert.That(result, Is.True);
+            Compress(previous, current, blockSize, compressWriter);
+            // Assert.That(result, Is.True);
 
             // guarantee patch size (if given)
             int compressedSize = compressWriter.Position - compressWriterStart;
@@ -48,8 +48,8 @@ namespace Mirror.Tests
 
             // decompress patch against previous
             NetworkReader patch = new NetworkReader(compressedContent);
-            result = Decompress(previous, patch, blockSize, decompressWriter);
-            Assert.That(result, Is.True);
+            Decompress(previous, patch, blockSize, decompressWriter);
+            // Assert.That(result, Is.True);
 
             // make sure decompressed == current as expected
             ArraySegment<byte> decompressed = decompressWriter.ToArraySegment();

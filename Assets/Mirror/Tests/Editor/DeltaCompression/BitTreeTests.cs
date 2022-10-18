@@ -10,10 +10,10 @@ namespace Mirror.Tests
         public override int MaxPatchSize(int inputLength, int blockSize) =>
             BitTree.MaxPatchSize(inputLength);
 
-        public override bool Compress(ArraySegment<byte> previous, ArraySegment<byte> current, int blockSize, NetworkWriter patch) =>
+        public override void Compress(ArraySegment<byte> previous, ArraySegment<byte> current, int blockSize, NetworkWriter patch) =>
             BitTree.Compress(previous, current, patch);
 
-        public override bool Decompress(ArraySegment<byte> previous, NetworkReader patch, int blockSize, NetworkWriter current) =>
+        public override void Decompress(ArraySegment<byte> previous, NetworkReader patch, int blockSize, NetworkWriter current) =>
             BitTree.Decompress(previous, patch, current);
 
         [Test]
