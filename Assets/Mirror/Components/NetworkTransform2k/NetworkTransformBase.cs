@@ -455,7 +455,10 @@ namespace Mirror
             {
                 // save it as 'last' to delta decompress against next time
                 // TODO make sure host mode doesn't overwrite server's last
+                DeserializeEverything(reader, out Vector3 position, out Quaternion rotation, out Vector3 scale);
 
+                // TODO save reader as 'last' to delta compress against
+                // however, only save the part that was read. not what's behind.
             }
             else
             {
