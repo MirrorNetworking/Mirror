@@ -483,10 +483,32 @@ namespace Mirror
                 // delta decompress against 'last', store new 'last'
                 current.Position = 0;
                 BitTree.Decompress(last.ToArraySegment(), reader, current);
-                (last, current) = (current, last);
 
                 // parse delta compressed data
-                DeserializeEverything(current, out Vector3 position, out Quaternion rotation, out Vector3 scale);
+                using (NetworkReaderPooled decompressed = NetworkReaderPool.Get(current.ToArraySegment()))
+                {
+
+                    DeserializeEverything(decompressed, out Vector3 position, out Quaternion rotation, out Vector3 scale);
+
+                    // store 'current' as new 'last' to decompress against next time
+                    (last, current) = (current, last);
+
+                    // TODO apply
+                    // TODO not if has authority etc. like old
+
+                    // insert snapshot
+                    SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
+                        NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote time.
+        #if !UNITY_2020_3_OR_NEWER
+                        NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
+        #else
+                        Time.timeAsDouble,
+        #endif
+                        position,
+                        rotation,
+                        scale
+                    ));
+                }
             }
 
             // TODO
