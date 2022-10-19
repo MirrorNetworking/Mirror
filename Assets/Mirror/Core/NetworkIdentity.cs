@@ -894,19 +894,6 @@ namespace Mirror
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
             {
-                // on the server, we need to consider different sync scenarios:
-                //
-                //   for owner:
-                //      if initalState: always serialize
-                //         (even ClientToServer comps are synced initially)
-                //      if delta: only ServerToClient components and if dirty.
-                //         (ClientToServer deltas come from owner client)
-                //
-                //   for observers:
-                //      if initial: always serialize if for Observers
-                //      if delta: always if for Observers and if dirty.
-                //         (ClientToServer comps need to be broadcast to others)
-                //
                 NetworkBehaviour component = components[i];
 
                 bool dirty = component.IsDirty();
