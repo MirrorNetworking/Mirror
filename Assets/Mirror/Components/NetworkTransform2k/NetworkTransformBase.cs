@@ -455,14 +455,34 @@ namespace Mirror
             {
                 // save it as 'last' to delta decompress against next time
                 // TODO make sure host mode doesn't overwrite server's last
+                int start = reader.Position;
                 DeserializeEverything(reader, out Vector3 position, out Quaternion rotation, out Vector3 scale);
+                int size = reader.Position - start;
 
-                // TODO save reader as 'last' to delta compress against
-                // however, only save the part that was read. not what's behind.
+                // apply target component's position on spawn.
+                // fixes https://github.com/vis2k/Mirror/pull/3051/
+                // (Spawn message wouldn't sync NTChild positions either)
+                ApplySnapshot(position, rotation, scale);
+
+                // get the ArraySegment that was read.
+                // reader may have more data, but we don't want to save that.
+                int backup = reader.Position;
+                reader.Position = start;
+                ArraySegment<byte> segment = reader.ReadBytesSegment(size);
+                reader.Position = backup; // restore
+
+                // save as 'last' to delta compress against
+                // make sure we don't overwrite server's 'last' in host mode!
+                // TODO clientToServer handling. there it's fine
+                if (isServer) throw new Exception("don't wanna overwrite last on server");
+                last.Position = 0;
+                last.WriteBytes(segment.Array, segment.Offset, segment.Count);
             }
             else
             {
-                // delta decompress
+                // delta decompress against 'last'
+
+                // then deserialize the data
             }
 
             // TODO
