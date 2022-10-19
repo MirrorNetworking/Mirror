@@ -134,6 +134,7 @@ namespace Mirror
             RegisterHandler<ReadyMessage>(OnClientReadyMessage);
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
+            RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
         }
 
         /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
@@ -985,6 +986,41 @@ namespace Mirror
                 identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, RemoteCallType.Command, networkReader, conn);
         }
 
+        // client to server broadcast //////////////////////////////////////////
+        // for client's owned ClientToServer components.
+        static void OnEntityStateMessage(NetworkConnectionToClient connection, EntityStateMessage message)
+        {
+            // need to validate permissions carefully.
+            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
+
+            // valid netId?
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // owned by the connection?
+                if (identity.connectionToClient == connection)
+                {
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    {
+                        // DeserializeServer checks permissions internally.
+                        // failure to deserialize disconnects to prevent exploits.
+                        if (!identity.DeserializeServer(reader))
+                        {
+                            Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                            connection.Disconnect();
+                        }
+                    }
+                }
+                // an attacker may attempt to modify another connection's entity
+                else
+                {
+                    Debug.LogWarning($"Connection {connection.connectionId} attempted to modify {identity} which is not owned by the connection. Disconnecting the connection.");
+                    connection.Disconnect();
+                }
+            }
+            // no warning. don't spam server logs.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
         // spawning ////////////////////////////////////////////////////////////
         static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, NetworkWriterPooled ownerWriter, NetworkWriterPooled observersWriter)
         {
@@ -996,7 +1032,7 @@ namespace Mirror
 
             // serialize all components with initialState = true
             // (can be null if has none)
-            identity.Serialize(true, ownerWriter, observersWriter);
+            identity.SerializeServer(true, ownerWriter, observersWriter);
 
             // convert to ArraySegment to avoid reader allocations
             // if nothing was written, .ToArraySegment returns an empty segment.
@@ -1592,7 +1628,7 @@ namespace Mirror
         {
             // get serialization for this entity (cached)
             // IMPORTANT: int tick avoids floating point inaccuracy over days/weeks
-            NetworkIdentitySerialization serialization = identity.GetSerializationAtTick(Time.frameCount);
+            NetworkIdentitySerialization serialization = identity.GetServerSerializationAtTick(Time.frameCount);
 
             // is this entity owned by this connection?
             bool owned = identity.connectionToClient == connection;

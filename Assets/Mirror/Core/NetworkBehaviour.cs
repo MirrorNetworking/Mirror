@@ -9,12 +9,25 @@ namespace Mirror
     // SyncMode decides if a component is synced to all observers, or only owner
     public enum SyncMode { Observers, Owner }
 
+    // SyncDirection decides if a component is synced from:
+    //   * server to all clients
+    //   * owner client, to server, to all other clients
+    //
+    // naming: 'ClientToServer' etc. instead of 'ClientAuthority', because
+    // that wouldn't be accurate. server's OnDeserialize can still validate
+    // client data before applying. it's really about direction, not authority.
+    public enum SyncDirection { ServerToClient, ClientToServer }
+
     /// <summary>Base class for networked components.</summary>
     [AddComponentMenu("")]
     [RequireComponent(typeof(NetworkIdentity))]
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/networkbehaviour")]
     public abstract class NetworkBehaviour : MonoBehaviour
     {
+        /// <summary>Sync direction for OnSerialize. ServerToClient by default. ClientToServer for client authority.</summary>
+        [Tooltip("Server Authority calls OnSerialize on the server and syncs it to clients.\n\nClient Authority calls OnSerialize on the owning client, syncs it to server, which then broadcasts it to all other clients.\n\nUse server authority for cheat safety.")]
+        [HideInInspector] public SyncDirection syncDirection = SyncDirection.ServerToClient;
+
         /// <summary>sync mode for OnSerialize</summary>
         // hidden because NetworkBehaviourInspector shows it only if has OnSerialize.
         [Tooltip("By default synced data is sent from the server to all Observers of the object.\nChange this to Owner to only have the server update the client that has ownership authority for this object")]
@@ -52,6 +65,24 @@ namespace Mirror
         /// <summary>True on client if that component has been assigned to the client. E.g. player, pets, henchmen.</summary>
         [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")] // 2022-10-13
         public bool hasAuthority => isOwned;
+
+        /// <summary>authority is true if we are allowed to modify this component's state. On server, it's true if SyncDirection is ServerToClient. On client, it's true if SyncDirection is ClientToServer and(!) if this object is owned by the client.</summary>
+        // on the client: if owned and if clientAuthority sync direction
+        // on the server: if serverAuthority sync direction
+        //
+        // for example, NetworkTransform:
+        //   client may modify position if ClientAuthority mode and owned
+        //   server may modify position only if server authority
+        //
+        // note that in original Mirror, hasAuthority only meant 'isOwned'.
+        // there was no syncDirection to check.
+        //
+        // also note that this is a per-NetworkBehaviour flag.
+        // another component may not be client authoritative, etc.
+        public bool authority =>
+            isClient
+                ? syncDirection == SyncDirection.ClientToServer && isOwned
+                : syncDirection == SyncDirection.ServerToClient;
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId => netIdentity.netId;
@@ -1118,8 +1149,13 @@ namespace Mirror
             return (int)(cleared | safety);
         }
 
-        internal void Deserialize(NetworkReader reader, bool initialState)
+        // returns false in case of errors.
+        // server needs to know in order to disconnect on error.
+        internal bool Deserialize(NetworkReader reader, bool initialState)
         {
+            // detect errors, but attempt to correct before returning
+            bool result = true;
+
             // read 1 byte length hash safety & capture beginning for size check
             byte safety = reader.ReadByte();
             int chunkStart = reader.Position;
@@ -1140,6 +1176,7 @@ namespace Mirror
                                $"  * Are the server and client the exact same project?\n" +
                                $"  * Maybe this OnDeserialize call was meant for another GameObject? The sceneIds can easily get out of sync if the Hierarchy was modified only in the client OR the server. Try rebuilding both.\n\n" +
                                $"Exception {e}");
+                result = false;
             }
 
             // compare bytes read with length hash
@@ -1157,7 +1194,10 @@ namespace Mirror
                 // see test: SerializationSizeMismatch.
                 int correctedSize = ErrorCorrection(size, safety);
                 reader.Position = chunkStart + correctedSize;
+                result = false;
             }
+
+            return result;
         }
 
         internal void ResetSyncObjects()
