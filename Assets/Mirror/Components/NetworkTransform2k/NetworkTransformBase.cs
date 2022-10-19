@@ -301,41 +301,66 @@ namespace Mirror
         // it's then either sent fully (initial) or delta compressed.
         void SerializeEverything(NetworkWriter writer)
         {
-            // position, quantized to longs
-            Compression.ScaleToLong(targetComponent.localPosition, positionPrecision, out long pX, out long pY, out long pZ); // local for VR
-            writer.WriteLong(pX);
-            writer.WriteLong(pY);
-            writer.WriteLong(pZ);
+            // delta compression filters out unchanged data.
+            // however, we still only serialize selectively instead of writing all.
+            // reduces bittree hierarchy depth, initial spawn packet etc.
 
-            // rotation:
-            // TODO quantization later.
-            // TODO ensure it's exactly the same if not rotated.
-            writer.WriteQuaternion(targetComponent.localRotation);
+            // position, quantized to longs
+            if (syncPosition)
+            {
+                Compression.ScaleToLong(targetComponent.localPosition, positionPrecision, out long pX, out long pY, out long pZ); // local for VR
+                writer.WriteLong(pX);
+                writer.WriteLong(pY);
+                writer.WriteLong(pZ);
+            }
+
+            // rotation
+            if (syncRotation)
+            {
+                // TODO quantization later.
+                // TODO ensure it's exactly the same if not rotated.
+                writer.WriteQuaternion(targetComponent.localRotation);
+            }
 
             // scale, quantized to longs
-            Compression.ScaleToLong(targetComponent.localScale, scalePrecision, out long sX, out long sY, out long sZ); // local for VR
-            writer.WriteLong(sX);
-            writer.WriteLong(sY);
-            writer.WriteLong(sZ);
+            if (syncScale)
+            {
+                Compression.ScaleToLong(targetComponent.localScale, scalePrecision, out long sX, out long sY, out long sZ); // local for VR
+                writer.WriteLong(sX);
+                writer.WriteLong(sY);
+                writer.WriteLong(sZ);
+            }
         }
 
-        // deserialize full data after delta compression
+        // deserialize data after delta compression
         void DeserializeEverything(NetworkReader reader, out Vector3 position, out Quaternion rotation, out Vector3 scale)
         {
             // position
-            long pX = reader.ReadLong();
-            long pY = reader.ReadLong();
-            long pZ = reader.ReadLong();
-            position = Compression.ScaleToFloat(pX, pY, pZ, positionPrecision);
+            if (syncPosition)
+            {
+                long pX = reader.ReadLong();
+                long pY = reader.ReadLong();
+                long pZ = reader.ReadLong();
+                position = Compression.ScaleToFloat(pX, pY, pZ, positionPrecision);
+            }
+            else position = targetComponent.localPosition;
 
             // rotation
-            rotation = reader.ReadQuaternion();
+            if (syncRotation)
+            {
+                rotation = reader.ReadQuaternion();
+            }
+            else rotation = targetComponent.localRotation;
 
             // scale
-            long sX = reader.ReadLong();
-            long sY = reader.ReadLong();
-            long sZ = reader.ReadLong();
-            scale = Compression.ScaleToFloat(sX, sY, sZ, scalePrecision);
+            if (syncScale)
+            {
+                long sX = reader.ReadLong();
+                long sY = reader.ReadLong();
+                long sZ = reader.ReadLong();
+                scale = Compression.ScaleToFloat(sX, sY, sZ, scalePrecision);
+            }
+            else scale = targetComponent.localScale;
         }
 
         // last serialization for delta compression
