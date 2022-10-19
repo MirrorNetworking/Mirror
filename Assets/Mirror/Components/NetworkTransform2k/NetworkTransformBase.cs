@@ -462,10 +462,9 @@ namespace Mirror
                 DeserializeEverything(reader, out Vector3 position, out Quaternion rotation, out Vector3 scale);
                 int size = reader.Position - start;
 
-                // apply target component's position on spawn.
-                // fixes https://github.com/vis2k/Mirror/pull/3051/
-                // (Spawn message wouldn't sync NTChild positions either)
-                ApplySnapshot(position, rotation, scale);
+                // Debug.LogWarning($"{name}: Deserialize initial {size} bytes: {position}/{rotation}/{scale}");
+
+                DeserializeClient(position, rotation, scale, initialState);
 
                 // get the ArraySegment that was read.
                 // reader may have more data, but we don't want to save that.
@@ -490,31 +489,13 @@ namespace Mirror
                 // parse delta compressed data
                 using (NetworkReaderPooled decompressed = NetworkReaderPool.Get(current.ToArraySegment()))
                 {
-
                     DeserializeEverything(decompressed, out Vector3 position, out Quaternion rotation, out Vector3 scale);
 
                     // store 'current' as new 'last' to decompress against next time
+                    DeserializeClient(position, rotation, scale, initialState);
                     (last, current) = (current, last);
-
-                    // TODO apply
-                    // TODO not if has authority etc. like old
-
-                    // insert snapshot
-                    SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
-                        NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote time.
-        #if !UNITY_2020_3_OR_NEWER
-                        NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
-        #else
-                        Time.timeAsDouble,
-        #endif
-                        position,
-                        rotation,
-                        scale
-                    ));
                 }
             }
-
-            // TODO
         }
 
         // other ///////////////////////////////////////////////////////////////
