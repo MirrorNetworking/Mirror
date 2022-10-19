@@ -266,6 +266,41 @@ namespace Mirror.Tests
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
         }
 
+        // server should still send initial even if Owner + ClientToServer
+        [Test]
+        public void SerializeServer_OwnerMode_ClientToServer()
+        {
+            CreateNetworked(out GameObject _, out NetworkIdentity identity,
+                out SyncVarTest1NetworkBehaviour comp);
+
+            // pretend to be owned
+            identity.isOwned = true;
+            comp.syncMode = SyncMode.Owner;
+            comp.syncInterval = 0;
+
+            // set to CLIENT with some unique values
+            // and set connection to server to pretend we are the owner.
+            comp.syncDirection = SyncDirection.ClientToServer;
+            comp.value = 12345;
+
+            // initial: should still write for owner
+            identity.SerializeServer(true, ownerWriter, observersWriter);
+            Debug.Log("initial ownerWriter: " + ownerWriter);
+            Debug.Log("initial observerWriter: " + observersWriter);
+            Assert.That(ownerWriter.Position, Is.GreaterThan(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));
+
+            // delta: ClientToServer comes from the client
+            ++comp.value; // change something
+            ownerWriter.Position = 0;
+            observersWriter.Position = 0;
+            identity.SerializeServer(false, ownerWriter, observersWriter);
+            Debug.Log("delta ownerWriter: " + ownerWriter);
+            Debug.Log("delta observersWriter: " + observersWriter);
+            Assert.That(ownerWriter.Position, Is.EqualTo(0));
+            Assert.That(observersWriter.Position, Is.EqualTo(0));
+        }
+
         // server should still broadcast ClientToServer components to everyone
         // except the owner.
         [Test]
