@@ -310,7 +310,7 @@ namespace Mirror
             writer.WriteQuaternion(targetComponent.localRotation);
 
             // scale, quantized to longs
-            Compression.ScaleToLong(targetComponent.localScale, positionPrecision, out long sX, out long sY, out long sZ); // local for VR
+            Compression.ScaleToLong(targetComponent.localScale, scalePrecision, out long sX, out long sY, out long sZ); // local for VR
             writer.WriteLong(sX);
             writer.WriteLong(sY);
             writer.WriteLong(sZ);
