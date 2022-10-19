@@ -909,27 +909,27 @@ namespace Mirror
                 //
                 NetworkBehaviour component = components[i];
 
-                // TODO simplify this
-                if (component.syncMode == SyncMode.Owner)
+                bool dirty = component.IsDirty();
+                ulong nthBit = (1u << i);
+
+                // owner needs to be considered for both SyncModes, because
+                // Observers mode always includes the Owner.
+                //
+                // for initial, it should always sync owner.
+                // for delta, only for ServerToClient and only if dirty.
+                //     ClientToServer comes from the owner client.
+                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
+                    ownerMask |= nthBit;
+
+                // observers need to be considered only for Observers mode
+                if (component.syncMode == SyncMode.Observers)
                 {
-                    if (initialState || (component.syncDirection == SyncDirection.ServerToClient && component.IsDirty()))
-                    {
-                        // set the n-th bit if dirty.
-                        // shifting from small to large numbers is varint-efficient.
-                        ownerMask |= (1u << i);
-                    }
-                    // else Debug.Log($"{name}.{component.GetType()} Owner is NOT Dirty with initial={initialState}");
-                }
-                else if (component.syncMode == SyncMode.Observers)
-                {
-                    if (initialState || component.IsDirty())
-                    {
-                        // set the n-th bit if dirty.
-                        // shifting from small to large numbers is varint-efficient.
-                        if (initialState || component.syncDirection == SyncDirection.ServerToClient) ownerMask |= (1u << i); // observer components are sent to owner as well
-                        observerMask |= (1u << i); // for observers
-                    }
-                    // else Debug.Log($"{name}.{component.GetType()} Observers is NOT Dirty with initial={initialState}");
+                    // for initial, it should always sync to observers.
+                    // for delta, only if dirty.
+                    // SyncDirection is irrelevant, as both are broadcast to
+                    // observers which aren't the owner.
+                    if (initialState || dirty)
+                        observerMask |= nthBit;
                 }
             }
 
