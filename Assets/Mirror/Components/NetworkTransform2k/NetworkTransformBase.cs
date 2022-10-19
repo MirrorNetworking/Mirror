@@ -316,10 +316,28 @@ namespace Mirror
             writer.WriteLong(sZ);
         }
 
+        // deserialize full data after delta compression
+        void DeserializeEverything(NetworkReader reader, out Vector3 position, out Quaternion rotation, out Vector3 scale)
+        {
+            // position
+            long pX = reader.ReadLong();
+            long pY = reader.ReadLong();
+            long pZ = reader.ReadLong();
+            position = Compression.ScaleToFloat(pX, pY, pZ, positionPrecision);
+
+            // rotation
+            rotation = reader.ReadQuaternion();
+
+            // scale
+            long sX = reader.ReadLong();
+            long sY = reader.ReadLong();
+            long sZ = reader.ReadLong();
+            scale = Compression.ScaleToFloat(sX, sY, sZ, scalePrecision);
+        }
+
         // last serialization for delta compression
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
-
             // TODO ClientToServer support.
             // - initial is still only called on server
             // - not initial could just send directly
