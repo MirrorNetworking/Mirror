@@ -945,9 +945,15 @@ namespace Mirror
             NetworkBehaviour[] components = NetworkBehaviours;
             for (int i = 0; i < components.Length; ++i)
             {
-                NetworkBehaviour component = components[i];
+                // on the client, we need to consider different sync scenarios:
+                //
+                //   ServerToClient SyncDirection:
+                //     do nothing.
+                //   ClientToServer SyncDirection:
+                //     serialize only if owned.
 
                 // on client, only consider owned components with SyncDirection to server
+                NetworkBehaviour component = components[i];
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
                     // set the n-th bit if dirty
@@ -978,6 +984,10 @@ namespace Mirror
             ValidateComponents();
             NetworkBehaviour[] components = NetworkBehaviours;
 
+            // check which components are dirty for owner / observers.
+            // this is quite complicated with SyncMode + SyncDirection.
+            // see the function for explanation.
+            //
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
@@ -994,19 +1004,6 @@ namespace Mirror
             {
                 for (int i = 0; i < components.Length; ++i)
                 {
-                    // on the server, we need to consider different sync scenarios:
-                    //
-                    //   for owner:
-                    //      if initalState: always serialize
-                    //         (even ClientToServer comps are synced initially)
-                    //      if delta: only ServerToClient components and if dirty.
-                    //         (ClientToServer deltas come from owner client)
-                    //
-                    //   for observers:
-                    //      if initial: always serialize if for Observers
-                    //      if delta: always if for Observers and if dirty.
-                    //         (ClientToServer comps need to be broadcast to others)
-                    //
                     NetworkBehaviour comp = components[i];
 
                     // is this component dirty?
@@ -1034,6 +1031,10 @@ namespace Mirror
             ValidateComponents();
             NetworkBehaviour[] components = NetworkBehaviours;
 
+            // check which components are dirty.
+            // this is quite complicated with SyncMode + SyncDirection.
+            // see the function for explanation.
+            //
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
@@ -1057,13 +1058,6 @@ namespace Mirror
                 // serialize all components
                 for (int i = 0; i < components.Length; ++i)
                 {
-                    // on the client, we need to consider different sync scenarios:
-                    //
-                    //   ServerToClient SyncDirection:
-                    //     do nothing.
-                    //   ClientToServer SyncDirection:
-                    //     serialize only if owned.
-
                     NetworkBehaviour comp = components[i];
 
                     // is this component dirty?
