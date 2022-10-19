@@ -1006,19 +1006,32 @@ namespace Mirror
                 {
                     NetworkBehaviour comp = components[i];
 
-                    // is this component dirty?
-                    // reuse the mask instead of calling comp.IsDirty() again here.
-                    // Debug.Log($"[Server] considering {name}.{comp.GetType()}: IsDirty={IsDirty(ownerMask, i)}");
-                    if (IsDirty(ownerMask, i))
+                    // is the component dirty for anyone (owner or observers)?
+                    // may be serialized to owner, observer, both, or neither.
+                    //
+                    // OnSerialize should only be called once.
+                    // this is faster, and it cleaner because it may set
+                    // internal state, counters, logs, etc.
+                    //
+                    // previously we always serialized to owner and then copied
+                    // the serialization to observers. however, since
+                    // SyncDirection it's not guaranteed to be in owner anymore.
+                    // so we need to serialize to temporary writer first.
+                    // and then copy as needed.
+                    bool ownerDirty     = IsDirty(ownerMask, i);
+                    bool observersDirty = IsDirty(observerMask, i);
+                    if (ownerDirty || observersDirty)
                     {
-                        //Debug.Log($"SerializeAll: {name} -> {comp.GetType()} initial:{ initialState}");
-                        comp.Serialize(ownerWriter, initialState);
-                    }
+                        // serialize into helper writer
+                        using (NetworkWriterPooled temp = NetworkWriterPool.Get())
+                        {
+                            comp.Serialize(temp, initialState);
+                            ArraySegment<byte> segment = temp.ToArraySegment();
 
-                    // todo if either is dirty, only call serialize once?
-                    if (IsDirty(observerMask, i))
-                    {
-                        comp.Serialize(observersWriter, initialState);
+                            // copy to owner / observers as needed
+                            if (ownerDirty)         ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                        }
                     }
                 }
             }
