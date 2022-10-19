@@ -480,40 +480,16 @@ namespace Mirror
             }
             else
             {
-                // delta decompress against 'last'
+                // delta decompress against 'last', store new 'last'
+                current.Position = 0;
+                BitTree.Decompress(last.ToArraySegment(), reader, current);
+                (last, current) = (current, last);
 
-                // then deserialize the data
+                // parse delta compressed data
+                DeserializeEverything(current, out Vector3 position, out Quaternion rotation, out Vector3 scale);
             }
 
             // TODO
-
-            /*
-
-            // set defaults to current.
-            // selective sync may not sync i.e. rotation.
-            // easier to still work with default in that case,
-            // especially for Validate().
-            Vector3 position    = targetComponent.localPosition;
-            Quaternion rotation = targetComponent.localRotation;
-            Vector3 scale       = targetComponent.localScale;
-
-            // read selectively
-            if (syncPosition)
-            {
-                // unscale
-                long x = reader.ReadLong();
-                long y = reader.ReadLong();
-                long z = reader.ReadLong();
-                position = Compression.ScaleToFloat(x, y, z, positionPrecision);
-            }
-            if (syncRotation) rotation = reader.ReadQuaternion();
-            if (syncScale)    scale    = reader.ReadVector3();
-
-            // depending on SyncDirection, Deserialize is called on server/client
-            if      (isClient) DeserializeClient(position, rotation, scale, initialState);
-            else if (isServer) DeserializeServer(position, rotation, scale);
-            else throw new Exception("Deserialize called without active server/client. This should never happen.");
-            */
         }
 
         // other ///////////////////////////////////////////////////////////////
