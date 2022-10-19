@@ -926,7 +926,7 @@ namespace Mirror
                     {
                         // set the n-th bit if dirty.
                         // shifting from small to large numbers is varint-efficient.
-                        if (component.syncDirection == SyncDirection.ServerToClient) ownerMask |= (1u << i); // observer components are sent to owner as well
+                        if (initialState || component.syncDirection == SyncDirection.ServerToClient) ownerMask |= (1u << i); // observer components are sent to owner as well
                         observerMask |= (1u << i); // for observers
                     }
                     // else Debug.Log($"{name}.{component.GetType()} Observers is NOT Dirty with initial={initialState}");
