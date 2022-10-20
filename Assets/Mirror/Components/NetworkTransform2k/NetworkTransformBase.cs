@@ -186,6 +186,21 @@ namespace Mirror
             else if (isClient) UpdateClient();
         }
 
+        void SerializeInitial(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+        }
+
+        void SerializeDelta(NetworkWriter writer, Vector3 position, Quaternion rotation, Vector3 scale)
+        {
+            // TODO changed mask, compression, etc.
+            if (syncPosition) writer.WriteVector3(position);
+            if (syncRotation) writer.WriteQuaternion(rotation);
+            if (syncScale)    writer.WriteVector3(scale);
+        }
+
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
             // get position/rotation/scale from target transform once.
@@ -200,17 +215,12 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(current.position);
-                if (syncRotation) writer.WriteQuaternion(current.rotation);
-                if (syncScale)    writer.WriteVector3(current.scale);
+                SerializeInitial(writer, current.position, current.rotation, current.scale);
             }
             // otherwise only send what's changed
             else
             {
-                // TODO changed mask, compression, etc.
-                if (syncPosition) writer.WriteVector3(current.position);
-                if (syncRotation) writer.WriteQuaternion(current.rotation);
-                if (syncScale)    writer.WriteVector3(current.scale);
+                SerializeDelta(writer, current.position, current.rotation, current.scale);
             }
 
             // either way, store last sent data for comparison
