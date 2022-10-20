@@ -328,7 +328,6 @@ namespace Mirror
             {
                 DeserializeDelta(reader);
             }
-
         }
 
         // common Teleport code for client->server and server->client
