@@ -227,9 +227,25 @@ namespace Mirror
             last = current;
         }
 
+        void DeserializeInitial(NetworkReader reader)
+        {
+            // OnDeserialize with initialState is always called on clients.
+            // never on server.
+            // don't need to do any validation here.
+            Vector3    position = targetComponent.localPosition;
+            Quaternion rotation = targetComponent.localRotation;
+            Vector3    scale    = targetComponent.localScale;
+
+            if (syncPosition) position = reader.ReadVector3();
+            if (syncRotation) rotation = reader.ReadQuaternion();
+            if (syncScale)    scale    = reader.ReadVector3();
+
+            Apply(position, rotation, scale);
+        }
+
         // when syncing from server to client, insert for snapshot interp.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void DeserializeClient(Vector3 position, Quaternion rotation, Vector3 scale, bool initialState)
+        void DeserializeDeltaClient(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             // deserialize is called on all clients, even with client authority.
             // because even with client authority, the server still decides
@@ -260,16 +276,6 @@ namespace Mirror
                     scale
                 ));
             }
-
-            // just spawned with the first snapshot?
-            // then apply it immediately.
-            // otherwise the object would stay at origin for 1 frame.
-            // which is noticeable.
-            if (initialState)
-            {
-                // Debug.LogWarning($"{name} applying spawn position");
-                Apply(position, rotation, scale);
-            }
         }
 
         // overwrite this to validate movement.
@@ -288,10 +294,24 @@ namespace Mirror
         //
         // no 'initialState' parameter. server always knows initial state.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void DeserializeServer(Vector3 position, Quaternion rotation, Vector3 scale)
+        void DeserializeDeltaServer(Vector3 position, Quaternion rotation, Vector3 scale)
         {
             if (Validate(position, rotation, scale))
                 Apply(position, rotation, scale);
+        }
+
+        void DeserializeDelta(NetworkReader reader)
+        {
+            // TODO changed mask, compression, etc.
+            Vector3    position = syncPosition ? reader.ReadVector3()    : targetComponent.localPosition;
+            Quaternion rotation = syncRotation ? reader.ReadQuaternion() : targetComponent.localRotation;
+            Vector3    scale    = syncScale    ? reader.ReadVector3()    : targetComponent.localScale;
+
+            // OnDeserialize with delta may be called on client or server.
+            // need to handle both cases separately
+            // server hast highest priority (i.e. host mode).
+            if      (isServer) DeserializeDeltaServer(position, rotation, scale);
+            else if (isClient) DeserializeDeltaClient(position, rotation, scale);
         }
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
@@ -301,23 +321,14 @@ namespace Mirror
             // (Spawn message wouldn't sync NTChild positions either)
             if (initialState)
             {
-                if (syncPosition) targetComponent.localPosition = reader.ReadVector3();
-                if (syncRotation) targetComponent.localRotation = reader.ReadQuaternion();
-                if (syncScale)    targetComponent.localScale    = reader.ReadVector3();
+                DeserializeInitial(reader);
             }
             // otherwise only deserialize what's changed
             else
             {
-                // TODO changed mask, compression, etc.
-                Vector3    position = syncPosition ? reader.ReadVector3()    : transform.localPosition;
-                Quaternion rotation = syncRotation ? reader.ReadQuaternion() : transform.localRotation;
-                Vector3    scale    = syncScale    ? reader.ReadVector3()    : transform.localScale;
-
-                // deserialize depending on server / client.
-                // server hast highest priority (i.e. host mode).
-                if      (isServer) DeserializeServer(position, rotation, scale);
-                else if (isClient) DeserializeClient(position, rotation, scale, initialState);
+                DeserializeDelta(reader);
             }
+
         }
 
         // common Teleport code for client->server and server->client
