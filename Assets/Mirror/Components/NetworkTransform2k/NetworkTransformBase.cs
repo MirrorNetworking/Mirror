@@ -60,6 +60,13 @@ namespace Mirror
         // make sure to call this when inheriting too!
         protected virtual void Awake() {}
 
+        public override void OnStartServer()
+        {
+            // force 0 to send every NetworkServer.sendInterval.
+            // if we use an interval that's much higher, then it's not smooth.
+            syncInterval = 0;
+        }
+
         // snapshot functions //////////////////////////////////////////////////
         // construct a snapshot of the current state
         // => internal for testing
