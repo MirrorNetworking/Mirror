@@ -198,15 +198,7 @@ namespace Mirror
             if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : targetComponent.localRotation;
             if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : targetComponent.localScale;
 
-            // construct snapshot with batch timestamp to save bandwidth
-            // insert time snapshot ////////////////////////////////////////////
-            TimeSnapshot snapshot = new TimeSnapshot(
-                timestamp,
-                NetworkTime.localTime // 2019 doesn't have double time yet
-            );
-            connectionToClient.OnTimeSnapshot(snapshot);
-
-            // insert transform snapshot ///////////////////////////////////////
+            // insert transform snapshot
             SnapshotInterpolation.InsertIfNotExists(serverSnapshots, new TransformSnapshot(
                 timestamp,         // arrival remote timestamp. NOT remote time.
 #if !UNITY_2020_3_OR_NEWER
