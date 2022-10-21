@@ -124,14 +124,9 @@ namespace Mirror
             // -> we still interpolated
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
-            if (syncPosition)
-                targetComponent.localPosition = interpolated.position;
-
-            if (syncRotation)
-                targetComponent.localRotation = interpolated.rotation;
-
-            if (syncScale)
-                targetComponent.localScale = interpolated.scale;
+            if (syncPosition) targetComponent.localPosition = interpolated.position;
+            if (syncRotation) targetComponent.localRotation = interpolated.rotation;
+            if (syncScale)    targetComponent.localScale = interpolated.scale;
         }
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
