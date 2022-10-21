@@ -636,11 +636,8 @@ namespace Mirror
 
                 // always show both client & server buffers so it's super
                 // obvious if we accidentally populate both.
-                if (serverSnapshots.Count > 0)
-                    GUILayout.Label($"Server Buffer:{serverSnapshots.Count}");
-
-                if (clientSnapshots.Count > 0)
-                    GUILayout.Label($"Client Buffer:{clientSnapshots.Count}");
+                GUILayout.Label($"Server Buffer:{serverSnapshots.Count}");
+                GUILayout.Label($"Client Buffer:{clientSnapshots.Count}");
 
                 GUILayout.EndArea();
                 GUI.color = Color.white;
