@@ -152,6 +152,7 @@ namespace Mirror
 
         /// <summary>Set as dirty so that it's synced to clients again.</summary>
         // these are masks, not bit numbers, ie. 110011b not '2' for 2nd bit.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetSyncVarDirtyBit(ulong dirtyBit)
         {
             syncVarDirtyBits |= dirtyBit;
