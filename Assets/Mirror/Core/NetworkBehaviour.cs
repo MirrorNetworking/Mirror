@@ -158,6 +158,14 @@ namespace Mirror
             syncVarDirtyBits |= dirtyBit;
         }
 
+        /// <summary>Set as dirty to trigger OnSerialize & send. Dirty bits are cleared after the send.</summary>
+        // previously one had to use SetSyncVarDirtyBit(1), which is confusing.
+        // simply reuse SetSyncVarDirtyBit for now.
+        // instead of adding another field.
+        // syncVarDirtyBits does trigger OnSerialize as well.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetDirty() => SetSyncVarDirtyBit(ulong.MaxValue);
+
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         // OR both bitmasks. != 0 if either was dirty.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
