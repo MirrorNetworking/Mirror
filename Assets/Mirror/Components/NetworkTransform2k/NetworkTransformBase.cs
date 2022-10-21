@@ -200,12 +200,6 @@ namespace Mirror
 
             // construct snapshot with batch timestamp to save bandwidth
             // insert time snapshot ////////////////////////////////////////////
-            // TransformSnapshot snapshot = new TransformSnapshot(
-            //     timestamp,
-            //     NetworkTime.localTime,
-            //     position.Value, rotation.Value, scale.Value
-            // );
-
             TimeSnapshot snapshot = new TimeSnapshot(
                 timestamp,
                 NetworkTime.localTime // 2019 doesn't have double time yet
