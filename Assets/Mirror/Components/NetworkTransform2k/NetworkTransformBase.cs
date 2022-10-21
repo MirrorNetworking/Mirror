@@ -44,7 +44,6 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
-
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
