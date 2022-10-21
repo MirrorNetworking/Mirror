@@ -362,34 +362,6 @@ namespace Mirror
             {
                 if (serverSnapshots.Count > 0)
                 {
-                    // timeline starts when the first snapshot arrives.
-                    if (connectionToClient.serverTimeSnapshots.Count > 0)
-                    {
-                        // progress local timeline.
-                        SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref connectionToClient.serverTimeline, connectionToClient.serverTimescale);
-
-                        // progress local interpolation.
-                        // TimeSnapshot doesn't interpolate anything.
-                        // this is merely to keep removing older snapshots.
-                        SnapshotInterpolation.StepInterpolation(connectionToClient.serverTimeSnapshots, connectionToClient.serverTimeline, out _, out _, out _);
-                        // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
-                    }
-
-                    // step transform
-                    // SnapshotInterpolation.Step(
-                    //     serverSnapshots,
-                    //     Time.unscaledDeltaTime,
-                    //     ref connectionToClient.serverTimeline,
-                    //     connectionToClient.serverTimescale,
-                    //     out TransformSnapshot fromSnapshot,
-                    //     out TransformSnapshot toSnapshot,
-                    //     out double t);
-                    //
-                    // // interpolate & apply
-                    // TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
-                    // ApplySnapshot(computed);
-
-
                     // step the transform interpolation without touching time.
                     // NetworkClient is responsible for time globally.
                     SnapshotInterpolation.StepInterpolation(

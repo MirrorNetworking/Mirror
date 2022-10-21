@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -72,6 +73,22 @@ namespace Mirror
                 NetworkClient.catchupPositiveThreshold,
                 ref serverDeliveryTimeEma
             );
+        }
+
+        public void UpdateTimeInterpolation()
+        {
+            // timeline starts when the first snapshot arrives.
+            if (serverTimeSnapshots.Count > 0)
+            {
+                // progress local timeline.
+                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref serverTimeline, serverTimescale);
+
+                // progress local interpolation.
+                // TimeSnapshot doesn't interpolate anything.
+                // this is merely to keep removing older snapshots.
+                SnapshotInterpolation.StepInterpolation(serverTimeSnapshots, serverTimeline, out _, out _, out _);
+                // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
+            }
         }
 
         // Send stage three: hand off to transport

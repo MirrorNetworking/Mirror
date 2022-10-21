@@ -1788,6 +1788,10 @@ namespace Mirror
             // process all incoming messages first before updating the world
             if (Transport.active != null)
                 Transport.active.ServerEarlyUpdate();
+
+            // step each connection's local time interpolation in early update.
+            foreach (NetworkConnectionToClient connection in connections.Values)
+                connection.UpdateTimeInterpolation();
         }
 
         internal static void NetworkLateUpdate()
