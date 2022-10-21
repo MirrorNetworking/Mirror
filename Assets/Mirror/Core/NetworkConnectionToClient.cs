@@ -20,9 +20,12 @@ namespace Mirror
         // unbatcher
         public Unbatcher unbatcher = new Unbatcher();
 
-        // in host mode, we apply snapshot interpolation to for each connection.
-        // this way other players are still smooth on hosted games.
-        // in other words, we still need ema etc. on server here.
+        // server runs a time snapshot interpolation for each client's local time.
+        // this is necessary for client auth movement to still be smooth on the
+        // server for host mode.
+        // TODO move them along server's timeline in the future.
+        //      perhaps with an offset.
+        //      for now, keep compatibility by manually constructing a timeline.
         ExponentialMovingAverage driftEma;
         ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
         public double remoteTimeline;
