@@ -44,6 +44,9 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
+        // <servertime, snaps>
+        public static SortedList<double, TimeSnapshot> serverTimeSnapshots = new SortedList<double, TimeSnapshot>();
+
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
@@ -199,10 +202,16 @@ namespace Mirror
             if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : targetComponent.localScale;
 
             // construct snapshot with batch timestamp to save bandwidth
-            TransformSnapshot snapshot = new TransformSnapshot(
+            // insert time snapshot ////////////////////////////////////////////
+            // TransformSnapshot snapshot = new TransformSnapshot(
+            //     timestamp,
+            //     NetworkTime.localTime,
+            //     position.Value, rotation.Value, scale.Value
+            // );
+
+            TimeSnapshot snapshot = new TimeSnapshot(
                 timestamp,
-                NetworkTime.localTime,
-                position.Value, rotation.Value, scale.Value
+                NetworkTime.localTime // 2019 doesn't have double time yet
             );
 
             // (optional) dynamic adjustment
@@ -220,7 +229,7 @@ namespace Mirror
 
             // insert into the server buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
-                serverSnapshots,
+                serverTimeSnapshots,
                 snapshot,
                 ref connectionToClient.serverTimeline,
                 ref connectionToClient.serverTimescale,
@@ -233,6 +242,20 @@ namespace Mirror
                 NetworkClient.catchupPositiveThreshold,
                 ref connectionToClient.serverDeliveryTimeEma
             );
+
+
+            // insert transform snapshot ///////////////////////////////////////
+            SnapshotInterpolation.InsertIfNotExists(serverSnapshots, new TransformSnapshot(
+                timestamp,         // arrival remote timestamp. NOT remote time.
+#if !UNITY_2020_3_OR_NEWER
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+#else
+                Time.timeAsDouble,
+#endif
+                position.Value,
+                rotation.Value,
+                scale.Value
+            ));
         }
 
         // rpc /////////////////////////////////////////////////////////////////
@@ -385,18 +408,45 @@ namespace Mirror
             {
                 if (serverSnapshots.Count > 0)
                 {
-                    // step
-                    SnapshotInterpolation.Step(
+                    // timeline starts when the first snapshot arrives.
+                    if (serverTimeSnapshots.Count > 0)
+                    {
+                        // progress local timeline.
+                        SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref connectionToClient.serverTimeline, connectionToClient.serverTimescale);
+
+                        // progress local interpolation.
+                        // TimeSnapshot doesn't interpolate anything.
+                        // this is merely to keep removing older snapshots.
+                        SnapshotInterpolation.StepInterpolation(serverTimeSnapshots, connectionToClient.serverTimeline, out _, out _, out _);
+                        // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
+                    }
+
+                    // step transform
+                    // SnapshotInterpolation.Step(
+                    //     serverSnapshots,
+                    //     Time.unscaledDeltaTime,
+                    //     ref connectionToClient.serverTimeline,
+                    //     connectionToClient.serverTimescale,
+                    //     out TransformSnapshot fromSnapshot,
+                    //     out TransformSnapshot toSnapshot,
+                    //     out double t);
+                    //
+                    // // interpolate & apply
+                    // TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                    // ApplySnapshot(computed);
+
+
+                    // step the transform interpolation without touching time.
+                    // NetworkClient is responsible for time globally.
+                    SnapshotInterpolation.StepInterpolation(
                         serverSnapshots,
-                        Time.unscaledDeltaTime,
-                        ref connectionToClient.serverTimeline,
-                        connectionToClient.serverTimescale,
-                        out TransformSnapshot fromSnapshot,
-                        out TransformSnapshot toSnapshot,
+                        connectionToClient.serverTimeline,
+                        out TransformSnapshot from,
+                        out TransformSnapshot to,
                         out double t);
 
                     // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     ApplySnapshot(computed);
                 }
             }
