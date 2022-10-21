@@ -33,6 +33,9 @@ namespace Mirror
         // <clienttime, snaps>
         public SortedList<double, TimeSnapshot> serverTimeSnapshots = new SortedList<double, TimeSnapshot>();
 
+        // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
+        public int snapshotBufferSizeLimit = 64;
+
         public NetworkConnectionToClient(int networkConnectionId)
             : base(networkConnectionId)
         {
@@ -41,10 +44,16 @@ namespace Mirror
             // multiplied by emaDuration gives n-seconds.
             serverDriftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
             serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
+
+            // buffer limit should be at least multiplier to have enough in there
+            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, snapshotBufferSizeLimit);
         }
 
         public void OnTimeSnapshot(TimeSnapshot snapshot)
         {
+            // protect against ever growing buffer size attacks
+            if (serverTimeSnapshots.Count >= snapshotBufferSizeLimit) return;
+
             // (optional) dynamic adjustment
             if (NetworkClient.dynamicAdjustment)
             {

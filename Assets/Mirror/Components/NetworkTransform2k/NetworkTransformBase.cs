@@ -38,9 +38,6 @@ namespace Mirror
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
-        [Tooltip("Buffer size limit to avoid ever growing list memory consumption attacks.")]
-        public int bufferSizeLimit = 64;
-
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
@@ -169,7 +166,7 @@ namespace Mirror
             if (!clientAuthority) return;
 
             // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= bufferSizeLimit) return;
+            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
             // only player owned objects (with a connection) can send to
             // server. we can get the timestamp from the connection.
@@ -233,7 +230,7 @@ namespace Mirror
             if (IsClientWithAuthority) return;
 
             // protect against ever growing buffer size attacks
-            if (clientSnapshots.Count >= bufferSizeLimit) return;
+            if (clientSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
             // on the client, we receive rpcs for all entities.
             // not all of them have a connectionToServer.
@@ -597,12 +594,6 @@ namespace Mirror
 
         protected virtual void OnDisable() => Reset();
         protected virtual void OnEnable() => Reset();
-
-        protected virtual void OnValidate()
-        {
-            // buffer limit should be at least multiplier to have enough in there
-            bufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, bufferSizeLimit);
-        }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
