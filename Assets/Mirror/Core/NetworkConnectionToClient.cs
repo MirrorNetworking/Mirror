@@ -23,15 +23,15 @@ namespace Mirror
         // in host mode, we apply snapshot interpolation to for each connection.
         // this way other players are still smooth on hosted games.
         // in other words, we still need ema etc. on server here.
-        public ExponentialMovingAverage serverDriftEma;
-        public ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
-        public double serverTimeline;
-        public double serverTimescale;
-        public double serverBufferTimeMultiplier = 2;
-        public double serverBufferTime => NetworkServer.sendInterval * serverBufferTimeMultiplier;
+        public ExponentialMovingAverage driftEma;
+        public ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
+        public double remoteTimeline;
+        public double remoteTimescale;
+        public double bufferTimeMultiplier = 2;
+        public double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
 
         // <clienttime, snaps>
-        public SortedList<double, TimeSnapshot> serverTimeSnapshots = new SortedList<double, TimeSnapshot>();
+        public SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
 
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
@@ -42,8 +42,8 @@ namespace Mirror
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            serverDriftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
-            serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
+            driftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
 
             // buffer limit should be at least multiplier to have enough in there
             snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, snapshotBufferSizeLimit);
@@ -52,16 +52,16 @@ namespace Mirror
         public void OnTimeSnapshot(TimeSnapshot snapshot)
         {
             // protect against ever growing buffer size attacks
-            if (serverTimeSnapshots.Count >= snapshotBufferSizeLimit) return;
+            if (snapshots.Count >= snapshotBufferSizeLimit) return;
 
             // (optional) dynamic adjustment
             if (NetworkClient.dynamicAdjustment)
             {
                 // set bufferTime on the fly.
                 // shows in inspector for easier debugging :)
-                serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
+                bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
                     NetworkServer.sendInterval,
-                    serverDeliveryTimeEma.StandardDeviation,
+                    deliveryTimeEma.StandardDeviation,
                     NetworkClient.dynamicAdjustmentTolerance
                 );
                 // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
@@ -69,33 +69,33 @@ namespace Mirror
 
             // insert into the server buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
-                serverTimeSnapshots,
+                snapshots,
                 snapshot,
-                ref serverTimeline,
-                ref serverTimescale,
+                ref remoteTimeline,
+                ref remoteTimescale,
                 NetworkServer.sendInterval,
-                serverBufferTime,
+                bufferTime,
                 NetworkClient.catchupSpeed,
                 NetworkClient.slowdownSpeed,
-                ref serverDriftEma,
+                ref driftEma,
                 NetworkClient.catchupNegativeThreshold,
                 NetworkClient.catchupPositiveThreshold,
-                ref serverDeliveryTimeEma
+                ref deliveryTimeEma
             );
         }
 
         public void UpdateTimeInterpolation()
         {
             // timeline starts when the first snapshot arrives.
-            if (serverTimeSnapshots.Count > 0)
+            if (snapshots.Count > 0)
             {
                 // progress local timeline.
-                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref serverTimeline, serverTimescale);
+                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref remoteTimeline, remoteTimescale);
 
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
                 // this is merely to keep removing older snapshots.
-                SnapshotInterpolation.StepInterpolation(serverTimeSnapshots, serverTimeline, out _, out _, out _);
+                SnapshotInterpolation.StepInterpolation(snapshots, remoteTimeline, out _, out _, out _);
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
             }
         }

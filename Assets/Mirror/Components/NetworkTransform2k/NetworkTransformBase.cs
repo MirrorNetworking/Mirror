@@ -363,7 +363,7 @@ namespace Mirror
                     // NetworkClient is responsible for time globally.
                     SnapshotInterpolation.StepInterpolation(
                         serverSnapshots,
-                        connectionToClient.serverTimeline,
+                        connectionToClient.remoteTimeline,
                         out TransformSnapshot from,
                         out TransformSnapshot to,
                         out double t);
