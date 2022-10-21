@@ -44,9 +44,6 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
-        // <servertime, snaps>
-        public static SortedList<double, TimeSnapshot> serverTimeSnapshots = new SortedList<double, TimeSnapshot>();
-
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
@@ -229,7 +226,7 @@ namespace Mirror
 
             // insert into the server buffer & initialize / adjust / catchup
             SnapshotInterpolation.InsertAndAdjust(
-                serverTimeSnapshots,
+                connectionToClient.serverTimeSnapshots,
                 snapshot,
                 ref connectionToClient.serverTimeline,
                 ref connectionToClient.serverTimescale,
@@ -409,7 +406,7 @@ namespace Mirror
                 if (serverSnapshots.Count > 0)
                 {
                     // timeline starts when the first snapshot arrives.
-                    if (serverTimeSnapshots.Count > 0)
+                    if (connectionToClient.serverTimeSnapshots.Count > 0)
                     {
                         // progress local timeline.
                         SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref connectionToClient.serverTimeline, connectionToClient.serverTimescale);
@@ -417,7 +414,7 @@ namespace Mirror
                         // progress local interpolation.
                         // TimeSnapshot doesn't interpolate anything.
                         // this is merely to keep removing older snapshots.
-                        SnapshotInterpolation.StepInterpolation(serverTimeSnapshots, connectionToClient.serverTimeline, out _, out _, out _);
+                        SnapshotInterpolation.StepInterpolation(connectionToClient.serverTimeSnapshots, connectionToClient.serverTimeline, out _, out _, out _);
                         // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
                     }
 

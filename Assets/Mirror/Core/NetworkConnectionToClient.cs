@@ -29,6 +29,8 @@ namespace Mirror
         public double serverBufferTimeMultiplier = 2;
         public double serverBufferTime => NetworkServer.sendInterval * serverBufferTimeMultiplier;
 
+        // <clienttime, snaps>
+        public SortedList<double, TimeSnapshot> serverTimeSnapshots = new SortedList<double, TimeSnapshot>();
 
         public NetworkConnectionToClient(int networkConnectionId)
             : base(networkConnectionId)
