@@ -20,6 +20,15 @@ namespace Mirror
     /// <summary>NetworkClient with connection to server.</summary>
     public static partial class NetworkClient
     {
+        // send time snapshot every sendInterval.
+        // client may run at very high update rate for rendering.
+        // we don't want to send a time snapshot 120 times per second though.
+        // -> components are only synced when dirty though
+        // -> Timesnapshots are sent every sendRate
+        public static int sendRate = 30;
+        public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
+        static double lastSendTime;
+
         // message handlers by messageId
         internal static readonly Dictionary<ushort, NetworkMessageDelegate> handlers =
             new Dictionary<ushort, NetworkMessageDelegate>();
@@ -1409,6 +1418,23 @@ namespace Mirror
         }
 
         // broadcast ///////////////////////////////////////////////////////////
+        static void BroadcastTimeSnapshot()
+        {
+            // always send when running tests though.
+            // keep this interval independent from state broadcast for now.
+            // so that state broadcast syncIntervals are respected.
+            if (!Application.isPlaying ||
+#if !UNITY_2020_3_OR_NEWER
+                // Unity 2019 doesn't have Time.timeAsDouble yet
+                AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
+#else
+                AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
+#endif
+            {
+                Send(new TimeSnapshotMessage(), Channels.Unreliable);
+            }
+        }
+
         // make sure Broadcast() is only called every sendInterval.
         // calling it every update() would require too much bandwidth.
         static void Broadcast()
@@ -1418,6 +1444,9 @@ namespace Mirror
 
             // nothing to do in host mode. server already knows the state.
             if (NetworkServer.active) return;
+
+            // send time snapshot every sendInterval.
+            BroadcastTimeSnapshot();
 
             // for each entity that the client owns
             foreach (NetworkIdentity identity in connection.owned)

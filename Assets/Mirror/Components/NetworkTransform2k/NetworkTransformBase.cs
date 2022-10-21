@@ -38,22 +38,8 @@ namespace Mirror
         // target transform to sync. can be on a child.
         protected abstract Transform targetComponent { get; }
 
-        [Tooltip("Buffer size limit to avoid ever growing list memory consumption attacks.")]
-        public int bufferSizeLimit = 64;
-
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
-
-        // in host mode, we apply snapshot interpolation to for each connection.
-        // this way other players are still smooth on hosted games.
-        // in other words, we still need ema etc. for server here.
-        ExponentialMovingAverage serverDriftEma;
-        ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
-        double serverTimeline;
-        double serverTimescale;
-        public static double serverBufferTimeMultiplier = 2;
-        public static double serverBufferTime => NetworkServer.sendInterval * serverBufferTimeMultiplier;
-
 
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
@@ -96,14 +82,7 @@ namespace Mirror
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
-        protected virtual void Awake()
-        {
-            // initialize EMA with 'emaDuration' seconds worth of history.
-            // 1 second holds 'sendRate' worth of values.
-            // multiplied by emaDuration gives n-seconds.
-            serverDriftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
-            serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
-        }
+        protected virtual void Awake() {}
 
         // snapshot functions //////////////////////////////////////////////////
         // construct a snapshot of the current state
@@ -187,7 +166,7 @@ namespace Mirror
             if (!clientAuthority) return;
 
             // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= bufferSizeLimit) return;
+            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
             // only player owned objects (with a connection) can send to
             // server. we can get the timestamp from the connection.
@@ -216,41 +195,18 @@ namespace Mirror
             if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : targetComponent.localRotation;
             if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : targetComponent.localScale;
 
-            // construct snapshot with batch timestamp to save bandwidth
-            TransformSnapshot snapshot = new TransformSnapshot(
-                timestamp,
-                NetworkTime.localTime,
-                position.Value, rotation.Value, scale.Value
-            );
-
-            // (optional) dynamic adjustment
-            if (NetworkClient.dynamicAdjustment)
-            {
-                // set bufferTime on the fly.
-                // shows in inspector for easier debugging :)
-                serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    NetworkServer.sendInterval,
-                    serverDeliveryTimeEma.StandardDeviation,
-                    NetworkClient.dynamicAdjustmentTolerance
-                );
-                // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
-            }
-
-            // insert into the server buffer & initialize / adjust / catchup
-            SnapshotInterpolation.InsertAndAdjust(
-                serverSnapshots,
-                snapshot,
-                ref serverTimeline,
-                ref serverTimescale,
-                NetworkServer.sendInterval,
-                serverBufferTime,
-                NetworkClient.catchupSpeed,
-                NetworkClient.slowdownSpeed,
-                ref serverDriftEma,
-                NetworkClient.catchupNegativeThreshold,
-                NetworkClient.catchupPositiveThreshold,
-                ref serverDeliveryTimeEma
-            );
+            // insert transform snapshot
+            SnapshotInterpolation.InsertIfNotExists(serverSnapshots, new TransformSnapshot(
+                timestamp,         // arrival remote timestamp. NOT remote time.
+#if !UNITY_2020_3_OR_NEWER
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+#else
+                Time.timeAsDouble,
+#endif
+                position.Value,
+                rotation.Value,
+                scale.Value
+            ));
         }
 
         // rpc /////////////////////////////////////////////////////////////////
@@ -272,9 +228,6 @@ namespace Mirror
 
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
-
-            // protect against ever growing buffer size attacks
-            if (clientSnapshots.Count >= bufferSizeLimit) return;
 
             // on the client, we receive rpcs for all entities.
             // not all of them have a connectionToServer.
@@ -403,18 +356,17 @@ namespace Mirror
             {
                 if (serverSnapshots.Count > 0)
                 {
-                    // step
-                    SnapshotInterpolation.Step(
+                    // step the transform interpolation without touching time.
+                    // NetworkClient is responsible for time globally.
+                    SnapshotInterpolation.StepInterpolation(
                         serverSnapshots,
-                        Time.unscaledDeltaTime,
-                        ref serverTimeline,
-                        serverTimescale,
-                        out TransformSnapshot fromSnapshot,
-                        out TransformSnapshot toSnapshot,
+                        connectionToClient.remoteTimeline,
+                        out TransformSnapshot from,
+                        out TransformSnapshot to,
                         out double t);
 
                     // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(fromSnapshot, toSnapshot, t);
+                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     ApplySnapshot(computed);
                 }
             }
@@ -635,20 +587,10 @@ namespace Mirror
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
-
-            // reset interpolation time too so we start at t=0 next time
-            serverTimeline  = 0;
-            serverTimescale = 0;
         }
 
         protected virtual void OnDisable() => Reset();
         protected virtual void OnEnable() => Reset();
-
-        protected virtual void OnValidate()
-        {
-            // buffer limit should be at least multiplier to have enough in there
-            bufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, bufferSizeLimit);
-        }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {

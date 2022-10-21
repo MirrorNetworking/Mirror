@@ -215,7 +215,7 @@ namespace Mirror.Tests.NetworkTransform2k
         [Test]
         public void OnClientToServerSync_WithClientAuthority_BufferSizeLimit()
         {
-            component.bufferSizeLimit = 1;
+            component.connectionToClient.snapshotBufferSizeLimit = 1;
 
             // authority is required
             component.clientAuthority = true;
@@ -267,7 +267,7 @@ namespace Mirror.Tests.NetworkTransform2k
         [Test]
         public void OnServerToClientSync_WithoutClientAuthority_bufferSizeLimit()
         {
-            component.bufferSizeLimit = 1;
+            component.connectionToClient.snapshotBufferSizeLimit = 1;
 
             // pretend to be the client object
             component.netIdentity.isServer = false;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -19,8 +20,88 @@ namespace Mirror
         // unbatcher
         public Unbatcher unbatcher = new Unbatcher();
 
+        // server runs a time snapshot interpolation for each client's local time.
+        // this is necessary for client auth movement to still be smooth on the
+        // server for host mode.
+        // TODO move them along server's timeline in the future.
+        //      perhaps with an offset.
+        //      for now, keep compatibility by manually constructing a timeline.
+        ExponentialMovingAverage driftEma;
+        ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
+        public double remoteTimeline;
+        public double remoteTimescale;
+        double bufferTimeMultiplier = 2;
+        double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
+
+        // <clienttime, snaps>
+        readonly SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
+
+        // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
+        public int snapshotBufferSizeLimit = 64;
+
         public NetworkConnectionToClient(int networkConnectionId)
-            : base(networkConnectionId) {}
+            : base(networkConnectionId)
+        {
+            // initialize EMA with 'emaDuration' seconds worth of history.
+            // 1 second holds 'sendRate' worth of values.
+            // multiplied by emaDuration gives n-seconds.
+            driftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
+
+            // buffer limit should be at least multiplier to have enough in there
+            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, snapshotBufferSizeLimit);
+        }
+
+        public void OnTimeSnapshot(TimeSnapshot snapshot)
+        {
+            // protect against ever growing buffer size attacks
+            if (snapshots.Count >= snapshotBufferSizeLimit) return;
+
+            // (optional) dynamic adjustment
+            if (NetworkClient.dynamicAdjustment)
+            {
+                // set bufferTime on the fly.
+                // shows in inspector for easier debugging :)
+                bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
+                    NetworkServer.sendInterval,
+                    deliveryTimeEma.StandardDeviation,
+                    NetworkClient.dynamicAdjustmentTolerance
+                );
+                // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
+            }
+
+            // insert into the server buffer & initialize / adjust / catchup
+            SnapshotInterpolation.InsertAndAdjust(
+                snapshots,
+                snapshot,
+                ref remoteTimeline,
+                ref remoteTimescale,
+                NetworkServer.sendInterval,
+                bufferTime,
+                NetworkClient.catchupSpeed,
+                NetworkClient.slowdownSpeed,
+                ref driftEma,
+                NetworkClient.catchupNegativeThreshold,
+                NetworkClient.catchupPositiveThreshold,
+                ref deliveryTimeEma
+            );
+        }
+
+        public void UpdateTimeInterpolation()
+        {
+            // timeline starts when the first snapshot arrives.
+            if (snapshots.Count > 0)
+            {
+                // progress local timeline.
+                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref remoteTimeline, remoteTimescale);
+
+                // progress local interpolation.
+                // TimeSnapshot doesn't interpolate anything.
+                // this is merely to keep removing older snapshots.
+                SnapshotInterpolation.StepInterpolation(snapshots, remoteTimeline, out _, out _, out _);
+                // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
+            }
+        }
 
         // Send stage three: hand off to transport
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
