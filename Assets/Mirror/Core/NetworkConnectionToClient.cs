@@ -31,7 +31,7 @@ namespace Mirror
         double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
 
         // <clienttime, snaps>
-        SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
+        readonly SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
 
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
