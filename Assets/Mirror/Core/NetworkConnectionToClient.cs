@@ -19,8 +19,26 @@ namespace Mirror
         // unbatcher
         public Unbatcher unbatcher = new Unbatcher();
 
+        // in host mode, we apply snapshot interpolation to for each connection.
+        // this way other players are still smooth on hosted games.
+        // in other words, we still need ema etc. on server here.
+        public ExponentialMovingAverage serverDriftEma;
+        public ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
+        public double serverTimeline;
+        public double serverTimescale;
+        public double serverBufferTimeMultiplier = 2;
+        public double serverBufferTime => NetworkServer.sendInterval * serverBufferTimeMultiplier;
+
+
         public NetworkConnectionToClient(int networkConnectionId)
-            : base(networkConnectionId) {}
+            : base(networkConnectionId)
+        {
+            // initialize EMA with 'emaDuration' seconds worth of history.
+            // 1 second holds 'sendRate' worth of values.
+            // multiplied by emaDuration gives n-seconds.
+            serverDriftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
+            serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
+        }
 
         // Send stage three: hand off to transport
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

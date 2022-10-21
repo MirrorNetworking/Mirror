@@ -44,16 +44,6 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
-        // in host mode, we apply snapshot interpolation to for each connection.
-        // this way other players are still smooth on hosted games.
-        // in other words, we still need ema etc. for server here.
-        ExponentialMovingAverage serverDriftEma;
-        ExponentialMovingAverage serverDeliveryTimeEma; // average delivery time (standard deviation gives average jitter)
-        double serverTimeline;
-        double serverTimescale;
-        public static double serverBufferTimeMultiplier = 2;
-        public static double serverBufferTime => NetworkServer.sendInterval * serverBufferTimeMultiplier;
-
 
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
@@ -96,14 +86,7 @@ namespace Mirror
 
         // initialization //////////////////////////////////////////////////////
         // make sure to call this when inheriting too!
-        protected virtual void Awake()
-        {
-            // initialize EMA with 'emaDuration' seconds worth of history.
-            // 1 second holds 'sendRate' worth of values.
-            // multiplied by emaDuration gives n-seconds.
-            serverDriftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
-            serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
-        }
+        protected virtual void Awake() {}
 
         // snapshot functions //////////////////////////////////////////////////
         // construct a snapshot of the current state
@@ -228,9 +211,9 @@ namespace Mirror
             {
                 // set bufferTime on the fly.
                 // shows in inspector for easier debugging :)
-                serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
+                connectionToClient.serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
                     NetworkServer.sendInterval,
-                    serverDeliveryTimeEma.StandardDeviation,
+                    connectionToClient.serverDeliveryTimeEma.StandardDeviation,
                     NetworkClient.dynamicAdjustmentTolerance
                 );
                 // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
@@ -240,16 +223,16 @@ namespace Mirror
             SnapshotInterpolation.InsertAndAdjust(
                 serverSnapshots,
                 snapshot,
-                ref serverTimeline,
-                ref serverTimescale,
+                ref connectionToClient.serverTimeline,
+                ref connectionToClient.serverTimescale,
                 NetworkServer.sendInterval,
-                serverBufferTime,
+                connectionToClient.serverBufferTime,
                 NetworkClient.catchupSpeed,
                 NetworkClient.slowdownSpeed,
-                ref serverDriftEma,
+                ref connectionToClient.serverDriftEma,
                 NetworkClient.catchupNegativeThreshold,
                 NetworkClient.catchupPositiveThreshold,
-                ref serverDeliveryTimeEma
+                ref connectionToClient.serverDeliveryTimeEma
             );
         }
 
@@ -407,8 +390,8 @@ namespace Mirror
                     SnapshotInterpolation.Step(
                         serverSnapshots,
                         Time.unscaledDeltaTime,
-                        ref serverTimeline,
-                        serverTimescale,
+                        ref connectionToClient.serverTimeline,
+                        connectionToClient.serverTimescale,
                         out TransformSnapshot fromSnapshot,
                         out TransformSnapshot toSnapshot,
                         out double t);
@@ -635,10 +618,6 @@ namespace Mirror
             // so let's clear the buffers.
             serverSnapshots.Clear();
             clientSnapshots.Clear();
-
-            // reset interpolation time too so we start at t=0 next time
-            serverTimeline  = 0;
-            serverTimescale = 0;
         }
 
         protected virtual void OnDisable() => Reset();
