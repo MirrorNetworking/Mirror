@@ -164,7 +164,7 @@ namespace Mirror
         // instead of adding another field.
         // syncVarDirtyBits does trigger OnSerialize as well.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetDirty() => SetSyncVarDirtyBit(1);
+        public void SetDirty() => SetSyncVarDirtyBit(ulong.MaxValue);
 
         // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
         // OR both bitmasks. != 0 if either was dirty.
