@@ -23,15 +23,15 @@ namespace Mirror
         // in host mode, we apply snapshot interpolation to for each connection.
         // this way other players are still smooth on hosted games.
         // in other words, we still need ema etc. on server here.
-        public ExponentialMovingAverage driftEma;
-        public ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
+        ExponentialMovingAverage driftEma;
+        ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
         public double remoteTimeline;
         public double remoteTimescale;
-        public double bufferTimeMultiplier = 2;
-        public double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
+        double bufferTimeMultiplier = 2;
+        double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
 
         // <clienttime, snaps>
-        public SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
+        SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
 
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
