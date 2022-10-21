@@ -135,6 +135,7 @@ namespace Mirror
             RegisterHandler<CommandMessage>(OnCommandMessage);
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
+            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
         }
 
         /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
@@ -1021,6 +1022,28 @@ namespace Mirror
             // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
         }
 
+        // client sends TimeSnapshotMessage every sendInterval.
+        // batching already includes the remoteTimestamp.
+        // we simply insert it on-message here.
+        // => only for reliable channel. unreliable would always arrive earlier.
+        static void OnTimeSnapshotMessage(NetworkConnectionToClient connection, TimeSnapshotMessage _)
+        {
+            // insert another snapshot for snapshot interpolation.
+            // before calling OnDeserialize so components can use
+            // NetworkTime.time and NetworkTime.timeStamp.
+
+            // TODO validation?
+            // maybe we shouldn't allow timeline to deviate more than a certain %.
+            // for now, this is only used for client authority movement.
+
+#if !UNITY_2020_3_OR_NEWER
+            // Unity 2019 doesn't have Time.timeAsDouble yet
+            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+#else
+            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
+#endif
+        }
+
         // spawning ////////////////////////////////////////////////////////////
         static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, NetworkWriterPooled ownerWriter, NetworkWriterPooled observersWriter)
         {
@@ -1765,6 +1788,10 @@ namespace Mirror
             // process all incoming messages first before updating the world
             if (Transport.active != null)
                 Transport.active.ServerEarlyUpdate();
+
+            // step each connection's local time interpolation in early update.
+            foreach (NetworkConnectionToClient connection in connections.Values)
+                connection.UpdateTimeInterpolation();
         }
 
         internal static void NetworkLateUpdate()
