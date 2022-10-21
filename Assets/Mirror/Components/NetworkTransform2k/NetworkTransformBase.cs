@@ -210,36 +210,7 @@ namespace Mirror
                 timestamp,
                 NetworkTime.localTime // 2019 doesn't have double time yet
             );
-
-            // (optional) dynamic adjustment
-            if (NetworkClient.dynamicAdjustment)
-            {
-                // set bufferTime on the fly.
-                // shows in inspector for easier debugging :)
-                connectionToClient.serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
-                    NetworkServer.sendInterval,
-                    connectionToClient.serverDeliveryTimeEma.StandardDeviation,
-                    NetworkClient.dynamicAdjustmentTolerance
-                );
-                // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
-            }
-
-            // insert into the server buffer & initialize / adjust / catchup
-            SnapshotInterpolation.InsertAndAdjust(
-                connectionToClient.serverTimeSnapshots,
-                snapshot,
-                ref connectionToClient.serverTimeline,
-                ref connectionToClient.serverTimescale,
-                NetworkServer.sendInterval,
-                connectionToClient.serverBufferTime,
-                NetworkClient.catchupSpeed,
-                NetworkClient.slowdownSpeed,
-                ref connectionToClient.serverDriftEma,
-                NetworkClient.catchupNegativeThreshold,
-                NetworkClient.catchupPositiveThreshold,
-                ref connectionToClient.serverDeliveryTimeEma
-            );
-
+            connectionToClient.OnTimeSnapshot(snapshot);
 
             // insert transform snapshot ///////////////////////////////////////
             SnapshotInterpolation.InsertIfNotExists(serverSnapshots, new TransformSnapshot(

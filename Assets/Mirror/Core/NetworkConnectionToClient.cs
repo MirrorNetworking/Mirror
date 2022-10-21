@@ -42,6 +42,38 @@ namespace Mirror
             serverDeliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
         }
 
+        public void OnTimeSnapshot(TimeSnapshot snapshot)
+        {
+            // (optional) dynamic adjustment
+            if (NetworkClient.dynamicAdjustment)
+            {
+                // set bufferTime on the fly.
+                // shows in inspector for easier debugging :)
+                serverBufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
+                    NetworkServer.sendInterval,
+                    serverDeliveryTimeEma.StandardDeviation,
+                    NetworkClient.dynamicAdjustmentTolerance
+                );
+                // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
+            }
+
+            // insert into the server buffer & initialize / adjust / catchup
+            SnapshotInterpolation.InsertAndAdjust(
+                serverTimeSnapshots,
+                snapshot,
+                ref serverTimeline,
+                ref serverTimescale,
+                NetworkServer.sendInterval,
+                serverBufferTime,
+                NetworkClient.catchupSpeed,
+                NetworkClient.slowdownSpeed,
+                ref serverDriftEma,
+                NetworkClient.catchupNegativeThreshold,
+                NetworkClient.catchupPositiveThreshold,
+                ref serverDeliveryTimeEma
+            );
+        }
+
         // Send stage three: hand off to transport
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
