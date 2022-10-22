@@ -91,6 +91,11 @@ namespace Mirror
             // both always need to be on the same send interval.
             // force it in here.
             syncInterval = NetworkServer.sendInterval;
+
+            // NetworkTransform doesn't use SyncDirection yet.
+            // it still uses 'clientAuthority' to indicate authority.
+            // make it obvious that there's only one source of truth.
+            syncDirection = clientAuthority ? SyncDirection.ClientToServer : SyncDirection.ServerToClient;
         }
 
         // snapshot functions //////////////////////////////////////////////////
