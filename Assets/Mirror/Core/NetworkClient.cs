@@ -20,12 +20,16 @@ namespace Mirror
     /// <summary>NetworkClient with connection to server.</summary>
     public static partial class NetworkClient
     {
-        // send time snapshot every sendInterval.
-        // client may run at very high update rate for rendering.
-        // we don't want to send a time snapshot 120 times per second though.
-        // -> components are only synced when dirty though
-        // -> Timesnapshots are sent every sendRate
-        public static int sendRate = 30;
+        // time & value snapshot interpolation are separate.
+        // -> time is interpolated globally on NetworkClient / NetworkConnection
+        // -> value is interpolated per-component, i.e. NetworkTransform.
+        // however, both need to be on the same send interval.
+        //
+        // additionally, server & client need to use the same send interval.
+        // otherwise it's too easy to accidentally cause interpolation issues if
+        // a component sends with client.interval but interpolates with
+        // server.interval, etc.
+        public static int sendRate => NetworkServer.sendRate;
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
