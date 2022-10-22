@@ -24,9 +24,10 @@ namespace Mirror
         // 1 / int.max would not be exactly 0, so handel that manually.
         public static float tickInterval => tickRate < int.MaxValue ? 1f / tickRate : 0; // for 30 Hz, that's 33ms
 
-        // broadcast() runs every tick.
-        // -> components are only synced when dirty though
-        // -> Timesnapshots are sent every sendRate
+        // time & value snapshot interpolation are separate.
+        // -> time is interpolated globally on NetworkClient / NetworkConnection
+        // -> value is interpolated per-component, i.e. NetworkTransform.
+        // however, both need to be on the same send interval.
         public static int sendRate       => tickRate;
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
