@@ -1,4 +1,4 @@
-// NetworkTransform V2 by mischa (2021-07)
+// NetworkTransform V3 by mischa (2022-10)
 // Snapshot Interpolation: https://gafferongames.com/post/snapshot_interpolation/
 //
 // Base class for NetworkTransform and NetworkTransformChild.
@@ -18,7 +18,6 @@
 //      -> for unreliable, it would get X before the reliable Cmd(), still
 //         buffer for bufferTime but end up closer to the original time
 // comment out the below line to quickly revert the onlySyncOnChange feature
-#define onlySyncOnChange_BANDWIDTH_SAVING
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,30 +45,18 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
-        // only sync when changed hack /////////////////////////////////////////
-#if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
-
-        // 3 was original, but testing under really bad network conditions, 2%-5% packet loss and 250-1200ms ping, 5 proved to eliminate any twitching.
-        [Tooltip("How much time, as a multiple of send interval, has passed before clearing buffers.")]
-        public float bufferResetMultiplier = 5;
 
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
         public float scaleSensitivity    = 0.01f;
 
-        protected bool positionChanged;
-        protected bool rotationChanged;
-        protected bool scaleChanged;
-
         // Used to store last sent snapshots
-        protected TransformSnapshot lastSnapshot;
-        protected bool              cachedSnapshotComparison;
-        protected bool              hasSentUnchangedPosition;
-#endif
+        protected TransformSnapshot last;
+
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & interpolation")]
         public bool syncPosition = true;
@@ -158,20 +145,24 @@ namespace Mirror
             if (syncScale)    target.localScale = interpolated.scale;
         }
 
-#if onlySyncOnChange_BANDWIDTH_SAVING
-        // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
-        protected virtual bool CompareSnapshots(TransformSnapshot currentSnapshot)
+        // check if position / rotation / scale changed since last sync
+        protected virtual bool Changed(TransformSnapshot current)
         {
-            positionChanged = Vector3.SqrMagnitude(lastSnapshot.position - currentSnapshot.position) > positionSensitivity * positionSensitivity;
-            rotationChanged = Quaternion.Angle(lastSnapshot.rotation, currentSnapshot.rotation) > rotationSensitivity;
-            scaleChanged = Vector3.SqrMagnitude(lastSnapshot.scale - currentSnapshot.scale) > scaleSensitivity * scaleSensitivity;
+            if (Vector3.SqrMagnitude(last.position - current.position) > positionSensitivity * positionSensitivity)
+                return true;
 
-            return (!positionChanged && !rotationChanged && !scaleChanged);
+            if (Quaternion.Angle(last.rotation, current.rotation) > rotationSensitivity)
+                return true;
+
+            if (Vector3.SqrMagnitude(last.scale - current.scale) > scaleSensitivity * scaleSensitivity)
+                return true;
+
+            return false;
         }
-#endif
-        // cmd /////////////////////////////////////////////////////////////////
-        // only unreliable. see comment above of this file.
-        [Command(channel = Channels.Unreliable)]
+
+        // sync ////////////////////////////////////////////////////////////////
+        // try reliable to prepare for V3 over OnSerialize
+        [Command(channel = Channels.Reliable)]
         void CmdClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             OnClientToServerSync(position, rotation, scale);
@@ -195,17 +186,7 @@ namespace Mirror
             // only player owned objects (with a connection) can send to
             // server. we can get the timestamp from the connection.
             double timestamp = connectionToClient.remoteTimeStamp;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-            if (onlySyncOnChange)
-            {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkClient.sendInterval;
 
-                if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
-                    Reset();
-                }
-            }
-#endif
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
             // but we still need to feed it to snapshot interpolation. we can't
@@ -234,8 +215,8 @@ namespace Mirror
         }
 
         // rpc /////////////////////////////////////////////////////////////////
-        // only unreliable. see comment above of this file.
-        [ClientRpc(channel = Channels.Unreliable)]
+        // try reliable to prepare for V3 over OnSerialize
+        [ClientRpc(channel = Channels.Reliable)]
         void RpcServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             OnServerToClientSync(position, rotation, scale);
 
@@ -258,17 +239,7 @@ namespace Mirror
             // but all of them go through NetworkClient.connection.
             // we can get the timestamp from there.
             double timestamp = NetworkClient.connection.remoteTimeStamp;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-            if (onlySyncOnChange)
-            {
-                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
 
-                if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
-                {
-                    Reset();
-                }
-            }
-#endif
             // position, rotation, scale can have no value if same as last time.
             // saves bandwidth.
             // but we still need to feed it to snapshot interpolation. we can't
@@ -280,7 +251,7 @@ namespace Mirror
             // replay it for 10 seconds.
             if (!position.HasValue) position = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].position : target.localPosition;
             if (!rotation.HasValue) rotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue) scale = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : target.localScale;
+            if (!scale.HasValue)    scale    = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : target.localScale;
 
             // insert snapshot
             SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
@@ -355,45 +326,23 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
+            TransformSnapshot snapshot = ConstructSnapshot();
             if (NetworkTime.localTime >= lastServerSendTime + NetworkServer.sendInterval && // same interval as time interpolation!
-                (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
+                (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority) && // TODO replace with 'authority' ?
+                (!onlySyncOnChange || Changed(snapshot)))
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = ConstructSnapshot();
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                cachedSnapshotComparison = CompareSnapshots(snapshot);
-                if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-#endif
 
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                RpcServerToClientSync(
-                    // only sync what the user wants to sync
-                    syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                    syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                    syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                );
-#else
                 RpcServerToClientSync(
                     // only sync what the user wants to sync
                     syncPosition ? snapshot.position : default(Vector3?),
                     syncRotation ? snapshot.rotation : default(Quaternion?),
-                    syncScale ? snapshot.scale : default(Vector3?)
+                    syncScale    ? snapshot.scale    : default(Vector3?)
                 );
-#endif
 
                 lastServerSendTime = NetworkTime.localTime;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                if (cachedSnapshotComparison)
-                {
-                    hasSentUnchangedPosition = true;
-                }
-                else
-                {
-                    hasSentUnchangedPosition = false;
-                    lastSnapshot = snapshot;
-                }
-#endif
+                last = snapshot;
             }
 
             // apply buffered snapshots IF client authority
@@ -450,44 +399,20 @@ namespace Mirror
                 // DO NOT send nulls if not changed 'since last send' either. we
                 // send unreliable and don't know which 'last send' the other end
                 // received successfully.
-                if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval) // same interval as time interpolation!
+                TransformSnapshot snapshot = ConstructSnapshot();
+                if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval && // same interval as time interpolation!
+                    (!onlySyncOnChange || Changed(snapshot)))
                 {
                     // send snapshot without timestamp.
-                    // receiver gets it from batch timestamp to save bandwidth.
-                    TransformSnapshot snapshot = ConstructSnapshot();
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                    cachedSnapshotComparison = CompareSnapshots(snapshot);
-                    if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
-#endif
-
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                    CmdClientToServerSync(
-                        // only sync what the user wants to sync
-                        syncPosition && positionChanged ? snapshot.position : default(Vector3?),
-                        syncRotation && rotationChanged ? snapshot.rotation : default(Quaternion?),
-                        syncScale && scaleChanged ? snapshot.scale : default(Vector3?)
-                    );
-#else
                     CmdClientToServerSync(
                         // only sync what the user wants to sync
                         syncPosition ? snapshot.position : default(Vector3?),
                         syncRotation ? snapshot.rotation : default(Quaternion?),
                         syncScale    ? snapshot.scale    : default(Vector3?)
                     );
-#endif
 
                     lastClientSendTime = NetworkTime.localTime;
-#if onlySyncOnChange_BANDWIDTH_SAVING
-                    if (cachedSnapshotComparison)
-                    {
-                        hasSentUnchangedPosition = true;
-                    }
-                    else
-                    {
-                        hasSentUnchangedPosition = false;
-                        lastSnapshot = snapshot;
-                    }
-#endif
+                    last = snapshot;
                 }
             }
             // for all other clients (and for local player if !authority),
