@@ -26,7 +26,6 @@ namespace Mirror
         //   'true' if scaling was possible within 'long' bounds.
         //   'false' if clamping was necessary.
         //   never throws. checking result is optional.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ScaleToLong(float value, float precision, out long result)
         {
             // user might try to pass precision = 0 to disable rounding.
@@ -74,7 +73,6 @@ namespace Mirror
 
         // multiple by precision.
         // for example, 0.1 cm precision converts '50' long to '5.0f' float.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ScaleToFloat(long value, float precision)
         {
             // user might try to pass precision = 0 to disable rounding.
