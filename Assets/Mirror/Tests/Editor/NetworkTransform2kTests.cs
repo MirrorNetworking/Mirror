@@ -198,7 +198,7 @@ namespace Mirror.Tests.NetworkTransform2k
         public void OnClientToServerSync_WithoutClientAuthority()
         {
             // call OnClientToServerSync without authority
-            component.clientAuthority = false;
+            component.syncDirection = SyncDirection.ServerToClient;
             component.OnClientToServerSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.serverSnapshots.Count, Is.EqualTo(0));
         }
@@ -207,7 +207,7 @@ namespace Mirror.Tests.NetworkTransform2k
         public void OnClientToServerSync_WithClientAuthority()
         {
             // call OnClientToServerSync with authority
-            component.clientAuthority = true;
+            component.syncDirection = SyncDirection.ClientToServer;
             component.OnClientToServerSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.serverSnapshots.Count, Is.EqualTo(1));
         }
@@ -218,7 +218,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.connectionToClient.snapshotBufferSizeLimit = 1;
 
             // authority is required
-            component.clientAuthority = true;
+            component.syncDirection = SyncDirection.ClientToServer;
 
             // add first should work
             component.OnClientToServerSync(Vector3.zero, Quaternion.identity, Vector3.zero);
@@ -239,7 +239,7 @@ namespace Mirror.Tests.NetworkTransform2k
 
             // call OnClientToServerSync with authority and nullable types
             // to make sure it uses the last valid position then.
-            component.clientAuthority = true;
+            component.syncDirection = SyncDirection.ClientToServer;
             component.OnClientToServerSync(new Vector3?(), new Quaternion?(), new Vector3?());
             Assert.That(component.serverSnapshots.Count, Is.EqualTo(1));
             TransformSnapshot first = component.serverSnapshots.Values[0];
@@ -258,7 +258,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.netIdentity.isLocalPlayer = true;
 
             // call OnServerToClientSync without authority
-            component.clientAuthority = false;
+            component.syncDirection = SyncDirection.ServerToClient;
             component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.clientSnapshots.Count, Is.EqualTo(1));
         }
@@ -275,7 +275,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.netIdentity.isLocalPlayer = true;
 
             // client authority has to be disabled
-            component.clientAuthority = false;
+            component.syncDirection = SyncDirection.ServerToClient;
 
             // add first should work
             component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
@@ -296,7 +296,7 @@ namespace Mirror.Tests.NetworkTransform2k
             component.netIdentity.isLocalPlayer = true;
 
             // call OnServerToClientSync with authority
-            component.clientAuthority = true;
+            component.syncDirection = SyncDirection.ClientToServer;
             component.OnServerToClientSync(Vector3.zero, Quaternion.identity, Vector3.zero);
             Assert.That(component.clientSnapshots.Count, Is.EqualTo(0));
         }

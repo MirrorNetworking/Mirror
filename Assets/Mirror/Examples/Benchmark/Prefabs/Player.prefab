@@ -99,9 +99,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
+  _assetId: 242745736
   serverOnly: 0
   visible: 0
-  m_AssetId: e1299008405d14b17b1ca459a6cd44a2
   hasSpawned: 0
 --- !u!114 &3679374677650722848
 MonoBehaviour:
@@ -115,20 +115,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f74aedd71d9a4f55b3ce499326d45fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 1
   syncMode: 0
-  syncInterval: 0.1
-  clientAuthority: 1
-  sendRate: 30
-  bufferTimeMultiplier: 1
-  bufferSizeLimit: 64
-  catchupNegativeThreshold: -1
-  catchupPositiveThreshold: 1
-  catchupSpeed: 0.009999999776482582
-  slowdownSpeed: 0.009999999776482582
-  driftEmaDuration: 1
-  dynamicAdjustment: 1
-  dynamicAdjustmentTolerance: 1
-  deliveryTimeEmaDuration: 2
+  syncInterval: 0.033333335
+  target: {fileID: 2697352357490696306}
+  clientAuthority: 0
   onlySyncOnChange: 0
   bufferResetMultiplier: 5
   positionSensitivity: 0.01
@@ -152,6 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c482338c8cc6d4a3cba81934c0151972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
   speed: 20
