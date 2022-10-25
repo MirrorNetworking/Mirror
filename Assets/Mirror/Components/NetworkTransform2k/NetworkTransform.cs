@@ -49,10 +49,20 @@ namespace Mirror
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
 
-        [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
-        public float positionSensitivity = 0.01f;
+        // delta compression is capable of detecting byte-level changes.
+        // if we scale float position to bytes,
+        // then small movements will only change one byte.
+        // this gives optimal bandwidth.
+        //   benchmark with 0.01 precision: 130 KB/s => 60 KB/s
+        //   benchmark with 0.1  precision: 130 KB/s => 30 KB/s
+        [Header("Precision")]
+        [Tooltip("Position is rounded in order to drastically minimize bandwidth.\n\nFor example, a precision of 0.01 rounds to a centimeter. In other words, sub-centimeter movements aren't synced until they eventually exceeded an actual centimeter.\n\nDepending on how important the object is, a precision of 0.01-0.10 (1-10 cm) is recommended.\n\nFor example, even a 1cm precision combined with delta compression cuts the Benchmark demo's bandwidth in half, compared to sending every tiny change.")]
+        [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
+        public float positionPrecision = 0.01f; // 1 cm
+        public float scalePrecision    = 0.01f; // 1 cm
+
+        // TODO quaterion isn't compressed yet
         public float rotationSensitivity = 0.01f;
-        public float scaleSensitivity    = 0.01f;
 
         // Used to store last sent snapshots
         protected TransformSnapshot last;
@@ -140,14 +150,21 @@ namespace Mirror
         // check if position / rotation / scale changed since last sync
         protected virtual bool Changed(TransformSnapshot current)
         {
-            if (Vector3.SqrMagnitude(last.position - current.position) > positionSensitivity * positionSensitivity)
-                return true;
+            // position is quantized.
+            // only resync if the quantized representation changed.
+            Compression.ScaleToLong(last.position,    positionPrecision, out long px0, out long py0, out long pz0);
+            Compression.ScaleToLong(current.position, positionPrecision, out long px1, out long py1, out long pz1);
+            if (px0 != px1 || py0 != py1 || pz0 != pz1) return true;
 
+            // quaternion isn't compressed yet.
             if (Quaternion.Angle(last.rotation, current.rotation) > rotationSensitivity)
                 return true;
 
-            if (Vector3.SqrMagnitude(last.scale - current.scale) > scaleSensitivity * scaleSensitivity)
-                return true;
+            // scale is quantized.
+            // only resync if the quantized representation changed.
+            Compression.ScaleToLong(last.scale,    scalePrecision, out long sx0, out long sy0, out long sz0);
+            Compression.ScaleToLong(current.scale, scalePrecision, out long sx1, out long sy1, out long sz1);
+            if (sx0 != sx1 || sy0 != sy1 || sz0 != sz1) return true;
 
             return false;
         }
@@ -214,37 +231,132 @@ namespace Mirror
             ));
         }
 
+        // delta position //////////////////////////////////////////////////////
+        // quantize -> delta -> varint
+        // small changes will be sent as just 1 byte.
+        internal static void SerializeDeltaPosition(NetworkWriter writer, Vector3 previous, Vector3 current, float precision)
+        {
+            // quantize 'last' and 'current'.
+            // quantized current could be stored as 'last' later if too slow.
+            Compression.ScaleToLong(previous, precision, out long x0, out long y0, out long z0);
+            Compression.ScaleToLong(current,  precision, out long x1, out long y1, out long z1);
+
+            // compute the difference. usually small.
+            long dx = x1 - x0;
+            long dy = y1 - y0;
+            long dz = z1 - z0;
+
+            // zigzag varint the difference. usually requires very few bytes.
+            Compression.CompressVarInt(writer, dx);
+            Compression.CompressVarInt(writer, dy);
+            Compression.CompressVarInt(writer, dz);
+        }
+
+        internal static Vector3 DeserializeDeltaPosition(NetworkReader reader, Vector3 previous, float precision)
+        {
+            // zigzag varint
+            long dx = Compression.DecompressVarInt(reader);
+            long dy = Compression.DecompressVarInt(reader);
+            long dz = Compression.DecompressVarInt(reader);
+
+            // current := last + delta
+            Compression.ScaleToLong(previous, precision, out long x0, out long y0, out long z0);
+            long x1 = x0 + dx;
+            long y1 = y0 + dy;
+            long z1 = z0 + dz;
+
+            // revert quantization
+            return Compression.ScaleToFloat(x1, y1, z1, precision);
+        }
+
+        // delta rotation //////////////////////////////////////////////////////
+        // TODO compress
+        internal static void SerializeDeltaRotation(NetworkWriter writer, Quaternion last, Quaternion current) =>
+            writer.WriteQuaternion(current);
+
+        internal static Quaternion DeserializeDeltaRotation(NetworkReader reader, Quaternion last) =>
+            reader.ReadQuaternion();
+
+        // delta scale /////////////////////////////////////////////////////////
+        // quantize -> delta -> varint
+        // small changes will be sent as just 1 byte.
+        // reuses the delta position code.
+        internal static void SerializeDeltaScale(NetworkWriter writer, Vector3 previous, Vector3 current, float precision) =>
+            SerializeDeltaPosition(writer, previous, current, precision);
+
+        internal static Vector3 DeserializeDeltaScale(NetworkReader reader, Vector3 previous, float precision) =>
+            DeserializeDeltaPosition(reader, previous, precision);
+
+        // OnSerialize /////////////////////////////////////////////////////////
         public override void OnSerialize(NetworkWriter writer, bool initialState)
         {
-            // write everything at all times for now.
-            TransformSnapshot snapshot = Construct();
-
             // TODO for interpolated client owned identities,
             // always broadcast the latest known snapshot so other clients can
             // interpolate immediately instead of catching up too
 
-            if (syncPosition) writer.WriteVector3(snapshot.position);
-            if (syncRotation) writer.WriteQuaternion(snapshot.rotation);
-            if (syncScale)    writer.WriteVector3(snapshot.scale);
+            TransformSnapshot snapshot = Construct();
+
+            int before = writer.Position;
+
+            // first spawns are serialized in full.
+            if (initialState)
+            {
+                // write original floats.
+                // quantization is only worth it for delta.
+                if (syncPosition) writer.WriteVector3(snapshot.position);
+                if (syncRotation) writer.WriteQuaternion(snapshot.rotation);
+                if (syncScale)    writer.WriteVector3(snapshot.scale);
+            }
+            // delta since last
+            else
+            {
+                // TODO dirty mask so unchanged components aren't sent at all
+
+                if (syncPosition) SerializeDeltaPosition(writer, last.position, snapshot.position, positionPrecision);
+                if (syncRotation) SerializeDeltaRotation(writer, last.rotation, snapshot.rotation);
+                if (syncScale)    SerializeDeltaScale   (writer, last.scale,    snapshot.scale,    scalePrecision);
+
+                // TODO log compression ratio and see
+            }
 
             // set 'last'
+            // TODO this will break if selective sync changes at runtime.
+            //      better to store pos/rot/scale separately and only if serialized
             last = snapshot;
         }
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            // read everything at all times for now.
             Vector3?    position = null;
             Quaternion? rotation = null;
-            Vector3?    scale = null;
-            if (syncPosition) position = reader.ReadVector3();
-            if (syncRotation) rotation = reader.ReadQuaternion();
-            if (syncScale)    scale    = reader.ReadVector3();
+            Vector3?    scale    = null;
+
+            // first spawns are serialized in full.
+            if (initialState)
+            {
+                if (syncPosition) position = reader.ReadVector3();
+                if (syncRotation) rotation = reader.ReadQuaternion();
+                if (syncScale)    scale    = reader.ReadVector3();
+            }
+            // delta since last
+            else
+            {
+                if (syncPosition) position = DeserializeDeltaPosition(reader, last.position, positionPrecision);
+                if (syncRotation) rotation = DeserializeDeltaRotation(reader, last.rotation);
+                if (syncScale)    scale    = DeserializeDeltaScale   (reader, last.scale,    scalePrecision);
+            }
 
             // handle depending on server / client / host.
             // server has priority for host mode.
             if      (isServer) OnClientToServerSync(position, rotation, scale);
             else if (isClient) OnServerToClientSync(position, rotation, scale);
+
+            // store 'last' for next delta.
+            // TODO this will break if selective sync changes at runtime.
+            //      better to store pos/rot/scale separately and only if deserialized
+            if (position.HasValue) last.position = position.Value;
+            if (rotation.HasValue) last.rotation = rotation.Value;
+            if (scale.HasValue)    last.scale    = scale.Value;
         }
 
         // update //////////////////////////////////////////////////////////////

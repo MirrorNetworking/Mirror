@@ -323,5 +323,58 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(first.rotation, Is.EqualTo(Quaternion.identity));
             Assert.That(first.scale, Is.EqualTo(Vector3.right));
         }
+
+        [Test]
+        public void SerializeDeltaPosition()
+        {
+            Vector3 from = new Vector3(1, 2, 3);
+            Vector3 to   = new Vector3(4, 2, 6);
+            float precision = 0.01f;
+            NetworkWriter writer = new NetworkWriter();
+
+            // serialize a small change. should only take a few bytes (not 4+4)
+            NetworkTransform.SerializeDeltaPosition(writer, from, to, precision);
+            Assert.That(writer.Position, Is.EqualTo(5));
+
+            // deserialize
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+            Vector3 decompressed = NetworkTransform.DeserializeDeltaPosition(reader, from, precision);
+            Assert.That(decompressed, Is.EqualTo(to));
+        }
+
+        [Test]
+        public void SerializeDeltaRotation()
+        {
+            Quaternion from = Quaternion.Euler(60, 90, 20);
+            Quaternion to   = Quaternion.Euler(50, 80, 30);
+            NetworkWriter writer = new NetworkWriter();
+
+            // serialize a small change.
+            NetworkTransform.SerializeDeltaRotation(writer, from, to);
+            Assert.That(writer.Position, Is.EqualTo(16));
+
+            // deserialize
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+            Quaternion decompressed = NetworkTransform.DeserializeDeltaRotation(reader, from);
+            Assert.That(decompressed, Is.EqualTo(to));
+        }
+
+        [Test]
+        public void SerializeDeltaScale()
+        {
+            Vector3 from = new Vector3(1, 2, 3);
+            Vector3 to   = new Vector3(4, 2, 6);
+            float precision = 0.01f;
+            NetworkWriter writer = new NetworkWriter();
+
+            // serialize a small change. should only take a few bytes (not 4+4)
+            NetworkTransform.SerializeDeltaScale(writer, from, to, precision);
+            Assert.That(writer.Position, Is.EqualTo(5));
+
+            // deserialize
+            NetworkReader reader = new NetworkReader(writer.ToArraySegment());
+            Vector3 decompressed = NetworkTransform.DeserializeDeltaScale(reader, from, precision);
+            Assert.That(decompressed, Is.EqualTo(to));
+        }
     }
 }
