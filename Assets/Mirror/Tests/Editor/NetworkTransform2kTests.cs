@@ -324,6 +324,7 @@ namespace Mirror.Tests.NetworkTransform2k
             Assert.That(first.scale, Is.EqualTo(Vector3.right));
         }
 
+        /*
         [Test]
         public void SerializeDeltaPosition()
         {
@@ -376,5 +377,6 @@ namespace Mirror.Tests.NetworkTransform2k
             Vector3 decompressed = NetworkTransform.DeserializeDeltaScale(reader, from, precision);
             Assert.That(decompressed, Is.EqualTo(to));
         }
+        */
     }
 }
