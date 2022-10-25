@@ -19,6 +19,7 @@
 //         buffer for bufferTime but end up closer to the original time
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,13 +34,14 @@ namespace Mirror
         public Transform target;
 
         // TODO SyncDirection { ClientToServer, ServerToClient } is easier?
-        [Header("Authority")]
+        [Obsolete("NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
+        [Header("[Obsolete]")] // Unity doesn't show obsolete warning for fields. do it manually.
         [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
         public bool clientAuthority;
 
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
-        protected bool IsClientWithAuthority => isOwned && clientAuthority;
+        protected bool IsClientWithAuthority => isClient && authority;
 
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
@@ -98,10 +100,16 @@ namespace Mirror
             // force it in here.
             syncInterval = NetworkServer.sendInterval;
 
-            // NetworkTransform doesn't use SyncDirection yet.
-            // it still uses 'clientAuthority' to indicate authority.
-            // make it obvious that there's only one source of truth.
-            syncDirection = clientAuthority ? SyncDirection.ClientToServer : SyncDirection.ServerToClient;
+            // obsolete clientAuthority compatibility:
+            // if it was used, then set the new SyncDirection automatically.
+            // if it wasn't used, then don't touch syncDirection.
+ #pragma warning disable CS0618
+            if (clientAuthority)
+            {
+                syncDirection = SyncDirection.ClientToServer;
+                Debug.LogWarning($"{name}'s NetworkTransform component has obsolete .clientAuthority enabled. Please disable it and set SyncDirection to ClientToServer instead.");
+            }
+ #pragma warning restore CS0618
         }
 
         // snapshot functions //////////////////////////////////////////////////
@@ -168,7 +176,7 @@ namespace Mirror
             OnClientToServerSync(position, rotation, scale);
             //For client authority, immediately pass on the client snapshot to all other
             //clients instead of waiting for server to send its snapshots.
-            if (clientAuthority)
+            if (syncDirection == SyncDirection.ClientToServer)
             {
                 RpcServerToClientSync(position, rotation, scale);
             }
@@ -178,7 +186,7 @@ namespace Mirror
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // only apply if in client authority mode
-            if (!clientAuthority) return;
+            if (syncDirection != SyncDirection.ClientToServer) return;
 
             // protect against ever growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
@@ -321,7 +329,7 @@ namespace Mirror
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
             if (NetworkTime.localTime >= lastServerSendTime + syncInterval && // same interval as time interpolation!
-                (!clientAuthority || IsClientWithAuthority))
+                (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
@@ -367,7 +375,7 @@ namespace Mirror
             // -> don't apply for host mode player objects either, even if in
             //    client authority mode. if it doesn't go over the network,
             //    then we don't need to do anything.
-            if (clientAuthority && !isOwned)
+            if (syncDirection == SyncDirection.ClientToServer && !isOwned)
             {
                 if (serverSnapshots.Count > 0)
                 {
@@ -559,7 +567,7 @@ namespace Mirror
         public void CmdTeleport(Vector3 destination)
         {
             // client can only teleport objects that it has authority over.
-            if (!clientAuthority) return;
+            if (syncDirection != SyncDirection.ClientToServer) return;
 
             // TODO what about host mode?
             OnTeleport(destination);
@@ -581,7 +589,7 @@ namespace Mirror
         public void CmdTeleport(Vector3 destination, Quaternion rotation)
         {
             // client can only teleport objects that it has authority over.
-            if (!clientAuthority) return;
+            if (syncDirection != SyncDirection.ClientToServer) return;
 
             // TODO what about host mode?
             OnTeleport(destination, rotation);

@@ -73,7 +73,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.033333335
   target: {fileID: 4492442352427800}
-  clientAuthority: 1
+  clientAuthority: 0
   onlySyncOnChange: 1
   bufferResetMultiplier: 5
   positionSensitivity: 0.01
@@ -101,7 +101,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.033333335
   target: {fileID: 7831918942946891958}
-  clientAuthority: 1
+  clientAuthority: 0
   onlySyncOnChange: 1
   bufferResetMultiplier: 5
   positionSensitivity: 0.01
