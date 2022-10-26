@@ -97,8 +97,9 @@ namespace Mirror
             // time snapshot interpolation happens globally.
             // value (transform) happens in here.
             // both always need to be on the same send interval.
-            // force it in here.
-            syncInterval = NetworkServer.sendInterval;
+            // force the setting to '0' in OnValidate to make it obvious that we
+            // actually use NetworkServer.sendInterval.
+            syncInterval = 0;
 
             // obsolete clientAuthority compatibility:
             // if it was used, then set the new SyncDirection automatically.
@@ -197,7 +198,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * syncInterval;
+                double timeIntervalCheck = bufferResetMultiplier * NetworkClient.sendInterval;
 
                 if (serverSnapshots.Count > 0 && serverSnapshots.Values[serverSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -260,7 +261,7 @@ namespace Mirror
 #if onlySyncOnChange_BANDWIDTH_SAVING
             if (onlySyncOnChange)
             {
-                double timeIntervalCheck = bufferResetMultiplier * syncInterval;
+                double timeIntervalCheck = bufferResetMultiplier * NetworkServer.sendInterval;
 
                 if (clientSnapshots.Count > 0 && clientSnapshots.Values[clientSnapshots.Count - 1].remoteTime + timeIntervalCheck < timestamp)
                 {
@@ -328,7 +329,7 @@ namespace Mirror
             // authoritative movement done by the host will have to be broadcasted
             // here by checking IsClientWithAuthority.
             // TODO send same time that NetworkServer sends time snapshot?
-            if (NetworkTime.localTime >= lastServerSendTime + syncInterval && // same interval as time interpolation!
+            if (NetworkTime.localTime >= lastServerSendTime + NetworkServer.sendInterval && // same interval as time interpolation!
                 (syncDirection == SyncDirection.ServerToClient || IsClientWithAuthority))
             {
                 // send snapshot without timestamp.
@@ -423,7 +424,7 @@ namespace Mirror
                 // DO NOT send nulls if not changed 'since last send' either. we
                 // send unreliable and don't know which 'last send' the other end
                 // received successfully.
-                if (NetworkTime.localTime >= lastClientSendTime + syncInterval) // same interval as time interpolation!
+                if (NetworkTime.localTime >= lastClientSendTime + NetworkClient.sendInterval) // same interval as time interpolation!
                 {
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
