@@ -190,6 +190,9 @@ namespace Mirror
 
             Debug.Log("Mirror | mirror-networking.com | discord.gg/N9QVxbM");
 
+            // Apply configuration in Awake once already
+            ApplyConfiguration();
+
             // Set the networkSceneName to prevent a scene reload
             // if client connection to server fails.
             networkSceneName = offlineScene;
@@ -219,6 +222,12 @@ namespace Mirror
 #endif
         }
 
+        // make sure to call base.Update() when overwriting
+        public virtual void Update()
+        {
+            ApplyConfiguration();
+        }
+
         // virtual so that inheriting classes' LateUpdate() can call base.LateUpdate() too
         public virtual void LateUpdate()
         {
@@ -238,6 +247,16 @@ namespace Mirror
             return activeScene.path == scene || activeScene.name == scene;
         }
 
+        // NetworkManager exposes some NetworkServer/Client configuration.
+        // we apply it every Update() in order to avoid two sources of truth.
+        // fixes issues where NetworkServer.sendRate was never set because
+        // NetworkManager.StartServer was never called, etc.
+        // => all exposed settings should be applied at all times if NM exists.
+        void ApplyConfiguration()
+        {
+            NetworkServer.tickRate = serverTickRate;
+        }
+
         // full server setup code, without spawning objects yet
         void SetupServer()
         {
@@ -252,9 +271,6 @@ namespace Mirror
                 authenticator.OnStartServer();
                 authenticator.OnServerAuthenticated.AddListener(OnServerAuthenticated);
             }
-
-            // copy exposed settings to static NetworkServer
-            NetworkServer.tickRate = serverTickRate;
 
             ConfigureHeadlessFrameRate();
 
