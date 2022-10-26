@@ -64,7 +64,7 @@ namespace Mirror.Experimental
             double now = NetworkTime.localTime; // Unity 2019 doesn't have Time.timeAsDouble yet
             if (now > nextSyncTime)
             {
-                nextSyncTime = now + syncInterval;
+                nextSyncTime = now + NetworkClient.sendInterval;
                 CmdSendState(target.velocity, target.position);
             }
         }

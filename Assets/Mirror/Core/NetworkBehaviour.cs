@@ -38,8 +38,8 @@ namespace Mirror
         // [0,2] should be enough. anything >2s is too laggy anyway.
         [Tooltip("Time in seconds until next change is synchronized to the client. '0' means send immediately if changed. '0.5' means only send changes every 500ms.\n(This is for state synchronization like SyncVars, SyncLists, OnSerialize. Not for Cmds, Rpcs, etc.)")]
         [Range(0, 2)]
+        [Obsolete("NetworkBehaviour.syncInterval is not used anymore. Please configure the NetworkManager's send/tickRate globally instead.")]
         [HideInInspector] public float syncInterval = 0.1f;
-        internal double lastSyncTime;
 
         /// <summary>True if this object is on the server and has been spawned.</summary>
         // This is different from NetworkServer.active, which is true if the
@@ -166,21 +166,16 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetDirty() => SetSyncVarDirtyBit(ulong.MaxValue);
 
-        // true if syncInterval elapsed and any SyncVar or SyncObject is dirty
+        // true if any SyncVar or SyncObject is dirty.
         // OR both bitmasks. != 0 if either was dirty.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool IsDirty() =>
-            // check bits first. this is basically free.
-            (syncVarDirtyBits | syncObjectDirtyBits) != 0UL &&
-            // only check time if bits were dirty. this is more expensive.
-            NetworkTime.localTime - lastSyncTime >= syncInterval;
+        public bool IsDirty() => (syncVarDirtyBits | syncObjectDirtyBits) != 0UL;
 
         /// <summary>Clears all the dirty bits that were set by SetDirtyBits()</summary>
         // automatically invoked when an update is sent for this object, but can
         // be called manually as well.
         public void ClearAllDirtyBits()
         {
-            lastSyncTime = NetworkTime.localTime;
             syncVarDirtyBits = 0L;
             syncObjectDirtyBits = 0L;
 

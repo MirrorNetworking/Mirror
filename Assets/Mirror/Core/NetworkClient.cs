@@ -1424,19 +1424,7 @@ namespace Mirror
         // broadcast ///////////////////////////////////////////////////////////
         static void BroadcastTimeSnapshot()
         {
-            // always send when running tests though.
-            // keep this interval independent from state broadcast for now.
-            // so that state broadcast syncIntervals are respected.
-            if (!Application.isPlaying ||
-#if !UNITY_2020_3_OR_NEWER
-                // Unity 2019 doesn't have Time.timeAsDouble yet
-                AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
-#else
-                AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
-#endif
-            {
-                Send(new TimeSnapshotMessage(), Channels.Unreliable);
-            }
+            Send(new TimeSnapshotMessage(), Channels.Unreliable);
         }
 
         // make sure Broadcast() is only called every sendInterval.
@@ -1449,7 +1437,7 @@ namespace Mirror
             // nothing to do in host mode. server already knows the state.
             if (NetworkServer.active) return;
 
-            // send time snapshot every sendInterval.
+            // send time snapshot every sendInterval
             BroadcastTimeSnapshot();
 
             // for each entity that the client owns
@@ -1477,7 +1465,7 @@ namespace Mirror
                             Send(message);
 
                             // reset dirty bits so it's not resent next time.
-                            identity.ClearDirtyComponentsDirtyBits();
+                            identity.ClearAllComponentsDirtyBits();
                         }
                     }
                 }
@@ -1515,7 +1503,18 @@ namespace Mirror
             // limit to every component's sendInterval automatically.
             if (active)
             {
-                Broadcast();
+                // broadcast every 'interval'.
+                // always send when running tests though.
+                if (!Application.isPlaying ||
+    #if !UNITY_2020_3_OR_NEWER
+                    // Unity 2019 doesn't have Time.timeAsDouble yet
+                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
+    #else
+                    AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
+    #endif
+                {
+                    Broadcast();
+                }
             }
 
             // update connections to flush out messages _after_ broadcast

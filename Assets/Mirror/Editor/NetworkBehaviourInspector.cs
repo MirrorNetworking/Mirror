@@ -93,9 +93,6 @@ namespace Mirror
             if (syncDirection.enumValueIndex == (int)SyncDirection.ServerToClient)
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("syncMode"));
 
-            // sync interval
-            EditorGUILayout.PropertyField(serializedObject.FindProperty("syncInterval"));
-
             // apply
             serializedObject.ApplyModifiedProperties();
         }
