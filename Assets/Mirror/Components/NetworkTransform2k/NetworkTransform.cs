@@ -296,6 +296,32 @@ namespace Mirror
             ));
         }
 
+        public override void OnSerialize(NetworkWriter writer, bool initialState)
+        {
+            // sync target component's position on spawn.
+            // fixes https://github.com/vis2k/Mirror/pull/3051/
+            // (Spawn message wouldn't sync NTChild positions either)
+            if (initialState)
+            {
+                if (syncPosition) writer.WriteVector3(target.localPosition);
+                if (syncRotation) writer.WriteQuaternion(target.localRotation);
+                if (syncScale)    writer.WriteVector3(target.localScale);
+            }
+        }
+
+        public override void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            // sync target component's position on spawn.
+            // fixes https://github.com/vis2k/Mirror/pull/3051/
+            // (Spawn message wouldn't sync NTChild positions either)
+            if (initialState)
+            {
+                if (syncPosition) target.localPosition = reader.ReadVector3();
+                if (syncRotation) target.localRotation = reader.ReadQuaternion();
+                if (syncScale)    target.localScale    = reader.ReadVector3();
+            }
+        }
+
         // update //////////////////////////////////////////////////////////////
         void UpdateServer()
         {
@@ -615,32 +641,6 @@ namespace Mirror
 
         protected virtual void OnDisable() => Reset();
         protected virtual void OnEnable() => Reset();
-
-        public override void OnSerialize(NetworkWriter writer, bool initialState)
-        {
-            // sync target component's position on spawn.
-            // fixes https://github.com/vis2k/Mirror/pull/3051/
-            // (Spawn message wouldn't sync NTChild positions either)
-            if (initialState)
-            {
-                if (syncPosition) writer.WriteVector3(target.localPosition);
-                if (syncRotation) writer.WriteQuaternion(target.localRotation);
-                if (syncScale)    writer.WriteVector3(target.localScale);
-            }
-        }
-
-        public override void OnDeserialize(NetworkReader reader, bool initialState)
-        {
-            // sync target component's position on spawn.
-            // fixes https://github.com/vis2k/Mirror/pull/3051/
-            // (Spawn message wouldn't sync NTChild positions either)
-            if (initialState)
-            {
-                if (syncPosition) target.localPosition = reader.ReadVector3();
-                if (syncRotation) target.localRotation = reader.ReadQuaternion();
-                if (syncScale)    target.localScale    = reader.ReadVector3();
-            }
-        }
 
         // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
