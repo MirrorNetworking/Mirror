@@ -516,7 +516,7 @@ namespace Mirror
         void Update()
         {
             // if server then always sync to others.
-            if (isServer) UpdateServer();
+            if      (isServer) UpdateServer();
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient) UpdateClient();
@@ -640,7 +640,7 @@ namespace Mirror
         }
 
         protected virtual void OnDisable() => Reset();
-        protected virtual void OnEnable() => Reset();
+        protected virtual void OnEnable()  => Reset();
 
         // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
