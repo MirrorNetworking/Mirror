@@ -1809,6 +1809,10 @@ namespace Mirror
                 // snapshots might be sent way too often, etc.
                 //
                 // during tests, we always call Broadcast() though.
+                //
+                // also important for syncInterval=0 components like
+                // NetworkTransform, so they can sync on same interval as time
+                // snapshots _but_ not every single tick.
                 if (!Application.isPlaying ||
 #if !UNITY_2020_3_OR_NEWER
                     // Unity 2019 doesn't have Time.timeAsDouble yet
