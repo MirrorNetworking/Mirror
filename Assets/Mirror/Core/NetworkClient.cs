@@ -1424,19 +1424,7 @@ namespace Mirror
         // broadcast ///////////////////////////////////////////////////////////
         static void BroadcastTimeSnapshot()
         {
-            // always send when running tests though.
-            // keep this interval independent from state broadcast for now.
-            // so that state broadcast syncIntervals are respected.
-            if (!Application.isPlaying ||
-#if !UNITY_2020_3_OR_NEWER
-                // Unity 2019 doesn't have Time.timeAsDouble yet
-                AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
-#else
-                AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
-#endif
-            {
-                Send(new TimeSnapshotMessage(), Channels.Unreliable);
-            }
+            Send(new TimeSnapshotMessage(), Channels.Unreliable);
         }
 
         // make sure Broadcast() is only called every sendInterval.
@@ -1515,7 +1503,29 @@ namespace Mirror
             // limit to every component's sendInterval automatically.
             if (active)
             {
-                Broadcast();
+                // broadcast every sendInterval.
+                // AccurateInterval to avoid update frequency inaccuracy issues:
+                // https://github.com/vis2k/Mirror/pull/3153
+                //
+                // for example, host mode server doesn't set .targetFrameRate.
+                // Broadcast() would be called every tick.
+                // snapshots might be sent way too often, etc.
+                //
+                // during tests, we always call Broadcast() though.
+                //
+                // also important for syncInterval=0 components like
+                // NetworkTransform, so they can sync on same interval as time
+                // snapshots _but_ not every single tick.
+                if (!Application.isPlaying ||
+#if !UNITY_2020_3_OR_NEWER
+                    // Unity 2019 doesn't have Time.timeAsDouble yet
+                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
+#else
+                    AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
+#endif
+                {
+                    Broadcast();
+                }
             }
 
             // update connections to flush out messages _after_ broadcast
