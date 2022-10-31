@@ -40,8 +40,9 @@ namespace Mirror.Discovery
         [Range(1, 60)]
         float ActiveDiscoveryInterval = 3;
         
-        [SerializeField]
-        string BroadcastAddress = "";
+        // broadcast address needs to be configurable on iOS:
+        // https://github.com/vis2k/Mirror/pull/3255
+        public string BroadcastAddress = "";
 
         protected UdpClient serverUdpClient;
         protected UdpClient clientUdpClient;
