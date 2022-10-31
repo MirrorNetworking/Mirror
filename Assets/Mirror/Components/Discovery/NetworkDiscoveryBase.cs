@@ -39,6 +39,9 @@ namespace Mirror.Discovery
         [Tooltip("Time in seconds between multi-cast messages")]
         [Range(1, 60)]
         float ActiveDiscoveryInterval = 3;
+        
+        [SerializeField]
+        string BroadcastAddress = "";
 
         protected UdpClient serverUdpClient;
         protected UdpClient clientUdpClient;
@@ -368,6 +371,18 @@ namespace Mirror.Discovery
             }
 
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
+            
+            if (!string.IsNullOrWhiteSpace(BroadcastAddress))
+            {
+                try
+                {
+                    endPoint = new IPEndPoint(IPAddress.Parse(BroadcastAddress), serverBroadcastListenPort);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
