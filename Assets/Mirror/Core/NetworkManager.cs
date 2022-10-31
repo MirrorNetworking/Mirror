@@ -37,8 +37,11 @@ namespace Mirror
         public bool autoConnectClientBuild;
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
-        [Tooltip("Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
-        public int serverTickRate = 30;
+        [Tooltip("Server & Client send rate per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
+        [FormerlySerializedAs("serverTickRate")]
+        public int sendRate = 30;
+        [Obsolete("NetworkManager.serverTickRate was renamed to sendRate because that's what it configures for both server & client now.")]
+        public int serverTickRate => sendRate;
 
         // tick rate is in Hz.
         // convert to interval in seconds for convenience where needed.
@@ -254,7 +257,7 @@ namespace Mirror
         // => all exposed settings should be applied at all times if NM exists.
         void ApplyConfiguration()
         {
-            NetworkServer.tickRate = serverTickRate;
+            NetworkServer.tickRate = sendRate;
         }
 
         // full server setup code, without spawning objects yet
@@ -661,7 +664,7 @@ namespace Mirror
         public virtual void ConfigureHeadlessFrameRate()
         {
 #if UNITY_SERVER
-            Application.targetFrameRate = serverTickRate;
+            Application.targetFrameRate = sendRate;
             // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
 #endif
         }
