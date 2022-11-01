@@ -71,6 +71,13 @@ namespace Mirror
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ScaleToLong(Vector3 value, float precision, out Vector3Long quantized)
+        {
+            quantized = Vector3Long.zero;
+            return ScaleToLong(value, precision, out quantized.x, out quantized.y, out quantized.z);
+        }
+
         // multiple by precision.
         // for example, 0.1 cm precision converts '50' long to '5.0f' float.
         public static float ScaleToFloat(long value, float precision)
@@ -95,6 +102,10 @@ namespace Mirror
             v.z = ScaleToFloat(z, precision);
             return v;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 ScaleToFloat(Vector3Long value, float precision) =>
+            ScaleToFloat(value.x, value.y, value.z, precision);
 
         // scale a float within min/max range to an ushort between min/max range
         // note: can also use this for byte range from byte.MinValue to byte.MaxValue
