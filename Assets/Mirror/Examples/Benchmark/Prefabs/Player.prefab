@@ -117,14 +117,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncDirection: 1
   syncMode: 0
-  syncInterval: 0.033333335
+  syncInterval: 0
   target: {fileID: 2697352357490696306}
   clientAuthority: 0
-  onlySyncOnChange: 0
-  bufferResetMultiplier: 5
-  positionSensitivity: 0.01
+  onlySyncOnChange: 1
+  onlySyncOnChangeCorrectionMultiplier: 2
   rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
+  compressRotation: 1
+  positionPrecision: 0.01
+  scalePrecision: 0.01
   syncPosition: 1
   syncRotation: 0
   syncScale: 0
