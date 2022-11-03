@@ -339,6 +339,7 @@ namespace Mirror
                 return;
             }
 
+            // TODO change conn type to NetworkConnectionToClient to begin with.
             if (!(conn is NetworkConnectionToClient))
             {
                 Debug.LogError($"TargetRPC {functionFullName} called on {name} requires a NetworkConnectionToClient but was given {conn.GetType().Name}", gameObject);
