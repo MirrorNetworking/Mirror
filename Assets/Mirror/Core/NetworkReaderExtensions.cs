@@ -208,7 +208,7 @@ namespace Mirror
             return reader.ReadNetworkBehaviour() as T;
         }
 
-        public static NetworkBehaviour.NetworkBehaviourSyncVar ReadNetworkBehaviourSyncVar(this NetworkReader reader)
+        public static NetworkBehaviourSyncVar ReadNetworkBehaviourSyncVar(this NetworkReader reader)
         {
             uint netId = reader.ReadUInt();
             byte componentIndex = default;
@@ -219,7 +219,7 @@ namespace Mirror
                 componentIndex = reader.ReadByte();
             }
 
-            return new NetworkBehaviour.NetworkBehaviourSyncVar(netId, componentIndex);
+            return new NetworkBehaviourSyncVar(netId, componentIndex);
         }
 
         public static Transform ReadTransform(this NetworkReader reader)

@@ -372,7 +372,7 @@ namespace Mirror.Weaver
             {
                 netIdField = new FieldDefinition($"___{fd.Name}NetId",
                    FieldAttributes.Family, // needs to be protected for generic classes, otherwise access isn't allowed
-                   weaverTypes.Import<NetworkBehaviour.NetworkBehaviourSyncVar>());
+                   weaverTypes.Import<NetworkBehaviourSyncVar>());
                 netIdField.DeclaringType = td;
 
                 syncVarNetIds[fd] = netIdField;
