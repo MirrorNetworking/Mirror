@@ -1304,7 +1304,7 @@ namespace Mirror
 
         static void OnRPCMessage(RpcMessage message)
         {
-            // Debug.Log($"NetworkClient.OnRPCMessage hash:{msg.functionHash} netId:{msg.netId}");
+            // Debug.Log($"NetworkClient.OnRPCMessage hash:{message.functionHash} netId:{message.netId}");
             if (spawned.TryGetValue(message.netId, out NetworkIdentity identity))
             {
                 using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
