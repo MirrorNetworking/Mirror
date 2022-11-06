@@ -178,11 +178,10 @@ namespace Mirror
         internal virtual void Update()
         {
             // go through batches for all channels
-            foreach (KeyValuePair<int, Batcher> kvp in batches)
+            foreach ((int key, Batcher batcher) in batches)
             {
                 // make and send as many batches as necessary from the stored
                 // messages.
-                Batcher batcher = kvp.Value;
                 using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
@@ -194,10 +193,10 @@ namespace Mirror
                         // => just in case transport forgets to check it
                         // => just in case mirror miscalulated it etc.
                         ArraySegment<byte> segment = writer.ToArraySegment();
-                        if (ValidatePacketSize(segment, kvp.Key))
+                        if (ValidatePacketSize(segment, key))
                         {
                             // send to transport
-                            SendToTransport(segment, kvp.Key);
+                            SendToTransport(segment, key);
                             //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
                             // reset writer for each new batch
