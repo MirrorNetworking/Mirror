@@ -134,7 +134,7 @@ namespace Mirror
             // remember previous valid position
             int before = buffer.Position;
 
-            // serialize the message
+            // serialize the message without header
             buffer.Write(message);
 
             // before we potentially flush out old messages,
