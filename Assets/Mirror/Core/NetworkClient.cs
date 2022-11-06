@@ -1315,10 +1315,11 @@ namespace Mirror
 
         static void OnRPCBufferMessage(RpcBufferMessage message)
         {
+            // Debug.Log($"NetworkClient.OnRPCBufferMessage of {message.payload.Count} bytes");
             // parse all rpc messages from the buffer
             using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
             {
-                while (reader.Position > 0)
+                while (reader.Remaining > 0)
                 {
                     // read message without header
                     RpcMessage rpcMessage = reader.Read<RpcMessage>();
