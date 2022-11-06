@@ -115,36 +115,58 @@ namespace Mirror
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
             Transport.active.ServerSend(connectionId, segment, channelId);
 
+        void FlushRpcs(NetworkWriter buffer, int channelId)
+        {
+            if (buffer.Position > 0)
+            {
+                Send(new RpcBufferMessage{ payload = buffer }, channelId);
+                buffer.Position = 0;
+            }
+        }
+
+        // helper for both channels
+        void BufferRpc(RpcMessage message, NetworkWriter buffer, int channelId, int maxMessageSize)
+        {
+            // remember previous valid position
+            int before = buffer.Position;
+
+            // serialize the message
+            buffer.Write(message);
+
+            // TODO ensure message fits into max at all.
+            // otherwise flushing would be pointless.
+            // need to check buffer.Position + IdSize + 4 bytes for message payload?
+            // int written = buffer.Position - before;
+
+            // too much to fit into max message size?
+            // then flush first, then write it again.
+            // (message + message header + 4 bytes WriteArraySegment header)
+            if (buffer.Position + NetworkMessages.IdSize + sizeof(int) >= maxMessageSize)
+            {
+                buffer.Position = before;
+                FlushRpcs(buffer, channelId); // this resets position
+                buffer.Write(message);
+            }
+        }
+
         internal void BufferRpc(RpcMessage message, int channelId)
         {
+            int maxMessageSize = Transport.active.GetMaxPacketSize(channelId);
             if (channelId == Channels.Reliable)
             {
-                int before = reliableRpcs.Position;
-                reliableRpcs.Write(message);
-                // TODO ensurenreliable max message size
-
+                BufferRpc(message, reliableRpcs, Channels.Reliable, maxMessageSize);
             }
             else if (channelId == Channels.Unreliable)
             {
-                int before = unreliableRpcs.Position;
-                unreliableRpcs.Write(message);
-                // TODO ensure unreliable max message size
+                BufferRpc(message, unreliableRpcs, Channels.Unreliable, maxMessageSize);
             }
         }
 
         internal override void Update()
         {
             // send rpc buffers
-            if (reliableRpcs.Position > 0)
-            {
-                Send(new RpcBufferMessage{ payload = reliableRpcs }, Channels.Reliable);
-                reliableRpcs.Position = 0;
-            }
-            if (unreliableRpcs.Position > 0)
-            {
-                Send(new RpcBufferMessage{ payload = reliableRpcs }, Channels.Unreliable);
-                unreliableRpcs.Position = 0;
-            }
+            FlushRpcs(reliableRpcs, Channels.Reliable);
+            FlushRpcs(unreliableRpcs, Channels.Unreliable);
 
             // call base update to flush out batched messages
             base.Update();
