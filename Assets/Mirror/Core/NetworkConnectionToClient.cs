@@ -11,8 +11,8 @@ namespace Mirror
         // this way we don't need one NetworkMessage per rpc.
         // => prepares for LocalWorldState as well.
         // ensure max size when adding!
-        NetworkWriter reliableRpcs = new NetworkWriter();
-        NetworkWriter unreliableRpcs = new NetworkWriter();
+        readonly NetworkWriter reliableRpcs = new NetworkWriter();
+        readonly NetworkWriter unreliableRpcs = new NetworkWriter();
 
         public override string address =>
             Transport.active.ServerGetClientAddress(connectionId);
