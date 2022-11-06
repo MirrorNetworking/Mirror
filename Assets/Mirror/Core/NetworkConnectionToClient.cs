@@ -137,10 +137,15 @@ namespace Mirror
             // serialize the message
             buffer.Write(message);
 
-            // TODO ensure message fits into max at all.
-            // otherwise flushing would be pointless.
-            // need to check buffer.Position + IdSize + 4 bytes for message payload?
-            // int written = buffer.Position - before;
+            // before we potentially flush out old messages,
+            // let's ensure this single message can even fit the limit.
+            // otherwise no point in flushing.
+            int messageSize = buffer.Position - before;
+            if (messageSize > bufferLimit)
+            {
+                Debug.LogWarning($"NetworkConnectionToClient: discarded RpcMesage for netId={message.netId} componentIndex={message.componentIndex} functionHash={message.functionHash} because it's larger than the rpc buffer limit of {bufferLimit} bytes for the channel: {channelId}");
+                return;
+            }
 
             // too much to fit into max message size?
             // then flush first, then write it again.
