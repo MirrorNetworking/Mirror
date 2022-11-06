@@ -128,8 +128,8 @@ namespace Mirror
         void BufferRpc(RpcMessage message, NetworkWriter buffer, int channelId, int maxMessageSize)
         {
             // calculate buffer limit. we can only fit so much into a message.
-            // max - message header - WriteArraySegment size header
-            int bufferLimit = maxMessageSize - NetworkMessages.IdSize - sizeof(int);
+            // max - message header - WriteArraySegment size header - batch header
+            int bufferLimit = maxMessageSize - NetworkMessages.IdSize - sizeof(int) - Batcher.HeaderSize;
 
             // remember previous valid position
             int before = buffer.Position;
