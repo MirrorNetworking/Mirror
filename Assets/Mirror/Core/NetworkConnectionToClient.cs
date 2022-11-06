@@ -7,6 +7,13 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
+        // rpcs are collected in a buffer, and then flushed out together.
+        // this way we don't need one NetworkMessage per rpc.
+        // => prepares for LocalWorldState as well.
+        // ensure max size when adding!
+        internal NetworkWriter reliableRpcs = new NetworkWriter();
+        internal NetworkWriter unreliableRpcs = new NetworkWriter();
+
         public override string address =>
             Transport.active.ServerGetClientAddress(connectionId);
 
@@ -108,12 +115,49 @@ namespace Mirror
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
             Transport.active.ServerSend(connectionId, segment, channelId);
 
+        internal void BufferRpc(RpcMessage message, int channelId)
+        {
+            if (channelId == Channels.Reliable)
+            {
+                int before = reliableRpcs.Position;
+                reliableRpcs.Write(message);
+                // TODO ensurenreliable max message size
+
+            }
+            else if (channelId == Channels.Unreliable)
+            {
+                int before = unreliableRpcs.Position;
+                unreliableRpcs.Write(message);
+                // TODO ensure unreliable max message size
+            }
+        }
+
+        internal override void Update()
+        {
+            // send rpc buffers
+            if (reliableRpcs.Position > 0)
+            {
+                Send(new RpcBufferMessage{ payload = reliableRpcs }, Channels.Reliable);
+                reliableRpcs.Position = 0;
+            }
+            if (unreliableRpcs.Position > 0)
+            {
+                Send(new RpcBufferMessage{ payload = reliableRpcs }, Channels.Unreliable);
+                unreliableRpcs.Position = 0;
+            }
+
+            // call base update to flush out batched messages
+            base.Update();
+        }
+
         /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
+            reliableRpcs.Position = 0;
+            unreliableRpcs.Position = 0;
             Transport.active.ServerDisconnect(connectionId);
 
             // IMPORTANT: NetworkConnection.Disconnect() is NOT called for

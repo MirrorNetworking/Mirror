@@ -340,7 +340,7 @@ namespace Mirror
             }
 
             // TODO change conn type to NetworkConnectionToClient to begin with.
-            if (!(conn is NetworkConnectionToClient))
+            if (conn is not NetworkConnectionToClient connToClient)
             {
                 Debug.LogError($"TargetRPC {functionFullName} called on {name} requires a NetworkConnectionToClient but was given {conn.GetType().Name}", gameObject);
                 return;
@@ -357,7 +357,10 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            conn.Send(message, channelId);
+            // serialize it to the connection's rpc buffer.
+            // send them all at once, instead of sending one message per rpc.
+            // conn.Send(message, channelId);
+            connToClient.BufferRpc(message, channelId);
         }
 
         // move the [SyncVar] generated property's .set into C# to avoid much IL

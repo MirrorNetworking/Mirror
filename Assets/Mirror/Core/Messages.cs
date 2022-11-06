@@ -52,6 +52,15 @@ namespace Mirror
         public ArraySegment<byte> payload;
     }
 
+    // holds multiple buffered rpcs for the given connection.
+    // more efficient than sending one message per rpc.
+    public struct RpcBufferMessage : NetworkMessage
+    {
+        // payload contains multiple serialized RpcMessages.
+        // but without the message header.
+        public ArraySegment<byte> payload;
+    }
+
     public struct SpawnMessage : NetworkMessage
     {
         // netId of new or existing object
