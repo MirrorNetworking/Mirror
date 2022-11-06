@@ -308,7 +308,29 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            NetworkServer.SendToReadyObservers(netIdentity, message, includeOwner, channelId);
+            // serialize it to each ready observer's connection's rpc buffer.
+            // send them all at once, instead of sending one message per rpc.
+            // NetworkServer.SendToReadyObservers(netIdentity, message, includeOwner, channelId);
+
+            // safety check used to be in SendToReadyObservers. keep it for now.
+            if (netIdentity.observers != null && netIdentity.observers.Count > 0)
+            {
+                // serialize the message only once
+                using (NetworkWriterPooled serialized = NetworkWriterPool.Get())
+                {
+                    serialized.Write(message);
+
+                    // add to every observer's connection's rpc buffer
+                    foreach (NetworkConnectionToClient conn in netIdentity.observers.Values)
+                    {
+                        bool isOwner = conn == netIdentity.connectionToClient;
+                        if ((!isOwner || includeOwner) && conn.isReady)
+                        {
+                            conn.BufferRpc(message, channelId);
+                        }
+                    }
+                }
+            }
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
