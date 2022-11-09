@@ -44,7 +44,8 @@ namespace Mirror
                 "MIRROR_58_0_OR_NEWER",
                 "MIRROR_65_0_OR_NEWER",
                 "MIRROR_66_0_OR_NEWER",
-                "MIRROR_2022_9_OR_NEWER"
+                "MIRROR_2022_9_OR_NEWER",
+                "MIRROR_2022_10_OR_NEWER",
             };
 
             // only touch PlayerSettings if we actually modified it.
