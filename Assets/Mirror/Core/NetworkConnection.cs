@@ -178,14 +178,15 @@ namespace Mirror
         internal virtual void Update()
         {
             // go through batches for all channels
-            foreach ((int key, Batcher batcher) in batches)
+            // foreach ((int key, Batcher batcher) in batches) // Unity 2020 doesn't support deconstruct yet
+            foreach (KeyValuePair<int, Batcher> kvp in batches)
             {
                 // make and send as many batches as necessary from the stored
                 // messages.
                 using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {
                     // make a batch with our local time (double precision)
-                    while (batcher.GetBatch(writer))
+                    while (kvp.Value.GetBatch(writer))
                     {
                         // validate packet before handing the batch to the
                         // transport. this guarantees that we always stay
@@ -193,10 +194,10 @@ namespace Mirror
                         // => just in case transport forgets to check it
                         // => just in case mirror miscalulated it etc.
                         ArraySegment<byte> segment = writer.ToArraySegment();
-                        if (ValidatePacketSize(segment, key))
+                        if (ValidatePacketSize(segment, kvp.Key))
                         {
                             // send to transport
-                            SendToTransport(segment, key);
+                            SendToTransport(segment, kvp.Key);
                             //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
                             // reset writer for each new batch

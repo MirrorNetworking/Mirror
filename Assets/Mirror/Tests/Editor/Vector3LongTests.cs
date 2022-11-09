@@ -55,6 +55,7 @@ namespace Mirror.Tests
             Assert.That(2 * a, Is.EqualTo(new Vector3Long(2, 4, 6)));
         }
 
+#if UNITY_2021_3_OR_NEWER
         [Test]
         public void OperatorEquals()
         {
@@ -78,6 +79,7 @@ namespace Mirror.Tests
             // two vectors which are definitely not the same
             Assert.That(a != Vector3Long.one, Is.True);
         }
+#endif
 
         [Test]
         public void OperatorIndexer()
@@ -114,6 +116,7 @@ namespace Mirror.Tests
             Assert.That(v.ToString(), Is.EqualTo("(-10 0 42)"));
         }
 
+#if UNITY_2021_3_OR_NEWER
         [Test]
         public void EqualsVector3Long()
         {
@@ -142,5 +145,6 @@ namespace Mirror.Tests
             // should be different for different vectors
             Assert.That(Vector3Long.zero.GetHashCode(), !Is.EqualTo(Vector3Long.one.GetHashCode()));
         }
+#endif
     }
 }
