@@ -1187,8 +1187,8 @@ namespace Mirror
             if (!identity.isServer && identity.netId == 0)
             {
                 // configure NetworkIdentity
-                identity.isServer = true;
                 identity.isLocalPlayer = NetworkClient.localPlayer == identity;
+                identity.isServer = true;
                 identity.netId = NetworkIdentity.GetNextNetworkId();
 
                 // add to spawned (after assigning netId)
