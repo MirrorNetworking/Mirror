@@ -1189,6 +1189,7 @@ namespace Mirror
                 // configure NetworkIdentity
                 identity.isServer = true;
                 identity.isLocalPlayer = NetworkClient.localPlayer == identity;
+                identity.netId = NetworkIdentity.GetNextNetworkId();
 
                 // callback after all fields were set
                 identity.OnStartServer();

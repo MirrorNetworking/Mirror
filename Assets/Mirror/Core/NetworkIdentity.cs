@@ -635,7 +635,6 @@ namespace Mirror
 
         internal void OnStartServer()
         {
-            netId = GetNextNetworkId();
             observers = new Dictionary<int, NetworkConnectionToClient>();
 
             //Debug.Log($"OnStartServer {this} NetId:{netId} SceneId:{sceneId:X}");
