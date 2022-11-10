@@ -1191,6 +1191,9 @@ namespace Mirror
                 identity.isLocalPlayer = NetworkClient.localPlayer == identity;
                 identity.netId = NetworkIdentity.GetNextNetworkId();
 
+                // add to spawned (after assigning netId)
+                spawned[identity.netId] = identity;
+
                 // callback after all fields were set
                 identity.OnStartServer();
             }
