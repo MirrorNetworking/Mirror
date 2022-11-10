@@ -80,6 +80,11 @@ namespace Mirror
                 return;
             }
 
+            // WriteString copies into the buffer manually.
+            // need to ensure capacity here first, manually.
+            int maxSize = writer.encoding.GetMaxByteCount(value.Length);
+            writer.EnsureCapacity(writer.Position + 2 + maxSize); // 2 bytes position + N bytes encoding
+
             // encode it into the buffer first.
             // reserve 2 bytes for header after we know how much was written.
             int written = writer.encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);

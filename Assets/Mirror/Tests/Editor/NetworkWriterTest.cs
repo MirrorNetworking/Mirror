@@ -1188,6 +1188,24 @@ namespace Mirror.Tests
             Assert.That(writer.ToArray(), Is.EqualTo(expected));
         }
 
+        // test to avoid https://github.com/vis2k/Mirror/issues/3258
+        [Test]
+        public void WriteString_EnsuresCapacity()
+        {
+            NetworkWriter writer = new NetworkWriter();
+
+            // jump to near the end
+            int initialPosition = writer.Position;
+            writer.Position = writer.Capacity - 4;
+
+            // try to write a string
+            writer.WriteString("a test string");
+
+            // buffer should have resized without throwing any exceptions
+            Assert.That(writer.Position, Is.GreaterThan(initialPosition));
+        }
+
+
         [Test]
         public void TestWritingAndReading()
         {
