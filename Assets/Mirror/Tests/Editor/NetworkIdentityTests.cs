@@ -662,29 +662,12 @@ namespace Mirror.Tests
             Assert.That(compStop.called, Is.EqualTo(1));
         }
 
-        // OnStartServer in host mode should set isClient=true
         [Test]
-        public void OnStartServerInHostModeSetsIsClientTrue()
+        public void Spawn_HostMode_SetsIsClient()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity);
-
-            // call client connect so that internals are set up
-            // (it won't actually successfully connect)
-            NetworkClient.Connect("localhost");
-
-            // manually invoke transport.OnConnected so that NetworkClient.active is set to true
-            Transport.active.OnClientConnected.Invoke();
-            Assert.That(NetworkClient.active, Is.True);
-
-            // isClient needs to be true in OnStartServer if in host mode.
-            // this is a test for a bug that we fixed, where isClient was false
-            // in OnStartServer if in host mode because in host mode, we only
-            // connect the client after starting the server, hence isClient would
-            // be false in OnStartServer until way later.
-            // -> we have the workaround in OnStartServer, so let's also test to
-            //    make sure that nobody ever breaks it again
-            Assert.That(identity.isClient, Is.False);
-            identity.OnStartServer();
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+            CreateNetworkedAndSpawn(out GameObject _, out NetworkIdentity identity);
             Assert.That(identity.isClient, Is.True);
         }
 

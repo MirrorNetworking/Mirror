@@ -637,15 +637,6 @@ namespace Mirror
         {
             observers = new Dictionary<int, NetworkConnectionToClient>();
 
-            //Debug.Log($"OnStartServer {this} NetId:{netId} SceneId:{sceneId:X}");
-
-            // in host mode we set isClient true before calling OnStartServer,
-            // otherwise isClient is false in OnStartServer.
-            if (NetworkClient.active)
-            {
-                isClient = true;
-            }
-
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // an exception in OnStartServer should be caught, so that one
