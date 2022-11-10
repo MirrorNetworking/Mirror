@@ -171,7 +171,7 @@ namespace Mirror
 
         float DrawObservers(NetworkIdentity identity, float initialX, float Y)
         {
-            if (identity.observers != null && identity.observers.Count > 0)
+            if (identity.observers.Count > 0)
             {
                 Rect observerRect = new Rect(initialX, Y + 10, 200, 20);
 

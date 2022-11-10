@@ -216,7 +216,7 @@ namespace Mirror
             //   if a monster has no observers but we keep modifing a SyncObject,
             //   then the changes would never be flushed and keep growing,
             //   because OnSerialize isn't called without observers.
-            syncObject.IsRecording = () => netIdentity.observers?.Count > 0;
+            syncObject.IsRecording = () => netIdentity.observers.Count > 0;
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions

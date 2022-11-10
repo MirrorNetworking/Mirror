@@ -98,9 +98,8 @@ namespace Mirror
         public bool hasAuthority => isOwned;
 
         /// <summary>The set of network connections (players) that can see this object.</summary>
-        // note: null until OnStartServer was called. this is necessary for
-        //       SendTo* to work properly in server-only mode.
-        public Dictionary<int, NetworkConnectionToClient> observers;
+        public readonly Dictionary<int, NetworkConnectionToClient> observers =
+            new Dictionary<int, NetworkConnectionToClient>();
 
         /// <summary>The unique network Id of this object (unique at runtime).</summary>
         public uint netId { get; internal set; }
@@ -635,8 +634,6 @@ namespace Mirror
 
         internal void OnStartServer()
         {
-            observers = new Dictionary<int, NetworkConnectionToClient>();
-
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // an exception in OnStartServer should be caught, so that one
@@ -1168,12 +1165,6 @@ namespace Mirror
 
         internal void AddObserver(NetworkConnectionToClient conn)
         {
-            if (observers == null)
-            {
-                Debug.LogError($"AddObserver for {gameObject} observer list is null");
-                return;
-            }
-
             if (observers.ContainsKey(conn.connectionId))
             {
                 // if we try to add a connectionId that was already added, then
@@ -1214,20 +1205,17 @@ namespace Mirror
         // this is used when a connection is destroyed, since the "observers" property is read-only
         internal void RemoveObserver(NetworkConnection conn)
         {
-            observers?.Remove(conn.connectionId);
+            observers.Remove(conn.connectionId);
         }
 
         // Called when NetworkIdentity is destroyed
         internal void ClearObservers()
         {
-            if (observers != null)
+            foreach (NetworkConnectionToClient conn in observers.Values)
             {
-                foreach (NetworkConnectionToClient conn in observers.Values)
-                {
-                    conn.RemoveFromObserving(this, true);
-                }
-                observers.Clear();
+                conn.RemoveFromObserving(this, true);
             }
+            observers.Clear();
         }
 
         /// <summary>Assign control of an object to a client via the client's NetworkConnection.</summary>

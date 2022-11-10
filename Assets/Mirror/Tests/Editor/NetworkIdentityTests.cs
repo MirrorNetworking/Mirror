@@ -796,18 +796,6 @@ namespace Mirror.Tests
             NetworkConnectionToClient connection1 = new NetworkConnectionToClient(42);
             NetworkConnectionToClient connection2 = new NetworkConnectionToClient(43);
 
-            // AddObserver should return early if called before .observers was
-            // created
-            Assert.That(identity.observers, Is.Null);
-            // error log is expected
-            LogAssert.ignoreFailingMessages = true;
-            identity.AddObserver(connection1);
-            LogAssert.ignoreFailingMessages = false;
-            Assert.That(identity.observers, Is.Null);
-
-            // call OnStartServer so that observers dict is created
-            identity.OnStartServer();
-
             // call AddObservers
             identity.AddObserver(connection1);
             identity.AddObserver(connection2);

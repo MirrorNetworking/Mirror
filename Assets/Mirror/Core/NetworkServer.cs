@@ -380,7 +380,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // Debug.Log($"Server.SendToObservers {typeof(T)}");
-            if (identity == null || identity.observers == null || identity.observers.Count == 0)
+            if (identity == null || identity.observers.Count == 0)
                 return;
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
@@ -404,7 +404,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // Debug.Log($"Server.SendToReady {typeof(T)}");
-            if (identity == null || identity.observers == null || identity.observers.Count == 0)
+            if (identity == null || identity.observers.Count == 0)
                 return;
 
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
@@ -1666,10 +1666,6 @@ namespace Mirror
         // both worlds without any worrying now!
         public static void RebuildObservers(NetworkIdentity identity, bool initialize)
         {
-            // observers are null until OnStartServer creates them
-            if (identity.observers == null)
-                return;
-
             // if there is no interest management system,
             // or if 'force shown' then add all connections
             if (aoi == null || identity.visible == Visibility.ForceShown)
