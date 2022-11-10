@@ -1184,7 +1184,7 @@ namespace Mirror
 
             // only call OnStartServer if not spawned yet.
             // check used to be in NetworkIdentity. may not be necessary anymore.
-            if (!identity.isServer)
+            if (!identity.isServer && identity.netId == 0)
             {
                 // configure NetworkIdentity
                 identity.isServer = true;

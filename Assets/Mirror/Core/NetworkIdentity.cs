@@ -635,19 +635,6 @@ namespace Mirror
 
         internal void OnStartServer()
         {
-            // If the instance/net ID is invalid here then this is an object instantiated from a prefab and the server should assign a valid ID
-            // NOTE: this might not be necessary because the above m_IsServer
-            //       check already checks netId. BUT this case here checks only
-            //       netId, so it would still check cases where isServer=false
-            //       but netId!=0.
-            if (netId != 0)
-            {
-                // This object has already been spawned, this method might be called again
-                // if we try to respawn all objects.  This can happen when we add a scene
-                // in that case there is nothing else to do.
-                return;
-            }
-
             netId = GetNextNetworkId();
             observers = new Dictionary<int, NetworkConnectionToClient>();
 
