@@ -414,7 +414,7 @@ namespace Mirror
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
                 int count = 0;
-                foreach (NetworkConnection conn in identity.observers.Values)
+                foreach (NetworkConnectionToClient conn in identity.observers.Values)
                 {
                     bool isOwner = conn == identity.connectionToClient;
                     if ((!isOwner || includeOwner) && conn.isReady)
