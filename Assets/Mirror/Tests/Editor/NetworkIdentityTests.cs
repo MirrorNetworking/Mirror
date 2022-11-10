@@ -551,9 +551,8 @@ namespace Mirror.Tests
             // server is needed
             NetworkServer.Listen(1);
 
-            // call OnStartServer so that isServer is true
-            identity.OnStartServer();
-            Assert.That(identity.isServer, Is.True);
+            // set isServer to true
+            identity.isServer = true;
 
             // assign authority
             result = identity.AssignClientAuthority(owner);

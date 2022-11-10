@@ -635,13 +635,6 @@ namespace Mirror
 
         internal void OnStartServer()
         {
-            // do nothing if already spawned
-            if (isServer)
-                return;
-
-            // set isServer flag
-            isServer = true;
-
             // set isLocalPlayer earlier, in case OnStartLocalplayer is called
             // AFTER OnStartClient, in which case it would still be falsse here.
             // many projects will check isLocalPlayer in OnStartClient though.

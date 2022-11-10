@@ -108,9 +108,8 @@ namespace Mirror.Tests
         {
             CreateNetworked(out _, out NetworkIdentity identity, out EmptyBehaviour emptyBehaviour);
 
-            // call OnStartServer so isServer is true
-            identity.OnStartServer();
-            Assert.That(identity.isServer, Is.True);
+            // set isServer
+            identity.isServer = true;
 
             // isServerOnly should be true when isServer = true && isClient = false
             Assert.That(emptyBehaviour.isServer, Is.True);
@@ -558,9 +557,8 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
-            // call OnStartServer so isServer is true
-            identity.OnStartServer();
-            Assert.That(identity.isServer, Is.True);
+            // set isServer
+            identity.isServer = true;
 
             // create a syncable GameObject
             CreateNetworked(out GameObject go, out NetworkIdentity ni);
@@ -584,9 +582,8 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject gameObject, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarGameObjectComponent comp);
 
-            // call OnStartServer and assign netId so isServer is true
-            identity.OnStartServer();
-            Assert.That(identity.isServer, Is.True);
+            // set isServer
+            identity.isServer = true;
 
             // get it on the server. null should work fine.
             GameObject result = comp.GetSyncVarGameObjectExposed();
@@ -719,9 +716,8 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
 
-            // call OnStartServer so isServer is true
-            identity.OnStartServer();
-            Assert.That(identity.isServer, Is.True);
+            // set isServer
+            identity.isServer = true;
 
             // create a syncable GameObject
             CreateNetworked(out _, out NetworkIdentity ni);
@@ -742,9 +738,8 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out NetworkBehaviourGetSyncVarNetworkIdentityComponent comp);
 
-            // call OnStartServer so isServer is true
-            identity.OnStartServer();
-            Assert.That(identity.isServer, Is.True);
+            // set isServer
+            identity.isServer = true;
 
             // get it on the server. null should work fine.
             NetworkIdentity result = comp.GetSyncVarNetworkIdentityExposed();

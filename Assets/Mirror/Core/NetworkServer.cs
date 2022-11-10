@@ -1182,7 +1182,16 @@ namespace Mirror
             if (ownerConnection is LocalConnectionToClient)
                 identity.isOwned = true;
 
-            identity.OnStartServer();
+            // only call OnStartServer if not spawned yet.
+            // check used to be in NetworkIdentity. may not be necessary anymore.
+            if (!identity.isServer)
+            {
+                // configure NetworkIdentity
+                identity.isServer = true;
+
+                // callback after all fields were set
+                identity.OnStartServer();
+            }
 
             // Debug.Log($"SpawnObject instance ID {identity.netId} asset ID {identity.assetId}");
 
