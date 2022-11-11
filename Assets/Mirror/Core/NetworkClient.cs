@@ -1060,7 +1060,7 @@ namespace Mirror
             if (isSpawnFinished)
             {
                 identity.NotifyAuthority();
-                identity.OnStartClient();
+                CheckForStartClient(identity);
                 CheckForLocalPlayer(identity);
             }
         }
@@ -1213,7 +1213,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in spawned.Values.OrderBy(uv => uv.netId))
             {
                 identity.NotifyAuthority();
-                identity.OnStartClient();
+                CheckForStartClient(identity);
                 CheckForLocalPlayer(identity);
             }
             isSpawnFinished = true;
@@ -1281,7 +1281,7 @@ namespace Mirror
 
                 identity.isOwned = message.isOwner;
                 identity.NotifyAuthority();
-                identity.OnStartClient();
+                CheckForStartClient(identity);
 
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, true);
@@ -1368,6 +1368,13 @@ namespace Mirror
 
             // call OnStartLocalPlayer if it's the local player now.
             CheckForLocalPlayer(identity);
+        }
+
+        // OnStartClient used to initialize isClient / isLocalPlayer.
+        // it's cleaner to do this from NetworkClient.
+        internal static void CheckForStartClient(NetworkIdentity identity)
+        {
+            identity.OnStartClient();
         }
 
         internal static void CheckForLocalPlayer(NetworkIdentity identity)
