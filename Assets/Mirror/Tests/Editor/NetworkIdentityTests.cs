@@ -833,66 +833,25 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ClearDirtyComponentsDirtyBits()
-        {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out OnStartClientTestNetworkBehaviour compA,
-                out OnStartClientTestNetworkBehaviour compB);
-
-            // set syncintervals so one is always dirty, one is never dirty
-            compA.syncInterval = 0;
-            compB.syncInterval = Mathf.Infinity;
-
-            // set components dirty bits
-            compA.SetSyncVarDirtyBit(0x0001);
-            compB.SetSyncVarDirtyBit(0x1001);
-            // dirty because interval reached and mask != 0
-            Assert.That(compA.IsDirty(), Is.True);
-            // not dirty because syncinterval not reached
-            Assert.That(compB.IsDirty(), Is.False);
-
-            // call identity.ClearDirtyComponentsDirtyBits
-            identity.ClearDirtyComponentsDirtyBits();
-            // should be cleared now
-            Assert.That(compA.IsDirty(), Is.False);
-            // should be untouched
-            Assert.That(compB.IsDirty(), Is.False);
-
-            // set compB syncinterval to 0 to check if the masks were untouched
-            // (if they weren't, then it should be dirty now)
-            compB.syncInterval = 0;
-            Assert.That(compB.IsDirty(), Is.True);
-        }
-
-        [Test]
         public void ClearAllComponentsDirtyBits()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity,
                 out OnStartClientTestNetworkBehaviour compA,
                 out OnStartClientTestNetworkBehaviour compB);
 
-            // set syncintervals so one is always dirty, one is never dirty
-            compA.syncInterval = 0;
-            compB.syncInterval = Mathf.Infinity;
-
             // set components dirty bits
             compA.SetSyncVarDirtyBit(0x0001);
             compB.SetSyncVarDirtyBit(0x1001);
             // dirty because interval reached and mask != 0
             Assert.That(compA.IsDirty(), Is.True);
-            // not dirty because syncinterval not reached
-            Assert.That(compB.IsDirty(), Is.False);
+            // dirty because interval reached and mask != 0
+            Assert.That(compB.IsDirty(), Is.True);
 
             // call identity.ClearAllComponentsDirtyBits
             identity.ClearAllComponentsDirtyBits();
             // should be cleared now
             Assert.That(compA.IsDirty(), Is.False);
             // should be cleared now
-            Assert.That(compB.IsDirty(), Is.False);
-
-            // set compB syncinterval to 0 to check if the masks were cleared
-            // (if they weren't, then it would still be dirty now)
-            compB.syncInterval = 0;
             Assert.That(compB.IsDirty(), Is.False);
         }
 

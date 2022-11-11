@@ -276,7 +276,6 @@ namespace Mirror.Tests
             // pretend to be owned
             identity.isOwned = true;
             comp.syncMode = SyncMode.Owner;
-            comp.syncInterval = 0;
 
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
@@ -312,7 +311,6 @@ namespace Mirror.Tests
             // pretend to be owned
             identity.isOwned = true;
             comp.syncMode = SyncMode.Observers;
-            comp.syncInterval = 0;
 
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.

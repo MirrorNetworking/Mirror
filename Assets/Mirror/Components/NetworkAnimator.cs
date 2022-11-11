@@ -189,9 +189,9 @@ namespace Mirror
         void CheckSendRate()
         {
             double now = NetworkTime.localTime;
-            if (SendMessagesAllowed && syncInterval >= 0 && now > nextSendTime)
+            if (SendMessagesAllowed && NetworkServer.sendInterval >= 0 && now > nextSendTime)
             {
-                nextSendTime = now + syncInterval;
+                nextSendTime = now + NetworkServer.sendInterval;
 
                 using (NetworkWriterPooled writer = NetworkWriterPool.Get())
                 {

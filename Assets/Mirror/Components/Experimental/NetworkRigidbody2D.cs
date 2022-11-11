@@ -231,7 +231,7 @@ namespace Mirror.Experimental
             // only update syncTime if either has changed
             if (angularVelocityChanged || velocityChanged)
             {
-                previousValue.nextSyncTime = now + syncInterval;
+                previousValue.nextSyncTime = now + NetworkClient.sendInterval;
             }
         }
 

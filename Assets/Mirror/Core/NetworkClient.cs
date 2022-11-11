@@ -1467,7 +1467,7 @@ namespace Mirror
             // nothing to do in host mode. server already knows the state.
             if (NetworkServer.active) return;
 
-            // send time snapshot every sendInterval.
+            // send time snapshot every sendInterval
             BroadcastTimeSnapshot();
 
             // for each entity that the client owns
@@ -1495,7 +1495,7 @@ namespace Mirror
                             Send(message);
 
                             // reset dirty bits so it's not resent next time.
-                            identity.ClearDirtyComponentsDirtyBits();
+                            identity.ClearAllComponentsDirtyBits();
                         }
                     }
                 }
