@@ -719,20 +719,29 @@ namespace Mirror
             }
         }
 
-        // TODO any way to make this not static?
-        // introduced in https://github.com/vis2k/Mirror/commit/c7530894788bb843b0f424e8f25029efce72d8ca#diff-dc8b7a5a67840f75ccc884c91b9eb76ab7311c9ca4360885a7e41d980865bdc2
-        // for PR https://github.com/vis2k/Mirror/pull/1263
-        //
-        // explanation:
-        // we send the spawn message multiple times. Whenever an object changes
-        // authority, we send the spawn message again for the object. This is
-        // necessary because we need to reinitialize all variables when
-        // ownership change due to sync to owner feature.
-        // Without this static, the second time we get the spawn message we
-        // would call OnStartLocalPlayer again on the same object
         internal static NetworkIdentity previousLocalPlayer = null;
         internal void OnStartLocalPlayer()
         {
+            // ensure OnStartLocalPlayer is only called once.
+            // Room demo would call it multiple times:
+            // - once from ApplySpawnPayload
+            // - once from OnObjectSpawnFinished
+            //
+            // to reproduce:
+            // - open room demo, add the 3 scenes to build settings
+            // - add OnStartLocalPlayer log to RoomPlayer prefab
+            // - build, run server-only
+            // - in editor, connect, press ready
+            // - in server, start game
+            // - notice multiple OnStartLocalPlayer logs in editor client
+            //
+            // explanation:
+            // we send the spawn message multiple times. Whenever an object changes
+            // authority, we send the spawn message again for the object. This is
+            // necessary because we need to reinitialize all variables when
+            // ownership change due to sync to owner feature.
+            // Without this static, the second time we get the spawn message we
+            // would call OnStartLocalPlayer again on the same object
             if (previousLocalPlayer == this)
                 return;
             previousLocalPlayer = this;
