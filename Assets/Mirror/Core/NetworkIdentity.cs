@@ -737,8 +737,6 @@ namespace Mirror
                 return;
             previousLocalPlayer = this;
 
-            isLocalPlayer = true;
-
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // an exception in OnStartLocalPlayer should be caught, so that
