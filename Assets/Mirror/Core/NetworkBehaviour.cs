@@ -150,6 +150,12 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SetSyncObjectDirtyBit(ulong dirtyBit)
+        {
+            syncObjectDirtyBits |= dirtyBit;
+        }
+
         /// <summary>Set as dirty so that it's synced to clients again.</summary>
         // these are masks, not bit numbers, ie. 110011b not '2' for 2nd bit.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -209,7 +215,7 @@ namespace Mirror
 
             // OnDirty needs to set nth bit in our dirty mask
             ulong nthBit = 1UL << index;
-            syncObject.OnDirty = () => syncObjectDirtyBits |= nthBit;
+            syncObject.OnDirty = () => SetSyncObjectDirtyBit(nthBit);
 
             // only record changes while we have observers.
             // prevents ever growing .changes lists:
