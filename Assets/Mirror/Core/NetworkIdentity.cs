@@ -313,7 +313,6 @@ namespace Mirror
             NetworkBehaviours = GetComponents<NetworkBehaviour>();
             ValidateComponents();
 
-            // ensure max components
             // initialize each one
             for (int i = 0; i < NetworkBehaviours.Length; ++i)
             {
