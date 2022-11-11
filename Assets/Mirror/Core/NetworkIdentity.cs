@@ -679,17 +679,6 @@ namespace Mirror
                 return;
             clientStarted = true;
 
-            isClient = true;
-
-            // set isLocalPlayer earlier, in case OnStartLocalplayer is called
-            // AFTER OnStartClient, in which case it would still be falsse here.
-            // many projects will check isLocalPlayer in OnStartClient though.
-            // TODO ideally set isLocalPlayer when NetworkClient.localPlayer is set?
-            if (NetworkClient.localPlayer == this)
-            {
-                isLocalPlayer = true;
-            }
-
             // Debug.Log($"OnStartClient {gameObject} netId:{netId}");
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {

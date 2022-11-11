@@ -1374,6 +1374,10 @@ namespace Mirror
         // it's cleaner to do this from NetworkClient.
         internal static void CheckForStartClient(NetworkIdentity identity)
         {
+            // OnStartLocalPlayer is called after OnStartClient.
+            // but we want the flag to be set in OnStartClient already.
+            identity.isLocalPlayer = localPlayer == identity;
+            identity.isClient = true;
             identity.OnStartClient();
         }
 
