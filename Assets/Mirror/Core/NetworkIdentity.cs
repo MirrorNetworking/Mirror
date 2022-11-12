@@ -974,9 +974,20 @@ namespace Mirror
                             if (ownerDirty)         ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                             if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
+
+                        // clear dirty bits after serializing.
+                        // best to do it here while iterating.
+                        // ClearAllComponentsDirtyBits would have to iterate
+                        // everything again otherwise.
+                        comp.ClearAllDirtyBits();
                     }
                 }
             }
+
+            // clear dirty component bits as well.
+            // otherwise OnBecameDirty wouldn't detect initial dirty next time.
+            serverOwnerDirtyMask     = 0;
+            serverObserversDirtyMask = 0;
         }
 
         // serialize components into writer on the client.
@@ -1023,9 +1034,19 @@ namespace Mirror
                         // serialize into writer.
                         // server always knows initialState, we never need to send it
                         comp.Serialize(writer, false);
+
+                        // clear dirty bits after serializing.
+                        // best to do it here while iterating.
+                        // ClearAllComponentsDirtyBits would have to iterate
+                        // everything again otherwise.
+                        comp.ClearAllDirtyBits();
                     }
                 }
             }
+
+            // clear dirty component bits as well.
+            // otherwise OnBecameDirty wouldn't detect initial dirty next time.
+            clientDirtyMask = 0;
         }
 
         // deserialize components from the client on the server.
@@ -1111,21 +1132,6 @@ namespace Mirror
                 SerializeServer(false,
                                 lastSerialization.ownerWriter,
                                 lastSerialization.observersWriter);
-
-                // clear dirty bits for the components that we serialized.
-                // previously we did this in NetworkServer.BroadcastToConnection
-                // for every connection, for every entity.
-                // but we only serialize each entity once, right here in this
-                // 'lastSerialization.tick != tick' scope.
-                // so only do it once.
-                //
-                // NOTE: not in Serializell as that should only do one
-                //       thing: serialize data.
-                //
-                // NOTE: this used to be very important to avoid ever growing
-                //       SyncList changes if they had no observers, but we've
-                //       added SyncObject.isRecording since.
-                ClearAllComponentsDirtyBits();
 
                 // set tick
                 lastSerialization.tick = tick;
@@ -1330,13 +1336,17 @@ namespace Mirror
             isLocalPlayer = false;
         }
 
-        // clear all component's dirty bits no matter what
+        // clear all component's dirty bits no matter what.
+        // when serializing, it's best to clear them while already iterating.
+        // this way we don't need to iterate all components here again.
+        // this should only be used if we need to clear outside of serialization.
         internal void ClearAllComponentsDirtyBits()
         {
             serverOwnerDirtyMask     = 0;
             serverObserversDirtyMask = 0;
             clientDirtyMask          = 0;
 
+            // TODO clear only the dirty ones? fine now without interval.
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 comp.ClearAllDirtyBits();
