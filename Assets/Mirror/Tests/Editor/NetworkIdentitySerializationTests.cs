@@ -346,9 +346,6 @@ namespace Mirror.Tests
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
 
-            // reset dirty bits after serializing
-            identity.ClearAllComponentsDirtyBits();
-
             // delta: should only write for observers
             ++comp.value; // change something
             ownerWriter.Position = 0;
