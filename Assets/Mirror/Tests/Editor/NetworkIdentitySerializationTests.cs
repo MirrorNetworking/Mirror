@@ -44,9 +44,17 @@ namespace Mirror.Tests
             serverOwnerComp.syncMode     = clientOwnerComp.syncMode     = SyncMode.Owner;
             serverObserversComp.syncMode = clientObserversComp.syncMode = SyncMode.Observers;
 
+            // syncMode was changed after spawning.
+            // need to reinitialize the initial masks.
+            serverIdentity.InitializeNetworkBehaviours();
+
             // set unique values on server components
             serverOwnerComp.value = "42";
             serverObserversComp.value = 42;
+
+            // TODO FIX
+            // ownerWriter: has owner comp and observers comp (since it's for owner)
+            // observers writer: only has the comp for observers
 
             // serialize server object
             serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
@@ -87,7 +95,11 @@ namespace Mirror.Tests
 
             // set sync modes
             serverCompExc.syncMode = clientCompExc.syncMode = SyncMode.Observers;
-            serverComp2.syncMode = clientComp2.syncMode = SyncMode.Owner;
+            serverComp2.syncMode   = clientComp2.syncMode   = SyncMode.Owner;
+
+            // syncMode was changed after spawning.
+            // need to reinitialize the initial masks.
+            serverIdentity.InitializeNetworkBehaviours();
 
             // set unique values on server components
             serverComp2.value = "42";
@@ -270,30 +282,35 @@ namespace Mirror.Tests
         [Test]
         public void SerializeServer_OwnerMode_ClientToServer()
         {
-            CreateNetworked(out GameObject _, out NetworkIdentity identity,
-                out SyncVarTest1NetworkBehaviour comp);
+            CreateNetworkedAndSpawn(
+                out _, out NetworkIdentity serverIdentity, out SyncVarTest1NetworkBehaviour serverComp,
+                out _, out NetworkIdentity clientIdentity, out SyncVarTest1NetworkBehaviour clientComp);
 
             // pretend to be owned
-            identity.isOwned = true;
-            comp.syncMode = SyncMode.Owner;
+            serverIdentity.isOwned = true;
+            serverComp.syncMode = SyncMode.Owner;
 
             // set to CLIENT with some unique values
             // and set connection to server to pretend we are the owner.
-            comp.syncDirection = SyncDirection.ClientToServer;
-            comp.value = 12345;
+            serverComp.syncDirection = SyncDirection.ClientToServer;
+            serverComp.value = 12345;
+
+            // syncMode was changed after spawning.
+            // need to reinitialize the initial masks.
+            serverIdentity.InitializeNetworkBehaviours();
 
             // initial: should still write for owner
-            identity.SerializeServer(true, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer(true, ownerWriter, observersWriter);
             Debug.Log("initial ownerWriter: " + ownerWriter);
             Debug.Log("initial observerWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
             Assert.That(observersWriter.Position, Is.EqualTo(0));
 
             // delta: ClientToServer comes from the client
-            ++comp.value; // change something
+            ++serverComp.value; // change something
             ownerWriter.Position = 0;
             observersWriter.Position = 0;
-            identity.SerializeServer(false, ownerWriter, observersWriter);
+            serverIdentity.SerializeServer(false, ownerWriter, observersWriter);
             Debug.Log("delta ownerWriter: " + ownerWriter);
             Debug.Log("delta observersWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.EqualTo(0));
@@ -309,6 +326,7 @@ namespace Mirror.Tests
                 out SyncVarTest1NetworkBehaviour comp);
 
             // pretend to be owned
+            identity.isServer = true;
             identity.isOwned = true;
             comp.syncMode = SyncMode.Observers;
 
@@ -317,12 +335,19 @@ namespace Mirror.Tests
             comp.syncDirection = SyncDirection.ClientToServer;
             comp.value = 12345;
 
+            // syncMode was changed after spawning.
+            // need to reinitialize the initial masks.
+            identity.InitializeNetworkBehaviours();
+
             // initial: should write something for owner and observers
             identity.SerializeServer(true, ownerWriter, observersWriter);
             Debug.Log("initial ownerWriter: " + ownerWriter);
             Debug.Log("initial observerWriter: " + observersWriter);
             Assert.That(ownerWriter.Position, Is.GreaterThan(0));
             Assert.That(observersWriter.Position, Is.GreaterThan(0));
+
+            // reset dirty bits after serializing
+            identity.ClearAllComponentsDirtyBits();
 
             // delta: should only write for observers
             ++comp.value; // change something

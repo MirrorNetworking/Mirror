@@ -150,10 +150,21 @@ namespace Mirror
                 syncVarHookGuard &= ~dirtyBit;
         }
 
+        // callback for both SyncObject and SyncVar dirty bit setters.
+        // called once it becomes dirty, not called again while already dirty.
+        // -> we only want to follow the .netIdentity memory indirection once
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void OnBecameDirty()
+        {
+            netIdentity.OnBecameDirty(this);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SetSyncObjectDirtyBit(ulong dirtyBit)
         {
+            bool clean = syncObjectDirtyBits == 0;
             syncObjectDirtyBits |= dirtyBit;
+            if (clean) OnBecameDirty();
         }
 
         /// <summary>Set as dirty so that it's synced to clients again.</summary>
@@ -161,7 +172,9 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetSyncVarDirtyBit(ulong dirtyBit)
         {
+            bool clean = syncVarDirtyBits == 0;
             syncVarDirtyBits |= dirtyBit;
+            if (clean) OnBecameDirty();
         }
 
         /// <summary>Set as dirty to trigger OnSerialize & send. Dirty bits are cleared after the send.</summary>
