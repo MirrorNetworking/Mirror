@@ -314,7 +314,29 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            NetworkServer.SendToReadyObservers(netIdentity, message, includeOwner, channelId);
+            // serialize it to each ready observer's connection's rpc buffer.
+            // send them all at once, instead of sending one message per rpc.
+            // NetworkServer.SendToReadyObservers(netIdentity, message, includeOwner, channelId);
+
+            // safety check used to be in SendToReadyObservers. keep it for now.
+            if (netIdentity.observers != null && netIdentity.observers.Count > 0)
+            {
+                // serialize the message only once
+                using (NetworkWriterPooled serialized = NetworkWriterPool.Get())
+                {
+                    serialized.Write(message);
+
+                    // add to every observer's connection's rpc buffer
+                    foreach (NetworkConnectionToClient conn in netIdentity.observers.Values)
+                    {
+                        bool isOwner = conn == netIdentity.connectionToClient;
+                        if ((!isOwner || includeOwner) && conn.isReady)
+                        {
+                            conn.BufferRpc(message, channelId);
+                        }
+                    }
+                }
+            }
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
@@ -346,7 +368,7 @@ namespace Mirror
             }
 
             // TODO change conn type to NetworkConnectionToClient to begin with.
-            if (!(conn is NetworkConnectionToClient))
+            if (conn is not NetworkConnectionToClient connToClient)
             {
                 Debug.LogError($"TargetRPC {functionFullName} called on {name} requires a NetworkConnectionToClient but was given {conn.GetType().Name}", gameObject);
                 return;
@@ -363,7 +385,10 @@ namespace Mirror
                 payload = writer.ToArraySegment()
             };
 
-            conn.Send(message, channelId);
+            // serialize it to the connection's rpc buffer.
+            // send them all at once, instead of sending one message per rpc.
+            // conn.Send(message, channelId);
+            connToClient.BufferRpc(message, channelId);
         }
 
         // move the [SyncVar] generated property's .set into C# to avoid much IL

@@ -7,6 +7,13 @@ namespace Mirror
 {
     public class NetworkConnectionToClient : NetworkConnection
     {
+        // rpcs are collected in a buffer, and then flushed out together.
+        // this way we don't need one NetworkMessage per rpc.
+        // => prepares for LocalWorldState as well.
+        // ensure max size when adding!
+        readonly NetworkWriter reliableRpcs = new NetworkWriter();
+        readonly NetworkWriter unreliableRpcs = new NetworkWriter();
+
         public override string address =>
             Transport.active.ServerGetClientAddress(connectionId);
 
@@ -108,12 +115,80 @@ namespace Mirror
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
             Transport.active.ServerSend(connectionId, segment, channelId);
 
+        void FlushRpcs(NetworkWriter buffer, int channelId)
+        {
+            if (buffer.Position > 0)
+            {
+                Send(new RpcBufferMessage{ payload = buffer }, channelId);
+                buffer.Position = 0;
+            }
+        }
+
+        // helper for both channels
+        void BufferRpc(RpcMessage message, NetworkWriter buffer, int channelId, int maxMessageSize)
+        {
+            // calculate buffer limit. we can only fit so much into a message.
+            // max - message header - WriteArraySegment size header - batch header
+            int bufferLimit = maxMessageSize - NetworkMessages.IdSize - sizeof(int) - Batcher.HeaderSize;
+
+            // remember previous valid position
+            int before = buffer.Position;
+
+            // serialize the message without header
+            buffer.Write(message);
+
+            // before we potentially flush out old messages,
+            // let's ensure this single message can even fit the limit.
+            // otherwise no point in flushing.
+            int messageSize = buffer.Position - before;
+            if (messageSize > bufferLimit)
+            {
+                Debug.LogWarning($"NetworkConnectionToClient: discarded RpcMesage for netId={message.netId} componentIndex={message.componentIndex} functionHash={message.functionHash} because it's larger than the rpc buffer limit of {bufferLimit} bytes for the channel: {channelId}");
+                return;
+            }
+
+            // too much to fit into max message size?
+            // then flush first, then write it again.
+            // (message + message header + 4 bytes WriteArraySegment header)
+            if (buffer.Position > bufferLimit)
+            {
+                buffer.Position = before;
+                FlushRpcs(buffer, channelId); // this resets position
+                buffer.Write(message);
+            }
+        }
+
+        internal void BufferRpc(RpcMessage message, int channelId)
+        {
+            int maxMessageSize = Transport.active.GetMaxPacketSize(channelId);
+            if (channelId == Channels.Reliable)
+            {
+                BufferRpc(message, reliableRpcs, Channels.Reliable, maxMessageSize);
+            }
+            else if (channelId == Channels.Unreliable)
+            {
+                BufferRpc(message, unreliableRpcs, Channels.Unreliable, maxMessageSize);
+            }
+        }
+
+        internal override void Update()
+        {
+            // send rpc buffers
+            FlushRpcs(reliableRpcs, Channels.Reliable);
+            FlushRpcs(unreliableRpcs, Channels.Unreliable);
+
+            // call base update to flush out batched messages
+            base.Update();
+        }
+
         /// <summary>Disconnects this connection.</summary>
         public override void Disconnect()
         {
             // set not ready and handle clientscene disconnect in any case
             // (might be client or host mode here)
             isReady = false;
+            reliableRpcs.Position = 0;
+            unreliableRpcs.Position = 0;
             Transport.active.ServerDisconnect(connectionId);
 
             // IMPORTANT: NetworkConnection.Disconnect() is NOT called for
