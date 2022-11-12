@@ -218,6 +218,14 @@ namespace Mirror
         // which means we can't allow > 64 components (it's enough).
         const int MaxNetworkBehaviours = 64;
 
+        // NetworkBehaviour's dirty masks.
+        // set from NetworkBehaviour.OnBecameDirty callback.
+        ulong serverOwnerInitialMask;     // all initial components' bits are set
+        ulong serverOwnerDirtyMask;       // only dirty  components' bits are set
+        ulong serverObserversDirtyMask;   // all initial components' bits are set
+        ulong serverObserversInitialMask; // only dirty  components' bits are set
+        ulong clientDirtyMask;            // only dirty components. client doesn't send initial.
+
         // current visibility
         //
         // Default = use interest management
@@ -313,12 +321,30 @@ namespace Mirror
             NetworkBehaviours = GetComponents<NetworkBehaviour>();
             ValidateComponents();
 
+            // reset the masks before initializing them.
+            // during tests, we may create an identity, then change sync mode,
+            // then call Awake() to initialize the masks properly.
+            // if we don't reset them first, then we OR into the first state.
+            serverOwnerInitialMask = serverObserversInitialMask = 0;
+
             // initialize each one
             for (int i = 0; i < NetworkBehaviours.Length; ++i)
             {
                 NetworkBehaviour component = NetworkBehaviours[i];
                 component.netIdentity = this;
                 component.ComponentIndex = (byte)i;
+
+                ulong nthBit = (1u << component.ComponentIndex);
+
+                // build a mask with all owner components' bits set for initialState
+                // -> for initial, all components are synced to owner no matter what.
+                // -> so simply set a bit for every component index
+                serverOwnerInitialMask |= nthBit;
+
+                // build a mask with all observer components' bits set initialState
+                // -> for initial, only SyncMode.Observers components are synced
+                if (component.syncMode == SyncMode.Observers)
+                    serverObserversInitialMask |= nthBit;
             }
         }
 
@@ -833,29 +859,28 @@ namespace Mirror
             }
         }
 
-        // build dirty mask for server owner & observers (= all dirty components).
-        // faster to do it in one iteration instead of iterating separately.
-        (ulong, ulong) ServerDirtyMasks(bool initialState)
+        // NetworkBehaviour OnBecameDirty calls NetworkIdentity callback with index
+        internal void OnBecameDirty(NetworkBehaviour component)
         {
-            ulong ownerMask    = 0;
-            ulong observerMask = 0;
+            ulong nthBit = (1u << component.ComponentIndex);
 
-            NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < components.Length; ++i)
+            // ensure either isServer or isClient are set.
+            // ensures tests are obvious. without proper setup, it should throw.
+            if (!isClient && !isServer)
+                Debug.LogWarning("NetworkIdentity.OnBecameDirty(): neither isClient nor isServer are true. Improper setup?");
+
+            // set for server & client both.
+            // OnSerialize will decide how to use them.
+            if (isServer)
             {
-                NetworkBehaviour component = components[i];
-
-                bool dirty = component.IsDirty();
-                ulong nthBit = (1u << i);
-
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
                 //
                 // for initial, it should always sync owner.
                 // for delta, only for ServerToClient and only if dirty.
                 //     ClientToServer comes from the owner client.
-                if (initialState || (component.syncDirection == SyncDirection.ServerToClient && dirty))
-                    ownerMask |= nthBit;
+                if (component.syncDirection == SyncDirection.ServerToClient)
+                    serverOwnerDirtyMask |= nthBit;
 
                 // observers need to be considered only in Observers mode
                 //
@@ -863,21 +888,10 @@ namespace Mirror
                 // for delta, only if dirty.
                 // SyncDirection is irrelevant, as both are broadcast to
                 // observers which aren't the owner.
-                if (component.syncMode == SyncMode.Observers && (initialState || dirty))
-                    observerMask |= nthBit;
+                if (component.syncMode == SyncMode.Observers)
+                    serverObserversDirtyMask |= nthBit;
             }
-
-            return (ownerMask, observerMask);
-        }
-
-        // build dirty mask for client.
-        // server always knows initialState, so we don't need it here.
-        ulong ClientDirtyMask()
-        {
-            ulong mask = 0;
-
-            NetworkBehaviour[] components = NetworkBehaviours;
-            for (int i = 0; i < components.Length; ++i)
+            if (isClient)
             {
                 // on the client, we need to consider different sync scenarios:
                 //
@@ -887,16 +901,13 @@ namespace Mirror
                 //     serialize only if owned.
 
                 // on client, only consider owned components with SyncDirection to server
-                NetworkBehaviour component = components[i];
                 if (isOwned && component.syncDirection == SyncDirection.ClientToServer)
                 {
                     // set the n-th bit if dirty
                     // shifting from small to large numbers is varint-efficient.
-                    if (component.IsDirty()) mask |= (1u << i);
+                    clientDirtyMask |= (1u << component.ComponentIndex);
                 }
             }
-
-            return mask;
         }
 
         // check if n-th component is dirty.
@@ -920,12 +931,9 @@ namespace Mirror
 
             // check which components are dirty for owner / observers.
             // this is quite complicated with SyncMode + SyncDirection.
-            // see the function for explanation.
-            //
-            // instead of writing a 1 byte index per component,
-            // we limit components to 64 bits and write one ulong instead.
-            // the ulong is also varint compressed for minimum bandwidth.
-            (ulong ownerMask, ulong observerMask) = ServerDirtyMasks(initialState);
+            // see InitializeNetworkBehaviours and OnBecameDirty for explanations.
+            ulong ownerMask    = initialState ? serverOwnerInitialMask     : serverOwnerDirtyMask;
+            ulong observerMask = initialState ? serverObserversInitialMask : serverObserversDirtyMask;
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
@@ -985,7 +993,7 @@ namespace Mirror
             // instead of writing a 1 byte index per component,
             // we limit components to 64 bits and write one ulong instead.
             // the ulong is also varint compressed for minimum bandwidth.
-            ulong dirtyMask = ClientDirtyMask();
+            ulong dirtyMask = clientDirtyMask;
 
             // varint compresses the mask to 1 byte in most cases.
             // instead of writing an 8 byte ulong.
@@ -1325,6 +1333,10 @@ namespace Mirror
         // clear all component's dirty bits no matter what
         internal void ClearAllComponentsDirtyBits()
         {
+            serverOwnerDirtyMask     = 0;
+            serverObserversDirtyMask = 0;
+            clientDirtyMask          = 0;
+
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 comp.ClearAllDirtyBits();
