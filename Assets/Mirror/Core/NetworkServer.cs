@@ -1718,6 +1718,33 @@ namespace Mirror
         internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
+        // if we have large worlds with 10k+ Npcs, Items, etc.
+        // then we can easily ignore all of those which didn't change.
+        // otherwise this loop would be very costly.
+        static void BroadcastDirty()
+        {
+            foreach (NetworkIdentity identity in dirtySpawned.Values)
+            {
+                // make sure it's not null or destroyed.
+                // (which can happen if someone uses
+                //  GameObject.Destroy instead of
+                //  NetworkServer.Destroy)
+                if (identity != null)
+                {
+                    // only serialize if it has any observers.
+                    // this is checked in NetworkIdentity.OnBecameDirty too.
+                    // however, a connection may have disconnected since then.
+                    if (identity.observers.Count > 0)
+                        BroadcastIdentity(identity);
+                }
+                // spawned list should have no null entries because we
+                // always call Remove in OnObjectDestroy everywhere.
+                // if it does have null then someone used
+                // GameObject.Destroy instead of NetworkServer.Destroy.
+                else Debug.LogWarning($"Found 'null' entry in spawned. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+            }
+        }
+
         static void BroadcastIdentity(NetworkIdentity identity)
         {
             // serialize for owner & observers
@@ -1808,29 +1835,7 @@ namespace Mirror
             //
 
             // only broadcast dirty entities.
-            // if we have large worlds with 10k+ Npcs, Items, etc.
-            // then we can easily ignore all of those which didn't change.
-            // otherwise this loop would be very costly.
-            foreach (NetworkIdentity identity in dirtySpawned.Values)
-            {
-                // make sure it's not null or destroyed.
-                // (which can happen if someone uses
-                //  GameObject.Destroy instead of
-                //  NetworkServer.Destroy)
-                if (identity != null)
-                {
-                    // only serialize if it has any observers.
-                    // this is checked in NetworkIdentity.OnBecameDirty too.
-                    // however, a connection may have disconnected since then.
-                    if (identity.observers.Count > 0)
-                        BroadcastIdentity(identity);
-                }
-                // spawned list should have no null entries because we
-                // always call Remove in OnObjectDestroy everywhere.
-                // if it does have null then someone used
-                // GameObject.Destroy instead of NetworkServer.Destroy.
-                else Debug.LogWarning($"Found 'null' entry in spawned. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
-            }
+            BroadcastDirty();
 
             // clear dirty spawned, now that all were broadcasted
             dirtySpawned.Clear();
