@@ -2,7 +2,6 @@
 
 namespace Mirror.Examples.CCU
 {
-    [RequireComponent(typeof(NetworkTransform))] // requires client authority
     public class Player : NetworkBehaviour
     {
         public Vector3 cameraOffset = new Vector3(0, 40, -40);
