@@ -1758,8 +1758,9 @@ namespace Mirror
                     //  NetworkServer.Destroy)
                     if (identity != null)
                     {
-                        // only serialize if it has any observers
-                        // TODO only set dirty if has observers? would be easiest.
+                        // only serialize if it has any observers.
+                        // this is checked in NetworkIdentity.OnBecameDirty too.
+                        // however, a connection may have disconnected since then.
                         if (identity.observers.Count > 0)
                         {
                             // serialize for owner & observers

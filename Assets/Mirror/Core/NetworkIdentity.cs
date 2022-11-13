@@ -874,7 +874,11 @@ namespace Mirror
 
                 // add to dirty spawned, but only when we get dirty the first time.
                 // don't do a dictionary lookup for every [SyncVar] change...
-                if (clean) NetworkServer.dirtySpawned[netId] = this;
+
+                // only add if observed.
+                // otherwise no point in adding + iterating from broadcast.
+                if (clean && observers.Count > 0)
+                        NetworkServer.dirtySpawned[netId] = this;
             }
             if (isClient)
             {
