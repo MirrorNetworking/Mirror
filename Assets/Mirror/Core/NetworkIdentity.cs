@@ -852,6 +852,8 @@ namespace Mirror
             // OnSerialize will decide how to use them.
             if (isServer)
             {
+                bool clean = (serverOwnerDirtyMask | serverObserversDirtyMask) == 0;
+
                 // owner needs to be considered for both SyncModes, because
                 // Observers mode always includes the Owner.
                 //
@@ -869,6 +871,14 @@ namespace Mirror
                 // observers which aren't the owner.
                 if (component.syncMode == SyncMode.Observers)
                     serverObserversDirtyMask |= nthBit;
+
+                // add to dirty spawned, but only when we get dirty the first time.
+                // don't do a dictionary lookup for every [SyncVar] change...
+
+                // only add if observed.
+                // otherwise no point in adding + iterating from broadcast.
+                if (clean && observers.Count > 0)
+                        NetworkServer.dirtySpawned[netId] = this;
             }
             if (isClient)
             {
@@ -885,6 +895,9 @@ namespace Mirror
                     // set the n-th bit if dirty
                     // shifting from small to large numbers is varint-efficient.
                     clientDirtyMask |= (1u << component.ComponentIndex);
+
+                    // note: we don't have NetworkClient.dirtySpawned.
+                    // checking the few owned objects is enough.
                 }
             }
         }
