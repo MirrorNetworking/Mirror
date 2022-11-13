@@ -1713,6 +1713,32 @@ namespace Mirror
         internal static readonly List<NetworkConnectionToClient> connectionsCopy =
             new List<NetworkConnectionToClient>();
 
+        static void FlushConnections()
+        {
+            foreach (NetworkConnectionToClient connection in connectionsCopy)
+            {
+                // has this connection joined the world yet?
+                // for each READY connection:
+                //   pull in UpdateVarsMessage for each entity it observes
+                if (connection.isReady)
+                {
+                    // send time for snapshot interpolation every sendInterval.
+                    // BroadcastToConnection() may not send if nothing is new.
+                    //
+                    // sent over unreliable.
+                    // NetworkTime / Transform both use unreliable.
+                    //
+                    // make sure Broadcast() is only called every sendInterval,
+                    // even if targetFrameRate isn't set in host mode (!)
+                    // (done via AccurateInterval)
+                    connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
+                }
+
+                // update connection to flush out batched messages
+                connection.Update();
+            }
+        }
+
         static void Broadcast()
         {
             // copy all connections into a helper collection so that
@@ -1805,28 +1831,7 @@ namespace Mirror
             }
 
             // flush all connection's batched messages
-            foreach (NetworkConnectionToClient connection in connectionsCopy)
-            {
-                // has this connection joined the world yet?
-                // for each READY connection:
-                //   pull in UpdateVarsMessage for each entity it observes
-                if (connection.isReady)
-                {
-                    // send time for snapshot interpolation every sendInterval.
-                    // BroadcastToConnection() may not send if nothing is new.
-                    //
-                    // sent over unreliable.
-                    // NetworkTime / Transform both use unreliable.
-                    //
-                    // make sure Broadcast() is only called every sendInterval,
-                    // even if targetFrameRate isn't set in host mode (!)
-                    // (done via AccurateInterval)
-                    connection.Send(new TimeSnapshotMessage(), Channels.Unreliable);
-                }
-
-                // update connection to flush out batched messages
-                connection.Update();
-            }
+            FlushConnections();
 
             // TODO this is way too slow because we iterate ALL spawned :/
             // TODO this is way too complicated :/
