@@ -895,6 +895,9 @@ namespace Mirror
                     // set the n-th bit if dirty
                     // shifting from small to large numbers is varint-efficient.
                     clientDirtyMask |= (1u << component.ComponentIndex);
+
+                    // note: we don't have NetworkClient.dirtySpawned.
+                    // checking the few owned objects is enough.
                 }
             }
         }
