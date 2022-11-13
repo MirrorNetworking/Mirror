@@ -51,6 +51,10 @@ namespace Mirror
         public static readonly Dictionary<uint, NetworkIdentity> spawned =
             new Dictionary<uint, NetworkIdentity>();
 
+        // all spawned which are dirty (= need broadcasting).
+        internal static readonly Dictionary<uint, NetworkIdentity> dirtySpawned =
+            new Dictionary<uint, NetworkIdentity>();
+
         /// <summary>Single player mode can use dontListen to not accept incoming connections</summary>
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
@@ -1742,8 +1746,11 @@ namespace Mirror
             using (NetworkWriterPooled ownerWriter = NetworkWriterPool.Get(),
                                        observersWriter = NetworkWriterPool.Get())
             {
-                // let's use push broadcasting to prepare for dirtyObjects.
-                foreach (NetworkIdentity identity in spawned.Values)
+                // only broadcast dirty entities.
+                // if we have large worlds with 10k+ Npcs, Items, etc.
+                // then we can easily ignore all of those which didn't change.
+                // otherwise this loop would be very costly.
+                foreach (NetworkIdentity identity in dirtySpawned.Values)
                 {
                     // make sure it's not null or destroyed.
                     // (which can happen if someone uses
@@ -1791,6 +1798,9 @@ namespace Mirror
                     // GameObject.Destroy instead of NetworkServer.Destroy.
                     else Debug.LogWarning($"Found 'null' entry in spawned. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
+
+                // clear dirty spawned, now that all were broadcasted
+                dirtySpawned.Clear();
             }
 
             // flush all connection's batched messages

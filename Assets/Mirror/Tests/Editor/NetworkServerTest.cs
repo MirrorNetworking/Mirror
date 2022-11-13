@@ -1251,17 +1251,18 @@ namespace Mirror.Tests
         // should log a warning. someone probably used GameObject.Destroy
         // instead of NetworkServer.Destroy.
         [Test]
-        public void UpdateDetectsNullEntryInObserving()
+        public void UpdateDetectsNullEntryInDirtySpawned()
         {
             // start
             NetworkServer.Listen(1);
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity ni);
+            NetworkServer.dirtySpawned[ni.netId] = ni; // add manually
             Assert.That(NetworkServer.spawned.ContainsKey(ni.netId));
 
             // set null
-            NetworkServer.spawned[ni.netId] = null;
+            NetworkServer.dirtySpawned[ni.netId] = null;
 
             // update
             LogAssert.Expect(LogType.Warning, new Regex("Found 'null' entry in spawned.*"));
@@ -1274,14 +1275,15 @@ namespace Mirror.Tests
         //
         // => need extra test because of Unity's custom null check
         [Test]
-        public void UpdateDetectsDestroyedSpawned()
+        public void UpdateDetectsDestroyedDirtySpawned()
         {
             // start
             NetworkServer.Listen(1);
             ConnectHostClientBlockingAuthenticatedAndReady();
 
             CreateNetworkedAndSpawn(out GameObject go, out NetworkIdentity ni);
-            Assert.That(NetworkServer.spawned.ContainsKey(ni.netId));
+            NetworkServer.dirtySpawned[ni.netId] = ni; // add manually
+            Assert.That(NetworkServer.dirtySpawned.ContainsKey(ni.netId));
 
             // destroy
             GameObject.DestroyImmediate(go);
