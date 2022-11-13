@@ -94,13 +94,6 @@ namespace Mirror
         {
             // set target to self if none yet
             if (target == null) target = transform;
-
-            // time snapshot interpolation happens globally.
-            // value (transform) happens in here.
-            // both always need to be on the same send interval.
-            // force the setting to '0' in OnValidate to make it obvious that we
-            // actually use NetworkServer.sendInterval.
-            syncInterval = 0;
         }
 
         // snapshot functions //////////////////////////////////////////////////

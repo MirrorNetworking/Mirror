@@ -84,9 +84,6 @@ namespace Mirror.Tests.SyncVarAttributeTests
         {
             CreateNetworked(out _, out _, out MockPlayer player);
 
-            // synchronize immediately
-            player.syncInterval = 0f;
-
             Assert.That(player.IsDirty(), Is.False, "First time object should not be dirty");
 
             MockPlayer.Guild myGuild = new MockPlayer.Guild
@@ -103,58 +100,6 @@ namespace Mirror.Tests.SyncVarAttributeTests
             // clearing the guild should set dirty bit too
             player.guild = default;
             Assert.That(player.IsDirty(), "Clearing struct should mark object as dirty");
-        }
-
-        [Test]
-        public void TestSyncIntervalAndClearDirtyComponents()
-        {
-            CreateNetworked(out _, out _, out MockPlayer player);
-            player.lastSyncTime = NetworkTime.localTime;
-            // synchronize immediately
-            player.syncInterval = 1f;
-
-            player.guild = new MockPlayer.Guild
-            {
-                name = "Back street boys"
-            };
-
-            Assert.That(player.IsDirty(), Is.False, "Sync interval not met, so not dirty yet");
-
-            // ClearDirtyComponents should do nothing since syncInterval is not
-            // elapsed yet
-            player.netIdentity.ClearDirtyComponentsDirtyBits();
-
-            // set lastSyncTime far enough back to be ready for syncing
-            player.lastSyncTime = NetworkTime.localTime - player.syncInterval;
-
-            // should be dirty now
-            Assert.That(player.IsDirty(), Is.True, "Sync interval met, should be dirty");
-        }
-
-        [Test]
-        public void TestSyncIntervalAndClearAllComponents()
-        {
-            CreateNetworked(out _, out _, out MockPlayer player);
-            player.lastSyncTime = NetworkTime.localTime;
-            // synchronize immediately
-            player.syncInterval = 1f;
-
-            player.guild = new MockPlayer.Guild
-            {
-                name = "Back street boys"
-            };
-
-            Assert.That(player.IsDirty(), Is.False, "Sync interval not met, so not dirty yet");
-
-            // ClearAllComponents should clear dirty even if syncInterval not
-            // elapsed yet
-            player.netIdentity.ClearAllComponentsDirtyBits();
-
-            // set lastSyncTime far enough back to be ready for syncing
-            player.lastSyncTime = NetworkTime.localTime - player.syncInterval;
-
-            // should be dirty now
-            Assert.That(player.IsDirty(), Is.False, "Sync interval met, should still not be dirty");
         }
 
         [Test]

@@ -28,6 +28,11 @@ namespace Mirror.Tests
 
             // need a transport to send & receive
             Transport.active = transport = holder.AddComponent<MemoryTransport>();
+
+            // always set send interval to 'immediately' for easier testing
+            NetworkServer.tickRate = 0;
+            // NetworkServer.sendRate := tickRate
+            // NetworkClient.sendRate := NetworkServer.sendRate
         }
 
         public virtual void TearDown()
@@ -89,8 +94,6 @@ namespace Mirror.Tests
             go = new GameObject();
             identity = go.AddComponent<NetworkIdentity>();
             component = go.AddComponent<T>();
-            // always set syncinterval = 0 for immediate testing
-            component.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -108,9 +111,6 @@ namespace Mirror.Tests
             identity = go.AddComponent<NetworkIdentity>();
             componentA = go.AddComponent<T>();
             componentB = go.AddComponent<U>();
-            // always set syncinterval = 0 for immediate testing
-            componentA.syncInterval = 0;
-            componentB.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
@@ -130,10 +130,6 @@ namespace Mirror.Tests
             componentA = go.AddComponent<T>();
             componentB = go.AddComponent<U>();
             componentC = go.AddComponent<V>();
-            // always set syncinterval = 0 for immediate testing
-            componentA.syncInterval = 0;
-            componentB.syncInterval = 0;
-            componentC.syncInterval = 0;
             // Awake is only called in play mode.
             // call manually for initialization.
             identity.Awake();
