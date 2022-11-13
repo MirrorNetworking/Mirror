@@ -1723,6 +1723,8 @@ namespace Mirror
         // otherwise this loop would be very costly.
         static void BroadcastDirty()
         {
+            if (dirtySpawned.Count > 0) Debug.Log($"NetworkServer: Broadcasting {dirtySpawned.Count} dirty out of {spawned.Count} spawned.");
+
             foreach (NetworkIdentity identity in dirtySpawned.Values)
             {
                 // make sure it's not null or destroyed.
