@@ -975,6 +975,11 @@ namespace Mirror
                     }
                 }
             }
+
+            // clear dirty component bits as well.
+            // otherwise OnBecameDirty wouldn't detect initial dirty next time.
+            serverOwnerDirtyMask     = 0;
+            serverObserversDirtyMask = 0;
         }
 
         // serialize components into writer on the client.
@@ -1030,6 +1035,10 @@ namespace Mirror
                     }
                 }
             }
+
+            // clear dirty component bits as well.
+            // otherwise OnBecameDirty wouldn't detect initial dirty next time.
+            clientDirtyMask = 0;
         }
 
         // deserialize components from the client on the server.
