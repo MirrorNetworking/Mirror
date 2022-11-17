@@ -48,9 +48,6 @@ namespace Mirror
         public static Vector3Long operator *(long n, Vector3Long a) =>
             new Vector3Long(a.x * n, a.y * n, a.z * n);
 
-// Unity 2019/2020 don't have HashCode.Combine yet.
-// this is only to avoid reflection. without defining, it works too.
-#if UNITY_2021_3_OR_NEWER
         // == returns true if approximately equal (with epsilon).
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Vector3Long a, Vector3Long b) =>
@@ -60,7 +57,6 @@ namespace Mirror
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Vector3Long a, Vector3Long b) => !(a == b);
-#endif
 
         // NO IMPLICIT System.Numerics.Vector3Long conversion because double<->float
         // would silently lose precision in large worlds.
