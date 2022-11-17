@@ -65,12 +65,16 @@ namespace Mirror
         public long this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => index switch {
-                0 => x,
-                1 => y,
-                2 => z,
-                _ => throw new IndexOutOfRangeException($"Vector3Long[{index}] out of range.")
-            };
+            get
+            {
+                switch (index)
+                {
+                    case 0: return x;
+                    case 1: return y;
+                    case 2: return z;
+                    default: throw new IndexOutOfRangeException($"Vector3Long[{index}] out of range.");
+                }
+            }
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
