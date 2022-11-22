@@ -12,31 +12,12 @@ namespace kcp2k
         //            => we need the MTU to fit channel + message!
         readonly byte[] rawReceiveBuffer = new byte[Kcp.MTU_DEF];
 
-        // helper function to resolve host to IPAddress
-        public static bool ResolveHostname(string hostname, out IPAddress[] addresses)
-        {
-            try
-            {
-                // NOTE: dns lookup is blocking. this can take a second.
-                addresses = Dns.GetHostAddresses(hostname);
-                return addresses.Length >= 1;
-            }
-            catch (SocketException exception)
-            {
-                Log.Info($"Failed to resolve host: {hostname} reason: {exception}");
-                addresses = null;
-                return false;
-            }
-        }
 
         // EndPoint & Receive functions can be overwritten for where-allocation:
         // https://github.com/vis2k/where-allocation
         // NOTE: Client's SendTo doesn't allocate, don't need a virtual.
         protected virtual void CreateRemoteEndPoint(IPAddress[] addresses, ushort port) =>
             remoteEndPoint = new IPEndPoint(addresses[0], port);
-
-        protected virtual int ReceiveFrom(byte[] buffer) =>
-            socket.ReceiveFrom(buffer, ref remoteEndPoint);
 
         // if connections drop under heavy load, increase to OS limit.
         // if still not enough, increase the OS limit.
@@ -72,7 +53,7 @@ namespace kcp2k
             Log.Info($"KcpClient: connect to {host}:{port}");
 
             // try resolve host name
-            if (ResolveHostname(host, out IPAddress[] addresses))
+            if (Common.ResolveHostname(host, out IPAddress[] addresses))
             {
                 // create remote endpoint
                 CreateRemoteEndPoint(addresses, port);
@@ -112,7 +93,12 @@ namespace kcp2k
                 {
                     while (socket.Poll(0, SelectMode.SelectRead))
                     {
-                        int msgLength = ReceiveFrom(rawReceiveBuffer);
+                        // ReceiveFrom allocates.
+                        // use Connect() to bind the UDP socket to the end point.
+                        // then we can use Receive() instead.
+                        // socket.ReceiveFrom(buffer, ref remoteEndPoint);
+                        int msgLength = socket.Receive(rawReceiveBuffer);
+
                         // IMPORTANT: detect if buffer was too small for the
                         //            received msgLength. otherwise the excess
                         //            data would be silently lost.

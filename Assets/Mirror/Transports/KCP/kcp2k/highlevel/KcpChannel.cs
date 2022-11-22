@@ -4,7 +4,7 @@ namespace kcp2k
     public enum KcpChannel : byte
     {
         // don't react on 0x00. might help to filter out random noise.
-        Reliable = 0x01,
-        Unreliable = 0x02
+        Reliable   = 1,
+        Unreliable = 2
     }
 }

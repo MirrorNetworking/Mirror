@@ -100,18 +100,13 @@ namespace kcp2k
             NonAlloc = false;
 #endif
 
-            // client
-            client = NonAlloc
-                ? new KcpClientNonAlloc(
-                      () => OnClientConnected.Invoke(),
-                      (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                      () => OnClientDisconnected.Invoke(),
-                      (error, reason) => OnClientError.Invoke(ToTransportError(error), reason))
-                : new KcpClient(
-                      () => OnClientConnected.Invoke(),
-                      (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
-                      () => OnClientDisconnected.Invoke(),
-                      (error, reason) => OnClientError.Invoke(ToTransportError(error), reason));
+            // client (NonAlloc version is not necessary anymore)
+            client = new KcpClient(
+                () => OnClientConnected.Invoke(),
+                (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
+                () => OnClientDisconnected.Invoke(),
+                (error, reason) => OnClientError.Invoke(ToTransportError(error), reason)
+            );
 
             // server
             server = NonAlloc
