@@ -13,7 +13,7 @@ namespace kcp2k
         internal uint sn;       // serial number
         internal uint una;
         internal uint resendts; // resend timestamp
-        internal int rto;
+        internal int  rto;
         internal uint fastack;
         internal uint xmit;     // retransmit count
 
@@ -50,13 +50,13 @@ namespace kcp2k
             cmd = 0;
             frg = 0;
             wnd = 0;
-            ts = 0;
-            sn = 0;
+            ts  = 0;
+            sn  = 0;
             una = 0;
             rto = 0;
             xmit = 0;
             resendts = 0;
-            fastack = 0;
+            fastack  = 0;
 
             // keep buffer for next pool usage, but reset length (= bytes written)
             data.SetLength(0);
