@@ -490,22 +490,25 @@ namespace kcp2k
             }
         }
 
-        public void RawInput(byte[] buffer, int msgLength)
+        // insert raw IO. usually from socket.Receive.
+        // offset is useful for relays, where we may parse a header and then
+        // feed the rest to kcp.
+        public void RawInput(byte[] buffer, int offset, int size)
         {
             // parse channel
-            if (msgLength > 0)
+            if (size > 0)
             {
-                byte channel = buffer[0];
+                byte channel = buffer[offset + 0];
                 switch (channel)
                 {
                     case (byte)KcpChannel.Reliable:
                     {
                         // input into kcp, but skip channel byte
-                        int input = kcp.Input(buffer, 1, msgLength - 1);
+                        int input = kcp.Input(buffer, offset + 1, size - 1);
                         if (input != 0)
                         {
                             // GetType() shows Server/ClientConn instead of just Connection.
-                            Log.Warning($"{GetType()}: Input failed with error={input} for buffer with length={msgLength - 1}");
+                            Log.Warning($"{GetType()}: Input failed with error={input} for buffer with length={size - 1}");
                         }
                         break;
                     }
@@ -532,7 +535,7 @@ namespace kcp2k
                         //    the current state allows it.
                         if (state == KcpState.Authenticated)
                         {
-                            ArraySegment<byte> message = new ArraySegment<byte>(buffer, 1, msgLength - 1);
+                            ArraySegment<byte> message = new ArraySegment<byte>(buffer, offset + 1, size - 1);
                             OnData?.Invoke(message, KcpChannel.Unreliable);
 
                             // set last receive time to avoid timeout.

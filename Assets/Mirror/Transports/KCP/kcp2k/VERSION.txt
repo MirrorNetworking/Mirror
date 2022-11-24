@@ -1,3 +1,6 @@
+V1.22 [2022-11-24]
+- KcpPeer.RawInput: add offset parameter
+
 V1.21 [2022-11-24]
 - high level refactor, part one.
   - KcpPeer instead of KcpConnection, KcpClientConnection, KcpServerConnection
