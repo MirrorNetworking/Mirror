@@ -1,20 +1,26 @@
+// Kcp Peer, similar to UDP Peer but wrapped with reliability, channels,
+// timeouts, authentication, state, etc.
+//
+// still IO agnostic to work with udp, nonalloc, relays, native, etc.
 using System;
 using System.Diagnostics;
-using System.Net;
 using System.Net.Sockets;
 
 namespace kcp2k
 {
     enum KcpState { Connected, Authenticated, Disconnected }
 
-    public abstract class KcpConnection
+    public class KcpPeer
     {
-        protected Socket socket;
-        protected EndPoint remoteEndPoint;
+        // kcp reliability algorithm
         internal Kcp kcp;
 
-        // kcp can have several different states, let's use a state machine
-        KcpState state = KcpState.Disconnected;
+        // IO agnostic
+        readonly Action<ArraySegment<byte>> RawSend;
+
+        // state: connected as soon as we create the peer.
+        // leftover from KcpConnection. remove it after refactoring later.
+        KcpState state = KcpState.Connected;
 
         public Action OnAuthenticated;
         public Action<ArraySegment<byte>, KcpChannel> OnData;
@@ -27,7 +33,7 @@ namespace kcp2k
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
         public const int DEFAULT_TIMEOUT = 10000;
-        public int timeout = DEFAULT_TIMEOUT;
+        public int timeout;
         uint lastReceiveTime;
 
         // internal time.
@@ -79,16 +85,16 @@ namespace kcp2k
         // buffer to receive kcp's processed messages (avoids allocations).
         // IMPORTANT: this is for KCP messages. so it needs to be of size:
         //            1 byte header + MaxMessageSize content
-        byte[] kcpMessageBuffer;// = new byte[1 + ReliableMaxMessageSize];
+        readonly byte[] kcpMessageBuffer;// = new byte[1 + ReliableMaxMessageSize];
 
         // send buffer for handing user messages to kcp for processing.
         // (avoids allocations).
         // IMPORTANT: needs to be of size:
         //            1 byte header + MaxMessageSize content
-        byte[] kcpSendBuffer;// = new byte[1 + ReliableMaxMessageSize];
+        readonly byte[] kcpSendBuffer;// = new byte[1 + ReliableMaxMessageSize];
 
         // raw send buffer is exactly MTU.
-        byte[] rawSendBuffer = new byte[Kcp.MTU_DEF];
+        readonly byte[] rawSendBuffer = new byte[Kcp.MTU_DEF];
 
         // send a ping occasionally so we don't time out on the other end.
         // for example, creating a character in an MMO could easily take a
@@ -133,10 +139,22 @@ namespace kcp2k
         // => useful to start from a fresh state every time the client connects
         // => NoDelay, interval, wnd size are the most important configurations.
         //    let's force require the parameters so we don't forget it anywhere.
-        protected void SetupKcp(bool noDelay, uint interval = Kcp.INTERVAL, int fastResend = 0, bool congestionWindow = true, uint sendWindowSize = Kcp.WND_SND, uint receiveWindowSize = Kcp.WND_RCV, int timeout = DEFAULT_TIMEOUT, uint maxRetransmits = Kcp.DEADLINK)
+        public KcpPeer(
+            Action<ArraySegment<byte>> output,
+            bool noDelay,
+            uint interval = Kcp.INTERVAL,
+            int fastResend = 0,
+            bool congestionWindow = true,
+            uint sendWindowSize = Kcp.WND_SND,
+            uint receiveWindowSize = Kcp.WND_RCV,
+            int timeout = DEFAULT_TIMEOUT,
+            uint maxRetransmits = Kcp.DEADLINK)
         {
+            this.RawSend = output;
+
             // set up kcp over reliable channel (that's what kcp is for)
             kcp = new Kcp(0, RawSendReliable);
+
             // set nodelay.
             // note that kcp uses 'nocwnd' internally so we negate the parameter
             kcp.SetNoDelay(noDelay ? 1u : 0u, interval, fastResend, !congestionWindow);
@@ -154,10 +172,9 @@ namespace kcp2k
             // create message buffers AFTER window size is set
             // see comments on buffer definition for the "+1" part
             kcpMessageBuffer = new byte[1 + ReliableMaxMessageSize(receiveWindowSize)];
-            kcpSendBuffer = new byte[1 + ReliableMaxMessageSize(receiveWindowSize)];
+            kcpSendBuffer    = new byte[1 + ReliableMaxMessageSize(receiveWindowSize)];
 
             this.timeout = timeout;
-            state = KcpState.Connected;
 
             refTime.Start();
         }
@@ -397,6 +414,7 @@ namespace kcp2k
                     }
                 }
             }
+            // TODO KcpConnection is IO agnostic. move this to outside later.
             catch (SocketException exception)
             {
                 // this is ok, the connection was closed
@@ -445,6 +463,7 @@ namespace kcp2k
                     }
                 }
             }
+            // TODO KcpConnection is IO agnostic. move this to outside later.
             catch (SocketException exception)
             {
                 // this is ok, the connection was closed
@@ -549,16 +568,16 @@ namespace kcp2k
             }
         }
 
-        // raw send puts the data into the socket
-        protected abstract void RawSend(byte[] data, int length);
-
         // raw send called by kcp
         void RawSendReliable(byte[] data, int length)
         {
             // copy channel header, data into raw send buffer, then send
             rawSendBuffer[0] = (byte)KcpChannel.Reliable;
             Buffer.BlockCopy(data, 0, rawSendBuffer, 1, length);
-            RawSend(rawSendBuffer, length + 1);
+
+            // IO send
+            ArraySegment<byte> segment = new ArraySegment<byte>(rawSendBuffer, 0, length + 1);
+            RawSend(segment);
         }
 
         void SendReliable(KcpHeader header, ArraySegment<byte> content)
@@ -592,7 +611,10 @@ namespace kcp2k
                 // copy channel header, data into raw send buffer, then send
                 rawSendBuffer[0] = (byte)KcpChannel.Unreliable;
                 Buffer.BlockCopy(message.Array, message.Offset, rawSendBuffer, 1, message.Count);
-                RawSend(rawSendBuffer, message.Count + 1);
+
+                // IO send
+                ArraySegment<byte> segment = new ArraySegment<byte>(rawSendBuffer, 0, message.Count + 1);
+                RawSend(segment);
             }
             // otherwise content is larger than MaxMessageSize. let user know!
             // GetType() shows Server/ClientConn instead of just Connection.
@@ -645,8 +667,6 @@ namespace kcp2k
         // disconnect info needs to be delivered, so it goes over reliable
         void SendDisconnect() => SendReliable(KcpHeader.Disconnect, default);
 
-        protected virtual void Dispose() {}
-
         // disconnect this connection
         public void Disconnect()
         {
@@ -655,32 +675,25 @@ namespace kcp2k
                 return;
 
             // send a disconnect message
-            //
-            // previously we checked socket.Connected here before SendDisconnect.
-            // but this only worked in Unity's mono version.
-            // in netcore, socket.Connected can't be used for UDP sockets.
-            // as it should, because there's no actual connection in UDP.
-            //if (socket.Connected)
-            //{
-                try
-                {
-                    SendDisconnect();
-                    kcp.Flush();
-                }
-                catch (SocketException)
-                {
-                    // this is ok, the connection was already closed
-                }
-                catch (ObjectDisposedException)
-                {
-                    // this is normal when we stop the server
-                    // the socket is stopped so we can't send anything anymore
-                    // to the clients
+            try
+            {
+                SendDisconnect();
+                kcp.Flush();
+            }
+            // TODO KcpConnection is IO agnostic. move this to outside later.
+            catch (SocketException)
+            {
+                // this is ok, the connection was already closed
+            }
+            catch (ObjectDisposedException)
+            {
+                // this is normal when we stop the server
+                // the socket is stopped so we can't send anything anymore
+                // to the clients
 
-                    // the clients will eventually timeout and realize they
-                    // were disconnected
-                }
-            //}
+                // the clients will eventually timeout and realize they
+                // were disconnected
+            }
 
             // set as Disconnected, call event
             // GetType() shows Server/ClientConn instead of just Connection.
@@ -688,8 +701,5 @@ namespace kcp2k
             state = KcpState.Disconnected;
             OnDisconnected?.Invoke();
         }
-
-        // get remote endpoint
-        public EndPoint GetRemoteEndPoint() => remoteEndPoint;
     }
 }

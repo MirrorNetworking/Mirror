@@ -1,3 +1,9 @@
+V1.21 [2022-11-24]
+- high level refactor, part one.
+  - KcpPeer instead of KcpConnection, KcpClientConnection, KcpServerConnection
+  - RawSend/Receive can now easily be overwritten in KcpClient/Server.
+    for non-alloc, relays, etc.
+
 V1.20 [2022-11-22]
 - perf: KcpClient receive allocation was removed entirely.
   reduces Mirror benchmark client sided allocations from 4.9 KB / 1.7 KB (non-alloc) to 0B.

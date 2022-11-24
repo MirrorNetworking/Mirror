@@ -9,7 +9,7 @@ namespace kcp2k
 {
     public class KcpServerNonAlloc : KcpServer
     {
-        IPEndPointNonAlloc reusableClientEP;
+        readonly IPEndPointNonAlloc reusableClientEP;
 
         public KcpServerNonAlloc(Action<int> OnConnected,
                                  Action<int, ArraySegment<byte>, KcpChannel> OnData,
@@ -22,7 +22,7 @@ namespace kcp2k
                                  bool CongestionWindow = true,
                                  uint SendWindowSize = Kcp.WND_SND,
                                  uint ReceiveWindowSize = Kcp.WND_RCV,
-                                 int Timeout = KcpConnection.DEFAULT_TIMEOUT,
+                                 int Timeout = KcpPeer.DEFAULT_TIMEOUT,
                                  uint MaxRetransmits = Kcp.DEADLINK,
                                  bool MaximizeSendReceiveBuffersToOSLimit = false)
             : base(OnConnected,
@@ -46,7 +46,7 @@ namespace kcp2k
                 : new IPEndPointNonAlloc(IPAddress.Any, 0);
         }
 
-        protected override int ReceiveFrom(byte[] buffer, out int connectionHash)
+        protected override int RawReceive(byte[] buffer, out int connectionHash)
         {
             // where-allocation nonalloc ReceiveFrom.
             int read = socket.ReceiveFrom_NonAlloc(buffer, 0, buffer.Length, SocketFlags.None, reusableClientEP);
@@ -55,6 +55,13 @@ namespace kcp2k
             // where-allocation nonalloc GetHashCode
             connectionHash = remoteAddress.GetHashCode();
             return read;
+        }
+
+        // make sure to pass IPEndPointNonAlloc as remoteEndPoint
+        protected override void RawSend(ArraySegment<byte> data, EndPoint remoteEndPoint)
+        {
+            // where-allocation nonalloc send
+            socket.SendTo_NonAlloc(data.Array, data.Offset, data.Count, SocketFlags.None, remoteEndPoint as IPEndPointNonAlloc);
         }
 
         protected override KcpServerConnection CreateConnection()
@@ -68,10 +75,13 @@ namespace kcp2k
             // IPEndPointNonAlloc...
             IPEndPointNonAlloc reusableSendEP = new IPEndPointNonAlloc(newClientEP.Address, newClientEP.Port);
 
-            // create a new KcpConnection NonAlloc version
-            // -> where-allocation IPEndPointNonAlloc is reused.
-            //    need to create a new one from the temp address.
-            return new KcpServerConnectionNonAlloc(socket, newClientEP, reusableSendEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
+            // attach reusable EP to RawSend.
+            // kcp needs a simple RawSend(byte[]) function.
+            Action<ArraySegment<byte>> RawSendWrap =
+                data => RawSend(data, reusableSendEP);
+
+            KcpPeer peer = new KcpPeer(RawSendWrap, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
+            return new KcpServerConnection(peer, newClientEP);
         }
     }
 }
