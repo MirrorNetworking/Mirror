@@ -159,12 +159,6 @@ public class #SCRIPTNAME# : NetworkRoomManager
     /// </summary>
     public override void OnRoomClientSceneChanged() { }
 
-    /// <summary>
-    /// Called on the client when adding a player to the room fails.
-    /// <para>This could be because the room is full, or the connection is not allowed to have more players.</para>
-    /// </summary>
-    public override void OnRoomClientAddPlayerFailed() { }
-
     #endregion
 
     #region Optional UI

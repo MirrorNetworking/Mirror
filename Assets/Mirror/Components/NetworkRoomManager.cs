@@ -233,6 +233,7 @@ namespace Mirror
         }
 
         #region server handlers
+
         /// <summary>
         /// Called on the server when a new client connects.
         /// <para>Unity calls this on the Server when a Client connects to the Server. Use an override to tell the NetworkManager what to do when a client connects to the server.</para>
@@ -438,9 +439,11 @@ namespace Mirror
         {
             OnRoomStopHost();
         }
+
         #endregion
 
         #region client handlers
+
         /// <summary>
         /// This is invoked when the client is started.
         /// </summary>
@@ -504,9 +507,11 @@ namespace Mirror
             base.OnClientSceneChanged();
             OnRoomClientSceneChanged();
         }
+
         #endregion
 
         #region room server virtuals
+
         /// <summary>
         /// This is called on the host when a host is started.
         /// </summary>
@@ -608,9 +613,11 @@ namespace Mirror
         /// <para>May be called multiple times while not ready players are joining</para>
         /// </summary>
         public virtual void OnRoomServerPlayersNotReady() {}
+
         #endregion
 
         #region room client virtuals
+
         /// <summary>
         /// This is a hook to allow custom behaviour when the game client enters the room.
         /// </summary>
@@ -646,14 +653,10 @@ namespace Mirror
         /// </summary>
         public virtual void OnRoomClientSceneChanged() {}
 
-        /// <summary>
-        /// Called on the client when adding a player to the room fails.
-        /// <para>This could be because the room is full, or the connection is not allowed to have more players.</para>
-        /// </summary>
-        public virtual void OnRoomClientAddPlayerFailed() {}
         #endregion
 
         #region optional UI
+
         /// <summary>
         /// virtual so inheriting classes can roll their own
         /// </summary>
@@ -673,6 +676,7 @@ namespace Mirror
             if (IsSceneActive(RoomScene))
                 GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
+
         #endregion
     }
 }
