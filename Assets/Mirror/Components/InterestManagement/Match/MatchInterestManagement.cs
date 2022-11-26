@@ -20,21 +20,25 @@ namespace Mirror
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                 return;
 
-            Guid currentMatch = networkMatch.matchId;
-            lastObjectMatch[identity] = currentMatch;
+            Guid networkMatchId = networkMatch.matchId;
+            lastObjectMatch[identity] = networkMatchId;
 
             // Guid.Empty is never a valid matchId...do not add to matchObjects collection
-            if (currentMatch == Guid.Empty)
+            if (networkMatchId == Guid.Empty)
                 return;
 
             // Debug.Log($"MatchInterestManagement.OnSpawned({identity.name}) currentMatch: {currentMatch}");
-            if (!matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects))
+            if (!matchObjects.TryGetValue(networkMatchId, out HashSet<NetworkIdentity> objects))
             {
                 objects = new HashSet<NetworkIdentity>();
-                matchObjects.Add(currentMatch, objects);
+                matchObjects.Add(networkMatchId, objects);
             }
 
             objects.Add(identity);
+
+            // Match ID could have been set in NetworkBehaviour::OnStartServer on this object.
+            // Since that's after OnCheckObserver is called it would be missed, so force Rebuild here.
+            RebuildMatchObservers(networkMatchId);
         }
 
         public override void OnDestroyed(NetworkIdentity identity)
