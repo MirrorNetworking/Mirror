@@ -1879,7 +1879,20 @@ namespace Mirror
             if (active)
             {
                 ++actualTickRateCounter;
-                if (Time.timeAsDouble >= actualTickRateStart + 1)
+
+
+#if !UNITY_2020_3_OR_NEWER
+                if (NetworkTime.localTime >= actualTickRateStart + 1)
+                {
+                    // calculate avg by exact elapsed time.
+                    // assuming 1s wouldn't be accurate, usually a few more ms passed.
+                    float elapsed = (float)(NetworkTime.localTime - actualTickRateStart);
+                    actualTickRate = Mathf.RoundToInt(actualTickRateCounter / elapsed);
+                    actualTickRateStart = NetworkTime.localTime;
+                    actualTickRateCounter = 0;
+                }
+#else
+            if (Time.timeAsDouble >= actualTickRateStart + 1)
                 {
                     // calculate avg by exact elapsed time.
                     // assuming 1s wouldn't be accurate, usually a few more ms passed.
@@ -1888,6 +1901,7 @@ namespace Mirror
                     actualTickRateStart   = Time.timeAsDouble;
                     actualTickRateCounter = 0;
                 }
+#endif
 
                 // measure total update time. including transport.
                 // because in early update, transport update calls handlers.
