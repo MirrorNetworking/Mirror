@@ -109,7 +109,7 @@ namespace Mirror
         public bool Equals(Vector3Long other) =>
             x == other.x && y == other.y && z == other.z;
 
-        // Equals(object) can reuse Equals(Vector3)
+        // Equals(object) can reuse Equals(Vector4)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object other) =>
             other is Vector3Long vector4 && Equals(vector4);
