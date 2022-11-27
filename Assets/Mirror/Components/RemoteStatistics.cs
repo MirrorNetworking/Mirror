@@ -182,16 +182,16 @@ namespace Mirror
             // only sync if client has authenticated on the server
             if (!serverAuthenticated) return;
 
-            // double for long running servers
-            if (Time.timeAsDouble >= lastSendTime + sendInterval)
+            // NetworkTime.localTime has defines for 2019 / 2020 compatibility
+            if (NetworkTime.localTime >= lastSendTime + sendInterval)
             {
-                lastSendTime = Time.timeAsDouble;
+                lastSendTime = NetworkTime.localTime;
 
                 // target rpc to owner client
                 TargetRpcSync(new Stats(
                     // general
                     NetworkServer.connections.Count,
-                    Time.realtimeSinceStartupAsDouble,
+                    NetworkTime.time,
                     NetworkServer.tickRate,
                     NetworkServer.actualTickRate,
 
@@ -209,7 +209,6 @@ namespace Mirror
                 ));
             }
         }
-
         void UpdateClient()
         {
             if (Input.GetKeyDown(hotKey))

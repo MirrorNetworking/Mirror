@@ -1879,13 +1879,15 @@ namespace Mirror
             if (active)
             {
                 ++actualTickRateCounter;
-                if (Time.timeAsDouble >= actualTickRateStart + 1)
+
+                // NetworkTime.localTime has defines for 2019 / 2020 compatibility
+                if (NetworkTime.localTime >= actualTickRateStart + 1)
                 {
                     // calculate avg by exact elapsed time.
                     // assuming 1s wouldn't be accurate, usually a few more ms passed.
-                    float elapsed         = (float)(Time.timeAsDouble - actualTickRateStart);
-                    actualTickRate        = Mathf.RoundToInt(actualTickRateCounter / elapsed);
-                    actualTickRateStart   = Time.timeAsDouble;
+                    float elapsed = (float)(NetworkTime.localTime - actualTickRateStart);
+                    actualTickRate = Mathf.RoundToInt(actualTickRateCounter / elapsed);
+                    actualTickRateStart = NetworkTime.localTime;
                     actualTickRateCounter = 0;
                 }
 
