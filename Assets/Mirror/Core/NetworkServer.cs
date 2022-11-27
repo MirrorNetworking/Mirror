@@ -1880,8 +1880,7 @@ namespace Mirror
             {
                 ++actualTickRateCounter;
 
-
-#if !UNITY_2020_3_OR_NEWER
+                // NetworkTime.localTime has defines for 2019 / 2020 compatibility
                 if (NetworkTime.localTime >= actualTickRateStart + 1)
                 {
                     // calculate avg by exact elapsed time.
@@ -1891,17 +1890,6 @@ namespace Mirror
                     actualTickRateStart = NetworkTime.localTime;
                     actualTickRateCounter = 0;
                 }
-#else
-            if (Time.timeAsDouble >= actualTickRateStart + 1)
-                {
-                    // calculate avg by exact elapsed time.
-                    // assuming 1s wouldn't be accurate, usually a few more ms passed.
-                    float elapsed         = (float)(Time.timeAsDouble - actualTickRateStart);
-                    actualTickRate        = Mathf.RoundToInt(actualTickRateCounter / elapsed);
-                    actualTickRateStart   = Time.timeAsDouble;
-                    actualTickRateCounter = 0;
-                }
-#endif
 
                 // measure total update time. including transport.
                 // because in early update, transport update calls handlers.
