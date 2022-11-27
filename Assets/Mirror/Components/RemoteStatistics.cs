@@ -182,6 +182,35 @@ namespace Mirror
             // only sync if client has authenticated on the server
             if (!serverAuthenticated) return;
 
+#if !UNITY_2020_3_OR_NEWER
+            // double for long running servers
+            if (NetworkTime.localTime >= lastSendTime + sendInterval)
+            {
+                lastSendTime = NetworkTime.localTime;
+
+                // target rpc to owner client
+                TargetRpcSync(new Stats(
+                    // general
+                    NetworkServer.connections.Count,
+                    NetworkTime.time,
+                    NetworkServer.tickRate,
+                    NetworkServer.actualTickRate,
+
+                    // traffic
+                    NetworkStatistics.serverSentBytesPerSecond,
+                    NetworkStatistics.serverReceivedBytesPerSecond,
+
+                    // cpu
+                    NetworkServer.tickInterval,
+                    NetworkServer.fullUpdateDuration.average,
+                    NetworkServer.earlyUpdateDuration.average,
+                    NetworkServer.lateUpdateDuration.average,
+                    0, // TODO ServerTransport.earlyUpdateDuration.average,
+                    0 // TODO ServerTransport.lateUpdateDuration.average
+                ));
+            }
+        }
+#else
             // double for long running servers
             if (Time.timeAsDouble >= lastSendTime + sendInterval)
             {
@@ -209,6 +238,7 @@ namespace Mirror
                 ));
             }
         }
+#endif
 
         void UpdateClient()
         {
