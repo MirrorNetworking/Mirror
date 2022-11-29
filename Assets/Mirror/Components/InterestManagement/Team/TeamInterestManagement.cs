@@ -44,9 +44,7 @@ namespace Mirror
             if (lastObjectTeam.TryGetValue(identity, out string currentTeam))
             {
                 lastObjectTeam.Remove(identity);
-                if (!string.IsNullOrWhiteSpace(currentTeam)
-                    && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects)
-                    && objects.Remove(identity))
+                if (!string.IsNullOrWhiteSpace(currentTeam) && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
                     RebuildTeamObservers(currentTeam);
             }
         }
