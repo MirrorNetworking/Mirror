@@ -61,14 +61,14 @@ namespace Mirror
             //   if match changed:
             //     add previous to dirty
             //     add new to dirty
-            foreach (NetworkIdentity netIdentity in NetworkServer.spawned.Values)
+            foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
             {
                 // Ignore objects that don't have a NetworkMatch component
-                if (!netIdentity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
+                if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
                     continue;
 
                 Guid newMatch = networkMatch.matchId;
-                lastObjectMatch.TryGetValue(netIdentity, out Guid currentMatch);
+                lastObjectMatch.TryGetValue(identity, out Guid currentMatch);
 
                 // Guid.Empty is never a valid matchId
                 // Nothing to do if matchId hasn't changed
@@ -80,7 +80,7 @@ namespace Mirror
 
                 // This object is in a new match so observers in the prior match
                 // and the new match need to rebuild their respective observers lists.
-                UpdateMatchObjects(netIdentity, newMatch, currentMatch);
+                UpdateMatchObjects(identity, newMatch, currentMatch);
             }
 
             // rebuild all dirty matches
