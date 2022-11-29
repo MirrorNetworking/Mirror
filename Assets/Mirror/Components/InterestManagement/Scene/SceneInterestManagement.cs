@@ -17,6 +17,7 @@ namespace Mirror
 
         HashSet<Scene> dirtyScenes = new HashSet<Scene>();
 
+        [ServerCallback]
         public override void OnSpawned(NetworkIdentity identity)
         {
             Scene currentScene = identity.gameObject.scene;
@@ -31,6 +32,7 @@ namespace Mirror
             objects.Add(identity);
         }
 
+        [ServerCallback]
         public override void OnDestroyed(NetworkIdentity identity)
         {
             if (lastObjectScene.TryGetValue(identity, out Scene currentScene))

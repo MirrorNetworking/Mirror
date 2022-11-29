@@ -15,6 +15,7 @@ namespace Mirror
 
         readonly HashSet<Guid> dirtyMatches = new HashSet<Guid>();
 
+        [ServerCallback]
         public override void OnSpawned(NetworkIdentity identity)
         {
             if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
@@ -41,6 +42,7 @@ namespace Mirror
             RebuildMatchObservers(networkMatchId);
         }
 
+        [ServerCallback]
         public override void OnDestroyed(NetworkIdentity identity)
         {
             if (lastObjectMatch.TryGetValue(identity, out Guid currentMatch))
