@@ -68,7 +68,8 @@ namespace Mirror
                     continue;
 
                 Guid newMatch = networkMatch.matchId;
-                if (!lastObjectMatch.TryGetValue(identity, out Guid currentMatch)) continue;
+                if (!lastObjectMatch.TryGetValue(identity, out Guid currentMatch))
+                    continue;
 
                 // Guid.Empty is never a valid matchId
                 // Nothing to do if matchId hasn't changed
