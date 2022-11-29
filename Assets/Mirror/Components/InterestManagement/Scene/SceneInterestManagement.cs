@@ -33,10 +33,12 @@ namespace Mirror
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            Scene currentScene = lastObjectScene[identity];
-            lastObjectScene.Remove(identity);
-            if (sceneObjects.TryGetValue(currentScene, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
-                RebuildSceneObservers(currentScene);
+            if (lastObjectScene.TryGetValue(identity, out Scene currentScene))
+            {
+                lastObjectScene.Remove(identity);
+                if (sceneObjects.TryGetValue(currentScene, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
+                    RebuildSceneObservers(currentScene);
+            }
         }
 
         // internal so we can update from tests
