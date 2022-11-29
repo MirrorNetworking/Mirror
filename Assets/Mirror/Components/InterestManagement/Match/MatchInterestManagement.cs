@@ -43,10 +43,12 @@ namespace Mirror
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            lastObjectMatch.TryGetValue(identity, out Guid currentMatch);
-            lastObjectMatch.Remove(identity);
-            if (currentMatch != Guid.Empty && matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
-                RebuildMatchObservers(currentMatch);
+            if (lastObjectMatch.TryGetValue(identity, out Guid currentMatch))
+            {
+                lastObjectMatch.Remove(identity);
+                if (currentMatch != Guid.Empty && matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
+                    RebuildMatchObservers(currentMatch);
+            }
         }
 
         // internal so we can update from tests
