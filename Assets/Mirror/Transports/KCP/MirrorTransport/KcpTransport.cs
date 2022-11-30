@@ -62,13 +62,13 @@ namespace kcp2k
         public bool statisticsLog;
 
         // translate Kcp <-> Mirror channels
-        static int FromKcpChannel(KcpChannel channel) =>
+        public static int FromKcpChannel(KcpChannel channel) =>
             channel == KcpChannel.Reliable ? Channels.Reliable : Channels.Unreliable;
 
-        static KcpChannel ToKcpChannel(int channel) =>
+        public static KcpChannel ToKcpChannel(int channel) =>
             channel == Channels.Reliable ? KcpChannel.Reliable : KcpChannel.Unreliable;
 
-        TransportError ToTransportError(ErrorCode error)
+        public static TransportError ToTransportError(ErrorCode error)
         {
             switch(error)
             {
