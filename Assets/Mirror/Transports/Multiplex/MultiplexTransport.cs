@@ -135,14 +135,14 @@ namespace Mirror
         // transport 0 will produce connection ids [0, 3, 6, 9, ...]
         // transport 1 will produce connection ids [1, 4, 7, 10, ...]
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
-        int FromBaseId(int transportId, int connectionId) =>
-            connectionId * transports.Length + transportId;
+        public static int FromBaseId(int transportId, int connectionId, int transportAmount) =>
+            connectionId * transportAmount + transportId;
 
-        int ToBaseId(int connectionId) =>
-            connectionId / transports.Length;
+        public static int ToBaseId(int connectionId, int transportAmount) =>
+            connectionId / transportAmount;
 
-        int ToTransportId(int connectionId) =>
-            connectionId % transports.Length;
+        public static int ToTransportId(int connectionId, int transportAmount) =>
+            connectionId % transportAmount;
 
         void AddServerCallbacks()
         {
@@ -156,21 +156,21 @@ namespace Mirror
 
                 transport.OnServerConnected = (baseConnectionId =>
                 {
-                    OnServerConnected.Invoke(FromBaseId(locali, baseConnectionId));
+                    OnServerConnected.Invoke(FromBaseId(locali, baseConnectionId, transports.Length));
                 });
 
                 transport.OnServerDataReceived = (baseConnectionId, data, channel) =>
                 {
-                    OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId), data, channel);
+                    OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId, transports.Length), data, channel);
                 };
 
                 transport.OnServerError = (baseConnectionId, error, reason) =>
                 {
-                    OnServerError.Invoke(FromBaseId(locali, baseConnectionId), error, reason);
+                    OnServerError.Invoke(FromBaseId(locali, baseConnectionId, transports.Length), error, reason);
                 };
                 transport.OnServerDisconnected = baseConnectionId =>
                 {
-                    OnServerDisconnected.Invoke(FromBaseId(locali, baseConnectionId));
+                    OnServerDisconnected.Invoke(FromBaseId(locali, baseConnectionId, transports.Length));
                 };
             }
         }
@@ -198,22 +198,22 @@ namespace Mirror
 
         public override string ServerGetClientAddress(int connectionId)
         {
-            int baseConnectionId = ToBaseId(connectionId);
-            int transportId = ToTransportId(connectionId);
+            int baseConnectionId = ToBaseId(connectionId, transports.Length);
+            int transportId = ToTransportId(connectionId, transports.Length);
             return transports[transportId].ServerGetClientAddress(baseConnectionId);
         }
 
         public override void ServerDisconnect(int connectionId)
         {
-            int baseConnectionId = ToBaseId(connectionId);
-            int transportId = ToTransportId(connectionId);
+            int baseConnectionId = ToBaseId(connectionId, transports.Length);
+            int transportId = ToTransportId(connectionId, transports.Length);
             transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
-            int baseConnectionId = ToBaseId(connectionId);
-            int transportId = ToTransportId(connectionId);
+            int baseConnectionId = ToBaseId(connectionId, transports.Length);
+            int transportId = ToTransportId(connectionId, transports.Length);
 
             for (int i = 0; i < transports.Length; ++i)
             {
