@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace Mirror.Tests
 {
-    public class MultiplexTest : MirrorTest
+    public class MultiplexTransportTest : MirrorTest
     {
         Transport transport1;
         Transport transport2;
