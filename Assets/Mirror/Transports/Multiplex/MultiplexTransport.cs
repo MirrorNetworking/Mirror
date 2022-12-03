@@ -131,7 +131,7 @@ namespace Mirror
 
         #region Server
         // connection ids get mapped to base transports
-        // if we have 3 transports,  then
+        // if we have 3 transports, then
         // transport 0 will produce connection ids [0, 3, 6, 9, ...]
         // transport 1 will produce connection ids [1, 4, 7, 10, ...]
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
@@ -149,7 +149,7 @@ namespace Mirror
             // wire all the base transports to my events
             for (int i = 0; i < transports.Length; i++)
             {
-                // this is required for the handlers,  if I use i directly
+                // this is required for the handlers, if I use i directly
                 // then all the handlers will use the last i
                 int locali = i;
                 Transport transport = transports[i];
