@@ -23,61 +23,46 @@ namespace Mirror
         public override void ClientEarlyUpdate()
         {
             foreach (Transport transport in transports)
-            {
                 transport.ClientEarlyUpdate();
-            }
         }
 
         public override void ServerEarlyUpdate()
         {
             foreach (Transport transport in transports)
-            {
                 transport.ServerEarlyUpdate();
-            }
         }
 
         public override void ClientLateUpdate()
         {
             foreach (Transport transport in transports)
-            {
                 transport.ClientLateUpdate();
-            }
         }
 
         public override void ServerLateUpdate()
         {
             foreach (Transport transport in transports)
-            {
                 transport.ServerLateUpdate();
-            }
         }
 
         void OnEnable()
         {
             foreach (Transport transport in transports)
-            {
                 transport.enabled = true;
-            }
         }
 
         void OnDisable()
         {
             foreach (Transport transport in transports)
-            {
                 transport.enabled = false;
-            }
         }
 
         public override bool Available()
         {
             // available if any of the transports is available
             foreach (Transport transport in transports)
-            {
                 if (transport.Available())
-                {
                     return true;
-                }
-            }
+
             return false;
         }
 
@@ -150,20 +135,14 @@ namespace Mirror
         // transport 0 will produce connection ids [0, 3, 6, 9, ...]
         // transport 1 will produce connection ids [1, 4, 7, 10, ...]
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
-        int FromBaseId(int transportId, int connectionId)
-        {
-            return connectionId * transports.Length + transportId;
-        }
+        int FromBaseId(int transportId, int connectionId) =>
+            connectionId * transports.Length + transportId;
 
-        int ToBaseId(int connectionId)
-        {
-            return connectionId / transports.Length;
-        }
+        int ToBaseId(int connectionId) =>
+            connectionId / transports.Length;
 
-        int ToTransportId(int connectionId)
-        {
-            return connectionId % transports.Length;
-        }
+        int ToTransportId(int connectionId) =>
+            connectionId % transports.Length;
 
         void AddServerCallbacks()
         {
@@ -257,9 +236,7 @@ namespace Mirror
         public override void ServerStop()
         {
             foreach (Transport transport in transports)
-            {
                 transport.ServerStop();
-            }
         }
         #endregion
 
@@ -288,9 +265,7 @@ namespace Mirror
         public override void Shutdown()
         {
             foreach (Transport transport in transports)
-            {
                 transport.Shutdown();
-            }
         }
 
         public override string ToString()
