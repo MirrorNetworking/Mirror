@@ -184,12 +184,9 @@ namespace Mirror
         {
             // avoid Linq.All allocations
             foreach (Transport transport in transports)
-            {
                 if (!transport.ServerActive())
-                {
                     return false;
-                }
-            }
+
             return true;
         }
 
@@ -213,12 +210,8 @@ namespace Mirror
             int transportId = ToTransportId(connectionId, transports.Length);
 
             for (int i = 0; i < transports.Length; ++i)
-            {
                 if (i == transportId)
-                {
                     transports[i].ServerSend(baseConnectionId, segment, channelId);
-                }
-            }
         }
 
         public override void ServerStart()
@@ -268,10 +261,10 @@ namespace Mirror
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
+
             foreach (Transport transport in transports)
-            {
                 builder.AppendLine(transport.ToString());
-            }
+
             return builder.ToString().Trim();
         }
     }
