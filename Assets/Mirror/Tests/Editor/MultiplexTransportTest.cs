@@ -35,21 +35,21 @@ namespace Mirror.Tests
             const int transportAmount = 3;
 
             Assert.That(MultiplexTransport.MultiplexConnectionId(0, 0, transportAmount), Is.EqualTo(0));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 1, transportAmount), Is.EqualTo(3));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 2, transportAmount), Is.EqualTo(6));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 3, transportAmount), Is.EqualTo(9));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 0, transportAmount), Is.EqualTo(3));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 0, transportAmount), Is.EqualTo(6));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(3, 0, transportAmount), Is.EqualTo(9));
 
             // transport 1 will produce connection ids [1, 4, 7, 10, ...]
-            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 0, transportAmount), Is.EqualTo(1));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 1, transportAmount), Is.EqualTo(1));
             Assert.That(MultiplexTransport.MultiplexConnectionId(1, 1, transportAmount), Is.EqualTo(4));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 2, transportAmount), Is.EqualTo(7));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 3, transportAmount), Is.EqualTo(10));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 1, transportAmount), Is.EqualTo(7));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(3, 1, transportAmount), Is.EqualTo(10));
 
             // transport 2 will produce connection ids [2, 5, 8, 11, ...]
-            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 0, transportAmount), Is.EqualTo(2));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 1, transportAmount), Is.EqualTo(5));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 2, transportAmount), Is.EqualTo(2));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 2, transportAmount), Is.EqualTo(5));
             Assert.That(MultiplexTransport.MultiplexConnectionId(2, 2, transportAmount), Is.EqualTo(8));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 3, transportAmount), Is.EqualTo(11));
+            Assert.That(MultiplexTransport.MultiplexConnectionId(3, 2, transportAmount), Is.EqualTo(11));
         }
 
         [Test]

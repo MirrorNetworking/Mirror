@@ -137,7 +137,7 @@ namespace Mirror
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
 
         // convert original transport connId to multiplexed connId
-        public static int MultiplexConnectionId(int transportId, int connectionId, int transportAmount) =>
+        public static int MultiplexConnectionId(int connectionId, int transportId, int transportAmount) =>
             connectionId * transportAmount + transportId;
 
         // convert multiplexed connectionId back to original transport connId
@@ -160,21 +160,21 @@ namespace Mirror
 
                 transport.OnServerConnected = (baseConnectionId =>
                 {
-                    OnServerConnected.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length));
+                    OnServerConnected.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length));
                 });
 
                 transport.OnServerDataReceived = (baseConnectionId, data, channel) =>
                 {
-                    OnServerDataReceived.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length), data, channel);
+                    OnServerDataReceived.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length), data, channel);
                 };
 
                 transport.OnServerError = (baseConnectionId, error, reason) =>
                 {
-                    OnServerError.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length), error, reason);
+                    OnServerError.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length), error, reason);
                 };
                 transport.OnServerDisconnected = baseConnectionId =>
                 {
-                    OnServerDisconnected.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length));
+                    OnServerDisconnected.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length));
                 };
             }
         }
