@@ -177,11 +177,8 @@ namespace Mirror
 
         // for now returns the first uri,
         // should we return all available uris?
-        public override Uri ServerUri()
-        {
-            return transports[0].ServerUri();
-        }
-
+        public override Uri ServerUri() =>
+            transports[0].ServerUri();
 
         public override bool ServerActive()
         {

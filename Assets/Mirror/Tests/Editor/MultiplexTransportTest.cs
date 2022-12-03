@@ -26,6 +26,7 @@ namespace Mirror.Tests
 
         [TearDown]
         public override void TearDown() => base.TearDown();
+
         [Test]
         public void FromBaseId()
         {
