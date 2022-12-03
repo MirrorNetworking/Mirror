@@ -135,12 +135,16 @@ namespace Mirror
         // transport 0 will produce connection ids [0, 3, 6, 9, ...]
         // transport 1 will produce connection ids [1, 4, 7, 10, ...]
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
+
+        // convert transport relative connId to multiplexed connId
         public static int FromBaseId(int transportId, int connectionId, int transportAmount) =>
             connectionId * transportAmount + transportId;
 
+        // convert multiplexed connectionId back to transport relative connId
         public static int ToBaseId(int connectionId, int transportAmount) =>
             connectionId / transportAmount;
 
+        // convert multiplexed connectionid back to transport id
         public static int ToTransportId(int connectionId, int transportAmount) =>
             connectionId % transportAmount;
 
