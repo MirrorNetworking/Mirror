@@ -94,7 +94,10 @@ namespace Mirror
             // (= lazy call)
             client.OnConnected = () => OnClientConnected.Invoke();
             client.OnData = (segment) => OnClientDataReceived.Invoke(segment, Channels.Reliable);
-            client.OnDisconnected = () => OnClientDisconnected.Invoke();
+            // fix: https://github.com/vis2k/Mirror/issues/3287
+            // Telepathy may call OnDisconnected twice.
+            // Mirror may have cleared the callback already, so use "?." here.
+            client.OnDisconnected = () => OnClientDisconnected?.Invoke();
 
             // client configuration
             client.NoDelay = NoDelay;
