@@ -118,6 +118,12 @@ namespace Mirror
         // initialization //////////////////////////////////////////////////////
         static void AddTransportHandlers()
         {
+            // community Transports may forget to call OnDisconnected.
+            // which could cause handlers to be added twice with +=.
+            // ensure we always clear the old ones first.
+            // fixes: https://github.com/vis2k/Mirror/issues/3152
+            RemoveTransportHandlers();
+
             // += so that other systems can also hook into it (i.e. statistics)
             Transport.active.OnClientConnected    += OnTransportConnected;
             Transport.active.OnClientDataReceived += OnTransportData;
