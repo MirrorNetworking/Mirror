@@ -607,7 +607,7 @@ namespace Mirror
             // UNET invoked OnDisconnected cleanup immediately.
             // let's keep it for now, in case any projects depend on it.
             // TODO simply remove this in the future.
-            OnClientDisconnect();
+            OnClientDisconnectInternal();
         }
 
         // called when quitting the application by closing the window / pressing
@@ -1182,10 +1182,56 @@ namespace Mirror
             }
         }
 
+        // Transport callback, invoked after client fully disconnected.
+        // the call order should always be:
+        //   Disconnect() -> ask Transport -> Transport.OnDisconnected -> Cleanup
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
+            if (mode == NetworkManagerMode.Offline)
+                return;
+
+            // user callback
             OnClientDisconnect();
+
+            if (authenticator != null)
+            {
+                authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
+                authenticator.OnStopClient();
+            }
+
+            // Get Network Manager out of DDOL before going to offline scene
+            // to avoid collision and let a fresh Network Manager be created.
+            // IMPORTANT: .gameObject can be null if StopClient is called from
+            //            OnApplicationQuit or from tests!
+            if (gameObject != null
+                && gameObject.scene.name == "DontDestroyOnLoad"
+                && !string.IsNullOrWhiteSpace(offlineScene)
+                && SceneManager.GetActiveScene().path != offlineScene)
+                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+
+            OnStopClient();
+
+            //Debug.Log("NetworkManager StopClient");
+
+            // set offline mode BEFORE changing scene so that FinishStartScene
+            // doesn't think we need initialize anything.
+            // set offline mode BEFORE NetworkClient.Disconnect so StopClient
+            // only runs once.
+            mode = NetworkManagerMode.Offline;
+
+            // shutdown client
+            NetworkClient.Shutdown();
+
+            // If this is the host player, StopServer will already be changing scenes.
+            // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
+            // Check if NetworkServer.active because we can get here via Disconnect before server has started to change scenes.
+            if (!string.IsNullOrWhiteSpace(offlineScene) && !IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)
+            {
+                ClientChangeScene(offlineScene, SceneOperation.Normal);
+            }
+
+            networkSceneName = "";
         }
 
         void OnClientNotReadyMessageInternal(NotReadyMessage msg)
@@ -1284,53 +1330,7 @@ namespace Mirror
         }
 
         /// <summary>Called on clients when disconnected from a server.</summary>
-        // Transport callback, invoked after client fully disconnected.
-        // the call order should always be:
-        //   Disconnect() -> ask Transport -> Transport.OnDisconnected -> Cleanup
-        public virtual void OnClientDisconnect()
-        {
-            if (mode == NetworkManagerMode.Offline)
-                return;
-
-            if (authenticator != null)
-            {
-                authenticator.OnClientAuthenticated.RemoveListener(OnClientAuthenticated);
-                authenticator.OnStopClient();
-            }
-
-            // Get Network Manager out of DDOL before going to offline scene
-            // to avoid collision and let a fresh Network Manager be created.
-            // IMPORTANT: .gameObject can be null if StopClient is called from
-            //            OnApplicationQuit or from tests!
-            if (gameObject != null
-                && gameObject.scene.name == "DontDestroyOnLoad"
-                && !string.IsNullOrWhiteSpace(offlineScene)
-                && SceneManager.GetActiveScene().path != offlineScene)
-                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
-
-            OnStopClient();
-
-            //Debug.Log("NetworkManager StopClient");
-
-            // set offline mode BEFORE changing scene so that FinishStartScene
-            // doesn't think we need initialize anything.
-            // set offline mode BEFORE NetworkClient.Disconnect so StopClient
-            // only runs once.
-            mode = NetworkManagerMode.Offline;
-
-            // shutdown client
-            NetworkClient.Shutdown();
-
-            // If this is the host player, StopServer will already be changing scenes.
-            // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
-            // Check if NetworkServer.active because we can get here via Disconnect before server has started to change scenes.
-            if (!string.IsNullOrWhiteSpace(offlineScene) && !IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)
-            {
-                ClientChangeScene(offlineScene, SceneOperation.Normal);
-            }
-
-            networkSceneName = "";
-        }
+        public virtual void OnClientDisconnect() {}
 
         // DEPRECATED 2022-05-12
         [Obsolete("OnClientError(Exception) was changed to OnClientError(TransportError, string)")]
