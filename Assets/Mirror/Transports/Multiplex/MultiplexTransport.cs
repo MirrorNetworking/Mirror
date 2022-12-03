@@ -136,17 +136,17 @@ namespace Mirror
         // transport 1 will produce connection ids [1, 4, 7, 10, ...]
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
 
-        // convert transport relative connId to multiplexed connId
-        public static int FromBaseId(int transportId, int connectionId, int transportAmount) =>
+        // convert original transport connId to multiplexed connId
+        public static int MultiplexConnectionId(int transportId, int connectionId, int transportAmount) =>
             connectionId * transportAmount + transportId;
 
-        // convert multiplexed connectionId back to transport relative connId
-        public static int ToBaseId(int connectionId, int transportAmount) =>
-            connectionId / transportAmount;
+        // convert multiplexed connectionId back to original transport connId
+        public static int OriginalConnectionId(int multiplexConnectionId, int transportAmount) =>
+            multiplexConnectionId / transportAmount;
 
-        // convert multiplexed connectionid back to transport id
-        public static int ToTransportId(int connectionId, int transportAmount) =>
-            connectionId % transportAmount;
+        // convert multiplexed connectionId back to original transportId
+        public static int OriginalTransportId(int multiplexConnectionId, int transportAmount) =>
+            multiplexConnectionId % transportAmount;
 
         void AddServerCallbacks()
         {
@@ -160,21 +160,21 @@ namespace Mirror
 
                 transport.OnServerConnected = (baseConnectionId =>
                 {
-                    OnServerConnected.Invoke(FromBaseId(locali, baseConnectionId, transports.Length));
+                    OnServerConnected.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length));
                 });
 
                 transport.OnServerDataReceived = (baseConnectionId, data, channel) =>
                 {
-                    OnServerDataReceived.Invoke(FromBaseId(locali, baseConnectionId, transports.Length), data, channel);
+                    OnServerDataReceived.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length), data, channel);
                 };
 
                 transport.OnServerError = (baseConnectionId, error, reason) =>
                 {
-                    OnServerError.Invoke(FromBaseId(locali, baseConnectionId, transports.Length), error, reason);
+                    OnServerError.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length), error, reason);
                 };
                 transport.OnServerDisconnected = baseConnectionId =>
                 {
-                    OnServerDisconnected.Invoke(FromBaseId(locali, baseConnectionId, transports.Length));
+                    OnServerDisconnected.Invoke(MultiplexConnectionId(locali, baseConnectionId, transports.Length));
                 };
             }
         }
@@ -196,22 +196,22 @@ namespace Mirror
 
         public override string ServerGetClientAddress(int connectionId)
         {
-            int baseConnectionId = ToBaseId(connectionId, transports.Length);
-            int transportId = ToTransportId(connectionId, transports.Length);
+            int baseConnectionId = OriginalConnectionId(connectionId, transports.Length);
+            int transportId = OriginalTransportId(connectionId, transports.Length);
             return transports[transportId].ServerGetClientAddress(baseConnectionId);
         }
 
         public override void ServerDisconnect(int connectionId)
         {
-            int baseConnectionId = ToBaseId(connectionId, transports.Length);
-            int transportId = ToTransportId(connectionId, transports.Length);
+            int baseConnectionId = OriginalConnectionId(connectionId, transports.Length);
+            int transportId = OriginalTransportId(connectionId, transports.Length);
             transports[transportId].ServerDisconnect(baseConnectionId);
         }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
-            int baseConnectionId = ToBaseId(connectionId, transports.Length);
-            int transportId = ToTransportId(connectionId, transports.Length);
+            int baseConnectionId = OriginalConnectionId(connectionId, transports.Length);
+            int transportId = OriginalTransportId(connectionId, transports.Length);
 
             for (int i = 0; i < transports.Length; ++i)
                 if (i == transportId)
