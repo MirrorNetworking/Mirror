@@ -26,6 +26,70 @@ namespace Mirror.Tests
 
         [TearDown]
         public override void TearDown() => base.TearDown();
+        [Test]
+        public void FromBaseId()
+        {
+            // if we have 3 transports, then
+            // transport 0 will produce connection ids [0, 3, 6, 9, ...]
+            const int transportAmount = 3;
+
+            Assert.That(MultiplexTransport.FromBaseId(0, 0, transportAmount), Is.EqualTo(0));
+            Assert.That(MultiplexTransport.FromBaseId(0, 1, transportAmount), Is.EqualTo(3));
+            Assert.That(MultiplexTransport.FromBaseId(0, 2, transportAmount), Is.EqualTo(6));
+            Assert.That(MultiplexTransport.FromBaseId(0, 3, transportAmount), Is.EqualTo(9));
+
+            // transport 1 will produce connection ids [1, 4, 7, 10, ...]
+            Assert.That(MultiplexTransport.FromBaseId(1, 0, transportAmount), Is.EqualTo(1));
+            Assert.That(MultiplexTransport.FromBaseId(1, 1, transportAmount), Is.EqualTo(4));
+            Assert.That(MultiplexTransport.FromBaseId(1, 2, transportAmount), Is.EqualTo(7));
+            Assert.That(MultiplexTransport.FromBaseId(1, 3, transportAmount), Is.EqualTo(10));
+
+            // transport 2 will produce connection ids [2, 5, 8, 11, ...]
+            Assert.That(MultiplexTransport.FromBaseId(2, 0, transportAmount), Is.EqualTo(2));
+            Assert.That(MultiplexTransport.FromBaseId(2, 1, transportAmount), Is.EqualTo(5));
+            Assert.That(MultiplexTransport.FromBaseId(2, 2, transportAmount), Is.EqualTo(8));
+            Assert.That(MultiplexTransport.FromBaseId(2, 3, transportAmount), Is.EqualTo(11));
+        }
+
+        [Test]
+        public void ToBaseId()
+        {
+            const int transportAmount = 3;
+
+            Assert.That(MultiplexTransport.ToBaseId(0, transportAmount), Is.EqualTo(0));
+            Assert.That(MultiplexTransport.ToBaseId(1, transportAmount), Is.EqualTo(0));
+            Assert.That(MultiplexTransport.ToBaseId(2, transportAmount), Is.EqualTo(0));
+
+            Assert.That(MultiplexTransport.ToBaseId(3, transportAmount), Is.EqualTo(1));
+            Assert.That(MultiplexTransport.ToBaseId(4, transportAmount), Is.EqualTo(1));
+            Assert.That(MultiplexTransport.ToBaseId(5, transportAmount), Is.EqualTo(1));
+
+            Assert.That(MultiplexTransport.ToBaseId(6, transportAmount), Is.EqualTo(2));
+            Assert.That(MultiplexTransport.ToBaseId(7, transportAmount), Is.EqualTo(2));
+            Assert.That(MultiplexTransport.ToBaseId(8, transportAmount), Is.EqualTo(2));
+
+            Assert.That(MultiplexTransport.ToBaseId(9, transportAmount), Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ToTransportId()
+        {
+            const int transportAmount = 3;
+
+            Assert.That(MultiplexTransport.ToTransportId(0, transportAmount), Is.EqualTo(0));
+            Assert.That(MultiplexTransport.ToTransportId(1, transportAmount), Is.EqualTo(1));
+            Assert.That(MultiplexTransport.ToTransportId(2, transportAmount), Is.EqualTo(2));
+
+            Assert.That(MultiplexTransport.ToTransportId(3, transportAmount), Is.EqualTo(0));
+            Assert.That(MultiplexTransport.ToTransportId(4, transportAmount), Is.EqualTo(1));
+            Assert.That(MultiplexTransport.ToTransportId(5, transportAmount), Is.EqualTo(2));
+
+            Assert.That(MultiplexTransport.ToTransportId(6, transportAmount), Is.EqualTo(0));
+            Assert.That(MultiplexTransport.ToTransportId(7, transportAmount), Is.EqualTo(1));
+            Assert.That(MultiplexTransport.ToTransportId(8, transportAmount), Is.EqualTo(2));
+
+            Assert.That(MultiplexTransport.ToTransportId(9, transportAmount), Is.EqualTo(0));
+        }
 
         // A Test behaves as an ordinary method
         [Test]
