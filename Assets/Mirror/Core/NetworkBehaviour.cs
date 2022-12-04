@@ -169,6 +169,10 @@ namespace Mirror
         // simply reuse SetSyncVarDirtyBit for now.
         // instead of adding another field.
         // syncVarDirtyBits does trigger OnSerialize as well.
+        //
+        // it's important to set _all_ bits as dirty.
+        // for example, server needs to broadcast ClientToServer components.
+        // if we only set the first bit, only that SyncVar would be broadcast.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetDirty() => SetSyncVarDirtyBit(ulong.MaxValue);
 
