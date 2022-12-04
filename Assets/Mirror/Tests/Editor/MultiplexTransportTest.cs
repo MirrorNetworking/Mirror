@@ -28,46 +28,55 @@ namespace Mirror.Tests
         public override void TearDown() => base.TearDown();
 
         [Test]
-        public void MultiplexedConnectionId()
+        public void ConnectionIdMapping()
         {
             // add a few connectionIds from transport #0
-            transport.AddToLookup(10,           0); // connId = 0
-            transport.AddToLookup(20,           0); // connId = 1
-            transport.AddToLookup(int.MaxValue, 0); // connId = max
-
-            // multiplexed ids should count up
-            Assert.That(transport.MultiplexedId(1), Is.EqualTo(10));
-            Assert.That(transport.MultiplexedId(2), Is.EqualTo(20));
-            Assert.That(transport.MultiplexedId(3), Is.EqualTo(int.MaxValue));
+            // one large connId to prevent https://github.com/vis2k/Mirror/issues/3280
+            int t0_c10  = transport.AddToLookup(10,           0); // should get multiplexId = 1
+            int t0_c20  = transport.AddToLookup(20,           0); // should get multiplexId = 2
+            int t0_cmax = transport.AddToLookup(int.MaxValue, 0); // should get multiplexId = 3
 
             // add a few connectionIds from transport #1
-            transport.AddToLookup(10,             1); // connId = 0
-            transport.AddToLookup(30,             1); // connId = 1
-            transport.AddToLookup(int.MaxValue-1, 1); // connId = max
+            // one large connId to prevent https://github.com/vis2k/Mirror/issues/3280
+            int t1_c10  = transport.AddToLookup(10,           1); // should get multiplexId = 4
+            int t1_c50  = transport.AddToLookup(50,           1); // should get multiplexId = 5
+            int t1_cmax = transport.AddToLookup(int.MaxValue, 1); // should get multiplexId = 6
 
-            // multiplexed ids should count up
-            Assert.That(transport.MultiplexedId(4), Is.EqualTo(10));
-            Assert.That(transport.MultiplexedId(5), Is.EqualTo(30));
-            Assert.That(transport.MultiplexedId(6), Is.EqualTo(int.MaxValue-1));
-        }
+            // MultiplexId -> (OriginalId, TransportIndex) for transport #0
+            transport.OriginalId(t0_c10, out int originalId, out int transportIndex);
+            Assert.That(transportIndex, Is.EqualTo(0));
+            Assert.That(originalId,     Is.EqualTo(10));
 
-        [Test]
-        public void OriginalConnectionId()
-        {
-            // TODO
-        }
+            transport.OriginalId(t0_c20, out originalId, out transportIndex);
+            Assert.That(transportIndex, Is.EqualTo(0));
+            Assert.That(originalId,     Is.EqualTo(20));
 
-        [Test]
-        public void OriginalTransportId()
-        {
-            // TODO
-        }
+            transport.OriginalId(t0_cmax, out originalId, out transportIndex);
+            Assert.That(transportIndex, Is.EqualTo(0));
+            Assert.That(originalId,     Is.EqualTo(int.MaxValue));
 
-        // test to reproduce https://github.com/vis2k/Mirror/issues/3280
-        [Test]
-        public void LargeConnectionId()
-        {
-            // TODO
+            // MultiplexId -> (OriginalId, TransportIndex) for transport #1
+            transport.OriginalId(t1_c10, out originalId, out transportIndex);
+            Assert.That(transportIndex, Is.EqualTo(1));
+            Assert.That(originalId,     Is.EqualTo(10));
+
+            transport.OriginalId(t1_c50, out originalId, out transportIndex);
+            Assert.That(transportIndex, Is.EqualTo(1));
+            Assert.That(originalId,     Is.EqualTo(50));
+
+            transport.OriginalId(t1_cmax, out originalId, out transportIndex);
+            Assert.That(transportIndex, Is.EqualTo(1));
+            Assert.That(originalId,     Is.EqualTo(int.MaxValue));
+
+            // (OriginalId, TransportIndex) -> MultiplexId for transport #1
+            Assert.That(transport.MultiplexId(10, 0), Is.EqualTo(t0_c10));
+            Assert.That(transport.MultiplexId(20, 0), Is.EqualTo(t0_c20));
+            Assert.That(transport.MultiplexId(int.MaxValue, 0), Is.EqualTo(t0_cmax));
+
+            // (OriginalId, TransportIndex) -> MultiplexId for transport #2
+            Assert.That(transport.MultiplexId(10, 1), Is.EqualTo(t1_c10));
+            Assert.That(transport.MultiplexId(50, 1), Is.EqualTo(t1_c50));
+            Assert.That(transport.MultiplexId(int.MaxValue, 1), Is.EqualTo(t1_cmax));
         }
 
         [Test]
@@ -235,30 +244,31 @@ namespace Mirror.Tests
         public void TestServerSend()
         {
             transport1.Available().Returns(true);
+            transport2.Available().Returns(true);
+            transport.ServerStart();
             transport.ClientConnect("some.server.com");
+
+            transport.OnServerConnected    = _ => {};
+            transport.OnServerDisconnected = _ => {};
+
+            // connect two connectionIds.
+            // one of them very large to prevent
+            // https://github.com/vis2k/Mirror/issues/3280
+            transport1.OnServerConnected(10);
+            transport2.OnServerConnected(int.MaxValue);
 
             byte[] data = { 1, 2, 3 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data);
 
             // call ServerSend on multiplex transport.
-            // multiplexed connId = 0 corresponds to connId = 0 with transport #1
-            transport.ServerSend(0, data, 0);
-            transport1.Received().ServerSend(0, segment, 0);
-
-            // call ServerSend on multiplex transport.
-            // multiplexed connId = 1 corresponds to connId = 0 with transport #2
+            // multiplexed connId = 1 represents transport #1 connId = 10
             transport.ServerSend(1, data, 0);
-            transport2.Received().ServerSend(0, segment, 0);
+            transport1.Received().ServerSend(10, segment, 0);
 
             // call ServerSend on multiplex transport.
-            // multiplexed connId = 2 corresponds to connId = 1 with transport #1
+            // multiplexed connId = 2 represents transport #2 connId = int.max
             transport.ServerSend(2, data, 0);
-            transport1.Received().ServerSend(1, segment, 0);
-
-            // call ServerSend on multiplex transport.
-            // multiplexed connId = 3 corresponds to connId = 1 with transport #2
-            transport.ServerSend(3, data, 0);
-            transport2.Received().ServerSend(1, segment, 0);
+            transport2.Received().ServerSend(int.MaxValue, segment, 0);
         }
     }
 }
