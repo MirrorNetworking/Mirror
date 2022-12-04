@@ -12,6 +12,24 @@ namespace Mirror
 
         Transport available;
 
+        // connection ids get mapped to base transports
+        // if we have 3 transports, then
+        // transport 0 will produce connection ids [0, 3, 6, 9, ...]
+        // transport 1 will produce connection ids [1, 4, 7, 10, ...]
+        // transport 2 will produce connection ids [2, 5, 8, 11, ...]
+
+        // convert original transport connId to multiplexed connId
+        public static int MultiplexConnectionId(int connectionId, int transportId, int transportAmount) =>
+            connectionId * transportAmount + transportId;
+
+        // convert multiplexed connectionId back to original transport connId
+        public static int OriginalConnectionId(int multiplexConnectionId, int transportAmount) =>
+            multiplexConnectionId / transportAmount;
+
+        // convert multiplexed connectionId back to original transportId
+        public static int OriginalTransportId(int multiplexConnectionId, int transportAmount) =>
+            multiplexConnectionId % transportAmount;
+
         public void Awake()
         {
             if (transports == null || transports.Length == 0)
@@ -130,24 +148,6 @@ namespace Mirror
         #endregion
 
         #region Server
-        // connection ids get mapped to base transports
-        // if we have 3 transports, then
-        // transport 0 will produce connection ids [0, 3, 6, 9, ...]
-        // transport 1 will produce connection ids [1, 4, 7, 10, ...]
-        // transport 2 will produce connection ids [2, 5, 8, 11, ...]
-
-        // convert original transport connId to multiplexed connId
-        public static int MultiplexConnectionId(int connectionId, int transportId, int transportAmount) =>
-            connectionId * transportAmount + transportId;
-
-        // convert multiplexed connectionId back to original transport connId
-        public static int OriginalConnectionId(int multiplexConnectionId, int transportAmount) =>
-            multiplexConnectionId / transportAmount;
-
-        // convert multiplexed connectionId back to original transportId
-        public static int OriginalTransportId(int multiplexConnectionId, int transportAmount) =>
-            multiplexConnectionId % transportAmount;
-
         void AddServerCallbacks()
         {
             // all underlying transports should call the multiplex transport's events
