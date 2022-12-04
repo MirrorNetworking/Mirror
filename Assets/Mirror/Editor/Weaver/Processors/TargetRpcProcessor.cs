@@ -9,8 +9,16 @@ namespace Mirror.Weaver
         // helper functions to check if the method has a NetworkConnection parameter
         public static bool HasNetworkConnectionParameter(MethodDefinition md)
         {
-            return md.Parameters.Count > 0 &&
-                   md.Parameters[0].ParameterType.Is<NetworkConnection>();
+            if (md.Parameters.Count > 0)
+            {
+                // we need to allow both NetworkConnection, and inheriting types.
+                // NetworkBehaviour.SendTargetRpc takes a NetworkConnection parameter.
+                // fixes https://github.com/vis2k/Mirror/issues/3290
+                TypeReference type = md.Parameters[0].ParameterType;
+                return type.Is<NetworkConnection>() ||
+                       type.IsDerivedFrom<NetworkConnection>();
+            }
+            return false;
         }
 
         public static MethodDefinition ProcessTargetRpcInvoke(WeaverTypes weaverTypes, Readers readers, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc, ref bool WeavingFailed)
