@@ -39,15 +39,15 @@ namespace Mirror
         readonly Dictionary<int, KeyValuePair<int, int>> multiplexedToOriginalId =
             new Dictionary<int, KeyValuePair<int, int>>(100);
 
-        // next multiplexed id counter
-        int nextMultiplexedId = 0;
+        // next multiplexed id counter. start at 1 because 0 is reserved for host.
+        int nextMultiplexedId = 1;
 
         // add to bidirection lookup. returns the multiplexed connectionId.
         public int AddToLookup(int originalConnectionId, int transportIndex)
         {
             // add to both
             KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
-            int multiplexedId = ++nextMultiplexedId;
+            int multiplexedId = nextMultiplexedId++;
 
             originalToMultiplexedId[pair] = multiplexedId;
             multiplexedToOriginalId[multiplexedId] = pair;
