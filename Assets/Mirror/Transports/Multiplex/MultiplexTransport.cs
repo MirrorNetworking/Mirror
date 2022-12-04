@@ -44,7 +44,7 @@ namespace Mirror
         int nextMultiplexedId = 0;
 
         // add to bidirection lookup. returns the multiplexed connectionId.
-        int AddToLookup(int originalConnectionId, int transportIndex)
+        public int AddToLookup(int originalConnectionId, int transportIndex)
         {
             int multiplexedId = ++nextMultiplexedId;
             originalToMultiplexedId[originalConnectionId] = multiplexedId;
@@ -53,7 +53,7 @@ namespace Mirror
             return multiplexedId;
         }
 
-        void RemoveFromLookup(int originalConnectionId)
+        public void RemoveFromLookup(int originalConnectionId)
         {
             // remove from both
             int multiplexedId = originalToMultiplexedId[originalConnectionId];
@@ -62,9 +62,9 @@ namespace Mirror
             originalToTransportIndex.Remove(originalConnectionId);
         }
 
-        int MultiplexedId(int originalId)  => originalToMultiplexedId[originalId];
-        int OriginalId(int multiplexedId)  => multiplexedToOriginalId[multiplexedId];
-        int TransportIndex(int originalId) => originalToTransportIndex[originalId];
+        public int MultiplexedId(int originalId)  => originalToMultiplexedId[originalId];
+        public int OriginalId(int multiplexedId)  => multiplexedToOriginalId[multiplexedId];
+        public int TransportIndex(int originalId) => originalToTransportIndex[originalId];
 
         ////////////////////////////////////////////////////////////////////////
 

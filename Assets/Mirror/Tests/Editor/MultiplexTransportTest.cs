@@ -28,92 +28,46 @@ namespace Mirror.Tests
         public override void TearDown() => base.TearDown();
 
         [Test]
-        public void MultiplexConnectionId()
+        public void MultiplexedConnectionId()
         {
-            // if we have 3 transports, then
-            // transport 0 will produce connection ids [0, 3, 6, 9, ...]
-            const int transportAmount = 3;
+            // add a few connectionIds from transport #0
+            transport.AddToLookup(10,           0); // connId = 0
+            transport.AddToLookup(20,           0); // connId = 1
+            transport.AddToLookup(int.MaxValue, 0); // connId = max
 
-            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 0, transportAmount), Is.EqualTo(0));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 0, transportAmount), Is.EqualTo(3));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 0, transportAmount), Is.EqualTo(6));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(3, 0, transportAmount), Is.EqualTo(9));
+            // multiplexed ids should count up
+            Assert.That(transport.MultiplexedId(1), Is.EqualTo(10));
+            Assert.That(transport.MultiplexedId(2), Is.EqualTo(20));
+            Assert.That(transport.MultiplexedId(3), Is.EqualTo(int.MaxValue));
 
-            // transport 1 will produce connection ids [1, 4, 7, 10, ...]
-            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 1, transportAmount), Is.EqualTo(1));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 1, transportAmount), Is.EqualTo(4));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 1, transportAmount), Is.EqualTo(7));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(3, 1, transportAmount), Is.EqualTo(10));
+            // add a few connectionIds from transport #1
+            transport.AddToLookup(10,             1); // connId = 0
+            transport.AddToLookup(30,             1); // connId = 1
+            transport.AddToLookup(int.MaxValue-1, 1); // connId = max
 
-            // transport 2 will produce connection ids [2, 5, 8, 11, ...]
-            Assert.That(MultiplexTransport.MultiplexConnectionId(0, 2, transportAmount), Is.EqualTo(2));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(1, 2, transportAmount), Is.EqualTo(5));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(2, 2, transportAmount), Is.EqualTo(8));
-            Assert.That(MultiplexTransport.MultiplexConnectionId(3, 2, transportAmount), Is.EqualTo(11));
+            // multiplexed ids should count up
+            Assert.That(transport.MultiplexedId(4), Is.EqualTo(10));
+            Assert.That(transport.MultiplexedId(5), Is.EqualTo(30));
+            Assert.That(transport.MultiplexedId(6), Is.EqualTo(int.MaxValue-1));
         }
 
         [Test]
         public void OriginalConnectionId()
         {
-            const int transportAmount = 3;
-
-            Assert.That(MultiplexTransport.OriginalConnectionId(0, transportAmount), Is.EqualTo(0));
-            Assert.That(MultiplexTransport.OriginalConnectionId(1, transportAmount), Is.EqualTo(0));
-            Assert.That(MultiplexTransport.OriginalConnectionId(2, transportAmount), Is.EqualTo(0));
-
-            Assert.That(MultiplexTransport.OriginalConnectionId(3, transportAmount), Is.EqualTo(1));
-            Assert.That(MultiplexTransport.OriginalConnectionId(4, transportAmount), Is.EqualTo(1));
-            Assert.That(MultiplexTransport.OriginalConnectionId(5, transportAmount), Is.EqualTo(1));
-
-            Assert.That(MultiplexTransport.OriginalConnectionId(6, transportAmount), Is.EqualTo(2));
-            Assert.That(MultiplexTransport.OriginalConnectionId(7, transportAmount), Is.EqualTo(2));
-            Assert.That(MultiplexTransport.OriginalConnectionId(8, transportAmount), Is.EqualTo(2));
-
-            Assert.That(MultiplexTransport.OriginalConnectionId(9, transportAmount), Is.EqualTo(3));
+            // TODO
         }
 
         [Test]
         public void OriginalTransportId()
         {
-            const int transportAmount = 3;
-
-            Assert.That(MultiplexTransport.OriginalTransportId(0, transportAmount), Is.EqualTo(0));
-            Assert.That(MultiplexTransport.OriginalTransportId(1, transportAmount), Is.EqualTo(1));
-            Assert.That(MultiplexTransport.OriginalTransportId(2, transportAmount), Is.EqualTo(2));
-
-            Assert.That(MultiplexTransport.OriginalTransportId(3, transportAmount), Is.EqualTo(0));
-            Assert.That(MultiplexTransport.OriginalTransportId(4, transportAmount), Is.EqualTo(1));
-            Assert.That(MultiplexTransport.OriginalTransportId(5, transportAmount), Is.EqualTo(2));
-
-            Assert.That(MultiplexTransport.OriginalTransportId(6, transportAmount), Is.EqualTo(0));
-            Assert.That(MultiplexTransport.OriginalTransportId(7, transportAmount), Is.EqualTo(1));
-            Assert.That(MultiplexTransport.OriginalTransportId(8, transportAmount), Is.EqualTo(2));
-
-            Assert.That(MultiplexTransport.OriginalTransportId(9, transportAmount), Is.EqualTo(0));
+            // TODO
         }
 
         // test to reproduce https://github.com/vis2k/Mirror/issues/3280
         [Test]
         public void LargeConnectionId()
         {
-            const int transportAmount = 3;
-
-            // let's say transport #2 gives us a very large connectionId.
-            // for example, KCP may use GetHashCode() as connectionId.
-            // 2147483647 - 10 = 2147483637
-            const int largeId = int.MaxValue - 10;
-            const int transportId = 2;
-
-            // connectionId * transportAmount + transportId
-            // = 2147483637 * 3 + 2
-            // = 6442450913
-            // which does not fit into int.max
-            int multiplexedId = MultiplexTransport.MultiplexConnectionId(largeId, transportId, transportAmount);
-            // Assert.That(multiplexedId, Is.EqualTo(6442450913)); not equal!
-
-            // convert it back. multiplexed isn't correct, so neither will this be
-            int originalId = MultiplexTransport.OriginalConnectionId(multiplexedId, transportAmount);
-            Assert.That(originalId, Is.EqualTo(largeId));
+            // TODO
         }
 
         [Test]
