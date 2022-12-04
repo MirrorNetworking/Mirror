@@ -92,6 +92,30 @@ namespace Mirror.Tests
             Assert.That(MultiplexTransport.OriginalTransportId(9, transportAmount), Is.EqualTo(0));
         }
 
+        // test to reproduce https://github.com/vis2k/Mirror/issues/3280
+        [Test]
+        public void LargeConnectionId()
+        {
+            const int transportAmount = 3;
+
+            // let's say transport #2 gives us a very large connectionId.
+            // for example, KCP may use GetHashCode() as connectionId.
+            // 2147483647 - 10 = 2147483637
+            const int largeId = int.MaxValue - 10;
+            const int transportId = 2;
+
+            // connectionId * transportAmount + transportId
+            // = 2147483637 * 3 + 2
+            // = 6442450913
+            // which does not fit into int.max
+            int multiplexedId = MultiplexTransport.MultiplexConnectionId(largeId, transportId, transportAmount);
+            // Assert.That(multiplexedId, Is.EqualTo(6442450913)); not equal!
+
+            // convert it back. multiplexed isn't correct, so neither will this be
+            int originalId = MultiplexTransport.OriginalConnectionId(multiplexedId, transportAmount);
+            Assert.That(originalId, Is.EqualTo(largeId));
+        }
+
         [Test]
         public void TestAvailable()
         {
