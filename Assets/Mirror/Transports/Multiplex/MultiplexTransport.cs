@@ -160,20 +160,24 @@ namespace Mirror
 
                 transport.OnServerConnected = (baseConnectionId =>
                 {
+                    // invoke Multiplex event with multiplexed connectionId
                     OnServerConnected.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length));
                 });
 
                 transport.OnServerDataReceived = (baseConnectionId, data, channel) =>
                 {
+                    // invoke Multiplex event with multiplexed connectionId
                     OnServerDataReceived.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length), data, channel);
                 };
 
                 transport.OnServerError = (baseConnectionId, error, reason) =>
                 {
+                    // invoke Multiplex event with multiplexed connectionId
                     OnServerError.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length), error, reason);
                 };
                 transport.OnServerDisconnected = baseConnectionId =>
                 {
+                    // invoke Multiplex event with multiplexed connectionId
                     OnServerDisconnected.Invoke(MultiplexConnectionId(baseConnectionId, locali, transports.Length));
                 };
             }
@@ -196,6 +200,7 @@ namespace Mirror
 
         public override string ServerGetClientAddress(int connectionId)
         {
+            // convert multiplexed connectionId to original transport + connId
             int baseConnectionId = OriginalConnectionId(connectionId, transports.Length);
             int transportId = OriginalTransportId(connectionId, transports.Length);
             return transports[transportId].ServerGetClientAddress(baseConnectionId);
@@ -203,6 +208,7 @@ namespace Mirror
 
         public override void ServerDisconnect(int connectionId)
         {
+            // convert multiplexed connectionId to original transport + connId
             int baseConnectionId = OriginalConnectionId(connectionId, transports.Length);
             int transportId = OriginalTransportId(connectionId, transports.Length);
             transports[transportId].ServerDisconnect(baseConnectionId);
@@ -210,6 +216,7 @@ namespace Mirror
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
+            // convert multiplexed connectionId to original transport + connId
             int baseConnectionId = OriginalConnectionId(connectionId, transports.Length);
             int transportId = OriginalTransportId(connectionId, transports.Length);
 
