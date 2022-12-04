@@ -6,6 +6,12 @@ namespace Mirror.Examples.SyncDir // ".SyncDirection" would overshadow the enum
     {
         public TextMesh textMesh;
         [SyncVar] public int health;
+        public Color localColor = Color.white;
+
+        public override void OnStartLocalPlayer()
+        {
+            textMesh.color = localColor;
+        }
 
         void Update()
         {
@@ -38,6 +44,7 @@ namespace Mirror.Examples.SyncDir // ".SyncDirection" would overshadow the enum
 
             int width = 250;
             int height = 20;
+            GUI.color = localColor;
             GUI.Label(
                 new Rect(Screen.width / 2 - width / 2, Screen.height / 2 - height / 2, width, height),
                 "Press Space to increase your own health!");
