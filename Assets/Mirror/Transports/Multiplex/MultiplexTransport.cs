@@ -150,7 +150,7 @@ namespace Mirror
 
         void AddServerCallbacks()
         {
-            // wire all the base transports to my events
+            // all underlying transports should call the multiplex transport's events
             for (int i = 0; i < transports.Length; i++)
             {
                 // this is required for the handlers, if I use i directly
