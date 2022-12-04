@@ -14,7 +14,7 @@ namespace Mirror
 
         // connection ids get mapped to base transports
         // if we have 3 transports, then
-        // transport 0 will produce connection ids [0, 3, 6, 9, ...]
+        // transport 0 will produce connection ids [0, 3, 6,  9, ...]
         // transport 1 will produce connection ids [1, 4, 7, 10, ...]
         // transport 2 will produce connection ids [2, 5, 8, 11, ...]
 
