@@ -31,11 +31,11 @@ namespace Mirror
         // instead, use a simple lookup with 0-indexed ids.
         // with initial capacity to avoid runtime allocations.
 
-        // <original connectionId, transport#> to multiplexed connectionId
+        // (original connectionId, transport#) to multiplexed connectionId
         readonly Dictionary<KeyValuePair<int, int>, int> originalToMultiplexedId =
             new Dictionary<KeyValuePair<int, int>, int>(100);
 
-        // multiplexed connectionId to <original connectionId, transport#>
+        // multiplexed connectionId to (original connectionId, transport#)
         readonly Dictionary<int, KeyValuePair<int, int>> multiplexedToOriginalId =
             new Dictionary<int, KeyValuePair<int, int>>(100);
 
