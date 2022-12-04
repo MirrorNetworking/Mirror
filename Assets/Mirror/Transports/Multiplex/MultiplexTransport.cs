@@ -219,10 +219,7 @@ namespace Mirror
             // convert multiplexed connectionId to original transport + connId
             int baseConnectionId = OriginalConnectionId(connectionId, transports.Length);
             int transportId = OriginalTransportId(connectionId, transports.Length);
-
-            for (int i = 0; i < transports.Length; ++i)
-                if (i == transportId)
-                    transports[i].ServerSend(baseConnectionId, segment, channelId);
+            transports[transportId].ServerSend(baseConnectionId, segment, channelId);
         }
 
         public override void ServerStart()
