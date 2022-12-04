@@ -257,5 +257,35 @@ namespace Mirror.Tests
 
             transport1.Received().ServerSend(1, segment, 5);
         }
+
+        [Test]
+        public void TestServerSend()
+        {
+            transport1.Available().Returns(true);
+            transport.ClientConnect("some.server.com");
+
+            byte[] data = { 1, 2, 3 };
+            ArraySegment<byte> segment = new ArraySegment<byte>(data);
+
+            // call ServerSend on multiplex transport.
+            // multiplexed connId = 0 corresponds to connId = 0 with transport #1
+            transport.ServerSend(0, data, 0);
+            transport1.Received().ServerSend(0, segment, 0);
+
+            // call ServerSend on multiplex transport.
+            // multiplexed connId = 1 corresponds to connId = 0 with transport #2
+            transport.ServerSend(1, data, 0);
+            transport2.Received().ServerSend(0, segment, 0);
+
+            // call ServerSend on multiplex transport.
+            // multiplexed connId = 2 corresponds to connId = 1 with transport #1
+            transport.ServerSend(2, data, 0);
+            transport1.Received().ServerSend(1, segment, 0);
+
+            // call ServerSend on multiplex transport.
+            // multiplexed connId = 3 corresponds to connId = 1 with transport #2
+            transport.ServerSend(3, data, 0);
+            transport2.Received().ServerSend(1, segment, 0);
+        }
     }
 }
