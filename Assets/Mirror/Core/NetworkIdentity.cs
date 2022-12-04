@@ -1047,6 +1047,15 @@ namespace Mirror
                         // server always knows the initial state (initial=false)
                         // disconnect if failed, to prevent exploits etc.
                         if (!comp.Deserialize(reader, false)) return false;
+
+                        // server received state from the owner client.
+                        // set dirty so it's broadcast to other clients too.
+                        //
+                        // note that we set the _whole_ component as dirty.
+                        // everything will be broadcast to others.
+                        // SetSyncVarDirtyBits() would be nicer, but not all
+                        // components use [SyncVar]s.
+                        comp.SetDirty();
                     }
                 }
             }
