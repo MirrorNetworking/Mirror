@@ -224,11 +224,10 @@ namespace Mirror
 
         public override void ServerStart()
         {
+            AddServerCallbacks();
+
             foreach (Transport transport in transports)
-            {
-                AddServerCallbacks();
                 transport.ServerStart();
-            }
         }
 
         public override void ServerStop()
