@@ -116,8 +116,11 @@ namespace Mirror.Tests
         {
             transport1.Available().Returns(false);
             transport2.Available().Returns(true);
+
+            // connect on multiplex transport
             transport.ClientConnect("some.server.com");
 
+            // should be forwarded to available transport #2
             transport1.DidNotReceive().ClientConnect(Arg.Any<string>());
             transport2.Received().ClientConnect("some.server.com");
         }
@@ -131,7 +134,10 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport2.Available().Returns(true);
 
+            // connect on multiplext ransport
             transport.ClientConnect(uri);
+
+            // should be forwarded to available transport #1
             transport1.Received().ClientConnect(uri);
             transport2.DidNotReceive().ClientConnect(uri);
         }
@@ -152,7 +158,10 @@ namespace Mirror.Tests
 
             transport2.Available().Returns(true);
 
+            // connect on multiplex transport
             transport.ClientConnect(uri);
+
+            // should be forwarded to available transport #2
             transport2.Received().ClientConnect(uri);
         }
 
@@ -173,8 +182,10 @@ namespace Mirror.Tests
             transport1.Available().Returns(true);
             transport.ClientConnect("some.server.com");
 
+            // disconnect on multiplex transport
             transport.ClientDisconnect();
 
+            // should be forwarded to transport #1
             transport1.Received().ClientDisconnect();
         }
 
@@ -187,8 +198,10 @@ namespace Mirror.Tests
             byte[] data = { 1, 2, 3 };
             ArraySegment<byte> segment = new ArraySegment<byte>(data);
 
+            // send on multiplex transport
             transport.ClientSend(segment, 3);
 
+            // should be forwarded to to transport #1
             transport1.Received().ClientSend(segment, 3);
         }
 
