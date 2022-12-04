@@ -30,18 +30,26 @@ namespace Mirror
         //
         // instead, use a simple lookup with 0-indexed ids.
         // with initial capacity to avoid runtime allocations.
-        //   <originalId, multiplexedId>
+
+        // <original connectionId, multiplexed connectionId>
         readonly Dictionary<int, int> originalToMultiplexedId = new Dictionary<int, int>(100);
+
+        // <multiplexed connectionId, original connectionId>
         readonly Dictionary<int, int> multiplexedToOriginalId = new Dictionary<int, int>(100);
+
+        // <original connectionId, transport index>
+        readonly Dictionary<int, int> originalToTransportIndex = new Dictionary<int, int>();
+
+        // next multiplexed id counter
         int nextMultiplexedId = 0;
 
         // add to bidirection lookup. returns the multiplexed connectionId.
-        int AddToLookup(int originalConnectionId)
+        int AddToLookup(int originalConnectionId, int transportIndex)
         {
-            // add to both
             int multiplexedId = ++nextMultiplexedId;
             originalToMultiplexedId[originalConnectionId] = multiplexedId;
             multiplexedToOriginalId[multiplexedId] = originalConnectionId;
+            originalToTransportIndex[originalConnectionId] = transportIndex;
             return multiplexedId;
         }
 
@@ -51,10 +59,12 @@ namespace Mirror
             int multiplexedId = originalToMultiplexedId[originalConnectionId];
             originalToMultiplexedId.Remove(originalConnectionId);
             multiplexedToOriginalId.Remove(multiplexedId);
+            originalToTransportIndex.Remove(originalConnectionId);
         }
 
-        int MultiplexedId(int originalId) => originalToMultiplexedId[originalId];
-        int OriginalId(int multiplexedId) => multiplexedToOriginalId[multiplexedId];
+        int MultiplexedId(int originalId)  => originalToMultiplexedId[originalId];
+        int OriginalId(int multiplexedId)  => multiplexedToOriginalId[multiplexedId];
+        int TransportIndex(int originalId) => originalToTransportIndex[originalId];
 
         ////////////////////////////////////////////////////////////////////////
 
@@ -181,12 +191,15 @@ namespace Mirror
             // all underlying transports should call the multiplex transport's events
             for (int i = 0; i < transports.Length; i++)
             {
+                // this is required for the handlers, if I use i directly
+                // then all the handlers will use the last i
+                int transportIndex = i;
                 Transport transport = transports[i];
 
                 transport.OnServerConnected = (originalConnectionId =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
-                    int multiplexedId = AddToLookup(originalConnectionId);
+                    int multiplexedId = AddToLookup(originalConnectionId, transportIndex);
                     OnServerConnected.Invoke(multiplexedId);
                 });
 
@@ -233,7 +246,7 @@ namespace Mirror
         {
             // convert multiplexed connectionId to original transport + connId
             int originalConnectionId = OriginalId(connectionId);
-            int transportId = OriginalTransportId(connectionId, transports.Length);
+            int transportId = TransportIndex(originalConnectionId);
             return transports[transportId].ServerGetClientAddress(originalConnectionId);
         }
 
@@ -241,7 +254,7 @@ namespace Mirror
         {
             // convert multiplexed connectionId to original transport + connId
             int originalConnectionId = OriginalId(connectionId);
-            int transportId = OriginalTransportId(connectionId, transports.Length);
+            int transportId = TransportIndex(originalConnectionId);
             transports[transportId].ServerDisconnect(originalConnectionId);
         }
 
@@ -249,7 +262,7 @@ namespace Mirror
         {
             // convert multiplexed connectionId to original transport + connId
             int originalConnectionId = OriginalId(connectionId);
-            int transportId = OriginalTransportId(connectionId, transports.Length);
+            int transportId = TransportIndex(originalConnectionId);
             transports[transportId].ServerSend(originalConnectionId, segment, channelId);
         }
 
