@@ -92,7 +92,6 @@ namespace Mirror.Tests
             Assert.That(MultiplexTransport.OriginalTransportId(9, transportAmount), Is.EqualTo(0));
         }
 
-        // A Test behaves as an ordinary method
         [Test]
         public void TestAvailable()
         {
@@ -101,7 +100,6 @@ namespace Mirror.Tests
             Assert.That(transport.Available());
         }
 
-        // A Test behaves as an ordinary method
         [Test]
         public void TestNotAvailable()
         {
@@ -110,7 +108,6 @@ namespace Mirror.Tests
             Assert.That(transport.Available(), Is.False);
         }
 
-        // A Test behaves as an ordinary method
         [Test]
         public void TestConnect()
         {
@@ -125,7 +122,6 @@ namespace Mirror.Tests
             transport2.Received().ClientConnect("some.server.com");
         }
 
-        // A Test behaves as an ordinary method
         [Test]
         public void TestConnectFirstUri()
         {
@@ -143,7 +139,6 @@ namespace Mirror.Tests
         }
 
 
-        // A Test behaves as an ordinary method
         [Test]
         public void TestConnectSecondUri()
         {
