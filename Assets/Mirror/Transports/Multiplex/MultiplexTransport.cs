@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
@@ -11,6 +12,25 @@ namespace Mirror
         public Transport[] transports;
 
         Transport available;
+
+        // underlying transport connectionId to multiplexed connectionId lookup.
+        //
+        // originally we used a formula to map the connectionId:
+        //   connectionId * transportAmount + transportId
+        //
+        // if we have 3 transports, then
+        //   transport 0 will produce connection ids [0, 3, 6, 9, ...]
+        //   transport 1 will produce connection ids [1, 4, 7, 10, ...]
+        //   transport 2 will produce connection ids [2, 5, 8, 11, ...]
+        //
+        // however, some transports like kcp may give very large connectionIds.
+        // if they are near int.max, then "* transprotAmount + transportIndex"
+        // will overflow, resulting in connIds which can't be projected back.
+        //   https://github.com/vis2k/Mirror/issues/3280
+        //
+        // instead, use a simple lookup with 0-indexed ids.
+        // with initial capacity to avoid runtime allocations.
+        readonly Dictionary<int, int> lookup = new Dictionary<int, int>(100);
 
         // connection ids get mapped to base transports
         // if we have 3 transports, then
