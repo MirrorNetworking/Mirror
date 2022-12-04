@@ -31,14 +31,13 @@ namespace Mirror
         // instead, use a simple lookup with 0-indexed ids.
         // with initial capacity to avoid runtime allocations.
 
-        // <original connectionId, multiplexed connectionId>
-        readonly Dictionary<int, int> originalToMultiplexedId = new Dictionary<int, int>(100);
+        // <original connectionId, transport#> to multiplexed connectionId
+        readonly Dictionary<KeyValuePair<int, int>, int> originalToMultiplexedId =
+            new Dictionary<KeyValuePair<int, int>, int>(100);
 
-        // <multiplexed connectionId, original connectionId>
-        readonly Dictionary<int, int> multiplexedToOriginalId = new Dictionary<int, int>(100);
-
-        // <original connectionId, transport index>
-        readonly Dictionary<int, int> originalToTransportIndex = new Dictionary<int, int>();
+        // multiplexed connectionId to <original connectionId, transport#>
+        readonly Dictionary<int, KeyValuePair<int, int>> multiplexedToOriginalId =
+            new Dictionary<int, KeyValuePair<int, int>>(100);
 
         // next multiplexed id counter
         int nextMultiplexedId = 0;
@@ -46,25 +45,38 @@ namespace Mirror
         // add to bidirection lookup. returns the multiplexed connectionId.
         public int AddToLookup(int originalConnectionId, int transportIndex)
         {
+            // add to both
+            KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
             int multiplexedId = ++nextMultiplexedId;
-            originalToMultiplexedId[originalConnectionId] = multiplexedId;
-            multiplexedToOriginalId[multiplexedId] = originalConnectionId;
-            originalToTransportIndex[originalConnectionId] = transportIndex;
+
+            originalToMultiplexedId[pair] = multiplexedId;
+            multiplexedToOriginalId[multiplexedId] = pair;
+
             return multiplexedId;
         }
 
-        public void RemoveFromLookup(int originalConnectionId)
+        public void RemoveFromLookup(int originalConnectionId, int transportIndex)
         {
             // remove from both
-            int multiplexedId = originalToMultiplexedId[originalConnectionId];
-            originalToMultiplexedId.Remove(originalConnectionId);
+            KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
+            int multiplexedId = originalToMultiplexedId[pair];
+
+            originalToMultiplexedId.Remove(pair);
             multiplexedToOriginalId.Remove(multiplexedId);
-            originalToTransportIndex.Remove(originalConnectionId);
         }
 
-        public int MultiplexedId(int originalId)  => originalToMultiplexedId[originalId];
-        public int OriginalId(int multiplexedId)  => multiplexedToOriginalId[multiplexedId];
-        public int TransportIndex(int originalId) => originalToTransportIndex[originalId];
+        public void OriginalId(int multiplexId, out int originalConnectionId, out int transportIndex)
+        {
+            KeyValuePair<int, int> pair = multiplexedToOriginalId[multiplexId];
+            originalConnectionId = pair.Key;
+            transportIndex       = pair.Value;
+        }
+
+        public int MultiplexId(int originalConnectionId, int transportIndex)
+        {
+            KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
+            return originalToMultiplexedId[pair];
+        }
 
         ////////////////////////////////////////////////////////////////////////
 
@@ -222,7 +234,7 @@ namespace Mirror
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = MultiplexedId(originalConnectionId);
                     OnServerDisconnected.Invoke(multiplexedId);
-                    RemoveFromLookup(originalConnectionId);
+                    RemoveFromLookup(originalConnectionId, transportIndex);
                 };
             }
         }
@@ -244,26 +256,23 @@ namespace Mirror
 
         public override string ServerGetClientAddress(int connectionId)
         {
-            // convert multiplexed connectionId to original transport + connId
-            int originalConnectionId = OriginalId(connectionId);
-            int transportId = TransportIndex(originalConnectionId);
-            return transports[transportId].ServerGetClientAddress(originalConnectionId);
+            // convert multiplexed connectionId to original id & transport index
+            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
+            return transports[transportIndex].ServerGetClientAddress(originalConnectionId);
         }
 
         public override void ServerDisconnect(int connectionId)
         {
-            // convert multiplexed connectionId to original transport + connId
-            int originalConnectionId = OriginalId(connectionId);
-            int transportId = TransportIndex(originalConnectionId);
-            transports[transportId].ServerDisconnect(originalConnectionId);
+            // convert multiplexed connectionId to original id & transport index
+            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
+            transports[transportIndex].ServerDisconnect(originalConnectionId);
         }
 
         public override void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId)
         {
             // convert multiplexed connectionId to original transport + connId
-            int originalConnectionId = OriginalId(connectionId);
-            int transportId = TransportIndex(originalConnectionId);
-            transports[transportId].ServerSend(originalConnectionId, segment, channelId);
+            OriginalId(connectionId, out int originalConnectionId, out int transportIndex);
+            transports[transportIndex].ServerSend(originalConnectionId, segment, channelId);
         }
 
         public override void ServerStart()
