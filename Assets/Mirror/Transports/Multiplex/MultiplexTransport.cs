@@ -218,21 +218,21 @@ namespace Mirror
                 transport.OnServerDataReceived = (originalConnectionId, data, channel) =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
-                    int multiplexedId = MultiplexedId(originalConnectionId);
+                    int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
                     OnServerDataReceived.Invoke(multiplexedId, data, channel);
                 };
 
                 transport.OnServerError = (originalConnectionId, error, reason) =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
-                    int multiplexedId = MultiplexedId(originalConnectionId);
+                    int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
                     OnServerError.Invoke(multiplexedId, error, reason);
                 };
 
                 transport.OnServerDisconnected = originalConnectionId =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
-                    int multiplexedId = MultiplexedId(originalConnectionId);
+                    int multiplexedId = MultiplexId(originalConnectionId, transportIndex);
                     OnServerDisconnected.Invoke(multiplexedId);
                     RemoveFromLookup(originalConnectionId, transportIndex);
                 };
