@@ -262,12 +262,12 @@ namespace Mirror.Tests
 
             // call ServerSend on multiplex transport.
             // multiplexed connId = 1 represents transport #1 connId = 10
-            transport.ServerSend(1, data, 0);
+            transport.ServerSend(1, segment, 0);
             transport1.Received().ServerSend(10, segment, 0);
 
             // call ServerSend on multiplex transport.
             // multiplexed connId = 2 represents transport #2 connId = int.max
-            transport.ServerSend(2, data, 0);
+            transport.ServerSend(2, segment, 0);
             transport2.Received().ServerSend(int.MaxValue, segment, 0);
         }
     }
