@@ -1,4 +1,5 @@
 name: Acquire activation file
+if: false()
 on:
   workflow_dispatch: {}
 jobs:
