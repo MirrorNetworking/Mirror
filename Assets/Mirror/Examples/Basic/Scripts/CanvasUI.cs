@@ -10,7 +10,7 @@ namespace Mirror.Examples.Basic
         [Tooltip("Assign Players Panel for instantiating PlayerUI as child")]
         public RectTransform playersPanel;
 
-        // static instance that can be referenced directly from Player script
+        // static instance that can be referenced from static methods below.
         static CanvasUI instance;
 
         void Awake()
