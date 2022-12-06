@@ -122,10 +122,8 @@ namespace Mirror.Examples.Basic
         /// </summary>
         public override void OnStartClient()
         {
-            Debug.Log("OnStartClient");
-
             // Instantiate the player UI as child of the Players Panel
-            playerUIObject = Instantiate(playerUIPrefab, CanvasUI.instance.playersPanel);
+            playerUIObject = Instantiate(playerUIPrefab, CanvasUI.GetPlayersPanel());
             playerUI = playerUIObject.GetComponent<PlayerUI>();
 
             // wire up all events to handlers in PlayerUI
@@ -145,13 +143,11 @@ namespace Mirror.Examples.Basic
         /// </summary>
         public override void OnStartLocalPlayer()
         {
-            Debug.Log("OnStartLocalPlayer");
-
             // Set isLocalPlayer for this Player in UI for background shading
             playerUI.SetLocalPlayer();
 
             // Activate the main panel
-            CanvasUI.instance.mainPanel.gameObject.SetActive(true);
+            CanvasUI.SetActive(true);
         }
 
         /// <summary>
@@ -161,7 +157,7 @@ namespace Mirror.Examples.Basic
         public override void OnStopLocalPlayer()
         {
             // Disable the main panel for local player
-            CanvasUI.instance.mainPanel.gameObject.SetActive(false);
+            CanvasUI.SetActive(false);
         }
 
         /// <summary>
