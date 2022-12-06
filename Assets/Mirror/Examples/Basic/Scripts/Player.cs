@@ -3,18 +3,21 @@ using UnityEngine;
 
 namespace Mirror.Examples.Basic
 {
+    [RequireComponent(typeof (PlayerData))]
     public class Player : NetworkBehaviour
     {
         // Events that the PlayerUI will subscribe to
         public event System.Action<byte> OnPlayerNumberChanged;
         public event System.Action<Color32> OnPlayerColorChanged;
-        public event System.Action<ushort> OnPlayerDataChanged;
 
         // Players List to manage playerNumber
         static readonly List<Player> playersList = new List<Player>();
 
-        [Header("Player UI")]
+        [Header("Player UI Prefab")]
         public GameObject playerUIPrefab;
+
+        [Header("Player Data Component")]
+        public PlayerData playerData;
 
         GameObject playerUIObject;
         PlayerUI playerUI = null;
@@ -35,12 +38,6 @@ namespace Mirror.Examples.Basic
         [SyncVar(hook = nameof(PlayerColorChanged))]
         public Color32 playerColor = Color.white;
 
-        /// <summary>
-        /// This is updated by UpdateData which is called from OnStartServer via InvokeRepeating
-        /// </summary>
-        [SyncVar(hook = nameof(PlayerDataChanged))]
-        public ushort playerData = 0;
-
         // This is called by the hook of playerNumber SyncVar above
         void PlayerNumberChanged(byte _, byte newPlayerNumber)
         {
@@ -53,10 +50,13 @@ namespace Mirror.Examples.Basic
             OnPlayerColorChanged?.Invoke(newPlayerColor);
         }
 
-        // This is called by the hook of playerData SyncVar above
-        void PlayerDataChanged(ushort _, ushort newPlayerData)
+        #endregion
+
+        #region Unity Callbacks
+
+        void OnValidate()
         {
-            OnPlayerDataChanged?.Invoke(newPlayerData);
+            playerData = GetComponent<PlayerData>();
         }
 
         #endregion
@@ -70,19 +70,21 @@ namespace Mirror.Examples.Basic
         /// </summary>
         public override void OnStartServer()
         {
-            base.OnStartServer();
-
             // Add this to the static Players List
             playersList.Add(this);
 
             // set the Player Color SyncVar
             playerColor = Random.ColorHSV(0f, 1f, 0.9f, 0.9f, 1f, 1f);
+        }
 
-            // set the initial player data
-            playerData = (ushort)Random.Range(100, 1000);
-
-            // Start generating updates
-            InvokeRepeating(nameof(UpdateData), 1, 1);
+        /// <summary>
+        /// Invoked on the server when the object is unspawned
+        /// <para>Useful for saving object data in persistent storage</para>
+        /// </summary>
+        public override void OnStopServer()
+        {
+            // Remove this from the static Players List
+            playersList.Remove(this);
         }
 
         // This is called from BasicNetManager OnServerAddPlayer and OnServerDisconnect
@@ -93,23 +95,6 @@ namespace Mirror.Examples.Basic
             byte playerNumber = 0;
             foreach (Player player in playersList)
                 player.playerNumber = playerNumber++;
-        }
-
-        // This only runs on the server, called from OnStartServer via InvokeRepeating
-        [ServerCallback]
-        void UpdateData()
-        {
-            playerData = (ushort)Random.Range(100, 1000);
-        }
-
-        /// <summary>
-        /// Invoked on the server when the object is unspawned
-        /// <para>Useful for saving object data in persistent storage</para>
-        /// </summary>
-        public override void OnStopServer()
-        {
-            CancelInvoke();
-            playersList.Remove(this);
         }
 
         #endregion
@@ -124,17 +109,20 @@ namespace Mirror.Examples.Basic
         {
             // Instantiate the player UI as child of the Players Panel
             playerUIObject = Instantiate(playerUIPrefab, CanvasUI.GetPlayersPanel());
+            
+            // Set component reference
             playerUI = playerUIObject.GetComponent<PlayerUI>();
 
-            // wire up all events to handlers in PlayerUI
+            // Copy component reference to playerData component
+            playerData.playerUI = playerUI;
+
+            // Wire up events to handlers in PlayerUI
             OnPlayerNumberChanged = playerUI.OnPlayerNumberChanged;
             OnPlayerColorChanged = playerUI.OnPlayerColorChanged;
-            OnPlayerDataChanged = playerUI.OnPlayerDataChanged;
 
-            // Invoke all event handlers with the initial data from spawn payload
+            // Invoke event handlers with the initial data from spawn payload
             OnPlayerNumberChanged.Invoke(playerNumber);
             OnPlayerColorChanged.Invoke(playerColor);
-            OnPlayerDataChanged.Invoke(playerData);
         }
 
         /// <summary>
@@ -143,9 +131,6 @@ namespace Mirror.Examples.Basic
         /// </summary>
         public override void OnStartLocalPlayer()
         {
-            // Set isLocalPlayer for this Player in UI for background shading
-            playerUI.SetLocalPlayer();
-
             // Activate the main panel
             CanvasUI.SetActive(true);
         }
@@ -166,10 +151,9 @@ namespace Mirror.Examples.Basic
         /// </summary>
         public override void OnStopClient()
         {
-            // disconnect event handlers
+            // Disconnect event handlers
             OnPlayerNumberChanged = null;
             OnPlayerColorChanged = null;
-            OnPlayerDataChanged = null;
 
             // Remove this player's UI object
             Destroy(playerUIObject);
