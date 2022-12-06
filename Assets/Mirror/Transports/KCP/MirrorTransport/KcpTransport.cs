@@ -62,13 +62,13 @@ namespace kcp2k
         public bool statisticsLog;
 
         // translate Kcp <-> Mirror channels
-        public static int FromKcpChannel(KcpChannel channel) =>
+        static int FromKcpChannel(KcpChannel channel) =>
             channel == KcpChannel.Reliable ? Channels.Reliable : Channels.Unreliable;
 
-        public static KcpChannel ToKcpChannel(int channel) =>
+        static KcpChannel ToKcpChannel(int channel) =>
             channel == Channels.Reliable ? KcpChannel.Reliable : KcpChannel.Unreliable;
 
-        public static TransportError ToTransportError(ErrorCode error)
+        TransportError ToTransportError(ErrorCode error)
         {
             switch(error)
             {
@@ -150,8 +150,8 @@ namespace kcp2k
         void OnValidate()
         {
             // show max message sizes in inspector for convenience
-            ReliableMaxMessageSize = KcpPeer.ReliableMaxMessageSize(ReceiveWindowSize);
-            UnreliableMaxMessageSize = KcpPeer.UnreliableMaxMessageSize;
+            ReliableMaxMessageSize = KcpConnection.ReliableMaxMessageSize(ReceiveWindowSize);
+            UnreliableMaxMessageSize = KcpConnection.UnreliableMaxMessageSize;
         }
 
         // all except WebGL
@@ -238,9 +238,9 @@ namespace kcp2k
             switch (channelId)
             {
                 case Channels.Unreliable:
-                    return KcpPeer.UnreliableMaxMessageSize;
+                    return KcpConnection.UnreliableMaxMessageSize;
                 default:
-                    return KcpPeer.ReliableMaxMessageSize(ReceiveWindowSize);
+                    return KcpConnection.ReliableMaxMessageSize(ReceiveWindowSize);
             }
         }
 
@@ -253,27 +253,27 @@ namespace kcp2k
         // => instead we always use MTU sized batches.
         // => people can still send maxed size if needed.
         public override int GetBatchThreshold(int channelId) =>
-            KcpPeer.UnreliableMaxMessageSize;
+            KcpConnection.UnreliableMaxMessageSize;
 
         // server statistics
         // LONG to avoid int overflows with connections.Sum.
         // see also: https://github.com/vis2k/Mirror/pull/2777
         public long GetAverageMaxSendRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (long)conn.peer.MaxSendRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => (long)conn.MaxSendRate) / server.connections.Count
                 : 0;
         public long GetAverageMaxReceiveRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (long)conn.peer.MaxReceiveRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => (long)conn.MaxReceiveRate) / server.connections.Count
                 : 0;
         long GetTotalSendQueue() =>
-            server.connections.Values.Sum(conn => conn.peer.SendQueueCount);
+            server.connections.Values.Sum(conn => conn.SendQueueCount);
         long GetTotalReceiveQueue() =>
-            server.connections.Values.Sum(conn => conn.peer.ReceiveQueueCount);
+            server.connections.Values.Sum(conn => conn.ReceiveQueueCount);
         long GetTotalSendBuffer() =>
-            server.connections.Values.Sum(conn => conn.peer.SendBufferCount);
+            server.connections.Values.Sum(conn => conn.SendBufferCount);
         long GetTotalReceiveBuffer() =>
-            server.connections.Values.Sum(conn => conn.peer.ReceiveBufferCount);
+            server.connections.Values.Sum(conn => conn.ReceiveBufferCount);
 
         // PrettyBytes function from DOTSNET
         // pretty prints bytes as KB/MB/GB/etc.
@@ -320,12 +320,12 @@ namespace kcp2k
             {
                 GUILayout.BeginVertical("Box");
                 GUILayout.Label("CLIENT");
-                GUILayout.Label($"  MaxSendRate: {PrettyBytes(client.peer.MaxSendRate)}/s");
-                GUILayout.Label($"  MaxRecvRate: {PrettyBytes(client.peer.MaxReceiveRate)}/s");
-                GUILayout.Label($"  SendQueue: {client.peer.SendQueueCount}");
-                GUILayout.Label($"  ReceiveQueue: {client.peer.ReceiveQueueCount}");
-                GUILayout.Label($"  SendBuffer: {client.peer.SendBufferCount}");
-                GUILayout.Label($"  ReceiveBuffer: {client.peer.ReceiveBufferCount}");
+                GUILayout.Label($"  MaxSendRate: {PrettyBytes(client.connection.MaxSendRate)}/s");
+                GUILayout.Label($"  MaxRecvRate: {PrettyBytes(client.connection.MaxReceiveRate)}/s");
+                GUILayout.Label($"  SendQueue: {client.connection.SendQueueCount}");
+                GUILayout.Label($"  ReceiveQueue: {client.connection.ReceiveQueueCount}");
+                GUILayout.Label($"  SendBuffer: {client.connection.SendBufferCount}");
+                GUILayout.Label($"  ReceiveBuffer: {client.connection.ReceiveBufferCount}");
                 GUILayout.EndVertical();
             }
 
@@ -351,12 +351,12 @@ namespace kcp2k
             if (ClientConnected())
             {
                 string log = "kcp CLIENT @ time: " + NetworkTime.localTime + "\n";
-                log += $"  MaxSendRate: {PrettyBytes(client.peer.MaxSendRate)}/s\n";
-                log += $"  MaxRecvRate: {PrettyBytes(client.peer.MaxReceiveRate)}/s\n";
-                log += $"  SendQueue: {client.peer.SendQueueCount}\n";
-                log += $"  ReceiveQueue: {client.peer.ReceiveQueueCount}\n";
-                log += $"  SendBuffer: {client.peer.SendBufferCount}\n";
-                log += $"  ReceiveBuffer: {client.peer.ReceiveBufferCount}\n\n";
+                log += $"  MaxSendRate: {PrettyBytes(client.connection.MaxSendRate)}/s\n";
+                log += $"  MaxRecvRate: {PrettyBytes(client.connection.MaxReceiveRate)}/s\n";
+                log += $"  SendQueue: {client.connection.SendQueueCount}\n";
+                log += $"  ReceiveQueue: {client.connection.ReceiveQueueCount}\n";
+                log += $"  SendBuffer: {client.connection.SendBufferCount}\n";
+                log += $"  ReceiveBuffer: {client.connection.ReceiveBufferCount}\n\n";
                 Debug.Log(log);
             }
         }

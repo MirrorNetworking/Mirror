@@ -57,15 +57,15 @@ namespace kcp2k
         protected Socket socket;
         EndPoint newClientEP;
 
-        // raw receive buffer always needs to be of 'MTU' size, even if
-        // MaxMessageSize is larger. kcp always sends in MTU segments and having
-        // a buffer smaller than MTU would silently drop excess data.
-        // => we need the mtu to fit channel + message!
+        // IMPORTANT: raw receive buffer always needs to be of 'MTU' size, even
+        //            if MaxMessageSize is larger. kcp always sends in MTU
+        //            segments and having a buffer smaller than MTU would
+        //            silently drop excess data.
+        //            => we need the mtu to fit channel + message!
         readonly byte[] rawReceiveBuffer = new byte[Kcp.MTU_DEF];
 
         // connections <connectionId, connection> where connectionId is EndPoint.GetHashCode
-        public Dictionary<int, KcpServerConnection> connections =
-            new Dictionary<int, KcpServerConnection>();
+        public Dictionary<int, KcpServerConnection> connections = new Dictionary<int, KcpServerConnection>();
 
         public KcpServer(Action<int> OnConnected,
                          Action<int, ArraySegment<byte>, KcpChannel> OnData,
@@ -78,7 +78,7 @@ namespace kcp2k
                          bool CongestionWindow = true,
                          uint SendWindowSize = Kcp.WND_SND,
                          uint ReceiveWindowSize = Kcp.WND_RCV,
-                         int Timeout = KcpPeer.DEFAULT_TIMEOUT,
+                         int Timeout = KcpConnection.DEFAULT_TIMEOUT,
                          uint MaxRetransmits = Kcp.DEADLINK,
                          bool MaximizeSendReceiveBuffersToOSLimit = false)
         {
@@ -103,15 +103,33 @@ namespace kcp2k
                           : new IPEndPoint(IPAddress.Any, 0);
         }
 
-        public virtual bool IsActive() => socket != null;
+        public bool IsActive() => socket != null;
 
-        public virtual void Start(ushort port)
+        // if connections drop under heavy load, increase to OS limit.
+        // if still not enough, increase the OS limit.
+        void ConfigureSocketBufferSizes()
+        {
+            if (MaximizeSendReceiveBuffersToOSLimit)
+            {
+                // log initial size for comparison.
+                // remember initial size for log comparison
+                int initialReceive = socket.ReceiveBufferSize;
+                int initialSend = socket.SendBufferSize;
+
+                socket.SetReceiveBufferToOSLimit();
+                socket.SetSendBufferToOSLimit();
+                Log.Info($"KcpServer: RecvBuf = {initialReceive}=>{socket.ReceiveBufferSize} ({socket.ReceiveBufferSize/initialReceive}x) SendBuf = {initialSend}=>{socket.SendBufferSize} ({socket.SendBufferSize/initialSend}x) increased to OS limits!");
+            }
+            // otherwise still log the defaults for info.
+            else Log.Info($"KcpServer: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+        }
+
+        public void Start(ushort port)
         {
             // only start once
             if (socket != null)
             {
                 Log.Warning("KCP: server already started!");
-                return;
             }
 
             // listen
@@ -129,22 +147,15 @@ namespace kcp2k
                 socket.Bind(new IPEndPoint(IPAddress.Any, port));
             }
 
-            // configure buffer sizes:
-            // if connections drop under heavy load, increase to OS limit.
-            // if still not enough, increase the OS limit.
-            if (MaximizeSendReceiveBuffersToOSLimit)
-            {
-                Common.MaximizeSocketBuffers(socket);
-            }
-            // otherwise still log the defaults for info.
-            else Log.Info($"KcpServer: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+            // configure socket buffer size.
+            ConfigureSocketBufferSizes();
         }
 
         public void Send(int connectionId, ArraySegment<byte> segment, KcpChannel channel)
         {
             if (connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                connection.peer.SendData(segment, channel);
+                connection.SendData(segment, channel);
             }
         }
 
@@ -152,7 +163,7 @@ namespace kcp2k
         {
             if (connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                connection.peer.Disconnect();
+                connection.Disconnect();
             }
         }
 
@@ -161,33 +172,23 @@ namespace kcp2k
         {
             if (connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                return connection.remoteEndPoint as IPEndPoint;
+                return (connection.GetRemoteEndPoint() as IPEndPoint);
             }
             return null;
         }
 
-        // io - poll.
-        // return true if there is data to read.
-        // after which RawReceive will be called.
-        // virtual because for relays,
-        protected virtual bool RawPoll() =>
-            socket != null && socket.Poll(0, SelectMode.SelectRead);
-
-        // io - input.
-        // virtual so it may be modified for relays, nonalloc workaround, etc.
+        // EndPoint & Receive functions can be overwritten for where-allocation:
         // https://github.com/vis2k/where-allocation
-        // bool return because not all receives may be valid.
-        // for example, relay may expect a certain header.
-        protected virtual bool RawReceive(byte[] buffer, out int size, out int connectionId)
+        protected virtual int ReceiveFrom(byte[] buffer, out int connectionHash)
         {
             // NOTE: ReceiveFrom allocates.
             //   we pass our IPEndPoint to ReceiveFrom.
             //   receive from calls newClientEP.Create(socketAddr).
             //   IPEndPoint.Create always returns a new IPEndPoint.
             //   https://github.com/mono/mono/blob/f74eed4b09790a0929889ad7fc2cf96c9b6e3757/mcs/class/System/System.Net.Sockets/Socket.cs#L1761
-            size = socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP);
+            int read = socket.ReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref newClientEP);
 
-            // set connectionId to hash from endpoint
+            // calculate connectionHash from endpoint
             // NOTE: IPEndPoint.GetHashCode() allocates.
             //  it calls m_Address.GetHashCode().
             //  m_Address is an IPAddress.
@@ -196,161 +197,144 @@ namespace kcp2k
             //
             // => using only newClientEP.Port wouldn't work, because
             //    different connections can have the same port.
-            connectionId = newClientEP.GetHashCode();
-            return true;
+            connectionHash = newClientEP.GetHashCode();
+            return read;
         }
 
-        // io - out.
-        // virtual so it may be modified for relays, nonalloc workaround, etc.
-        // relays may need to prefix connId (and remoteEndPoint would be same for all)
-        protected virtual void RawSend(int connectionId, ArraySegment<byte> data, EndPoint remoteEndPoint)
-        {
-            socket.SendTo(data.Array, data.Offset, data.Count, SocketFlags.None, remoteEndPoint);
-        }
-
-        protected virtual KcpServerConnection CreateConnection(int connectionId)
-        {
-            // attach EndPoint EP to RawSend.
-            // kcp needs a simple RawSend(byte[]) function.
-            Action<ArraySegment<byte>> RawSendWrap =
-                data => RawSend(connectionId, data, newClientEP);
-
-            KcpPeer peer = new KcpPeer(RawSendWrap, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
-            return new KcpServerConnection(peer, newClientEP);
-        }
-
-        // receive + add + process once.
-        // best to call this as long as there is more data to receive.
-        void ProcessNext()
-        {
-            try
-            {
-                // receive from socket.
-                // returns amount of bytes written into buffer.
-                // throws SocketException if datagram was larger than buffer.
-                // https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.receive?view=net-6.0
-                if (!RawReceive(rawReceiveBuffer, out int size, out int connectionId))
-                    return;
-
-                //Log.Info($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
-
-                // is this a new connection?
-                if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
-                {
-                    // create a new KcpConnection based on last received
-                    // EndPoint. can be overwritten for where-allocation.
-                    connection = CreateConnection(connectionId);
-
-                    // DO NOT add to connections yet. only if the first message
-                    // is actually the kcp handshake. otherwise it's either:
-                    // * random data from the internet
-                    // * or from a client connection that we just disconnected
-                    //   but that hasn't realized it yet, still sending data
-                    //   from last session that we should absolutely ignore.
-                    //
-                    //
-                    // TODO this allocates a new KcpConnection for each new
-                    // internet connection. not ideal, but C# UDP Receive
-                    // already allocated anyway.
-                    //
-                    // expecting a MAGIC byte[] would work, but sending the raw
-                    // UDP message without kcp's reliability will have low
-                    // probability of being received.
-                    //
-                    // for now, this is fine.
-
-                    // setup authenticated event that also adds to connections
-                    connection.peer.OnAuthenticated = () =>
-                    {
-                        // only send handshake to client AFTER we received his
-                        // handshake in OnAuthenticated.
-                        // we don't want to reply to random internet messages
-                        // with handshakes each time.
-                        connection.peer.SendHandshake();
-
-                        // add to connections dict after being authenticated.
-                        connections.Add(connectionId, connection);
-                        Log.Info($"KCP: server added connection({connectionId})");
-
-                        // setup Data + Disconnected events only AFTER the
-                        // handshake. we don't want to fire OnServerDisconnected
-                        // every time we receive invalid random data from the
-                        // internet.
-
-                        // setup data event
-                        connection.peer.OnData = (message, channel) =>
-                        {
-                            // call mirror event
-                            //Log.Info($"KCP: OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
-                            OnData.Invoke(connectionId, message, channel);
-                        };
-
-                        // setup disconnected event
-                        connection.peer.OnDisconnected = () =>
-                        {
-                            // flag for removal
-                            // (can't remove directly because connection is updated
-                            //  and event is called while iterating all connections)
-                            connectionsToRemove.Add(connectionId);
-
-                            // call mirror event
-                            Log.Info($"KCP: OnServerDisconnected({connectionId})");
-                            OnDisconnected(connectionId);
-                        };
-
-                        // setup error event
-                        connection.peer.OnError = (error, reason) =>
-                        {
-                            OnError(connectionId, error, reason);
-                        };
-
-                        // finally, call mirror OnConnected event
-                        Log.Info($"KCP: OnServerConnected({connectionId})");
-                        OnConnected(connectionId);
-                    };
-
-                    // now input the message & process received ones
-                    // connected event was set up.
-                    // tick will process the first message and adds the
-                    // connection if it was the handshake.
-                    connection.peer.RawInput(rawReceiveBuffer, 0, size);
-                    connection.peer.TickIncoming();
-
-                    // again, do not add to connections.
-                    // if the first message wasn't the kcp handshake then
-                    // connection will simply be garbage collected.
-                }
-                // existing connection: simply input the message into kcp
-                else
-                {
-                    connection.peer.RawInput(rawReceiveBuffer, 0, size);
-                }
-            }
-            // this is fine, the socket might have been closed in the other end
-            catch (SocketException ex)
-            {
-                // the other end closing the connection is not an 'error'.
-                // but connections should never just end silently.
-                // at least log a message for easier debugging.
-                Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
-            }
-        }
+        protected virtual KcpServerConnection CreateConnection() =>
+            new KcpServerConnection(socket, newClientEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
 
         // process incoming messages. should be called before updating the world.
-        // virtual because relay may need to inject their own ping or similar.
         HashSet<int> connectionsToRemove = new HashSet<int>();
-        public virtual void TickIncoming()
+        public void TickIncoming()
         {
-            while (RawPoll())
+            while (socket != null && socket.Poll(0, SelectMode.SelectRead))
             {
-                ProcessNext();
+                try
+                {
+                    // receive
+                    int msgLength = ReceiveFrom(rawReceiveBuffer, out int connectionId);
+                    //Log.Info($"KCP: server raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
+
+                    // IMPORTANT: detect if buffer was too small for the received
+                    //            msgLength. otherwise the excess data would be
+                    //            silently lost.
+                    //            (see ReceiveFrom documentation)
+                    if (msgLength <= rawReceiveBuffer.Length)
+                    {
+                        // is this a new connection?
+                        if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
+                        {
+                            // create a new KcpConnection based on last received
+                            // EndPoint. can be overwritten for where-allocation.
+                            connection = CreateConnection();
+
+                            // DO NOT add to connections yet. only if the first message
+                            // is actually the kcp handshake. otherwise it's either:
+                            // * random data from the internet
+                            // * or from a client connection that we just disconnected
+                            //   but that hasn't realized it yet, still sending data
+                            //   from last session that we should absolutely ignore.
+                            //
+                            //
+                            // TODO this allocates a new KcpConnection for each new
+                            // internet connection. not ideal, but C# UDP Receive
+                            // already allocated anyway.
+                            //
+                            // expecting a MAGIC byte[] would work, but sending the raw
+                            // UDP message without kcp's reliability will have low
+                            // probability of being received.
+                            //
+                            // for now, this is fine.
+
+                            // setup authenticated event that also adds to connections
+                            connection.OnAuthenticated = () =>
+                            {
+                                // only send handshake to client AFTER we received his
+                                // handshake in OnAuthenticated.
+                                // we don't want to reply to random internet messages
+                                // with handshakes each time.
+                                connection.SendHandshake();
+
+                                // add to connections dict after being authenticated.
+                                connections.Add(connectionId, connection);
+                                Log.Info($"KCP: server added connection({connectionId})");
+
+                                // setup Data + Disconnected events only AFTER the
+                                // handshake. we don't want to fire OnServerDisconnected
+                                // every time we receive invalid random data from the
+                                // internet.
+
+                                // setup data event
+                                connection.OnData = (message, channel) =>
+                                {
+                                    // call mirror event
+                                    //Log.Info($"KCP: OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
+                                    OnData.Invoke(connectionId, message, channel);
+                                };
+
+                                // setup disconnected event
+                                connection.OnDisconnected = () =>
+                                {
+                                    // flag for removal
+                                    // (can't remove directly because connection is updated
+                                    //  and event is called while iterating all connections)
+                                    connectionsToRemove.Add(connectionId);
+
+                                    // call mirror event
+                                    Log.Info($"KCP: OnServerDisconnected({connectionId})");
+                                    OnDisconnected(connectionId);
+                                };
+
+                                // setup error event
+                                connection.OnError = (error, reason) =>
+                                {
+                                    OnError(connectionId, error, reason);
+                                };
+
+                                // finally, call mirror OnConnected event
+                                Log.Info($"KCP: OnServerConnected({connectionId})");
+                                OnConnected(connectionId);
+                            };
+
+                            // now input the message & process received ones
+                            // connected event was set up.
+                            // tick will process the first message and adds the
+                            // connection if it was the handshake.
+                            connection.RawInput(rawReceiveBuffer, msgLength);
+                            connection.TickIncoming();
+
+                            // again, do not add to connections.
+                            // if the first message wasn't the kcp handshake then
+                            // connection will simply be garbage collected.
+                        }
+                        // existing connection: simply input the message into kcp
+                        else
+                        {
+                            connection.RawInput(rawReceiveBuffer, msgLength);
+                        }
+                    }
+                    else
+                    {
+                        Log.Error($"KCP Server: message of size {msgLength} does not fit into buffer of size {rawReceiveBuffer.Length}. The excess was silently dropped. Disconnecting connectionId={connectionId}.");
+                        Disconnect(connectionId);
+                    }
+                }
+                // this is fine, the socket might have been closed in the other end
+                catch (SocketException ex)
+                {
+                    // the other end closing the connection is not an 'error'.
+                    // but connections should never just end silently.
+                    // at least log a message for easier debugging.
+                    Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                }
             }
 
             // process inputs for all server connections
             // (even if we didn't receive anything. need to tick ping etc.)
             foreach (KcpServerConnection connection in connections.Values)
             {
-                connection.peer.TickIncoming();
+                connection.TickIncoming();
             }
 
             // remove disconnected connections
@@ -364,26 +348,25 @@ namespace kcp2k
         }
 
         // process outgoing messages. should be called after updating the world.
-        // virtual because relay may need to inject their own ping or similar.
-        public virtual void TickOutgoing()
+        public void TickOutgoing()
         {
             // flush all server connections
             foreach (KcpServerConnection connection in connections.Values)
             {
-                connection.peer.TickOutgoing();
+                connection.TickOutgoing();
             }
         }
 
         // process incoming and outgoing for convenience.
         // => ideally call ProcessIncoming() before updating the world and
         //    ProcessOutgoing() after updating the world for minimum latency
-        public virtual void Tick()
+        public void Tick()
         {
             TickIncoming();
             TickOutgoing();
         }
 
-        public virtual void Stop()
+        public void Stop()
         {
             socket?.Close();
             socket = null;
