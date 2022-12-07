@@ -1,5 +1,11 @@
-V1.22 [2022-11-24]
-- KcpPeer.RawInput: add offset parameter
+V1.23 [2022-12-07]
+- KcpClient: rawReceiveBuffer exposed
+- fix: KcpServer RawSend uses connection.remoteEndPoint instead of the helper
+  'newClientEP'. fixes clients receiving the wrong messages meant for others.
+  https://github.com/MirrorNetworking/Mirror/issues/3296
+
+V1.22 [2022-11-30]
+- high level refactor, part two.
 
 V1.21 [2022-11-24]
 - high level refactor, part one.

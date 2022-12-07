@@ -3,6 +3,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 using WhereAllocation;
 
 namespace kcp2k
@@ -58,10 +59,19 @@ namespace kcp2k
         }
 
         // make sure to pass IPEndPointNonAlloc as remoteEndPoint
-        protected override void RawSend(int connectionId, ArraySegment<byte> data, EndPoint remoteEndPoint)
+        protected override void RawSend(int connectionId, ArraySegment<byte> data)
         {
-            // where-allocation nonalloc send
-            socket.SendTo_NonAlloc(data.Array, data.Offset, data.Count, SocketFlags.None, remoteEndPoint as IPEndPointNonAlloc);
+            // get the connection's endpoint
+            if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
+            {
+                Debug.LogWarning($"KcpServerNonAlloc.RawSend: invalid connectionId={connectionId}");
+                return;
+            }
+
+            // where-allocation nonalloc send to the endpoint.
+            // do not send to 'newClientEP', as that's always reused.
+            // fixes https://github.com/MirrorNetworking/Mirror/issues/3296
+            socket.SendTo_NonAlloc(data.Array, data.Offset, data.Count, SocketFlags.None, connection.remoteEndPoint as IPEndPointNonAlloc);
         }
 
         protected override KcpServerConnection CreateConnection(int connectionId)
@@ -73,15 +83,15 @@ namespace kcp2k
 
             // for allocation free sending, we also need another
             // IPEndPointNonAlloc...
-            IPEndPointNonAlloc reusableSendEP = new IPEndPointNonAlloc(newClientEP.Address, newClientEP.Port);
+            IPEndPointNonAlloc endPointNonAlloc = new IPEndPointNonAlloc(newClientEP.Address, newClientEP.Port);
 
-            // attach reusable EP to RawSend.
+            // attach conectionId to RawSend.
             // kcp needs a simple RawSend(byte[]) function.
             Action<ArraySegment<byte>> RawSendWrap =
-                data => RawSend(connectionId, data, reusableSendEP);
+                data => RawSend(connectionId, data);
 
             KcpPeer peer = new KcpPeer(RawSendWrap, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
-            return new KcpServerConnection(peer, newClientEP);
+            return new KcpServerConnection(peer, endPointNonAlloc);
         }
     }
 }
