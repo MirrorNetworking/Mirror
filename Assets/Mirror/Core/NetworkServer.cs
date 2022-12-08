@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mirror.Core.Events;
 using Mirror.RemoteCalls;
 using UnityEngine;
 
@@ -159,6 +160,9 @@ namespace Mirror
             RegisterHandler<NetworkPingMessage>(NetworkTime.OnServerPing, false);
             RegisterHandler<EntityStateMessage>(OnEntityStateMessage, true);
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
+
+            // Register event handlers
+            EventManager.Server_Register();
         }
 
         /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
@@ -214,6 +218,9 @@ namespace Mirror
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         public static void Shutdown()
         {
+            // Stop listening to network events
+            EventManager.Server_Unregister();
+
             if (initialized)
             {
                 DisconnectAll();

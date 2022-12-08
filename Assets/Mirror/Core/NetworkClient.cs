@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mirror.Core.Events;
 using Mirror.RemoteCalls;
 using UnityEngine;
 
@@ -173,6 +174,9 @@ namespace Mirror
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
             RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
             RegisterHandler<RpcBufferMessage>(OnRPCBufferMessage);
+
+            // Register event handlers
+            EventManager.Client_Register();
         }
 
         // connect /////////////////////////////////////////////////////////////
@@ -187,6 +191,7 @@ namespace Mirror
             InitTimeInterpolation();
 
             RegisterSystemHandlers(hostMode);
+
             Transport.active.enabled = true;
         }
 
@@ -1661,6 +1666,9 @@ namespace Mirror
         public static void Shutdown()
         {
             //Debug.Log("Shutting down client.");
+
+            // Stop listening to network events
+            EventManager.Client_Unregister();
 
             // calls prefabs.Clear();
             // calls spawnHandlers.Clear();
