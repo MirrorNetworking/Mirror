@@ -293,6 +293,19 @@ namespace Mirror
                 writer.Write(array[i]);
         }
 
+        public static void WriteHashSet<T>(this NetworkWriter writer, HashSet<T> hashSet)
+        {
+            if (hashSet is null)
+            {
+                writer.WriteInt(-1);
+                return;
+            }
+            writer.WriteInt(hashSet.Count);
+            foreach (T item in hashSet)
+                writer.Write(item);
+        }
+
+
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
             writer.WriteString(uri?.ToString());
