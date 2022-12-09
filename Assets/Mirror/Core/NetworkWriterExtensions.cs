@@ -269,6 +269,9 @@ namespace Mirror
             writer.WriteNetworkIdentity(identity);
         }
 
+        // while SyncList<T> is recommended for NetworkBehaviours,
+        // structs may have .List<T> members which weaver needs to be able to
+        // fully serialize for NetworkMessages etc.
         public static void WriteList<T>(this NetworkWriter writer, List<T> list)
         {
             if (list is null)
@@ -281,6 +284,9 @@ namespace Mirror
                 writer.Write(list[i]);
         }
 
+        // while SyncSet<T> is recommended for NetworkBehaviours,
+        // structs may have .Set<T> members which weaver needs to be able to
+        // fully serialize for NetworkMessages etc.
         public static void WriteHashSet<T>(this NetworkWriter writer, HashSet<T> hashSet)
         {
             if (hashSet is null)

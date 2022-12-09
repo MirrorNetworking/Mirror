@@ -236,6 +236,9 @@ namespace Mirror
             return networkIdentity != null ? networkIdentity.gameObject : null;
         }
 
+        // while SyncList<T> is recommended for NetworkBehaviours,
+        // structs may have .List<T> members which weaver needs to be able to
+        // fully serialize for NetworkMessages etc.
         public static List<T> ReadList<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();
@@ -249,6 +252,9 @@ namespace Mirror
             return result;
         }
 
+        // while SyncSet<T> is recommended for NetworkBehaviours,
+        // structs may have .Set<T> members which weaver needs to be able to
+        // fully serialize for NetworkMessages etc.
         public static HashSet<T> ReadHashSet<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();
