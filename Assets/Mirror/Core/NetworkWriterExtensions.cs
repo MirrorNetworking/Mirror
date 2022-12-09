@@ -281,18 +281,6 @@ namespace Mirror
                 writer.Write(list[i]);
         }
 
-        public static void WriteArray<T>(this NetworkWriter writer, T[] array)
-        {
-            if (array is null)
-            {
-                writer.WriteInt(-1);
-                return;
-            }
-            writer.WriteInt(array.Length);
-            for (int i = 0; i < array.Length; i++)
-                writer.Write(array[i]);
-        }
-
         public static void WriteHashSet<T>(this NetworkWriter writer, HashSet<T> hashSet)
         {
             if (hashSet is null)
@@ -305,6 +293,17 @@ namespace Mirror
                 writer.Write(item);
         }
 
+        public static void WriteArray<T>(this NetworkWriter writer, T[] array)
+        {
+            if (array is null)
+            {
+                writer.WriteInt(-1);
+                return;
+            }
+            writer.WriteInt(array.Length);
+            for (int i = 0; i < array.Length; i++)
+                writer.Write(array[i]);
+        }
 
         public static void WriteUri(this NetworkWriter writer, Uri uri)
         {
