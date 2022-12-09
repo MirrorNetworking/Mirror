@@ -62,7 +62,7 @@ namespace kcp2k
         {
             if (connected)
             {
-                Log.Warning("KCP: client already connected!");
+                Log.Warning("[KCP] client already connected!");
                 return;
             }
 
@@ -72,7 +72,7 @@ namespace kcp2k
             // setup events
             peer.OnAuthenticated = () =>
             {
-                Log.Info($"KCP: OnClientConnected");
+                Log.Info($"[KCP] OnClientConnected");
                 connected = true;
                 OnConnected();
             };
@@ -83,7 +83,7 @@ namespace kcp2k
             };
             peer.OnDisconnected = () =>
             {
-                Log.Info($"KCP: OnClientDisconnected");
+                Log.Info($"[KCP] OnClientDisconnected");
                 connected = false;
                 peer = null;
                 socket?.Close();
@@ -96,13 +96,13 @@ namespace kcp2k
                 OnError(error, reason);
             };
 
-            Log.Info($"KcpClient: connect to {address}:{port}");
+            Log.Info($"[KCP] Client connecting to {address}:{port}");
 
             // try resolve host name
             if (!Common.ResolveHostname(address, out IPAddress[] addresses))
             {
                 // pass error to user callback. no need to log it manually.
-                peer.OnError(ErrorCode.DnsResolve, $"Failed to resolve host: {address}");
+                peer.OnError(ErrorCode.DnsResolve, $"[KCP] Failed to resolve host: {address}");
                 peer.OnDisconnected();
                 return;
             }
@@ -119,7 +119,7 @@ namespace kcp2k
                 Common.MaximizeSocketBuffers(socket);
             }
             // otherwise still log the defaults for info.
-            else Log.Info($"KcpClient: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(maximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+            else Log.Info($"[KCP] Client RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(maximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
 
             // bind to endpoint so we can use send/recv instead of sendto/recvfrom.
             socket.Connect(remoteEndPoint);
@@ -156,7 +156,7 @@ namespace kcp2k
                 // the other end closing the connection is not an 'error'.
                 // but connections should never just end silently.
                 // at least log a message for easier debugging.
-                Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                Log.Info($"[KCP] ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
                 peer.Disconnect();
             }
         }
@@ -172,7 +172,7 @@ namespace kcp2k
         {
             if (!connected)
             {
-                Log.Warning("KCP: can't send because client not connected!");
+                Log.Warning("[KCP] Can't send because client not connected!");
                 return;
             }
 

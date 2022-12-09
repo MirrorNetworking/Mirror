@@ -111,9 +111,11 @@ namespace kcp2k
             // only start once
             if (socket != null)
             {
-                Log.Warning("KCP: server already started!");
+                Log.Warning("[KCP] server already started!");
                 return;
             }
+
+            Log.Info($"[KCP] Starting server on port {port}");
 
             // listen
             if (DualMode)
@@ -138,7 +140,7 @@ namespace kcp2k
                 Common.MaximizeSocketBuffers(socket);
             }
             // otherwise still log the defaults for info.
-            else Log.Info($"KcpServer: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+            else Log.Info($"[KCP] Server: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
         }
 
         public void Send(int connectionId, ArraySegment<byte> segment, KcpChannel channel)
@@ -209,7 +211,7 @@ namespace kcp2k
             // get the connection's endpoint
             if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                Debug.LogWarning($"KcpServer.RawSend: invalid connectionId={connectionId}");
+                Debug.LogWarning($"[KCP] Server.RawSend: invalid connectionId={connectionId}");
                 return;
             }
 
@@ -281,7 +283,7 @@ namespace kcp2k
 
                         // add to connections dict after being authenticated.
                         connections.Add(connectionId, connection);
-                        Log.Info($"KCP: server added connection({connectionId})");
+                        Log.Info($"[KCP] server added connection({connectionId})");
 
                         // setup Data + Disconnected events only AFTER the
                         // handshake. we don't want to fire OnServerDisconnected
@@ -305,7 +307,7 @@ namespace kcp2k
                             connectionsToRemove.Add(connectionId);
 
                             // call mirror event
-                            Log.Info($"KCP: OnServerDisconnected({connectionId})");
+                            Log.Info($"[KCP] OnServerDisconnected({connectionId})");
                             OnDisconnected(connectionId);
                         };
 
@@ -316,7 +318,7 @@ namespace kcp2k
                         };
 
                         // finally, call mirror OnConnected event
-                        Log.Info($"KCP: OnServerConnected({connectionId})");
+                        Log.Info($"[KCP] OnServerConnected({connectionId})");
                         OnConnected(connectionId);
                     };
 
@@ -343,7 +345,7 @@ namespace kcp2k
                 // the other end closing the connection is not an 'error'.
                 // but connections should never just end silently.
                 // at least log a message for easier debugging.
-                Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                Log.Info($"[KCP] ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
             }
         }
 

@@ -308,7 +308,7 @@ namespace kcp2k
                         // we were waiting for a handshake.
                         // it proves that the other end speaks our protocol.
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Info($"{GetType()}: received handshake");
+                        Log.Info($"[KCP] {GetType()}: received handshake");
                         state = KcpState.Authenticated;
                         OnAuthenticated?.Invoke();
                         break;
@@ -350,7 +350,7 @@ namespace kcp2k
                     {
                         // should never receive another handshake after auth
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Warning($"{GetType()}: received invalid header {header} while Authenticated. Disconnecting the connection.");
+                        Log.Warning($"[KCP] {GetType()}: received invalid header {header} while Authenticated. Disconnecting the connection.");
                         Disconnect();
                         break;
                     }
@@ -381,7 +381,7 @@ namespace kcp2k
                     {
                         // disconnect might happen
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Info($"{GetType()}: received disconnect message");
+                        Log.Info($"[KCP] {GetType()}: received disconnect message");
                         Disconnect();
                         break;
                     }
@@ -508,7 +508,7 @@ namespace kcp2k
                         if (input != 0)
                         {
                             // GetType() shows Server/ClientConn instead of just Connection.
-                            Log.Warning($"{GetType()}: Input failed with error={input} for buffer with length={size - 1}");
+                            Log.Warning($"[KCP] {GetType()}: Input failed with error={input} for buffer with length={size - 1}");
                         }
                         break;
                     }
@@ -621,7 +621,7 @@ namespace kcp2k
             }
             // otherwise content is larger than MaxMessageSize. let user know!
             // GetType() shows Server/ClientConn instead of just Connection.
-            else Log.Error($"{GetType()}: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={UnreliableMaxMessageSize}");
+            else Log.Error($"[KCP] {GetType()}: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={UnreliableMaxMessageSize}");
         }
 
         // server & client need to send handshake at different times, so we need
@@ -633,7 +633,7 @@ namespace kcp2k
         public void SendHandshake()
         {
                 // GetType() shows Server/ClientConn instead of just Connection.
-            Log.Info($"{GetType()}: sending Handshake to other end!");
+            Log.Info($"[KCP] {GetType()}: sending Handshake to other end!");
             SendReliable(KcpHeader.Handshake, default);
         }
 
@@ -647,7 +647,7 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"{GetType()}: tried sending empty message. This should never happen. Disconnecting.");
+                OnError(ErrorCode.InvalidSend, $"[KCP] {GetType()}: tried sending empty message. This should never happen. Disconnecting.");
                 Disconnect();
                 return;
             }
@@ -700,7 +700,7 @@ namespace kcp2k
 
             // set as Disconnected, call event
             // GetType() shows Server/ClientConn instead of just Connection.
-            Log.Info($"{GetType()}: Disconnected.");
+            Log.Info($"[KCP] {GetType()}: Disconnected.");
             state = KcpState.Disconnected;
             OnDisconnected?.Invoke();
         }
