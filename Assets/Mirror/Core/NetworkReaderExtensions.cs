@@ -249,6 +249,19 @@ namespace Mirror
             return result;
         }
 
+        public static HashSet<T> ReadHashSet<T>(this NetworkReader reader)
+        {
+            int length = reader.ReadInt();
+            if (length < 0)
+                return null;
+            HashSet<T> result = new HashSet<T>(length);
+            for (int i = 0; i < length; i++)
+            {
+                result.Add(reader.Read<T>());
+            }
+            return result;
+        }
+
         public static T[] ReadArray<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();

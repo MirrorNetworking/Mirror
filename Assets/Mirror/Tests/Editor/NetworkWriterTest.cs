@@ -1317,6 +1317,28 @@ namespace Mirror.Tests
             Assert.That(readList, Is.Null);
         }
 
+        public void TestHashSet()
+        {
+            HashSet<int> original = new HashSet<int>() { 1, 2, 3, 4, 5 };
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write(original);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            HashSet<int> readHashSet = reader.Read<HashSet<int>>();
+            Assert.That(readHashSet, Is.EqualTo(original));
+        }
+
+        [Test]
+        public void TestNullHashSet()
+        {
+            NetworkWriter writer = new NetworkWriter();
+            writer.Write<HashSet<int>>(null);
+
+            NetworkReader reader = new NetworkReader(writer.ToArray());
+            HashSet<int> readHashSet = reader.Read<HashSet<int>>();
+            Assert.That(readHashSet, Is.Null);
+        }
+
 
         const int testArraySize = 4;
         [Test]
