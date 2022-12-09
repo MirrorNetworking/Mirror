@@ -24,7 +24,7 @@ namespace Mirror.SimpleWeb
             }
             catch (Exception e)
             {
-                Log.Error($"Create SSLStream Failed: {e}", false);
+                Log.Error($"[SimpleWebTransport] Create SSLStream Failed: {e}", false);
                 return false;
             }
         }

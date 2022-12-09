@@ -60,7 +60,7 @@ namespace Mirror.SimpleWeb
                 bool success = sslHelper.TryCreateStream(conn, serverAddress);
                 if (!success)
                 {
-                    Log.Warn("Failed to create Stream");
+                    Log.Warn("[SimpleWebTransport] Failed to create Stream");
                     conn.Dispose();
                     return;
                 }
@@ -68,12 +68,12 @@ namespace Mirror.SimpleWeb
                 success = handshake.TryHandshake(conn, serverAddress);
                 if (!success)
                 {
-                    Log.Warn("Failed Handshake");
+                    Log.Warn("[SimpleWebTransport] Failed Handshake");
                     conn.Dispose();
                     return;
                 }
 
-                Log.Info("HandShake Successful");
+                Log.Info("[SimpleWebTransport] HandShake Successful");
 
                 state = ClientState.Connected;
 
@@ -120,7 +120,7 @@ namespace Mirror.SimpleWeb
         public override void Disconnect()
         {
             state = ClientState.Disconnecting;
-            Log.Info("Disconnect Called");
+            Log.Info("[SimpleWebTransport] Disconnect Called");
             if (conn == null)
             {
                 state = ClientState.NotConnected;

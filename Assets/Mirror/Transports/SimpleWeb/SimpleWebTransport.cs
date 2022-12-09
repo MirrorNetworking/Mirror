@@ -121,7 +121,7 @@ namespace Mirror.SimpleWeb
             // connecting or connected
             if (ClientConnected())
             {
-                Debug.LogError("Already Connected");
+                Debug.LogError("[SimpleWebTransport] Already Connected");
                 return;
             }
 
@@ -164,19 +164,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ClientConnected())
             {
-                Debug.LogError("Not Connected");
+                Debug.LogError("[SimpleWebTransport] Not Connected");
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("Message greater than max size");
+                Log.Error("[SimpleWebTransport] Message greater than max size");
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("Message count was zero");
+                Log.Error("[SimpleWebTransport] Message count was zero");
                 return;
             }
 
@@ -203,7 +203,7 @@ namespace Mirror.SimpleWeb
         {
             if (ServerActive())
             {
-                Debug.LogError("SimpleWebServer Already Started");
+                Debug.LogError("[SimpleWebTransport] Server Already Started");
             }
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
@@ -224,7 +224,7 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Debug.LogError("SimpleWebServer Not Active");
+                Debug.LogError("[SimpleWebTransport] Server Not Active");
             }
 
             server.Stop();
@@ -235,7 +235,7 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Debug.LogError("SimpleWebServer Not Active");
+                Debug.LogError("[SimpleWebTransport] Server Not Active");
             }
 
             server.KickClient(connectionId);
@@ -245,19 +245,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Debug.LogError("SimpleWebServer Not Active");
+                Debug.LogError("[SimpleWebTransport] Server Not Active");
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("Message greater than max size");
+                Log.Error("[SimpleWebTransport] Message greater than max size");
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("Message count was zero");
+                Log.Error("[SimpleWebTransport] Message count was zero");
                 return;
             }
 

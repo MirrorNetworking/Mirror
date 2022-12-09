@@ -46,7 +46,7 @@ namespace Mirror.SimpleWeb
 
                 if (!IsGet(getHeader.array))
                 {
-                    Log.Warn($"First bytes from client was not 'GET' for handshake, instead was {Log.BufferToString(getHeader.array, 0, GetSize)}");
+                    Log.Warn($"[SimpleWebTransport] First bytes from client was not 'GET' for handshake, instead was {Log.BufferToString(getHeader.array, 0, GetSize)}");
                     return false;
                 }
             }
@@ -114,7 +114,7 @@ namespace Mirror.SimpleWeb
         {
             int start = msg.IndexOf(KeyHeaderString, StringComparison.InvariantCultureIgnoreCase) + KeyHeaderString.Length;
 
-            Log.Verbose($"Handshake Key: {msg.Substring(start, KeyLength)}");
+            Log.Verbose($"[SimpleWebTransport] Handshake Key: {msg.Substring(start, KeyLength)}");
             Encoding.ASCII.GetBytes(msg, start, KeyLength, keyBuffer, 0);
         }
 
@@ -125,7 +125,7 @@ namespace Mirror.SimpleWeb
 
         byte[] CreateHash(byte[] keyBuffer)
         {
-            Log.Verbose($"Handshake Hashing {Encoding.ASCII.GetString(keyBuffer, 0, MergedKeyLength)}");
+            Log.Verbose($"[SimpleWebTransport] Handshake Hashing {Encoding.ASCII.GetString(keyBuffer, 0, MergedKeyLength)}");
 
             return sha1.ComputeHash(keyBuffer, 0, MergedKeyLength);
         }
@@ -142,7 +142,7 @@ namespace Mirror.SimpleWeb
                 "Sec-WebSocket-Accept: {0}\r\n\r\n",
                 keyHashString);
 
-            Log.Verbose($"Handshake Response length {message.Length}, IsExpected {message.Length == ResponseLength}");
+            Log.Verbose($"[SimpleWebTransport] Handshake Response length {message.Length}, IsExpected {message.Length == ResponseLength}");
             Encoding.ASCII.GetBytes(message, 0, ResponseLength, responseBuffer, 0);
         }
     }
