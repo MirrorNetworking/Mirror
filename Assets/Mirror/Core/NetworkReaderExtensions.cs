@@ -260,7 +260,7 @@ namespace Mirror
             int length = reader.ReadInt();
             if (length < 0)
                 return null;
-            HashSet<T> result = new HashSet<T>(length);
+            HashSet<T> result = new HashSet<T>();
             for (int i = 0; i < length; i++)
             {
                 result.Add(reader.Read<T>());
