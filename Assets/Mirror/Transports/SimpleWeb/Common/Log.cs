@@ -80,7 +80,11 @@ namespace Mirror.SimpleWeb
             if (level < Levels.info)
                 return;
 
+#if UNITY_SERVER
+            logger.Log(LogType.Log, $"[SimpleWebTransport] INFO_EXCEPTION: {e.GetType().Name} Message: {e.Message}\n{e.StackTrace}\n\n");
+#else
             logger.Log(LogType.Log, $"[SimpleWebTransport] INFO_EXCEPTION: <color=cyan>{e.GetType().Name}</color> Message: {e.Message}\n{e.StackTrace}\n\n");
+#endif
         }
 
         [Conditional(SIMPLEWEB_LOG_ENABLED), Conditional(DEBUG)]
@@ -110,7 +114,11 @@ namespace Mirror.SimpleWeb
         public static void Exception(Exception e)
         {
             // always log Exceptions
+#if UNITY_SERVER
+            logger.Log(LogType.Error, $"[SimpleWebTransport] EXCEPTION: {e.GetType().Name} Message: {e.Message}\n{e.StackTrace}\n\n");
+#else
             logger.Log(LogType.Error, $"[SimpleWebTransport] EXCEPTION: <color=red>{e.GetType().Name}</color> Message: {e.Message}\n{e.StackTrace}\n\n");
+#endif
         }
     }
 }
