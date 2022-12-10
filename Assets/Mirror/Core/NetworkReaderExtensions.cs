@@ -257,6 +257,8 @@ namespace Mirror
         // structs may have .Set<T> members which weaver needs to be able to
         // fully serialize for NetworkMessages etc.
         // note that Weaver/Readers/GenerateReader() handles this manually.
+        // TODO writer not found. need to adjust weaver first. see tests.
+        /*
         public static HashSet<T> ReadHashSet<T>(this NetworkReader reader)
         {
             int length = reader.ReadInt();
@@ -269,6 +271,7 @@ namespace Mirror
             }
             return result;
         }
+        */
 
         public static T[] ReadArray<T>(this NetworkReader reader)
         {

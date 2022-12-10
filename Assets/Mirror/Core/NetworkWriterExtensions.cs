@@ -289,6 +289,8 @@ namespace Mirror
         // structs may have .Set<T> members which weaver needs to be able to
         // fully serialize for NetworkMessages etc.
         // note that Weaver/Writers/GenerateWriter() handles this manually.
+        // TODO writer not found. need to adjust weaver first. see tests.
+        /*
         public static void WriteHashSet<T>(this NetworkWriter writer, HashSet<T> hashSet)
         {
             if (hashSet is null)
@@ -300,6 +302,7 @@ namespace Mirror
             foreach (T item in hashSet)
                 writer.Write(item);
         }
+        */
 
         public static void WriteArray<T>(this NetworkWriter writer, T[] array)
         {
