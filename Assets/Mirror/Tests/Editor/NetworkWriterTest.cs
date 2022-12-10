@@ -1317,6 +1317,7 @@ namespace Mirror.Tests
             Assert.That(readList, Is.Null);
         }
 
+        [Test]
         public void TestHashSet()
         {
             HashSet<int> original = new HashSet<int>() { 1, 2, 3, 4, 5 };
