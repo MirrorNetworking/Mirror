@@ -566,7 +566,7 @@ namespace Mirror.Tests.ClientSceneTests
             };
 
 
-            LogAssert.Expect(LogType.Warning, "No ready connection found for setting player controller during InternalAddPlayer");
+            LogAssert.Expect(LogType.Warning, "NetworkClient can't AddPlayer before being ready. Please call NetworkClient.Ready() first. Clients are considered ready after joining the game world.");
             NetworkClient.ApplySpawnPayload(identity, msg);
 
             Assert.That(NetworkClient.localPlayer, Is.EqualTo(identity));

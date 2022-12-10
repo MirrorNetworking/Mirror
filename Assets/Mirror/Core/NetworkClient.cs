@@ -991,7 +991,7 @@ namespace Mirror
             {
                 connection.identity = identity;
             }
-            else Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
+            else Debug.LogWarning("NetworkClient can't AddPlayer before being ready. Please call NetworkClient.Ready() first. Clients are considered ready after joining the game world.");
         }
 
         /// <summary>Sends AddPlayer message to the server, indicating that we want to join the world.</summary>
