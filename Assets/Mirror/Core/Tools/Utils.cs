@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Mirror
 {
@@ -176,6 +177,13 @@ namespace Mirror
             connectionToClient = new LocalConnectionToClient();
             connectionToServer.connectionToClient = connectionToClient;
             connectionToClient.connectionToServer = connectionToServer;
+        }
+
+        public static bool IsSceneActive(string scene)
+        {
+            Scene activeScene = SceneManager.GetActiveScene();
+            return activeScene.path == scene ||
+                   activeScene.name == scene;
         }
     }
 }
