@@ -166,5 +166,16 @@ namespace Mirror
 
             return rect;
         }
+
+        // create local connections pair and connect them
+        public static void CreateLocalConnections(
+            out LocalConnectionToClient connectionToClient,
+            out LocalConnectionToServer connectionToServer)
+        {
+            connectionToServer = new LocalConnectionToServer();
+            connectionToClient = new LocalConnectionToClient();
+            connectionToServer.connectionToClient = connectionToClient;
+            connectionToClient.connectionToServer = connectionToServer;
+        }
     }
 }

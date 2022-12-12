@@ -214,7 +214,7 @@ namespace Mirror.Tests
             NetworkServer.Listen(1);
 
             // set local connection
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            Utils.CreateLocalConnections(out LocalConnectionToClient connectionToClient, out _);
             NetworkServer.SetLocalConnection(connectionToClient);
 
             // remove local connection
@@ -1221,7 +1221,7 @@ namespace Mirror.Tests
         [Test]
         public void HasExternalConnections_WithHostOnly()
         {
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            Utils.CreateLocalConnections(out LocalConnectionToClient connectionToClient, out _);
 
             NetworkServer.SetLocalConnection(connectionToClient);
             NetworkServer.connections.Add(0, connectionToClient);
@@ -1235,7 +1235,7 @@ namespace Mirror.Tests
         [Test]
         public void HasExternalConnections_WithHostAndConnection()
         {
-            CreateLocalConnectionPair(out LocalConnectionToClient connectionToClient, out _);
+            Utils.CreateLocalConnections(out LocalConnectionToClient connectionToClient, out _);
 
             NetworkServer.SetLocalConnection(connectionToClient);
             NetworkServer.connections.Add(0, connectionToClient);

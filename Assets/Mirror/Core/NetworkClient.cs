@@ -220,11 +220,10 @@ namespace Mirror
 
             connectState = ConnectState.Connected;
 
-            // create local connection objects and connect them
-            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
-            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
-            connectionToServer.connectionToClient = connectionToClient;
-            connectionToClient.connectionToServer = connectionToServer;
+            // create local connections pair, both are connected
+            Utils.CreateLocalConnections(
+                out LocalConnectionToClient connectionToClient,
+                out LocalConnectionToServer connectionToServer);
 
             connection = connectionToServer;
 
