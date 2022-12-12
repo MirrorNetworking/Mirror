@@ -212,29 +212,13 @@ namespace Mirror
             connection = new NetworkConnectionToServer();
         }
 
-        // keep the local connections setup in one function.
-        // makes host setup easier to follow.
-        // TODO this doesn't need to be in NetworkClient. it sets up both cl/sv.
-        internal static void SetupHostConnections()
-        {
-            // create local connections pair, both are connected
-            Utils.CreateLocalConnections(
-                out LocalConnectionToClient connectionToClient,
-                out LocalConnectionToServer connectionToServer);
-
-            connection = connectionToServer;
-
-            // create server connection to local client
-            NetworkServer.SetLocalConnection(connectionToClient);
-        }
-
         // TODO why are there two connect host methods?
         // called from NetworkManager.FinishStartHost()
         public static void ConnectHost()
         {
             Initialize(true);
             connectState = ConnectState.Connected;
-            SetupHostConnections();
+            HostMode.SetupConnections();
         }
 
         /// <summary>Connect host mode</summary>
