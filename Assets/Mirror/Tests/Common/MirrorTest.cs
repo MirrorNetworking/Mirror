@@ -608,7 +608,7 @@ namespace Mirror.Tests
         protected void ConnectHostClientBlocking()
         {
             NetworkClient.ConnectHost();
-            NetworkClient.ConnectLocalServer();
+            HostMode.InvokeOnConnected();
             UpdateTransport();
             Assert.That(NetworkServer.connections.Count, Is.EqualTo(1));
 

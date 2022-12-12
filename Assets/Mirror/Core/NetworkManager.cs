@@ -520,9 +520,9 @@ namespace Mirror
             NetworkServer.ActivateHostScene();
             RegisterClientMessages();
 
-            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
+            // call OnConencted needs to be called AFTER RegisterClientMessages
             // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
+            HostMode.InvokeOnConnected();
 
             OnStartClient();
         }

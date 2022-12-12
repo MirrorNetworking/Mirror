@@ -221,24 +221,8 @@ namespace Mirror
             HostMode.SetupConnections();
         }
 
-        /// <summary>Connect host mode</summary>
-        // called from NetworkManager.FinishStartHostClient
-        // TODO why are there two connect host methods?
-        public static void ConnectLocalServer()
-        {
-            // call server OnConnected with server's connection to client
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-
-            // call client OnConnected with client's connection to server
-            // => previously we used to send a ConnectMessage to
-            //    NetworkServer.localConnection. this would queue the message
-            //    until NetworkClient.Update processes it.
-            // => invoking the client's OnConnected event directly here makes
-            //    tests fail. so let's do it exactly the same order as before by
-            //    queueing the event for next Update!
-            //OnConnectedEvent?.Invoke(connection);
-            ((LocalConnectionToServer)connection).QueueConnectedEvent();
-        }
+        [Obsolete("NetworkClient.ConnectLocalServer was moved to HostMode.InvokeOnConnected")] // DEPRECATED 2022-12-12
+        public static void ConnectLocalServer() => HostMode.InvokeOnConnected();
 
         // disconnect //////////////////////////////////////////////////////////
         /// <summary>Disconnect from server.</summary>
