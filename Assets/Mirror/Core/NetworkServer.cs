@@ -60,6 +60,7 @@ namespace Mirror
         public static bool active { get; internal set; }
 
         /// <summary>active checks if the server has been started in host mode.</summary>
+        // naming consistent with NetworkClient.activeHost.
         public static bool activeHost => localConnection != null;
 
         // scene loading
