@@ -33,7 +33,7 @@ namespace Mirror
         static double lastSendTime;
 
         /// <summary>Connection to host mode client (if any)</summary>
-        public static NetworkConnectionToClient localConnection { get; private set; }
+        public static LocalConnectionToClient localConnection { get; private set; }
 
         /// <summary>True is a local client is currently active on the server</summary>
         [Obsolete("NetworkServer.localClientActive was renamed to .activeHost to be more obvious")] // DEPRECATED 2022-12-12
