@@ -63,10 +63,14 @@ namespace Mirror
         // empty if the client has not connected yet.
         public static string serverIp => connection.address;
 
-        /// <summary>active is true while a client is connecting/connected</summary>
+        /// <summary>active is true while a client is connecting/connected either as standalone or as host client.</summary>
         // (= while the network is active)
         public static bool active => connectState == ConnectState.Connecting ||
                                      connectState == ConnectState.Connected;
+
+        /// <summary>active is true while the client is connected in host mode.</summary>
+        // naming consistent with NetworkServer.activeHost.
+        public static bool activeHost => connection is LocalConnectionToServer;
 
         /// <summary>Check if client is connecting (before connected).</summary>
         public static bool isConnecting => connectState == ConnectState.Connecting;
@@ -75,7 +79,8 @@ namespace Mirror
         public static bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>True if client is running in host mode.</summary>
-        public static bool isHostClient => connection is LocalConnectionToServer;
+        [Obsolete("NetworkClient.isHostClient was renamed to .activeHost to be more obvious")] // DEPRECATED 2022-12-12
+        public static bool isHostClient => activeHost;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
@@ -140,7 +145,7 @@ namespace Mirror
             Transport.active.OnClientError        -= OnTransportError;
         }
 
-        internal static void RegisterSystemHandlers(bool hostMode)
+        internal static void RegisterMessageHandlers(bool hostMode)
         {
             // host mode client / remote client react to some messages differently.
             // but we still need to add handlers for all of them to avoid
@@ -186,7 +191,7 @@ namespace Mirror
             // ensures last sessions' state is cleared before starting again.
             InitTimeInterpolation();
 
-            RegisterSystemHandlers(hostMode);
+            RegisterMessageHandlers(hostMode);
             Transport.active.enabled = true;
         }
 
@@ -217,39 +222,12 @@ namespace Mirror
         public static void ConnectHost()
         {
             Initialize(true);
-
             connectState = ConnectState.Connected;
-
-            // create local connection objects and connect them
-            LocalConnectionToServer connectionToServer = new LocalConnectionToServer();
-            LocalConnectionToClient connectionToClient = new LocalConnectionToClient();
-            connectionToServer.connectionToClient = connectionToClient;
-            connectionToClient.connectionToServer = connectionToServer;
-
-            connection = connectionToServer;
-
-            // create server connection to local client
-            NetworkServer.SetLocalConnection(connectionToClient);
+            HostMode.SetupConnections();
         }
 
-        /// <summary>Connect host mode</summary>
-        // called from NetworkManager.StartHostClient
-        // TODO why are there two connect host methods?
-        public static void ConnectLocalServer()
-        {
-            // call server OnConnected with server's connection to client
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-
-            // call client OnConnected with client's connection to server
-            // => previously we used to send a ConnectMessage to
-            //    NetworkServer.localConnection. this would queue the message
-            //    until NetworkClient.Update processes it.
-            // => invoking the client's OnConnected event directly here makes
-            //    tests fail. so let's do it exactly the same order as before by
-            //    queueing the event for next Update!
-            //OnConnectedEvent?.Invoke(connection);
-            ((LocalConnectionToServer)connection).QueueConnectedEvent();
-        }
+        [Obsolete("NetworkClient.ConnectLocalServer was moved to HostMode.InvokeOnConnected")] // DEPRECATED 2022-12-12
+        public static void ConnectLocalServer() => HostMode.InvokeOnConnected();
 
         // disconnect //////////////////////////////////////////////////////////
         /// <summary>Disconnect from server.</summary>
@@ -991,7 +969,7 @@ namespace Mirror
             {
                 connection.identity = identity;
             }
-            else Debug.LogWarning("No ready connection found for setting player controller during InternalAddPlayer");
+            else Debug.LogWarning("NetworkClient can't AddPlayer before being ready. Please call NetworkClient.Ready() first. Clients are considered ready after joining the game world.");
         }
 
         /// <summary>Sends AddPlayer message to the server, indicating that we want to join the world.</summary>

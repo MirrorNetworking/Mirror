@@ -527,7 +527,7 @@ namespace Mirror.Tests
             };
 
             // create connections
-            CreateLocalConnectionPair(out LocalConnectionToClient owner, out LocalConnectionToServer clientConnection);
+            Utils.CreateLocalConnections(out LocalConnectionToClient owner, out LocalConnectionToServer clientConnection);
             owner.isReady = true;
 
             // setup NetworkServer/Client connections so messages are handled

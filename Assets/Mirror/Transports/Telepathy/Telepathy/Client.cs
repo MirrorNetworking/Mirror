@@ -153,7 +153,7 @@ namespace Telepathy
             {
                 // this happens if (for example) the ip address is correct
                 // but there is no server running on that ip/port
-                Log.Info("Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
+                Log.Info("[Telepathy] Client Recv: failed to connect to ip=" + ip + " port=" + port + " reason=" + exception);
             }
             catch (ThreadInterruptedException)
             {
@@ -171,7 +171,7 @@ namespace Telepathy
             catch (Exception exception)
             {
                 // something went wrong. probably important.
-                Log.Error("Client Recv Exception: " + exception);
+                Log.Error("[Telepathy] Client Recv Exception: " + exception);
             }
             // add 'Disconnected' event to receive pipe so that the caller
             // knows that the Connect failed. otherwise they will never know
@@ -200,7 +200,7 @@ namespace Telepathy
             // not if already started
             if (Connecting || Connected)
             {
-                Log.Warning("Telepathy Client can not create connection because an existing connection is connecting or connected");
+                Log.Warning("[Telepathy] Client can not create connection because an existing connection is connecting or connected");
                 return;
             }
 
@@ -287,17 +287,17 @@ namespace Telepathy
                     else
                     {
                         // log the reason
-                        Log.Warning($"Client.Send: sendPipe reached limit of {SendQueueLimit}. This can happen if we call send faster than the network can process messages. Disconnecting to avoid ever growing memory & latency.");
+                        Log.Warning($"[Telepathy] Client.Send: sendPipe reached limit of {SendQueueLimit}. This can happen if we call send faster than the network can process messages. Disconnecting to avoid ever growing memory & latency.");
 
                         // just close it. send thread will take care of the rest.
                         state.client.Close();
                         return false;
                     }
                 }
-                Log.Error("Client.Send: message too big: " + message.Count + ". Limit: " + MaxMessageSize);
+                Log.Error("[Telepathy] Client.Send: message too big: " + message.Count + ". Limit: " + MaxMessageSize);
                 return false;
             }
-            Log.Warning("Client.Send: not connected!");
+            Log.Warning("[Telepathy] Client.Send: not connected!");
             return false;
         }
 

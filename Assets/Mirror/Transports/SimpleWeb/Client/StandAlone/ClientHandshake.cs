@@ -26,7 +26,7 @@ namespace Mirror.SimpleWeb
                 string key = Convert.ToBase64String(keyBuffer);
                 string keySum = key + Constants.HandshakeGUID;
                 byte[] keySumBytes = Encoding.ASCII.GetBytes(keySum);
-                Log.Verbose($"Handshake Hashing {Encoding.ASCII.GetString(keySumBytes)}");
+                Log.Verbose($"[SimpleWebTransport] Handshake Hashing {Encoding.ASCII.GetString(keySumBytes)}");
 
                 byte[] keySumHash = SHA1.Create().ComputeHash(keySumBytes);
 
@@ -48,7 +48,7 @@ namespace Mirror.SimpleWeb
 
                 if (!lengthOrNull.HasValue)
                 {
-                    Log.Error("Connected closed before handshake");
+                    Log.Error("[SimpleWebTransport] Connected closed before handshake");
                     return false;
                 }
 
@@ -61,7 +61,7 @@ namespace Mirror.SimpleWeb
 
                 if (responseKey != expectedResponse)
                 {
-                    Log.Error($"Response key incorrect, Response:{responseKey} Expected:{expectedResponse}");
+                    Log.Error($"[SimpleWebTransport] Response key incorrect, Response:{responseKey} Expected:{expectedResponse}");
                     return false;
                 }
 

@@ -3,13 +3,14 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using UnityEngine;
 using WhereAllocation;
 
 namespace kcp2k
 {
     public class KcpServerNonAlloc : KcpServer
     {
-        IPEndPointNonAlloc reusableClientEP;
+        readonly IPEndPointNonAlloc reusableClientEP;
 
         public KcpServerNonAlloc(Action<int> OnConnected,
                                  Action<int, ArraySegment<byte>, KcpChannel> OnData,
@@ -22,7 +23,7 @@ namespace kcp2k
                                  bool CongestionWindow = true,
                                  uint SendWindowSize = Kcp.WND_SND,
                                  uint ReceiveWindowSize = Kcp.WND_RCV,
-                                 int Timeout = KcpConnection.DEFAULT_TIMEOUT,
+                                 int Timeout = KcpPeer.DEFAULT_TIMEOUT,
                                  uint MaxRetransmits = Kcp.DEADLINK,
                                  bool MaximizeSendReceiveBuffersToOSLimit = false)
             : base(OnConnected,
@@ -46,18 +47,34 @@ namespace kcp2k
                 : new IPEndPointNonAlloc(IPAddress.Any, 0);
         }
 
-        protected override int ReceiveFrom(byte[] buffer, out int connectionHash)
+        protected override bool RawReceive(byte[] buffer, out int size, out int connectionId)
         {
             // where-allocation nonalloc ReceiveFrom.
-            int read = socket.ReceiveFrom_NonAlloc(buffer, 0, buffer.Length, SocketFlags.None, reusableClientEP);
+            size = socket.ReceiveFrom_NonAlloc(buffer, 0, buffer.Length, SocketFlags.None, reusableClientEP);
             SocketAddress remoteAddress = reusableClientEP.temp;
 
             // where-allocation nonalloc GetHashCode
-            connectionHash = remoteAddress.GetHashCode();
-            return read;
+            connectionId = remoteAddress.GetHashCode();
+            return true;
         }
 
-        protected override KcpServerConnection CreateConnection()
+        // make sure to pass IPEndPointNonAlloc as remoteEndPoint
+        protected override void RawSend(int connectionId, ArraySegment<byte> data)
+        {
+            // get the connection's endpoint
+            if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
+            {
+                Debug.LogWarning($"KcpServerNonAlloc.RawSend: invalid connectionId={connectionId}");
+                return;
+            }
+
+            // where-allocation nonalloc send to the endpoint.
+            // do not send to 'newClientEP', as that's always reused.
+            // fixes https://github.com/MirrorNetworking/Mirror/issues/3296
+            socket.SendTo_NonAlloc(data.Array, data.Offset, data.Count, SocketFlags.None, connection.remoteEndPoint as IPEndPointNonAlloc);
+        }
+
+        protected override KcpServerConnection CreateConnection(int connectionId)
         {
             // IPEndPointNonAlloc is reused all the time.
             // we can't store that as the connection's endpoint.
@@ -66,12 +83,15 @@ namespace kcp2k
 
             // for allocation free sending, we also need another
             // IPEndPointNonAlloc...
-            IPEndPointNonAlloc reusableSendEP = new IPEndPointNonAlloc(newClientEP.Address, newClientEP.Port);
+            IPEndPointNonAlloc endPointNonAlloc = new IPEndPointNonAlloc(newClientEP.Address, newClientEP.Port);
 
-            // create a new KcpConnection NonAlloc version
-            // -> where-allocation IPEndPointNonAlloc is reused.
-            //    need to create a new one from the temp address.
-            return new KcpServerConnectionNonAlloc(socket, newClientEP, reusableSendEP, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
+            // attach conectionId to RawSend.
+            // kcp needs a simple RawSend(byte[]) function.
+            Action<ArraySegment<byte>> RawSendWrap =
+                data => RawSend(connectionId, data);
+
+            KcpPeer peer = new KcpPeer(RawSendWrap, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmits);
+            return new KcpServerConnection(peer, endPointNonAlloc);
         }
     }
 }

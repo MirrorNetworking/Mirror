@@ -63,7 +63,7 @@ namespace Mirror.SimpleWeb
         {
             if (segment.Count > maxMessageSize)
             {
-                Log.Error($"Cant send message with length {segment.Count} because it is over the max size of {maxMessageSize}");
+                Log.Error($"[SimpleWebTransport] Cant send message with length {segment.Count} because it is over the max size of {maxMessageSize}");
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace Mirror.SimpleWeb
             }
             catch (Exception e)
             {
-                Log.Error($"onData {e.GetType()}: {e.Message}\n{e.StackTrace}");
+                Log.Error($"[SimpleWebTransport] onMessage {e.GetType()}: {e.Message}\n{e.StackTrace}");
                 receiveQueue.Enqueue(new Message(e));
             }
         }

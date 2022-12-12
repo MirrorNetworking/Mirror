@@ -237,18 +237,15 @@ namespace Mirror
             UpdateScene();
         }
 
-        // keep the online scene change check in a separate function
-        bool IsServerOnlineSceneChangeNeeded()
-        {
-            // Only change scene if the requested online scene is not blank, and is not already loaded
-            return !string.IsNullOrWhiteSpace(onlineScene) && !IsSceneActive(onlineScene) && onlineScene != offlineScene;
-        }
+        // keep the online scene change check in a separate function.
+        // only change scene if the requested online scene is not blank, and is not already loaded.
+        bool IsServerOnlineSceneChangeNeeded() =>
+            !string.IsNullOrWhiteSpace(onlineScene) &&
+            !Utils.IsSceneActive(onlineScene) &&
+            onlineScene != offlineScene;
 
-        public static bool IsSceneActive(string scene)
-        {
-            Scene activeScene = SceneManager.GetActiveScene();
-            return activeScene.path == scene || activeScene.name == scene;
-        }
+        [Obsolete("NetworkManager.IsSceneActive moved to Utils.IsSceneActive")] // DEPRECATED 2022-12-12
+        public static bool IsSceneActive(string scene) => Utils.IsSceneActive(scene);
 
         // NetworkManager exposes some NetworkServer/Client configuration.
         // we apply it every Update() in order to avoid two sources of truth.
@@ -508,22 +505,15 @@ namespace Mirror
             // DO NOT do this earlier. it would cause race conditions where a
             // client will do things before the server is even fully started.
             //Debug.Log("StartHostClient called");
-            StartHostClient();
-        }
-
-        void StartHostClient()
-        {
-            //Debug.Log("NetworkManager ConnectLocalClient");
-
             SetupClient();
 
             networkAddress = "localhost";
-            NetworkServer.ActivateHostScene();
+            HostMode.ActivateHostScene();
             RegisterClientMessages();
 
-            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
+            // call OnConencted needs to be called AFTER RegisterClientMessages
             // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
+            HostMode.InvokeOnConnected();
 
             OnStartClient();
         }
@@ -1169,7 +1159,7 @@ namespace Mirror
             NetworkClient.connection.isAuthenticated = true;
 
             // proceed with the login handshake by calling OnClientConnect
-            if (string.IsNullOrWhiteSpace(onlineScene) || onlineScene == offlineScene || IsSceneActive(onlineScene))
+            if (string.IsNullOrWhiteSpace(onlineScene) || onlineScene == offlineScene || Utils.IsSceneActive(onlineScene))
             {
                 clientLoadedScene = false;
                 OnClientConnect();
@@ -1226,7 +1216,7 @@ namespace Mirror
             // If this is the host player, StopServer will already be changing scenes.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
             // Check if NetworkServer.active because we can get here via Disconnect before server has started to change scenes.
-            if (!string.IsNullOrWhiteSpace(offlineScene) && !IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)
+            if (!string.IsNullOrWhiteSpace(offlineScene) && !Utils.IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)
             {
                 ClientChangeScene(offlineScene, SceneOperation.Normal);
             }

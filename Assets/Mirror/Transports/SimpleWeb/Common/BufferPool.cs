@@ -99,7 +99,7 @@ namespace Mirror.SimpleWeb
         {
             if (array.Length != arraySize)
             {
-                Log.Error("Buffer that was returned had an array of the wrong size");
+                Log.Error("[SimpleWebTransport] Buffer that was returned had an array of the wrong size");
             }
         }
     }
@@ -129,7 +129,7 @@ namespace Mirror.SimpleWeb
             }
             else
             {
-                Log.Verbose($"BufferBucket({arraySize}) create new");
+                Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) create new");
                 return new ArrayBuffer(this, arraySize);
             }
         }
@@ -145,13 +145,13 @@ namespace Mirror.SimpleWeb
         void IncrementCreated()
         {
             int next = Interlocked.Increment(ref _current);
-            Log.Verbose($"BufferBucket({arraySize}) count:{next}");
+            Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
         }
         [Conditional("DEBUG")]
         void DecrementCreated()
         {
             int next = Interlocked.Decrement(ref _current);
-            Log.Verbose($"BufferBucket({arraySize}) count:{next}");
+            Log.Verbose($"[SimpleWebTransport] BufferBucket({arraySize}) count:{next}");
         }
     }
 
@@ -236,14 +236,14 @@ namespace Mirror.SimpleWeb
         {
             if (buckets[0].arraySize != smallest)
             {
-                Log.Error($"BufferPool Failed to create bucket for smallest. bucket:{buckets[0].arraySize} smallest{smallest}");
+                Log.Error($"[SimpleWebTransport] BufferPool Failed to create bucket for smallest. bucket:{buckets[0].arraySize} smallest{smallest}");
             }
 
             int largestBucket = buckets[bucketCount - 1].arraySize;
             // rounded using Ceiling, so allowed to be 1 more that largest
             if (largestBucket != largest && largestBucket != largest + 1)
             {
-                Log.Error($"BufferPool Failed to create bucket for largest. bucket:{largestBucket} smallest{largest}");
+                Log.Error($"[SimpleWebTransport] BufferPool Failed to create bucket for largest. bucket:{largestBucket} smallest{largest}");
             }
         }
 

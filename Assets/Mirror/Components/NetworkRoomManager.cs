@@ -163,7 +163,7 @@ namespace Mirror
         {
             Debug.Log($"NetworkRoom SceneLoadedForPlayer scene: {SceneManager.GetActiveScene().path} {conn}");
 
-            if (IsSceneActive(RoomScene))
+            if (Utils.IsSceneActive(RoomScene))
             {
                 // cant be ready in room, add to ready list
                 PendingPlayer pending;
@@ -196,7 +196,7 @@ namespace Mirror
         /// </summary>
         public void CheckReadyToBegin()
         {
-            if (!IsSceneActive(RoomScene))
+            if (!Utils.IsSceneActive(RoomScene))
                 return;
 
             int numberOfReadyPlayers = NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin);
@@ -248,7 +248,7 @@ namespace Mirror
             }
 
             // cannot join game in progress
-            if (!IsSceneActive(RoomScene))
+            if (!Utils.IsSceneActive(RoomScene))
             {
                 conn.Disconnect();
                 return;
@@ -288,7 +288,7 @@ namespace Mirror
                     player.GetComponent<NetworkRoomPlayer>().readyToBegin = false;
             }
 
-            if (IsSceneActive(RoomScene))
+            if (Utils.IsSceneActive(RoomScene))
                 RecalculateRoomPlayerIndices();
 
             OnRoomServerDisconnect(conn);
@@ -313,7 +313,7 @@ namespace Mirror
             // increment the index before adding the player, so first player starts at 1
             clientIndex++;
 
-            if (IsSceneActive(RoomScene))
+            if (Utils.IsSceneActive(RoomScene))
             {
                 if (roomSlots.Count == maxConnections)
                     return;
@@ -496,7 +496,7 @@ namespace Mirror
         /// </summary>
         public override void OnClientSceneChanged()
         {
-            if (IsSceneActive(RoomScene))
+            if (Utils.IsSceneActive(RoomScene))
             {
                 if (NetworkClient.isConnected)
                     CallOnClientEnterRoom();
@@ -665,7 +665,7 @@ namespace Mirror
             if (!showRoomGUI)
                 return;
 
-            if (NetworkServer.active && IsSceneActive(GameplayScene))
+            if (NetworkServer.active && Utils.IsSceneActive(GameplayScene))
             {
                 GUILayout.BeginArea(new Rect(Screen.width - 150f, 10f, 140f, 30f));
                 if (GUILayout.Button("Return to Room"))
@@ -673,7 +673,7 @@ namespace Mirror
                 GUILayout.EndArea();
             }
 
-            if (IsSceneActive(RoomScene))
+            if (Utils.IsSceneActive(RoomScene))
                 GUI.Box(new Rect(10f, 180f, 520f, 150f), "PLAYERS");
         }
 

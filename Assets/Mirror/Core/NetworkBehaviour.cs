@@ -412,7 +412,7 @@ namespace Mirror
         //           {
         //               int oldValue = health;
         //               SetSyncVar(value, ref health, 1uL);
-        //               if (NetworkServer.localClientActive && !GetSyncVarHookGuard(1uL))
+        //               if (NetworkServer.activeHost && !GetSyncVarHookGuard(1uL))
         //               {
         //                   SetSyncVarHookGuard(1uL, value: true);
         //                   OnChanged(oldValue, value);
@@ -436,7 +436,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -463,7 +463,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -490,7 +490,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);
@@ -518,7 +518,7 @@ namespace Mirror
                     // in client-only mode, OnDeserialize would call it.
                     // we use hook guard to protect against deadlock where hook
                     // changes syncvar, calling hook again.
-                    if (NetworkServer.localClientActive && !GetSyncVarHookGuard(dirtyBit))
+                    if (NetworkServer.activeHost && !GetSyncVarHookGuard(dirtyBit))
                     {
                         SetSyncVarHookGuard(dirtyBit, true);
                         OnChanged(oldValue, value);

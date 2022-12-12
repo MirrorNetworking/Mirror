@@ -14,7 +14,7 @@ namespace Mirror.Tests
         {
             base.SetUp();
 
-            CreateLocalConnectionPair(out connectionToClient, out connectionToServer);
+            Utils.CreateLocalConnections(out connectionToClient, out connectionToServer);
 
             // set up server/client connections so message handling works
             NetworkClient.connection = connectionToServer;

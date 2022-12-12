@@ -84,7 +84,7 @@ namespace Mirror
         {
             if (transports == null || transports.Length == 0)
             {
-                Debug.LogError("Multiplex transport requires at least 1 underlying transport");
+                Debug.LogError("[Multiplexer] Multiplex transport requires at least 1 underlying transport");
             }
         }
 
@@ -151,7 +151,7 @@ namespace Mirror
                     return;
                 }
             }
-            throw new ArgumentException("No transport suitable for this platform");
+            throw new ArgumentException("[Multiplexer] No transport suitable for this platform");
         }
 
         public override void ClientConnect(Uri uri)
@@ -176,7 +176,7 @@ namespace Mirror
                     }
                 }
             }
-            throw new ArgumentException("No transport suitable for this platform");
+            throw new ArgumentException("[Multiplexer] No transport suitable for this platform");
         }
 
         public override bool ClientConnected()

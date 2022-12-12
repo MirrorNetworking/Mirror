@@ -37,12 +37,12 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public void Dispose()
         {
-            Log.Verbose($"Dispose {ToString()}");
+            Log.Verbose($"[SimpleWebTransport] Dispose {ToString()}");
 
             // check hasDisposed first to stop ThreadInterruptedException on lock
             if (hasDisposed) { return; }
 
-            Log.Info($"Connection Close: {ToString()}");
+            Log.Info($"[SimpleWebTransport] Connection Close: {ToString()}");
 
 
             lock (disposedLock)

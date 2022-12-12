@@ -64,7 +64,7 @@ namespace Mirror.SimpleWeb
                         ReadOneMessage(config, readBuffer);
                     }
 
-                    Log.Info($"{conn} Not Connected");
+                    Log.Info($"[SimpleWebTransport] {conn} Not Connected");
                 }
                 catch (Exception)
                 {
@@ -83,18 +83,18 @@ namespace Mirror.SimpleWeb
             catch (SocketException e)
             {
                 // this could happen if wss client closes stream
-                Log.Warn($"ReceiveLoop SocketException\n{e.Message}", false);
+                Log.Warn($"[SimpleWebTransport] ReceiveLoop SocketException\n{e.Message}", false);
                 queue.Enqueue(new Message(conn.connId, e));
             }
             catch (IOException e)
             {
                 // this could happen if client disconnects
-                Log.Warn($"ReceiveLoop IOException\n{e.Message}", false);
+                Log.Warn($"[SimpleWebTransport] ReceiveLoop IOException\n{e.Message}", false);
                 queue.Enqueue(new Message(conn.connId, e));
             }
             catch (InvalidDataException e)
             {
-                Log.Error($"Invalid data from {conn}: {e.Message}");
+                Log.Error($"[SimpleWebTransport] Invalid data from {conn}: {e.Message}");
                 queue.Enqueue(new Message(conn.connId, e));
             }
             catch (Exception e)
@@ -165,7 +165,7 @@ namespace Mirror.SimpleWeb
                 }
 
                 // dump after mask off
-                Log.DumpBuffer($"Message", msg);
+                Log.DumpBuffer($"[SimpleWebTransport] Message", msg);
 
                 queue.Enqueue(new Message(conn.connId, msg));
             }
@@ -180,7 +180,7 @@ namespace Mirror.SimpleWeb
             // read 2
             header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.HeaderMinSize);
             // log after first blocking call
-            Log.Verbose($"Message From {conn}");
+            Log.Verbose($"[SimpleWebTransport] Message From {conn}");
 
             if (MessageProcessor.NeedToReadShortLength(buffer))
             {
@@ -191,7 +191,7 @@ namespace Mirror.SimpleWeb
                 header.offset = ReadHelper.Read(stream, buffer, header.offset, Constants.LongLength);
             }
 
-            Log.DumpBuffer($"Raw Header", buffer, 0, header.offset);
+            Log.DumpBuffer($"[SimpleWebTransport] Raw Header", buffer, 0, header.offset);
 
             MessageProcessor.ValidateHeader(buffer, maxMessageSize, expectMask, opCodeContinuation);
 
@@ -204,7 +204,7 @@ namespace Mirror.SimpleWeb
             header.payloadLength = MessageProcessor.GetPayloadLength(buffer);
             header.finished = MessageProcessor.Finished(buffer);
 
-            Log.Verbose($"Header ln:{header.payloadLength} op:{header.opcode} mask:{expectMask}");
+            Log.Verbose($"[SimpleWebTransport] Header ln:{header.payloadLength} op:{header.opcode} mask:{expectMask}");
 
             return header;
         }
@@ -216,7 +216,7 @@ namespace Mirror.SimpleWeb
             ArrayBuffer arrayBuffer = CopyMessageToBuffer(bufferPool, expectMask, buffer, msgOffset, payloadLength);
 
             // dump after mask off
-            Log.DumpBuffer($"Message", arrayBuffer);
+            Log.DumpBuffer($"[SimpleWebTransport] Message", arrayBuffer);
 
             queue.Enqueue(new Message(conn.connId, arrayBuffer));
         }
@@ -250,9 +250,9 @@ namespace Mirror.SimpleWeb
             }
 
             // dump after mask off
-            Log.DumpBuffer($"Message", buffer, msgOffset, payloadLength);
+            Log.DumpBuffer($"[SimpleWebTransport] Message", buffer, msgOffset, payloadLength);
 
-            Log.Info($"Close: {GetCloseCode(buffer, msgOffset)} message:{GetCloseMessage(buffer, msgOffset, payloadLength)}");
+            Log.Info($"[SimpleWebTransport] Close: {GetCloseCode(buffer, msgOffset)} message:{GetCloseMessage(buffer, msgOffset, payloadLength)}");
 
             conn.Dispose();
         }
