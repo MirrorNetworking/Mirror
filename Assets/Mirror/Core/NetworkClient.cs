@@ -214,6 +214,7 @@ namespace Mirror
 
         // keep the local connections setup in one function.
         // makes host setup easier to follow.
+        // TODO this doesn't need to be in NetworkClient. it sets up both cl/sv.
         internal static void SetupHostConnections()
         {
             // create local connections pair, both are connected
