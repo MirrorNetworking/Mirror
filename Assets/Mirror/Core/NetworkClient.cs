@@ -232,7 +232,7 @@ namespace Mirror
         }
 
         /// <summary>Connect host mode</summary>
-        // called from NetworkManager.StartHostClient
+        // called from NetworkManager.FinishStartHostClient
         // TODO why are there two connect host methods?
         public static void ConnectLocalServer()
         {

@@ -508,13 +508,12 @@ namespace Mirror
             // DO NOT do this earlier. it would cause race conditions where a
             // client will do things before the server is even fully started.
             //Debug.Log("StartHostClient called");
-            StartHostClient();
+            FinishStartHostClient();
         }
 
-        void StartHostClient()
+        // called from FinishStartHost to finish configuiring the host client
+        void FinishStartHostClient()
         {
-            //Debug.Log("NetworkManager ConnectLocalClient");
-
             SetupClient();
 
             networkAddress = "localhost";
