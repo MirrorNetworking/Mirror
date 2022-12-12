@@ -90,13 +90,11 @@ If you are migrating from UNET, then please check out our [Migration Guide](http
 ## Made with Mirror
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://user-images.githubusercontent.com/16416509/178141286-9494c3a8-a4a5-4b06-af2b-b05b66162201.png)](https://www.populationonevr.com/)
-The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Meta Quest games.
+The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 2019 for what eventually became one of the most popular Oculus Rift games.
 
 In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
 
-**Population: ONE** was recently [acquired by Facebook](https://uploadvr.com/population-one-facebook-bigbox-acquire/).
-
-Make sure to check out their latest [addon](https://www.youtube.com/watch?v=jcI0h8dn9tA) too!
+**Population: ONE** was [acquired by Facebook](https://uploadvr.com/population-one-facebook-bigbox-acquire/) in June 2021, and they've just released a new [Sandbox](https://www.youtube.com/watch?v=jcI0h8dn9tA) addon in 2022!
 
 ### [Nimoyd](https://www.nimoyd.com/)
 [![nimoyd_smaller](https://user-images.githubusercontent.com/16416509/178142672-340bac2c-628a-4610-bbf1-8f718cb5b033.jpg)](https://www.nimoyd.com/)
