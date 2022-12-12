@@ -140,7 +140,7 @@ namespace Mirror
             Transport.active.OnClientError        -= OnTransportError;
         }
 
-        internal static void RegisterSystemHandlers(bool hostMode)
+        internal static void RegisterMessageHandlers(bool hostMode)
         {
             // host mode client / remote client react to some messages differently.
             // but we still need to add handlers for all of them to avoid
@@ -186,7 +186,7 @@ namespace Mirror
             // ensures last sessions' state is cleared before starting again.
             InitTimeInterpolation();
 
-            RegisterSystemHandlers(hostMode);
+            RegisterMessageHandlers(hostMode);
             Transport.active.enabled = true;
         }
 
