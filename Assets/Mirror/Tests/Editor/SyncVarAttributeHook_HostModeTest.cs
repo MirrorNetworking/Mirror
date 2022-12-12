@@ -32,8 +32,8 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             const int serverValue = 24;
 
-            // hooks setters are only called if localClientActive
-            Assert.That(NetworkServer.localClientActive, Is.True);
+            // hooks setters are only called if activeHost
+            Assert.That(NetworkServer.activeHost, Is.True);
 
             int hookcallCount = 0;
             StaticHookBehaviour.HookCalled += (oldValue, newValue) =>
@@ -60,8 +60,8 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             const int serverValue = 24;
 
-            // hooks setters are only called if localClientActive
-            Assert.That(NetworkServer.localClientActive, Is.True);
+            // hooks setters are only called if activeHost
+            Assert.That(NetworkServer.activeHost, Is.True);
 
             int baseCallCount = 0;
             comp.BaseHookCalled += (oldValue, newValue) =>
@@ -88,8 +88,8 @@ namespace Mirror.Tests.SyncVarAttributeTests
 
             const int serverValue = 24;
 
-            // hooks setters are only called if localClientActive
-            Assert.That(NetworkServer.localClientActive, Is.True);
+            // hooks setters are only called if activeHost
+            Assert.That(NetworkServer.activeHost, Is.True);
 
             // hook should change it on client
             int overrideCallCount = 0;

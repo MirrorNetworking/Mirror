@@ -36,7 +36,8 @@ namespace Mirror
         public static NetworkConnectionToClient localConnection { get; private set; }
 
         /// <summary>True is a local client is currently active on the server</summary>
-        public static bool localClientActive => localConnection != null;
+        [Obsolete("NetworkServer.localClientActive was renamed to .activeHost to be more obvious")] // DEPRECATED 2022-12-12
+        public static bool localClientActive => activeHost;
 
         /// <summary>Dictionary of all server connections, with connectionId as key</summary>
         public static Dictionary<int, NetworkConnectionToClient> connections =
@@ -55,8 +56,11 @@ namespace Mirror
         // see also: https://github.com/vis2k/Mirror/pull/2595
         public static bool dontListen;
 
-        /// <summary>active checks if the server has been started</summary>
+        /// <summary>active checks if the server has been started either has standalone or as host server.</summary>
         public static bool active { get; internal set; }
+
+        /// <summary>active checks if the server has been started in host mode.</summary>
+        public static bool activeHost => localConnection != null;
 
         // scene loading
         public static bool isLoadingScene;
@@ -1439,7 +1443,7 @@ namespace Mirror
             identity.ClearObservers();
 
             // in host mode, call OnStopClient/OnStopLocalPlayer manually
-            if (NetworkClient.active && localClientActive)
+            if (NetworkClient.active && activeHost)
             {
                 if (identity.isLocalPlayer)
                     identity.OnStopLocalPlayer();
