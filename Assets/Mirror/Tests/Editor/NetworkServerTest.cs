@@ -855,7 +855,7 @@ namespace Mirror.Tests
             // ActivateHostScene calls OnStartClient for spawned objects where
             // isClient is still false. set it to false first.
             serverIdentity.isClient = false;
-            NetworkServer.ActivateHostScene();
+            HostMode.ActivateHostScene();
 
             // was OnStartClient called for all .spawned networkidentities?
             Assert.That(serverComp.called, Is.EqualTo(1));

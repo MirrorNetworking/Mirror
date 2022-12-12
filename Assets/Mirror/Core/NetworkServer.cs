@@ -140,17 +140,8 @@ namespace Mirror
 
         // calls OnStartClient for all SERVER objects in host mode once.
         // client doesn't get spawn messages for those, so need to call manually.
-        public static void ActivateHostScene()
-        {
-            foreach (NetworkIdentity identity in spawned.Values)
-            {
-                if (!identity.isClient)
-                {
-                    // Debug.Log($"ActivateHostScene {identity.netId} {identity}");
-                    NetworkClient.CheckForStartClient(identity);
-                }
-            }
-        }
+        [Obsolete("NetworkServer.ActivateHostScene was moved to HostMode.ActivateHostScene")] // DEPRECATED 2022-12-12
+        public static void ActivateHostScene() => HostMode.ActivateHostScene();
 
         internal static void RegisterMessageHandlers()
         {

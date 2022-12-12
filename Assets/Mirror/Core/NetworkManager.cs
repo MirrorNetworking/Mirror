@@ -517,7 +517,7 @@ namespace Mirror
             SetupClient();
 
             networkAddress = "localhost";
-            NetworkServer.ActivateHostScene();
+            HostMode.ActivateHostScene();
             RegisterClientMessages();
 
             // call OnConencted needs to be called AFTER RegisterClientMessages

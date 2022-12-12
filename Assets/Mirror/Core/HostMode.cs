@@ -38,5 +38,20 @@ namespace Mirror
             //OnConnectedEvent?.Invoke(connection);
             ((LocalConnectionToServer)NetworkClient.connection).QueueConnectedEvent();
         }
+
+        // calls OnStartClient for all SERVER objects in host mode once.
+        // client doesn't get spawn messages for those, so need to call manually.
+        // public because NetworkServer.ActivateHostScene was public before too.
+        public static void ActivateHostScene()
+        {
+            foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
+            {
+                if (!identity.isClient)
+                {
+                    // Debug.Log($"ActivateHostScene {identity.netId} {identity}");
+                    NetworkClient.CheckForStartClient(identity);
+                }
+            }
+        }
     }
 }
