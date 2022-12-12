@@ -223,15 +223,15 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void LocalClientActive()
+        public void ActiveHost()
         {
             // listen
             NetworkServer.Listen(1);
-            Assert.That(NetworkServer.localClientActive, Is.False);
+            Assert.That(NetworkServer.activeHost, Is.False);
 
             // set local connection
             NetworkServer.SetLocalConnection(new LocalConnectionToClient());
-            Assert.That(NetworkServer.localClientActive, Is.True);
+            Assert.That(NetworkServer.activeHost, Is.True);
         }
 
         [Test]
@@ -1181,7 +1181,7 @@ namespace Mirror.Tests
             Assert.That(NetworkServer.spawned.Count, Is.EqualTo(0));
 
             Assert.That(NetworkServer.localConnection, Is.Null);
-            Assert.That(NetworkServer.localClientActive, Is.False);
+            Assert.That(NetworkServer.activeHost, Is.False);
 
             Assert.That(NetworkServer.OnConnectedEvent, Is.Null);
             Assert.That(NetworkServer.OnDisconnectedEvent, Is.Null);
