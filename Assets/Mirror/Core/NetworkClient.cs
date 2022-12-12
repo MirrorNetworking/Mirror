@@ -212,14 +212,10 @@ namespace Mirror
             connection = new NetworkConnectionToServer();
         }
 
-        // TODO why are there two connect host methods?
-        // called from NetworkManager.FinishStartHost()
-        public static void ConnectHost()
+        // keep the local connections setup in one function.
+        // makes host setup easier to follow.
+        internal static void SetupHostConnections()
         {
-            Initialize(true);
-
-            connectState = ConnectState.Connected;
-
             // create local connections pair, both are connected
             Utils.CreateLocalConnections(
                 out LocalConnectionToClient connectionToClient,
@@ -229,6 +225,15 @@ namespace Mirror
 
             // create server connection to local client
             NetworkServer.SetLocalConnection(connectionToClient);
+        }
+
+        // TODO why are there two connect host methods?
+        // called from NetworkManager.FinishStartHost()
+        public static void ConnectHost()
+        {
+            Initialize(true);
+            connectState = ConnectState.Connected;
+            SetupHostConnections();
         }
 
         /// <summary>Connect host mode</summary>
