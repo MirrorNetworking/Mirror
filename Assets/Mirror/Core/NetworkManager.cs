@@ -237,12 +237,12 @@ namespace Mirror
             UpdateScene();
         }
 
-        // keep the online scene change check in a separate function
-        bool IsServerOnlineSceneChangeNeeded()
-        {
-            // Only change scene if the requested online scene is not blank, and is not already loaded
-            return !string.IsNullOrWhiteSpace(onlineScene) && !Utils.IsSceneActive(onlineScene) && onlineScene != offlineScene;
-        }
+        // keep the online scene change check in a separate function.
+        // only change scene if the requested online scene is not blank, and is not already loaded.
+        bool IsServerOnlineSceneChangeNeeded() =>
+            !string.IsNullOrWhiteSpace(onlineScene) &&
+            !Utils.IsSceneActive(onlineScene) &&
+            onlineScene != offlineScene;
 
         [Obsolete("NetworkManager.IsSceneActive moved to Utils.IsSceneActive")] // DEPRECATED 2022-12-12
         public static bool IsSceneActive(string scene) => Utils.IsSceneActive(scene);
