@@ -437,21 +437,6 @@ namespace Mirror
             // setup server first
             SetupServer();
 
-            // call OnStartServer AFTER Listen, so that NetworkServer.active is
-            // true and we can call NetworkServer.Spawn in OnStartServer
-            // overrides.
-            // (useful for loading & spawning stuff from database etc.)
-            //
-            // note: there is no risk of someone connecting after Listen() and
-            //       before OnStartServer() because this all runs in one thread
-            //       and we don't start processing connects until Update.
-            OnStartServer();
-
-            // call OnStartHost AFTER SetupServer. this way we can use
-            // NetworkServer.Spawn etc. in there too. just like OnStartServer
-            // is called after the server is actually properly started.
-            OnStartHost();
-
             // scene change needed? then change scene and spawn afterwards.
             // => BEFORE host client connects. if client auth succeeds then the
             //    server tells it to load 'onlineScene'. we can't do that if
@@ -507,6 +492,21 @@ namespace Mirror
             //
             // TODO call this after spawnobjects and worry about the syncvar hook fix later?
             NetworkClient.ConnectHost();
+
+            // invoke user callbacks AFTER ConnectHost has set .activeHost.
+            // this way initialization can properly handle host mode.
+            //
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3302
+            // where [SyncVar] hooks wouldn't be called for objects spawned in
+            // NetworkManager.OnStartServer, because .activeHost was still false.
+            //
+            // TODO is there a risk of someone connecting between Listen() and FinishStartHost()?
+            OnStartServer();
+
+            // call OnStartHost AFTER SetupServer. this way we can use
+            // NetworkServer.Spawn etc. in there too. just like OnStartServer
+            // is called after the server is actually properly started.
+            OnStartHost();
 
             // server scene was loaded. now spawn all the objects
             NetworkServer.SpawnObjects();
