@@ -21,8 +21,9 @@ public class PlayerData : NetworkBehaviour
         playerData = (ushort)Random.Range(100, 1000);
 
         // Hook doesn't fire for owner with Client-to-Server Sync Direction
-        // so we must invoke the action directly
-        OnPlayerDataChanged?.Invoke(playerData);
+        // so we must invoke the action directly, if we're not the host client
+        if (isClientOnly)
+            OnPlayerDataChanged?.Invoke(playerData);
     }
 
     // This is called by the hook of playerData SyncVar above
