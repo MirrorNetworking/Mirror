@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Mirror.Examples.Basic
 {
-    [RequireComponent(typeof (PlayerData))]
+    [RequireComponent(typeof(PlayerData))]
     public class Player : NetworkBehaviour
     {
         // Events that the PlayerUI will subscribe to
@@ -26,15 +26,11 @@ namespace Mirror.Examples.Basic
 
         [Header("SyncVars")]
 
-        /// <summary>
-        /// This is appended to the player name text, e.g. "Player 01"
-        /// </summary>
+        [Tooltip("This is appended to the player name text, e.g. 'Player 01'")]
         [SyncVar(hook = nameof(PlayerNumberChanged))]
         public byte playerNumber = 0;
 
-        /// <summary>
-        /// Random color for the playerData text, assigned in OnStartServer
-        /// </summary>
+        [Tooltip("Random color for the playerData text, assigned in OnStartServer")]
         [SyncVar(hook = nameof(PlayerColorChanged))]
         public Color32 playerColor = Color.white;
 
@@ -87,8 +83,10 @@ namespace Mirror.Examples.Basic
             playersList.Remove(this);
         }
 
-        // This is called from BasicNetManager OnServerAddPlayer and OnServerDisconnect
-        // Player numbers are reset whenever a player joins / leaves
+        /// <summary>
+        /// This is called from BasicNetManager OnServerAddPlayer and OnServerDisconnect.
+        /// <para>Player numbers are reset whenever a player joins / leaves.</para>
+        /// </summary>
         [ServerCallback]
         internal static void ResetPlayerNumbers()
         {
@@ -109,7 +107,7 @@ namespace Mirror.Examples.Basic
         {
             // Instantiate the player UI as child of the Players Panel
             playerUIObject = Instantiate(playerUIPrefab, CanvasUI.GetPlayersPanel());
-            
+
             // Set component reference
             playerUI = playerUIObject.GetComponent<PlayerUI>();
 

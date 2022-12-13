@@ -34,7 +34,7 @@ namespace Mirror.Examples.Basic
         // This updates from Player::UpdateData via InvokeRepeating on server
         public void OnPlayerDataChanged(ushort newPlayerData)
         {
-            Debug.Log($"OnPlayerDataChanged {playerNameText.text} {newPlayerData}", gameObject);
+            //Debug.Log($"OnPlayerDataChanged {playerNameText.text} {newPlayerData}", gameObject);
 
             // Show the data in the UI
             playerDataText.text = string.Format("Data: {0:000}", newPlayerData);
