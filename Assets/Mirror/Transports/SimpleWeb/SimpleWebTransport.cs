@@ -15,7 +15,6 @@ namespace Mirror.SimpleWeb
         [Tooltip("Port to use for server and client")]
         public ushort port = 7778;
 
-
         [Tooltip("Protect against allocation attacks by keeping the max message size small. Otherwise an attacker might send multiple fake packets with 2GB headers, causing the server to run out of memory after allocating multiple large packets.")]
         public int maxMessageSize = 16 * 1024;
 
@@ -46,7 +45,6 @@ namespace Mirror.SimpleWeb
             "This gives time for mirror to finish adding message to queue so that less groups need to be made. " +
             "If WaitBeforeSend is true then BatchSend Will also be set to true")]
         public bool waitBeforeSend = false;
-
 
         [Header("Ssl Settings")]
         [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport, NOTE: if sslEnabled is true clientUseWss is also true")]
@@ -108,6 +106,7 @@ namespace Mirror.SimpleWeb
         }
 
         #region Client
+
         string GetClientScheme() => (sslEnabled || clientUseWss) ? SecureScheme : NormalScheme;
         string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
         public override bool ClientConnected()
@@ -132,11 +131,11 @@ namespace Mirror.SimpleWeb
                 Port = port
             };
 
-
             client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
             if (client == null) { return; }
 
             client.onConnect += OnClientConnected.Invoke;
+
             client.onDisconnect += () =>
             {
                 OnClientDisconnected.Invoke();
@@ -144,7 +143,9 @@ namespace Mirror.SimpleWeb
                 // there should be no more messages after disconnect
                 client = null;
             };
+
             client.onData += (ArraySegment<byte> data) => OnClientDataReceived.Invoke(data, Channels.Reliable);
+
             client.onError += (Exception e) =>
             {
                 OnClientError.Invoke(TransportError.Unexpected, e.ToString());
@@ -191,9 +192,11 @@ namespace Mirror.SimpleWeb
         {
             client?.ProcessMessageQueue(this);
         }
+
         #endregion
 
         #region Server
+
         public override bool ServerActive()
         {
             return server != null && server.Active;
@@ -288,6 +291,7 @@ namespace Mirror.SimpleWeb
         {
             server?.ProcessMessageQueue(this);
         }
+
         #endregion
     }
 }

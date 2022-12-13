@@ -41,8 +41,8 @@ namespace Mirror.SimpleWeb
             {
                 if (!ReadHelper.TryRead(stream, getHeader.array, 0, GetSize))
                     return false;
-                getHeader.count = GetSize;
 
+                getHeader.count = GetSize;
 
                 if (!IsGet(getHeader.array))
                 {
@@ -50,7 +50,6 @@ namespace Mirror.SimpleWeb
                     return false;
                 }
             }
-
 
             string msg = ReadToEndForHandshake(stream);
 
@@ -108,7 +107,6 @@ namespace Mirror.SimpleWeb
                 stream.Write(responseBuffer.array, 0, ResponseLength);
             }
         }
-
 
         static void GetKey(string msg, byte[] keyBuffer)
         {
