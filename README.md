@@ -94,7 +94,7 @@ The [BigBoxVR](https://www.bigboxvr.com/) team started using Mirror in February 
 
 In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror team, BigBoxVR also hired one of our engineers.
 
-**Population: ONE** was recently [acquired by Facebook](https://uploadvr.com/population-one-facebook-bigbox-acquire/).
+**Population: ONE** was [acquired by Facebook](https://uploadvr.com/population-one-facebook-bigbox-acquire/) in June 2021, and they've just released a new [Sandbox](https://www.youtube.com/watch?v=jcI0h8dn9tA) addon in 2022!
 
 ### [Nimoyd](https://www.nimoyd.com/)
 [![nimoyd_smaller](https://user-images.githubusercontent.com/16416509/178142672-340bac2c-628a-4610-bbf1-8f718cb5b033.jpg)](https://www.nimoyd.com/)

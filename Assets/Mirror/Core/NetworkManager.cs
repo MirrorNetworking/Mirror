@@ -277,18 +277,11 @@ namespace Mirror
             // start listening to network connections
             NetworkServer.Listen(maxConnections);
 
-            // call OnStartServer AFTER Listen, so that NetworkServer.active is
-            // true and we can call NetworkServer.Spawn in OnStartServer
-            // overrides.
-            // (useful for loading & spawning stuff from database etc.)
-            //
-            // note: there is no risk of someone connecting after Listen() and
-            //       before OnStartServer() because this all runs in one thread
-            //       and we don't start processing connects until Update.
-            OnStartServer();
-
             // this must be after Listen(), since that registers the default message handlers
             RegisterServerMessages();
+
+            // do not call OnStartServer here yet.
+            // this is up to the caller. different for server-only vs. host mode.
         }
 
         /// <summary>Starts the server, listening for incoming connections.</summary>
@@ -319,6 +312,16 @@ namespace Mirror
             // have the onlineScene feature, it will be asynchronous!
 
             SetupServer();
+
+            // call OnStartServer AFTER Listen, so that NetworkServer.active is
+            // true and we can call NetworkServer.Spawn in OnStartServer
+            // overrides.
+            // (useful for loading & spawning stuff from database etc.)
+            //
+            // note: there is no risk of someone connecting after Listen() and
+            //       before OnStartServer() because this all runs in one thread
+            //       and we don't start processing connects until Update.
+            OnStartServer();
 
             // scene change needed? then change scene and spawn afterwards.
             if (IsServerOnlineSceneChangeNeeded())
@@ -435,6 +438,16 @@ namespace Mirror
 
             // setup server first
             SetupServer();
+
+            // call OnStartServer AFTER Listen, so that NetworkServer.active is
+            // true and we can call NetworkServer.Spawn in OnStartServer
+            // overrides.
+            // (useful for loading & spawning stuff from database etc.)
+            //
+            // note: there is no risk of someone connecting after Listen() and
+            //       before OnStartServer() because this all runs in one thread
+            //       and we don't start processing connects until Update.
+            OnStartServer();
 
             // call OnStartHost AFTER SetupServer. this way we can use
             // NetworkServer.Spawn etc. in there too. just like OnStartServer

@@ -245,19 +245,19 @@ namespace Mirror.SimpleWeb
         {
             if (!ServerActive())
             {
-                Debug.LogError("[SimpleWebTransport] Server Not Active");
+                Log.Error("[SimpleWebTransport] Server Not Active", false);
                 return;
             }
 
             if (segment.Count > maxMessageSize)
             {
-                Log.Error("[SimpleWebTransport] Message greater than max size");
+                Log.Error("[SimpleWebTransport] Message greater than max size", false);
                 return;
             }
 
             if (segment.Count == 0)
             {
-                Log.Error("[SimpleWebTransport] Message count was zero");
+                Log.Error("[SimpleWebTransport] Message count was zero", false);
                 return;
             }
 
