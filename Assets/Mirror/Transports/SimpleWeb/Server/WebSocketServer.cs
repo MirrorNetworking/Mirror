@@ -21,7 +21,6 @@ namespace Mirror.SimpleWeb
         readonly BufferPool bufferPool;
         readonly ConcurrentDictionary<int, Connection> connections = new ConcurrentDictionary<int, Connection>();
 
-
         int _idCounter = 0;
 
         public WebSocketServer(TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig, BufferPool bufferPool)
@@ -58,9 +57,7 @@ namespace Mirror.SimpleWeb
             // make copy so that foreach doesn't break if values are removed
             Connection[] connectionsCopy = connections.Values.ToArray();
             foreach (Connection conn in connectionsCopy)
-            {
                 conn.Dispose();
-            }
 
             connections.Clear();
         }
