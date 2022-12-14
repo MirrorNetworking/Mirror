@@ -907,6 +907,9 @@ namespace kcp2k
         //
         // 'current' - current timestamp in millisec. pass it to Kcp so that
         // Kcp doesn't have to do any stopwatch/deltaTime/etc. code
+        //
+        // time as uint, likely to minimize bandwidth.
+        // uint.max = 4294967295 ms = 1193 hours = 49 days
         public void Update(uint currentTimeMilliSeconds)
         {
             current = currentTimeMilliSeconds;

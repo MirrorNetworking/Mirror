@@ -10,13 +10,13 @@ namespace kcp2k
 {
     public class KcpServer
     {
-        // events
+        // callbacks
+        // even for errors, to allow liraries to show popups etc.
+        // instead of logging directly.
+        // (string instead of Exception for ease of use and to avoid user panic)
         public Action<int> OnConnected;
         public Action<int, ArraySegment<byte>, KcpChannel> OnData;
         public Action<int> OnDisconnected;
-        // error callback instead of logging.
-        // allows libraries to show popups etc.
-        // (string instead of Exception for ease of use and to avoid user panic)
         public Action<int, ErrorCode, string> OnError;
 
         // socket configuration
@@ -101,7 +101,7 @@ namespace kcp2k
             // create newClientEP either IPv4 or IPv6
             newClientEP = DualMode
                           ? new IPEndPoint(IPAddress.IPv6Any, 0)
-                          : new IPEndPoint(IPAddress.Any, 0);
+                          : new IPEndPoint(IPAddress.Any,     0);
         }
 
         public virtual bool IsActive() => socket != null;
@@ -111,23 +111,21 @@ namespace kcp2k
             // only start once
             if (socket != null)
             {
-                Log.Warning("[KCP] server already started!");
+                Log.Warning("KCP: server already started!");
                 return;
             }
-
-            Log.Info($"[KCP] Starting server on port {port}");
 
             // listen
             if (DualMode)
             {
-                // IPv6 socket with DualMode
+                // IPv6 socket with DualMode @ "::" : port
                 socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
                 socket.DualMode = true;
                 socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
             }
             else
             {
-                // IPv4 socket
+                // IPv4 socket @ "0.0.0.0" : port
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 socket.Bind(new IPEndPoint(IPAddress.Any, port));
             }
@@ -140,7 +138,7 @@ namespace kcp2k
                 Common.MaximizeSocketBuffers(socket);
             }
             // otherwise still log the defaults for info.
-            else Log.Info($"[KCP] Server: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+            else Log.Info($"KcpServer: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(MaximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
         }
 
         public void Send(int connectionId, ArraySegment<byte> segment, KcpChannel channel)
@@ -172,7 +170,7 @@ namespace kcp2k
         // io - poll.
         // return true if there is data to read.
         // after which RawReceive will be called.
-        // virtual because for relays,
+        // virtual for relays.
         protected virtual bool RawPoll() =>
             socket != null && socket.Poll(0, SelectMode.SelectRead);
 
@@ -211,7 +209,7 @@ namespace kcp2k
             // get the connection's endpoint
             if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                Debug.LogWarning($"[KCP] Server.RawSend: invalid connectionId={connectionId}");
+                Debug.LogWarning($"KcpServer.RawSend: invalid connectionId={connectionId}");
                 return;
             }
 
@@ -283,7 +281,7 @@ namespace kcp2k
 
                         // add to connections dict after being authenticated.
                         connections.Add(connectionId, connection);
-                        Log.Info($"[KCP] server added connection({connectionId})");
+                        Log.Info($"KCP: server added connection({connectionId})");
 
                         // setup Data + Disconnected events only AFTER the
                         // handshake. we don't want to fire OnServerDisconnected
@@ -307,7 +305,7 @@ namespace kcp2k
                             connectionsToRemove.Add(connectionId);
 
                             // call mirror event
-                            Log.Info($"[KCP] OnServerDisconnected({connectionId})");
+                            Log.Info($"KCP: OnServerDisconnected({connectionId})");
                             OnDisconnected(connectionId);
                         };
 
@@ -318,7 +316,7 @@ namespace kcp2k
                         };
 
                         // finally, call mirror OnConnected event
-                        Log.Info($"[KCP] OnServerConnected({connectionId})");
+                        Log.Info($"KCP: OnServerConnected({connectionId})");
                         OnConnected(connectionId);
                     };
 
@@ -345,13 +343,13 @@ namespace kcp2k
                 // the other end closing the connection is not an 'error'.
                 // but connections should never just end silently.
                 // at least log a message for easier debugging.
-                Log.Info($"[KCP] ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
             }
         }
 
         // process incoming messages. should be called before updating the world.
         // virtual because relay may need to inject their own ping or similar.
-        HashSet<int> connectionsToRemove = new HashSet<int>();
+        readonly HashSet<int> connectionsToRemove = new HashSet<int>();
         public virtual void TickIncoming()
         {
             while (RawPoll())

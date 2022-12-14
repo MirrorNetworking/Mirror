@@ -1,3 +1,7 @@
+V1.24 [2022-12-14]
+- KcpClient: fixed NullReferenceException when connection without a server.
+  added test coverage to ensure this never happens again.
+
 V1.23 [2022-12-07]
 - KcpClient: rawReceiveBuffer exposed
 - fix: KcpServer RawSend uses connection.remoteEndPoint instead of the helper
