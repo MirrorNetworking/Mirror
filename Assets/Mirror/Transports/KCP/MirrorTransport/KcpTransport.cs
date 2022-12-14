@@ -43,7 +43,7 @@ namespace kcp2k
         [FormerlySerializedAs("MaximizeSendReceiveBuffersToOSLimit")]
         public bool MaximizeSocketBuffers = true;
 
-        [Header("Calculated Max (based on Receive Window Size)")]
+        [Header("Allowed Max Message Sizes\nBased on Receive Window Size")]
         [Tooltip("KCP reliable max message size shown for convenience. Can be changed via ReceiveWindowSize.")]
         [ReadOnly] public int ReliableMaxMessageSize = 0; // readonly, displayed from OnValidate
         [Tooltip("KCP unreliable channel max message size for convenience. Not changeable.")]
