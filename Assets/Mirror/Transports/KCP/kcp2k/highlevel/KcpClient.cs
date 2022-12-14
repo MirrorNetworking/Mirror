@@ -47,17 +47,7 @@ namespace kcp2k
             this.OnError = OnError;
         }
 
-        public void Connect(string address,
-                            ushort port,
-                            bool noDelay,
-                            uint interval,
-                            int fastResend = 0,
-                            bool congestionWindow = true,
-                            uint sendWindowSize = Kcp.WND_SND,
-                            uint receiveWindowSize = Kcp.WND_RCV,
-                            int timeout = KcpPeer.DEFAULT_TIMEOUT,
-                            uint maxRetransmits = Kcp.DEADLINK,
-                            bool maximizeSendReceiveBuffersToOSLimit = false)
+        public void Connect(string address, ushort port, KcpConfig config)
         {
             if (connected)
             {
@@ -66,7 +56,7 @@ namespace kcp2k
             }
 
             // create fresh peer for each new session
-            peer = new KcpPeer(RawSend, noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout, maxRetransmits);
+            peer = new KcpPeer(RawSend, config);
 
             // setup events
             peer.OnAuthenticated = () =>
@@ -113,31 +103,31 @@ namespace kcp2k
             // configure buffer sizes:
             // if connections drop under heavy load, increase to OS limit.
             // if still not enough, increase the OS limit.
-            if (maximizeSendReceiveBuffersToOSLimit)
+            if (config.MaximizeSocketBuffers)
             {
                 Common.MaximizeSocketBuffers(socket);
             }
             // otherwise still log the defaults for info.
-            else Log.Info($"KcpClient: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(maximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+            else Log.Info($"KcpClient: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(KcpConfig.MaximizeSocketBuffers)} to increase it to OS limit. If they still drop, increase the OS limit.");
 
             // bind to endpoint so we can use send/recv instead of sendto/recvfrom.
             socket.Connect(remoteEndPoint);
 
             // client should send handshake to server as very first message
             peer.SendHandshake();
-
-            RawReceive();
         }
 
         // io - input.
         // virtual so it may be modified for relays, etc.
-        protected virtual void RawReceive()
+        // call this while it returns true, to process all messages this tick.
+        // returned ArraySegment is valid until next call to RawReceive.
+        protected virtual bool RawReceive(out ArraySegment<byte> segment)
         {
-            if (socket == null) return;
+            segment = default;
 
             try
             {
-                while (socket.Poll(0, SelectMode.SelectRead))
+                if (socket != null && socket.Poll(0, SelectMode.SelectRead))
                 {
                     // ReceiveFrom allocates. we used bound Receive.
                     // returns amount of bytes written into buffer.
@@ -146,7 +136,8 @@ namespace kcp2k
                     int msgLength = socket.Receive(rawReceiveBuffer);
 
                     //Log.Debug($"KCP: client raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
-                    peer.RawInput(rawReceiveBuffer, 0, msgLength);
+                    segment = new ArraySegment<byte>(rawReceiveBuffer, 0, msgLength);
+                    return true;
                 }
             }
             // this is fine, the socket might have been closed in the other end
@@ -155,9 +146,13 @@ namespace kcp2k
                 // the other end closing the connection is not an 'error'.
                 // but connections should never just end silently.
                 // at least log a message for easier debugging.
-                Log.Info($"KCP ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                // for example, his can happen when connecting without a server.
+                // see test: ConnectWithoutServer().
+                Log.Info($"KcpClient: looks like the other end has closed the connection. This is fine: {ex}");
                 peer.Disconnect();
             }
+
+            return false;
         }
 
         // io - output.
@@ -197,7 +192,12 @@ namespace kcp2k
             // recv on socket first, then process incoming
             // (even if we didn't receive anything. need to tick ping etc.)
             // (connection is null if not active)
-            if (peer != null) RawReceive();
+            if (peer != null)
+            {
+
+                while (RawReceive(out ArraySegment<byte> segment))
+                    peer.RawInput(segment);
+            }
 
             // RawReceive may have disconnected peer. null check again.
             peer?.TickIncoming();
