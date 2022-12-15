@@ -5,6 +5,7 @@ using System.Net;
 using UnityEngine;
 using Mirror;
 using Unity.Collections;
+using UnityEngine.Serialization;
 
 namespace kcp2k
 {
@@ -30,26 +31,30 @@ namespace kcp2k
         [Header("Advanced")]
         [Tooltip("KCP fastresend parameter. Faster resend for the cost of higher bandwidth. 0 in normal mode, 2 in turbo mode.")]
         public int FastResend = 2;
-        [Tooltip("KCP congestion window. Enabled in normal mode, disabled in turbo mode. Disable this for high scale games if connections get choked regularly.")]
-        public bool CongestionWindow = false; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
+        [Tooltip("KCP congestion window. Restricts window size to reduce congestion. Results in only 2-3 MTU messages per Flush even on loopback. Best to keept his disabled.")]
+        /*public*/ bool CongestionWindow = false; // KCP 'NoCongestionWindow' is false by default. here we negate it for ease of use.
         [Tooltip("KCP window size can be modified to support higher loads.")]
         public uint SendWindowSize = 4096; //Kcp.WND_SND; 32 by default. Mirror sends a lot, so we need a lot more.
         [Tooltip("KCP window size can be modified to support higher loads. This also increases max message size.")]
         public uint ReceiveWindowSize = 4096; //Kcp.WND_RCV; 128 by default. Mirror sends a lot, so we need a lot more.
         [Tooltip("KCP will try to retransmit lost messages up to MaxRetransmit (aka dead_link) before disconnecting.")]
         public uint MaxRetransmit = Kcp.DEADLINK * 2; // default prematurely disconnects a lot of people (#3022). use 2x.
-        [Tooltip("Enable to use where-allocation NonAlloc KcpServer/Client/Connection versions. Highly recommended on all Unity platforms.")]
-        public bool NonAlloc = true;
         [Tooltip("Enable to automatically set client & server send/recv buffers to OS limit. Avoids issues with too small buffers under heavy load, potentially dropping connections. Increase the OS limit if this is still too small.")]
-        public bool MaximizeSendReceiveBuffersToOSLimit = true;
+        [FormerlySerializedAs("MaximizeSendReceiveBuffersToOSLimit")]
+        public bool MaximizeSocketBuffers = true;
 
-        [Header("Calculated Max (based on Receive Window Size)")]
+        [Header("Allowed Max Message Sizes\nBased on Receive Window Size")]
         [Tooltip("KCP reliable max message size shown for convenience. Can be changed via ReceiveWindowSize.")]
         [ReadOnly] public int ReliableMaxMessageSize = 0; // readonly, displayed from OnValidate
         [Tooltip("KCP unreliable channel max message size for convenience. Not changeable.")]
         [ReadOnly] public int UnreliableMaxMessageSize = 0; // readonly, displayed from OnValidate
 
-        // server & client (where-allocation NonAlloc versions)
+        // config is created from the serialized properties above.
+        // we can expose the config directly in the future.
+        // for now, let's not break people's old settings.
+        KcpConfig config;
+
+        // server & client
         KcpServer server;
         KcpClient client;
 
@@ -95,10 +100,8 @@ namespace kcp2k
             Log.Warning = Debug.LogWarning;
             Log.Error = Debug.LogError;
 
-#if ENABLE_IL2CPP
-            // NonAlloc doesn't work with IL2CPP builds
-            NonAlloc = false;
-#endif
+            // create config from serialized settings
+            config = new KcpConfig(DualMode, MaximizeSocketBuffers, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit);
 
             // client (NonAlloc version is not necessary anymore)
             client = new KcpClient(
@@ -109,37 +112,13 @@ namespace kcp2k
             );
 
             // server
-            server = NonAlloc
-                ? new KcpServerNonAlloc(
+            server = new KcpServer(
                       (connectionId) => OnServerConnected.Invoke(connectionId),
                       (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
                       (connectionId) => OnServerDisconnected.Invoke(connectionId),
                       (connectionId, error, reason) => OnServerError.Invoke(connectionId, ToTransportError(error), reason),
-                      DualMode,
-                      NoDelay,
-                      Interval,
-                      FastResend,
-                      CongestionWindow,
-                      SendWindowSize,
-                      ReceiveWindowSize,
-                      Timeout,
-                      MaxRetransmit,
-                      MaximizeSendReceiveBuffersToOSLimit)
-                : new KcpServer(
-                      (connectionId) => OnServerConnected.Invoke(connectionId),
-                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
-                      (connectionId) => OnServerDisconnected.Invoke(connectionId),
-                      (connectionId, error, reason) => OnServerError.Invoke(connectionId, ToTransportError(error), reason),
-                      DualMode,
-                      NoDelay,
-                      Interval,
-                      FastResend,
-                      CongestionWindow,
-                      SendWindowSize,
-                      ReceiveWindowSize,
-                      Timeout,
-                      MaxRetransmit,
-                      MaximizeSendReceiveBuffersToOSLimit);
+                      config
+            );
 
             if (statisticsLog)
                 InvokeRepeating(nameof(OnLogStatistics), 1, 1);
@@ -162,7 +141,7 @@ namespace kcp2k
         public override bool ClientConnected() => client.connected;
         public override void ClientConnect(string address)
         {
-            client.Connect(address, Port, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit, MaximizeSendReceiveBuffersToOSLimit);
+            client.Connect(address, Port, config);
         }
         public override void ClientConnect(Uri uri)
         {
@@ -170,7 +149,7 @@ namespace kcp2k
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             int serverPort = uri.IsDefaultPort ? Port : uri.Port;
-            client.Connect(uri.Host, (ushort)serverPort, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit, MaximizeSendReceiveBuffersToOSLimit);
+            client.Connect(uri.Host, (ushort)serverPort, config);
         }
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {

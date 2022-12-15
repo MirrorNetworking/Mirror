@@ -139,16 +139,7 @@ namespace kcp2k
         // => useful to start from a fresh state every time the client connects
         // => NoDelay, interval, wnd size are the most important configurations.
         //    let's force require the parameters so we don't forget it anywhere.
-        public KcpPeer(
-            Action<ArraySegment<byte>> output,
-            bool noDelay,
-            uint interval = Kcp.INTERVAL,
-            int fastResend = 0,
-            bool congestionWindow = true,
-            uint sendWindowSize = Kcp.WND_SND,
-            uint receiveWindowSize = Kcp.WND_RCV,
-            int timeout = DEFAULT_TIMEOUT,
-            uint maxRetransmits = Kcp.DEADLINK)
+        public KcpPeer(Action<ArraySegment<byte>> output, KcpConfig config)
         {
             this.RawSend = output;
 
@@ -157,8 +148,8 @@ namespace kcp2k
 
             // set nodelay.
             // note that kcp uses 'nocwnd' internally so we negate the parameter
-            kcp.SetNoDelay(noDelay ? 1u : 0u, interval, fastResend, !congestionWindow);
-            kcp.SetWindowSize(sendWindowSize, receiveWindowSize);
+            kcp.SetNoDelay(config.NoDelay ? 1u : 0u, config.Interval, config.FastResend, !config.CongestionWindow);
+            kcp.SetWindowSize(config.SendWindowSize, config.ReceiveWindowSize);
 
             // IMPORTANT: high level needs to add 1 channel byte to each raw
             // message. so while Kcp.MTU_DEF is perfect, we actually need to
@@ -167,14 +158,14 @@ namespace kcp2k
             kcp.SetMtu(Kcp.MTU_DEF - CHANNEL_HEADER_SIZE);
 
             // set maximum retransmits (aka dead_link)
-            kcp.dead_link = maxRetransmits;
+            kcp.dead_link = config.MaxRetransmits;
 
             // create message buffers AFTER window size is set
             // see comments on buffer definition for the "+1" part
-            kcpMessageBuffer = new byte[1 + ReliableMaxMessageSize(receiveWindowSize)];
-            kcpSendBuffer    = new byte[1 + ReliableMaxMessageSize(receiveWindowSize)];
+            kcpMessageBuffer = new byte[1 + ReliableMaxMessageSize(config.ReceiveWindowSize)];
+            kcpSendBuffer    = new byte[1 + ReliableMaxMessageSize(config.ReceiveWindowSize)];
 
-            this.timeout = timeout;
+            timeout = config.Timeout;
 
             watch.Start();
         }
@@ -489,23 +480,27 @@ namespace kcp2k
         // insert raw IO. usually from socket.Receive.
         // offset is useful for relays, where we may parse a header and then
         // feed the rest to kcp.
-        public void RawInput(byte[] buffer, int offset, int size)
+        public void RawInput(ArraySegment<byte> segment)
         {
             // ensure valid size: at least 1 byte for channel
-            if (size <= 0) return;
+            if (segment.Count <= 0) return;
 
             // parse channel
-            byte channel = buffer[offset + 0];
+            byte channel = segment[0];
+
+            // parse message
+            ArraySegment<byte> message = new ArraySegment<byte>(segment.Array, segment.Offset + 1, segment.Count - 1);
+
             switch (channel)
             {
                 case (byte)KcpChannel.Reliable:
                 {
                     // input into kcp, but skip channel byte
-                    int input = kcp.Input(buffer, offset + 1, size - 1);
+                    int input = kcp.Input(message.Array, message.Offset, message.Count);
                     if (input != 0)
                     {
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Warning($"{GetType()}: Input failed with error={input} for buffer with length={size - 1}");
+                        Log.Warning($"{GetType()}: Input failed with error={input} for buffer with length={message.Count - 1}");
                     }
                     break;
                 }
@@ -532,7 +527,6 @@ namespace kcp2k
                     //    the current state allows it.
                     if (state == KcpState.Authenticated)
                     {
-                        ArraySegment<byte> message = new ArraySegment<byte>(buffer, offset + 1, size - 1);
                         OnData?.Invoke(message, KcpChannel.Unreliable);
 
                         // set last receive time to avoid timeout.
