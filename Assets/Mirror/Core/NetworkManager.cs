@@ -1316,7 +1316,7 @@ namespace Mirror
             // OnClientConnect by default calls AddPlayer but it should not do
             // that when we have online/offline scenes. so we need the
             // clientLoadedScene flag to prevent it.
-            if (NetworkClient.connection.isAuthenticated && !clientLoadedScene)
+            if (!clientLoadedScene)
             {
                 // Ready/AddPlayer is usually triggered by a scene load completing.
                 // if no scene was loaded, then Ready/AddPlayer it here instead.
@@ -1356,7 +1356,7 @@ namespace Mirror
         public virtual void OnClientSceneChanged()
         {
             // always become ready.
-            if (!NetworkClient.ready) NetworkClient.Ready();
+            if (NetworkClient.connection.isAuthenticated && !NetworkClient.ready) NetworkClient.Ready();
 
             // Only call AddPlayer for normal scene changes, not additive load/unload
             if (NetworkClient.connection.isAuthenticated && clientSceneOperation == SceneOperation.Normal && autoCreatePlayer && NetworkClient.localPlayer == null)
