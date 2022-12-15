@@ -674,8 +674,8 @@ namespace Mirror
         bool clientStarted;
         internal void OnStartClient()
         {
-            if (clientStarted)
-                return;
+            if (clientStarted) return;
+
             clientStarted = true;
 
             // Debug.Log($"OnStartClient {gameObject} netId:{netId}");
@@ -700,6 +700,10 @@ namespace Mirror
 
         internal void OnStopClient()
         {
+            // In case this object was destroyed already don't call
+            // OnStopClient if OnStartClient hasn't been called.
+            if (!clientStarted) return;
+
             foreach (NetworkBehaviour comp in NetworkBehaviours)
             {
                 // an exception in OnStopClient should be caught, so that
