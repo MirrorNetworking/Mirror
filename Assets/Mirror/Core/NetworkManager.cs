@@ -1122,12 +1122,6 @@ namespace Mirror
         {
             //Debug.Log("NetworkManager.OnServerAddPlayer");
 
-            if (!conn.isAuthenticated)
-            {
-                Debug.LogError("The connection has not been authenticated.");
-                return;
-            }
-
             if (autoCreatePlayer && playerPrefab == null)
             {
                 Debug.LogError("The PlayerPrefab is empty on the NetworkManager. Please setup a PlayerPrefab object.");
@@ -1322,7 +1316,7 @@ namespace Mirror
             // OnClientConnect by default calls AddPlayer but it should not do
             // that when we have online/offline scenes. so we need the
             // clientLoadedScene flag to prevent it.
-            if (!clientLoadedScene && NetworkClient.connection.isAuthenticated)
+            if (NetworkClient.connection.isAuthenticated && !clientLoadedScene)
             {
                 // Ready/AddPlayer is usually triggered by a scene load completing.
                 // if no scene was loaded, then Ready/AddPlayer it here instead.
