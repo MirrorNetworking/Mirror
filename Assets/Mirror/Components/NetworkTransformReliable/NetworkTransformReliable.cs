@@ -8,10 +8,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Reliable)")]
     public class NetworkTransformReliable : NetworkTransformBase
     {
-        // Is this a client with authority over this transform?
-        // This component could be on the player object or any object that has been assigned authority to this client.
-        protected bool IsClientWithAuthority => isClient && authority;
-
         [Header("Sync Only If Changed")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
@@ -46,23 +42,6 @@ namespace Mirror
 
         // Used to store last sent snapshots
         protected TransformSnapshot last;
-
-        // initialization //////////////////////////////////////////////////////
-        // make sure to call this when inheriting too!
-        protected virtual void Awake() {}
-
-        protected virtual void OnValidate()
-        {
-            // set target to self if none yet
-            if (target == null) target = transform;
-
-            // time snapshot interpolation happens globally.
-            // value (transform) happens in here.
-            // both always need to be on the same send interval.
-            // force the setting to '0' in OnValidate to make it obvious that we
-            // actually use NetworkServer.sendInterval.
-            syncInterval = 0;
-        }
 
         // helper function to compare quantized representations of a Vector3
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

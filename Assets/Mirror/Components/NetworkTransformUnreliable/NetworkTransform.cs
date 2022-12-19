@@ -10,16 +10,6 @@ namespace Mirror
     [AddComponentMenu("Network/Network Transform (Unreliable)")]
     public class NetworkTransform : NetworkTransformBase
     {
-        // TODO SyncDirection { ClientToServer, ServerToClient } is easier?
-        [Obsolete("NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
-        [Header("[Obsolete]")] // Unity doesn't show obsolete warning for fields. do it manually.
-        [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        public bool clientAuthority;
-
-        // Is this a client with authority over this transform?
-        // This component could be on the player object or any object that has been assigned authority to this client.
-        protected bool IsClientWithAuthority => isClient && authority;
-
         // only sync when changed hack /////////////////////////////////////////
 #if onlySyncOnChange_BANDWIDTH_SAVING
         [Header("Sync Only If Changed")]
@@ -47,34 +37,6 @@ namespace Mirror
 
         double lastClientSendTime;
         double lastServerSendTime;
-
-        // initialization //////////////////////////////////////////////////////
-        // make sure to call this when inheriting too!
-        protected virtual void Awake() {}
-
-        protected virtual void OnValidate()
-        {
-            // set target to self if none yet
-            if (target == null) target = transform;
-
-            // time snapshot interpolation happens globally.
-            // value (transform) happens in here.
-            // both always need to be on the same send interval.
-            // force the setting to '0' in OnValidate to make it obvious that we
-            // actually use NetworkServer.sendInterval.
-            syncInterval = 0;
-
-            // obsolete clientAuthority compatibility:
-            // if it was used, then set the new SyncDirection automatically.
-            // if it wasn't used, then don't touch syncDirection.
- #pragma warning disable CS0618
-            if (clientAuthority)
-            {
-                syncDirection = SyncDirection.ClientToServer;
-                Debug.LogWarning($"{name}'s NetworkTransform component has obsolete .clientAuthority enabled. Please disable it and set SyncDirection to ClientToServer instead.");
-            }
- #pragma warning restore CS0618
-        }
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
         // Returns true if position, rotation AND scale are unchanged, within given sensitivity range.
