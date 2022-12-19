@@ -329,7 +329,10 @@ namespace Mirror
                 NetworkServer.AddPlayerForConnection(conn, newRoomGameObject);
             }
             else
-                OnRoomServerAddPlayer(conn);
+            {
+                // Late joiners not supported...should've been kicked by OnServerDisconnect
+                conn.Disconnect();
+            }
         }
 
         [Server]
