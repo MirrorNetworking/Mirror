@@ -44,11 +44,6 @@ namespace Mirror
         protected bool              cachedSnapshotComparison;
         protected bool              hasSentUnchangedPosition;
 #endif
-        // selective sync //////////////////////////////////////////////////////
-        [Header("Selective Sync & interpolation")]
-        public bool syncPosition = true;
-        public bool syncRotation = true;
-        public bool syncScale    = false; // rare. off by default.
 
         double lastClientSendTime;
         double lastServerSendTime;
@@ -79,51 +74,6 @@ namespace Mirror
                 Debug.LogWarning($"{name}'s NetworkTransform component has obsolete .clientAuthority enabled. Please disable it and set SyncDirection to ClientToServer instead.");
             }
  #pragma warning restore CS0618
-        }
-
-        // snapshot functions //////////////////////////////////////////////////
-        // construct a snapshot of the current state
-        // => internal for testing
-        protected virtual TransformSnapshot ConstructSnapshot()
-        {
-            // NetworkTime.localTime for double precision until Unity has it too
-            return new TransformSnapshot(
-                // our local time is what the other end uses as remote time
-#if !UNITY_2020_3_OR_NEWER
-                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
-#else
-                Time.timeAsDouble,
-#endif
-                // the other end fills out local time itself
-                0,
-                target.localPosition,
-                target.localRotation,
-                target.localScale
-            );
-        }
-
-        // apply a snapshot to the Transform.
-        // -> start, end, interpolated are all passed in caes they are needed
-        // -> a regular game would apply the 'interpolated' snapshot
-        // -> a board game might want to jump to 'goal' directly
-        // (it's easier to always interpolate and then apply selectively,
-        //  instead of manually interpolating x, y, z, ... depending on flags)
-        // => internal for testing
-        //
-        // NOTE: stuck detection is unnecessary here.
-        //       we always set transform.position anyway, we can't get stuck.
-        protected virtual void ApplySnapshot(TransformSnapshot interpolated)
-        {
-            // local position/rotation for VR support
-            //
-            // if syncPosition/Rotation/Scale is disabled then we received nulls
-            // -> current position/rotation/scale would've been added as snapshot
-            // -> we still interpolated
-            // -> but simply don't apply it. if the user doesn't want to sync
-            //    scale, then we should not touch scale etc.
-            if (syncPosition) target.localPosition = interpolated.position;
-            if (syncRotation) target.localRotation = interpolated.rotation;
-            if (syncScale)    target.localScale = interpolated.scale;
         }
 
 #if onlySyncOnChange_BANDWIDTH_SAVING
@@ -280,7 +230,7 @@ namespace Mirror
             {
                 // send snapshot without timestamp.
                 // receiver gets it from batch timestamp to save bandwidth.
-                TransformSnapshot snapshot = ConstructSnapshot();
+                TransformSnapshot snapshot = Construct();
 #if onlySyncOnChange_BANDWIDTH_SAVING
                 cachedSnapshotComparison = CompareSnapshots(snapshot);
                 if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
@@ -337,7 +287,7 @@ namespace Mirror
 
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    ApplySnapshot(computed);
+                    Apply(computed);
                 }
             }
         }
@@ -374,7 +324,7 @@ namespace Mirror
                 {
                     // send snapshot without timestamp.
                     // receiver gets it from batch timestamp to save bandwidth.
-                    TransformSnapshot snapshot = ConstructSnapshot();
+                    TransformSnapshot snapshot = Construct();
 #if onlySyncOnChange_BANDWIDTH_SAVING
                     cachedSnapshotComparison = CompareSnapshots(snapshot);
                     if (cachedSnapshotComparison && hasSentUnchangedPosition && onlySyncOnChange) { return; }
@@ -428,7 +378,7 @@ namespace Mirror
 
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    ApplySnapshot(computed);
+                    Apply(computed);
                 }
             }
         }

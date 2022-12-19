@@ -32,11 +32,38 @@ namespace Mirror
         internal SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
         internal SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
+        // selective sync //////////////////////////////////////////////////////
+        [Header("Selective Sync & Interpolation\nDon't change these at Runtime")]
+        public bool syncPosition = true;  // do not change at runtime!
+        public bool syncRotation = true;  // do not change at runtime!
+        public bool syncScale    = false; // do not change at runtime! rare. off by default.
+
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
         public bool showGizmos;
         public bool  showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
+
+        // snapshot functions //////////////////////////////////////////////////
+        // construct a snapshot of the current state
+        // => internal for testing
+        protected virtual TransformSnapshot Construct()
+        {
+            // NetworkTime.localTime for double precision until Unity has it too
+            return new TransformSnapshot(
+                // our local time is what the other end uses as remote time
+#if !UNITY_2020_3_OR_NEWER
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+#else
+                Time.timeAsDouble,
+#endif
+                // the other end fills out local time itself
+                0,
+                target.localPosition,
+                target.localRotation,
+                target.localScale
+            );
+        }
 
         protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
         {
@@ -65,6 +92,30 @@ namespace Mirror
                 rotation.Value,
                 scale.Value
             ));
+        }
+
+        // apply a snapshot to the Transform.
+        // -> start, end, interpolated are all passed in caes they are needed
+        // -> a regular game would apply the 'interpolated' snapshot
+        // -> a board game might want to jump to 'goal' directly
+        // (it's easier to always interpolate and then apply selectively,
+        //  instead of manually interpolating x, y, z, ... depending on flags)
+        // => internal for testing
+        //
+        // NOTE: stuck detection is unnecessary here.
+        //       we always set transform.position anyway, we can't get stuck.
+        protected virtual void Apply(TransformSnapshot interpolated)
+        {
+            // local position/rotation for VR support
+            //
+            // if syncPosition/Rotation/Scale is disabled then we received nulls
+            // -> current position/rotation/scale would've been added as snapshot
+            // -> we still interpolated
+            // -> but simply don't apply it. if the user doesn't want to sync
+            //    scale, then we should not touch scale etc.
+            if (syncPosition) target.localPosition = interpolated.position;
+            if (syncRotation) target.localRotation = interpolated.rotation;
+            if (syncScale)    target.localScale = interpolated.scale;
         }
 
         // common Teleport code for client->server and server->client
