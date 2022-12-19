@@ -38,6 +38,126 @@ namespace Mirror
         public bool  showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
+        // common Teleport code for client->server and server->client
+        protected virtual void OnTeleport(Vector3 destination)
+        {
+            // reset any in-progress interpolation & buffers
+            Reset();
+
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+
+            // TODO
+            // what if we still receive a snapshot from before the interpolation?
+            // it could easily happen over unreliable.
+            // -> maybe add destination as first entry?
+        }
+
+        // common Teleport code for client->server and server->client
+        protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
+        {
+            // reset any in-progress interpolation & buffers
+            Reset();
+
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+            target.rotation = rotation;
+
+            // TODO
+            // what if we still receive a snapshot from before the interpolation?
+            // it could easily happen over unreliable.
+            // -> maybe add destination as first entry?
+        }
+
+        // server->client teleport to force position without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [ClientRpc]
+        public void RpcTeleport(Vector3 destination)
+        {
+            // NOTE: even in client authority mode, the server is always allowed
+            //       to teleport the player. for example:
+            //       * CmdEnterPortal() might teleport the player
+            //       * Some people use client authority with server sided checks
+            //         so the server should be able to reset position if needed.
+
+            // TODO what about host mode?
+            OnTeleport(destination);
+        }
+
+        // server->client teleport to force position and rotation without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [ClientRpc]
+        public void RpcTeleport(Vector3 destination, Quaternion rotation)
+        {
+            // NOTE: even in client authority mode, the server is always allowed
+            //       to teleport the player. for example:
+            //       * CmdEnterPortal() might teleport the player
+            //       * Some people use client authority with server sided checks
+            //         so the server should be able to reset position if needed.
+
+            // TODO what about host mode?
+            OnTeleport(destination, rotation);
+        }
+
+        // client->server teleport to force position without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [Command]
+        public void CmdTeleport(Vector3 destination)
+        {
+            // client can only teleport objects that it has authority over.
+            if (syncDirection != SyncDirection.ClientToServer) return;
+
+            // TODO what about host mode?
+            OnTeleport(destination);
+
+            // if a client teleports, we need to broadcast to everyone else too
+            // TODO the teleported client should ignore the rpc though.
+            //      otherwise if it already moved again after teleporting,
+            //      the rpc would come a little bit later and reset it once.
+            // TODO or not? if client ONLY calls Teleport(pos), the position
+            //      would only be set after the rpc. unless the client calls
+            //      BOTH Teleport(pos) and target.position=pos
+            RpcTeleport(destination);
+        }
+
+        // client->server teleport to force position and rotation without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [Command]
+        public void CmdTeleport(Vector3 destination, Quaternion rotation)
+        {
+            // client can only teleport objects that it has authority over.
+            if (syncDirection != SyncDirection.ClientToServer) return;
+
+            // TODO what about host mode?
+            OnTeleport(destination, rotation);
+
+            // if a client teleports, we need to broadcast to everyone else too
+            // TODO the teleported client should ignore the rpc though.
+            //      otherwise if it already moved again after teleporting,
+            //      the rpc would come a little bit later and reset it once.
+            // TODO or not? if client ONLY calls Teleport(pos), the position
+            //      would only be set after the rpc. unless the client calls
+            //      BOTH Teleport(pos) and target.position=pos
+            RpcTeleport(destination, rotation);
+        }
+
+        public virtual void Reset()
+        {
+            // disabled objects aren't updated anymore.
+            // so let's clear the buffers.
+            serverSnapshots.Clear();
+            clientSnapshots.Clear();
+        }
+
+        protected virtual void OnDisable() => Reset();
+        protected virtual void OnEnable()  => Reset();
+
         // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // debug ///////////////////////////////////////////////////////////////
