@@ -38,6 +38,35 @@ namespace Mirror
         public bool  showOverlay;
         public Color overlayColor = new Color(0, 0, 0, 0.5f);
 
+        protected void AddSnapshot(SortedList<double, TransformSnapshot> snapshots, double timeStamp, Vector3? position, Quaternion? rotation, Vector3? scale)
+        {
+            // position, rotation, scale can have no value if same as last time.
+            // saves bandwidth.
+            // but we still need to feed it to snapshot interpolation. we can't
+            // just have gaps in there if nothing has changed. for example, if
+            //   client sends snapshot at t=0
+            //   client sends nothing for 10s because not moved
+            //   client sends snapshot at t=10
+            // then the server would assume that it's one super slow move and
+            // replay it for 10 seconds.
+            if (!position.HasValue) position = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].position : target.localPosition;
+            if (!rotation.HasValue) rotation = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].rotation : target.localRotation;
+            if (!scale.HasValue)    scale    = snapshots.Count > 0 ? snapshots.Values[snapshots.Count - 1].scale    : target.localScale;
+
+            // insert transform snapshot
+            SnapshotInterpolation.InsertIfNotExists(snapshots, new TransformSnapshot(
+                timeStamp, // arrival remote timestamp. NOT remote time.
+#if !UNITY_2020_3_OR_NEWER
+                NetworkTime.localTime, // Unity 2019 doesn't have timeAsDouble yet
+#else
+                Time.timeAsDouble,
+#endif
+                position.Value,
+                rotation.Value,
+                scale.Value
+            ));
+        }
+
         // common Teleport code for client->server and server->client
         protected virtual void OnTeleport(Vector3 destination)
         {

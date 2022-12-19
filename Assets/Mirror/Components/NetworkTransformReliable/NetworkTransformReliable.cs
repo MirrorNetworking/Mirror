@@ -187,19 +187,6 @@ namespace Mirror
             // protect against ever growing buffer size attacks
             if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-            if (!position.HasValue) position = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue)    scale    = serverSnapshots.Count > 0 ? serverSnapshots.Values[serverSnapshots.Count - 1].scale    : target.localScale;
-
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
                 NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
@@ -214,15 +201,8 @@ namespace Mirror
                     target.localScale);
                 // Debug.Log($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
             }
-
-            // insert transform snapshot
-            SnapshotInterpolation.InsertIfNotExists(serverSnapshots, new TransformSnapshot(
-                connectionToClient.remoteTimeStamp, // arrival remote timestamp. NOT remote time.
-                NetworkTime.localTime,              // Unity 2019 doesn't have timeAsDouble yet
-                position.Value,
-                rotation.Value,
-                scale.Value
-            ));
+            
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp, position, rotation, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -230,19 +210,6 @@ namespace Mirror
         {
             // don't apply for local player with authority
             if (IsClientWithAuthority) return;
-
-            // position, rotation, scale can have no value if same as last time.
-            // saves bandwidth.
-            // but we still need to feed it to snapshot interpolation. we can't
-            // just have gaps in there if nothing has changed. for example, if
-            //   client sends snapshot at t=0
-            //   client sends nothing for 10s because not moved
-            //   client sends snapshot at t=10
-            // then the server would assume that it's one super slow move and
-            // replay it for 10 seconds.
-            if (!position.HasValue) position = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].position : target.localPosition;
-            if (!rotation.HasValue) rotation = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].rotation : target.localRotation;
-            if (!scale.HasValue)    scale    = clientSnapshots.Count > 0 ? clientSnapshots.Values[clientSnapshots.Count - 1].scale : target.localScale;
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
@@ -259,14 +226,7 @@ namespace Mirror
                 // Debug.Log($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
             }
 
-            // insert snapshot
-            SnapshotInterpolation.InsertIfNotExists(clientSnapshots, new TransformSnapshot(
-                NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote time.
-                NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
-                position.Value,
-                rotation.Value,
-                scale.Value
-            ));
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp, position, rotation, scale);
         }
 
         bool SkipQueue() =>
