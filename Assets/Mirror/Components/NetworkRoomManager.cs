@@ -241,15 +241,10 @@ namespace Mirror
         /// <param name="conn">Connection from client.</param>
         public override void OnServerConnect(NetworkConnectionToClient conn)
         {
-            if (numPlayers >= maxConnections)
-            {
-                conn.Disconnect();
-                return;
-            }
-
             // cannot join game in progress
             if (!Utils.IsSceneActive(RoomScene))
             {
+                Debug.Log($"Not in Room scene...disconnecting {conn}");
                 conn.Disconnect();
                 return;
             }
@@ -315,9 +310,6 @@ namespace Mirror
 
             if (Utils.IsSceneActive(RoomScene))
             {
-                if (roomSlots.Count == maxConnections)
-                    return;
-
                 allPlayersReady = false;
 
                 //Debug.Log("NetworkRoomManager.OnServerAddPlayer playerPrefab: {roomPlayerPrefab.name}");
@@ -331,6 +323,7 @@ namespace Mirror
             else
             {
                 // Late joiners not supported...should've been kicked by OnServerDisconnect
+                Debug.Log($"Not in Room scene...disconnecting {conn}");
                 conn.Disconnect();
             }
         }
