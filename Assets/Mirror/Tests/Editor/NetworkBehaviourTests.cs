@@ -851,6 +851,7 @@ namespace Mirror.Tests
         public void OnStopClient()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStopClientComponent comp);
+            identity.OnStartClient();
             identity.OnStopClient();
             Assert.That(comp.called, Is.EqualTo(1));
         }
