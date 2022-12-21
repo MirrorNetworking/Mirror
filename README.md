@@ -87,6 +87,18 @@ Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn ho
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.gitbook.io/docs/general/migration-guide).
 
 ---
+## Mirror LTS (Long Term Support)
+Mirror LTS is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-lts-102631).
+
+Mirror LTS gives you peace of mind to run your game in production.
+Without any breaking changes, ever!
+
+* **Bug fixes** only. 
+* **Consistent API**: update any time, without any breaking features.
+* Lives along side **Unity 2019/2020/2021** LTS.
+* Supported for two years at a time.
+
+---
 ## Made with Mirror
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://user-images.githubusercontent.com/16416509/178141286-9494c3a8-a4a5-4b06-af2b-b05b66162201.png)](https://www.populationonevr.com/)
@@ -184,17 +196,6 @@ Castaway runs in the Browser, thanks to Mirror's WebGL support.
 <a href="https://www.adversator.com/"><img src="https://user-images.githubusercontent.com/16416509/178641128-37dc270c-bedf-4891-8284-33573d1776b9.jpg" title="Adversator" height="100"/></a>
 <a href="https://store.steampowered.com/app/670260/Solace_Crafting/"><img src="https://user-images.githubusercontent.com/16416509/197175819-1c2720b6-97e6-4844-80b5-2197a7f22839.png" title="Solace Crafting" height="100"/></a>
 <a href="https://www.unitystation.org"><img src="https://user-images.githubusercontent.com/57072365/204021428-0c621067-d580-4c88-b551-3ac70f9da39d.jpg" title="UnityStation" height="100"/></a>
-
-## Mirror LTS (Long Term Support)
-If you use Mirror in production, consider Mirror LTS!
-* **Bug fixes** only. 
-* **Consistent API**: update any time, without any breaking features.
-* Lives along side **Unity 2019** LTS.
-* Supported from Sept. 2021 to Sept 2022, depending on feedback.
-
-**Mirror V46 LTS** is available to all [GitHub Sponsors](https://github.com/sponsors/vis2k).
-
-All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/MirrorNetworking/Mirror-46-LTS) automatically.
 
 ## Modular Transports
 Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
