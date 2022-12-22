@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -94,6 +95,7 @@ namespace Mirror
 
         public override void OnSerializeAll(NetworkWriter writer)
         {
+            Debug.Log($"SyncList OnSerializeAll with {objects.Count} items");
             // if init,  write the full list content
             writer.WriteUInt((uint)objects.Count);
 
@@ -112,6 +114,7 @@ namespace Mirror
 
         public override void OnSerializeDelta(NetworkWriter writer)
         {
+            Debug.Log($"SyncList OnSerializeDelta with {objects.Count} items");
             // write all the queued up changes
             writer.WriteUInt((uint)changes.Count);
 
@@ -163,6 +166,8 @@ namespace Mirror
             // the next time the list is synchronized
             // because they have already been applied
             changesAhead = (int)reader.ReadUInt();
+
+            Debug.Log($"SyncList OnDeserializeAll with {objects.Count} items");
         }
 
         public override void OnDeserializeDelta(NetworkReader reader)
@@ -240,6 +245,8 @@ namespace Mirror
                     changesAhead--;
                 }
             }
+
+            Debug.Log($"SyncList OnDeserializeDelta with {objects.Count} items");
         }
 
         public void Add(T item)
