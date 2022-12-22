@@ -61,7 +61,7 @@ namespace Mirror
         {
             if (IsReadOnly)
             {
-                throw new InvalidOperationException("SyncSets can only be modified at the server");
+                throw new InvalidOperationException("SyncSets can only be modified by the owner.");
             }
 
             Change change = new Change

@@ -73,7 +73,7 @@ namespace Mirror
         {
             if (IsReadOnly)
             {
-                throw new InvalidOperationException("Synclists can only be modified at the server");
+                throw new InvalidOperationException("Synclists can only be modified by the owner.");
             }
 
             Change change = new Change
