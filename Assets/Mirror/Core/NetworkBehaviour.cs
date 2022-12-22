@@ -996,18 +996,30 @@ namespace Mirror
         //   note: SyncVar hooks are only called when inital=false
         public virtual void OnSerialize(NetworkWriter writer, bool initialState)
         {
+            SerializeSyncObjects(writer, initialState);
+            SerializeSyncVars(writer, initialState);
+        }
+
+        /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
+        public virtual void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            DeserializeSyncObjects(reader, initialState);
+            DeserializeSyncVars(reader, initialState);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SerializeSyncObjects(NetworkWriter writer, bool initialState)
+        {
             // if initialState: write all SyncVars.
             // otherwise write dirtyBits+dirty SyncVars
             if (initialState)
                 SerializeObjectsAll(writer);
             else
                 SerializeObjectsDelta(writer);
-
-            SerializeSyncVars(writer, initialState);
         }
 
-        /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
-        public virtual void OnDeserialize(NetworkReader reader, bool initialState)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void DeserializeSyncObjects(NetworkReader reader, bool initialState)
         {
             if (initialState)
             {
@@ -1017,8 +1029,6 @@ namespace Mirror
             {
                 DeserializeObjectsDelta(reader);
             }
-
-            DeserializeSyncVars(reader, initialState);
         }
 
         // USED BY WEAVER
