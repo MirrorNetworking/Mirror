@@ -196,14 +196,22 @@ namespace Mirror
                         if (apply)
                         {
                             index = objects.Count;
-                            objects.Add(newItem);
+                            // objects.Add(newItem);
+
+                            // TODO isServer vs. isClient
+                            // call Add() to ensure it's set as dirty on server
+                            Add(newItem);
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
+                            // objects.Clear();
+
+                            // TODO isServer vs. isClient
+                            // call Clear() to ensure it's set as dirty on server
+                            Clear();
                         }
                         break;
 
@@ -212,7 +220,11 @@ namespace Mirror
                         newItem = reader.Read<T>();
                         if (apply)
                         {
-                            objects.Insert(index, newItem);
+                            // objects.Insert(index, newItem);
+
+                            // TODO isServer vs. isClient
+                            // call Insert() to ensure it's set as dirty on server
+                            Insert(index, newItem);
                         }
                         break;
 
@@ -221,7 +233,11 @@ namespace Mirror
                         if (apply)
                         {
                             oldItem = objects[index];
-                            objects.RemoveAt(index);
+                            // objects.RemoveAt(index);
+
+                            // TODO isServer vs. isClient
+                            // call RemoveAt() to ensure it's set as dirty on server
+                            RemoveAt(index);
                         }
                         break;
 
@@ -232,6 +248,9 @@ namespace Mirror
                         {
                             oldItem = objects[index];
                             objects[index] = newItem;
+                            // TODO isServer vs. isClient
+                            // call [] to ensure it's set as dirty on server
+                            this[index] = newItem;
                         }
                         break;
                 }

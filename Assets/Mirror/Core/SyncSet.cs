@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -170,14 +169,22 @@ namespace Mirror
                         item = reader.Read<T>();
                         if (apply)
                         {
-                            objects.Add(item);
+                            // objects.Add(item);
+
+                            // TODO isServer vs. isClient
+                            // call Add() to ensure it's set as dirty on server
+                            Add(item);
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
+                            // objects.Clear();
+
+                            // TODO isServer vs. isClient
+                            // call Clear() to ensure it's set as dirty on server
+                            Clear();
                         }
                         break;
 
@@ -185,7 +192,11 @@ namespace Mirror
                         item = reader.Read<T>();
                         if (apply)
                         {
-                            objects.Remove(item);
+                            // objects.Remove(item);
+
+                            // TODO isServer vs. isClient
+                            // call Remove() to ensure it's set as dirty on server
+                            Remove(item);
                         }
                         break;
                 }

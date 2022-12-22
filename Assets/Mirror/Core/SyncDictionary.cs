@@ -181,14 +181,22 @@ namespace Mirror
                         item = reader.Read<TValue>();
                         if (apply)
                         {
-                            objects[key] = item;
+                            // objects[key] = item;
+
+                            // TODO isServer vs. isClient
+                            // call this[] to ensure it's set as dirty on server
+                            this[key] = item;
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
+                            // objects.Clear();
+
+                            // TODO isServer vs. isClient
+                            // call Clear() to ensure it's set as dirty on server
+                            Clear();
                         }
                         break;
 
@@ -197,7 +205,11 @@ namespace Mirror
                         item = reader.Read<TValue>();
                         if (apply)
                         {
-                            objects.Remove(key);
+                            // objects.Remove(key);
+
+                            // TODO isServer vs. isClient
+                            // call Remove() to ensure it's set as dirty on server
+                            Remove(key);
                         }
                         break;
                 }
