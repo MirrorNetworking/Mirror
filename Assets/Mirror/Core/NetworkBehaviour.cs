@@ -153,6 +153,7 @@ namespace Mirror
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void SetSyncObjectDirtyBit(ulong dirtyBit)
         {
+            Debug.Log($"SetSyncObjectDirtyBit: {dirtyBit}");
             syncObjectDirtyBits |= dirtyBit;
         }
 
