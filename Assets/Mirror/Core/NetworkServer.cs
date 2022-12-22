@@ -1140,20 +1140,20 @@ namespace Mirror
             // verify if we can spawn this
             if (Utils.IsPrefab(obj))
             {
-                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. Instantiate it first.");
+                Debug.LogError($"GameObject {obj.name} is a prefab, it can't be spawned. Instantiate it first.", obj);
                 return;
             }
 
             if (!active)
             {
-                Debug.LogError($"SpawnObject for {obj}, NetworkServer is not active. Cannot spawn objects without an active server.");
+                Debug.LogError($"SpawnObject for {obj}, NetworkServer is not active. Cannot spawn objects without an active server.", obj);
                 return;
             }
 
             NetworkIdentity identity = obj.GetComponent<NetworkIdentity>();
             if (identity == null)
             {
-                Debug.LogError($"SpawnObject {obj} has no NetworkIdentity. Please add a NetworkIdentity to {obj}");
+                Debug.LogError($"SpawnObject {obj} has no NetworkIdentity. Please add a NetworkIdentity to {obj}", obj);
                 return;
             }
 
@@ -1167,7 +1167,7 @@ namespace Mirror
             // Spawn should only be called once per netId
             if (spawned.ContainsKey(identity.netId))
             {
-                Debug.LogWarning($"{identity} with netId={identity.netId} was already spawned.");
+                Debug.LogWarning($"{identity} with netId={identity.netId} was already spawned.", identity.gameObject);
                 return;
             }
 
