@@ -80,7 +80,7 @@ namespace kcp2k
             // only start once
             if (socket != null)
             {
-                Log.Warning("KCP: server already started!");
+                Log.Warning("KcpServer: already started!");
                 return;
             }
 
@@ -168,7 +168,7 @@ namespace kcp2k
                 // the other end closing the connection is not an 'error'.
                 // but connections should never just end silently.
                 // at least log a message for easier debugging.
-                Log.Info($"KCPServer: poll & read failed: {ex}");
+                Log.Info($"KcpServer: poll & read failed: {ex}");
             }
 
             return false;
@@ -182,7 +182,7 @@ namespace kcp2k
             // get the connection's endpoint
             if (!connections.TryGetValue(connectionId, out KcpServerConnection connection))
             {
-                Debug.LogWarning($"KcpServer.RawSend: invalid connectionId={connectionId}");
+                Debug.LogWarning($"KcpServer: RawSend invalid connectionId={connectionId}");
                 return;
             }
 
@@ -234,6 +234,13 @@ namespace kcp2k
                 //
                 // for now, this is fine.
 
+                // setup error event first.
+                // initialization may already log errors.
+                connection.peer.OnError = (error, reason) =>
+                {
+                    OnError(connectionId, error, reason);
+                };
+
                 // setup authenticated event that also adds to connections
                 connection.peer.OnAuthenticated = () =>
                 {
@@ -245,7 +252,7 @@ namespace kcp2k
 
                     // add to connections dict after being authenticated.
                     connections.Add(connectionId, connection);
-                    Log.Info($"KCP: server added connection({connectionId})");
+                    Log.Info($"KcpServer: added connection({connectionId})");
 
                     // setup Data + Disconnected events only AFTER the
                     // handshake. we don't want to fire OnServerDisconnected
@@ -269,18 +276,12 @@ namespace kcp2k
                         connectionsToRemove.Add(connectionId);
 
                         // call mirror event
-                        Log.Info($"KCP: OnServerDisconnected({connectionId})");
+                        Log.Info($"KcpServer: OnDisconnected({connectionId})");
                         OnDisconnected(connectionId);
                     };
 
-                    // setup error event
-                    connection.peer.OnError = (error, reason) =>
-                    {
-                        OnError(connectionId, error, reason);
-                    };
-
                     // finally, call mirror OnConnected event
-                    Log.Info($"KCP: OnServerConnected({connectionId})");
+                    Log.Info($"KcpServer: OnConnected({connectionId})");
                     OnConnected(connectionId);
                 };
 

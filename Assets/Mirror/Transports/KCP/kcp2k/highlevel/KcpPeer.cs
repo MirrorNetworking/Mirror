@@ -178,7 +178,7 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Timeout, $"{GetType()}: Connection timed out after not receiving any message for {timeout}ms. Disconnecting.");
+                OnError(ErrorCode.Timeout, $"KcpPeer: Connection timed out after not receiving any message for {timeout}ms. Disconnecting.");
                 Disconnect();
             }
         }
@@ -190,7 +190,7 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Timeout, $"{GetType()}: dead_link detected: a message was retransmitted {kcp.dead_link} times without ack. Disconnecting.");
+                OnError(ErrorCode.Timeout, $"KcpPeer: dead_link detected: a message was retransmitted {kcp.dead_link} times without ack. Disconnecting.");
                 Disconnect();
             }
         }
@@ -220,7 +220,7 @@ namespace kcp2k
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
                 OnError(ErrorCode.Congestion,
-                        $"{GetType()}: disconnecting connection because it can't process data fast enough.\n" +
+                        $"KcpPeer: disconnecting connection because it can't process data fast enough.\n" +
                         $"Queue total {total}>{QueueDisconnectThreshold}. rcv_queue={kcp.rcv_queue.Count} snd_queue={kcp.snd_queue.Count} rcv_buf={kcp.rcv_buf.Count} snd_buf={kcp.snd_buf.Count}\n" +
                         $"* Try to Enable NoDelay, decrease INTERVAL, disable Congestion Window (= enable NOCWND!), increase SEND/RECV WINDOW or compress data.\n" +
                         $"* Or perhaps the network is simply too slow on our end, or on the other end.");
@@ -252,7 +252,7 @@ namespace kcp2k
                 // we don't allow sending messages > Max, so this must be an
                 // attacker. let's disconnect to avoid allocation attacks etc.
                 // pass error to user callback. no need to log it manually.
-                OnError(ErrorCode.InvalidReceive, $"{GetType()}: possible allocation attack for msgSize {msgSize} > buffer {kcpMessageBuffer.Length}. Disconnecting the connection.");
+                OnError(ErrorCode.InvalidReceive, $"KcpPeer: possible allocation attack for msgSize {msgSize} > buffer {kcpMessageBuffer.Length}. Disconnecting the connection.");
                 Disconnect();
                 return false;
             }
@@ -264,7 +264,7 @@ namespace kcp2k
                 // if receive failed, close everything
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidReceive, $"{GetType()}: Receive failed with error={received}. closing connection.");
+                OnError(ErrorCode.InvalidReceive, $"KcpPeer: Receive failed with error={received}. closing connection.");
                 Disconnect();
                 return false;
             }
@@ -295,7 +295,7 @@ namespace kcp2k
                         // we were waiting for a handshake.
                         // it proves that the other end speaks our protocol.
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Info($"{GetType()}: received handshake");
+                        Log.Info($"KcpPeer: received handshake");
                         state = KcpState.Authenticated;
                         OnAuthenticated?.Invoke();
                         break;
@@ -311,7 +311,7 @@ namespace kcp2k
                         // everything else is not allowed during handshake!
                         // pass error to user callback. no need to log it manually.
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        OnError(ErrorCode.InvalidReceive, $"{GetType()}: received invalid header {header} while Connected. Disconnecting the connection.");
+                        OnError(ErrorCode.InvalidReceive, $"KcpPeer: received invalid header {header} while Connected. Disconnecting the connection.");
                         Disconnect();
                         break;
                     }
@@ -337,7 +337,7 @@ namespace kcp2k
                     {
                         // should never receive another handshake after auth
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Warning($"{GetType()}: received invalid header {header} while Authenticated. Disconnecting the connection.");
+                        Log.Warning($"KcpPeer: received invalid header {header} while Authenticated. Disconnecting the connection.");
                         Disconnect();
                         break;
                     }
@@ -354,7 +354,7 @@ namespace kcp2k
                         {
                             // pass error to user callback. no need to log it manually.
                             // GetType() shows Server/ClientConn instead of just Connection.
-                            OnError(ErrorCode.InvalidReceive, $"{GetType()}: received empty Data message while Authenticated. Disconnecting the connection.");
+                            OnError(ErrorCode.InvalidReceive, $"KcpPeer: received empty Data message while Authenticated. Disconnecting the connection.");
                             Disconnect();
                         }
                         break;
@@ -368,7 +368,7 @@ namespace kcp2k
                     {
                         // disconnect might happen
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Info($"{GetType()}: received disconnect message");
+                        Log.Info($"KcpPeer: received disconnect message");
                         Disconnect();
                         break;
                     }
@@ -407,7 +407,7 @@ namespace kcp2k
                 // this is ok, the connection was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (ObjectDisposedException exception)
@@ -415,7 +415,7 @@ namespace kcp2k
                 // fine, socket was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (Exception exception)
@@ -423,7 +423,7 @@ namespace kcp2k
                 // unexpected
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Unexpected, $"{GetType()}: unexpected Exception: {exception}");
+                OnError(ErrorCode.Unexpected, $"KcpPeer: unexpected Exception: {exception}");
                 Disconnect();
             }
         }
@@ -456,7 +456,7 @@ namespace kcp2k
                 // this is ok, the connection was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (ObjectDisposedException exception)
@@ -464,7 +464,7 @@ namespace kcp2k
                 // fine, socket was closed
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.ConnectionClosed, $"{GetType()}: Disconnecting because {exception}. This is fine.");
+                OnError(ErrorCode.ConnectionClosed, $"KcpPeer: Disconnecting because {exception}. This is fine.");
                 Disconnect();
             }
             catch (Exception exception)
@@ -472,7 +472,7 @@ namespace kcp2k
                 // unexpected
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.Unexpected, $"{GetType()}: unexpected exception: {exception}");
+                OnError(ErrorCode.Unexpected, $"KcpPeer: unexpected exception: {exception}");
                 Disconnect();
             }
         }
@@ -486,7 +486,8 @@ namespace kcp2k
             if (segment.Count <= 0) return;
 
             // parse channel
-            byte channel = segment[0];
+            // byte channel = segment[0]; ArraySegment[i] isn't supported in some older Unity Mono versions
+            byte channel = segment.Array[segment.Offset + 0];
 
             // parse message
             ArraySegment<byte> message = new ArraySegment<byte>(segment.Array, segment.Offset + 1, segment.Count - 1);
@@ -500,7 +501,7 @@ namespace kcp2k
                     if (input != 0)
                     {
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Warning($"{GetType()}: Input failed with error={input} for buffer with length={message.Count - 1}");
+                        Log.Warning($"KcpPeer: Input failed with error={input} for buffer with length={message.Count - 1}");
                     }
                     break;
                 }
@@ -544,7 +545,7 @@ namespace kcp2k
                         // should never happen
                         // pass error to user callback. no need to log it manually.
                         // GetType() shows Server/ClientConn instead of just Connection.
-                        OnError(ErrorCode.InvalidReceive, $"{GetType()}: received unreliable message in state {state}. Disconnecting the connection.");
+                        OnError(ErrorCode.InvalidReceive, $"KcpPeer: received unreliable message in state {state}. Disconnecting the connection.");
                         Disconnect();
                     }
                     break;
@@ -554,7 +555,7 @@ namespace kcp2k
                     // not a valid channel. random data or attacks.
                     // pass error to user callback. no need to log it manually.
                         // GetType() shows Server/ClientConn instead of just Connection.
-                    OnError(ErrorCode.InvalidReceive, $"{GetType()}: Disconnecting connection because of invalid channel header: {channel}");
+                    OnError(ErrorCode.InvalidReceive, $"KcpPeer: Disconnecting connection because of invalid channel header: {channel}");
                     Disconnect();
                     break;
                 }
@@ -580,7 +581,7 @@ namespace kcp2k
             {
                 // otherwise content is larger than MaxMessageSize. let user know!
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"{GetType()}: Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={ReliableMaxMessageSize(kcp.rcv_wnd)}");
+                OnError(ErrorCode.InvalidSend, $"KcpPeer: Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={ReliableMaxMessageSize(kcp.rcv_wnd)}");
                 return;
             }
 
@@ -594,7 +595,7 @@ namespace kcp2k
             if (sent < 0)
             {
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"{GetType()}: Send failed with error={sent} for content with length={content.Count}");
+                OnError(ErrorCode.InvalidSend, $"KcpPeer: Send failed with error={sent} for content with length={content.Count}");
             }
         }
 
@@ -605,7 +606,7 @@ namespace kcp2k
             {
                 // otherwise content is larger than MaxMessageSize. let user know!
                 // GetType() shows Server/ClientConn instead of just Connection.
-                Log.Error($"{GetType()}: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={UnreliableMaxMessageSize}");
+                Log.Error($"KcpPeer: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={UnreliableMaxMessageSize}");
                 return;
             }
 
@@ -627,7 +628,7 @@ namespace kcp2k
         public void SendHandshake()
         {
             // GetType() shows Server/ClientConn instead of just Connection.
-            Log.Info($"{GetType()}: sending Handshake to other end!");
+            Log.Info($"KcpPeer: sending Handshake to other end!");
             SendReliable(KcpHeader.Handshake, default);
         }
 
@@ -641,7 +642,7 @@ namespace kcp2k
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"{GetType()}: tried sending empty message. This should never happen. Disconnecting.");
+                OnError(ErrorCode.InvalidSend, $"KcpPeer: tried sending empty message. This should never happen. Disconnecting.");
                 Disconnect();
                 return;
             }
@@ -694,7 +695,7 @@ namespace kcp2k
 
             // set as Disconnected, call event
             // GetType() shows Server/ClientConn instead of just Connection.
-            Log.Info($"{GetType()}: Disconnected.");
+            Log.Info($"KcpPeer: Disconnected.");
             state = KcpState.Disconnected;
             OnDisconnected?.Invoke();
         }

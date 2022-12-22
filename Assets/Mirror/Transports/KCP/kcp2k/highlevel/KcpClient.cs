@@ -51,7 +51,7 @@ namespace kcp2k
         {
             if (connected)
             {
-                Log.Warning("KCP: client already connected!");
+                Log.Warning("KcpClient: already connected!");
                 return;
             }
 
@@ -61,18 +61,18 @@ namespace kcp2k
             // setup events
             peer.OnAuthenticated = () =>
             {
-                Log.Info($"KCP: OnClientConnected");
+                Log.Info($"KcpClient: OnConnected");
                 connected = true;
                 OnConnected();
             };
             peer.OnData = (message, channel) =>
             {
-                //Log.Debug($"KCP: OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
+                //Log.Debug($"KcpClient: OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                 OnData(message, channel);
             };
             peer.OnDisconnected = () =>
             {
-                Log.Info($"KCP: OnClientDisconnected");
+                Log.Info($"KcpClient: OnDisconnected");
                 connected = false;
                 peer = null;
                 socket?.Close();
@@ -166,7 +166,7 @@ namespace kcp2k
         {
             if (!connected)
             {
-                Log.Warning("KCP: can't send because client not connected!");
+                Log.Warning("KcpClient: can't send because not connected!");
                 return;
             }
 
