@@ -42,12 +42,12 @@ namespace Mirror
         // note: reliable is ordered by definition. no need to scramble.
 
         [Header("Unreliable Messages")]
-        [Tooltip("Packet loss in %")]
-        [Range(0, 1)] public float unreliableLoss;
-        [Tooltip("Unreliable latency in seconds")]
-        public float unreliableLatency;
+        [Tooltip("Packet loss in %\n2% recommended for long term play testing, upto 10% for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
+        [Range(0, 100)] public float unreliableLoss;
+        [Tooltip("Unreliable latency in milliseconds\n200ms recommended for long term play testing, upto 500ms for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
+        [Range(0, 1000)] public float unreliableLatency;
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
-        [Range(0, 1)] public float unreliableScramble;
+        [Range(0, 100)] public float unreliableScramble;
 
         // message queues
         // list so we can insert randomly (scramble)
@@ -95,7 +95,7 @@ namespace Mirror
                 case Channels.Reliable:
                     return reliableLatency + spike;
                 case Channels.Unreliable:
-                    return unreliableLatency + spike;
+                    return unreliableLatency/1000 + spike;
                 default:
                     return 0;
             }
@@ -135,11 +135,11 @@ namespace Mirror
                     break;
                 case Channels.Unreliable:
                     // simulate packet loss
-                    bool drop = random.NextDouble() < unreliableLoss;
+                    bool drop = random.NextDouble() < unreliableLoss/100;
                     if (!drop)
                     {
                         // simulate scramble (Random.Next is < max, so +1)
-                        bool scramble = random.NextDouble() < unreliableScramble;
+                        bool scramble = random.NextDouble() < unreliableScramble/100;
                         int last = unreliableQueue.Count;
                         int index = scramble ? random.Next(0, last + 1) : last;
 
