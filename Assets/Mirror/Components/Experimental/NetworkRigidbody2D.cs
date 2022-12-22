@@ -3,6 +3,7 @@ using UnityEngine;
 namespace Mirror.Experimental
 {
     [AddComponentMenu("Network/ Experimental/Network Rigidbody 2D")]
+    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-rigidbody")]
     public class NetworkRigidbody2D : NetworkBehaviour
     {
         [Header("Settings")]
@@ -12,7 +13,6 @@ namespace Mirror.Experimental
         public  bool clientAuthority = false;
 
         [Header("Velocity")]
-
         [Tooltip("Syncs Velocity every SyncInterval")]
         [SerializeField] bool syncVelocity = true;
 
@@ -24,7 +24,6 @@ namespace Mirror.Experimental
 
 
         [Header("Angular Velocity")]
-
         [Tooltip("Syncs AngularVelocity every SyncInterval")]
         [SerializeField] bool syncAngularVelocity = true;
 
