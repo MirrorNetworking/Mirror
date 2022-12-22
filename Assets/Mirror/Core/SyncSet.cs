@@ -59,10 +59,11 @@ namespace Mirror
 
         void AddOperation(Operation op, T item)
         {
-            if (IsReadOnly)
-            {
-                throw new InvalidOperationException("SyncSets can only be modified by the owner.");
-            }
+            // TODO safety check but cleaner
+            // if (IsReadOnly)
+            // {
+            //     throw new InvalidOperationException("SyncSets can only be modified by the owner.");
+            // }
 
             Change change = new Change
             {
@@ -127,7 +128,7 @@ namespace Mirror
         public override void OnDeserializeAll(NetworkReader reader)
         {
             // This list can now only be modified by synchronization
-            IsReadOnly = true;
+            // IsReadOnly = true;
 
             // if init,  write the full list content
             int count = (int)reader.ReadUInt();
@@ -150,7 +151,7 @@ namespace Mirror
         public override void OnDeserializeDelta(NetworkReader reader)
         {
             // This list can now only be modified by synchronization
-            IsReadOnly = true;
+            // IsReadOnly = true;
 
             int changesCount = (int)reader.ReadUInt();
 
