@@ -5,8 +5,9 @@ namespace Mirror.Examples.SyncDir // ".SyncDirection" would overshadow the enum
     public class Player : NetworkBehaviour
     {
         public TextMesh textMesh;
-        [SyncVar] public int health;
         public Color localColor = Color.white;
+
+        [SyncVar] public int health;
 
         public override void OnStartLocalPlayer()
         {
