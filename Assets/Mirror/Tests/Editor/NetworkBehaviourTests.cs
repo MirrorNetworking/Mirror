@@ -796,6 +796,8 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
+            comp.netIdentity.isServer = true;
+
             // add values to synclist
             comp.list.Add(42);
             comp.list.Add(43);
