@@ -196,10 +196,8 @@ namespace Mirror
                         if (apply)
                         {
                             index = objects.Count;
-                            // objects.Add(newItem);
-
-                            // TODO isServer vs. isClient
-                            // call Add() to ensure it's set as dirty on server
+                            // call Add() to ensure it sets dirty if needed.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
                             Add(newItem);
                         }
                         break;
@@ -207,10 +205,8 @@ namespace Mirror
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            // objects.Clear();
-
-                            // TODO isServer vs. isClient
-                            // call Clear() to ensure it's set as dirty on server
+                            // call Clear() to ensure it sets dirty if needed.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
                             Clear();
                         }
                         break;
@@ -220,10 +216,8 @@ namespace Mirror
                         newItem = reader.Read<T>();
                         if (apply)
                         {
-                            // objects.Insert(index, newItem);
-
-                            // TODO isServer vs. isClient
-                            // call Insert() to ensure it's set as dirty on server
+                            // call Insert() to ensure it sets dirty if needed.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
                             Insert(index, newItem);
                         }
                         break;
@@ -233,10 +227,8 @@ namespace Mirror
                         if (apply)
                         {
                             oldItem = objects[index];
-                            // objects.RemoveAt(index);
-
-                            // TODO isServer vs. isClient
-                            // call RemoveAt() to ensure it's set as dirty on server
+                            // call RemoveAt() to ensure it sets dirty if needed.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
                             RemoveAt(index);
                         }
                         break;
@@ -248,8 +240,8 @@ namespace Mirror
                         {
                             oldItem = objects[index];
                             objects[index] = newItem;
-                            // TODO isServer vs. isClient
-                            // call [] to ensure it's set as dirty on server
+                            // call this[] to ensure it sets dirty if needed.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
                             this[index] = newItem;
                         }
                         break;
