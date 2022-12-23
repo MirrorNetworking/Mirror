@@ -202,7 +202,7 @@ namespace Mirror.Tests
 
             // registering the same name with a different callback shouldn't
             // work
-            LogAssert.Expect(LogType.Error, $"Function {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate)} and {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate2)} have the same hash.  Please rename one of them");
+            LogAssert.Expect(LogType.Error, $"Function {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate)} and {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate2)} have the same hash. Please rename one of them. To save bandwidth, we only use 2 bytes for the hash, which has a small chance of collisions.");
             ushort registeredHash3 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
