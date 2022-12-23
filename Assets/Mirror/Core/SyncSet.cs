@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -10,7 +11,6 @@ namespace Mirror
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
-        public bool IsReadOnly { get; private set; }
         public event SyncSetChanged Callback;
 
         public enum Operation : byte
@@ -46,10 +46,10 @@ namespace Mirror
 
         public override void Reset()
         {
-            IsReadOnly = false;
             changes.Clear();
             changesAhead = 0;
             objects.Clear();
+            base.Reset();
         }
 
         // throw away all the changes
@@ -58,11 +58,10 @@ namespace Mirror
 
         void AddOperation(Operation op, T item)
         {
-            // TODO safety check but cleaner
-            // if (IsReadOnly)
-            // {
-            //     throw new InvalidOperationException("SyncSets can only be modified by the owner.");
-            // }
+            if (IsReadOnly)
+            {
+                throw new InvalidOperationException("SyncSets can only be modified by the owner.");
+            }
 
             Change change = new Change
             {
@@ -126,9 +125,6 @@ namespace Mirror
 
         public override void OnDeserializeAll(NetworkReader reader)
         {
-            // This list can now only be modified by synchronization
-            // IsReadOnly = true;
-
             // if init,  write the full list content
             int count = (int)reader.ReadUInt();
 
@@ -149,9 +145,6 @@ namespace Mirror
 
         public override void OnDeserializeDelta(NetworkReader reader)
         {
-            // This list can now only be modified by synchronization
-            // IsReadOnly = true;
-
             int changesCount = (int)reader.ReadUInt();
 
             for (int i = 0; i < changesCount; i++)
