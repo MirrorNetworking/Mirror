@@ -243,7 +243,7 @@ We are **not** looking for DOS/DDOS attacks. The exploit should be possible with
 
 ---
 # Credits & Thanks 🙏
-🪞 **Alexey Abramychev (UNET)**<br/>
+🪞 **Alexey Abramychev** (UNET)<br/>
 🪞 **Alan**<br/>
 🪞 **c6burns** <br/>
 🪞 **Coburn** <br/>
