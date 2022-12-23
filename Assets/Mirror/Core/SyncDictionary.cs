@@ -10,6 +10,7 @@ namespace Mirror
         protected readonly IDictionary<TKey, TValue> objects;
 
         public int Count => objects.Count;
+        public bool IsReadOnly => !IsWritable();
         public event SyncDictionaryChanged Callback;
 
         public enum Operation : byte
@@ -45,7 +46,6 @@ namespace Mirror
             changes.Clear();
             changesAhead = 0;
             objects.Clear();
-            base.Reset();
         }
 
         public ICollection<TKey> Keys => objects.Keys;

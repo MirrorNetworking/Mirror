@@ -11,6 +11,7 @@ namespace Mirror
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
+        public bool IsReadOnly => !IsWritable();
         public event SyncSetChanged Callback;
 
         public enum Operation : byte
@@ -49,7 +50,6 @@ namespace Mirror
             changes.Clear();
             changesAhead = 0;
             objects.Clear();
-            base.Reset();
         }
 
         // throw away all the changes

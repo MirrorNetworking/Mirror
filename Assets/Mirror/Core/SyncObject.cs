@@ -27,7 +27,9 @@ namespace Mirror
 
         // SyncList/Set/etc. shouldn't be modifiable if not owned.
         // otherwise they would silently get out of sync.
-        public bool IsReadOnly { get; internal set; }
+        // need a lambda because InitSyncObject is called in ctor, when
+        // 'isClient' etc. aren't initialized yet.
+        public Func<bool> IsWritable = () => true;
 
         /// <summary>Discard all the queued changes</summary>
         // Consider the object fully synchronized with clients
@@ -46,9 +48,6 @@ namespace Mirror
         public abstract void OnDeserializeDelta(NetworkReader reader);
 
         /// <summary>Resets the SyncObject so that it can be re-used</summary>
-        public virtual void Reset()
-        {
-            IsReadOnly = false;
-        }
+        public abstract void Reset();
     }
 }

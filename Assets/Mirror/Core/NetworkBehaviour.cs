@@ -222,6 +222,15 @@ namespace Mirror
             ulong nthBit = 1UL << index;
             syncObject.OnDirty = () => SetSyncObjectDirtyBit(nthBit);
 
+            // who is allowed to modify SyncList/SyncSet/etc.:
+            //  on client: only if owned ClientToserver
+            //  on server: only if ServerToClient.
+            //             but also for initial state when spawning.
+            // need to set a lambda because 'isClient' isn't available in
+            // InitSyncObject yet, which is called from the constructor.
+            syncObject.IsWritable = () =>
+                isClient ? isOwned : syncDirection == SyncDirection.ServerToClient;
+
             // when do we record changes:
             //  on client: only if owned ClientToServer
             //  on server: only if we have observers.

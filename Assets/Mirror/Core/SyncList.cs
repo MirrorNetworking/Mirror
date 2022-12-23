@@ -13,6 +13,7 @@ namespace Mirror
         readonly IEqualityComparer<T> comparer;
 
         public int Count => objects.Count;
+        public bool IsReadOnly => !IsWritable();
         public event SyncListChanged Callback;
 
         public enum Operation : byte
@@ -66,7 +67,6 @@ namespace Mirror
             changes.Clear();
             changesAhead = 0;
             objects.Clear();
-            base.Reset();
         }
 
         void AddOperation(Operation op, int itemIndex, T oldItem, T newItem)
