@@ -229,9 +229,14 @@ namespace Mirror
             // need to set a lambda because 'isClient' isn't available in
             // InitSyncObject yet, which is called from the constructor.
             syncObject.IsWritable = () =>
+            {
                 // check isServer first.
                 // if we check isClient first, it wouldn't work in host mode.
-                isServer ? syncDirection == SyncDirection.ServerToClient : isOwned;
+                if (isServer) return syncDirection == SyncDirection.ServerToClient;
+                if (isClient) return isOwned;
+                // undefined behaviour should throw to make it very obvious
+                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+            };
 
             // when do we record changes:
             //  on client: only if owned ClientToServer
@@ -241,9 +246,14 @@ namespace Mirror
             //      then the changes would never be flushed and keep growing,
             //      because OnSerialize isn't called without observers.
             syncObject.IsRecording = () =>
+            {
                 // check isServer first.
                 // if we check isClient first, it wouldn't work in host mode.
-                isServer ? netIdentity.observers.Count > 0 : isOwned;
+                if (isServer) return netIdentity.observers.Count > 0;
+                if (isClient) return isOwned;
+                // undefined behaviour should throw to make it very obvious
+                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+            };
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
