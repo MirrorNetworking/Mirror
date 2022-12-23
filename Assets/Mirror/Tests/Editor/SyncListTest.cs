@@ -371,10 +371,10 @@ namespace Mirror.Tests
         [Test]
         public void ObjectCanBeReusedAfterReset()
         {
-            clientSyncList.Reset();
+            serverSyncList.Reset();
 
             // make old client the host
-            SyncList<string> hostList = clientSyncList;
+            SyncList<string> hostList = serverSyncList;
             SyncList<string> clientList2 = new SyncList<string>();
 
             Assert.That(hostList.IsReadOnly, Is.False);
@@ -383,14 +383,6 @@ namespace Mirror.Tests
             hostList.Add("hello");
             hostList.Add("world");
             SerializeDeltaTo(hostList, clientList2);
-        }
-
-        [Test]
-        public void ResetShouldSetReadOnlyToFalse()
-        {
-            clientSyncList.Reset();
-
-            Assert.That(clientSyncList.IsReadOnly, Is.False);
         }
 
         [Test]
