@@ -56,9 +56,9 @@ namespace Mirror
         // this should be called after a successful sync
         public override void ClearChanges() => changes.Clear();
 
-        void AddOperation(Operation op, T item)
+        void AddOperation(Operation op, T item, bool checkAccess)
         {
-            if (IsReadOnly)
+            if (checkAccess && IsReadOnly)
             {
                 throw new InvalidOperationException("SyncSets can only be modified by the owner.");
             }
@@ -78,7 +78,7 @@ namespace Mirror
             Callback?.Invoke(op, item);
         }
 
-        void AddOperation(Operation op) => AddOperation(op, default);
+        void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, checkAccess);
 
         public override void OnSerializeAll(NetworkWriter writer)
         {
@@ -162,18 +162,24 @@ namespace Mirror
                         item = reader.Read<T>();
                         if (apply)
                         {
-                            // call Add() to ensure it sets dirty if needed.
+                            objects.Add(item);
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            Add(item);
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_ADD, item, false);
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            // call Clear() to ensure it sets dirty if needed.
+                            objects.Clear();
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            Clear();
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_CLEAR, false);
                         }
                         break;
 
@@ -181,9 +187,12 @@ namespace Mirror
                         item = reader.Read<T>();
                         if (apply)
                         {
-                            // call Remove() to ensure it sets dirty if needed.
+                            objects.Remove(item);
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            Remove(item);
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_REMOVE, item, false);
                         }
                         break;
                 }
@@ -204,7 +213,7 @@ namespace Mirror
         {
             if (objects.Add(item))
             {
-                AddOperation(Operation.OP_ADD, item);
+                AddOperation(Operation.OP_ADD, item, true);
                 return true;
             }
             return false;
@@ -214,14 +223,14 @@ namespace Mirror
         {
             if (objects.Add(item))
             {
-                AddOperation(Operation.OP_ADD, item);
+                AddOperation(Operation.OP_ADD, item, true);
             }
         }
 
         public void Clear()
         {
             objects.Clear();
-            AddOperation(Operation.OP_CLEAR);
+            AddOperation(Operation.OP_CLEAR, true);
         }
 
         public bool Contains(T item) => objects.Contains(item);
@@ -232,7 +241,7 @@ namespace Mirror
         {
             if (objects.Remove(item))
             {
-                AddOperation(Operation.OP_REMOVE, item);
+                AddOperation(Operation.OP_REMOVE, item, true);
                 return true;
             }
             return false;

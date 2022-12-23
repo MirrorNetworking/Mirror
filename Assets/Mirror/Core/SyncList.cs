@@ -69,9 +69,9 @@ namespace Mirror
             objects.Clear();
         }
 
-        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem)
+        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess)
         {
-            if (IsReadOnly)
+            if (checkAccess && IsReadOnly)
             {
                 throw new InvalidOperationException("Synclists can only be modified by the owner.");
             }
@@ -188,18 +188,24 @@ namespace Mirror
                         if (apply)
                         {
                             index = objects.Count;
-                            // call Add() to ensure it sets dirty if needed.
+                            objects.Add(newItem);
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            Add(newItem);
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_ADD, objects.Count - 1, default, newItem, false);
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            // call Clear() to ensure it sets dirty if needed.
+                            objects.Clear();
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            Clear();
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_CLEAR, 0, default, default, false);
                         }
                         break;
 
@@ -208,9 +214,12 @@ namespace Mirror
                         newItem = reader.Read<T>();
                         if (apply)
                         {
-                            // call Insert() to ensure it sets dirty if needed.
+                            objects.Insert(index, newItem);
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            Insert(index, newItem);
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_INSERT, index, default, newItem, false);
                         }
                         break;
 
@@ -219,9 +228,12 @@ namespace Mirror
                         if (apply)
                         {
                             oldItem = objects[index];
-                            // call RemoveAt() to ensure it sets dirty if needed.
+                            objects.RemoveAt(index);
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            RemoveAt(index);
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, false);
                         }
                         break;
 
@@ -232,9 +244,11 @@ namespace Mirror
                         {
                             oldItem = objects[index];
                             objects[index] = newItem;
-                            // call this[] to ensure it sets dirty if needed.
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            this[index] = newItem;
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_SET, i, oldItem, newItem, false);
                         }
                         break;
                 }
@@ -256,7 +270,7 @@ namespace Mirror
         public void Add(T item)
         {
             objects.Add(item);
-            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item);
+            AddOperation(Operation.OP_ADD, objects.Count - 1, default, item, true);
         }
 
         public void AddRange(IEnumerable<T> range)
@@ -270,7 +284,7 @@ namespace Mirror
         public void Clear()
         {
             objects.Clear();
-            AddOperation(Operation.OP_CLEAR, 0, default, default);
+            AddOperation(Operation.OP_CLEAR, 0, default, default, true);
         }
 
         public bool Contains(T item) => IndexOf(item) >= 0;
@@ -311,7 +325,7 @@ namespace Mirror
         public void Insert(int index, T item)
         {
             objects.Insert(index, item);
-            AddOperation(Operation.OP_INSERT, index, default, item);
+            AddOperation(Operation.OP_INSERT, index, default, item, true);
         }
 
         public void InsertRange(int index, IEnumerable<T> range)
@@ -338,7 +352,7 @@ namespace Mirror
         {
             T oldItem = objects[index];
             objects.RemoveAt(index);
-            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default);
+            AddOperation(Operation.OP_REMOVEAT, index, oldItem, default, true);
         }
 
         public int RemoveAll(Predicate<T> match)
@@ -365,7 +379,7 @@ namespace Mirror
                 {
                     T oldItem = objects[i];
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, oldItem, value);
+                    AddOperation(Operation.OP_SET, i, oldItem, value, true);
                 }
             }
         }

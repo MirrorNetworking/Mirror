@@ -65,9 +65,9 @@ namespace Mirror
             this.objects = objects;
         }
 
-        void AddOperation(Operation op, TKey key, TValue item)
+        void AddOperation(Operation op, TKey key, TValue item, bool checkAccess)
         {
-            if (IsReadOnly)
+            if (checkAccess && IsReadOnly)
             {
                 throw new System.InvalidOperationException("SyncDictionaries can only be modified by the owner.");
             }
@@ -173,18 +173,32 @@ namespace Mirror
                         item = reader.Read<TValue>();
                         if (apply)
                         {
-                            // call this.[] to ensure it sets dirty if needed.
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            this[key] = item;
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            if (ContainsKey(key))
+                            {
+                                objects[key] = item; // assign after ContainsKey check
+                                AddOperation(Operation.OP_SET, key, item, false);
+                            }
+                            else
+                            {
+                                objects[key] = item; // assign after ContainsKey check
+                                AddOperation(Operation.OP_ADD, key, item, false);
+                            }
                         }
                         break;
 
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            // call Clear() to ensure it sets dirty if needed.
+                            objects.Clear();
+                            // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
-                            Clear();
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_CLEAR, default, default, false);
                         }
                         break;
 
@@ -193,9 +207,14 @@ namespace Mirror
                         item = reader.Read<TValue>();
                         if (apply)
                         {
-                            // call Remove() to ensure it sets dirty if needed.
-                            // ClientToServer needs to set dirty in server OnDeserialize.
-                            Remove(key);
+                            if (objects.Remove(key))
+                            {
+                                // add dirty + changes.
+                                // ClientToServer needs to set dirty in server OnDeserialize.
+                                // no access check: server OnDeserialize can always
+                                // write, even for ClientToServer (for broadcasting).
+                                AddOperation(Operation.OP_REMOVE, key, item, false);
+                            }
                         }
                         break;
                 }
@@ -215,7 +234,7 @@ namespace Mirror
         public void Clear()
         {
             objects.Clear();
-            AddOperation(Operation.OP_CLEAR, default, default);
+            AddOperation(Operation.OP_CLEAR, default, default, true);
         }
 
         public bool ContainsKey(TKey key) => objects.ContainsKey(key);
@@ -224,7 +243,7 @@ namespace Mirror
         {
             if (objects.TryGetValue(key, out TValue item) && objects.Remove(key))
             {
-                AddOperation(Operation.OP_REMOVE, key, item);
+                AddOperation(Operation.OP_REMOVE, key, item, true);
                 return true;
             }
             return false;
@@ -238,12 +257,12 @@ namespace Mirror
                 if (ContainsKey(i))
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, value);
+                    AddOperation(Operation.OP_SET, i, value, true);
                 }
                 else
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_ADD, i, value);
+                    AddOperation(Operation.OP_ADD, i, value, true);
                 }
             }
         }
@@ -253,7 +272,7 @@ namespace Mirror
         public void Add(TKey key, TValue value)
         {
             objects.Add(key, value);
-            AddOperation(Operation.OP_ADD, key, value);
+            AddOperation(Operation.OP_ADD, key, value, true);
         }
 
         public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
@@ -287,7 +306,7 @@ namespace Mirror
             bool result = objects.Remove(item.Key);
             if (result)
             {
-                AddOperation(Operation.OP_REMOVE, item.Key, item.Value);
+                AddOperation(Operation.OP_REMOVE, item.Key, item.Value, true);
             }
             return result;
         }
