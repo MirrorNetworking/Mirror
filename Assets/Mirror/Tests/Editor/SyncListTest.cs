@@ -44,6 +44,10 @@ namespace Mirror.Tests
             serverSyncList = new SyncList<string>();
             clientSyncList = new SyncList<string>();
 
+            // set writable
+            serverSyncList.IsWritable = () => true;
+            clientSyncList.IsWritable = () => false;
+
             // add some data to the list
             serverSyncList.Add("Hello");
             serverSyncList.Add("World");

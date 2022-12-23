@@ -35,6 +35,10 @@ namespace Mirror.Tests
             serverSyncSet = new SyncHashSet<string>();
             clientSyncSet = new SyncHashSet<string>();
 
+            // set writable
+            serverSyncSet.IsWritable = () => true;
+            clientSyncSet.IsWritable = () => false;
+
             // add some data to the list
             serverSyncSet.Add("Hello");
             serverSyncSet.Add("World");
