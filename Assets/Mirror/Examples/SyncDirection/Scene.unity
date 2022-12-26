@@ -264,7 +264,7 @@ MonoBehaviour:
   DualMode: 1
   NoDelay: 1
   Interval: 10
-  Timeout: 10000
+  Timeout: 1000000
   FastResend: 2
   SendWindowSize: 4096
   ReceiveWindowSize: 4096

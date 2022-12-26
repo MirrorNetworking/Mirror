@@ -25,6 +25,12 @@ namespace Mirror
         // => virtual so it simply always records by default
         public Func<bool> IsRecording = () => true;
 
+        // SyncList/Set/etc. shouldn't be modifiable if not owned.
+        // otherwise they would silently get out of sync.
+        // need a lambda because InitSyncObject is called in ctor, when
+        // 'isClient' etc. aren't initialized yet.
+        public Func<bool> IsWritable = () => true;
+
         /// <summary>Discard all the queued changes</summary>
         // Consider the object fully synchronized with clients
         public abstract void ClearChanges();

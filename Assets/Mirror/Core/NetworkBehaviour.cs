@@ -221,12 +221,38 @@ namespace Mirror
             ulong nthBit = 1UL << index;
             syncObject.OnDirty = () => SetSyncObjectDirtyBit(nthBit);
 
-            // only record changes while we have observers.
-            // prevents ever growing .changes lists:
-            //   if a monster has no observers but we keep modifing a SyncObject,
-            //   then the changes would never be flushed and keep growing,
-            //   because OnSerialize isn't called without observers.
-            syncObject.IsRecording = () => netIdentity.observers.Count > 0;
+            // who is allowed to modify SyncList/SyncSet/etc.:
+            //  on client: only if owned ClientToserver
+            //  on server: only if ServerToClient.
+            //             but also for initial state when spawning.
+            // need to set a lambda because 'isClient' isn't available in
+            // InitSyncObject yet, which is called from the constructor.
+            syncObject.IsWritable = () =>
+            {
+                // check isServer first.
+                // if we check isClient first, it wouldn't work in host mode.
+                if (isServer) return syncDirection == SyncDirection.ServerToClient;
+                if (isClient) return isOwned;
+                // undefined behaviour should throw to make it very obvious
+                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+            };
+
+            // when do we record changes:
+            //  on client: only if owned ClientToServer
+            //  on server: only if we have observers.
+            //    prevents ever growing .changes lists:
+            //      if a monster has no observers but we keep modifing a SyncObject,
+            //      then the changes would never be flushed and keep growing,
+            //      because OnSerialize isn't called without observers.
+            syncObject.IsRecording = () =>
+            {
+                // check isServer first.
+                // if we check isClient first, it wouldn't work in host mode.
+                if (isServer) return netIdentity.observers.Count > 0;
+                if (isClient) return isOwned;
+                // undefined behaviour should throw to make it very obvious
+                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+            };
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
