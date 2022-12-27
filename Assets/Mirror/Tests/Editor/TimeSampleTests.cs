@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Mirror.Tests.Editor
@@ -18,19 +19,19 @@ namespace Mirror.Tests.Editor
             sample.Begin();
             Thread.Sleep(10);
             sample.End();
-            Assert.That(sample.average, Is.EqualTo(0.010).Within(0.002));
+            Assert.That(sample.average, Is.EqualTo(0.010).Within(0.02));
 
             // measure 5ms. average should be 7.5ms
             sample.Begin();
             Thread.Sleep(5);
             sample.End();
-            Assert.That(sample.average, Is.EqualTo(0.0075).Within(0.002));
+            Assert.That(sample.average, Is.EqualTo(0.0075).Within(0.02));
 
             // measure 0ms. average should be 5ms.
             sample.Begin();
             Thread.Sleep(0);
             sample.End();
-            Assert.That(sample.average, Is.EqualTo(0.005).Within(0.002));
+            Assert.That(sample.average, Is.EqualTo(0.005).Within(0.02));
         }
     }
 }
