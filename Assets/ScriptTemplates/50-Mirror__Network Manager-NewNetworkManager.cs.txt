@@ -28,6 +28,7 @@ public class #SCRIPTNAME# : NetworkManager
     public override void Awake()
     {
         base.Awake();
+        singleton = this;
     }
 
     /// <summary>
@@ -36,7 +37,6 @@ public class #SCRIPTNAME# : NetworkManager
     /// </summary>
     public override void Start()
     {
-        singleton = this;
         base.Start();
     }
 
