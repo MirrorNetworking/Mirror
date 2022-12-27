@@ -1,5 +1,6 @@
 // NetworkTransform V3 (reliable) by mischa (2022-10)
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -32,6 +33,10 @@ namespace Mirror
         public float positionPrecision = 0.01f; // 1 cm
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision    = 0.01f; // 1 cm
+
+        // Expose counts for runtime presentation
+        public int clientSnapshotsCount => clientSnapshots.Count();
+        public int serverSnapshotsCount => serverSnapshots.Count();
 
         // delta compression needs to remember 'last' to compress against
         protected Vector3Long lastSerializedPosition   = Vector3Long.zero;
