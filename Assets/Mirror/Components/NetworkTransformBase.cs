@@ -37,8 +37,8 @@ namespace Mirror
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
         protected bool IsClientWithAuthority => isClient && authority;
-        internal readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
-        internal readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
+        public readonly SortedList<double, TransformSnapshot> clientSnapshots = new SortedList<double, TransformSnapshot>();
+        public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
         // selective sync //////////////////////////////////////////////////////
         [Header("Selective Sync & Interpolation\nDon't change these at Runtime")]
