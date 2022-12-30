@@ -635,10 +635,14 @@ namespace Mirror
                 // ServerChangeScene doesn't send destroy messages.
                 // some identities may persist in DDOL.
                 // some are destroyed by scene change.
-                // if an identity is still in .owned, remove it.
+                // if an identity is still in .owned remove it.
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3308
                 if (NetworkClient.connection != null)
                     NetworkClient.connection.owned.Remove(this);
+
+                // if an identity is still in .spawned, remove it too.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3324
+                NetworkClient.spawned.Remove(netId);
             }
         }
 
