@@ -1164,7 +1164,9 @@ namespace Mirror
                 return;
             }
 
-            // Spawn should only be called once per netId
+            // Spawn should only be called once per netId.
+            // calling it twice would lead to undefined behaviour.
+            // https://github.com/MirrorNetworking/Mirror/pull/3205
             if (spawned.ContainsKey(identity.netId))
             {
                 Debug.LogWarning($"{identity} with netId={identity.netId} was already spawned.", identity.gameObject);
