@@ -641,7 +641,7 @@ namespace Mirror
                     NetworkClient.connection.owned.Remove(this);
 
                 // if an identity is still in .spawned, remove it too.
-                // fixes: https://github.com/vis2k/Mirror/pull/2240
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3324
                 NetworkClient.spawned.Remove(netId);
             }
         }
