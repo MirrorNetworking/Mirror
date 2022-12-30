@@ -162,7 +162,7 @@ namespace Mirror.Authenticators
                 authPassword = password
             };
 
-            NetworkClient.connection.Send(authRequestMessage);
+            NetworkClient.Send(authRequestMessage);
         }
 
         /// <summary>

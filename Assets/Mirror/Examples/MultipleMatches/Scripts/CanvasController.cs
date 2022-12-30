@@ -143,7 +143,7 @@ namespace Mirror.Examples.MultipleMatch
         {
             if (!NetworkClient.active) return;
 
-            NetworkClient.connection.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Create });
+            NetworkClient.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Create });
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Mirror.Examples.MultipleMatch
         {
             if (!NetworkClient.active || selectedMatch == Guid.Empty) return;
 
-            NetworkClient.connection.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Join, matchId = selectedMatch });
+            NetworkClient.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Join, matchId = selectedMatch });
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Mirror.Examples.MultipleMatch
         {
             if (!NetworkClient.active || localJoinedMatch == Guid.Empty) return;
 
-            NetworkClient.connection.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Leave, matchId = localJoinedMatch });
+            NetworkClient.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Leave, matchId = localJoinedMatch });
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Mirror.Examples.MultipleMatch
         {
             if (!NetworkClient.active || localPlayerMatch == Guid.Empty) return;
 
-            NetworkClient.connection.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Cancel });
+            NetworkClient.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Cancel });
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Mirror.Examples.MultipleMatch
 
             Guid matchId = localPlayerMatch == Guid.Empty ? localJoinedMatch : localPlayerMatch;
 
-            NetworkClient.connection.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Ready, matchId = matchId });
+            NetworkClient.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Ready, matchId = matchId });
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace Mirror.Examples.MultipleMatch
         {
             if (!NetworkClient.active || localPlayerMatch == Guid.Empty) return;
 
-            NetworkClient.connection.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Start });
+            NetworkClient.Send(new ServerMatchMessage { serverMatchOperation = ServerMatchOperation.Start });
         }
 
         /// <summary>
