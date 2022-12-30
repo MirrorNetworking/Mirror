@@ -313,6 +313,8 @@ namespace Mirror
             // false. other objects don't have a .connectionToServer.
             // => so we always need to use NetworkClient.connection instead.
             // => see also: https://github.com/vis2k/Mirror/issues/2629
+            // This bypasses the null check in NetworkClient.Send but we have
+            // a null check above with a detailed error log.
             NetworkClient.connection.Send(message, channelId);
         }
 
