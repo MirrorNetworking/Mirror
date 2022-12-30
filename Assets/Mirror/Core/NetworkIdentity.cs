@@ -629,6 +629,20 @@ namespace Mirror
                 if (NetworkClient.localPlayer == this)
                     NetworkClient.localPlayer = null;
             }
+
+            if (isClient)
+            {
+                // ServerChangeScene doesn't send destroy messages.
+                // some identities may persist in DDOL.
+                // some are destroyed by scene change.
+                // if an identity is still in .owned, remove it.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3308
+                if (NetworkClient.connection != null &&
+                    NetworkClient.connection.owned.Contains(this))
+                {
+                    NetworkClient.connection.owned.Remove(this);
+                }
+            }
         }
 
         internal void OnStartServer()
