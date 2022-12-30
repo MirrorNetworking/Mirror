@@ -637,11 +637,8 @@ namespace Mirror
                 // some are destroyed by scene change.
                 // if an identity is still in .owned, remove it.
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3308
-                if (NetworkClient.connection != null &&
-                    NetworkClient.connection.owned.Contains(this))
-                {
+                if (NetworkClient.connection != null)
                     NetworkClient.connection.owned.Remove(this);
-                }
             }
         }
 
