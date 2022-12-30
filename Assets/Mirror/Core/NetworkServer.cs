@@ -1270,7 +1270,10 @@ namespace Mirror
             // first pass: activate all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                if (Utils.IsSceneObject(identity))
+                // only spawn scene objects which haven't been spawned yet.
+                // SpawnObjects may be called multiple times for additive scenes.
+                // https://github.com/MirrorNetworking/Mirror/issues/3318
+                if (Utils.IsSceneObject(identity) &&identity.netId == 0)
                 {
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
                     identity.gameObject.SetActive(true);
@@ -1290,10 +1293,15 @@ namespace Mirror
             // second pass: spawn all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                if (Utils.IsSceneObject(identity))
+                // only spawn scene objects which haven't been spawned yet.
+                // SpawnObjects may be called multiple times for additive scenes.
+                // https://github.com/MirrorNetworking/Mirror/issues/3318
+                if (Utils.IsSceneObject(identity) && identity.netId == 0)
+                {
                     // pass connection so that authority is not lost when server loads a scene
                     // https://github.com/vis2k/Mirror/pull/2987
                     Spawn(identity.gameObject, identity.connectionToClient);
+                }
             }
 
             return true;
