@@ -33,9 +33,6 @@ namespace Mirror
         /// <summary>Total buffer capacity, independent of reader position.</summary>
         public int Capacity => buffer.Count;
 
-        [Obsolete("NetworkReader.Length was renamed to Capacity")] // 2022-09-25
-        public int Length => Capacity;
-
         // cache encoding for ReadString instead of creating it with each time
         // 1000 readers before:  1MB GC, 30ms
         // 1000 readers after: 0.8MB GC, 18ms

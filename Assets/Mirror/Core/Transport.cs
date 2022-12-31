@@ -30,11 +30,6 @@ namespace Mirror
     /// <summary>Abstract transport layer component</summary>
     public abstract class Transport : MonoBehaviour
     {
-        // common //////////////////////////////////////////////////////////////
-        /// <summary>The current transport used by Mirror.</summary>
-        [Obsolete(".activeTransport was renamed to .active")] // 2021-09-25
-        public static Transport activeTransport;
-
         /// <summary>The current transport used by Mirror.</summary>
         public static Transport active;
 

@@ -12,8 +12,6 @@ namespace Mirror
 
         public double Value;
         public double Variance;
-        [Obsolete("Var was renamed to Variance")] // 2022-06-17
-        public double Var => Variance;
         public double StandardDeviation; // absolute value, see test
 
         public ExponentialMovingAverage(int n)
