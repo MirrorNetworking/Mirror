@@ -1,8 +1,6 @@
 // NetworkTransform V2 by mischa (2021-07)
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
@@ -234,7 +232,11 @@ namespace Mirror
             // -> don't apply for host mode player objects either, even if in
             //    client authority mode. if it doesn't go over the network,
             //    then we don't need to do anything.
-            if (syncDirection == SyncDirection.ClientToServer && !isOwned)
+            // -> connectionToClient is briefly null after scene changes:
+            //    https://github.com/MirrorNetworking/Mirror/issues/3329
+            if (syncDirection == SyncDirection.ClientToServer &&
+                connectionToClient != null &&
+                !isOwned)
             {
                 if (serverSnapshots.Count > 0)
                 {

@@ -133,7 +133,7 @@ namespace Mirror
                     target.localScale);
                 // Debug.Log($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
             }
-            
+
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp, position, rotation, scale);
         }
 
@@ -310,7 +310,11 @@ namespace Mirror
             // -> don't apply for host mode player objects either, even if in
             //    client authority mode. if it doesn't go over the network,
             //    then we don't need to do anything.
-            if (syncDirection == SyncDirection.ClientToServer && !isOwned)
+            // -> connectionToClient is briefly null after scene changes:
+            //    https://github.com/MirrorNetworking/Mirror/issues/3329
+            if (syncDirection == SyncDirection.ClientToServer &&
+                connectionToClient != null &&
+                !isOwned)
             {
                 if (serverSnapshots.Count > 0)
                 {
