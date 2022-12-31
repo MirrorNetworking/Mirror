@@ -1211,15 +1211,16 @@ namespace Mirror
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
-            OnStopClient();
-
-            //Debug.Log("NetworkManager StopClient");
-
             // set offline mode BEFORE changing scene so that FinishStartScene
             // doesn't think we need initialize anything.
             // set offline mode BEFORE NetworkClient.Disconnect so StopClient
             // only runs once.
+            // set offline mode BEFORE OnStopClient so StopClient
+            // only runs once.
             mode = NetworkManagerMode.Offline;
+
+            //Debug.Log("NetworkManager StopClient");
+            OnStopClient();
 
             // shutdown client
             NetworkClient.Shutdown();
