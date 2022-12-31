@@ -123,10 +123,16 @@ namespace Mirror
             // stop host if host mode
             if (NetworkServer.active && NetworkClient.isConnected)
             {
+                GUILayout.BeginHorizontal();
                 if (GUILayout.Button("Stop Host"))
                 {
                     manager.StopHost();
                 }
+                if (GUILayout.Button("Stop Client"))
+                {
+                    manager.StopClient();
+                }
+                GUILayout.EndHorizontal();
             }
             // stop client if client-only
             else if (NetworkClient.isConnected)
