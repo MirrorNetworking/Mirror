@@ -8,7 +8,7 @@ namespace kcp2k
     {
         // don't react on 0x00. might help to filter out random noise.
         Handshake  = 1,
-        // ping goes over reliable & KcpHeader for now. could go over reliable
+        // ping goes over reliable & KcpHeader for now. could go over unreliable
         // too. there is no real difference except that this is easier because
         // we already have a KcpHeader for reliable messages.
         // ping is only used to keep it alive, so latency doesn't matter.

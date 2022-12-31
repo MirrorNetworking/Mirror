@@ -87,6 +87,18 @@ Check out our [Documentation](https://mirror-networking.gitbook.io/) to learn ho
 If you are migrating from UNET, then please check out our [Migration Guide](https://mirror-networking.gitbook.io/docs/general/migration-guide).
 
 ---
+## Mirror LTS (Long Term Support)
+Mirror LTS is available on the [Asset Store](https://assetstore.unity.com/packages/tools/network/mirror-lts-102631).
+
+Mirror LTS gives you peace of mind to run your game in production.
+Without any breaking changes, ever!
+
+* **Bug fixes** only. 
+* **Consistent API**: update any time, without any breaking features.
+* Lives along side **Unity 2019/2020/2021** LTS.
+* Supported for two years at a time.
+
+---
 ## Made with Mirror
 ### [Population: ONE](https://www.populationonevr.com/)
 [![Population: ONE](https://user-images.githubusercontent.com/16416509/178141286-9494c3a8-a4a5-4b06-af2b-b05b66162201.png)](https://www.populationonevr.com/)
@@ -145,8 +157,8 @@ After their successful [Kickstarter](https://www.kickstarter.com/projects/untame
 The game has over **50 million** downloads on [Google Play](https://play.google.com/store/apps/details?id=com.wildlife.games.battle.royale.free.zooba&gl=US), with Wildlife Studios as one of the top 10 largest mobile gaming companies in the world.
 
 ### [Portals](https://theportal.to/)
-[![Portals](https://user-images.githubusercontent.com/16416509/190314078-294c3cac-e9dc-4d73-85b4-0e21e9767242.png)](https://theportal.to/)
-A browser-based metaverse, Portals is an immersive social space where you can explore, make your own, and gather with others.
+[![Portals](https://user-images.githubusercontent.com/9826063/209373815-8e6288ba-22fc-4cee-8867-19f587188827.png)](https://theportal.to/)
+Animal Crossing meets Yakuza meets Minecraft — a city builder with a multiplayer central hub. Gather, trade and build — all in the browser!
 
 ### [SCP: Secret Laboratory](https://scpslgame.com/)
 [![scp - secret laboratory_smaller](https://user-images.githubusercontent.com/16416509/178142224-413b3455-cdff-472e-b918-4246631af12f.jpg)](https://scpslgame.com/)
@@ -184,17 +196,6 @@ Castaway runs in the Browser, thanks to Mirror's WebGL support.
 <a href="https://www.adversator.com/"><img src="https://user-images.githubusercontent.com/16416509/178641128-37dc270c-bedf-4891-8284-33573d1776b9.jpg" title="Adversator" height="100"/></a>
 <a href="https://store.steampowered.com/app/670260/Solace_Crafting/"><img src="https://user-images.githubusercontent.com/16416509/197175819-1c2720b6-97e6-4844-80b5-2197a7f22839.png" title="Solace Crafting" height="100"/></a>
 <a href="https://www.unitystation.org"><img src="https://user-images.githubusercontent.com/57072365/204021428-0c621067-d580-4c88-b551-3ac70f9da39d.jpg" title="UnityStation" height="100"/></a>
-
-## Mirror LTS (Long Term Support)
-If you use Mirror in production, consider Mirror LTS!
-* **Bug fixes** only. 
-* **Consistent API**: update any time, without any breaking features.
-* Lives along side **Unity 2019** LTS.
-* Supported from Sept. 2021 to Sept 2022, depending on feedback.
-
-**Mirror V46 LTS** is available to all [GitHub Sponsors](https://github.com/sponsors/vis2k).
-
-All sponsors are invited to the [Mirror V46 LTS Repository](https://github.com/MirrorNetworking/Mirror-46-LTS) automatically.
 
 ## Modular Transports
 Mirror uses **KCP** (reliable UDP) by default, but you may use any of our community transports for low level packet sending:
@@ -242,7 +243,7 @@ We are **not** looking for DOS/DDOS attacks. The exploit should be possible with
 
 ---
 # Credits & Thanks 🙏
-🪞 **Alexey Abramychev (UNET)**<br/>
+🪞 **Alexey Abramychev** (UNET)<br/>
 🪞 **Alan**<br/>
 🪞 **c6burns** <br/>
 🪞 **Coburn** <br/>

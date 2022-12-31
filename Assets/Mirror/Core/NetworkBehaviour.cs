@@ -221,12 +221,38 @@ namespace Mirror
             ulong nthBit = 1UL << index;
             syncObject.OnDirty = () => SetSyncObjectDirtyBit(nthBit);
 
-            // only record changes while we have observers.
-            // prevents ever growing .changes lists:
-            //   if a monster has no observers but we keep modifing a SyncObject,
-            //   then the changes would never be flushed and keep growing,
-            //   because OnSerialize isn't called without observers.
-            syncObject.IsRecording = () => netIdentity.observers.Count > 0;
+            // who is allowed to modify SyncList/SyncSet/etc.:
+            //  on client: only if owned ClientToserver
+            //  on server: only if ServerToClient.
+            //             but also for initial state when spawning.
+            // need to set a lambda because 'isClient' isn't available in
+            // InitSyncObject yet, which is called from the constructor.
+            syncObject.IsWritable = () =>
+            {
+                // check isServer first.
+                // if we check isClient first, it wouldn't work in host mode.
+                if (isServer) return syncDirection == SyncDirection.ServerToClient;
+                if (isClient) return isOwned;
+                // undefined behaviour should throw to make it very obvious
+                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+            };
+
+            // when do we record changes:
+            //  on client: only if owned ClientToServer
+            //  on server: only if we have observers.
+            //    prevents ever growing .changes lists:
+            //      if a monster has no observers but we keep modifing a SyncObject,
+            //      then the changes would never be flushed and keep growing,
+            //      because OnSerialize isn't called without observers.
+            syncObject.IsRecording = () =>
+            {
+                // check isServer first.
+                // if we check isClient first, it wouldn't work in host mode.
+                if (isServer) return netIdentity.observers.Count > 0;
+                if (isClient) return isOwned;
+                // undefined behaviour should throw to make it very obvious
+                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+            };
         }
 
         // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
@@ -287,6 +313,8 @@ namespace Mirror
             // false. other objects don't have a .connectionToServer.
             // => so we always need to use NetworkClient.connection instead.
             // => see also: https://github.com/vis2k/Mirror/issues/2629
+            // This bypasses the null check in NetworkClient.Send but we have
+            // a null check above with a detailed error log.
             NetworkClient.connection.Send(message, channelId);
         }
 
@@ -537,8 +565,7 @@ namespace Mirror
             uint newNetId = 0;
             if (newGameObject != null)
             {
-                NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
-                if (identity != null)
+                if (newGameObject.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
                 {
                     newNetId = identity.netId;
                     if (newNetId == 0)
@@ -561,8 +588,7 @@ namespace Mirror
             uint newNetId = 0;
             if (newGameObject != null)
             {
-                NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
-                if (identity != null)
+                if (newGameObject.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
                 {
                     newNetId = identity.netId;
                     if (newNetId == 0)
@@ -996,18 +1022,30 @@ namespace Mirror
         //   note: SyncVar hooks are only called when inital=false
         public virtual void OnSerialize(NetworkWriter writer, bool initialState)
         {
+            SerializeSyncObjects(writer, initialState);
+            SerializeSyncVars(writer, initialState);
+        }
+
+        /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
+        public virtual void OnDeserialize(NetworkReader reader, bool initialState)
+        {
+            DeserializeSyncObjects(reader, initialState);
+            DeserializeSyncVars(reader, initialState);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void SerializeSyncObjects(NetworkWriter writer, bool initialState)
+        {
             // if initialState: write all SyncVars.
             // otherwise write dirtyBits+dirty SyncVars
             if (initialState)
                 SerializeObjectsAll(writer);
             else
                 SerializeObjectsDelta(writer);
-
-            SerializeSyncVars(writer, initialState);
         }
 
-        /// <summary>Override to do custom deserialization (instead of SyncVars/SyncLists). Use OnSerialize too.</summary>
-        public virtual void OnDeserialize(NetworkReader reader, bool initialState)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void DeserializeSyncObjects(NetworkReader reader, bool initialState)
         {
             if (initialState)
             {
@@ -1017,8 +1055,6 @@ namespace Mirror
             {
                 DeserializeObjectsDelta(reader);
             }
-
-            DeserializeSyncVars(reader, initialState);
         }
 
         // USED BY WEAVER

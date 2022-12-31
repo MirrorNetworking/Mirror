@@ -2,6 +2,7 @@
 
 namespace Mirror.Examples.CCU
 {
+    [AddComponentMenu("")]
     public class CCUNetworkManager : NetworkManager
     {
         [Header("Spawns")]

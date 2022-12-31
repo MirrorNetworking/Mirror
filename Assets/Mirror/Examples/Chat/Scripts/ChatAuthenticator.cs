@@ -175,7 +175,7 @@ namespace Mirror.Examples.Chat
                 authUsername = playerName,
             };
 
-            NetworkClient.connection.Send(authRequestMessage);
+            NetworkClient.Send(authRequestMessage);
         }
 
         /// <summary>

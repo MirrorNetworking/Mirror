@@ -14,6 +14,16 @@ public class #SCRIPTNAME# : NetworkManager
     // have to cast to this type everywhere.
     public static new #SCRIPTNAME# singleton { get; private set; }
 
+    /// <summary>
+    /// Runs on both Server and Client
+    /// Networking is NOT initialized when this fires
+    /// </summary>
+    public override void Awake()
+    {
+        base.Awake();
+        singleton = this;
+    }
+
     #region Unity Callbacks
 
     public override void OnValidate()
@@ -25,18 +35,8 @@ public class #SCRIPTNAME# : NetworkManager
     /// Runs on both Server and Client
     /// Networking is NOT initialized when this fires
     /// </summary>
-    public override void Awake()
-    {
-        base.Awake();
-    }
-
-    /// <summary>
-    /// Runs on both Server and Client
-    /// Networking is NOT initialized when this fires
-    /// </summary>
     public override void Start()
     {
-        singleton = this;
         base.Start();
     }
 

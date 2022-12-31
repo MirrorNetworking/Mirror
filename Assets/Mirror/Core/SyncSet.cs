@@ -11,7 +11,7 @@ namespace Mirror
         protected readonly ISet<T> objects;
 
         public int Count => objects.Count;
-        public bool IsReadOnly { get; private set; }
+        public bool IsReadOnly => !IsWritable();
         public event SyncSetChanged Callback;
 
         public enum Operation : byte
@@ -47,7 +47,6 @@ namespace Mirror
 
         public override void Reset()
         {
-            IsReadOnly = false;
             changes.Clear();
             changesAhead = 0;
             objects.Clear();
@@ -57,11 +56,11 @@ namespace Mirror
         // this should be called after a successful sync
         public override void ClearChanges() => changes.Clear();
 
-        void AddOperation(Operation op, T item)
+        void AddOperation(Operation op, T item, bool checkAccess)
         {
-            if (IsReadOnly)
+            if (checkAccess && IsReadOnly)
             {
-                throw new InvalidOperationException("SyncSets can only be modified at the server");
+                throw new InvalidOperationException("SyncSets can only be modified by the owner.");
             }
 
             Change change = new Change
@@ -79,7 +78,7 @@ namespace Mirror
             Callback?.Invoke(op, item);
         }
 
-        void AddOperation(Operation op) => AddOperation(op, default);
+        void AddOperation(Operation op, bool checkAccess) => AddOperation(op, default, checkAccess);
 
         public override void OnSerializeAll(NetworkWriter writer)
         {
@@ -126,9 +125,6 @@ namespace Mirror
 
         public override void OnDeserializeAll(NetworkReader reader)
         {
-            // This list can now only be modified by synchronization
-            IsReadOnly = true;
-
             // if init,  write the full list content
             int count = (int)reader.ReadUInt();
 
@@ -149,9 +145,6 @@ namespace Mirror
 
         public override void OnDeserializeDelta(NetworkReader reader)
         {
-            // This list can now only be modified by synchronization
-            IsReadOnly = true;
-
             int changesCount = (int)reader.ReadUInt();
 
             for (int i = 0; i < changesCount; i++)
@@ -170,6 +163,11 @@ namespace Mirror
                         if (apply)
                         {
                             objects.Add(item);
+                            // add dirty + changes.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_ADD, item, false);
                         }
                         break;
 
@@ -177,6 +175,11 @@ namespace Mirror
                         if (apply)
                         {
                             objects.Clear();
+                            // add dirty + changes.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_CLEAR, false);
                         }
                         break;
 
@@ -185,6 +188,11 @@ namespace Mirror
                         if (apply)
                         {
                             objects.Remove(item);
+                            // add dirty + changes.
+                            // ClientToServer needs to set dirty in server OnDeserialize.
+                            // no access check: server OnDeserialize can always
+                            // write, even for ClientToServer (for broadcasting).
+                            AddOperation(Operation.OP_REMOVE, item, false);
                         }
                         break;
                 }
@@ -205,7 +213,7 @@ namespace Mirror
         {
             if (objects.Add(item))
             {
-                AddOperation(Operation.OP_ADD, item);
+                AddOperation(Operation.OP_ADD, item, true);
                 return true;
             }
             return false;
@@ -215,14 +223,14 @@ namespace Mirror
         {
             if (objects.Add(item))
             {
-                AddOperation(Operation.OP_ADD, item);
+                AddOperation(Operation.OP_ADD, item, true);
             }
         }
 
         public void Clear()
         {
             objects.Clear();
-            AddOperation(Operation.OP_CLEAR);
+            AddOperation(Operation.OP_CLEAR, true);
         }
 
         public bool Contains(T item) => objects.Contains(item);
@@ -233,7 +241,7 @@ namespace Mirror
         {
             if (objects.Remove(item))
             {
-                AddOperation(Operation.OP_REMOVE, item);
+                AddOperation(Operation.OP_REMOVE, item, true);
                 return true;
             }
             return false;

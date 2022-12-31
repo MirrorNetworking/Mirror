@@ -202,7 +202,7 @@ namespace Mirror.Tests
 
             // registering the same name with a different callback shouldn't
             // work
-            LogAssert.Expect(LogType.Error, $"Function {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate)} and {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate2)} have the same hash.  Please rename one of them");
+            LogAssert.Expect(LogType.Error, $"Function {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate)} and {typeof(NetworkBehaviourDelegateComponent)}.{nameof(NetworkBehaviourDelegateComponent.Delegate2)} have the same hash. Please rename one of them. To save bandwidth, we only use 2 bytes for the hash, which has a small chance of collisions.");
             ushort registeredHash3 = RemoteProcedureCalls.RegisterDelegate(
                 typeof(NetworkBehaviourDelegateComponent),
                 nameof(NetworkBehaviourDelegateComponent.Delegate),
@@ -796,6 +796,8 @@ namespace Mirror.Tests
         {
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
+            comp.netIdentity.isServer = true;
+
             // add values to synclist
             comp.list.Add(42);
             comp.list.Add(43);
@@ -851,6 +853,7 @@ namespace Mirror.Tests
         public void OnStopClient()
         {
             CreateNetworked(out GameObject _, out NetworkIdentity identity, out OnStopClientComponent comp);
+            identity.OnStartClient();
             identity.OnStopClient();
             Assert.That(comp.called, Is.EqualTo(1));
         }

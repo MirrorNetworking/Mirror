@@ -24,21 +24,20 @@ namespace kcp2k
         //    to reuse the buffer.
         protected readonly byte[] rawReceiveBuffer = new byte[Kcp.MTU_DEF];
 
-        // events
+        // callbacks
+        // even for errors, to allow liraries to show popups etc.
+        // instead of logging directly.
+        // (string instead of Exception for ease of use and to avoid user panic)
         public Action OnConnected;
         public Action<ArraySegment<byte>, KcpChannel> OnData;
         public Action OnDisconnected;
-        // error callback instead of logging.
-        // allows libraries to show popups etc.
-        // (string instead of Exception for ease of use and to avoid user panic)
         public Action<ErrorCode, string> OnError;
 
         // state
         public bool connected;
 
         public KcpClient(Action OnConnected,
-                         Action<ArraySegment<byte>,
-                         KcpChannel> OnData,
+                         Action<ArraySegment<byte>, KcpChannel> OnData,
                          Action OnDisconnected,
                          Action<ErrorCode, string> OnError)
         {
@@ -48,42 +47,32 @@ namespace kcp2k
             this.OnError = OnError;
         }
 
-        public void Connect(string address,
-                            ushort port,
-                            bool noDelay,
-                            uint interval,
-                            int fastResend = 0,
-                            bool congestionWindow = true,
-                            uint sendWindowSize = Kcp.WND_SND,
-                            uint receiveWindowSize = Kcp.WND_RCV,
-                            int timeout = KcpPeer.DEFAULT_TIMEOUT,
-                            uint maxRetransmits = Kcp.DEADLINK,
-                            bool maximizeSendReceiveBuffersToOSLimit = false)
+        public void Connect(string address, ushort port, KcpConfig config)
         {
             if (connected)
             {
-                Log.Warning("[KCP] client already connected!");
+                Log.Warning("KcpClient: already connected!");
                 return;
             }
 
             // create fresh peer for each new session
-            peer = new KcpPeer(RawSend, noDelay, interval, fastResend, congestionWindow, sendWindowSize, receiveWindowSize, timeout, maxRetransmits);
+            peer = new KcpPeer(RawSend, config);
 
             // setup events
             peer.OnAuthenticated = () =>
             {
-                Log.Info($"[KCP] OnClientConnected");
+                Log.Info($"KcpClient: OnConnected");
                 connected = true;
                 OnConnected();
             };
             peer.OnData = (message, channel) =>
             {
-                //Log.Debug($"KCP: OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
+                //Log.Debug($"KcpClient: OnClientData({BitConverter.ToString(message.Array, message.Offset, message.Count)})");
                 OnData(message, channel);
             };
             peer.OnDisconnected = () =>
             {
-                Log.Info($"[KCP] OnClientDisconnected");
+                Log.Info($"KcpClient: OnDisconnected");
                 connected = false;
                 peer = null;
                 socket?.Close();
@@ -96,13 +85,13 @@ namespace kcp2k
                 OnError(error, reason);
             };
 
-            Log.Info($"[KCP] Client connecting to {address}:{port}");
+            Log.Info($"KcpClient: connect to {address}:{port}");
 
             // try resolve host name
             if (!Common.ResolveHostname(address, out IPAddress[] addresses))
             {
                 // pass error to user callback. no need to log it manually.
-                peer.OnError(ErrorCode.DnsResolve, $"[KCP] Failed to resolve host: {address}");
+                peer.OnError(ErrorCode.DnsResolve, $"Failed to resolve host: {address}");
                 peer.OnDisconnected();
                 return;
             }
@@ -114,31 +103,31 @@ namespace kcp2k
             // configure buffer sizes:
             // if connections drop under heavy load, increase to OS limit.
             // if still not enough, increase the OS limit.
-            if (maximizeSendReceiveBuffersToOSLimit)
+            if (config.MaximizeSocketBuffers)
             {
                 Common.MaximizeSocketBuffers(socket);
             }
             // otherwise still log the defaults for info.
-            else Log.Info($"[KCP] Client RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(maximizeSendReceiveBuffersToOSLimit)} to increase it to OS limit. If they still drop, increase the OS limit.");
+            else Log.Info($"KcpClient: RecvBuf = {socket.ReceiveBufferSize} SendBuf = {socket.SendBufferSize}. If connections drop under heavy load, enable {nameof(KcpConfig.MaximizeSocketBuffers)} to increase it to OS limit. If they still drop, increase the OS limit.");
 
             // bind to endpoint so we can use send/recv instead of sendto/recvfrom.
             socket.Connect(remoteEndPoint);
 
             // client should send handshake to server as very first message
             peer.SendHandshake();
-
-            RawReceive();
         }
 
         // io - input.
         // virtual so it may be modified for relays, etc.
-        protected virtual void RawReceive()
+        // call this while it returns true, to process all messages this tick.
+        // returned ArraySegment is valid until next call to RawReceive.
+        protected virtual bool RawReceive(out ArraySegment<byte> segment)
         {
-            if (socket == null) return;
+            segment = default;
 
             try
             {
-                while (socket.Poll(0, SelectMode.SelectRead))
+                if (socket != null && socket.Poll(0, SelectMode.SelectRead))
                 {
                     // ReceiveFrom allocates. we used bound Receive.
                     // returns amount of bytes written into buffer.
@@ -147,7 +136,8 @@ namespace kcp2k
                     int msgLength = socket.Receive(rawReceiveBuffer);
 
                     //Log.Debug($"KCP: client raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
-                    peer.RawInput(rawReceiveBuffer, 0, msgLength);
+                    segment = new ArraySegment<byte>(rawReceiveBuffer, 0, msgLength);
+                    return true;
                 }
             }
             // this is fine, the socket might have been closed in the other end
@@ -156,9 +146,13 @@ namespace kcp2k
                 // the other end closing the connection is not an 'error'.
                 // but connections should never just end silently.
                 // at least log a message for easier debugging.
-                Log.Info($"[KCP] ClientConnection: looks like the other end has closed the connection. This is fine: {ex}");
+                // for example, his can happen when connecting without a server.
+                // see test: ConnectWithoutServer().
+                Log.Info($"KcpClient: looks like the other end has closed the connection. This is fine: {ex}");
                 peer.Disconnect();
             }
+
+            return false;
         }
 
         // io - output.
@@ -172,7 +166,7 @@ namespace kcp2k
         {
             if (!connected)
             {
-                Log.Warning("[KCP] Can't send because client not connected!");
+                Log.Warning("KcpClient: can't send because not connected!");
                 return;
             }
 
@@ -200,9 +194,13 @@ namespace kcp2k
             // (connection is null if not active)
             if (peer != null)
             {
-                RawReceive();
-                peer.TickIncoming();
+
+                while (RawReceive(out ArraySegment<byte> segment))
+                    peer.RawInput(segment);
             }
+
+            // RawReceive may have disconnected peer. null check again.
+            peer?.TickIncoming();
         }
 
         // process outgoing messages. should be called after updating the world.

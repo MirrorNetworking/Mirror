@@ -1,3 +1,19 @@
+V1.26 [2022-12-22]
+- KcpPeer.RawInput: fix compile error in old Unity Mono versions
+- fix: KcpServer sets up a new connection's OnError immediately.
+  fixes KcpPeer throwing NullReferenceException when attempting to call OnError
+  after authentication errors.
+- improved log messages
+
+V1.25 [2022-12-14]
+- breaking: removed where-allocation. use IL2CPP on servers instead.
+- breaking: KcpConfig to simplify configuration
+- high level cleanups
+
+V1.24 [2022-12-14]
+- KcpClient: fixed NullReferenceException when connection without a server.
+  added test coverage to ensure this never happens again.
+
 V1.23 [2022-12-07]
 - KcpClient: rawReceiveBuffer exposed
 - fix: KcpServer RawSend uses connection.remoteEndPoint instead of the helper

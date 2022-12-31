@@ -2,6 +2,7 @@
 
 namespace Mirror.Examples.Benchmark
 {
+    [AddComponentMenu("")]
     public class BenchmarkNetworkManager : NetworkManager
     {
         [Header("Spawns")]

@@ -35,6 +35,10 @@ namespace Mirror.Tests
             serverSyncSet = new SyncHashSet<string>();
             clientSyncSet = new SyncHashSet<string>();
 
+            // set writable
+            serverSyncSet.IsWritable = () => true;
+            clientSyncSet.IsWritable = () => false;
+
             // add some data to the list
             serverSyncSet.Add("Hello");
             serverSyncSet.Add("World");
@@ -273,10 +277,10 @@ namespace Mirror.Tests
         [Test]
         public void ObjectCanBeReusedAfterReset()
         {
-            clientSyncSet.Reset();
+            serverSyncSet.Reset();
 
             // make old client the host
-            SyncHashSet<string> hostList = clientSyncSet;
+            SyncHashSet<string> hostList = serverSyncSet;
             SyncHashSet<string> clientList2 = new SyncHashSet<string>();
 
             Assert.That(hostList.IsReadOnly, Is.False);
@@ -286,13 +290,6 @@ namespace Mirror.Tests
             hostList.Add("2");
             hostList.Add("3");
             SerializeDeltaTo(hostList, clientList2);
-        }
-
-        [Test]
-        public void ResetShouldSetReadOnlyToFalse()
-        {
-            clientSyncSet.Reset();
-            Assert.That(clientSyncSet.IsReadOnly, Is.False);
         }
 
         [Test]
