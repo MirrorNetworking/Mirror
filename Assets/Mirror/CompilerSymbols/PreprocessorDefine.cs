@@ -28,7 +28,7 @@ namespace Mirror
                 // Keep a rolling 12 months of symbols.
             };
 
-            // only touch PlayerSettings if we actually modified it.
+            // only touch PlayerSettings if we actually modified it,
             // otherwise it shows up as changed in git each time.
             string newDefines = string.Join(";", defines);
             if (newDefines != currentDefines)
