@@ -23,7 +23,9 @@ namespace Mirror
                 "MIRROR_2022_9_OR_NEWER",
                 "MIRROR_2022_10_OR_NEWER",
                 "MIRROR_70_0_OR_NEWER",
-                "MIRROR_71_0_OR_NEWER",
+                "MIRROR_71_0_OR_NEWER"
+                // Remove oldest when adding next month's symbol.
+                // Keep a rolling 12 months of symbols.
             };
 
             // only touch PlayerSettings if we actually modified it.
