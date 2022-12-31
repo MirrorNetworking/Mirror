@@ -1,8 +1,6 @@
 // NetworkTransform V2 by mischa (2021-07)
 // comment out the below line to quickly revert the onlySyncOnChange feature
 #define onlySyncOnChange_BANDWIDTH_SAVING
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Mirror
