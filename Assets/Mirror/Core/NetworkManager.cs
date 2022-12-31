@@ -150,7 +150,7 @@ namespace Mirror
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
-            if (playerPrefab != null && playerPrefab.GetComponent<NetworkIdentity>() == null)
+            if (playerPrefab != null && !playerPrefab.TryGetComponent<NetworkIdentity>(out _))
             {
                 Debug.LogError("NetworkManager - Player Prefab must have a NetworkIdentity.");
                 playerPrefab = null;
@@ -1130,7 +1130,7 @@ namespace Mirror
                 return;
             }
 
-            if (autoCreatePlayer && playerPrefab.GetComponent<NetworkIdentity>() == null)
+            if (autoCreatePlayer && !playerPrefab.TryGetComponent<NetworkIdentity>(out _))
             {
                 Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
                 return;

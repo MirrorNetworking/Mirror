@@ -565,8 +565,7 @@ namespace Mirror
             uint newNetId = 0;
             if (newGameObject != null)
             {
-                NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
-                if (identity != null)
+                if (newGameObject.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
                 {
                     newNetId = identity.netId;
                     if (newNetId == 0)
@@ -589,8 +588,7 @@ namespace Mirror
             uint newNetId = 0;
             if (newGameObject != null)
             {
-                NetworkIdentity identity = newGameObject.GetComponent<NetworkIdentity>();
-                if (identity != null)
+                if (newGameObject.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
                 {
                     newNetId = identity.netId;
                     if (newNetId == 0)
