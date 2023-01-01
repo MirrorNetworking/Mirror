@@ -1613,13 +1613,14 @@ namespace Mirror
         {
             //Debug.Log("Shutting down client.");
 
+            // objects need to be destroyed before spawners are cleared
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3334
+            DestroyAllClientObjects();
+
             // calls prefabs.Clear();
             // calls spawnHandlers.Clear();
             // calls unspawnHandlers.Clear();
             ClearSpawners();
-
-            // calls spawned.Clear() if no exception occurs
-            DestroyAllClientObjects();
 
             spawned.Clear();
             connection?.owned.Clear();
