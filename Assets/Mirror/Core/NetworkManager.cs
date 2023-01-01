@@ -40,6 +40,8 @@ namespace Mirror
         [Tooltip("Server & Client send rate per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 30;
+
+        // Deprecated 2022-10-31
         [Obsolete("NetworkManager.serverTickRate was renamed to sendRate because that's what it configures for both server & client now.")]
         public int serverTickRate => sendRate;
 
@@ -49,6 +51,7 @@ namespace Mirror
         // send interval is 1 / sendRate.
         // but for tests we need a way to set it to exactly 0.
         // 1 / int.max would not be exactly 0, so handel that manually.
+        // Deprecated 2022-10-06
         [Obsolete("NetworkManager.serverTickInterval was moved to NetworkServer.tickInterval for consistency.")]
         public float serverTickInterval => NetworkServer.tickInterval;
 
@@ -242,7 +245,8 @@ namespace Mirror
             !Utils.IsSceneActive(onlineScene) &&
             onlineScene != offlineScene;
 
-        [Obsolete("NetworkManager.IsSceneActive moved to Utils.IsSceneActive")] // DEPRECATED 2022-12-12
+        // Deprecated 2022-12-12
+        [Obsolete("NetworkManager.IsSceneActive moved to Utils.IsSceneActive")]
         public static bool IsSceneActive(string scene) => Utils.IsSceneActive(scene);
 
         // NetworkManager exposes some NetworkServer/Client configuration.
@@ -1296,7 +1300,7 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-        // DEPRECATED 2022-05-12
+        // Deprecated 2022-05-12
         [Obsolete("OnServerError(conn, Exception) was changed to OnServerError(conn, TransportError, string)")]
         public virtual void OnServerError(NetworkConnectionToClient conn, Exception exception) {}
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
@@ -1334,7 +1338,7 @@ namespace Mirror
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect() {}
 
-        // DEPRECATED 2022-05-12
+        // Deprecated 2022-05-12
         [Obsolete("OnClientError(Exception) was changed to OnClientError(TransportError, string)")]
         public virtual void OnClientError(Exception exception) {}
         /// <summary>Called on client when transport raises an exception.</summary>

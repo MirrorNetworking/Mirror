@@ -35,8 +35,8 @@ namespace Mirror
         /// <summary>Connection to host mode client (if any)</summary>
         public static LocalConnectionToClient localConnection { get; private set; }
 
-        /// <summary>True is a local client is currently active on the server</summary>
-        [Obsolete("NetworkServer.localClientActive was renamed to .activeHost to be more obvious")] // DEPRECATED 2022-12-12
+        // Deprecated 2022-12-12
+        [Obsolete("NetworkServer.localClientActive was renamed to .activeHost to be more obvious")]
         public static bool localClientActive => activeHost;
 
         /// <summary>Dictionary of all server connections, with connectionId as key</summary>
@@ -145,7 +145,8 @@ namespace Mirror
 
         // calls OnStartClient for all SERVER objects in host mode once.
         // client doesn't get spawn messages for those, so need to call manually.
-        [Obsolete("NetworkServer.ActivateHostScene was moved to HostMode.ActivateHostScene")] // DEPRECATED 2022-12-12
+        // Deprecated 2022-12-12
+        [Obsolete("NetworkServer.ActivateHostScene was moved to HostMode.ActivateHostScene")]
         public static void ActivateHostScene() => HostMode.ActivateHostScene();
 
         internal static void RegisterMessageHandlers()

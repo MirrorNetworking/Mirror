@@ -19,10 +19,6 @@ namespace Mirror
             1000
         );
 
-        // DEPRECATED 2022-03-10
-        [Obsolete("GetWriter() was renamed to Get()")]
-        public static NetworkWriterPooled GetWriter() => Get();
-
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static NetworkWriterPooled Get()
@@ -32,10 +28,6 @@ namespace Mirror
             writer.Reset();
             return writer;
         }
-
-        // DEPRECATED 2022-03-10
-        [Obsolete("Recycle() was renamed to Return()")]
-        public static void Recycle(NetworkWriterPooled writer) => Return(writer);
 
         /// <summary>Return a writer to the pool.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

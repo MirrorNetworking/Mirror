@@ -26,10 +26,6 @@ namespace Mirror
                 objects.Push(objectGenerator());
         }
 
-        // DEPRECATED 2022-03-10
-        [Obsolete("Take() was renamed to Get()")]
-        public T Take() => Get();
-
         // take an element from the pool, or create a new one if empty
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get() => objects.Count > 0 ? objects.Pop() : objectGenerator();
