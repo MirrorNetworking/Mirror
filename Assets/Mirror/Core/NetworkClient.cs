@@ -1613,13 +1613,13 @@ namespace Mirror
         {
             //Debug.Log("Shutting down client.");
 
+            // calls spawned.Clear() if no exception occurs
+            DestroyAllClientObjects();
+
             // calls prefabs.Clear();
             // calls spawnHandlers.Clear();
             // calls unspawnHandlers.Clear();
             ClearSpawners();
-
-            // calls spawned.Clear() if no exception occurs
-            DestroyAllClientObjects();
 
             spawned.Clear();
             connection?.owned.Clear();
