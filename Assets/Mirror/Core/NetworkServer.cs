@@ -96,6 +96,23 @@ namespace Mirror
         // capture full Unity update time from before Early- to after LateUpdate
         public static TimeSample fullUpdateDuration;
 
+        /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
+        public static void Listen(int maxConns)
+        {
+            Initialize();
+            maxConnections = maxConns;
+
+            // only start server if we want to listen
+            if (!dontListen)
+            {
+                Transport.active.ServerStart();
+                //Debug.Log("Server started listening");
+            }
+
+            active = true;
+            RegisterMessageHandlers();
+        }
+
         // initialization / shutdown ///////////////////////////////////////////
         static void Initialize()
         {
@@ -132,6 +149,94 @@ namespace Mirror
             Transport.active.OnServerDataReceived += OnTransportData;
             Transport.active.OnServerDisconnected += OnTransportDisconnected;
             Transport.active.OnServerError        += OnTransportError;
+        }
+
+        /// <summary>Shuts down the server and disconnects all clients</summary>
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        public static void Shutdown()
+        {
+            if (initialized)
+            {
+                DisconnectAll();
+
+                // stop the server.
+                // we do NOT call Transport.Shutdown, because someone only
+                // called NetworkServer.Shutdown. we can't assume that the
+                // client is supposed to be shut down too!
+                //
+                // NOTE: stop no matter what, even if 'dontListen':
+                //       someone might enabled dontListen at runtime.
+                //       but we still need to stop the server.
+                //       fixes https://github.com/vis2k/Mirror/issues/2536
+                Transport.active.ServerStop();
+
+                // transport handlers are hooked into when initializing.
+                // so only remove them when shutting down.
+                RemoveTransportHandlers();
+
+                initialized = false;
+            }
+
+            // Reset all statics here....
+            dontListen = false;
+            active = false;
+            isLoadingScene = false;
+            lastSendTime = 0;
+
+            localConnection = null;
+
+            connections.Clear();
+            connectionsCopy.Clear();
+            handlers.Clear();
+            newObservers.Clear();
+
+            // this calls spawned.Clear()
+            CleanupSpawned();
+
+            // sets nextNetworkId to 1
+            // sets clientAuthorityCallback to null
+            // sets previousLocalPlayer to null
+            NetworkIdentity.ResetStatics();
+
+            // clear events. someone might have hooked into them before, but
+            // we don't want to use those hooks after Shutdown anymore.
+            OnConnectedEvent = null;
+            OnDisconnectedEvent = null;
+            OnErrorEvent = null;
+
+            if (aoi != null) aoi.Reset();
+        }
+
+        // Note: NetworkClient.DestroyAllClientObjects does the same on client.
+        static void CleanupSpawned()
+        {
+            // iterate a COPY of spawned.
+            // DestroyObject removes them from the original collection.
+            // removing while iterating is not allowed.
+            foreach (NetworkIdentity identity in spawned.Values.ToList())
+            {
+                if (identity != null)
+                {
+                    // scene object
+                    if (identity.sceneId != 0)
+                    {
+                        // spawned scene objects are unspawned and reset.
+                        // afterwards we disable them again.
+                        // (they always stay in the scene, we don't destroy them)
+                        DestroyObject(identity, DestroyMode.Reset);
+                        identity.gameObject.SetActive(false);
+                    }
+                    // spawned prefabs
+                    else
+                    {
+                        // spawned prefabs are unspawned and destroyed.
+                        DestroyObject(identity, DestroyMode.Destroy);
+                    }
+                }
+            }
+
+            spawned.Clear();
         }
 
         static void RemoveTransportHandlers()
@@ -262,111 +367,6 @@ namespace Mirror
 #else
             connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
 #endif
-        }
-
-        /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
-        public static void Listen(int maxConns)
-        {
-            Initialize();
-            maxConnections = maxConns;
-
-            // only start server if we want to listen
-            if (!dontListen)
-            {
-                Transport.active.ServerStart();
-                //Debug.Log("Server started listening");
-            }
-
-            active = true;
-            RegisterMessageHandlers();
-        }
-
-        // Note: NetworkClient.DestroyAllClientObjects does the same on client.
-        static void CleanupSpawned()
-        {
-            // iterate a COPY of spawned.
-            // DestroyObject removes them from the original collection.
-            // removing while iterating is not allowed.
-            foreach (NetworkIdentity identity in spawned.Values.ToList())
-            {
-                if (identity != null)
-                {
-                    // scene object
-                    if (identity.sceneId != 0)
-                    {
-                        // spawned scene objects are unspawned and reset.
-                        // afterwards we disable them again.
-                        // (they always stay in the scene, we don't destroy them)
-                        DestroyObject(identity, DestroyMode.Reset);
-                        identity.gameObject.SetActive(false);
-                    }
-                    // spawned prefabs
-                    else
-                    {
-                        // spawned prefabs are unspawned and destroyed.
-                        DestroyObject(identity, DestroyMode.Destroy);
-                    }
-                }
-            }
-
-            spawned.Clear();
-        }
-
-        /// <summary>Shuts down the server and disconnects all clients</summary>
-        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        public static void Shutdown()
-        {
-            if (initialized)
-            {
-                DisconnectAll();
-
-                // stop the server.
-                // we do NOT call Transport.Shutdown, because someone only
-                // called NetworkServer.Shutdown. we can't assume that the
-                // client is supposed to be shut down too!
-                //
-                // NOTE: stop no matter what, even if 'dontListen':
-                //       someone might enabled dontListen at runtime.
-                //       but we still need to stop the server.
-                //       fixes https://github.com/vis2k/Mirror/issues/2536
-                Transport.active.ServerStop();
-
-                // transport handlers are hooked into when initializing.
-                // so only remove them when shutting down.
-                RemoveTransportHandlers();
-
-                initialized = false;
-            }
-
-            // Reset all statics here....
-            dontListen = false;
-            active = false;
-            isLoadingScene = false;
-            lastSendTime = 0;
-
-            localConnection = null;
-
-            connections.Clear();
-            connectionsCopy.Clear();
-            handlers.Clear();
-            newObservers.Clear();
-
-            // this calls spawned.Clear()
-            CleanupSpawned();
-
-            // sets nextNetworkId to 1
-            // sets clientAuthorityCallback to null
-            // sets previousLocalPlayer to null
-            NetworkIdentity.ResetStatics();
-
-            // clear events. someone might have hooked into them before, but
-            // we don't want to use those hooks after Shutdown anymore.
-            OnConnectedEvent = null;
-            OnDisconnectedEvent = null;
-            OnErrorEvent = null;
-
-            if (aoi != null) aoi.Reset();
         }
 
         // connections /////////////////////////////////////////////////////////
