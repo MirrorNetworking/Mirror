@@ -271,20 +271,6 @@ namespace Mirror
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
         public static NetworkIdentity GetSceneIdentity(ulong id) => sceneIds[id];
 
-        // used when adding players
-        internal void SetClientOwner(NetworkConnectionToClient conn)
-        {
-            // do nothing if it already has an owner
-            if (connectionToClient != null && conn != connectionToClient)
-            {
-                Debug.LogError($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first", this);
-                return;
-            }
-
-            // otherwise set the owner connection
-            connectionToClient = conn;
-        }
-
         static uint nextNetworkId = 1;
         internal static uint GetNextNetworkId() => nextNetworkId++;
 
@@ -1218,6 +1204,20 @@ namespace Mirror
             clientAuthorityCallback?.Invoke(conn, this, true);
 
             return true;
+        }
+
+        // used when adding players
+        internal void SetClientOwner(NetworkConnectionToClient conn)
+        {
+            // do nothing if it already has an owner
+            if (connectionToClient != null && conn != connectionToClient)
+            {
+                Debug.LogError($"Object {this} netId={netId} already has an owner. Use RemoveClientAuthority() first", this);
+                return;
+            }
+
+            // otherwise set the owner connection
+            connectionToClient = conn;
         }
 
         /// <summary>Removes ownership for an object.</summary>
