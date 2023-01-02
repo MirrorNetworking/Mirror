@@ -220,6 +220,30 @@ namespace Mirror
         static readonly Dictionary<ulong, NetworkIdentity> sceneIds =
             new Dictionary<ulong, NetworkIdentity>();
 
+        // Helper function to handle Command/Rpc
+        internal void HandleRemoteCall(byte componentIndex, ushort functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
+        {
+            // check if unity object has been destroyed
+            if (this == null)
+            {
+                Debug.LogWarning($"{remoteCallType} [{functionHash}] received for deleted object [netId={netId}]");
+                return;
+            }
+
+            // find the right component to invoke the function on
+            if (componentIndex >= NetworkBehaviours.Length)
+            {
+                Debug.LogWarning($"Component [{componentIndex}] not found for [netId={netId}]");
+                return;
+            }
+
+            NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
+            if (!RemoteProcedureCalls.Invoke(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
+            {
+                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
+            }
+        }
+
         // reset only client sided statics.
         // don't touch server statics when calling StopClient in host mode.
         // https://github.com/vis2k/Mirror/issues/2954
@@ -1100,30 +1124,6 @@ namespace Mirror
                 {
                     comp.ClearAllDirtyBits();
                 }
-            }
-        }
-
-        // Helper function to handle Command/Rpc
-        internal void HandleRemoteCall(byte componentIndex, ushort functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
-        {
-            // check if unity object has been destroyed
-            if (this == null)
-            {
-                Debug.LogWarning($"{remoteCallType} [{functionHash}] received for deleted object [netId={netId}]");
-                return;
-            }
-
-            // find the right component to invoke the function on
-            if (componentIndex >= NetworkBehaviours.Length)
-            {
-                Debug.LogWarning($"Component [{componentIndex}] not found for [netId={netId}]");
-                return;
-            }
-
-            NetworkBehaviour invokeComponent = NetworkBehaviours[componentIndex];
-            if (!RemoteProcedureCalls.Invoke(functionHash, remoteCallType, reader, invokeComponent, senderConnection))
-            {
-                Debug.LogError($"Found no receiver for incoming {remoteCallType} [{functionHash}] on {gameObject.name}, the server and client should have the same NetworkBehaviour instances [netId={netId}].");
             }
         }
 
