@@ -9,8 +9,8 @@ namespace Mirror
     /// <summary>NetworkServer handles remote connections and has a local connection for a local client.</summary>
     public static partial class NetworkServer
     {
-        static        bool initialized;
-        public static int  maxConnections;
+        static bool initialized;
+        public static int maxConnections;
 
         /// <summary>Server Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
         // overwritten by NetworkManager (if any)
@@ -28,7 +28,7 @@ namespace Mirror
         // -> time is interpolated globally on NetworkClient / NetworkConnection
         // -> value is interpolated per-component, i.e. NetworkTransform.
         // however, both need to be on the same send interval.
-        public static int sendRate       => tickRate;
+        public static int sendRate => tickRate;
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
@@ -75,8 +75,8 @@ namespace Mirror
         // Connected/Disconnected messages over the network causing undefined
         // behaviour.
         // => public so that custom NetworkManagers can hook into it
-        public static Action<NetworkConnectionToClient>                         OnConnectedEvent;
-        public static Action<NetworkConnectionToClient>                         OnDisconnectedEvent;
+        public static Action<NetworkConnectionToClient> OnConnectedEvent;
+        public static Action<NetworkConnectionToClient> OnDisconnectedEvent;
         public static Action<NetworkConnectionToClient, TransportError, string> OnErrorEvent;
 
         // keep track of actual achieved tick rate.
@@ -84,8 +84,8 @@ namespace Mirror
         // very useful for profiling etc.
         // measured over 1s each, same as frame rate. no EMA here.
         public static int actualTickRate;
-        static double     actualTickRateStart;   // start time when counting
-        static int        actualTickRateCounter; // current counter since start
+        static double actualTickRateStart;   // start time when counting
+        static int actualTickRateCounter; // current counter since start
 
         // profiling
         // includes transport update time, because transport calls handlers etc.
@@ -138,17 +138,17 @@ namespace Mirror
 
             // profiling
             earlyUpdateDuration = new TimeSample(sendRate);
-            lateUpdateDuration  = new TimeSample(sendRate);
-            fullUpdateDuration  = new TimeSample(sendRate);
+            lateUpdateDuration = new TimeSample(sendRate);
+            fullUpdateDuration = new TimeSample(sendRate);
         }
 
         static void AddTransportHandlers()
         {
             // += so that other systems can also hook into it (i.e. statistics)
-            Transport.active.OnServerConnected    += OnTransportConnected;
+            Transport.active.OnServerConnected += OnTransportConnected;
             Transport.active.OnServerDataReceived += OnTransportData;
             Transport.active.OnServerDisconnected += OnTransportDisconnected;
-            Transport.active.OnServerError        += OnTransportError;
+            Transport.active.OnServerError += OnTransportError;
         }
 
         /// <summary>Shuts down the server and disconnects all clients</summary>
@@ -211,10 +211,10 @@ namespace Mirror
         static void RemoveTransportHandlers()
         {
             // -= so that other systems can also hook into it (i.e. statistics)
-            Transport.active.OnServerConnected    -= OnTransportConnected;
+            Transport.active.OnServerConnected -= OnTransportConnected;
             Transport.active.OnServerDataReceived -= OnTransportData;
             Transport.active.OnServerDisconnected -= OnTransportDisconnected;
-            Transport.active.OnServerError        -= OnTransportError;
+            Transport.active.OnServerError -= OnTransportError;
         }
 
         // Note: NetworkClient.DestroyAllClientObjects does the same on client.
@@ -1229,7 +1229,7 @@ namespace Mirror
                 // only spawn scene objects which haven't been spawned yet.
                 // SpawnObjects may be called multiple times for additive scenes.
                 // https://github.com/MirrorNetworking/Mirror/issues/3318
-                if (Utils.IsSceneObject(identity) &&identity.netId == 0)
+                if (Utils.IsSceneObject(identity) && identity.netId == 0)
                 {
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
                     identity.gameObject.SetActive(true);
