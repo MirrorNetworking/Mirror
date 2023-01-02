@@ -1086,6 +1086,23 @@ namespace Mirror
             return lastSerialization;
         }
 
+        // Clear only dirty component's dirty bits. ignores components which
+        // may be dirty but not ready to be synced yet (because of syncInterval)
+        //
+        // NOTE: this used to be very important to avoid ever
+        //       growing SyncList changes if they had no observers,
+        //       but we've added SyncObject.isRecording since.
+        internal void ClearDirtyComponentsDirtyBits()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                if (comp.IsDirty())
+                {
+                    comp.ClearAllDirtyBits();
+                }
+            }
+        }
+
         // Helper function to handle Command/Rpc
         internal void HandleRemoteCall(byte componentIndex, ushort functionHash, RemoteCallType remoteCallType, NetworkReader reader, NetworkConnectionToClient senderConnection = null)
         {
@@ -1147,6 +1164,15 @@ namespace Mirror
 
             observers[conn.connectionId] = conn;
             conn.AddToObserving(this);
+        }
+
+        // clear all component's dirty bits no matter what
+        internal void ClearAllComponentsDirtyBits()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                comp.ClearAllDirtyBits();
+            }
         }
 
         // this is used when a connection is destroyed, since the "observers" property is read-only
@@ -1328,32 +1354,6 @@ namespace Mirror
                 conn.RemoveFromObserving(this, true);
             }
             observers.Clear();
-        }
-
-        // clear all component's dirty bits no matter what
-        internal void ClearAllComponentsDirtyBits()
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                comp.ClearAllDirtyBits();
-            }
-        }
-
-        // Clear only dirty component's dirty bits. ignores components which
-        // may be dirty but not ready to be synced yet (because of syncInterval)
-        //
-        // NOTE: this used to be very important to avoid ever
-        //       growing SyncList changes if they had no observers,
-        //       but we've added SyncObject.isRecording since.
-        internal void ClearDirtyComponentsDirtyBits()
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                if (comp.IsDirty())
-                {
-                    comp.ClearAllDirtyBits();
-                }
-            }
         }
 
         void ResetSyncObjects()
