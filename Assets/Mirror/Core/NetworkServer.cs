@@ -795,18 +795,18 @@ namespace Mirror
         }
 
         /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
+        public static void ReplaceHandler<T>(Action<T> handler, bool requireAuthentication = true)
+            where T : struct, NetworkMessage
+        {
+            ReplaceHandler<T>((_, value) => { handler(value); }, requireAuthentication);
+        }
+
+        /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
         public static void ReplaceHandler<T>(Action<NetworkConnectionToClient, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
             ushort msgType = NetworkMessages.GetId<T>();
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
-        }
-
-        /// <summary>Replace a handler for message type T. Most should require authentication.</summary>
-        public static void ReplaceHandler<T>(Action<T> handler, bool requireAuthentication = true)
-            where T : struct, NetworkMessage
-        {
-            ReplaceHandler<T>((_, value) => { handler(value); }, requireAuthentication);
         }
 
         /// <summary>Unregister a handler for a message type T.</summary>
@@ -1517,23 +1517,6 @@ namespace Mirror
         // Helper function to add all server connections as observers.
         // This is used if none of the components provides their own
         // OnRebuildObservers function.
-        internal static void AddAllReadyServerConnectionsToObservers(NetworkIdentity identity)
-        {
-            // add all server connections
-            foreach (NetworkConnectionToClient conn in connections.Values)
-            {
-                // only if authenticated (don't send to people during logins)
-                if (conn.isReady)
-                    identity.AddObserver(conn);
-            }
-
-            // add local host connection (if any)
-            if (localConnection != null && localConnection.isReady)
-            {
-                identity.AddObserver(localConnection);
-            }
-        }
-
         // allocate newObservers helper HashSet only once
         // internal for tests
         internal static readonly HashSet<NetworkConnectionToClient> newObservers =
@@ -1551,6 +1534,23 @@ namespace Mirror
                 {
                     AddAllReadyServerConnectionsToObservers(identity);
                 }
+            }
+        }
+
+        internal static void AddAllReadyServerConnectionsToObservers(NetworkIdentity identity)
+        {
+            // add all server connections
+            foreach (NetworkConnectionToClient conn in connections.Values)
+            {
+                // only if authenticated (don't send to people during logins)
+                if (conn.isReady)
+                    identity.AddObserver(conn);
+            }
+
+            // add local host connection (if any)
+            if (localConnection != null && localConnection.isReady)
+            {
+                identity.AddObserver(localConnection);
             }
         }
 
