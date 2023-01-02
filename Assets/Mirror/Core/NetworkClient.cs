@@ -1371,45 +1371,6 @@ namespace Mirror
             }
         }
 
-        // destroy /////////////////////////////////////////////////////////////
-        static void DestroyObject(uint netId)
-        {
-            // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
-            if (spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
-            {
-                if (identity.isLocalPlayer)
-                    identity.OnStopLocalPlayer();
-
-                identity.OnStopClient();
-
-                // custom unspawn handler for this prefab? (for prefab pools etc.)
-                if (InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
-                {
-                    // reset object after user's handler
-                    identity.Reset();
-                }
-                // otherwise fall back to default Destroy
-                else if (identity.sceneId == 0)
-                {
-                    // don't call reset before destroy so that values are still set in OnDestroy
-                    GameObject.Destroy(identity.gameObject);
-                }
-                // scene object.. disable it in scene instead of destroying
-                else
-                {
-                    identity.gameObject.SetActive(false);
-                    spawnableObjects[identity.sceneId] = identity;
-                    // reset for scene objects
-                    identity.Reset();
-                }
-
-                // remove from dictionary no matter how it is unspawned
-                connection.owned.Remove(identity); // if any
-                spawned.Remove(netId);
-            }
-            //else Debug.LogWarning($"Did not find target for destroy message for {netId}");
-        }
-
         // broadcast ///////////////////////////////////////////////////////////
         static void BroadcastTimeSnapshot()
         {
@@ -1541,7 +1502,45 @@ namespace Mirror
                 Transport.active.ClientLateUpdate();
         }
 
-        // shutdown ////////////////////////////////////////////////////////////
+        // destroy /////////////////////////////////////////////////////////////
+        static void DestroyObject(uint netId)
+        {
+            // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
+            if (spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
+            {
+                if (identity.isLocalPlayer)
+                    identity.OnStopLocalPlayer();
+
+                identity.OnStopClient();
+
+                // custom unspawn handler for this prefab? (for prefab pools etc.)
+                if (InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
+                {
+                    // reset object after user's handler
+                    identity.Reset();
+                }
+                // otherwise fall back to default Destroy
+                else if (identity.sceneId == 0)
+                {
+                    // don't call reset before destroy so that values are still set in OnDestroy
+                    GameObject.Destroy(identity.gameObject);
+                }
+                // scene object.. disable it in scene instead of destroying
+                else
+                {
+                    identity.gameObject.SetActive(false);
+                    spawnableObjects[identity.sceneId] = identity;
+                    // reset for scene objects
+                    identity.Reset();
+                }
+
+                // remove from dictionary no matter how it is unspawned
+                connection.owned.Remove(identity); // if any
+                spawned.Remove(netId);
+            }
+            //else Debug.LogWarning($"Did not find target for destroy message for {netId}");
+        }
+
         /// <summary>Destroys all networked objects on the client.</summary>
         // Note: NetworkServer.CleanupNetworkIdentities does the same on server.
         public static void DestroyAllClientObjects()
@@ -1607,6 +1606,7 @@ namespace Mirror
             }
         }
 
+        // shutdown ////////////////////////////////////////////////////////////
         /// <summary>Shutdown the client.</summary>
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
