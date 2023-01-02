@@ -1554,6 +1554,36 @@ namespace Mirror
             }
         }
 
+        // RebuildObservers does a local rebuild for the NetworkIdentity.
+        // This causes the set of players that can see this object to be rebuild.
+        //
+        // IMPORTANT:
+        // => global rebuild would be more simple, BUT
+        // => local rebuild is way faster for spawn/despawn because we can
+        //    simply rebuild a select NetworkIdentity only
+        // => having both .observers and .observing is necessary for local
+        //    rebuilds
+        //
+        // in other words, this is the perfect solution even though it's not
+        // completely simple (due to .observers & .observing)
+        //
+        // Mirror maintains .observing automatically in the background. best of
+        // both worlds without any worrying now!
+        public static void RebuildObservers(NetworkIdentity identity, bool initialize)
+        {
+            // if there is no interest management system,
+            // or if 'force shown' then add all connections
+            if (aoi == null || identity.visible == Visibility.ForceShown)
+            {
+                RebuildObserversDefault(identity, initialize);
+            }
+            // otherwise let interest management system rebuild
+            else
+            {
+                RebuildObserversCustom(identity, initialize);
+            }
+        }
+
         // rebuild observers via interest management system
         static void RebuildObserversCustom(NetworkIdentity identity, bool initialize)
         {
@@ -1648,36 +1678,6 @@ namespace Mirror
                     if (aoi != null)
                         aoi.SetHostVisibility(identity, false);
                 }
-            }
-        }
-
-        // RebuildObservers does a local rebuild for the NetworkIdentity.
-        // This causes the set of players that can see this object to be rebuild.
-        //
-        // IMPORTANT:
-        // => global rebuild would be more simple, BUT
-        // => local rebuild is way faster for spawn/despawn because we can
-        //    simply rebuild a select NetworkIdentity only
-        // => having both .observers and .observing is necessary for local
-        //    rebuilds
-        //
-        // in other words, this is the perfect solution even though it's not
-        // completely simple (due to .observers & .observing)
-        //
-        // Mirror maintains .observing automatically in the background. best of
-        // both worlds without any worrying now!
-        public static void RebuildObservers(NetworkIdentity identity, bool initialize)
-        {
-            // if there is no interest management system,
-            // or if 'force shown' then add all connections
-            if (aoi == null || identity.visible == Visibility.ForceShown)
-            {
-                RebuildObserversDefault(identity, initialize);
-            }
-            // otherwise let interest management system rebuild
-            else
-            {
-                RebuildObserversCustom(identity, initialize);
             }
         }
 
