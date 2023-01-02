@@ -1205,16 +1205,6 @@ namespace Mirror
             observers.Remove(conn.connectionId);
         }
 
-        // Called when NetworkIdentity is destroyed
-        internal void ClearObservers()
-        {
-            foreach (NetworkConnectionToClient conn in observers.Values)
-            {
-                conn.RemoveFromObserving(this, true);
-            }
-            observers.Clear();
-        }
-
         /// <summary>Assign control of an object to a client via the client's NetworkConnection.</summary>
         // This causes hasAuthority to be set on the client that owns the object,
         // and NetworkBehaviour.OnStartAuthority will be called on that client.
@@ -1328,6 +1318,16 @@ namespace Mirror
 
             previousLocalPlayer = null;
             isLocalPlayer = false;
+        }
+
+        // Called when NetworkIdentity is destroyed
+        internal void ClearObservers()
+        {
+            foreach (NetworkConnectionToClient conn in observers.Values)
+            {
+                conn.RemoveFromObserving(this, true);
+            }
+            observers.Clear();
         }
 
         // clear all component's dirty bits no matter what
