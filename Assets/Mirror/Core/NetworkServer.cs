@@ -771,6 +771,22 @@ namespace Mirror
         // for that object. This function is used for "adding" a player, not for
         // "replacing" the player on a connection. If there is already a player
         // on this playerControllerId for this connection, this will fail.
+        public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player, uint assetId)
+        {
+            if (GetNetworkIdentity(player, out NetworkIdentity identity))
+            {
+                identity.assetId = assetId;
+            }
+            return AddPlayerForConnection(conn, player);
+        }
+
+        /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>
+        // When a player is added for a connection, the client for that
+        // connection is made ready automatically. The player object is
+        // automatically spawned, so you do not need to call NetworkServer.Spawn
+        // for that object. This function is used for "adding" a player, not for
+        // "replacing" the player on a connection. If there is already a player
+        // on this playerControllerId for this connection, this will fail.
         public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player)
         {
             if (!player.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
@@ -807,22 +823,6 @@ namespace Mirror
 
             Respawn(identity);
             return true;
-        }
-
-        /// <summary>Called by server after AddPlayer message to add the player for the connection.</summary>
-        // When a player is added for a connection, the client for that
-        // connection is made ready automatically. The player object is
-        // automatically spawned, so you do not need to call NetworkServer.Spawn
-        // for that object. This function is used for "adding" a player, not for
-        // "replacing" the player on a connection. If there is already a player
-        // on this playerControllerId for this connection, this will fail.
-        public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player, uint assetId)
-        {
-            if (GetNetworkIdentity(player, out NetworkIdentity identity))
-            {
-                identity.assetId = assetId;
-            }
-            return AddPlayerForConnection(conn, player);
         }
 
         /// <summary>Replaces connection's player object. The old object is not destroyed.</summary>
@@ -897,6 +897,22 @@ namespace Mirror
             return ReplacePlayerForConnection(conn, player, keepAuthority);
         }
 
+        /// <summary>Removes the player object from the connection</summary>
+        // destroyServerObject: Indicates whether the server object should be destroyed
+        public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
+        {
+            if (conn.identity != null)
+            {
+                if (destroyServerObject)
+                    Destroy(conn.identity.gameObject);
+                else
+                    UnSpawn(conn.identity.gameObject);
+
+                conn.identity = null;
+            }
+            //else Debug.Log($"Connection {conn} has no identity");
+        }
+
         // ready ///////////////////////////////////////////////////////////////
         /// <summary>Flags client connection as ready (=joined world).</summary>
         // When a client has signaled that it is ready, this method tells the
@@ -961,22 +977,6 @@ namespace Mirror
                 netId = identity.netId
             };
             conn.Send(msg);
-        }
-
-        /// <summary>Removes the player object from the connection</summary>
-        // destroyServerObject: Indicates whether the server object should be destroyed
-        public static void RemovePlayerForConnection(NetworkConnection conn, bool destroyServerObject)
-        {
-            if (conn.identity != null)
-            {
-                if (destroyServerObject)
-                    Destroy(conn.identity.gameObject);
-                else
-                    UnSpawn(conn.identity.gameObject);
-
-                conn.identity = null;
-            }
-            //else Debug.Log($"Connection {conn} has no identity");
         }
 
         // remote calls ////////////////////////////////////////////////////////
