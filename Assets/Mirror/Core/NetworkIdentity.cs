@@ -776,56 +776,6 @@ namespace Mirror
             }
         }
 
-        bool hadAuthority;
-        internal void NotifyAuthority()
-        {
-            if (!hadAuthority && isOwned)
-                OnStartAuthority();
-            if (hadAuthority && !isOwned)
-                OnStopAuthority();
-            hadAuthority = isOwned;
-        }
-
-        internal void OnStartAuthority()
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStartAuthority should be caught, so that one
-                // component's exception doesn't stop all other components from
-                // being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnStartAuthority();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e, comp);
-                }
-            }
-        }
-
-        internal void OnStopAuthority()
-        {
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                // an exception in OnStopAuthority should be caught, so that one
-                // component's exception doesn't stop all other components from
-                // being initialized
-                // => this is what Unity does for Start() etc. too.
-                //    one exception doesn't stop all the other Start() calls!
-                try
-                {
-                    comp.OnStopAuthority();
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e, comp);
-                }
-            }
-        }
-
         // build dirty mask for server owner & observers (= all dirty components).
         // faster to do it in one iteration instead of iterating separately.
         (ulong, ulong) ServerDirtyMasks(bool initialState)
@@ -1318,6 +1268,56 @@ namespace Mirror
 
             previousLocalPlayer = null;
             isLocalPlayer = false;
+        }
+
+        bool hadAuthority;
+        internal void NotifyAuthority()
+        {
+            if (!hadAuthority && isOwned)
+                OnStartAuthority();
+            if (hadAuthority && !isOwned)
+                OnStopAuthority();
+            hadAuthority = isOwned;
+        }
+
+        internal void OnStartAuthority()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnStartAuthority should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStartAuthority();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, comp);
+                }
+            }
+        }
+
+        internal void OnStopAuthority()
+        {
+            foreach (NetworkBehaviour comp in NetworkBehaviours)
+            {
+                // an exception in OnStopAuthority should be caught, so that one
+                // component's exception doesn't stop all other components from
+                // being initialized
+                // => this is what Unity does for Start() etc. too.
+                //    one exception doesn't stop all the other Start() calls!
+                try
+                {
+                    comp.OnStopAuthority();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e, comp);
+                }
+            }
         }
 
         // Called when NetworkIdentity is destroyed
