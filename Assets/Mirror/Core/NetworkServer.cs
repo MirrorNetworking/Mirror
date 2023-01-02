@@ -158,6 +158,112 @@ namespace Mirror
             RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage, true);
         }
 
+        // remote calls ////////////////////////////////////////////////////////
+        // Handle command from specific player, this could be one of multiple
+        // players on a single client
+        // default ready handler.
+        static void OnClientReadyMessage(NetworkConnectionToClient conn, ReadyMessage msg)
+        {
+            // Debug.Log($"Default handler for ready message from {conn}");
+            SetClientReady(conn);
+        }
+
+        static void OnCommandMessage(NetworkConnectionToClient conn, CommandMessage msg, int channelId)
+        {
+            if (!conn.isReady)
+            {
+                // Clients may be set NotReady due to scene change or other game logic by user, e.g. respawning.
+                // Ignore commands that may have been in flight before client received NotReadyMessage message.
+                // Unreliable messages may be out of order, so don't spam warnings for those.
+                if (channelId == Channels.Reliable)
+                    Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
+                return;
+            }
+
+            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
+            {
+                // over reliable channel, commands should always come after spawn.
+                // over unreliable, they might come in before the object was spawned.
+                // for example, NetworkTransform.
+                // let's not spam the console for unreliable out of order messages.
+                if (channelId == Channels.Reliable)
+                    Debug.LogWarning($"Spawned object not found when handling Command message [netId={msg.netId}]");
+                return;
+            }
+
+            // Commands can be for player objects, OR other objects with client-authority
+            // -> so if this connection's controller has a different netId then
+            //    only allow the command if clientAuthorityOwner
+            bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
+            if (requiresAuthority && identity.connectionToClient != conn)
+            {
+                Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
+                return;
+            }
+
+            // Debug.Log($"OnCommandMessage for netId:{msg.netId} conn:{conn}");
+
+            using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(msg.payload))
+                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, RemoteCallType.Command, networkReader, conn);
+        }
+
+        // client to server broadcast //////////////////////////////////////////
+        // for client's owned ClientToServer components.
+        static void OnEntityStateMessage(NetworkConnectionToClient connection, EntityStateMessage message)
+        {
+            // need to validate permissions carefully.
+            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
+
+            // valid netId?
+            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
+            {
+                // owned by the connection?
+                if (identity.connectionToClient == connection)
+                {
+                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
+                    {
+                        // DeserializeServer checks permissions internally.
+                        // failure to deserialize disconnects to prevent exploits.
+                        if (!identity.DeserializeServer(reader))
+                        {
+                            Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
+                            connection.Disconnect();
+                        }
+                    }
+                }
+                // an attacker may attempt to modify another connection's entity
+                else
+                {
+                    Debug.LogWarning($"Connection {connection.connectionId} attempted to modify {identity} which is not owned by the connection. Disconnecting the connection.");
+                    connection.Disconnect();
+                }
+            }
+            // no warning. don't spam server logs.
+            // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
+        }
+
+        // client sends TimeSnapshotMessage every sendInterval.
+        // batching already includes the remoteTimestamp.
+        // we simply insert it on-message here.
+        // => only for reliable channel. unreliable would always arrive earlier.
+        static void OnTimeSnapshotMessage(NetworkConnectionToClient connection, TimeSnapshotMessage _)
+        {
+            // insert another snapshot for snapshot interpolation.
+            // before calling OnDeserialize so components can use
+            // NetworkTime.time and NetworkTime.timeStamp.
+
+            // TODO validation?
+            // maybe we shouldn't allow timeline to deviate more than a certain %.
+            // for now, this is only used for client authority movement.
+
+#if !UNITY_2020_3_OR_NEWER
+            // Unity 2019 doesn't have Time.timeAsDouble yet
+            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+#else
+            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
+#endif
+        }
+
         /// <summary>Starts server and listens to incoming connections with max connections limit.</summary>
         public static void Listen(int maxConns)
         {
@@ -1023,13 +1129,6 @@ namespace Mirror
             }
         }
 
-        // default ready handler.
-        static void OnClientReadyMessage(NetworkConnectionToClient conn, ReadyMessage msg)
-        {
-            // Debug.Log($"Default handler for ready message from {conn}");
-            SetClientReady(conn);
-        }
-
         // show / hide for connection //////////////////////////////////////////
         internal static void ShowForConnection(NetworkIdentity identity, NetworkConnection conn)
         {
@@ -1044,105 +1143,6 @@ namespace Mirror
                 netId = identity.netId
             };
             conn.Send(msg);
-        }
-
-        // remote calls ////////////////////////////////////////////////////////
-        // Handle command from specific player, this could be one of multiple
-        // players on a single client
-        static void OnCommandMessage(NetworkConnectionToClient conn, CommandMessage msg, int channelId)
-        {
-            if (!conn.isReady)
-            {
-                // Clients may be set NotReady due to scene change or other game logic by user, e.g. respawning.
-                // Ignore commands that may have been in flight before client received NotReadyMessage message.
-                // Unreliable messages may be out of order, so don't spam warnings for those.
-                if (channelId == Channels.Reliable)
-                    Debug.LogWarning("Command received while client is not ready.\nThis may be ignored if client intentionally set NotReady.");
-                return;
-            }
-
-            if (!spawned.TryGetValue(msg.netId, out NetworkIdentity identity))
-            {
-                // over reliable channel, commands should always come after spawn.
-                // over unreliable, they might come in before the object was spawned.
-                // for example, NetworkTransform.
-                // let's not spam the console for unreliable out of order messages.
-                if (channelId == Channels.Reliable)
-                    Debug.LogWarning($"Spawned object not found when handling Command message [netId={msg.netId}]");
-                return;
-            }
-
-            // Commands can be for player objects, OR other objects with client-authority
-            // -> so if this connection's controller has a different netId then
-            //    only allow the command if clientAuthorityOwner
-            bool requiresAuthority = RemoteProcedureCalls.CommandRequiresAuthority(msg.functionHash);
-            if (requiresAuthority && identity.connectionToClient != conn)
-            {
-                Debug.LogWarning($"Command for object without authority [netId={msg.netId}]");
-                return;
-            }
-
-            // Debug.Log($"OnCommandMessage for netId:{msg.netId} conn:{conn}");
-
-            using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(msg.payload))
-                identity.HandleRemoteCall(msg.componentIndex, msg.functionHash, RemoteCallType.Command, networkReader, conn);
-        }
-
-        // client to server broadcast //////////////////////////////////////////
-        // for client's owned ClientToServer components.
-        static void OnEntityStateMessage(NetworkConnectionToClient connection, EntityStateMessage message)
-        {
-            // need to validate permissions carefully.
-            // an attacker may attempt to modify a not-owned or not-ClientToServer component.
-
-            // valid netId?
-            if (spawned.TryGetValue(message.netId, out NetworkIdentity identity) && identity != null)
-            {
-                // owned by the connection?
-                if (identity.connectionToClient == connection)
-                {
-                    using (NetworkReaderPooled reader = NetworkReaderPool.Get(message.payload))
-                    {
-                        // DeserializeServer checks permissions internally.
-                        // failure to deserialize disconnects to prevent exploits.
-                        if (!identity.DeserializeServer(reader))
-                        {
-                            Debug.LogWarning($"Server failed to deserialize client state for {identity.name} with netId={identity.netId}, Disconnecting.");
-                            connection.Disconnect();
-                        }
-                    }
-                }
-                // an attacker may attempt to modify another connection's entity
-                else
-                {
-                    Debug.LogWarning($"Connection {connection.connectionId} attempted to modify {identity} which is not owned by the connection. Disconnecting the connection.");
-                    connection.Disconnect();
-                }
-            }
-            // no warning. don't spam server logs.
-            // else Debug.LogWarning($"Did not find target for sync message for {message.netId} . Note: this can be completely normal because UDP messages may arrive out of order, so this message might have arrived after a Destroy message.");
-        }
-
-        // client sends TimeSnapshotMessage every sendInterval.
-        // batching already includes the remoteTimestamp.
-        // we simply insert it on-message here.
-        // => only for reliable channel. unreliable would always arrive earlier.
-        static void OnTimeSnapshotMessage(NetworkConnectionToClient connection, TimeSnapshotMessage _)
-        {
-            // insert another snapshot for snapshot interpolation.
-            // before calling OnDeserialize so components can use
-            // NetworkTime.time and NetworkTime.timeStamp.
-
-            // TODO validation?
-            // maybe we shouldn't allow timeline to deviate more than a certain %.
-            // for now, this is only used for client authority movement.
-
-#if !UNITY_2020_3_OR_NEWER
-            // Unity 2019 doesn't have Time.timeAsDouble yet
-            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
-#else
-            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
-#endif
         }
 
         // spawning ////////////////////////////////////////////////////////////
