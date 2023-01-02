@@ -6,13 +6,13 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 #if UNITY_EDITOR
-    using UnityEditor;
+using UnityEditor;
 
-    #if UNITY_2021_2_OR_NEWER
-        using UnityEditor.SceneManagement;
-    #elif UNITY_2018_3_OR_NEWER
+#if UNITY_2021_2_OR_NEWER
+using UnityEditor.SceneManagement;
+#elif UNITY_2018_3_OR_NEWER
         using UnityEditor.Experimental.SceneManagement;
-    #endif
+#endif
 #endif
 
 namespace Mirror
@@ -790,7 +790,7 @@ namespace Mirror
         // faster to do it in one iteration instead of iterating separately.
         (ulong, ulong) ServerDirtyMasks(bool initialState)
         {
-            ulong ownerMask    = 0;
+            ulong ownerMask = 0;
             ulong observerMask = 0;
 
             NetworkBehaviour[] components = NetworkBehaviours;
@@ -882,7 +882,7 @@ namespace Mirror
 
             // if nothing dirty, then don't even write the mask.
             // otherwise, every unchanged object would send a 1 byte dirty mask!
-            if (ownerMask    != 0) Compression.CompressVarUInt(ownerWriter,     ownerMask);
+            if (ownerMask != 0) Compression.CompressVarUInt(ownerWriter, ownerMask);
             if (observerMask != 0) Compression.CompressVarUInt(observersWriter, observerMask);
 
             // serialize all components
@@ -905,7 +905,7 @@ namespace Mirror
                     // SyncDirection it's not guaranteed to be in owner anymore.
                     // so we need to serialize to temporary writer first.
                     // and then copy as needed.
-                    bool ownerDirty     = IsDirty(ownerMask, i);
+                    bool ownerDirty = IsDirty(ownerMask, i);
                     bool observersDirty = IsDirty(observerMask, i);
                     if (ownerDirty || observersDirty)
                     {
@@ -916,7 +916,7 @@ namespace Mirror
                             ArraySegment<byte> segment = temp.ToArraySegment();
 
                             // copy to owner / observers as needed
-                            if (ownerDirty)         ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
+                            if (ownerDirty) ownerWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                             if (observersDirty) observersWriter.WriteBytes(segment.Array, segment.Offset, segment.Count);
                         }
                     }
