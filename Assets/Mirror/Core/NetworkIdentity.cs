@@ -244,6 +244,16 @@ namespace Mirror
             }
         }
 
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        // internal so it can be called from NetworkServer & NetworkClient
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        internal static void ResetStatics()
+        {
+            // reset ALL statics
+            ResetClientStatics();
+            ResetServerStatics();
+        }
+
         // reset only client sided statics.
         // don't touch server statics when calling StopClient in host mode.
         // https://github.com/vis2k/Mirror/issues/2954
@@ -256,16 +266,6 @@ namespace Mirror
         internal static void ResetServerStatics()
         {
             nextNetworkId = 1;
-        }
-
-        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
-        // internal so it can be called from NetworkServer & NetworkClient
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        internal static void ResetStatics()
-        {
-            // reset ALL statics
-            ResetClientStatics();
-            ResetServerStatics();
         }
 
         /// <summary>Gets the NetworkIdentity from the sceneIds dictionary with the corresponding id</summary>
