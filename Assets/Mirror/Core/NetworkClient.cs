@@ -1512,52 +1512,11 @@ namespace Mirror
             // we need the Try/Catch so that the rest of the shutdown does not get stopped
             try
             {
-                foreach (NetworkIdentity identity in spawned.Values)
-                {
-                    if (identity != null && identity.gameObject != null)
-                    {
-                        if (identity.isLocalPlayer)
-                            identity.OnStopLocalPlayer();
+                // pass false for removeFromCollections so DestroyObject doesn't modify them
+                foreach (uint netId in spawned.Keys)
+                    DestroyObject(netId, false);
 
-                        identity.OnStopClient();
-
-                        // NetworkClient.Shutdown calls DestroyAllClientObjects.
-                        // which destroys all objects in NetworkClient.spawned.
-                        // => NC.spawned contains owned & observed objects
-                        // => in host mode, we CAN NOT destroy observed objects.
-                        // => that would destroy them other connection's objects
-                        //    on the host server, making them disconnect.
-                        // https://github.com/vis2k/Mirror/issues/2954
-                        bool hostOwned = identity.connectionToServer is LocalConnectionToServer;
-                        bool shouldDestroy = !identity.isServer || hostOwned;
-                        if (shouldDestroy)
-                        {
-                            bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
-
-                            // unspawned objects should be reset for reuse later.
-                            if (wasUnspawned)
-                            {
-                                identity.Reset();
-                            }
-                            // without unspawn handler, we need to disable/destroy.
-                            else
-                            {
-                                // scene objects are reset and disabled.
-                                // they always stay in the scene, we don't destroy them.
-                                if (identity.sceneId != 0)
-                                {
-                                    identity.Reset();
-                                    identity.gameObject.SetActive(false);
-                                }
-                                // spawned objects are destroyed
-                                else
-                                {
-                                    GameObject.Destroy(identity.gameObject);
-                                }
-                            }
-                        }
-                    }
-                }
+                // Since DestroyObject can't modify the collections, clear them here
                 spawned.Clear();
                 connection?.owned.Clear();
             }
@@ -1566,9 +1525,70 @@ namespace Mirror
                 Debug.LogException(e);
                 Debug.LogError("Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
             }
+
+
+            // user can modify spawned lists which causes InvalidOperationException
+            // list can modified either in UnSpawnHandler or in OnDisable/OnDestroy
+            // we need the Try/Catch so that the rest of the shutdown does not get stopped
+            //try
+            //{
+            //    foreach (NetworkIdentity identity in spawned.Values)
+            //    {
+            //        if (identity != null && identity.gameObject != null)
+            //        {
+            //            if (identity.isLocalPlayer)
+            //                identity.OnStopLocalPlayer();
+
+            //            identity.OnStopClient();
+
+            //            // NetworkClient.Shutdown calls DestroyAllClientObjects.
+            //            // which destroys all objects in NetworkClient.spawned.
+            //            // => NC.spawned contains owned & observed objects
+            //            // => in host mode, we CAN NOT destroy observed objects.
+            //            // => that would destroy them other connection's objects
+            //            //    on the host server, making them disconnect.
+            //            // https://github.com/vis2k/Mirror/issues/2954
+            //            bool hostOwned = identity.connectionToServer is LocalConnectionToServer;
+            //            bool shouldDestroy = !identity.isServer || hostOwned;
+            //            if (shouldDestroy)
+            //            {
+            //                bool wasUnspawned = InvokeUnSpawnHandler(identity.assetId, identity.gameObject);
+
+            //                // unspawned objects should be reset for reuse later.
+            //                if (wasUnspawned)
+            //                {
+            //                    identity.Reset();
+            //                }
+            //                // without unspawn handler, we need to disable/destroy.
+            //                else
+            //                {
+            //                    // scene objects are reset and disabled.
+            //                    // they always stay in the scene, we don't destroy them.
+            //                    if (identity.sceneId != 0)
+            //                    {
+            //                        identity.Reset();
+            //                        identity.gameObject.SetActive(false);
+            //                    }
+            //                    // spawned objects are destroyed
+            //                    else
+            //                    {
+            //                        GameObject.Destroy(identity.gameObject);
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
+            //    spawned.Clear();
+            //    connection?.owned.Clear();
+            //}
+            //catch (InvalidOperationException e)
+            //{
+            //    Debug.LogException(e);
+            //    Debug.LogError("Could not DestroyAllClientObjects because spawned list was modified during loop, make sure you are not modifying NetworkIdentity.spawned by calling NetworkServer.Destroy or NetworkServer.Spawn in OnDestroy or OnDisable.");
+            //}
         }
 
-        static void DestroyObject(uint netId)
+        static void DestroyObject(uint netId, bool removeFromCollections = true)
         {
             // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
             if (spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
@@ -1578,30 +1598,55 @@ namespace Mirror
 
                 identity.OnStopClient();
 
-                // custom unspawn handler for this prefab? (for prefab pools etc.)
-                if (InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
+                // NetworkClient.Shutdown calls DestroyAllClientObjects.
+                // which destroys all objects in NetworkClient.spawned.
+                // => NC.spawned contains owned & observed objects
+                // => in host mode, we CAN NOT destroy observed objects.
+                // => that would destroy them other connection's objects
+                //    on the host server, making them disconnect.
+                // https://github.com/vis2k/Mirror/issues/2954
+                bool hostOwned = identity.connectionToServer is LocalConnectionToServer;
+                bool shouldDestroy = !identity.isServer || hostOwned;
+                if (shouldDestroy)
                 {
-                    // reset object after user's handler
-                    identity.Reset();
+                    // custom unspawn handler for this prefab? (for prefab pools etc.)
+                    if (InvokeUnSpawnHandler(identity.assetId, identity.gameObject))
+                    {
+                        // reset object after user's handler
+                        identity.Reset();
+                    }
+                    // otherwise fall back to default Destroy
+                    else if (identity.sceneId == 0)
+                    {
+                        // don't call reset before destroy so that values are still set in OnDestroy
+                        GameObject.Destroy(identity.gameObject);
+                    }
+                    // scene object.. disable it in scene instead of destroying
+                    else
+                    {
+                        identity.gameObject.SetActive(false);
+                        spawnableObjects[identity.sceneId] = identity;
+                        // reset for scene objects
+                        identity.Reset();
+                    }
                 }
-                // otherwise fall back to default Destroy
-                else if (identity.sceneId == 0)
-                {
-                    // don't call reset before destroy so that values are still set in OnDestroy
-                    GameObject.Destroy(identity.gameObject);
-                }
-                // scene object.. disable it in scene instead of destroying
                 else
                 {
-                    identity.gameObject.SetActive(false);
-                    spawnableObjects[identity.sceneId] = identity;
-                    // reset for scene objects
-                    identity.Reset();
+                    // TODO - Seems like we need to do something here to handle
+                    // the server case where we have a host client (not hostOwned)
+                    // - InvokeUnSpawnHandler and Reset?
+                    // - Disable renderers?
+                    // - Reset scene object?
                 }
 
-                // remove from dictionary no matter how it is unspawned
-                connection.owned.Remove(identity); // if any
-                spawned.Remove(netId);
+                // DestroyAllClientObjects passes false so the collections
+                // aren't modifed while in the loop.
+                if (removeFromCollections)
+                {
+                    // remove from dictionary no matter how it is unspawned
+                    connection.owned.Remove(identity); // if any
+                    spawned.Remove(netId);
+                }
             }
             //else Debug.LogWarning($"Did not find target for destroy message for {netId}");
         }
