@@ -1255,7 +1255,7 @@ namespace Mirror
         // we can't destroy them (they are always in the scene).
         // instead we disable them and call Reset().
         //
-        // Do not call ResetSyncObjects from Reset
+        // Do not reset SyncObjects from Reset
         // - Unspawned objects need to retain their list contents
         // - They may be respawned, especially players, but others as well.
         //
