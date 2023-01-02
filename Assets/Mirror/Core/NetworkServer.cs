@@ -643,6 +643,23 @@ namespace Mirror
             OnErrorEvent?.Invoke(conn, error, reason);
         }
 
+        /// <summary>Destroys all of the connection's owned objects on the server.</summary>
+        // This is used when a client disconnects, to remove the players for
+        // that client. This also destroys non-player objects that have client
+        // authority set for this connection.
+        public static void DestroyPlayerForConnection(NetworkConnectionToClient conn)
+        {
+            // destroy all objects owned by this connection, including the player object
+            conn.DestroyOwnedObjects();
+            // remove connection from all of its observing entities observers
+            // fixes https://github.com/vis2k/Mirror/issues/2737
+            // -> cleaning those up in NetworkConnection.Disconnect is NOT enough
+            //    because voluntary disconnects from the other end don't call
+            //    NetworkConnection.Disconnect()
+            conn.RemoveFromObservingsObservers();
+            conn.identity = null;
+        }
+
         // message handlers ////////////////////////////////////////////////////
         /// <summary>Register a handler for message type T. Most should require authentication.</summary>
         // TODO obsolete this some day to always use the channelId version.
@@ -1394,27 +1411,30 @@ namespace Mirror
         public static void UnSpawn(GameObject obj) => DestroyObject(obj, DestroyMode.Reset);
 
         // destroy /////////////////////////////////////////////////////////////
-        /// <summary>Destroys all of the connection's owned objects on the server.</summary>
-        // This is used when a client disconnects, to remove the players for
-        // that client. This also destroys non-player objects that have client
-        // authority set for this connection.
-        public static void DestroyPlayerForConnection(NetworkConnectionToClient conn)
-        {
-            // destroy all objects owned by this connection, including the player object
-            conn.DestroyOwnedObjects();
-            // remove connection from all of its observing entities observers
-            // fixes https://github.com/vis2k/Mirror/issues/2737
-            // -> cleaning those up in NetworkConnection.Disconnect is NOT enough
-            //    because voluntary disconnects from the other end don't call
-            //    NetworkConnection.Disconnect()
-            conn.RemoveFromObservingsObservers();
-            conn.identity = null;
-        }
-
         // sometimes we want to GameObject.Destroy it.
         // sometimes we want to just unspawn on clients and .Reset() it on server.
         // => 'bool destroy' isn't obvious enough. it's really destroy OR reset!
         enum DestroyMode { Destroy, Reset }
+
+        /// <summary>Destroys this object and corresponding objects on all clients.</summary>
+        // In some cases it is useful to remove an object but not delete it on
+        // the server. For that, use NetworkServer.UnSpawn() instead of
+        // NetworkServer.Destroy().
+        public static void Destroy(GameObject obj) => DestroyObject(obj, DestroyMode.Destroy);
+
+        static void DestroyObject(GameObject obj, DestroyMode mode)
+        {
+            if (obj == null)
+            {
+                Debug.Log("NetworkServer DestroyObject is null");
+                return;
+            }
+
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
+            {
+                DestroyObject(identity, mode);
+            }
+        }
 
         static void DestroyObject(NetworkIdentity identity, DestroyMode mode)
         {
@@ -1492,26 +1512,6 @@ namespace Mirror
                 identity.Reset();
             }
         }
-
-        static void DestroyObject(GameObject obj, DestroyMode mode)
-        {
-            if (obj == null)
-            {
-                Debug.Log("NetworkServer DestroyObject is null");
-                return;
-            }
-
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-            {
-                DestroyObject(identity, mode);
-            }
-        }
-
-        /// <summary>Destroys this object and corresponding objects on all clients.</summary>
-        // In some cases it is useful to remove an object but not delete it on
-        // the server. For that, use NetworkServer.UnSpawn() instead of
-        // NetworkServer.Destroy().
-        public static void Destroy(GameObject obj) => DestroyObject(obj, DestroyMode.Destroy);
 
         // interest management /////////////////////////////////////////////////
         // Helper function to add all server connections as observers.
