@@ -933,6 +933,73 @@ namespace Mirror
                 SpawnObserversForConnection(conn);
         }
 
+        static void SpawnObserversForConnection(NetworkConnectionToClient conn)
+        {
+            //Debug.Log($"Spawning {spawned.Count} objects for conn {conn}");
+
+            if (!conn.isReady)
+            {
+                // client needs to finish initializing before we can spawn objects
+                // otherwise it would not find them.
+                return;
+            }
+
+            // let connection know that we are about to start spawning...
+            conn.Send(new ObjectSpawnStartedMessage());
+
+            // add connection to each nearby NetworkIdentity's observers, which
+            // internally sends a spawn message for each one to the connection.
+            foreach (NetworkIdentity identity in spawned.Values)
+            {
+                // try with far away ones in ummorpg!
+                if (identity.gameObject.activeSelf) //TODO this is different
+                {
+                    //Debug.Log($"Sending spawn message for current server objects name:{identity.name} netId:{identity.netId} sceneId:{identity.sceneId:X}");
+
+                    // we need to support three cases:
+                    // - legacy system (identity has .visibility)
+                    // - new system (networkserver has .aoi)
+                    // - default case: no .visibility and no .aoi means add all
+                    //   connections by default)
+                    //
+                    // ForceHidden/ForceShown overwrite all systems so check it
+                    // first!
+
+                    // ForceShown: add no matter what
+                    if (identity.visible == Visibility.ForceShown)
+                    {
+                        identity.AddObserver(conn);
+                    }
+                    // ForceHidden: don't show no matter what
+                    else if (identity.visible == Visibility.ForceHidden)
+                    {
+                        // do nothing
+                    }
+                    // default: legacy system / new system / no system support
+                    else if (identity.visible == Visibility.Default)
+                    {
+                        // aoi system
+                        if (aoi != null)
+                        {
+                            // call OnCheckObserver
+                            if (aoi.OnCheckObserver(identity, conn))
+                                identity.AddObserver(conn);
+                        }
+                        // no system: add all observers by default
+                        else
+                        {
+                            identity.AddObserver(conn);
+                        }
+                    }
+                }
+            }
+
+            // let connection know that we finished spawning, so it can call
+            // OnStartClient on each one (only after all were spawned, which
+            // is how Unity's Start() function works too)
+            conn.Send(new ObjectSpawnFinishedMessage());
+        }
+
         /// <summary>Marks the client of the connection to be not-ready.</summary>
         // Clients that are not ready do not receive spawned objects or state
         // synchronization updates. They client can be made ready again by
@@ -1079,30 +1146,6 @@ namespace Mirror
         }
 
         // spawning ////////////////////////////////////////////////////////////
-        static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, NetworkWriterPooled ownerWriter, NetworkWriterPooled observersWriter)
-        {
-            // Only call SerializeAll if there are NetworkBehaviours
-            if (identity.NetworkBehaviours.Length == 0)
-            {
-                return default;
-            }
-
-            // serialize all components with initialState = true
-            // (can be null if has none)
-            identity.SerializeServer(true, ownerWriter, observersWriter);
-
-            // convert to ArraySegment to avoid reader allocations
-            // if nothing was written, .ToArraySegment returns an empty segment.
-            ArraySegment<byte> ownerSegment = ownerWriter.ToArraySegment();
-            ArraySegment<byte> observersSegment = observersWriter.ToArraySegment();
-
-            // use owner segment if 'conn' owns this identity, otherwise
-            // use observers segment
-            ArraySegment<byte> payload = isOwner ? ownerSegment : observersSegment;
-
-            return payload;
-        }
-
         internal static void SendSpawnMessage(NetworkIdentity identity, NetworkConnection conn)
         {
             if (identity.serverOnly) return;
@@ -1131,6 +1174,30 @@ namespace Mirror
             }
         }
 
+        static ArraySegment<byte> CreateSpawnMessagePayload(bool isOwner, NetworkIdentity identity, NetworkWriterPooled ownerWriter, NetworkWriterPooled observersWriter)
+        {
+            // Only call SerializeAll if there are NetworkBehaviours
+            if (identity.NetworkBehaviours.Length == 0)
+            {
+                return default;
+            }
+
+            // serialize all components with initialState = true
+            // (can be null if has none)
+            identity.SerializeServer(true, ownerWriter, observersWriter);
+
+            // convert to ArraySegment to avoid reader allocations
+            // if nothing was written, .ToArraySegment returns an empty segment.
+            ArraySegment<byte> ownerSegment = ownerWriter.ToArraySegment();
+            ArraySegment<byte> observersSegment = observersWriter.ToArraySegment();
+
+            // use owner segment if 'conn' owns this identity, otherwise
+            // use observers segment
+            ArraySegment<byte> payload = isOwner ? ownerSegment : observersSegment;
+
+            return payload;
+        }
+
         internal static void SendChangeOwnerMessage(NetworkIdentity identity, NetworkConnectionToClient conn)
         {
             // Don't send if identity isn't spawned or only exists on server
@@ -1148,6 +1215,110 @@ namespace Mirror
                 isOwner = identity.connectionToClient == conn,
                 isLocalPlayer = conn.identity == identity
             });
+        }
+
+        /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
+        // NetworkIdentity objects in a scene are disabled by default. Calling
+        // SpawnObjects() causes these scene objects to be enabled and spawned.
+        // It is like calling NetworkServer.Spawn() for each of them.
+        public static bool SpawnObjects()
+        {
+            // only if server active
+            if (!active)
+                return false;
+
+            NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
+
+            // first pass: activate all scene objects
+            foreach (NetworkIdentity identity in identities)
+            {
+                // only spawn scene objects which haven't been spawned yet.
+                // SpawnObjects may be called multiple times for additive scenes.
+                // https://github.com/MirrorNetworking/Mirror/issues/3318
+                if (Utils.IsSceneObject(identity) &&identity.netId == 0)
+                {
+                    // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
+                    identity.gameObject.SetActive(true);
+
+                    // fix https://github.com/vis2k/Mirror/issues/2778:
+                    // -> SetActive(true) does NOT call Awake() if the parent
+                    //    is inactive
+                    // -> we need Awake() to initialize NetworkBehaviours[] etc.
+                    //    because our second pass below spawns and works with it
+                    // => detect this situation and manually call Awake for
+                    //    proper initialization
+                    if (!identity.gameObject.activeInHierarchy)
+                        identity.Awake();
+                }
+            }
+
+            // second pass: spawn all scene objects
+            foreach (NetworkIdentity identity in identities)
+            {
+                // only spawn scene objects which haven't been spawned yet.
+                // SpawnObjects may be called multiple times for additive scenes.
+                // https://github.com/MirrorNetworking/Mirror/issues/3318
+                if (Utils.IsSceneObject(identity) && identity.netId == 0)
+                {
+                    // pass connection so that authority is not lost when server loads a scene
+                    // https://github.com/vis2k/Mirror/pull/2987
+                    Spawn(identity.gameObject, identity.connectionToClient);
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
+        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
+        public static void Spawn(GameObject obj, GameObject ownerPlayer)
+        {
+            if (!ownerPlayer.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            {
+                Debug.LogError("Player object has no NetworkIdentity");
+                return;
+            }
+
+            if (identity.connectionToClient == null)
+            {
+                Debug.LogError("Player object is not a player.");
+                return;
+            }
+
+            Spawn(obj, identity.connectionToClient);
+        }
+
+        static void Respawn(NetworkIdentity identity)
+        {
+            if (identity.netId == 0)
+            {
+                // If the object has not been spawned, then do a full spawn and update observers
+                Spawn(identity.gameObject, identity.connectionToClient);
+            }
+            else
+            {
+                // otherwise just replace his data
+                SendSpawnMessage(identity, identity.connectionToClient);
+            }
+        }
+
+        /// <summary>Spawn the given game object on all clients which are ready.</summary>
+        // This will cause a new object to be instantiated from the registered
+        // prefab, or from a custom spawn function.
+        public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
+        {
+            SpawnObject(obj, ownerConnection);
+        }
+
+        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
+        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
+        public static void Spawn(GameObject obj, uint assetId, NetworkConnection ownerConnection = null)
+        {
+            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
+            {
+                identity.assetId = assetId;
+            }
+            SpawnObject(obj, ownerConnection);
         }
 
         static void SpawnObject(GameObject obj, NetworkConnection ownerConnection)
@@ -1228,177 +1399,6 @@ namespace Mirror
             }
 
             RebuildObservers(identity, true);
-        }
-
-        /// <summary>Spawn the given game object on all clients which are ready.</summary>
-        // This will cause a new object to be instantiated from the registered
-        // prefab, or from a custom spawn function.
-        public static void Spawn(GameObject obj, NetworkConnection ownerConnection = null)
-        {
-            SpawnObject(obj, ownerConnection);
-        }
-
-        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
-        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
-        public static void Spawn(GameObject obj, GameObject ownerPlayer)
-        {
-            if (!ownerPlayer.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
-            {
-                Debug.LogError("Player object has no NetworkIdentity");
-                return;
-            }
-
-            if (identity.connectionToClient == null)
-            {
-                Debug.LogError("Player object is not a player.");
-                return;
-            }
-
-            Spawn(obj, identity.connectionToClient);
-        }
-
-        /// <summary>Spawns an object and also assigns Client Authority to the specified client.</summary>
-        // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
-        public static void Spawn(GameObject obj, uint assetId, NetworkConnection ownerConnection = null)
-        {
-            if (GetNetworkIdentity(obj, out NetworkIdentity identity))
-            {
-                identity.assetId = assetId;
-            }
-            SpawnObject(obj, ownerConnection);
-        }
-
-        /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
-        // NetworkIdentity objects in a scene are disabled by default. Calling
-        // SpawnObjects() causes these scene objects to be enabled and spawned.
-        // It is like calling NetworkServer.Spawn() for each of them.
-        public static bool SpawnObjects()
-        {
-            // only if server active
-            if (!active)
-                return false;
-
-            NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
-
-            // first pass: activate all scene objects
-            foreach (NetworkIdentity identity in identities)
-            {
-                // only spawn scene objects which haven't been spawned yet.
-                // SpawnObjects may be called multiple times for additive scenes.
-                // https://github.com/MirrorNetworking/Mirror/issues/3318
-                if (Utils.IsSceneObject(identity) &&identity.netId == 0)
-                {
-                    // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
-                    identity.gameObject.SetActive(true);
-
-                    // fix https://github.com/vis2k/Mirror/issues/2778:
-                    // -> SetActive(true) does NOT call Awake() if the parent
-                    //    is inactive
-                    // -> we need Awake() to initialize NetworkBehaviours[] etc.
-                    //    because our second pass below spawns and works with it
-                    // => detect this situation and manually call Awake for
-                    //    proper initialization
-                    if (!identity.gameObject.activeInHierarchy)
-                        identity.Awake();
-                }
-            }
-
-            // second pass: spawn all scene objects
-            foreach (NetworkIdentity identity in identities)
-            {
-                // only spawn scene objects which haven't been spawned yet.
-                // SpawnObjects may be called multiple times for additive scenes.
-                // https://github.com/MirrorNetworking/Mirror/issues/3318
-                if (Utils.IsSceneObject(identity) && identity.netId == 0)
-                {
-                    // pass connection so that authority is not lost when server loads a scene
-                    // https://github.com/vis2k/Mirror/pull/2987
-                    Spawn(identity.gameObject, identity.connectionToClient);
-                }
-            }
-
-            return true;
-        }
-
-        static void Respawn(NetworkIdentity identity)
-        {
-            if (identity.netId == 0)
-            {
-                // If the object has not been spawned, then do a full spawn and update observers
-                Spawn(identity.gameObject, identity.connectionToClient);
-            }
-            else
-            {
-                // otherwise just replace his data
-                SendSpawnMessage(identity, identity.connectionToClient);
-            }
-        }
-
-        static void SpawnObserversForConnection(NetworkConnectionToClient conn)
-        {
-            //Debug.Log($"Spawning {spawned.Count} objects for conn {conn}");
-
-            if (!conn.isReady)
-            {
-                // client needs to finish initializing before we can spawn objects
-                // otherwise it would not find them.
-                return;
-            }
-
-            // let connection know that we are about to start spawning...
-            conn.Send(new ObjectSpawnStartedMessage());
-
-            // add connection to each nearby NetworkIdentity's observers, which
-            // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in spawned.Values)
-            {
-                // try with far away ones in ummorpg!
-                if (identity.gameObject.activeSelf) //TODO this is different
-                {
-                    //Debug.Log($"Sending spawn message for current server objects name:{identity.name} netId:{identity.netId} sceneId:{identity.sceneId:X}");
-
-                    // we need to support three cases:
-                    // - legacy system (identity has .visibility)
-                    // - new system (networkserver has .aoi)
-                    // - default case: no .visibility and no .aoi means add all
-                    //   connections by default)
-                    //
-                    // ForceHidden/ForceShown overwrite all systems so check it
-                    // first!
-
-                    // ForceShown: add no matter what
-                    if (identity.visible == Visibility.ForceShown)
-                    {
-                        identity.AddObserver(conn);
-                    }
-                    // ForceHidden: don't show no matter what
-                    else if (identity.visible == Visibility.ForceHidden)
-                    {
-                        // do nothing
-                    }
-                    // default: legacy system / new system / no system support
-                    else if (identity.visible == Visibility.Default)
-                    {
-                        // aoi system
-                        if (aoi != null)
-                        {
-                            // call OnCheckObserver
-                            if (aoi.OnCheckObserver(identity, conn))
-                                identity.AddObserver(conn);
-                        }
-                        // no system: add all observers by default
-                        else
-                        {
-                            identity.AddObserver(conn);
-                        }
-                    }
-                }
-            }
-
-            // let connection know that we finished spawning, so it can call
-            // OnStartClient on each one (only after all were spawned, which
-            // is how Unity's Start() function works too)
-            conn.Send(new ObjectSpawnFinishedMessage());
         }
 
         /// <summary>This takes an object that has been spawned and un-spawns it.</summary>
