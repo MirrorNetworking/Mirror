@@ -208,6 +208,15 @@ namespace Mirror
             if (aoi != null) aoi.Reset();
         }
 
+        static void RemoveTransportHandlers()
+        {
+            // -= so that other systems can also hook into it (i.e. statistics)
+            Transport.active.OnServerConnected    -= OnTransportConnected;
+            Transport.active.OnServerDataReceived -= OnTransportData;
+            Transport.active.OnServerDisconnected -= OnTransportDisconnected;
+            Transport.active.OnServerError        -= OnTransportError;
+        }
+
         // Note: NetworkClient.DestroyAllClientObjects does the same on client.
         static void CleanupSpawned()
         {
@@ -237,15 +246,6 @@ namespace Mirror
             }
 
             spawned.Clear();
-        }
-
-        static void RemoveTransportHandlers()
-        {
-            // -= so that other systems can also hook into it (i.e. statistics)
-            Transport.active.OnServerConnected    -= OnTransportConnected;
-            Transport.active.OnServerDataReceived -= OnTransportData;
-            Transport.active.OnServerDisconnected -= OnTransportDisconnected;
-            Transport.active.OnServerError        -= OnTransportError;
         }
 
         // calls OnStartClient for all SERVER objects in host mode once.
