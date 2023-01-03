@@ -794,6 +794,9 @@ namespace Mirror.Tests
         [Test]
         public void SerializeAndDeserializeObjectsAll()
         {
+            NetworkServer.Listen(1);
+            ConnectHostClientBlockingAuthenticatedAndReady();
+
             CreateNetworked(out GameObject _, out NetworkIdentity _, out NetworkBehaviourWithSyncVarsAndCollections comp);
 
             comp.netIdentity.isServer = true;

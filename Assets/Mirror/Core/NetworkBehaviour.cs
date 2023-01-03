@@ -232,17 +232,25 @@ namespace Mirror
                 // carefully check each mode separately to ensure correct results.
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3342
 
+                // normally we would check isServer / isClient here.
+                // users may add to SyncLists before the object was spawned.
+                // isServer / isClient would still be false.
+                // so we need to check NetworkServer/Client.active here instead.
+
                 // host mode: any ServerToClient and any local client owned
-                if (isServer && isClient) return syncDirection == SyncDirection.ServerToClient || isOwned;
+                if (NetworkServer.active && NetworkClient.active)
+                    return syncDirection == SyncDirection.ServerToClient || isOwned;
 
                 // server only: any ServerToClient
-                if (isServer) return syncDirection == SyncDirection.ServerToClient;
+                if (NetworkServer.active)
+                    return syncDirection == SyncDirection.ServerToClient;
 
                 // client only: only ClientToServer and owned
-                if (isClient) return syncDirection == SyncDirection.ClientToServer && isOwned;
+                if (NetworkClient.active)
+                    return syncDirection == SyncDirection.ClientToServer && isOwned;
 
                 // undefined behaviour should throw to make it very obvious
-                throw new Exception("InitSyncObject: IsWritable: neither isServer nor isClient are true.");
+                throw new Exception("InitSyncObject: IsWritable: neither NetworkServer nor NetworkClient are active.");
             };
 
             // when do we record changes:
@@ -266,8 +274,10 @@ namespace Mirror
                 // client only: only ClientToServer and owned
                 if (isClient) return syncDirection == SyncDirection.ClientToServer && isOwned;
 
-                // undefined behaviour should throw to make it very obvious
-                throw new Exception("InitSyncObject: IsRecording: neither isServer nor isClient are true.");
+                // users may add to SyncLists before the object was spawned.
+                // isServer / isClient would still be false.
+                // in that case, allow modifying but don't record changes yet.
+                return false;
             };
         }
 
