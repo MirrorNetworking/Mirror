@@ -145,41 +145,6 @@ namespace Mirror
             Transport.active.OnClientError -= OnTransportError;
         }
 
-        internal static void RegisterMessageHandlers(bool hostMode)
-        {
-            // host mode client / remote client react to some messages differently.
-            // but we still need to add handlers for all of them to avoid
-            // 'message id not found' errors.
-            if (hostMode)
-            {
-                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
-                RegisterHandler<NetworkPongMessage>(_ => { }, false);
-                RegisterHandler<SpawnMessage>(OnHostClientSpawn);
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnStartedMessage>(_ => { });
-                // host mode doesn't need spawning
-                RegisterHandler<ObjectSpawnFinishedMessage>(_ => { });
-                // host mode doesn't need state updates
-                RegisterHandler<EntityStateMessage>(_ => { });
-            }
-            else
-            {
-                RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
-                RegisterHandler<ObjectHideMessage>(OnObjectHide);
-                RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
-                RegisterHandler<SpawnMessage>(OnSpawn);
-                RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
-                RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
-                RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
-            }
-
-            // These handlers are the same for host and remote clients
-            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
-            RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
-            RegisterHandler<RpcBufferMessage>(OnRPCBufferMessage);
-        }
-
         // connect /////////////////////////////////////////////////////////////
         // initialize is called before every connect
         static void Initialize(bool hostMode)
@@ -461,6 +426,41 @@ namespace Mirror
         }
 
         // message handlers ////////////////////////////////////////////////////
+        internal static void RegisterMessageHandlers(bool hostMode)
+        {
+            // host mode client / remote client react to some messages differently.
+            // but we still need to add handlers for all of them to avoid
+            // 'message id not found' errors.
+            if (hostMode)
+            {
+                RegisterHandler<ObjectDestroyMessage>(OnHostClientObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(OnHostClientObjectHide);
+                RegisterHandler<NetworkPongMessage>(_ => { }, false);
+                RegisterHandler<SpawnMessage>(OnHostClientSpawn);
+                // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnStartedMessage>(_ => { });
+                // host mode doesn't need spawning
+                RegisterHandler<ObjectSpawnFinishedMessage>(_ => { });
+                // host mode doesn't need state updates
+                RegisterHandler<EntityStateMessage>(_ => { });
+            }
+            else
+            {
+                RegisterHandler<ObjectDestroyMessage>(OnObjectDestroy);
+                RegisterHandler<ObjectHideMessage>(OnObjectHide);
+                RegisterHandler<NetworkPongMessage>(NetworkTime.OnClientPong, false);
+                RegisterHandler<SpawnMessage>(OnSpawn);
+                RegisterHandler<ObjectSpawnStartedMessage>(OnObjectSpawnStarted);
+                RegisterHandler<ObjectSpawnFinishedMessage>(OnObjectSpawnFinished);
+                RegisterHandler<EntityStateMessage>(OnEntityStateMessage);
+            }
+
+            // These handlers are the same for host and remote clients
+            RegisterHandler<TimeSnapshotMessage>(OnTimeSnapshotMessage);
+            RegisterHandler<ChangeOwnerMessage>(OnChangeOwner);
+            RegisterHandler<RpcBufferMessage>(OnRPCBufferMessage);
+        }
+
         /// <summary>Register a handler for a message type T. Most should require authentication.</summary>
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
