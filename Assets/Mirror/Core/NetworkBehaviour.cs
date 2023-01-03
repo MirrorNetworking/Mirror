@@ -229,12 +229,20 @@ namespace Mirror
             // InitSyncObject yet, which is called from the constructor.
             syncObject.IsWritable = () =>
             {
-                // check isServer first.
-                // if we check isClient first, it wouldn't work in host mode.
+                // carefully check each mode separately to ensure correct results.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3342
+
+                // host mode: any ServerToClient and any local client owned
+                if (isServer && isClient) return syncDirection == SyncDirection.ServerToClient || isOwned;
+
+                // server only: any ServerToClient
                 if (isServer) return syncDirection == SyncDirection.ServerToClient;
-                if (isClient) return isOwned;
+
+                // client only: only ClientToServer and owned
+                if (isClient) return syncDirection == SyncDirection.ClientToServer && isOwned;
+
                 // undefined behaviour should throw to make it very obvious
-                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+                throw new Exception("InitSyncObject: IsWritable: neither isServer nor isClient are true.");
             };
 
             // when do we record changes:
@@ -246,12 +254,20 @@ namespace Mirror
             //      because OnSerialize isn't called without observers.
             syncObject.IsRecording = () =>
             {
-                // check isServer first.
-                // if we check isClient first, it wouldn't work in host mode.
+                // carefully check each mode separately to ensure correct results.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3342
+
+                // host mode: only if observed
+                if (isServer && isClient) return netIdentity.observers.Count > 0;
+
+                // server only: only if observed
                 if (isServer) return netIdentity.observers.Count > 0;
-                if (isClient) return isOwned;
+
+                // client only: only ClientToServer and owned
+                if (isClient) return syncDirection == SyncDirection.ClientToServer && isOwned;
+
                 // undefined behaviour should throw to make it very obvious
-                throw new Exception("InitSyncObject: neither isServer nor isClient are true.");
+                throw new Exception("InitSyncObject: IsRecording: neither isServer nor isClient are true.");
             };
         }
 
