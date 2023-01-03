@@ -1255,6 +1255,10 @@ namespace Mirror
         // we can't destroy them (they are always in the scene).
         // instead we disable them and call Reset().
         //
+        // Do not reset SyncObjects from Reset
+        // - Unspawned objects need to retain their list contents
+        // - They may be respawned, especially players, but others as well.
+        //
         // OLD COMMENT:
         // Marks the identity for future reset, this is because we cant reset
         // the identity during destroy as people might want to be able to read
@@ -1262,9 +1266,6 @@ namespace Mirror
         // after OnDestroy is called.
         internal void Reset()
         {
-            // make sure to call this before networkBehavioursCache is cleared below
-            ResetSyncObjects();
-
             hasSpawned = false;
             clientStarted = false;
             isClient = false;
@@ -1354,21 +1355,6 @@ namespace Mirror
                 conn.RemoveFromObserving(this, true);
             }
             observers.Clear();
-        }
-
-        void ResetSyncObjects()
-        {
-            // ResetSyncObjects is called by Reset, which is called by Unity.
-            // AddComponent() calls Reset().
-            // AddComponent() is called before Awake().
-            // so NetworkBehaviours may not be initialized yet.
-            if (NetworkBehaviours == null)
-                return;
-
-            foreach (NetworkBehaviour comp in NetworkBehaviours)
-            {
-                comp.ResetSyncObjects();
-            }
         }
     }
 }
