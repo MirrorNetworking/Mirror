@@ -94,7 +94,6 @@ namespace Mirror
 
         public override void OnSerializeAll(NetworkWriter writer)
         {
-            Debug.Log($"SyncList OnSerializeAll with {objects.Count} items");
             // if init,  write the full list content
             writer.WriteUInt((uint)objects.Count);
 
