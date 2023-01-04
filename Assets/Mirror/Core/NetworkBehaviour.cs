@@ -247,7 +247,14 @@ namespace Mirror
 
                 // client only: only ClientToServer and owned
                 if (NetworkClient.active)
-                    return syncDirection == SyncDirection.ClientToServer && isOwned;
+                {
+                    // spawned: only ClientToServer and owned
+                    if (netId != 0) return syncDirection == SyncDirection.ClientToServer && isOwned;
+
+                    // not spawned (character selection previews, etc.): always allow
+                    // fixes https://github.com/MirrorNetworking/Mirror/issues/3343
+                    return true;
+                }
 
                 // undefined behaviour should throw to make it very obvious
                 throw new Exception("InitSyncObject: IsWritable: neither NetworkServer nor NetworkClient are active.");
