@@ -219,13 +219,9 @@ namespace Mirror
                         break;
                 }
 
-                if (apply)
+                if (!apply)
                 {
-                    Callback?.Invoke(operation, key, item);
-                }
-                // we just skipped this change
-                else
-                {
+                    // we just skipped this change
                     changesAhead--;
                 }
             }
