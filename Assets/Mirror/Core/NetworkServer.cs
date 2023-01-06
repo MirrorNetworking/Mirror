@@ -1051,6 +1051,15 @@ namespace Mirror
             // internally sends a spawn message for each one to the connection.
             foreach (NetworkIdentity identity in spawned.Values)
             {
+                // show a warning in case of unexpected null entries.
+                // keep spawning the other entries though.
+                // https://github.com/MirrorNetworking/Mirror/issues/3330
+                if (identity == null)
+                {
+                    Debug.LogWarning("SpawnObserversForConnection: skipping null entry in spawned. This should not happen.");
+                    continue;
+                }
+
                 // try with far away ones in ummorpg!
                 if (identity.gameObject.activeSelf) //TODO this is different
                 {
