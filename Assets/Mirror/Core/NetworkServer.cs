@@ -1252,16 +1252,6 @@ namespace Mirror
                 {
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
                     identity.gameObject.SetActive(true);
-
-                    // fix https://github.com/vis2k/Mirror/issues/2778:
-                    // -> SetActive(true) does NOT call Awake() if the parent
-                    //    is inactive
-                    // -> we need Awake() to initialize NetworkBehaviours[] etc.
-                    //    because our second pass below spawns and works with it
-                    // => detect this situation and manually call Awake for
-                    //    proper initialization
-                    if (!identity.gameObject.activeInHierarchy)
-                        identity.Awake();
                 }
             }
 
