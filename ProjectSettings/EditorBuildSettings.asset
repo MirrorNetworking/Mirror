@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/SceneChangeTest/Offline.unity
+    guid: 67266551b3b8664468ee4fe963a935dd
+  - enabled: 1
+    path: Assets/SceneChangeTest/Online1.unity
+    guid: aefc88030bccf6f478e3def6a452012b
+  - enabled: 1
+    path: Assets/SceneChangeTest/Online2.unity
+    guid: 92ad63d5ec3a41d49b778699e495ffff
   m_configObjects: {}
