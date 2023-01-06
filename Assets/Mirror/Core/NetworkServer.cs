@@ -1379,6 +1379,7 @@ namespace Mirror
                 identity.netId = NetworkIdentity.GetNextNetworkId();
 
                 // add to spawned (after assigning netId)
+                Debug.Log($"Server: Adding {identity} to spawned with netId={identity.netId}");
                 spawned[identity.netId] = identity;
 
                 // callback after all fields were set
