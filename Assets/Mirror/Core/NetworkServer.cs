@@ -1763,7 +1763,7 @@ namespace Mirror
                 {
                     // One warning is sufficient.
                     if (!hasNulls)
-                        Debug.LogWarning($"Null entry found in observing list for connectionId={connection.connectionId} will be removed.\nPlease call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                        Debug.LogWarning($"Null entries found in observing list for connectionId={connection.connectionId} will be removed.\nPlease call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                     hasNulls = true;
                 }
             }
