@@ -1211,6 +1211,19 @@ namespace Mirror
             });
         }
 
+        // check NetworkIdentity parent before spawning it.
+        // - without parent, they are spawned
+        // - with parent, only if the parent is active in hierarchy
+        //
+        // note that active parents may have inactive parents of their own.
+        // we need to check .activeInHierarchy.
+        //
+        // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
+        //        https://github.com/vis2k/Mirror/issues/2778
+        static bool ValidParent(NetworkIdentity identity) =>
+            identity.transform.parent == null ||
+            identity.transform.parent.gameObject.activeInHierarchy;
+
         /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
         // NetworkIdentity objects in a scene are disabled by default. Calling
         // SpawnObjects() causes these scene objects to be enabled and spawned.
@@ -1231,30 +1244,27 @@ namespace Mirror
                 // only spawn scene objects which haven't been spawned yet.
                 // SpawnObjects may be called multiple times for additive scenes.
                 // https://github.com/MirrorNetworking/Mirror/issues/3318
+                //
+                // note that we even activate objects under inactive parents.
+                // while they are not spawned, they do need to be activated
+                // in order to be spawned later. so here, we don't check parents.
+                // https://github.com/MirrorNetworking/Mirror/issues/3330
                 if (Utils.IsSceneObject(identity) && identity.netId == 0)
                 {
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
                     identity.gameObject.SetActive(true);
-
-                    // fix https://github.com/vis2k/Mirror/issues/2778:
-                    // -> SetActive(true) does NOT call Awake() if the parent
-                    //    is inactive
-                    // -> we need Awake() to initialize NetworkBehaviours[] etc.
-                    //    because our second pass below spawns and works with it
-                    // => detect this situation and manually call Awake for
-                    //    proper initialization
-                    if (!identity.gameObject.activeInHierarchy)
-                        identity.Awake();
                 }
             }
 
             // second pass: spawn all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                // only spawn scene objects which haven't been spawned yet.
-                // SpawnObjects may be called multiple times for additive scenes.
-                // https://github.com/MirrorNetworking/Mirror/issues/3318
-                if (Utils.IsSceneObject(identity) && identity.netId == 0)
+                // scene objects may be children of inactive parents.
+                // users would put them under disabled parents to 'deactivate' them.
+                // those should not be used by Mirror at all.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
+                //        https://github.com/vis2k/Mirror/issues/2778
+                if (Utils.IsSceneObject(identity) && identity.netId == 0 && ValidParent(identity))
                 {
                     // pass connection so that authority is not lost when server loads a scene
                     // https://github.com/vis2k/Mirror/pull/2987
