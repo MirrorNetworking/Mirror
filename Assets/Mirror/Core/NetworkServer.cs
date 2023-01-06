@@ -1230,7 +1230,15 @@ namespace Mirror
             if (!active)
                 return false;
 
-            NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
+            // find all NetworkIdentities in the scene.
+            // all of them are disabled because of NetworkScenePostProcess.
+            // however, ignore identities under disabled parent objects.
+            // users would put them under disabled parents to 'deactivate' them.
+            // those should not be used by Mirror at all.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
+            IEnumerable<NetworkIdentity> identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>()
+                .Where(identity => identity.transform.parent == null ||
+                                   identity.transform.parent.gameObject.activeInHierarchy);
 
             // first pass: activate all scene objects
             foreach (NetworkIdentity identity in identities)
