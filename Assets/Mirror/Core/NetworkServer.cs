@@ -1770,7 +1770,7 @@ namespace Mirror
 
             // Clean out any unexpected nulls
             if (hasNulls)
-                connection.observing.RemoveWhere(x => x != null);
+                connection.observing.RemoveWhere(x => x == null);
         }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
