@@ -1061,7 +1061,7 @@ namespace Mirror
                 {
                     // One warning is sufficient.
                     if (nulls.Count == 0)
-                        Debug.LogWarning("SpawnObserversForConnection: Null entries found in spawned will be removed. This should not happen.");
+                        Debug.LogError("SpawnObserversForConnection: Null entries found in spawned will be removed. This should not happen.");
                     nulls.Add(kvp.Key);
                     continue;
                 }
@@ -1775,7 +1775,7 @@ namespace Mirror
                 {
                     // One warning is sufficient.
                     if (!hasNulls)
-                        Debug.LogWarning($"Null entries found in observing list for connectionId={connection.connectionId} will be removed.\nPlease call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                        Debug.LogError($"Null entries found in observing list for connectionId={connection.connectionId} will be removed.\nPlease call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                     hasNulls = true;
                 }
             }

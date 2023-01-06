@@ -1202,7 +1202,7 @@ namespace Mirror
                 {
                     // One warning is sufficient.
                     if (nulls.Count == 0)
-                        Debug.LogWarning("Null entry found in NetworkClient.spawned will be removed.\nThis is unexpected...was the NetworkIdentity not destroyed properly?");
+                        Debug.LogError("Null entry found in NetworkClient.spawned will be removed.\nThis is unexpected...was the NetworkIdentity not destroyed properly?");
                     nulls.Add(kvp.Key);
                 }
             }
