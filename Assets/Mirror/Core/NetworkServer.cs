@@ -1211,6 +1211,18 @@ namespace Mirror
             });
         }
 
+        // check NetworkIdentity parent before spawning it.
+        // - without parent, they are spawned
+        // - with parent, only if the parent is active in hierarchy
+        //
+        // note that active parents may have inactive parents of their own.
+        // we need to check .activeInHierarchy.
+        //
+        // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
+        static bool ValidParent(NetworkIdentity identity) =>
+            identity.transform.parent == null ||
+            identity.transform.parent.gameObject.activeInHierarchy;
+
         /// <summary>Spawns NetworkIdentities in the scene on the server.</summary>
         // NetworkIdentity objects in a scene are disabled by default. Calling
         // SpawnObjects() causes these scene objects to be enabled and spawned.
@@ -1260,11 +1272,7 @@ namespace Mirror
                 // users would put them under disabled parents to 'deactivate' them.
                 // those should not be used by Mirror at all.
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
-                // note that parents may have inactive parents of their own.
-                // .activeInHierarchy is the solution.
-                bool validParent = identity.transform.parent == null ||
-                    identity.transform.parent.gameObject.activeInHierarchy;
-                if (Utils.IsSceneObject(identity) && identity.netId == 0 && validParent)
+                if (Utils.IsSceneObject(identity) && identity.netId == 0 && ValidParent(identity))
                 {
                     // pass connection so that authority is not lost when server loads a scene
                     // https://github.com/vis2k/Mirror/pull/2987
