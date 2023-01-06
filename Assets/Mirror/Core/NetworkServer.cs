@@ -1731,6 +1731,8 @@ namespace Mirror
         static void BroadcastToConnection(NetworkConnectionToClient connection)
         {
             // for each entity that this connection is seeing
+            // Nulls shouldn't happen, but we can't spam the warning if they do,
+            // so log the warning once and clear out the null(s) after the foreach
             bool hasNulls = false;
             foreach (NetworkIdentity identity in connection.observing)
             {
@@ -1759,11 +1761,14 @@ namespace Mirror
                 // GameObject.Destroy instead of NetworkServer.Destroy.
                 else
                 {
+                    // One warning is sufficient.
+                    if (!hasNulls)
+                        Debug.LogWarning($"Null entry found in observing list for connectionId={connection.connectionId} will be removed.\nPlease call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                     hasNulls = true;
-                    Debug.LogWarning($"Null entry found in observing list for connectionId={connection.connectionId} will be removed.\nPlease call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
                 }
             }
 
+            // Clean out any unexpected nulls
             if (hasNulls)
                 connection.observing.RemoveWhere(x => x != null);
         }

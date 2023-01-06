@@ -1207,6 +1207,7 @@ namespace Mirror
                 }
             }
 
+            // Clean out any unexpected nulls
             foreach (uint key in nulls)
                 spawned.Remove(key);
 
