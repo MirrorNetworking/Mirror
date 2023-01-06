@@ -1221,6 +1221,8 @@ namespace Mirror
             if (!active)
                 return false;
 
+            // find all NetworkIdentities in the scene.
+            // all of them are disabled because of NetworkScenePostProcess.
             NetworkIdentity[] identities = Resources.FindObjectsOfTypeAll<NetworkIdentity>();
 
             // first pass: activate all scene objects
