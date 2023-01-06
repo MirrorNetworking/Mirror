@@ -281,6 +281,7 @@ namespace Mirror
         protected virtual void OnGUI()
         {
             if (!showOverlay) return;
+            if (!Camera.main) return;
 
             // show data next to player for easier debugging. this is very useful!
             // IMPORTANT: this is basically an ESP hack for shooter games.
