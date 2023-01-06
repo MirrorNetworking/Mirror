@@ -1049,8 +1049,25 @@ namespace Mirror
 
             // add connection to each nearby NetworkIdentity's observers, which
             // internally sends a spawn message for each one to the connection.
-            foreach (NetworkIdentity identity in spawned.Values)
+            // Nulls shouldn't happen, but we can't spam the warning if they do,
+            // so log the warning once and clear out the null(s) after the foreach
+            HashSet<uint> nulls = new HashSet<uint>();
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawned)
             {
+                // show a warning in case of unexpected null entries.
+                // keep spawning the other entries though.
+                // https://github.com/MirrorNetworking/Mirror/issues/3330
+                if (kvp.Value == null)
+                {
+                    // One warning is sufficient.
+                    if (nulls.Count == 0)
+                        Debug.LogWarning("SpawnObserversForConnection: Null entries found in spawned will be removed. This should not happen.");
+                    nulls.Add(kvp.Key);
+                    continue;
+                }
+
+                NetworkIdentity identity = kvp.Value;
+
                 // try with far away ones in ummorpg!
                 if (identity.gameObject.activeSelf) //TODO this is different
                 {
@@ -1093,6 +1110,10 @@ namespace Mirror
                     }
                 }
             }
+
+            // Clean out any unexpected nulls
+            foreach (uint key in nulls)
+                spawned.Remove(key);
 
             // let connection know that we finished spawning, so it can call
             // OnStartClient on each one (only after all were spawned, which
@@ -1710,6 +1731,7 @@ namespace Mirror
         static void BroadcastToConnection(NetworkConnectionToClient connection)
         {
             // for each entity that this connection is seeing
+            bool hasNulls = false;
             foreach (NetworkIdentity identity in connection.observing)
             {
                 // make sure it's not null or destroyed.
@@ -1735,8 +1757,15 @@ namespace Mirror
                 // always call Remove in OnObjectDestroy everywhere.
                 // if it does have null then someone used
                 // GameObject.Destroy instead of NetworkServer.Destroy.
-                else Debug.LogWarning($"Found 'null' entry in observing list for connectionId={connection.connectionId}. Please call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                else
+                {
+                    hasNulls = true;
+                    Debug.LogWarning($"Null entry found in observing list for connectionId={connection.connectionId} will be removed.\nPlease call NetworkServer.Destroy to destroy networked objects. Don't use GameObject.Destroy.");
+                }
             }
+
+            if (hasNulls)
+                connection.observing.RemoveWhere(x => x != null);
         }
 
         // NetworkLateUpdate called after any Update/FixedUpdate/LateUpdate
