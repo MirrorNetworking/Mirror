@@ -1231,6 +1231,11 @@ namespace Mirror
                 // only spawn scene objects which haven't been spawned yet.
                 // SpawnObjects may be called multiple times for additive scenes.
                 // https://github.com/MirrorNetworking/Mirror/issues/3318
+                //
+                // note that we even activate objects under inactive parents.
+                // while they are not spawned, they do need to be activated
+                // in order to be spawned later. so here, we don't check parents.
+                // https://github.com/MirrorNetworking/Mirror/issues/3330
                 if (Utils.IsSceneObject(identity) && identity.netId == 0)
                 {
                     // Debug.Log($"SpawnObjects sceneId:{identity.sceneId:X} name:{identity.gameObject.name}");
@@ -1251,10 +1256,15 @@ namespace Mirror
             // second pass: spawn all scene objects
             foreach (NetworkIdentity identity in identities)
             {
-                // only spawn scene objects which haven't been spawned yet.
-                // SpawnObjects may be called multiple times for additive scenes.
-                // https://github.com/MirrorNetworking/Mirror/issues/3318
-                if (Utils.IsSceneObject(identity) && identity.netId == 0)
+                // scene objects may be children of inactive parents.
+                // users would put them under disabled parents to 'deactivate' them.
+                // those should not be used by Mirror at all.
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
+                // note that parents may have inactive parents of their own.
+                // .activeInHierarchy is the solution.
+                bool validParent = identity.transform.parent == null ||
+                    identity.transform.parent.gameObject.activeInHierarchy;
+                if (Utils.IsSceneObject(identity) && identity.netId == 0 && validParent)
                 {
                     // pass connection so that authority is not lost when server loads a scene
                     // https://github.com/vis2k/Mirror/pull/2987
