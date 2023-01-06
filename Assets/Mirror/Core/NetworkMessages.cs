@@ -118,16 +118,16 @@ namespace Mirror
                 }
 
                 // user handler exception should not stop the whole server
-                try
-                {
+                // try
+                // {
                     // user implemented handler
                     handler((C)conn, message, channelId);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"Disconnecting connId={conn.connectionId} to prevent exploits from an Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
-                    conn.Disconnect();
-                }
+                // }
+                // catch (Exception e)
+                // {
+                //     Debug.LogError($"Disconnecting connId={conn.connectionId} to prevent exploits from an Exception in MessageHandler: {e.GetType().Name} {e.Message}\n{e.StackTrace}");
+                //     conn.Disconnect();
+                // }
             };
 
         // version for handlers without channelId
