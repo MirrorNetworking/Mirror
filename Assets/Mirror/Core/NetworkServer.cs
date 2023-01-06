@@ -1219,6 +1219,7 @@ namespace Mirror
         // we need to check .activeInHierarchy.
         //
         // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
+        //        https://github.com/vis2k/Mirror/issues/2778
         static bool ValidParent(NetworkIdentity identity) =>
             identity.transform.parent == null ||
             identity.transform.parent.gameObject.activeInHierarchy;
@@ -1262,6 +1263,7 @@ namespace Mirror
                 // users would put them under disabled parents to 'deactivate' them.
                 // those should not be used by Mirror at all.
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3330
+                //        https://github.com/vis2k/Mirror/issues/2778
                 if (Utils.IsSceneObject(identity) && identity.netId == 0 && ValidParent(identity))
                 {
                     // pass connection so that authority is not lost when server loads a scene
