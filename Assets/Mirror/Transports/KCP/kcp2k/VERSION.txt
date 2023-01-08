@@ -1,3 +1,10 @@
+V1.27 [2023-01-08]
+- KcpClient.Connect: invoke own events directly instead of going through peer,
+  which calls our own events anyway
+- fix: KcpPeer/Client/Server callbacks are readonly and assigned in constructor
+  to ensure they are safe to use at all times.
+  fixes https://github.com/MirrorNetworking/Mirror/issues/3337
+
 V1.26 [2022-12-22]
 - KcpPeer.RawInput: fix compile error in old Unity Mono versions
 - fix: KcpServer sets up a new connection's OnError immediately.

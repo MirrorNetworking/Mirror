@@ -14,10 +14,14 @@ namespace kcp2k
         // even for errors, to allow liraries to show popups etc.
         // instead of logging directly.
         // (string instead of Exception for ease of use and to avoid user panic)
-        public Action<int> OnConnected;
-        public Action<int, ArraySegment<byte>, KcpChannel> OnData;
-        public Action<int> OnDisconnected;
-        public Action<int, ErrorCode, string> OnError;
+        //
+        // events are readonly, set in constructor.
+        // this ensures they are always initialized when used.
+        // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
+        readonly Action<int> OnConnected;
+        readonly Action<int, ArraySegment<byte>, KcpChannel> OnData;
+        readonly Action<int> OnDisconnected;
+        readonly Action<int, ErrorCode, string> OnError;
 
         // configuration
         readonly KcpConfig config;
@@ -42,6 +46,7 @@ namespace kcp2k
                          Action<int, ErrorCode, string> OnError,
                          KcpConfig config)
         {
+            // initialize callbacks first to ensure they can be used safely.
             this.OnConnected = OnConnected;
             this.OnData = OnData;
             this.OnDisconnected = OnDisconnected;
@@ -194,13 +199,71 @@ namespace kcp2k
 
         protected virtual KcpServerConnection CreateConnection(int connectionId)
         {
-            // attach connectionId to RawSend.
-            // kcp needs a simple RawSend(byte[]) function.
+            // events need to be wrapped with connectionIds
             Action<ArraySegment<byte>> RawSendWrap =
                 data => RawSend(connectionId, data);
 
-            KcpPeer peer = new KcpPeer(RawSendWrap, config);
-            return new KcpServerConnection(peer, newClientEP);
+            // create empty connection without peer first.
+            // we need it to set up peer callbacks.
+            // afterwards we assign the peer.
+            KcpServerConnection connection = new KcpServerConnection(newClientEP);
+
+            // set up peer with callbacks
+            KcpPeer peer = new KcpPeer(RawSendWrap, OnAuthenticatedWrap, OnDataWrap, OnDisconnectedWrap, OnErrorWrap, config);
+
+            // assign peer to connection
+            connection.peer = peer;
+            return connection;
+
+            // setup authenticated event that also adds to connections
+            void OnAuthenticatedWrap()
+            {
+                // only send handshake to client AFTER we received his
+                // handshake in OnAuthenticated.
+                // we don't want to reply to random internet messages
+                // with handshakes each time.
+                connection.peer.SendHandshake();
+
+                // add to connections dict after being authenticated.
+                connections.Add(connectionId, connection);
+                Log.Info($"KcpServer: added connection({connectionId})");
+
+                // setup Data + Disconnected events only AFTER the
+                // handshake. we don't want to fire OnServerDisconnected
+                // every time we receive invalid random data from the
+                // internet.
+
+                // setup data event
+
+
+                // finally, call mirror OnConnected event
+                Log.Info($"KcpServer: OnConnected({connectionId})");
+                OnConnected(connectionId);
+            }
+
+            void OnDataWrap(ArraySegment<byte> message, KcpChannel channel)
+            {
+                // call mirror event
+                //Log.Info($"KCP: OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
+                OnData(connectionId, message, channel);
+            }
+
+            void OnDisconnectedWrap()
+            {
+                // flag for removal
+                // (can't remove directly because connection is updated
+                //  and event is called while iterating all connections)
+                connectionsToRemove.Add(connectionId);
+
+                // call mirror event
+                Log.Info($"KcpServer: OnDisconnected({connectionId})");
+                OnDisconnected(connectionId);
+            }
+
+            void OnErrorWrap(ErrorCode error, string reason)
+            {
+                OnError(connectionId, error, reason);
+            }
         }
 
         // receive + add + process once.
@@ -234,56 +297,6 @@ namespace kcp2k
                 //
                 // for now, this is fine.
 
-                // setup error event first.
-                // initialization may already log errors.
-                connection.peer.OnError = (error, reason) =>
-                {
-                    OnError(connectionId, error, reason);
-                };
-
-                // setup authenticated event that also adds to connections
-                connection.peer.OnAuthenticated = () =>
-                {
-                    // only send handshake to client AFTER we received his
-                    // handshake in OnAuthenticated.
-                    // we don't want to reply to random internet messages
-                    // with handshakes each time.
-                    connection.peer.SendHandshake();
-
-                    // add to connections dict after being authenticated.
-                    connections.Add(connectionId, connection);
-                    Log.Info($"KcpServer: added connection({connectionId})");
-
-                    // setup Data + Disconnected events only AFTER the
-                    // handshake. we don't want to fire OnServerDisconnected
-                    // every time we receive invalid random data from the
-                    // internet.
-
-                    // setup data event
-                    connection.peer.OnData = (message, channel) =>
-                    {
-                        // call mirror event
-                        //Log.Info($"KCP: OnServerDataReceived({connectionId}, {BitConverter.ToString(message.Array, message.Offset, message.Count)})");
-                        OnData.Invoke(connectionId, message, channel);
-                    };
-
-                    // setup disconnected event
-                    connection.peer.OnDisconnected = () =>
-                    {
-                        // flag for removal
-                        // (can't remove directly because connection is updated
-                        //  and event is called while iterating all connections)
-                        connectionsToRemove.Add(connectionId);
-
-                        // call mirror event
-                        Log.Info($"KcpServer: OnDisconnected({connectionId})");
-                        OnDisconnected(connectionId);
-                    };
-
-                    // finally, call mirror OnConnected event
-                    Log.Info($"KcpServer: OnConnected({connectionId})");
-                    OnConnected(connectionId);
-                };
 
                 // now input the message & process received ones
                 // connected event was set up.

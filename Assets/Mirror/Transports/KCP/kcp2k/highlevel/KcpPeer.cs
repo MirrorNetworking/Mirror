@@ -22,13 +22,16 @@ namespace kcp2k
         // leftover from KcpConnection. remove it after refactoring later.
         KcpState state = KcpState.Connected;
 
-        public Action OnAuthenticated;
-        public Action<ArraySegment<byte>, KcpChannel> OnData;
-        public Action OnDisconnected;
+        // events are readonly, set in constructor.
+        // this ensures they are always initialized when used.
+        // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
+        readonly Action OnAuthenticated;
+        readonly Action<ArraySegment<byte>, KcpChannel> OnData;
+        readonly Action OnDisconnected;
         // error callback instead of logging.
         // allows libraries to show popups etc.
         // (string instead of Exception for ease of use and to avoid user panic)
-        public Action<ErrorCode, string> OnError;
+        readonly Action<ErrorCode, string> OnError;
 
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
@@ -139,8 +142,19 @@ namespace kcp2k
         // => useful to start from a fresh state every time the client connects
         // => NoDelay, interval, wnd size are the most important configurations.
         //    let's force require the parameters so we don't forget it anywhere.
-        public KcpPeer(Action<ArraySegment<byte>> output, KcpConfig config)
+        public KcpPeer(
+            Action<ArraySegment<byte>> output,
+            Action OnAuthenticated,
+            Action<ArraySegment<byte>, KcpChannel> OnData,
+            Action OnDisconnected,
+            Action<ErrorCode, string> OnError,
+            KcpConfig config)
         {
+            // initialize callbacks first to ensure they can be used safely.
+            this.OnAuthenticated = OnAuthenticated;
+            this.OnData = OnData;
+            this.OnDisconnected = OnDisconnected;
+            this.OnError = OnError;
             this.RawSend = output;
 
             // set up kcp over reliable channel (that's what kcp is for)
