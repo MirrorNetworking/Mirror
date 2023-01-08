@@ -7,12 +7,15 @@ namespace kcp2k
     // struct to avoid memory indirection
     public struct KcpServerConnection
     {
-        public readonly KcpPeer peer;
+        // peer can't be set from constructor at the moment.
+        // because peer callbacks need to know 'connection'.
+        // see KcpServer.CreateConnection.
+        public KcpPeer peer;
         public readonly EndPoint remoteEndPoint;
 
-        public KcpServerConnection(KcpPeer peer, EndPoint remoteEndPoint)
+        public KcpServerConnection(EndPoint remoteEndPoint)
         {
-            this.peer = peer;
+            peer = null;
             this.remoteEndPoint = remoteEndPoint;
         }
     }
