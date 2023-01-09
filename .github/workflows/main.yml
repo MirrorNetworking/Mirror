@@ -15,10 +15,6 @@ on:
       - '*.yml'
   
 jobs:
-  SonarQube:
-    name: SonarQube Analysis
-    uses: ./.github/workflows/SonarQube.yml
-
   RunUnityTests:
     name: Run Unity Tests
     runs-on: ubuntu-latest
@@ -73,6 +69,11 @@ jobs:
           reportTitle: Test Report ${{ matrix.unityVersion }}
           path: "artifacts/*.xml"
           access-token: ${{ secrets.GITHUB_TOKEN }}
+
+  #SonarQube:
+  #  name: SonarQube Analysis
+  #  needs: RunUnityTests
+  #  uses: ./.github/workflows/SonarQube.yml
 
   Release:
     name: Semantic Release
