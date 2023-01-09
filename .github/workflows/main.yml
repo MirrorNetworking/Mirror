@@ -13,7 +13,6 @@ on:
       - '.editorconfig'
       - '*.md'
       - '*.yml'
-      - '.github/**'
   
 jobs:
   SonarQube:
