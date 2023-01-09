@@ -235,7 +235,7 @@ namespace Mirror
 
             // save serialized as 'last' for next delta compression
             if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
-            if (syncScale)    Compression.ScaleToLong(snapshot.position, scalePrecision,    out lastSerializedScale);
+            if (syncScale)    Compression.ScaleToLong(snapshot.scale, scalePrecision,    out lastSerializedScale);
 
             // set 'last'
             last = snapshot;
