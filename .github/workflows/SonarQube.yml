@@ -10,7 +10,7 @@ jobs:
 
     # available list of containers here:
     # https://hub.docker.com/r/unityci/editor/tags?page=1&ordering=last_updated&name=ubuntu-2020.1.17f1-base
-    container: unityci/editor:ubuntu-${{ matrix.unity-version }}f1-base-1
+    container: unityci/editor:ubuntu-2021.3.16f1-base-1.0.1
 
     steps:
       - name: SonarQube analysis
