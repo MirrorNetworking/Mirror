@@ -183,6 +183,7 @@ namespace Mirror
             active = false;
             isLoadingScene = false;
             lastSendTime = 0;
+            actualTickRate = 0;
 
             localConnection = null;
 
