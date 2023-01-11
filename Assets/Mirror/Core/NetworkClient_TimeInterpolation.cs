@@ -93,8 +93,10 @@ namespace Mirror
         // initialization called from Awake
         static void InitTimeInterpolation()
         {
-            // reset timeline & snapshots from last session (if any)
+            // reset timeline, localTimescale, bufferTimeMultiplier & snapshots from last session (if any)
             localTimeline = 0;
+            localTimescale = 1;
+            bufferTimeMultiplier = 2;
             snapshots.Clear();
 
             // initialize EMA with 'emaDuration' seconds worth of history.
