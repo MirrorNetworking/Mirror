@@ -860,7 +860,11 @@ namespace Mirror
             // cleanup
             connections.Clear();
             localConnection = null;
-            active = false;
+            // this used to set active=false.
+            // however, then Shutdown can't properly destroy objects:
+            // https://github.com/MirrorNetworking/Mirror/issues/3344
+            // "DisconnectAll" should only disconnect all, not set inactive.
+            // active = false;
         }
 
         // add/remove/replace player ///////////////////////////////////////////
