@@ -334,8 +334,8 @@ namespace Mirror
             }
         }
 
-        int lastClientCount = 0;
-        void UpdateClient()
+        public int lastClientCount = 0;
+        public virtual void UpdateClient()
         {
             // client authority, and local player (= allowed to move myself)?
             if (IsClientWithAuthority)

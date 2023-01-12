@@ -308,7 +308,41 @@ namespace Mirror
 
             // save from/to
             fromSnapshot = buffer.Values[from];
-            toSnapshot   = buffer.Values[to];
+            toSnapshot = buffer.Values[to];
+
+            // remove older snapshots that we definitely don't need anymore.
+            // after(!) using the indices.
+            //
+            // if we have 3 snapshots and we are between 2nd and 3rd:
+            //   from = 1, to = 2
+            // then we need to remove the first one, which is exactly 'from'.
+            // because 'from-1' = 0 would remove none.
+            buffer.RemoveRange(from);
+        }
+
+        public static void StepInterpolationImer<T>(
+            SortedList<double, T> buffer, // snapshot buffer
+            double localTimeline,         // local interpolation time based on server time
+            out T fromSnapshot,           // we interpolate 'from' this snapshot
+            out T toSnapshot,             // 'to' this snapshot
+            out double t,                 // at ratio 't' [0,1]
+            out int fromIndex,
+            out int toIndex
+            )
+            where T : Snapshot
+        {
+            // check this in caller:
+            // nothing to do if there are no snapshots at all yet
+            // if (buffer.Count == 0) return false;
+
+            // sample snapshot buffer at local interpolation time
+            Sample(buffer, localTimeline, out int from, out int to, out t);
+            fromIndex = from;
+            toIndex = to;
+
+            // save from/to
+            fromSnapshot = buffer.Values[from];
+            toSnapshot = buffer.Values[to];
 
             // remove older snapshots that we definitely don't need anymore.
             // after(!) using the indices.
