@@ -180,7 +180,6 @@ namespace Mirror
 
             // Reset all statics here....
             dontListen = false;
-            active = false;
             isLoadingScene = false;
             lastSendTime = 0;
 
@@ -191,8 +190,13 @@ namespace Mirror
             handlers.Clear();
             newObservers.Clear();
 
-            // destroy all spawned objects
+            // destroy all spawned objects, _then_ set inactive.
+            // make sure .active is still true before calling this.
+            // otherwise modifying SyncLists in OnStopServer would throw
+            // because .IsWritable() check checks if NetworkServer.active.
+            // https://github.com/MirrorNetworking/Mirror/issues/3344
             CleanupSpawned();
+            active = false;
 
             // sets nextNetworkId to 1
             // sets clientAuthorityCallback to null
