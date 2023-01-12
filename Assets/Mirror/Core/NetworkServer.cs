@@ -191,7 +191,7 @@ namespace Mirror
             handlers.Clear();
             newObservers.Clear();
 
-            // this calls spawned.Clear()
+            // destroy all spawned objects
             CleanupSpawned();
 
             // sets nextNetworkId to 1
