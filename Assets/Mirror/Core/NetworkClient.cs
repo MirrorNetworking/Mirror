@@ -1187,18 +1187,30 @@ namespace Mirror
             // paul: Initialize the objects in the same order as they were
             // initialized in the server. This is important if spawned objects
             // use data from scene objects
-            foreach (NetworkIdentity identity in spawned.Values.OrderBy(uv => uv.netId))
+            // Nulls shouldn't happen, but we can't spam the warning if they do,
+            // so log the warning once and clear out the null(s) after the foreach
+            HashSet<uint> nulls = new HashSet<uint>();
+            foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawned.OrderBy(uv => uv.Value.netId))
             {
-                // NetworkIdentities should always be removed from .spawned when
-                // they are destroyed. for safety, let's double check here.
-                if (identity != null)
+                if (kvp.Value != null)
                 {
-                    identity.NotifyAuthority();
-                    CheckForStartClient(identity);
-                    CheckForLocalPlayer(identity);
+                    kvp.Value.NotifyAuthority();
+                    CheckForStartClient(kvp.Value);
+                    CheckForLocalPlayer(kvp.Value);
                 }
-                else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");
+                else
+                {
+                    // One warning is sufficient.
+                    if (nulls.Count == 0)
+                        Debug.LogError("Null entry found in NetworkClient.spawned will be removed.\nThis is unexpected...was the NetworkIdentity not destroyed properly?");
+                    nulls.Add(kvp.Key);
+                }
             }
+
+            // Clean out any unexpected nulls
+            foreach (uint key in nulls)
+                spawned.Remove(key);
+
             isSpawnFinished = true;
         }
 
