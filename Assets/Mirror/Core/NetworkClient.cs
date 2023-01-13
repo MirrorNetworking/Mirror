@@ -1650,6 +1650,7 @@ namespace Mirror
             ready = false;
             isSpawnFinished = false;
             isLoadingScene = false;
+            lastSendTime = 0;
 
             unbatcher = new Unbatcher();
 
