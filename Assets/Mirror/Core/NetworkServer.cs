@@ -180,7 +180,6 @@ namespace Mirror
 
             // Reset all statics here....
             dontListen = false;
-            active = false;
             isLoadingScene = false;
             lastSendTime = 0;
             actualTickRate = 0;
@@ -192,8 +191,13 @@ namespace Mirror
             handlers.Clear();
             newObservers.Clear();
 
-            // this calls spawned.Clear()
+            // destroy all spawned objects, _then_ set inactive.
+            // make sure .active is still true before calling this.
+            // otherwise modifying SyncLists in OnStopServer would throw
+            // because .IsWritable() check checks if NetworkServer.active.
+            // https://github.com/MirrorNetworking/Mirror/issues/3344
             CleanupSpawned();
+            active = false;
 
             // sets nextNetworkId to 1
             // sets clientAuthorityCallback to null
@@ -861,7 +865,11 @@ namespace Mirror
             // cleanup
             connections.Clear();
             localConnection = null;
-            active = false;
+            // this used to set active=false.
+            // however, then Shutdown can't properly destroy objects:
+            // https://github.com/MirrorNetworking/Mirror/issues/3344
+            // "DisconnectAll" should only disconnect all, not set inactive.
+            // active = false;
         }
 
         // add/remove/replace player ///////////////////////////////////////////
