@@ -243,7 +243,7 @@ namespace Mirror
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_SET, i, oldItem, newItem, false);
+                            AddOperation(Operation.OP_SET, index, oldItem, newItem, false);
                         }
                         break;
                 }

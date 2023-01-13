@@ -1675,12 +1675,12 @@ namespace Mirror
         // GUI /////////////////////////////////////////////////////////////////
         // called from NetworkManager to display timeline interpolation status.
         // useful to indicate catchup / slowdown / dynamic adjustment etc.
-        internal static void OnGUI()
+        public static void OnGUI()
         {
             // only if in world
             if (!ready) return;
 
-            GUILayout.BeginArea(new Rect(10, 5, 400, 50));
+            GUILayout.BeginArea(new Rect(10, 5, 500, 50));
 
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
@@ -1691,6 +1691,7 @@ namespace Mirror
             GUILayout.Box($"timeline: {localTimeline:F2}");
             GUILayout.Box($"buffer: {snapshots.Count}");
             GUILayout.Box($"timescale: {localTimescale:F2}");
+            GUILayout.Box($"BTM: {bufferTimeMultiplier:F2}");
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
