@@ -178,6 +178,9 @@ namespace Mirror
             // for interpolated client owned identities,
             // always broadcast the latest known snapshot so other clients can
             // interpolate immediately instead of catching up too
+
+            // See https://github.com/MirrorNetworking/Mirror/issues/3317
+            // Commenting out this 1f block substantially smoothed out C2S experience
             //if (SkipQueue())
             //{
             //    snapshot = serverSnapshots.Values[serverSnapshots.Count - 1];
