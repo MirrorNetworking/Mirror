@@ -178,11 +178,14 @@ namespace Mirror
             // for interpolated client owned identities,
             // always broadcast the latest known snapshot so other clients can
             // interpolate immediately instead of catching up too
-            if (SkipQueue())
-            {
-                snapshot = serverSnapshots.Values[serverSnapshots.Count - 1];
-                // Debug.Log($"Skipped snapshot queue for {name} to snapshot[{serverSnapshots.Count-1}]");
-            }
+
+            // See https://github.com/MirrorNetworking/Mirror/issues/3317
+            // Commenting out this 1f block substantially smoothed out C2S experience
+            //if (SkipQueue())
+            //{
+            //    snapshot = serverSnapshots.Values[serverSnapshots.Count - 1];
+            //    // Debug.Log($"Skipped snapshot queue for {name} to snapshot[{serverSnapshots.Count-1}]");
+            //}
 
             // TODO dirty mask? [compression is very good w/o it already]
             // each vector's component is delta compressed.
