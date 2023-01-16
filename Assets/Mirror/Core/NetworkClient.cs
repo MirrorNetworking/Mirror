@@ -1335,6 +1335,14 @@ namespace Mirror
 
             // set ownership flag (aka authority)
             identity.isOwned = message.isOwner;
+
+            // Add / Remove to client's connectionToServer.owned hashset.
+            if (identity.isOwned)
+                connection?.owned.Add(identity);
+            else
+                connection?.owned.Remove(identity);
+
+            // Call OnStartAuthority / OnStopAuthority
             identity.NotifyAuthority();
 
             // set localPlayer flag
