@@ -133,7 +133,7 @@ Made with Mirror by two brothers with [no prior game development](https://www.yo
 After their successful [Kickstarter](https://www.kickstarter.com/projects/sunhaven/sunhaven/description), Sun Haven was released on Steam in 2021 and later on ported to Mirror in 2022.
 
 ### [A Township Tale](https://townshiptale.com/)
-[![A Township Tale]([https://user-images.githubusercontent.com/16416509/178148768-5ba9ea5b-bcf1-4ace-ad7e-591f2185cbd5.jpg](https://user-images.githubusercontent.com/16416509/212850170-5111bc86-2a34-4e9d-b844-e1d64ba616b0.png))](https://townshiptale.com/)
+[![A Township Tale](https://user-images.githubusercontent.com/16416509/212850393-1abdce51-1abe-4745-8a7d-67e9ebae96a7.png)](https://townshiptale.com/)
 A Township Tale is an immersive VR experience, where you can build towns and explore worlds with your friends.
 
 Made with our KCP transport, available on the [Meta Quest Store](https://www.oculus.com/experiences/quest/2913958855307200/) with over 6000+ ratings.
