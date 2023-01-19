@@ -155,77 +155,6 @@ namespace Mirror
             if (syncScale)    target.localScale = interpolated.scale;
         }
 
-        // common Teleport code for client->server and server->client
-        protected virtual void OnTeleport(Vector3 destination)
-        {
-            // reset any in-progress interpolation & buffers
-            Reset();
-
-            // set the new position.
-            // interpolation will automatically continue.
-            target.position = destination;
-
-            // TODO
-            // what if we still receive a snapshot from before the interpolation?
-            // it could easily happen over unreliable.
-            // -> maybe add destination as first entry?
-        }
-
-        // common Teleport code for client->server and server->client
-        protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
-        {
-            // reset any in-progress interpolation & buffers
-            Reset();
-
-            // set the new position.
-            // interpolation will automatically continue.
-            target.position = destination;
-            target.rotation = rotation;
-
-            // TODO
-            // what if we still receive a snapshot from before the interpolation?
-            // it could easily happen over unreliable.
-            // -> maybe add destination as first entry?
-        }
-
-        // server->client teleport to force position without interpolation.
-        // otherwise it would interpolate to a (far away) new position.
-        // => manually calling Teleport is the only 100% reliable solution.
-        [ClientRpc]
-        public void RpcTeleport(Vector3 destination)
-        {
-            // NOTE: even in client authority mode, the server is always allowed
-            //       to teleport the player. for example:
-            //       * CmdEnterPortal() might teleport the player
-            //       * Some people use client authority with server sided checks
-            //         so the server should be able to reset position if needed.
-
-            // TODO what about host mode?
-            OnTeleport(destination);
-        }
-
-        // server->client teleport to force position and rotation without interpolation.
-        // otherwise it would interpolate to a (far away) new position.
-        // => manually calling Teleport is the only 100% reliable solution.
-        [ClientRpc]
-        public void RpcTeleport(Vector3 destination, Quaternion rotation)
-        {
-            // NOTE: even in client authority mode, the server is always allowed
-            //       to teleport the player. for example:
-            //       * CmdEnterPortal() might teleport the player
-            //       * Some people use client authority with server sided checks
-            //         so the server should be able to reset position if needed.
-
-            // TODO what about host mode?
-            OnTeleport(destination, rotation);
-        }
-
-        [ClientRpc]
-        private void RpcReset()
-        {
-            Reset();
-        }
-
         // client->server teleport to force position without interpolation.
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
@@ -268,6 +197,77 @@ namespace Mirror
             //      would only be set after the rpc. unless the client calls
             //      BOTH Teleport(pos) and target.position=pos
             RpcTeleport(destination, rotation);
+        }
+
+        // server->client teleport to force position without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [ClientRpc]
+        public void RpcTeleport(Vector3 destination)
+        {
+            // NOTE: even in client authority mode, the server is always allowed
+            //       to teleport the player. for example:
+            //       * CmdEnterPortal() might teleport the player
+            //       * Some people use client authority with server sided checks
+            //         so the server should be able to reset position if needed.
+
+            // TODO what about host mode?
+            OnTeleport(destination);
+        }
+
+        // server->client teleport to force position and rotation without interpolation.
+        // otherwise it would interpolate to a (far away) new position.
+        // => manually calling Teleport is the only 100% reliable solution.
+        [ClientRpc]
+        public void RpcTeleport(Vector3 destination, Quaternion rotation)
+        {
+            // NOTE: even in client authority mode, the server is always allowed
+            //       to teleport the player. for example:
+            //       * CmdEnterPortal() might teleport the player
+            //       * Some people use client authority with server sided checks
+            //         so the server should be able to reset position if needed.
+
+            // TODO what about host mode?
+            OnTeleport(destination, rotation);
+        }
+
+        [ClientRpc]
+        private void RpcReset()
+        {
+            Reset();
+        }
+
+        // common Teleport code for client->server and server->client
+        protected virtual void OnTeleport(Vector3 destination)
+        {
+            // reset any in-progress interpolation & buffers
+            Reset();
+
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+
+            // TODO
+            // what if we still receive a snapshot from before the interpolation?
+            // it could easily happen over unreliable.
+            // -> maybe add destination as first entry?
+        }
+
+        // common Teleport code for client->server and server->client
+        protected virtual void OnTeleport(Vector3 destination, Quaternion rotation)
+        {
+            // reset any in-progress interpolation & buffers
+            Reset();
+
+            // set the new position.
+            // interpolation will automatically continue.
+            target.position = destination;
+            target.rotation = rotation;
+
+            // TODO
+            // what if we still receive a snapshot from before the interpolation?
+            // it could easily happen over unreliable.
+            // -> maybe add destination as first entry?
         }
 
         public virtual void Reset()
