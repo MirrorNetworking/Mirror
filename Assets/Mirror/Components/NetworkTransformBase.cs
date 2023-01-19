@@ -220,6 +220,12 @@ namespace Mirror
             OnTeleport(destination, rotation);
         }
 
+        [ClientRpc]
+        private void RpcReset()
+        {
+            Reset();
+        }
+
         // client->server teleport to force position without interpolation.
         // otherwise it would interpolate to a (far away) new position.
         // => manually calling Teleport is the only 100% reliable solution.
@@ -272,8 +278,33 @@ namespace Mirror
             clientSnapshots.Clear();
         }
 
-        protected virtual void OnDisable() => Reset();
-        protected virtual void OnEnable()  => Reset();
+        protected virtual void OnEnable()
+        {
+            Reset();
+            NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
+        }
+
+        protected virtual void OnDisable()
+        {
+            Reset();
+            NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
+        }
+
+        private void OnClientAuthorityChanged(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState)
+        {
+            if (identity != netIdentity) return;
+
+            // If server gets authority or syncdirection is server to client,
+            // we don't reset buffers.
+            // This is because if syncdirection is S to C, we will never have
+            // snapshot issues since there is only ever 1 source.
+
+            if (syncDirection == SyncDirection.ClientToServer)
+            {
+                Reset();
+                RpcReset();
+            }
+        }
 
         // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
