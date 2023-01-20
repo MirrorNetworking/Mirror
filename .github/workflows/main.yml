@@ -12,8 +12,11 @@ on:
       - '.gitattributes'
       - '.gitignore'
       - '.editorconfig'
+      - 'LICENSE'
       - '*.md'
       - '*.yml'
+      - '*.txt'
+      - '*.ps1'
   
 jobs:
   RunUnityTests:
