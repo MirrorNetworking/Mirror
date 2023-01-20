@@ -1,4 +1,4 @@
-name: Run Unity Tests
+name: Main
 
 on:
   workflow_dispatch:
