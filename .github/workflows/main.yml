@@ -8,6 +8,7 @@ on:
     paths-ignore:
       - 'Packages/**'
       - 'ProjectSettings/**'
+      - '.github/**'
       - '.gitattributes'
       - '.gitignore'
       - '.editorconfig'
@@ -22,7 +23,7 @@ jobs:
       matrix:
         unityVersion:
           - 2019.4.40f1
-          - 2020.3.43f1
+          - 2020.3.44f1
           - 2021.3.16f1
           - 2022.2.2f1
 
