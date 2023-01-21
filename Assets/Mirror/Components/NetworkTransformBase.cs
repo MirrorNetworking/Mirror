@@ -281,15 +281,20 @@ namespace Mirror
         protected virtual void OnEnable()
         {
             Reset();
-            NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
+
+            if (NetworkServer.active)
+                NetworkIdentity.clientAuthorityCallback += OnClientAuthorityChanged;
         }
 
         protected virtual void OnDisable()
         {
             Reset();
-            NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
+
+            if (NetworkServer.active)
+                NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
         }
 
+        [ServerCallback]
         void OnClientAuthorityChanged(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState)
         {
             if (identity != netIdentity) return;
