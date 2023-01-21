@@ -232,7 +232,7 @@ namespace Mirror
         }
 
         [ClientRpc]
-        private void RpcReset()
+        void RpcReset()
         {
             Reset();
         }
@@ -290,7 +290,7 @@ namespace Mirror
             NetworkIdentity.clientAuthorityCallback -= OnClientAuthorityChanged;
         }
 
-        private void OnClientAuthorityChanged(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState)
+        void OnClientAuthorityChanged(NetworkConnectionToClient conn, NetworkIdentity identity, bool authorityState)
         {
             if (identity != netIdentity) return;
 
