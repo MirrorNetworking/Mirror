@@ -79,7 +79,7 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
                 conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
 
-                //Debug.Log($"SendPlayerToNewScene AddPlayerForConnection {conn} netId:{conn.identity.netId}");
+                //Debug.Log($"SendPlayerToNewScene AddPlayerForConnection {conn}");
                 NetworkServer.AddPlayerForConnection(conn, player);
 
                 // host client would have been disabled by OnTriggerEnter above
