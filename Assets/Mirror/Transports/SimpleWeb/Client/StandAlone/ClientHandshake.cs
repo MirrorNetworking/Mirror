@@ -28,8 +28,8 @@ namespace Mirror.SimpleWeb
                 byte[] keySumBytes = Encoding.ASCII.GetBytes(keySum);
                 Log.Verbose($"[SimpleWebTransport] Handshake Hashing {Encoding.ASCII.GetString(keySumBytes)}");
 
-                // SHA1 is the websocket standard:
-                // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#server_handshake_response
+                // SHA-1 is the websocket standard:
+                // https://www.rfc-editor.org/rfc/rfc6455
                 // we should follow the standard, even though SHA1 is considered weak:
                 // https://stackoverflow.com/questions/38038841/why-is-sha-1-considered-insecure
                 byte[] keySumHash = SHA1.Create().ComputeHash(keySumBytes);
