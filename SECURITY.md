@@ -11,6 +11,7 @@ You can also contact us in [our Discord](https://discord.gg/N9QVxbM) for faster 
 You can expect a reply within 24-48 hours.
 We will keep you updated on our steps to mitigate issues every 2-4 weeks.
 
+## Bug Bounty
 Depending on the severity of the exploit, we offer a $50 - $500 bug bounty.
 
 **Specifically we are looking for:**
