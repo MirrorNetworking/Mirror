@@ -233,16 +233,16 @@ Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 # Bug Bounty
 <img src="https://user-images.githubusercontent.com/16416509/110572995-718b5900-8195-11eb-802c-235c82a03bf7.png">
 
-A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please reach out to us in private.
-Depending on the severity of the exploit, we offer $50 - $500 for now.
-Rewards based on Mirror's [donations](https://github.com/sponsors/vis2k), capped at amount of donations we received that month.
+A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please contact us in [our Discord](https://discord.gg/N9QVxbM) in order to start a private conversation.
+
+Depending on the severity of the exploit, we offer a $50 - $500 reward.
 
 **Specifically we are looking for:**
-* Ways to crash a Mirror server
-* Ways to exploit a Mirror server
-* Ways to leave a Mirror server in undefined state
+* Ways to crash a Mirror server.
+* Ways to exploit a Mirror server.
+* Ways to leave a Mirror server in undefined state.
 
-We are **not** looking for DOS/DDOS attacks. The exploit should be possible with just a couple of network packets, and it should be reproducible.
+We are **not** looking for DOS/DDOS attacks, as those are expected to be handled by the hosting infrastructure. 
 
 **Credits / past findings / fixes:**
 * 2020, fholm: fuzzing ConnectMessage to stop further connects [[#2397](https://github.com/vis2k/Mirror/pull/2397)]
