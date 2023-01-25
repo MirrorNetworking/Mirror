@@ -231,9 +231,9 @@ Therefore, we need to [KISS](https://en.wikipedia.org/wiki/KISS_principle) 😗.
 
 ---
 # Incident Response & Bug Bounty
-A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please contact us in [our Discord](https://discord.gg/N9QVxbM) in order to start the conversation.
+A lot of projects use Mirror in production. If you found a critical bug / exploit in Mirror core, please contact us at "security [at] mirror-networking [dot] com, or reach out to us in [our Discord](https://discord.gg/N9QVxbM).
 
-Depending on the severity of the exploit, we offer a $50 - $500 reward.
+Depending on the severity of the exploit, we offer a $50 - $500 bug bounty.
 
 **Specifically we are looking for:**
 * Ways to crash a Mirror server.
