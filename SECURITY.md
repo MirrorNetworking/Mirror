@@ -5,10 +5,10 @@
 Mirror & Mirror LTS are both supported for security fixes.
 
 ## Reporting a Vulnerability
-Please contact security [at] mirror-networking.com to report a vulnerability.
+Please email security [at] mirror-networking.com to report a vulnerability.</br>
 You can also contact us in [our Discord](https://discord.gg/N9QVxbM) for faster replies.
 
-You can expect a reply within 24-48 hours.
+You can expect a reply within 24-48 hours.</br>
 We will keep you updated on our steps to mitigate issues every 2-4 weeks.
 
 ## Bug Bounty
