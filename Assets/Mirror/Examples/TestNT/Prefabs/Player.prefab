@@ -379,7 +379,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2033010110135952297}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2, y: 2, z: 2}
+  m_LocalPosition: {x: 2, y: 1, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -509,7 +509,6 @@ MonoBehaviour:
   maxJumpSpeed: 5
   jumpDelta: 0.2
   groundState: 2
-  moveState: 2
   horizontal: 0
   vertical: 0
   turnSpeed: 0
