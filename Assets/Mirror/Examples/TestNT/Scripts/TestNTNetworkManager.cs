@@ -178,15 +178,15 @@ namespace TestNT
         {
             TestNTNetworkAuthenticator.AuthRequestMessage authData = (TestNTNetworkAuthenticator.AuthRequestMessage)conn.authenticationData;
 
-            Vector3 spawnPos = new Vector3(Random.Range(-20, 20), 5, Random.Range(-20, 20));
+            //Vector3 spawnPos = new Vector3(Random.Range(-20, 20), 5, Random.Range(-20, 20));
             GameObject player;
 
             if (authData.isBot)
-                player = Instantiate(spawnPrefabs[1], spawnPos, Quaternion.identity);
+                player = Instantiate(spawnPrefabs[1]);
             else
-                player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+                player = Instantiate(playerPrefab);
 
-            player.transform.LookAt(new Vector3(0f, 5f, 0f));
+            player.transform.LookAt(new Vector3(0f, 2f, 0f));
 
             PlayerName playerName = player.GetComponent<PlayerName>();
             if (authData.isBot)
