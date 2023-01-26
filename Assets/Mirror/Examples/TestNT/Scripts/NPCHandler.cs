@@ -36,7 +36,7 @@ namespace TestNT
         void CmdSpawnNPC()
         {
             Vector3 spawnPos = transform.position + Vector3.forward;
-            GameObject npc = Instantiate(NetworkManager.singleton.playerPrefab, spawnPos, Quaternion.identity);
+            GameObject npc = Instantiate(NetworkManager.singleton.spawnPrefabs[0], spawnPos, Quaternion.identity);
             npc.GetComponent<PlayerName>().playerName = "NPC";
             npc.GetComponent<NetworkTransformReliable>().syncDirection = SyncDirection.ServerToClient;
             npc.GetComponent<CharacterController>().enabled = true;

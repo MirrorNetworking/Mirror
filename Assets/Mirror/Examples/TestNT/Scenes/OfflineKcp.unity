@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657815, g: 0.49641192, b: 0.57481617, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1567,12 +1567,11 @@ MonoBehaviour:
   networkAddress: mirror.clevertech.net
   maxConnections: 100
   authenticator: {fileID: 821201138}
-  playerPrefab: {fileID: 2033010110135952297, guid: 10f39bef276942448bfdfba062b6b6e0,
-    type: 3}
+  playerPrefab: {fileID: 2033010110135952297, guid: 10f39bef276942448bfdfba062b6b6e0, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
-  - {fileID: 4470997041528829651, guid: 41c8421bf1d0d854cacb6d12f1af1567, type: 3}
+  - {fileID: 2089004215024372542, guid: 808159c2b19eadb45bb9255c2bd30ec9, type: 3}
   timeInterpolationGui: 1
 --- !u!114 &821201136
 MonoBehaviour:
