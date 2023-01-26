@@ -1598,7 +1598,7 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
-  - {fileID: 2089004215024372542, guid: 808159c2b19eadb45bb9255c2bd30ec9, type: 3}
+  - {fileID: 9078678990242496461, guid: 41855c7cf63a3dc45ac8a93b4e2ecd54, type: 3}
   timeInterpolationGui: 1
 --- !u!114 &821201136
 MonoBehaviour:

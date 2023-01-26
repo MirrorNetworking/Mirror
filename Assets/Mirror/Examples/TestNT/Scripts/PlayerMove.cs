@@ -82,8 +82,6 @@ namespace TestNT
             if (NTReliableExt == null)
                 NTReliableExt = GetComponent<NTReliableExt>();
 
-            NTReliableExt.syncDirection = SyncDirection.ClientToServer;
-
             this.enabled = false;
         }
 
@@ -254,8 +252,7 @@ namespace TestNT
         // Headless client forced to ground
         void HandleJumping()
         {
-            jumpSpeed = -9.81f * Time.deltaTime;
-            // jumpSpeed = Physics.gravity.y * Time.deltaTime;
+            jumpSpeed = Physics.gravity.y * Time.deltaTime;
         }
 
 #endif
