@@ -186,7 +186,7 @@ namespace TestNT
             else
                 player = Instantiate(playerPrefab);
 
-            player.transform.LookAt(new Vector3(0f, 2f, 0f));
+            player.transform.LookAt(new Vector3(0f, 1f, 0f));
 
             PlayerName playerName = player.GetComponent<PlayerName>();
             if (authData.isBot)
