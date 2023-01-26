@@ -6,7 +6,7 @@ namespace TestNT
 {
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CharacterController))]
-    [RequireComponent(typeof(CapsuleCollider))]
+    //[RequireComponent(typeof(CapsuleCollider))]
     [RequireComponent(typeof(NTReliableExt))]
     public class PlayerMove : NetworkBehaviour
     {
@@ -254,7 +254,8 @@ namespace TestNT
         // Headless client forced to ground
         void HandleJumping()
         {
-            jumpSpeed = Physics.gravity.y * Time.deltaTime;
+            jumpSpeed = -9.81f * Time.deltaTime;
+            // jumpSpeed = Physics.gravity.y * Time.deltaTime;
         }
 
 #endif
