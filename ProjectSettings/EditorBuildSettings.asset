@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Mirror/Examples/TestNT/Scenes/OfflineKcp.unity
+    guid: 67f4331da875e0449896cd8c88e3ec34
+  - enabled: 1
+    path: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
+    guid: 860cbde762340e2439abcc2c62efda5f
   m_configObjects: {}
