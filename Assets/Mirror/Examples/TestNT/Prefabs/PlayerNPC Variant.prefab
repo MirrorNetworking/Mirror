@@ -67,6 +67,10 @@ PrefabInstance:
       propertyPath: syncDirection
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7264761320023842541, guid: 10f39bef276942448bfdfba062b6b6e0, type: 3}
+      propertyPath: compressRotation
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6285387349840257400, guid: 10f39bef276942448bfdfba062b6b6e0, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 10f39bef276942448bfdfba062b6b6e0, type: 3}
