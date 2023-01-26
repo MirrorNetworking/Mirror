@@ -1588,8 +1588,8 @@ MonoBehaviour:
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
   sendRate: 30
-  offlineScene: Assets/TestNT/Scenes/OfflineWeb.unity
-  onlineScene: Assets/TestNT/Scenes/Online.unity
+  offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineWeb.unity
+  onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
   transport: {fileID: 821201134}
   networkAddress: mirror.clevertech.net
   maxConnections: 100
