@@ -20,3 +20,7 @@ Depending on the severity of the exploit, we offer a $50 - $500 bug bounty.
 * Ways to leave a Mirror server in undefined state.
 
 We are **not** looking for DOS/DDOS attacks, as those are expected to be handled by the hosting infrastructure. 
+
+## Notifications
+In case of security breaches, Mirror users will be informed in our [Discord server](https://discord.gg/N9QVxbM) and release changelogs.
+Since we collect no user data, you are recommended to read the changelog and follow our Discord announcements.
