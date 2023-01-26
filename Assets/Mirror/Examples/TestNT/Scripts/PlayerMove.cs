@@ -82,17 +82,6 @@ namespace TestNT
             this.enabled = false;
         }
 
-        public override void OnStartClient()
-        {
-            if (!isLocalPlayer)
-                NTReliableExt.VelRotChangedAction = OnVelRotChanged;
-        }
-
-        public override void OnStopClient()
-        {
-            NTReliableExt.VelRotChangedAction = null;
-        }
-
         public override void OnStartAuthority()
         {
             characterController.enabled = true;
@@ -229,21 +218,6 @@ namespace TestNT
 
             // Finally move the character.
             characterController.Move(direction * Time.deltaTime);
-        }
-
-        void OnVelRotChanged(Vector3 newVelocity, Vector3 newRotation)
-        {
-            // Only apply to other player objects
-            if (isLocalPlayer) return;
-
-            animVelocity = -transform.InverseTransformDirection(newVelocity).z / moveSpeedMultiplier;
-            animRotation = -newRotation.y / maxTurnSpeed;
-
-            if (animator)
-            {
-                animator.SetFloat("Forward", Mathf.MoveTowards(animator.GetFloat("Forward"), animVelocity, moveSpeedMultiplier * Time.deltaTime));
-                animator.SetFloat("Turn", Mathf.MoveTowards(animator.GetFloat("Turn"), animRotation, maxTurnSpeed * Time.deltaTime));
-            }
         }
     }
 }
