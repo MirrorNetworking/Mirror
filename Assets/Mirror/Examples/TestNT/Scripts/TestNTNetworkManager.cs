@@ -182,7 +182,7 @@ namespace TestNT
             GameObject player;
 
             if (authData.isBot)
-                player = Instantiate(spawnPrefabs[0], spawnPos, Quaternion.identity);
+                player = Instantiate(spawnPrefabs[1], spawnPos, Quaternion.identity);
             else
                 player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
 
