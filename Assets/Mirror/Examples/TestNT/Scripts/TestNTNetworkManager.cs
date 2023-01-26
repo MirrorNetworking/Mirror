@@ -55,7 +55,7 @@ namespace TestNT
                 StartServer();
             }
             // only start server or client, never both
-            else if(autoConnectClientBuild)
+            else if (autoConnectClientBuild)
             {
                 ((TestNTNetworkAuthenticator)authenticator).SetPlayername("Bot", true);
                 StartClient();
@@ -176,11 +176,18 @@ namespace TestNT
         /// <param name="conn">Connection from client.</param>
         public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
+            TestNTNetworkAuthenticator.AuthRequestMessage authData = (TestNTNetworkAuthenticator.AuthRequestMessage)conn.authenticationData;
+
             Vector3 spawnPos = new Vector3(Random.Range(-20, 20), 5, Random.Range(-20, 20));
-            GameObject player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+            GameObject player;
+
+            if (authData.isBot)
+                player = Instantiate(spawnPrefabs[0], spawnPos, Quaternion.identity);
+            else
+                player = Instantiate(playerPrefab, spawnPos, Quaternion.identity);
+
             player.transform.LookAt(new Vector3(0f, 5f, 0f));
 
-            TestNTNetworkAuthenticator.AuthRequestMessage authData = (TestNTNetworkAuthenticator.AuthRequestMessage)conn.authenticationData;
             PlayerName playerName = player.GetComponent<PlayerName>();
             if (authData.isBot)
                 playerName.playerName = $"{authData.authUsername}{conn.connectionId:0000}";
