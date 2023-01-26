@@ -362,7 +362,6 @@ GameObject:
   - component: {fileID: 6313073782604029823}
   - component: {fileID: 1175563800171581243}
   - component: {fileID: 222851012733586747}
-  - component: {fileID: 7154008523890556499}
   - component: {fileID: -7969791118079622209}
   - component: {fileID: 3644259943796578628}
   m_Layer: 6
@@ -380,7 +379,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2033010110135952297}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 2, y: 2, z: 2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -572,25 +571,6 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
---- !u!114 &7154008523890556499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2033010110135952297}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b6b6a0890f43524b9f43990b406057b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  rend: {fileID: 9074100572725774190}
-  color:
-    serializedVersion: 2
-    rgba: 4278190080
 --- !u!114 &-7969791118079622209
 MonoBehaviour:
   m_ObjectHideFlags: 0

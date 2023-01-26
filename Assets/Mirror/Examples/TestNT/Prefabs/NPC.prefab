@@ -317,7 +317,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: dcc202df238253d4db8a8bda20988e76, type: 2}
+  - {fileID: 2100000, guid: 607333c9053302744b58941f035c4c23, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1079,7 +1079,6 @@ GameObject:
   - component: {fileID: 3427814615500822403}
   - component: {fileID: 3915821277891986203}
   - component: {fileID: 8186190146674348895}
-  - component: {fileID: 181099761326498359}
   m_Layer: 6
   m_Name: NPC
   m_TagString: Player
@@ -1095,7 +1094,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9078678990242496461}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: -20, y: 2, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1258,22 +1257,3 @@ MonoBehaviour:
   snapIntText: {fileID: 7179727379187289405}
   serverSnapCount: 0
   clientSnapCount: 0
---- !u!114 &181099761326498359
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9078678990242496461}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b6b6a0890f43524b9f43990b406057b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  rend: {fileID: 2028572531701046026}
-  color:
-    serializedVersion: 2
-    rgba: 4278190080
