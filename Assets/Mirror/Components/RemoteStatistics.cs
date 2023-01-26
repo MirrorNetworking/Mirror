@@ -121,6 +121,7 @@ namespace Mirror
                 try
                 {
                     serverPassword = File.ReadAllText(path);
+                    Debug.Log($"RemoteStatistics: Password is {serverPassword}");
                 }
                 catch (Exception exception)
                 {
@@ -209,6 +210,7 @@ namespace Mirror
                 ));
             }
         }
+
         void UpdateClient()
         {
             if (Input.GetKeyDown(hotKey))
