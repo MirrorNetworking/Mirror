@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using Mirror;
 
@@ -11,7 +10,6 @@ namespace TestNT
     public class PlayerMove : NetworkBehaviour
     {
         public enum GroundState : byte { Jumping, Falling, Grounded }
-        public enum MoveMode : byte { Walking, Sneaking, Running };
 
         [Header("Avatar Components")]
         public CharacterController characterController;
@@ -41,7 +39,6 @@ namespace TestNT
 
         [Header("Diagnostics - Do Not Modify")]
         public GroundState groundState = GroundState.Grounded;
-        public MoveMode moveState = MoveMode.Running;
 
         [Range(-1f, 1f)]
         public float horizontal;
@@ -113,11 +110,6 @@ namespace TestNT
             if (!characterController.enabled)
                 return;
 
-#if !UNITY_SERVER
-            // Not needed on headless clients
-            HandleMoveState();
-#endif
-
             HandleTurning();
             HandleJumping();
             HandleMove();
@@ -131,23 +123,6 @@ namespace TestNT
             // Diagnostic velocity...FloorToInt for display purposes
             velocity = Vector3Int.FloorToInt(characterController.velocity);
         }
-
-        // Headless clients don't need to do either of these
-#if !UNITY_SERVER
-
-        void HandleMoveState()
-        {
-            if (Input.GetKeyUp(KeyCode.R) && moveState == MoveMode.Walking)
-                moveState = MoveMode.Running;
-            else if (Input.GetKeyUp(KeyCode.R) && moveState == MoveMode.Running)
-                moveState = MoveMode.Walking;
-            else if (Input.GetKeyUp(KeyCode.C) && moveState != MoveMode.Sneaking)
-                moveState = MoveMode.Sneaking;
-            else if (Input.GetKeyUp(KeyCode.C) && moveState == MoveMode.Sneaking)
-                moveState = MoveMode.Walking;
-        }
-
-#endif
 
 
         // Alternative methods provided for headless clients to act autonomously
@@ -170,9 +145,6 @@ namespace TestNT
             if (!Input.GetKey(KeyCode.Q) && !Input.GetKey(KeyCode.E))
                 turnSpeed = Mathf.MoveTowards(turnSpeed, 0, turnDelta);
 
-            if (moveState == MoveMode.Sneaking)
-                turnSpeed /= 3;
-
             transform.Rotate(0f, turnSpeed * Time.deltaTime, 0f);
         }
 
@@ -183,7 +155,7 @@ namespace TestNT
             // as player holds spacebar. Jump power is increased by a diminishing amout
             // every frame until it reaches maxJumpSpeed, or player releases the spacebar,
             // and then changes to the falling state until it gets grounded.
-            if (groundState != GroundState.Falling && moveState != MoveMode.Sneaking && Input.GetKey(KeyCode.Space))
+            if (groundState != GroundState.Falling && Input.GetKey(KeyCode.Space))
             {
                 if (groundState != GroundState.Jumping)
                 {
@@ -242,12 +214,6 @@ namespace TestNT
 #endif
             // Create initial direction vector without jumpSpeed (y-axis).
             direction = new Vector3(horizontal, 0f, vertical);
-
-            // Run unless Sneaking or Walking
-            if (moveState == MoveMode.Sneaking)
-                direction *= 0.15f;
-            else if (moveState == MoveMode.Walking)
-                direction *= 0.5f;
 
             // Clamp so diagonal strafing isn't a speed advantage.
             direction = Vector3.ClampMagnitude(direction, 1f);
