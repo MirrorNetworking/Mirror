@@ -122,11 +122,6 @@ namespace TestNT
             HandleJumping();
             HandleMove();
 
-#if !UNITY_SERVER
-            // Not needed on headless clients
-            HandleAnimation();
-#endif
-
             // Reset ground state
             if (characterController.isGrounded)
                 groundState = GroundState.Grounded;
@@ -150,30 +145,6 @@ namespace TestNT
                 moveState = MoveMode.Sneaking;
             else if (Input.GetKeyUp(KeyCode.C) && moveState == MoveMode.Sneaking)
                 moveState = MoveMode.Walking;
-        }
-
-        void HandleAnimation()
-        {
-            if (!animator) return;
-
-            //if (moveState != MoveState.Sneaking)
-            //{
-            //    if (Input.GetKeyUp(KeyCode.I))
-            //        animator.SetTrigger("Saluting");
-            //    else if (Input.GetKeyUp(KeyCode.O))
-            //        animator.SetTrigger("Waving");
-            //    else if (Input.GetKeyUp(KeyCode.P))
-            //        animator.SetBool("Dancing", !animator.GetBool("Dancing"));
-            //}
-
-            animVelocity = -transform.InverseTransformDirection(direction).z / moveSpeedMultiplier;
-            animRotation = -turnSpeed / maxTurnSpeed;
-
-            animator.SetFloat("Forward", Mathf.MoveTowards(animator.GetFloat("Forward"), animVelocity, moveSpeedMultiplier * Time.deltaTime));
-            animator.SetFloat("Turn", Mathf.MoveTowards(animator.GetFloat("Turn"), animRotation, maxTurnSpeed * Time.deltaTime));
-
-            animator.SetBool("Crouch", moveState == MoveMode.Sneaking);
-            animator.SetBool("OnGround", groundState == GroundState.Grounded);
         }
 
 #endif
