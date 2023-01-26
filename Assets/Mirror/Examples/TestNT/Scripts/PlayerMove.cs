@@ -169,8 +169,7 @@ namespace TestNT
                 jumpSpeed += Physics.gravity.y * Time.deltaTime;
             }
             else
-                jumpSpeed = 0f;
-                //jumpSpeed = Physics.gravity.y * Time.deltaTime;
+                jumpSpeed = Physics.gravity.y * Time.deltaTime;
         }
 
 #else
@@ -185,7 +184,7 @@ namespace TestNT
         // Headless client forced to ground
         void HandleJumping()
         {
-            jumpSpeed = 0f;
+            jumpSpeed = Physics.gravity.y * Time.deltaTime;
         }
 
 #endif
