@@ -90,6 +90,8 @@ namespace Mirror.SimpleWeb
                         break;
                 }
             }
+            if (receiveQueue.Count > 0)
+                Debug.LogWarning($"SimpleWebClient ProcessMessageQueue has {receiveQueue.Count} remaining.");
         }
 
         public abstract void Connect(Uri serverAddress);
