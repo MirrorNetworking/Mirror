@@ -31,9 +31,20 @@ namespace TestNT
         public void OnSelectServer(int server)
         {
             if (server == 0)
-                SetHostname("mirror.clevertech.net");
+            {
+                SetHostname("mirrornt.idev.dl.je");
+                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 443;
+            }
             if (server == 1)
+            {
+                SetHostname("mirror.clevertech.net");
+                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 7778;
+            }
+            if (server == 2)
+            {
                 SetHostname("localhost");
+                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 7778;
+            }
         }
 
         #region Unity Callbacks

@@ -928,6 +928,8 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
+    - m_Text: mirrornt.idev.dl.je
+      m_Image: {fileID: 0}
     - m_Text: mirror.clevertech.net
       m_Image: {fileID: 0}
     - m_Text: localhost
@@ -1566,8 +1568,8 @@ MonoBehaviour:
   clientMaxMessagesPerTick: 1000
   batchSend: 1
   waitBeforeSend: 0
-  clientUseWss: 1
-  sslEnabled: 1
+  clientUseWss: 0
+  sslEnabled: 0
   sslCertJson: ./cert.json
   sslProtocols: 3072
   _logLevels: 0
@@ -1591,8 +1593,8 @@ MonoBehaviour:
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineWeb.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
   transport: {fileID: 821201134}
-  networkAddress: mirror.clevertech.net
-  maxConnections: 100
+  networkAddress: mirrornt.idev.dl.je
+  maxConnections: 500
   authenticator: {fileID: 821201138}
   playerPrefab: {fileID: 2033010110135952297, guid: 10f39bef276942448bfdfba062b6b6e0, type: 3}
   autoCreatePlayer: 1
@@ -2198,7 +2200,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: mirror.clevertech.net
+  m_text: mirrornt.idev.dl.je
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
