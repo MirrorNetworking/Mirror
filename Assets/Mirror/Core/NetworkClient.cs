@@ -1038,9 +1038,7 @@ namespace Mirror
             // here immediately since there won't be another OnObjectSpawnFinished.
             if (isSpawnFinished)
             {
-                identity.NotifyAuthority();
-                CheckForStartClient(identity);
-                CheckForLocalPlayer(identity);
+                BootstrapIdentity(identity);
             }
         }
 
@@ -1193,9 +1191,7 @@ namespace Mirror
                 // they are destroyed. for safety, let's double check here.
                 if (identity != null)
                 {
-                    identity.NotifyAuthority();
-                    CheckForStartClient(identity);
-                    CheckForLocalPlayer(identity);
+                    BootstrapIdentity(identity);
                 }
                 else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");
             }
@@ -1243,9 +1239,7 @@ namespace Mirror
                     aoi.SetHostVisibility(identity, true);
 
                 identity.isOwned = message.isOwner;
-                identity.NotifyAuthority();
-                CheckForStartClient(identity);
-                CheckForLocalPlayer(identity);
+                BootstrapIdentity(identity);
             }
         }
 
@@ -1350,6 +1344,15 @@ namespace Mirror
 
             // call OnStartLocalPlayer if it's the local player now.
             CheckForLocalPlayer(identity);
+        }
+
+        // bootstrap NetworkIdentity by initializing flags and invoking callbacks.
+        // used to happen in multiple places, so let's have this in one function.
+        static void BootstrapIdentity(NetworkIdentity identity)
+        {
+            identity.NotifyAuthority();    // calls OnStart/StopAuthority
+            CheckForStartClient(identity); // calls OnStartClient
+            CheckForLocalPlayer(identity); // calls OnStartLocalPlayer
         }
 
         // OnStartClient used to initialize isClient / isLocalPlayer.
