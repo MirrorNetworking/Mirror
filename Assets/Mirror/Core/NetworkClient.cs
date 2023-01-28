@@ -640,7 +640,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -687,7 +687,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -753,7 +753,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -817,7 +817,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not unregister '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -1101,7 +1101,7 @@ namespace Mirror
                     return null;
                 }
 
-                if (!obj.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+                if (!obj.TryGetComponent(out NetworkIdentity identity))
                 {
                     Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{message.assetId}'");
                     return null;
