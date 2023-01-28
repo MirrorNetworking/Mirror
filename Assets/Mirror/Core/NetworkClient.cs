@@ -1354,8 +1354,8 @@ namespace Mirror
 
             // initialize flags.
             // after NotifyAuthority for compatibility with old behaviour.
-            identity.isLocalPlayer = localPlayer == identity;
             identity.isClient = true;
+            identity.isLocalPlayer = localPlayer == identity;
 
             // invoke user callbacks
             identity.OnStartClient();
