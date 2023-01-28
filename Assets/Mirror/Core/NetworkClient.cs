@@ -383,7 +383,13 @@ namespace Mirror
 
             // Raise the event before changing ConnectState
             // because 'active' depends on this during shutdown
-            if (connection != null) OnDisconnectedEvent?.Invoke();
+            //
+            // previously OnDisconnected was only invoked if connection != null.
+            // however, if DNS resolve fails in Transport.Connect(),
+            // OnDisconnected would never be called because 'connection' is only
+            // create after the Transport.Connect() call.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3365
+            OnDisconnectedEvent?.Invoke();
 
             connectState = ConnectState.Disconnected;
             ready = false;
