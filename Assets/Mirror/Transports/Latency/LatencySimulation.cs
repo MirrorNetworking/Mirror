@@ -29,25 +29,25 @@ namespace Mirror
         [Header("Common")]
         [Tooltip("Jitter latency via perlin(Time * jitterSpeed) * jitter")]
         [FormerlySerializedAs("latencySpikeMultiplier")]
-        [Range(0, 1)] public float jitter;
+        [Range(0, 1)] public float jitter = 0.02f;
         [Tooltip("Jitter latency via perlin(Time * jitterSpeed) * jitter")]
         [FormerlySerializedAs("latencySpikeSpeedMultiplier")]
         public float jitterSpeed = 1;
 
         [Header("Reliable Messages")]
-        [Tooltip("Reliable latency in seconds")]
-        public float reliableLatency;
+        [Tooltip("Reliable latency in milliseconds (1000 = 1 second)")]
+        [Range(0, 10000)] public float reliableLatency = 100;
         // note: packet loss over reliable manifests itself in latency.
         //       don't need (and can't add) a loss option here.
         // note: reliable is ordered by definition. no need to scramble.
 
         [Header("Unreliable Messages")]
-        [Tooltip("Packet loss in %\n2% recommended for long term play testing, upto 10% for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
-        [Range(0, 100)] public float unreliableLoss;
-        [Tooltip("Unreliable latency in milliseconds\n200ms recommended for long term play testing, upto 500ms for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
-        [Range(0, 1000)] public float unreliableLatency;
+        [Tooltip("Packet loss in %\n2% recommended for long term play testing, upto 5% for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
+        [Range(0, 100)] public float unreliableLoss = 2;
+        [Tooltip("Unreliable latency in milliseconds (1000 = 1 second) \n100ms recommended for long term play testing, upto 500ms for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
+        [Range(0, 10000)] public float unreliableLatency = 100;
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
-        [Range(0, 100)] public float unreliableScramble;
+        [Range(0, 100)] public float unreliableScramble = 2;
 
         // message queues
         // list so we can insert randomly (scramble)
