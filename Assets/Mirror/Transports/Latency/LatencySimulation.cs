@@ -93,7 +93,7 @@ namespace Mirror
             switch (channeldId)
             {
                 case Channels.Reliable:
-                    return reliableLatency + spike;
+                    return reliableLatency/1000 + spike;
                 case Channels.Unreliable:
                     return unreliableLatency/1000 + spike;
                 default:
