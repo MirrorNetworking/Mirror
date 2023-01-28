@@ -1358,24 +1358,17 @@ namespace Mirror
             identity.isClient = true;
             identity.isLocalPlayer = localPlayer == identity;
 
-            // invoke user callbacks
+            // invoke OnStartClient
             identity.OnStartClient();
-            CheckForLocalPlayer(identity); // calls OnStartLocalPlayer
-        }
 
-        internal static void CheckForLocalPlayer(NetworkIdentity identity)
-        {
+            // invoke OnStartLocalPlayer
+            // this is exactly the old CheckForLocalPlayer code.
+            // TODO simplify step by step.
             if (identity == localPlayer)
             {
-                // Set isLocalPlayer to true on this NetworkIdentity and trigger
-                // OnStartLocalPlayer in all scripts on the same GO
                 identity.connectionToServer = connection;
-
-                // isLocalPlayer is already set by CheckForStartPlayer.
-                // however, let's simply move it out of OnStartLocalPlayer for now.
                 identity.isLocalPlayer = true;
                 identity.OnStartLocalPlayer();
-                // Debug.Log($"NetworkClient.OnOwnerMessage player:{identity.name}");
             }
         }
 
