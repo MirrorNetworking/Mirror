@@ -1351,12 +1351,14 @@ namespace Mirror
         // used to happen in multiple places, so let's have this in one function.
         static void BootstrapIdentity(NetworkIdentity identity)
         {
-            identity.NotifyAuthority();    // calls OnStart/StopAuthority
-
-            // initialize flags.
-            // after NotifyAuthority for compatibility with old behaviour.
+            // initialize flags before invoking callbacks.
+            // this way isClient/isLocalPlayer is correct during callbacks.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3362
             identity.isClient = true;
             identity.isLocalPlayer = localPlayer == identity;
+
+            // invoke OnStartAuthority
+            identity.NotifyAuthority();
 
             // invoke OnStartClient
             identity.OnStartClient();
