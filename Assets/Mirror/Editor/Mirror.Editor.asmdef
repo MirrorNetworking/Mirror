@@ -2,8 +2,8 @@
     "name": "Mirror.Editor",
     "rootNamespace": "",
     "references": [
-        "Mirror",
-        "Unity.Mirror.CodeGen"
+        "GUID:30817c1a0e6d646d99c048fc403f5979",
+        "GUID:1d0b9d21c3ff546a4aa32399dfd33474"
     ],
     "includePlatforms": [
         "Editor"
