@@ -1385,6 +1385,8 @@ namespace Mirror
             if (!identity.isServer && identity.netId == 0)
             {
                 // configure NetworkIdentity
+                // this may be called in host mode, so we need to initialize
+                // isLocalPlayer/isClient flags too.
                 identity.isLocalPlayer = NetworkClient.localPlayer == identity;
                 identity.isClient = NetworkClient.active;
                 identity.isServer = true;
