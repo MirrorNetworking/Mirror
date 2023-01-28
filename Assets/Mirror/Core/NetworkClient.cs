@@ -1334,16 +1334,17 @@ namespace Mirror
             if (identity.isLocalPlayer)
             {
                 localPlayer = identity;
+                identity.connectionToServer = connection;
+                identity.OnStartLocalPlayer();
             }
             // identity's isLocalPlayer was set to false.
             // clear our static localPlayer IF (and only IF) it was that one before.
             else if (localPlayer == identity)
             {
                 localPlayer = null;
+                // TODO set .connectionToServer to null for old local player?
+                // since we set it in the above 'if' case too.
             }
-
-            // call OnStartLocalPlayer if it's the local player now.
-            CheckForLocalPlayer(identity);
         }
 
         // bootstrap NetworkIdentity by initializing flags and invoking callbacks.
