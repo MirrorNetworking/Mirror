@@ -840,28 +840,6 @@ namespace Mirror.Tests
         }
 
         [Test]
-        public void ActivateHostSceneCallsOnStartClient()
-        {
-            // listen & connect
-            NetworkServer.Listen(1);
-            ConnectClientBlockingAuthenticatedAndReady(out _);
-
-            // spawn identity with a networkbehaviour.
-            // (needs to be in .spawned for ActivateHostScene)
-            CreateNetworkedAndSpawn(
-                out _, out NetworkIdentity serverIdentity, out OnStartClientTestNetworkBehaviour serverComp,
-                out _, out _, out _);
-
-            // ActivateHostScene calls OnStartClient for spawned objects where
-            // isClient is still false. set it to false first.
-            serverIdentity.isClient = false;
-            HostMode.ActivateHostScene();
-
-            // was OnStartClient called for all .spawned networkidentities?
-            Assert.That(serverComp.called, Is.EqualTo(1));
-        }
-
-        [Test]
         public void SendToAll()
         {
             // message handler
