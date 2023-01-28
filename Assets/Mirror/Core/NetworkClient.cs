@@ -1238,13 +1238,13 @@ namespace Mirror
                 if (message.isLocalPlayer)
                     InternalAddPlayer(identity);
 
-                identity.isOwned = message.isOwner;
-                identity.NotifyAuthority();
-                CheckForStartClient(identity);
-
+                // set visibility before invoking OnStartClient etc. callbacks
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, true);
 
+                identity.isOwned = message.isOwner;
+                identity.NotifyAuthority();
+                CheckForStartClient(identity);
                 CheckForLocalPlayer(identity);
             }
         }
