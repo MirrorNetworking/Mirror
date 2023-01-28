@@ -1351,19 +1351,15 @@ namespace Mirror
         static void BootstrapIdentity(NetworkIdentity identity)
         {
             identity.NotifyAuthority();    // calls OnStart/StopAuthority
-            CheckForStartClient(identity); // calls OnStartClient
-            CheckForLocalPlayer(identity); // calls OnStartLocalPlayer
-        }
 
-        // OnStartClient used to initialize isClient / isLocalPlayer.
-        // it's cleaner to do this from NetworkClient.
-        internal static void CheckForStartClient(NetworkIdentity identity)
-        {
-            // OnStartLocalPlayer is called after OnStartClient.
-            // but we want the flag to be set in OnStartClient already.
+            // initialize flags.
+            // after NotifyAuthority for compatibility with old behaviour.
             identity.isLocalPlayer = localPlayer == identity;
             identity.isClient = true;
+
+            // invoke user callbacks
             identity.OnStartClient();
+            CheckForLocalPlayer(identity); // calls OnStartLocalPlayer
         }
 
         internal static void CheckForLocalPlayer(NetworkIdentity identity)
