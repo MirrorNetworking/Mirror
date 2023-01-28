@@ -1038,9 +1038,7 @@ namespace Mirror
             // here immediately since there won't be another OnObjectSpawnFinished.
             if (isSpawnFinished)
             {
-                identity.NotifyAuthority();
-                CheckForStartClient(identity);
-                CheckForLocalPlayer(identity);
+                BootstrapIdentity(identity);
             }
         }
 
@@ -1193,11 +1191,7 @@ namespace Mirror
             foreach (KeyValuePair<uint, NetworkIdentity> kvp in spawned.OrderBy(uv => uv.Value.netId))
             {
                 if (kvp.Value != null)
-                {
-                    kvp.Value.NotifyAuthority();
-                    CheckForStartClient(kvp.Value);
-                    CheckForLocalPlayer(kvp.Value);
-                }
+                    BootstrapIdentity(kvp.Value);
                 else
                 {
                     // One warning is sufficient.
@@ -1255,9 +1249,7 @@ namespace Mirror
                     aoi.SetHostVisibility(identity, true);
 
                 identity.isOwned = message.isOwner;
-                identity.NotifyAuthority();
-                CheckForStartClient(identity);
-                CheckForLocalPlayer(identity);
+                BootstrapIdentity(identity);
             }
         }
 
@@ -1362,6 +1354,15 @@ namespace Mirror
 
             // call OnStartLocalPlayer if it's the local player now.
             CheckForLocalPlayer(identity);
+        }
+
+        // bootstrap NetworkIdentity by initializing flags and invoking callbacks.
+        // used to happen in multiple places, so let's have this in one function.
+        static void BootstrapIdentity(NetworkIdentity identity)
+        {
+            identity.NotifyAuthority();    // calls OnStart/StopAuthority
+            CheckForStartClient(identity); // calls OnStartClient
+            CheckForLocalPlayer(identity); // calls OnStartLocalPlayer
         }
 
         // OnStartClient used to initialize isClient / isLocalPlayer.
