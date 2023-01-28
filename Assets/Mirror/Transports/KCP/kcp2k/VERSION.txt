@@ -1,3 +1,7 @@
+V1.28 [2023-01-28]
+- fix: KcpClient.Connect now resolves hostname before creating peer
+  https://github.com/MirrorNetworking/Mirror/issues/3361
+
 V1.27 [2023-01-08]
 - KcpClient.Connect: invoke own events directly instead of going through peer,
   which calls our own events anyway
