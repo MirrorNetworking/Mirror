@@ -1362,12 +1362,9 @@ namespace Mirror
             identity.OnStartClient();
 
             // invoke OnStartLocalPlayer
-            // this is exactly the old CheckForLocalPlayer code.
-            // TODO simplify step by step.
-            if (identity == localPlayer)
+            if (identity.isLocalPlayer)
             {
                 identity.connectionToServer = connection;
-                identity.isLocalPlayer = true;
                 identity.OnStartLocalPlayer();
             }
         }
