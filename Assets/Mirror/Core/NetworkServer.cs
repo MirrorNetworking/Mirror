@@ -821,7 +821,7 @@ namespace Mirror
 
         internal static bool GetNetworkIdentity(GameObject go, out NetworkIdentity identity)
         {
-            if (!go.TryGetComponent<NetworkIdentity>(out identity))
+            if (!go.TryGetComponent(out identity))
             {
                 Debug.LogError($"GameObject {go.name} doesn't have NetworkIdentity.");
                 return false;
@@ -898,7 +898,7 @@ namespace Mirror
         // on this playerControllerId for this connection, this will fail.
         public static bool AddPlayerForConnection(NetworkConnectionToClient conn, GameObject player)
         {
-            if (!player.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!player.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogWarning($"AddPlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
                 return false;
@@ -939,7 +939,7 @@ namespace Mirror
         // safely be used while changing scenes.
         public static bool ReplacePlayerForConnection(NetworkConnectionToClient conn, GameObject player, bool keepAuthority = false)
         {
-            if (!player.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!player.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"ReplacePlayer: playerGameObject has no NetworkIdentity. Please add a NetworkIdentity to {player}");
                 return false;
@@ -1288,7 +1288,7 @@ namespace Mirror
         // This is the same as calling NetworkIdentity.AssignClientAuthority on the spawned object.
         public static void Spawn(GameObject obj, GameObject ownerPlayer)
         {
-            if (!ownerPlayer.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!ownerPlayer.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError("Player object has no NetworkIdentity");
                 return;

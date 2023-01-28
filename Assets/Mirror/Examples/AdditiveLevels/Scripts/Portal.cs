@@ -46,7 +46,7 @@ namespace Mirror.Examples.AdditiveLevels
             //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} Portal::OnTriggerEnter {gameObject.name} in {gameObject.scene.name}");
 
             // applies to host client on server and remote clients
-            if (other.TryGetComponent<PlayerController>(out PlayerController playerController))
+            if (other.TryGetComponent(out PlayerController playerController))
                 playerController.enabled = false;
 
             if (isServer)
@@ -56,7 +56,7 @@ namespace Mirror.Examples.AdditiveLevels
         [ServerCallback]
         IEnumerator SendPlayerToNewScene(GameObject player)
         {
-            if (player.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (player.TryGetComponent(out NetworkIdentity identity))
             {
                 NetworkConnectionToClient conn = identity.connectionToClient;
                 if (conn == null) yield break;
@@ -83,7 +83,7 @@ namespace Mirror.Examples.AdditiveLevels
                 NetworkServer.AddPlayerForConnection(conn, player);
 
                 // host client would have been disabled by OnTriggerEnter above
-                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent<PlayerController>(out PlayerController playerController))
+                if (NetworkClient.localPlayer != null && NetworkClient.localPlayer.TryGetComponent(out PlayerController playerController))
                     playerController.enabled = true;
             }
         }
