@@ -387,7 +387,7 @@ namespace Mirror
             // previously OnDisconnected was only invoked if connection != null.
             // however, if DNS resolve fails in Transport.Connect(),
             // OnDisconnected would never be called because 'connection' is only
-            // create after the Transport.Connect() call.
+            // created after the Transport.Connect() call.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3365
             OnDisconnectedEvent?.Invoke();
 
