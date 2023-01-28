@@ -578,7 +578,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
