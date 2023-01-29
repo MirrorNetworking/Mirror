@@ -1017,11 +1017,24 @@ namespace Mirror
             identity.transform.localPosition = message.position;
             identity.transform.localRotation = message.rotation;
             identity.transform.localScale = message.scale;
+
+            // configure flags
+            // the below DeserializeClient call invokes SyncVarHooks.
+            // flags always need to be initialized before that.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
             identity.isOwned = message.isOwner;
             identity.netId = message.netId;
 
             if (message.isLocalPlayer)
                 InternalAddPlayer(identity);
+
+            // configure isClient/isLocalPlayer flags.
+            // => after InternalAddPlayer. can't initialize .isLocalPlayer
+            //    before InternalAddPlayer sets .localPlayer
+            // => before DeserializeClient, otherwise SyncVar hooks wouldn't
+            //    have isClient/isLocalPlayer set yet.
+            //    fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
+            InitializeIdentityFlags(identity);
 
             // deserialize components if any payload
             // (Count is 0 if there were no components)
@@ -1044,7 +1057,7 @@ namespace Mirror
             // here immediately since there won't be another OnObjectSpawnFinished.
             if (isSpawnFinished)
             {
-                BootstrapIdentity(identity);
+                InvokeIdentityCallbacks(identity);
             }
         }
 
