@@ -1363,6 +1363,12 @@ namespace Mirror
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3362
             identity.isClient = true;
             identity.isLocalPlayer = localPlayer == identity;
+
+            // .connectionToServer is only available for local players.
+            // set it here, before invoking any callbacks.
+            // this way it's available in _all_ callbacks.
+            if (identity.isLocalPlayer)
+                identity.connectionToServer = connection;
         }
 
         // invoke NetworkIdentity callbacks on the client.
@@ -1378,11 +1384,7 @@ namespace Mirror
 
             // invoke OnStartLocalPlayer
             if (identity.isLocalPlayer)
-            {
-                // TODO move connection initialization to SetIdentityFlags?
-                identity.connectionToServer = connection;
                 identity.OnStartLocalPlayer();
-            }
         }
 
         // configure flags & invoke callbacks
