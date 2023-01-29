@@ -1356,7 +1356,7 @@ namespace Mirror
         // set up NetworkIdentity flags on the client.
         // needs to be separate from invoking callbacks.
         // cleaner, and some places need to set flags first.
-        static void SetIdentityFlags(NetworkIdentity identity)
+        static void InitializeIdentityFlags(NetworkIdentity identity)
         {
             // initialize flags before invoking callbacks.
             // this way isClient/isLocalPlayer is correct during callbacks.
@@ -1390,7 +1390,7 @@ namespace Mirror
         // configure flags & invoke callbacks
         static void BootstrapIdentity(NetworkIdentity identity)
         {
-            SetIdentityFlags(identity);
+            InitializeIdentityFlags(identity);
             InvokeIdentityCallbacks(identity);
         }
 
