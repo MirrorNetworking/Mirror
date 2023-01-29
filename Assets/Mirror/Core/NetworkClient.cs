@@ -1353,16 +1353,23 @@ namespace Mirror
             }
         }
 
-        // bootstrap NetworkIdentity by initializing flags and invoking callbacks.
-        // used to happen in multiple places, so let's have this in one function.
-        static void BootstrapIdentity(NetworkIdentity identity)
+        // set up NetworkIdentity flags on the client.
+        // needs to be separate from invoking callbacks.
+        // cleaner, and some places need to set flags first.
+        static void SetIdentityFlags(NetworkIdentity identity)
         {
             // initialize flags before invoking callbacks.
             // this way isClient/isLocalPlayer is correct during callbacks.
             // fixes: https://github.com/MirrorNetworking/Mirror/issues/3362
             identity.isClient = true;
             identity.isLocalPlayer = localPlayer == identity;
+        }
 
+        // invoke NetworkIdentity callbacks on the client.
+        // needs to be separate from configuring flags.
+        // cleaner, and some places need to set flags first.
+        static void InvokeIdentityCallbacks(NetworkIdentity identity)
+        {
             // invoke OnStartAuthority
             identity.NotifyAuthority();
 
@@ -1372,9 +1379,17 @@ namespace Mirror
             // invoke OnStartLocalPlayer
             if (identity.isLocalPlayer)
             {
+                // TODO move connection initialization to SetIdentityFlags?
                 identity.connectionToServer = connection;
                 identity.OnStartLocalPlayer();
             }
+        }
+
+        // configure flags & invoke callbacks
+        static void BootstrapIdentity(NetworkIdentity identity)
+        {
+            SetIdentityFlags(identity);
+            InvokeIdentityCallbacks(identity);
         }
 
         // broadcast ///////////////////////////////////////////////////////////
