@@ -1,5 +1,4 @@
 // API consistent with Microsoft's ObjectPool<T>.
-using System;
 using System.Runtime.CompilerServices;
 
 namespace Mirror
