@@ -1034,6 +1034,11 @@ namespace Mirror
         {
             // Debug.Log($"SetClientReadyInternal for conn:{conn}");
 
+            // only if not already ready yet.
+            // prevents clients spamming ReadyMessage to force observer rebuilds.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/2623
+            if (conn.isReady) return;
+
             // set ready
             conn.isReady = true;
 
