@@ -1,6 +1,10 @@
 # Created by performance test
 Assets/StreamingAssets/
 Assets/StreamingAssets.meta
+Assets/Mirror/Tests/
+Assets/Mirror/Tests.meta
+Assets/Mirror/Examples/
+Assets/Mirror/Examples.meta
 
 # =============== #
 # Unity generated #
@@ -75,7 +79,3 @@ ehthumbs.db
 Thumbs.db
 /VisRepo.txt
 *.vsconfig
-
-
-# CompilationLog.txt created by tests
-Assets/Mirror/Tests/Editor/Weaver/*/CompilationLog.txt
