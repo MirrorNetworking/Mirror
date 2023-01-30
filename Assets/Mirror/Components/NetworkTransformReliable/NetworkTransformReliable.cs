@@ -57,12 +57,6 @@ namespace Mirror
 
         void UpdateServer()
         {
-            // set dirty to trigger OnSerialize. either always, or only if changed.
-            // technically snapshot interpolation requires constant sending.
-            // however, with reliable it should be fine without constant sends.
-            if (!onlySyncOnChange || Changed(Construct()))
-                SetDirty();
-
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
             //    so no need to apply any snapshots there.
@@ -91,6 +85,14 @@ namespace Mirror
                     Apply(computed);
                 }
             }
+
+            // set dirty to trigger OnSerialize. either always, or only if changed.
+            // technically snapshot interpolation requires constant sending.
+            // however, with reliable it should be fine without constant sends.
+            //
+            // detect changes _after_ all changes were applied above.
+            if (!onlySyncOnChange || Changed(Construct()))
+                SetDirty();
         }
 
         void UpdateClient()

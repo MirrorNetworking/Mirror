@@ -72,7 +72,7 @@ namespace Mirror.Examples.AdditiveLevels
             isInTransition = true;
 
             // This will return immediately if already faded in
-            // e.g. by UnloadAdditive above or by default startup state
+            // e.g. by UnloadAdditive or by default startup state
             yield return fadeInOut.FadeIn();
 
             // host client is on server...don't load the additive scene again
@@ -91,6 +91,7 @@ namespace Mirror.Examples.AdditiveLevels
 
             OnClientSceneChanged();
 
+            // Reveal the new scene content.
             yield return fadeInOut.FadeOut();
         }
 
@@ -99,9 +100,10 @@ namespace Mirror.Examples.AdditiveLevels
             isInTransition = true;
 
             // This will return immediately if already faded in
-            // e.g. by LoadAdditive above or by default startup state
+            // e.g. by LoadAdditive above or by default startup state.
             yield return fadeInOut.FadeIn();
 
+            // host client is on server...don't unload the additive scene here.
             if (mode == NetworkManagerMode.ClientOnly)
             {
                 yield return SceneManager.UnloadSceneAsync(sceneName);
@@ -115,8 +117,8 @@ namespace Mirror.Examples.AdditiveLevels
             OnClientSceneChanged();
 
             // There is no call to FadeOut here on purpose.
-            // Expectation is that a LoadAdditive will follow
-            // that will call FadeOut after that scene loads.
+            // Expectation is that a LoadAdditive or full scene change
+            // will follow that will call FadeOut after that scene loads.
         }
 
         /// <summary>
