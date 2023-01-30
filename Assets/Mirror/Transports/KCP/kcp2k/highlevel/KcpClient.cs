@@ -60,6 +60,16 @@ namespace kcp2k
                 return;
             }
 
+            // resolve host name before creating peer.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3361
+            if (!Common.ResolveHostname(address, out IPAddress[] addresses))
+            {
+                // pass error to user callback. no need to log it manually.
+                OnError(ErrorCode.DnsResolve, $"Failed to resolve host: {address}");
+                OnDisconnected();
+                return;
+            }
+
             // create fresh peer for each new session
             peer = new KcpPeer(RawSend, OnAuthenticatedWrap, OnData, OnDisconnectedWrap, OnError, config);
 
@@ -82,15 +92,6 @@ namespace kcp2k
             }
 
             Log.Info($"KcpClient: connect to {address}:{port}");
-
-            // try resolve host name
-            if (!Common.ResolveHostname(address, out IPAddress[] addresses))
-            {
-                // pass error to user callback. no need to log it manually.
-                OnError(ErrorCode.DnsResolve, $"Failed to resolve host: {address}");
-                OnDisconnected();
-                return;
-            }
 
             // create socket
             remoteEndPoint = new IPEndPoint(addresses[0], port);

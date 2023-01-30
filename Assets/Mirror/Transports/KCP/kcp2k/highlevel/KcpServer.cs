@@ -67,7 +67,18 @@ namespace kcp2k
             {
                 // IPv6 socket with DualMode @ "::" : port
                 Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-                socket.DualMode = true;
+                // settings DualMode may throw:
+                // https://learn.microsoft.com/en-us/dotnet/api/System.Net.Sockets.Socket.DualMode?view=net-7.0
+                // attempt it, otherwise log but continue
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3358
+                try
+                {
+                    socket.DualMode = true;
+                }
+                catch (NotSupportedException e)
+                {
+                    Log.Warning($"Failed to set Dual Mode, continuing with IPv6 without Dual Mode. Error: {e}");
+                }
                 socket.Bind(new IPEndPoint(IPAddress.IPv6Any, port));
                 return socket;
             }

@@ -383,7 +383,13 @@ namespace Mirror
 
             // Raise the event before changing ConnectState
             // because 'active' depends on this during shutdown
-            if (connection != null) OnDisconnectedEvent?.Invoke();
+            //
+            // previously OnDisconnected was only invoked if connection != null.
+            // however, if DNS resolve fails in Transport.Connect(),
+            // OnDisconnected would never be called because 'connection' is only
+            // created after the Transport.Connect() call.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3365
+            OnDisconnectedEvent?.Invoke();
 
             connectState = ConnectState.Disconnected;
             ready = false;
@@ -572,7 +578,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -598,7 +604,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -634,7 +640,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -681,7 +687,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -747,7 +753,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not register handler for '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -811,7 +817,7 @@ namespace Mirror
                 return;
             }
 
-            if (!prefab.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+            if (!prefab.TryGetComponent(out NetworkIdentity identity))
             {
                 Debug.LogError($"Could not unregister '{prefab.name}' since it contains no NetworkIdentity component");
                 return;
@@ -1011,11 +1017,24 @@ namespace Mirror
             identity.transform.localPosition = message.position;
             identity.transform.localRotation = message.rotation;
             identity.transform.localScale = message.scale;
+
+            // configure flags
+            // the below DeserializeClient call invokes SyncVarHooks.
+            // flags always need to be initialized before that.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
             identity.isOwned = message.isOwner;
             identity.netId = message.netId;
 
             if (message.isLocalPlayer)
                 InternalAddPlayer(identity);
+
+            // configure isClient/isLocalPlayer flags.
+            // => after InternalAddPlayer. can't initialize .isLocalPlayer
+            //    before InternalAddPlayer sets .localPlayer
+            // => before DeserializeClient, otherwise SyncVar hooks wouldn't
+            //    have isClient/isLocalPlayer set yet.
+            //    fixes: https://github.com/MirrorNetworking/Mirror/issues/3259
+            InitializeIdentityFlags(identity);
 
             // deserialize components if any payload
             // (Count is 0 if there were no components)
@@ -1038,9 +1057,7 @@ namespace Mirror
             // here immediately since there won't be another OnObjectSpawnFinished.
             if (isSpawnFinished)
             {
-                identity.NotifyAuthority();
-                CheckForStartClient(identity);
-                CheckForLocalPlayer(identity);
+                InvokeIdentityCallbacks(identity);
             }
         }
 
@@ -1097,7 +1114,7 @@ namespace Mirror
                     return null;
                 }
 
-                if (!obj.TryGetComponent<NetworkIdentity>(out NetworkIdentity identity))
+                if (!obj.TryGetComponent(out NetworkIdentity identity))
                 {
                     Debug.LogError($"Object Spawned by handler did not have a NetworkIdentity, Handler assetId '{message.assetId}'");
                     return null;
@@ -1193,9 +1210,7 @@ namespace Mirror
                 // they are destroyed. for safety, let's double check here.
                 if (identity != null)
                 {
-                    identity.NotifyAuthority();
-                    CheckForStartClient(identity);
-                    CheckForLocalPlayer(identity);
+                    BootstrapIdentity(identity);
                 }
                 else Debug.LogWarning("Found null entry in NetworkClient.spawned. This is unexpected. Was the NetworkIdentity not destroyed properly?");
             }
@@ -1238,14 +1253,12 @@ namespace Mirror
                 if (message.isLocalPlayer)
                     InternalAddPlayer(identity);
 
-                identity.isOwned = message.isOwner;
-                identity.NotifyAuthority();
-                CheckForStartClient(identity);
-
+                // set visibility before invoking OnStartClient etc. callbacks
                 if (aoi != null)
                     aoi.SetHostVisibility(identity, true);
 
-                CheckForLocalPlayer(identity);
+                identity.isOwned = message.isOwner;
+                BootstrapIdentity(identity);
             }
         }
 
@@ -1340,43 +1353,58 @@ namespace Mirror
             if (identity.isLocalPlayer)
             {
                 localPlayer = identity;
+                identity.connectionToServer = connection;
+                identity.OnStartLocalPlayer();
             }
             // identity's isLocalPlayer was set to false.
             // clear our static localPlayer IF (and only IF) it was that one before.
             else if (localPlayer == identity)
             {
                 localPlayer = null;
+                // TODO set .connectionToServer to null for old local player?
+                // since we set it in the above 'if' case too.
             }
-
-            // call OnStartLocalPlayer if it's the local player now.
-            CheckForLocalPlayer(identity);
         }
 
-        // OnStartClient used to initialize isClient / isLocalPlayer.
-        // it's cleaner to do this from NetworkClient.
-        internal static void CheckForStartClient(NetworkIdentity identity)
+        // set up NetworkIdentity flags on the client.
+        // needs to be separate from invoking callbacks.
+        // cleaner, and some places need to set flags first.
+        static void InitializeIdentityFlags(NetworkIdentity identity)
         {
-            // OnStartLocalPlayer is called after OnStartClient.
-            // but we want the flag to be set in OnStartClient already.
-            identity.isLocalPlayer = localPlayer == identity;
+            // initialize flags before invoking callbacks.
+            // this way isClient/isLocalPlayer is correct during callbacks.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3362
             identity.isClient = true;
-            identity.OnStartClient();
+            identity.isLocalPlayer = localPlayer == identity;
+
+            // .connectionToServer is only available for local players.
+            // set it here, before invoking any callbacks.
+            // this way it's available in _all_ callbacks.
+            if (identity.isLocalPlayer)
+                identity.connectionToServer = connection;
         }
 
-        internal static void CheckForLocalPlayer(NetworkIdentity identity)
+        // invoke NetworkIdentity callbacks on the client.
+        // needs to be separate from configuring flags.
+        // cleaner, and some places need to set flags first.
+        static void InvokeIdentityCallbacks(NetworkIdentity identity)
         {
-            if (identity == localPlayer)
-            {
-                // Set isLocalPlayer to true on this NetworkIdentity and trigger
-                // OnStartLocalPlayer in all scripts on the same GO
-                identity.connectionToServer = connection;
+            // invoke OnStartAuthority
+            identity.NotifyAuthority();
 
-                // isLocalPlayer is already set by CheckForStartPlayer.
-                // however, let's simply move it out of OnStartLocalPlayer for now.
-                identity.isLocalPlayer = true;
+            // invoke OnStartClient
+            identity.OnStartClient();
+
+            // invoke OnStartLocalPlayer
+            if (identity.isLocalPlayer)
                 identity.OnStartLocalPlayer();
-                // Debug.Log($"NetworkClient.OnOwnerMessage player:{identity.name}");
-            }
+        }
+
+        // configure flags & invoke callbacks
+        static void BootstrapIdentity(NetworkIdentity identity)
+        {
+            InitializeIdentityFlags(identity);
+            InvokeIdentityCallbacks(identity);
         }
 
         // broadcast ///////////////////////////////////////////////////////////
@@ -1473,13 +1501,10 @@ namespace Mirror
                 // also important for syncInterval=0 components like
                 // NetworkTransform, so they can sync on same interval as time
                 // snapshots _but_ not every single tick.
+                //
+                // Unity 2019 doesn't have Time.timeAsDouble yet
                 if (!Application.isPlaying ||
-#if !UNITY_2020_3_OR_NEWER
-                    // Unity 2019 doesn't have Time.timeAsDouble yet
                     AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
-#else
-                    AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
-#endif
                 {
                     Broadcast();
                 }
