@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace Mirror.Examples.MultipleMatch
 {
@@ -43,7 +44,13 @@ namespace Mirror.Examples.MultipleMatch
         /// <param name="conn">Connection from client.</param>
         public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
-            canvasController.OnServerDisconnect(conn);
+            Debug.Log($"OnServerDisconnect {conn}");
+            StartCoroutine(DoServerDisconnect(conn));
+        }
+
+        IEnumerator DoServerDisconnect(NetworkConnectionToClient conn)
+        {
+            yield return canvasController.OnServerDisconnect(conn);
             base.OnServerDisconnect(conn);
         }
 

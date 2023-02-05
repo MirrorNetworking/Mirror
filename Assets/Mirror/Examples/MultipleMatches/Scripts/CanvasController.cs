@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -207,6 +208,8 @@ namespace Mirror.Examples.MultipleMatch
         [ClientCallback]
         public void OnMatchEnded()
         {
+            Debug.Log($"CanvasController:OnMatchEnded {NetworkClient.active}");
+
             localPlayerMatch = Guid.Empty;
             localJoinedMatch = Guid.Empty;
             ShowLobbyView();
@@ -236,8 +239,10 @@ namespace Mirror.Examples.MultipleMatch
         }
 
         [ServerCallback]
-        internal void OnServerDisconnect(NetworkConnectionToClient conn)
+        internal IEnumerator OnServerDisconnect(NetworkConnectionToClient conn)
         {
+            Debug.Log($"CanvasController:OnServerDisconnect {conn}");
+
             // Invoke OnPlayerDisconnected on all instances of MatchController
             OnPlayerDisconnected?.Invoke(conn);
 
@@ -288,6 +293,8 @@ namespace Mirror.Examples.MultipleMatch
             }
 
             SendMatchList();
+
+            yield return new WaitForSeconds(1f);
         }
 
         [ServerCallback]
