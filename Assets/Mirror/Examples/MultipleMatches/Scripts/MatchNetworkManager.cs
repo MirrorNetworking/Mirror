@@ -9,7 +9,7 @@ namespace Mirror.Examples.MultipleMatch
         public GameObject canvas;
         public CanvasController canvasController;
 
-        #region Unity Callbacks
+        public static new MatchNetworkManager singleton { get; private set; }
 
         /// <summary>
         /// Runs on both Server and Client
@@ -18,10 +18,9 @@ namespace Mirror.Examples.MultipleMatch
         public override void Awake()
         {
             base.Awake();
+            singleton = this;
             canvasController.InitializeData();
         }
-
-        #endregion
 
         #region Server System Callbacks
 

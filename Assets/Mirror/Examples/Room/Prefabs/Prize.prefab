@@ -31,6 +31,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7524893234998283593}
   m_Father: {fileID: 0}
@@ -49,8 +50,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
+  _assetId: 229032437
   serverOnly: 0
-  m_AssetId: 
+  visible: 0
+  hasSpawned: 0
 --- !u!114 &114048121767222990
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -63,10 +66,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a22f9eb8ebad79e47babf4c051a714ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
   available: 1
-  spawner: {fileID: 0}
   randomColor: {fileID: 7669440687796875101}
 --- !u!114 &7669440687796875101
 MonoBehaviour:
@@ -80,6 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e6a8bf08f02e254aa9a52ef0aaa1553, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
   color:
@@ -142,6 +146,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4362442735993418}
   m_RootOrder: 0
@@ -165,9 +170,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -192,3 +200,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}

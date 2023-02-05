@@ -12,10 +12,9 @@ namespace Mirror.Examples.MultipleMatch
         public Button startButton;
         public bool owner;
 
+        [ClientCallback]
         public void RefreshRoomPlayers(PlayerInfo[] playerInfos)
         {
-            // Debug.Log($"RefreshRoomPlayers: {playerInfos.Length} playerInfos");
-
             foreach (Transform child in playerList.transform)
             {
                 Destroy(child.gameObject);
@@ -38,6 +37,7 @@ namespace Mirror.Examples.MultipleMatch
             startButton.interactable = everyoneReady && owner && (playerInfos.Length > 1);
         }
 
+        [ClientCallback]
         public void SetOwner(bool owner)
         {
             this.owner = owner;

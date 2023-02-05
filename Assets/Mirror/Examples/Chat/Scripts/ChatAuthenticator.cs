@@ -186,14 +186,14 @@ namespace Mirror.Examples.Chat
         {
             if (msg.code == 100)
             {
-                Debug.Log($"Authentication Response: {msg.message}");
+                Debug.Log($"Authentication Response: {msg.code} {msg.message}");
 
                 // Authentication has been accepted
                 ClientAccept();
             }
             else
             {
-                Debug.LogError($"Authentication Response: {msg.message}");
+                Debug.LogError($"Authentication Response: {msg.code} {msg.message}");
 
                 // Authentication has been rejected
                 // StopHost works for both host client and remote clients

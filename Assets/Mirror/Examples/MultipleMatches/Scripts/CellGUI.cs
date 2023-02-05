@@ -15,18 +15,19 @@ namespace Mirror.Examples.MultipleMatch
         [Header("Diagnostics - Do Not Modify")]
         public NetworkIdentity playerIdentity;
 
-
         public void Awake()
         {
             matchController.MatchCells.Add(cellValue, this);
         }
 
+        [ClientCallback]
         public void MakePlay()
         {
             if (matchController.currentPlayer.isLocalPlayer)
                 matchController.CmdMakePlay(cellValue);
         }
 
+        [ClientCallback]
         public void SetPlayer(NetworkIdentity playerIdentity)
         {
             if (playerIdentity != null)

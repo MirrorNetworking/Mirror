@@ -7,6 +7,18 @@ namespace Mirror.Examples.AdditiveLevels
     [AddComponentMenu("")]
     public class AdditiveLevelsNetworkManager : NetworkManager
     {
+        public static new AdditiveLevelsNetworkManager singleton { get; private set; }
+
+        /// <summary>
+        /// Runs on both Server and Client
+        /// Networking is NOT initialized when this fires
+        /// </summary>
+        public override void Awake()
+        {
+            base.Awake();
+            singleton = this;
+        }
+
         [Header("Additive Scenes - First is start scene")]
 
         [Scene, Tooltip("Add additive scenes here.\nFirst entry will be players' start scene")]
@@ -128,8 +140,6 @@ namespace Mirror.Examples.AdditiveLevels
         /// <param name="conn">The network connection that the scene change message arrived on.</param>
         public override void OnClientSceneChanged()
         {
-            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} OnClientSceneChanged {isInTransition}");
-
             // Only call the base method if not in a transition.
             // This will be called from DoTransition after setting doingTransition to false
             // but will also be called first by Mirror when the scene loading finishes.
@@ -148,8 +158,6 @@ namespace Mirror.Examples.AdditiveLevels
         /// <param name="conn">Connection from client.</param>
         public override void OnServerReady(NetworkConnectionToClient conn)
         {
-            //Debug.Log($"OnServerReady {conn} {conn.identity}");
-
             // This fires from a Ready message client sends to server after loading the online scene
             base.OnServerReady(conn);
 

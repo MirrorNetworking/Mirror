@@ -35,6 +35,7 @@ namespace Mirror.Examples.MultipleAdditiveScenes
                 mainCam.transform.SetParent(null);
                 SceneManager.MoveGameObjectToScene(mainCam.gameObject, SceneManager.GetActiveScene());
                 mainCam.orthographic = true;
+                mainCam.orthographicSize = 15f;
                 mainCam.transform.localPosition = new Vector3(0f, 70f, 0f);
                 mainCam.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             }
