@@ -37,7 +37,8 @@ namespace Mirror.Examples.AdditiveScenes
 
         public override void OnStopClient()
         {
-            StartCoroutine(UnloadScenes());
+            if (mode == NetworkManagerMode.Offline)
+                StartCoroutine(UnloadScenes());
         }
 
         IEnumerator LoadSubScenes()

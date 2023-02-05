@@ -118,7 +118,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         IEnumerator ServerUnloadSubScenes()
         {
             for (int index = 0; index < subScenes.Count; index++)
-                yield return SceneManager.UnloadSceneAsync(subScenes[index]);
+                if (subScenes[index].IsValid())
+                    yield return SceneManager.UnloadSceneAsync(subScenes[index]);
 
             subScenes.Clear();
             subscenesLoaded = false;
@@ -131,8 +132,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         /// </summary>
         public override void OnStopClient()
         {
-            // make sure we're not in host mode
-            if (mode == NetworkManagerMode.ClientOnly)
+            // Make sure we're not in ServerOnly mode now after stopping host client
+            if (mode == NetworkManagerMode.Offline)
                 StartCoroutine(ClientUnloadSubScenes());
         }
 
@@ -140,10 +141,8 @@ namespace Mirror.Examples.MultipleAdditiveScenes
         IEnumerator ClientUnloadSubScenes()
         {
             for (int index = 0; index < SceneManager.sceneCount; index++)
-            {
                 if (SceneManager.GetSceneAt(index) != SceneManager.GetActiveScene())
                     yield return SceneManager.UnloadSceneAsync(SceneManager.GetSceneAt(index));
-            }
         }
 
         #endregion
