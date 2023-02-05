@@ -51,7 +51,6 @@ namespace Mirror.Examples.MultipleMatch
             matchPlayerData.Add(player2, new MatchPlayerData { playerIndex = CanvasController.playerInfos[player2.connectionToClient].playerIndex });
         }
 
-
         public override void OnStartClient()
         {
             matchPlayerData.Callback += UpdateWins;
