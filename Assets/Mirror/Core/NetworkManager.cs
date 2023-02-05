@@ -1192,7 +1192,9 @@ namespace Mirror
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
-            if (mode == NetworkManagerMode.Offline)
+
+            // Only let this run once. StopClient in Host mode changes to ServerOnly
+            if (mode == NetworkManagerMode.ServerOnly || mode == NetworkManagerMode.Offline)
                 return;
 
             // user callback
@@ -1214,13 +1216,15 @@ namespace Mirror
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
-            // set offline mode BEFORE changing scene so that FinishStartScene
-            // doesn't think we need initialize anything.
-            // set offline mode BEFORE NetworkClient.Disconnect so StopClient
-            // only runs once.
-            // set offline mode BEFORE OnStopClient so StopClient
-            // only runs once.
-            mode = NetworkManagerMode.Offline;
+            // set mode BEFORE changing scene so FinishStartScene doesn't re-initialize anything.
+            // set mode BEFORE NetworkClient.Disconnect so StopClient only runs once.
+            // set mode BEFORE OnStopClient so StopClient only runs once.
+            // If we got here from StopClient in Host mode, change to ServerOnly.
+            // - If StopHost was called, StopServer will put us in Offline mode.
+            if (mode == NetworkManagerMode.Host)
+                mode = NetworkManagerMode.ServerOnly;
+            else
+                mode = NetworkManagerMode.Offline;
 
             //Debug.Log("NetworkManager StopClient");
             OnStopClient();
@@ -1228,7 +1232,10 @@ namespace Mirror
             // shutdown client
             NetworkClient.Shutdown();
 
-            // If this is the host player, StopServer will already be changing scenes.
+            // Exit here if we're now in ServerOnly mode (StopClient called in Host mode).
+            if (mode == NetworkManagerMode.ServerOnly) return;
+
+            // If StopHost called in Host mode, StopServer will change scenes after this.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
             // Check if NetworkServer.active because we can get here via Disconnect before server has started to change scenes.
             if (!string.IsNullOrWhiteSpace(offlineScene) && !Utils.IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)
