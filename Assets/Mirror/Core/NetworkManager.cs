@@ -961,7 +961,6 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
@@ -1021,7 +1020,6 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
