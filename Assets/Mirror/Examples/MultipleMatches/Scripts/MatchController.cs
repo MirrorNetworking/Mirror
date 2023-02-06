@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -84,13 +85,9 @@ namespace Mirror.Examples.MultipleMatch
         public void UpdateWins(SyncDictionary<NetworkIdentity, MatchPlayerData>.Operation op, NetworkIdentity key, MatchPlayerData matchPlayerData)
         {
             if (key.gameObject.GetComponent<NetworkIdentity>().isLocalPlayer)
-            {
                 winCountLocal.text = $"Player {matchPlayerData.playerIndex}\n{matchPlayerData.wins}";
-            }
             else
-            {
                 winCountOpponent.text = $"Player {matchPlayerData.playerIndex}\n{matchPlayerData.wins}";
-            }
         }
 
         [Command(requiresAuthority = false)]
@@ -179,6 +176,7 @@ namespace Mirror.Examples.MultipleMatch
                 gameText.text = "Loser!";
                 gameText.color = Color.red;
             }
+
             exitButton.gameObject.SetActive(true);
             playAgainButton.gameObject.SetActive(true);
         }
@@ -263,12 +261,12 @@ namespace Mirror.Examples.MultipleMatch
         [ServerCallback]
         public IEnumerator ServerEndMatch(NetworkConnectionToClient conn, bool disconnected)
         {
-            canvasController.OnPlayerDisconnected -= OnPlayerDisconnected;
-
             RpcExitGame();
 
-            // Skip a frame so the message goes out ahead of object destruction
-            yield return null;
+            canvasController.OnPlayerDisconnected -= OnPlayerDisconnected;
+
+            // Wait for the ClientRpc to get out ahead of object destruction
+            yield return new WaitForSeconds(0.1f);
 
             // Mirror will clean up the disconnecting client so we only need to clean up the other remaining client.
             // If both players are just returning to the Lobby, we need to remove both connection Players

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -236,7 +237,7 @@ namespace Mirror.Examples.MultipleMatch
         }
 
         [ServerCallback]
-        internal void OnServerDisconnect(NetworkConnectionToClient conn)
+        internal IEnumerator OnServerDisconnect(NetworkConnectionToClient conn)
         {
             // Invoke OnPlayerDisconnected on all instances of MatchController
             OnPlayerDisconnected?.Invoke(conn);
@@ -258,9 +259,7 @@ namespace Mirror.Examples.MultipleMatch
             }
 
             foreach (KeyValuePair<Guid, HashSet<NetworkConnectionToClient>> kvp in matchConnections)
-            {
                 kvp.Value.Remove(conn);
-            }
 
             PlayerInfo playerInfo = playerInfos[conn];
             if (playerInfo.matchId != Guid.Empty)
@@ -278,16 +277,14 @@ namespace Mirror.Examples.MultipleMatch
                     PlayerInfo[] infos = connections.Select(playerConn => playerInfos[playerConn]).ToArray();
 
                     foreach (NetworkConnectionToClient playerConn in matchConnections[playerInfo.matchId])
-                    {
                         if (playerConn != conn)
-                        {
                             playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.UpdateRoom, playerInfos = infos });
-                        }
-                    }
                 }
             }
 
             SendMatchList();
+
+            yield return null;
         }
 
         [ServerCallback]
@@ -382,9 +379,7 @@ namespace Mirror.Examples.MultipleMatch
             PlayerInfo[] infos = connections.Select(playerConn => playerInfos[playerConn]).ToArray();
 
             foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
-            {
                 playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.UpdateRoom, playerInfos = infos });
-            }
         }
 
         [ServerCallback]
@@ -400,17 +395,13 @@ namespace Mirror.Examples.MultipleMatch
             playerInfos[conn] = playerInfo;
 
             foreach (KeyValuePair<Guid, HashSet<NetworkConnectionToClient>> kvp in matchConnections)
-            {
                 kvp.Value.Remove(conn);
-            }
 
             HashSet<NetworkConnectionToClient> connections = matchConnections[matchId];
             PlayerInfo[] infos = connections.Select(playerConn => playerInfos[playerConn]).ToArray();
 
             foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
-            {
                 playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.UpdateRoom, playerInfos = infos });
-            }
 
             SendMatchList();
 
@@ -489,13 +480,9 @@ namespace Mirror.Examples.MultipleMatch
                     NetworkServer.AddPlayerForConnection(playerConn, player);
 
                     if (matchController.player1 == null)
-                    {
                         matchController.player1 = playerConn.identity;
-                    }
                     else
-                    {
                         matchController.player2 = playerConn.identity;
-                    }
 
                     /* Reset ready state for after the match. */
                     PlayerInfo playerInfo = playerInfos[playerConn];
@@ -536,9 +523,7 @@ namespace Mirror.Examples.MultipleMatch
             conn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.Joined, matchId = matchId, playerInfos = infos });
 
             foreach (NetworkConnectionToClient playerConn in matchConnections[matchId])
-            {
                 playerConn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.UpdateRoom, playerInfos = infos });
-            }
         }
 
         /// <summary>
@@ -549,16 +534,10 @@ namespace Mirror.Examples.MultipleMatch
         internal void SendMatchList(NetworkConnectionToClient conn = null)
         {
             if (conn != null)
-            {
                 conn.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.List, matchInfos = openMatches.Values.ToArray() });
-            }
             else
-            {
                 foreach (NetworkConnectionToClient waiter in waitingConnections)
-                {
                     waiter.Send(new ClientMatchMessage { clientMatchOperation = ClientMatchOperation.List, matchInfos = openMatches.Values.ToArray() });
-                }
-            }
         }
 
         #endregion
@@ -579,9 +558,8 @@ namespace Mirror.Examples.MultipleMatch
                     {
                         openMatches.Clear();
                         foreach (MatchInfo matchInfo in msg.matchInfos)
-                        {
                             openMatches.Add(matchInfo.matchId, matchInfo);
-                        }
+
                         RefreshMatchList();
                         break;
                     }
@@ -634,14 +612,11 @@ namespace Mirror.Examples.MultipleMatch
             roomView.SetActive(false);
 
             foreach (Transform child in matchList.transform)
-            {
                 if (child.gameObject.GetComponent<MatchGUI>().GetMatchId() == selectedMatch)
                 {
                     Toggle toggle = child.gameObject.GetComponent<Toggle>();
                     toggle.isOn = true;
-                    //toggle.onValueChanged.Invoke(true);
                 }
-            }
         }
 
         [ClientCallback]
@@ -655,9 +630,7 @@ namespace Mirror.Examples.MultipleMatch
         void RefreshMatchList()
         {
             foreach (Transform child in matchList.transform)
-            {
                 Destroy(child.gameObject);
-            }
 
             joinButton.interactable = false;
 
@@ -666,15 +639,14 @@ namespace Mirror.Examples.MultipleMatch
                 GameObject newMatch = Instantiate(matchPrefab, Vector3.zero, Quaternion.identity);
                 newMatch.transform.SetParent(matchList.transform, false);
                 newMatch.GetComponent<MatchGUI>().SetMatchInfo(matchInfo);
-                newMatch.GetComponent<Toggle>().group = toggleGroup;
+
+                Toggle toggle = newMatch.GetComponent<Toggle>();
+                toggle.group = toggleGroup;
                 if (matchInfo.matchId == selectedMatch)
-                {
-                    newMatch.GetComponent<Toggle>().isOn = true;
-                }
+                    toggle.isOn = true;
             }
         }
 
         #endregion
-
     }
 }

@@ -31,10 +31,7 @@ namespace Mirror.Examples.MultipleMatch
         }
 
         [ClientCallback]
-        public Guid GetMatchId()
-        {
-            return matchId;
-        }
+        public Guid GetMatchId() => matchId;
 
         [ClientCallback]
         public void SetMatchInfo(MatchInfo infos)
