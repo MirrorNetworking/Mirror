@@ -16,7 +16,7 @@ namespace Mirror.Weaver
 
             foreach (FieldDefinition fd in td.Fields)
             {
-                if (fd.FieldType.IsGenericParameter)
+                if (fd.FieldType.IsGenericParameter || fd.ContainsGenericParameter)
                 {
                     // can't call .Resolve on generic ones
                     continue;
