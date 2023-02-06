@@ -43,7 +43,6 @@ namespace Mirror.Examples.MultipleMatch
         /// <param name="conn">Connection from client.</param>
         public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
-            Debug.Log($"OnServerDisconnect {conn}");
             StartCoroutine(DoServerDisconnect(conn));
         }
 

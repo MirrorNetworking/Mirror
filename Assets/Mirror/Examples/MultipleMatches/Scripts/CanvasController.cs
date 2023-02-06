@@ -208,8 +208,6 @@ namespace Mirror.Examples.MultipleMatch
         [ClientCallback]
         public void OnMatchEnded()
         {
-            Debug.Log($"CanvasController:OnMatchEnded {NetworkClient.active}");
-
             localPlayerMatch = Guid.Empty;
             localJoinedMatch = Guid.Empty;
             ShowLobbyView();
@@ -241,8 +239,6 @@ namespace Mirror.Examples.MultipleMatch
         [ServerCallback]
         internal IEnumerator OnServerDisconnect(NetworkConnectionToClient conn)
         {
-            Debug.Log($"CanvasController:OnServerDisconnect {conn}");
-
             // Invoke OnPlayerDisconnected on all instances of MatchController
             OnPlayerDisconnected?.Invoke(conn);
 
