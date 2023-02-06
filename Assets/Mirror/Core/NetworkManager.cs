@@ -1172,18 +1172,20 @@ namespace Mirror
             // set connection to authenticated
             NetworkClient.connection.isAuthenticated = true;
 
-            // proceed with the login handshake by calling OnClientConnect
+            // Set flag to wait for scene change?
             if (string.IsNullOrWhiteSpace(onlineScene) || onlineScene == offlineScene || Utils.IsSceneActive(onlineScene))
             {
                 clientLoadedScene = false;
-                OnClientConnect();
             }
             else
             {
-                // will wait for scene id to come from the server.
+                // Scene message expected from server.
                 clientLoadedScene = true;
                 clientReadyConnection = NetworkClient.connection;
             }
+
+            // Call virtual method regardless of whether a scene change is expected or not.
+            OnClientConnect();
         }
 
         // Transport callback, invoked after client fully disconnected.
