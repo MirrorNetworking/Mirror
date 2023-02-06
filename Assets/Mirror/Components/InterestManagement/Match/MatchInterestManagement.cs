@@ -18,7 +18,7 @@ namespace Mirror
         [ServerCallback]
         public override void OnSpawned(NetworkIdentity identity)
         {
-            if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
+            if (!identity.TryGetComponent(out NetworkMatch networkMatch))
                 return;
 
             Guid networkMatchId = networkMatch.matchId;
@@ -64,7 +64,7 @@ namespace Mirror
             foreach (NetworkIdentity identity in NetworkServer.spawned.Values)
             {
                 // Ignore objects that don't have a NetworkMatch component
-                if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
+                if (!identity.TryGetComponent(out NetworkMatch networkMatch))
                     continue;
 
                 Guid newMatch = networkMatch.matchId;
@@ -128,7 +128,7 @@ namespace Mirror
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
         {
             // Never observed if no NetworkMatch component
-            if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch identityNetworkMatch))
+            if (!identity.TryGetComponent(out NetworkMatch identityNetworkMatch))
                 return false;
 
             // Guid.Empty is never a valid matchId
@@ -136,7 +136,7 @@ namespace Mirror
                 return false;
 
             // Never observed if no NetworkMatch component
-            if (!newObserver.identity.TryGetComponent<NetworkMatch>(out NetworkMatch newObserverNetworkMatch))
+            if (!newObserver.identity.TryGetComponent(out NetworkMatch newObserverNetworkMatch))
                 return false;
 
             // Guid.Empty is never a valid matchId
@@ -148,7 +148,7 @@ namespace Mirror
 
         public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
         {
-            if (!identity.TryGetComponent<NetworkMatch>(out NetworkMatch networkMatch))
+            if (!identity.TryGetComponent(out NetworkMatch networkMatch))
                 return;
 
             Guid matchId = networkMatch.matchId;

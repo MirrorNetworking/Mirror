@@ -84,8 +84,7 @@ namespace Mirror.Examples.Tanks
         void RotateTurret()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, 100))
+            if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
                 Debug.DrawLine(ray.origin, hit.point);
                 Vector3 lookRotation = new Vector3(hit.point.x, turret.transform.position.y, hit.point.z);

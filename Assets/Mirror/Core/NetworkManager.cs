@@ -153,7 +153,7 @@ namespace Mirror
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
-            if (playerPrefab != null && !playerPrefab.TryGetComponent<NetworkIdentity>(out _))
+            if (playerPrefab != null && !playerPrefab.TryGetComponent(out NetworkIdentity _))
             {
                 Debug.LogError("NetworkManager - Player Prefab must have a NetworkIdentity.");
                 playerPrefab = null;
@@ -961,7 +961,6 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
@@ -1021,7 +1020,6 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
@@ -1133,7 +1131,7 @@ namespace Mirror
                 return;
             }
 
-            if (autoCreatePlayer && !playerPrefab.TryGetComponent<NetworkIdentity>(out _))
+            if (autoCreatePlayer && !playerPrefab.TryGetComponent(out NetworkIdentity _))
             {
                 Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
                 return;
@@ -1172,18 +1170,20 @@ namespace Mirror
             // set connection to authenticated
             NetworkClient.connection.isAuthenticated = true;
 
-            // proceed with the login handshake by calling OnClientConnect
+            // Set flag to wait for scene change?
             if (string.IsNullOrWhiteSpace(onlineScene) || onlineScene == offlineScene || Utils.IsSceneActive(onlineScene))
             {
                 clientLoadedScene = false;
-                OnClientConnect();
             }
             else
             {
-                // will wait for scene id to come from the server.
+                // Scene message expected from server.
                 clientLoadedScene = true;
                 clientReadyConnection = NetworkClient.connection;
             }
+
+            // Call virtual method regardless of whether a scene change is expected or not.
+            OnClientConnect();
         }
 
         // Transport callback, invoked after client fully disconnected.
