@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6545184674585495222}
   - component: {fileID: 4832621091644330542}
   - component: {fileID: 350173988757799530}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Bot
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -756,7 +756,7 @@ GameObject:
   - component: {fileID: 175736769680460600}
   - component: {fileID: 2284703546081296895}
   - component: {fileID: 7593576995981199935}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1184,7 +1184,7 @@ GameObject:
   - component: {fileID: 8057460817714075744}
   - component: {fileID: 6089483435389065891}
   - component: {fileID: 9110358062744690621}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Visor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
