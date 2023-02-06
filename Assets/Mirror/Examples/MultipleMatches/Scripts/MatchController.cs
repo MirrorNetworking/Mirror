@@ -255,8 +255,6 @@ namespace Mirror.Examples.MultipleMatch
         [ServerCallback]
         public void OnPlayerDisconnected(NetworkConnectionToClient conn)
         {
-            Debug.Log($"MatchController:OnPlayerDisconnected {conn.identity.netId} {player1.netId} {player2.netId}");
-
             // Check that the disconnecting client is a player in this match
             if (player1 == conn.identity || player2 == conn.identity)
                 StartCoroutine(ServerEndMatch(conn, true));
@@ -265,19 +263,15 @@ namespace Mirror.Examples.MultipleMatch
         [ServerCallback]
         public IEnumerator ServerEndMatch(NetworkConnectionToClient conn, bool disconnected)
         {
-            Debug.Log($"MatchController:ServerEndMatch {conn.identity} {disconnected}");
-
             canvasController.OnPlayerDisconnected -= OnPlayerDisconnected;
+
+            Debug.Log($"{System.DateTime.Now:HH:mm:ss:ffff)} MatchController:ServerEndMatch {conn.identity.name} disconnected:{disconnected} {netIdentity.observers.Count} observers");
 
             RpcExitGame();
 
-            // Skip a frame so the message goes out ahead of object destruction
-            yield return null;
-            yield return null;
-            yield return null;
-            //yield return new WaitForSeconds(1f);
+            // Wait for the ClientRpc to get out ahead of object destruction
+            yield return new WaitForSeconds(0.5f);
 
-            Debug.Log($"MatchController:Done Waiting");
             // Mirror will clean up the disconnecting client so we only need to clean up the other remaining client.
             // If both players are just returning to the Lobby, we need to remove both connection Players
 
@@ -314,7 +308,7 @@ namespace Mirror.Examples.MultipleMatch
         [ClientRpc]
         public void RpcExitGame()
         {
-            Debug.Log($"MatchController:RpcExitGame");
+            Debug.Log($"{System.DateTime.Now:HH:mm:ss:ffff)} MatchController:RpcExitGame");
             canvasController.OnMatchEnded();
         }
     }
