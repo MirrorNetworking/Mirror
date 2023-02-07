@@ -11,5 +11,15 @@ namespace Mirror
     {
         [Tooltip("The maximum range that objects will be visible at.")]
         public int visRange = 20;
+
+        public override void OnStartServer()
+        {
+            DistanceInterestManagement.CustomVisRangeIdentities[netIdentity] = visRange;
+        }
+
+        public override void OnStopServer()
+        {
+            DistanceInterestManagement.CustomVisRangeIdentities.Remove(netIdentity);
+        }
     }
 }

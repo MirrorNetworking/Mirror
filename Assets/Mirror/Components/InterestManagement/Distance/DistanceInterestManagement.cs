@@ -14,10 +14,12 @@ namespace Mirror
         public float rebuildInterval = 1;
         double lastRebuildTime;
 
+        public readonly static Dictionary<NetworkIdentity, int> CustomVisRangeIdentities = new Dictionary<NetworkIdentity, int>();
+
         // helper function to get vis range for a given object, or default.
         int GetVisRange(NetworkIdentity identity)
         {
-            return identity.TryGetComponent(out DistanceInterestManagementCustomRange custom) ? custom.visRange : visRange;
+            return CustomVisRangeIdentities.TryGetValue(identity, out int customVisRange) ? customVisRange : visRange;
         }
 
         [ServerCallback]
