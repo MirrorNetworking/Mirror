@@ -8,18 +8,19 @@ namespace Mirror
     public class DistanceInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible at. Add DistanceInterestManagementCustomRange onto NetworkIdentities for custom ranges.")]
-        public int visRange = 10;
+        public int visRange = 100;
 
         [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
         public float rebuildInterval = 1;
         double lastRebuildTime;
 
-        public readonly static Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange> CustomVisRangeIdentities = new Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange>();
+        readonly Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange> CustomVisRangeIdentities = new Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange>();
 
         // helper function to get vis range for a given object, or default.
+        [ServerCallback]
         int GetVisRange(NetworkIdentity identity)
         {
-            return CustomVisRangeIdentities.TryGetValue(identity, out var distIntMgmtCustomRange) ? distIntMgmtCustomRange.visRange : visRange;
+            return CustomVisRangeIdentities.TryGetValue(identity, out DistanceInterestManagementCustomRange distIntMgmtCustomRange) ? distIntMgmtCustomRange.visRange : visRange;
         }
 
         [ServerCallback]
@@ -27,6 +28,17 @@ namespace Mirror
         {
             lastRebuildTime = 0D;
             CustomVisRangeIdentities.Clear();
+        }
+
+        public override void OnSpawned(NetworkIdentity identity)
+        {
+            if (identity.TryGetComponent(out DistanceInterestManagementCustomRange distIntMgmtCustomRange))
+                CustomVisRangeIdentities[identity] = distIntMgmtCustomRange;
+        }
+
+        public override void OnDestroyed(NetworkIdentity identity)
+        {
+            CustomVisRangeIdentities.Remove(identity);
         }
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
