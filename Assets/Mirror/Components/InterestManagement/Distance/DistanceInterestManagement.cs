@@ -26,6 +26,7 @@ namespace Mirror
         public override void Reset()
         {
             lastRebuildTime = 0D;
+            CustomVisRangeIdentities.Clear();
         }
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
