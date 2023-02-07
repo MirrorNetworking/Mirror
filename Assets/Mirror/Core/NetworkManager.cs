@@ -153,7 +153,7 @@ namespace Mirror
             // always >= 0
             maxConnections = Mathf.Max(maxConnections, 0);
 
-            if (playerPrefab != null && !playerPrefab.TryGetComponent<NetworkIdentity>(out _))
+            if (playerPrefab != null && !playerPrefab.TryGetComponent(out NetworkIdentity _))
             {
                 Debug.LogError("NetworkManager - Player Prefab must have a NetworkIdentity.");
                 playerPrefab = null;
@@ -961,7 +961,6 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
@@ -1021,7 +1020,6 @@ namespace Mirror
 
             if (clientReadyConnection != null)
             {
-                OnClientConnect();
                 clientLoadedScene = true;
                 clientReadyConnection = null;
             }
@@ -1133,7 +1131,7 @@ namespace Mirror
                 return;
             }
 
-            if (autoCreatePlayer && !playerPrefab.TryGetComponent<NetworkIdentity>(out _))
+            if (autoCreatePlayer && !playerPrefab.TryGetComponent(out NetworkIdentity _))
             {
                 Debug.LogError("The PlayerPrefab does not have a NetworkIdentity. Please add a NetworkIdentity to the player prefab.");
                 return;
@@ -1172,18 +1170,20 @@ namespace Mirror
             // set connection to authenticated
             NetworkClient.connection.isAuthenticated = true;
 
-            // proceed with the login handshake by calling OnClientConnect
+            // Set flag to wait for scene change?
             if (string.IsNullOrWhiteSpace(onlineScene) || onlineScene == offlineScene || Utils.IsSceneActive(onlineScene))
             {
                 clientLoadedScene = false;
-                OnClientConnect();
             }
             else
             {
-                // will wait for scene id to come from the server.
+                // Scene message expected from server.
                 clientLoadedScene = true;
                 clientReadyConnection = NetworkClient.connection;
             }
+
+            // Call virtual method regardless of whether a scene change is expected or not.
+            OnClientConnect();
         }
 
         // Transport callback, invoked after client fully disconnected.
@@ -1192,7 +1192,9 @@ namespace Mirror
         void OnClientDisconnectInternal()
         {
             //Debug.Log("NetworkManager.OnClientDisconnectInternal");
-            if (mode == NetworkManagerMode.Offline)
+
+            // Only let this run once. StopClient in Host mode changes to ServerOnly
+            if (mode == NetworkManagerMode.ServerOnly || mode == NetworkManagerMode.Offline)
                 return;
 
             // user callback
@@ -1204,6 +1206,25 @@ namespace Mirror
                 authenticator.OnStopClient();
             }
 
+            // set mode BEFORE changing scene so FinishStartScene doesn't re-initialize anything.
+            // set mode BEFORE NetworkClient.Disconnect so StopClient only runs once.
+            // set mode BEFORE OnStopClient so StopClient only runs once.
+            // If we got here from StopClient in Host mode, change to ServerOnly.
+            // - If StopHost was called, StopServer will put us in Offline mode.
+            if (mode == NetworkManagerMode.Host)
+                mode = NetworkManagerMode.ServerOnly;
+            else
+                mode = NetworkManagerMode.Offline;
+
+            //Debug.Log("NetworkManager StopClient");
+            OnStopClient();
+
+            // shutdown client
+            NetworkClient.Shutdown();
+
+            // Exit here if we're now in ServerOnly mode (StopClient called in Host mode).
+            if (mode == NetworkManagerMode.ServerOnly) return;
+
             // Get Network Manager out of DDOL before going to offline scene
             // to avoid collision and let a fresh Network Manager be created.
             // IMPORTANT: .gameObject can be null if StopClient is called from
@@ -1214,21 +1235,7 @@ namespace Mirror
                 && SceneManager.GetActiveScene().path != offlineScene)
                 SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
-            // set offline mode BEFORE changing scene so that FinishStartScene
-            // doesn't think we need initialize anything.
-            // set offline mode BEFORE NetworkClient.Disconnect so StopClient
-            // only runs once.
-            // set offline mode BEFORE OnStopClient so StopClient
-            // only runs once.
-            mode = NetworkManagerMode.Offline;
-
-            //Debug.Log("NetworkManager StopClient");
-            OnStopClient();
-
-            // shutdown client
-            NetworkClient.Shutdown();
-
-            // If this is the host player, StopServer will already be changing scenes.
+            // If StopHost called in Host mode, StopServer will change scenes after this.
             // Check loadingSceneAsync to ensure we don't double-invoke the scene change.
             // Check if NetworkServer.active because we can get here via Disconnect before server has started to change scenes.
             if (!string.IsNullOrWhiteSpace(offlineScene) && !Utils.IsSceneActive(offlineScene) && loadingSceneAsync == null && !NetworkServer.active)

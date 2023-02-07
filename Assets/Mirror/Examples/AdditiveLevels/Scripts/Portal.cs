@@ -36,14 +36,18 @@ namespace Mirror.Examples.AdditiveLevels
             labelText = Regex.Replace(labelText, @"\B[A-Z0-9]+", " $0");
         }
 
-        // Note that I have created layers called Player(8) and Portal(9) and set them
+        public override void OnStartClient()
+        {
+            if (label.TryGetComponent(out LookAtMainCamera lookAtMainCamera))
+                lookAtMainCamera.enabled = true;
+        }
+
+        // Note that I have created layers called Player(6) and Portal(7) and set them
         // up in the Physics collision matrix so only Player collides with Portal.
         void OnTriggerEnter(Collider other)
         {
             // tag check in case you didn't set up the layers and matrix as noted above
             if (!other.CompareTag("Player")) return;
-
-            //Debug.Log($"{System.DateTime.Now:HH:mm:ss:fff} Portal::OnTriggerEnter {gameObject.name} in {gameObject.scene.name}");
 
             // applies to host client on server and remote clients
             if (other.TryGetComponent(out PlayerController playerController))
@@ -66,7 +70,6 @@ namespace Mirror.Examples.AdditiveLevels
 
                 yield return waitForFade;
 
-                //Debug.Log($"SendPlayerToNewScene RemovePlayerForConnection {conn} netId:{conn.identity.netId}");
                 NetworkServer.RemovePlayerForConnection(conn, false);
 
                 // reposition player on server and client
@@ -79,7 +82,6 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to load the new subscene with custom handling (see NetworkManager::OnClientChangeScene).
                 conn.Send(new SceneMessage { sceneName = destinationScene, sceneOperation = SceneOperation.LoadAdditive, customHandling = true });
 
-                //Debug.Log($"SendPlayerToNewScene AddPlayerForConnection {conn}");
                 NetworkServer.AddPlayerForConnection(conn, player);
 
                 // host client would have been disabled by OnTriggerEnter above

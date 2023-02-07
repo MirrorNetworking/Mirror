@@ -29,25 +29,25 @@ namespace Mirror
         [Header("Common")]
         [Tooltip("Jitter latency via perlin(Time * jitterSpeed) * jitter")]
         [FormerlySerializedAs("latencySpikeMultiplier")]
-        [Range(0, 1)] public float jitter;
+        [Range(0, 1)] public float jitter = 0.02f;
         [Tooltip("Jitter latency via perlin(Time * jitterSpeed) * jitter")]
         [FormerlySerializedAs("latencySpikeSpeedMultiplier")]
         public float jitterSpeed = 1;
 
         [Header("Reliable Messages")]
-        [Tooltip("Reliable latency in seconds")]
-        public float reliableLatency;
+        [Tooltip("Reliable latency in milliseconds (1000 = 1 second)")]
+        [Range(0, 10000)] public float reliableLatency = 100;
         // note: packet loss over reliable manifests itself in latency.
         //       don't need (and can't add) a loss option here.
         // note: reliable is ordered by definition. no need to scramble.
 
         [Header("Unreliable Messages")]
-        [Tooltip("Packet loss in %")]
-        [Range(0, 1)] public float unreliableLoss;
-        [Tooltip("Unreliable latency in seconds")]
-        public float unreliableLatency;
+        [Tooltip("Packet loss in %\n2% recommended for long term play testing, upto 5% for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
+        [Range(0, 100)] public float unreliableLoss = 2;
+        [Tooltip("Unreliable latency in milliseconds (1000 = 1 second) \n100ms recommended for long term play testing, upto 500ms for short bursts.\nAnything higher, or for a prolonged amount of time, suggests user has a connection fault.")]
+        [Range(0, 10000)] public float unreliableLatency = 100;
         [Tooltip("Scramble % of unreliable messages, just like over the real network. Mirror unreliable is unordered.")]
-        [Range(0, 1)] public float unreliableScramble;
+        [Range(0, 100)] public float unreliableScramble = 2;
 
         // message queues
         // list so we can insert randomly (scramble)
@@ -93,9 +93,9 @@ namespace Mirror
             switch (channeldId)
             {
                 case Channels.Reliable:
-                    return reliableLatency + spike;
+                    return reliableLatency/1000 + spike;
                 case Channels.Unreliable:
-                    return unreliableLatency + spike;
+                    return unreliableLatency/1000 + spike;
                 default:
                     return 0;
             }
@@ -135,11 +135,11 @@ namespace Mirror
                     break;
                 case Channels.Unreliable:
                     // simulate packet loss
-                    bool drop = random.NextDouble() < unreliableLoss;
+                    bool drop = random.NextDouble() < unreliableLoss/100;
                     if (!drop)
                     {
                         // simulate scramble (Random.Next is < max, so +1)
-                        bool scramble = random.NextDouble() < unreliableScramble;
+                        bool scramble = random.NextDouble() < unreliableScramble/100;
                         int last = unreliableQueue.Count;
                         int index = scramble ? random.Next(0, last + 1) : last;
 

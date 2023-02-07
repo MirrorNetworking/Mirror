@@ -23,17 +23,17 @@ namespace Mirror.Examples.MultipleMatch
             toggleButton.onValueChanged.AddListener(delegate { OnToggleClicked(); });
         }
 
+        [ClientCallback]
         public void OnToggleClicked()
         {
             canvasController.SelectMatch(toggleButton.isOn ? matchId : Guid.Empty);
             image.color = toggleButton.isOn ? new Color(0f, 1f, 0f, 0.5f) : new Color(1f, 1f, 1f, 0.2f);
         }
 
-        public Guid GetMatchId()
-        {
-            return matchId;
-        }
+        [ClientCallback]
+        public Guid GetMatchId() => matchId;
 
+        [ClientCallback]
         public void SetMatchInfo(MatchInfo infos)
         {
             matchId = infos.matchId;

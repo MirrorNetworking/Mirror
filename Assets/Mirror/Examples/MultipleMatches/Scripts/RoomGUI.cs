@@ -12,14 +12,11 @@ namespace Mirror.Examples.MultipleMatch
         public Button startButton;
         public bool owner;
 
+        [ClientCallback]
         public void RefreshRoomPlayers(PlayerInfo[] playerInfos)
         {
-            // Debug.Log($"RefreshRoomPlayers: {playerInfos.Length} playerInfos");
-
             foreach (Transform child in playerList.transform)
-            {
                 Destroy(child.gameObject);
-            }
 
             startButton.interactable = false;
             bool everyoneReady = true;
@@ -29,15 +26,15 @@ namespace Mirror.Examples.MultipleMatch
                 GameObject newPlayer = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
                 newPlayer.transform.SetParent(playerList.transform, false);
                 newPlayer.GetComponent<PlayerGUI>().SetPlayerInfo(playerInfo);
+
                 if (!playerInfo.ready)
-                {
                     everyoneReady = false;
-                }
             }
 
             startButton.interactable = everyoneReady && owner && (playerInfos.Length > 1);
         }
 
+        [ClientCallback]
         public void SetOwner(bool owner)
         {
             this.owner = owner;
