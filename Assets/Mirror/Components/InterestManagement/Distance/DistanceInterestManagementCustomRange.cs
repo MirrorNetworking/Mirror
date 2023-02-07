@@ -14,7 +14,7 @@ namespace Mirror
 
         public override void OnStartServer()
         {
-            DistanceInterestManagement.CustomVisRangeIdentities[netIdentity] = visRange;
+            DistanceInterestManagement.CustomVisRangeIdentities[netIdentity] = this;
         }
 
         public override void OnStopServer()
