@@ -32,13 +32,13 @@ namespace TestNT
         {
             if (server == 0)
             {
-                SetHostname("mirrornt.idev.dl.je");
-                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 443;
+                SetHostname("mirror.clevertech.net");
+                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 7778;
             }
             if (server == 1)
             {
-                SetHostname("mirror.clevertech.net");
-                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 7778;
+                SetHostname("mirrornt.idev.dl.je");
+                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 443;
             }
             if (server == 2)
             {
