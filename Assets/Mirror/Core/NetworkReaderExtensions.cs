@@ -341,5 +341,7 @@ namespace Mirror
         {
             return DateTime.FromOADate(reader.ReadDouble());
         }
+
+        public static DateTime? ReadDateTimeNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDateTime(reader) : default(DateTime?);
     }
 }

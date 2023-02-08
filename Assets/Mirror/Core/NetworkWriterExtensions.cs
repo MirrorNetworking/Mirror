@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -359,6 +360,13 @@ namespace Mirror
         public static void WriteDateTime(this NetworkWriter writer, DateTime dateTime)
         {
             writer.WriteDouble(dateTime.ToOADate());
+        }
+
+        public static void WriteDateTimeNullable(this NetworkWriter writer, DateTime? dateTime)
+        {
+            writer.WriteBool(dateTime.HasValue);
+            if (dateTime.HasValue)
+                writer.WriteDouble(dateTime.Value.ToOADate());
         }
     }
 }
