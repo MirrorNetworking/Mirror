@@ -14,31 +14,32 @@ namespace Mirror
         public float rebuildInterval = 1;
         double lastRebuildTime;
 
-        readonly Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange> CustomVisRangeIdentities = new Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange>();
+        // cache custom ranges to avoid runtime TryGetComponent lookups
+        readonly Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange> CustomRanges = new Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange>();
 
         // helper function to get vis range for a given object, or default.
         [ServerCallback]
         int GetVisRange(NetworkIdentity identity)
         {
-            return CustomVisRangeIdentities.TryGetValue(identity, out DistanceInterestManagementCustomRange distIntMgmtCustomRange) ? distIntMgmtCustomRange.visRange : visRange;
+            return CustomRanges.TryGetValue(identity, out DistanceInterestManagementCustomRange customRange) ? customRange.visRange : visRange;
         }
 
         [ServerCallback]
         public override void Reset()
         {
             lastRebuildTime = 0D;
-            CustomVisRangeIdentities.Clear();
+            CustomRanges.Clear();
         }
 
         public override void OnSpawned(NetworkIdentity identity)
         {
-            if (identity.TryGetComponent(out DistanceInterestManagementCustomRange distIntMgmtCustomRange))
-                CustomVisRangeIdentities[identity] = distIntMgmtCustomRange;
+            if (identity.TryGetComponent(out DistanceInterestManagementCustomRange customRange))
+                CustomRanges[identity] = customRange;
         }
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            CustomVisRangeIdentities.Remove(identity);
+            CustomRanges.Remove(identity);
         }
 
         public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
