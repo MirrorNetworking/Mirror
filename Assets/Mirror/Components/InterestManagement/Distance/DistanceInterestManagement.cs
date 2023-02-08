@@ -21,7 +21,7 @@ namespace Mirror
         [ServerCallback]
         int GetVisRange(NetworkIdentity identity)
         {
-            return CustomRanges.TryGetValue(identity, out DistanceInterestManagementCustomRange customRange) ? customRange.visRange : visRange;
+            return CustomRanges.TryGetValue(identity, out DistanceInterestManagementCustomRange custom) ? custom.visRange : visRange;
         }
 
         [ServerCallback]
@@ -33,8 +33,8 @@ namespace Mirror
 
         public override void OnSpawned(NetworkIdentity identity)
         {
-            if (identity.TryGetComponent(out DistanceInterestManagementCustomRange customRange))
-                CustomRanges[identity] = customRange;
+            if (identity.TryGetComponent(out DistanceInterestManagementCustomRange custom))
+                CustomRanges[identity] = custom;
         }
 
         public override void OnDestroyed(NetworkIdentity identity)
