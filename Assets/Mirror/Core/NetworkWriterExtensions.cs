@@ -355,5 +355,10 @@ namespace Mirror
             writer.WriteRect(sprite.rect);
             writer.WriteVector2(sprite.pivot);
         }
+
+        public static void WriteDateTime(this NetworkWriter writer, DateTime dateTime)
+        {
+            writer.WriteDouble(dateTime.ToOADate());
+        }
     }
 }
