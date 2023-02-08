@@ -21,7 +21,7 @@ namespace Mirror
         public struct PendingPlayer
         {
             public NetworkConnectionToClient conn;
-            public GameObject                roomPlayer;
+            public GameObject roomPlayer;
         }
 
         [Header("Room Settings")]
@@ -199,7 +199,12 @@ namespace Mirror
             if (!Utils.IsSceneActive(RoomScene))
                 return;
 
-            int numberOfReadyPlayers = NetworkServer.connections.Count(conn => conn.Value != null && conn.Value.identity.gameObject.GetComponent<NetworkRoomPlayer>().readyToBegin);
+            int numberOfReadyPlayers = NetworkServer.connections.Count(conn =>
+                conn.Value != null &&
+                conn.Value.identity != null &&
+                conn.Value.identity.TryGetComponent(out NetworkRoomPlayer nrp) &&
+                nrp.readyToBegin);
+
             bool enoughReadyPlayers = minPlayers <= 0 || numberOfReadyPlayers >= minPlayers;
             if (enoughReadyPlayers)
             {
@@ -207,9 +212,7 @@ namespace Mirror
                 allPlayersReady = true;
             }
             else
-            {
                 allPlayersReady = false;
-            }
         }
 
         internal void CallOnClientEnterRoom()
