@@ -90,8 +90,8 @@ namespace Mirror
             int written = writer.encoding.GetBytes(value, 0, value.Length, writer.buffer, writer.Position + 2);
 
             // check if within max size
-            if (written >= NetworkWriter.MaxStringLength)
-                throw new IndexOutOfRangeException($"NetworkWriter.Write(string) too long: {written}. Limit: {NetworkWriter.MaxStringLength}");
+            if (written > NetworkWriter.MaxStringLength)
+                throw new IndexOutOfRangeException($"NetworkWriter.WriteString - Value too long: {written} bytes. Limit: {NetworkWriter.MaxStringLength} bytes");
 
             // .Position is unchanged, so fill in the size header now.
             // we already ensured that max size fits into ushort.max-1.
