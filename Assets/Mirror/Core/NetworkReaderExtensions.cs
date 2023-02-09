@@ -67,11 +67,8 @@ namespace Mirror
             ushort realSize = (ushort)(size - 1);
 
             // make sure it's within limits to avoid allocation attacks etc.
-            // using >= to ensure 65535 fails and throws because we'll be adding +1 to written below.
-            if (realSize >= NetworkWriter.MaxStringLength)
-            {
-                throw new EndOfStreamException($"NetworkReader.ReadString - Value too long: {realSize} bytes. Limit is: {NetworkWriter.MaxStringLength - 1} bytes");
-            }
+            if (realSize > NetworkWriter.MaxStringLength)
+                throw new EndOfStreamException($"NetworkReader.ReadString - Value too long: {realSize} bytes. Limit is: {NetworkWriter.MaxStringLength} bytes");
 
             ArraySegment<byte> data = reader.ReadBytesSegment(realSize);
 
