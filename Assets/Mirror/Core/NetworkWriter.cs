@@ -9,6 +9,7 @@ namespace Mirror
     /// <summary>Network Writer for most simple types like floats, ints, buffers, structs, etc. Use NetworkWriterPool.GetReader() to avoid allocations.</summary>
     public class NetworkWriter
     {
+        // the limit of ushort is so we can write string size prefix as only 2 bytes.
         public const ushort MaxStringLength = ushort.MaxValue;
         public const int DefaultCapacity = 1500;
 
