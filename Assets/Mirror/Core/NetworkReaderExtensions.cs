@@ -64,13 +64,11 @@ namespace Mirror
             if (size == 0)
                 return null;
 
-            int realSize = size - 1;
+            ushort realSize = (ushort)(size - 1);
 
             // make sure it's within limits to avoid allocation attacks etc.
-            if (realSize >= NetworkWriter.MaxStringLength)
-            {
-                throw new EndOfStreamException($"ReadString too long: {realSize}. Limit is: {NetworkWriter.MaxStringLength}");
-            }
+            if (realSize > NetworkWriter.MaxStringLength)
+                throw new EndOfStreamException($"NetworkReader.ReadString - Value too long: {realSize} bytes. Limit is: {NetworkWriter.MaxStringLength} bytes");
 
             ArraySegment<byte> data = reader.ReadBytesSegment(realSize);
 
@@ -336,5 +334,12 @@ namespace Mirror
             // otherwise create a valid sprite
             return Sprite.Create(texture, reader.ReadRect(), reader.ReadVector2());
         }
+
+        public static DateTime ReadDateTime(this NetworkReader reader)
+        {
+            return DateTime.FromOADate(reader.ReadDouble());
+        }
+
+        public static DateTime? ReadDateTimeNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDateTime(reader) : default(DateTime?);
     }
 }
