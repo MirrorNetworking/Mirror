@@ -185,10 +185,9 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   characterController: {fileID: 143011667059871024}
-  controlsCanvas: {fileID: 0}
   moveSpeedMultiplier: 8
   maxTurnSpeed: 100
-  turnDelta: 1
+  turnDelta: 0.5
   initialJumpSpeed: 0.2
   maxJumpSpeed: 5
   jumpDelta: 0.2

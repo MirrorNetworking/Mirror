@@ -9,15 +9,25 @@ namespace Mirror
         public static string ToHexString(this ArraySegment<byte> segment) =>
             BitConverter.ToString(segment.Array, segment.Offset, segment.Count);
 
+        public static readonly Dictionary<string, int> StableHashes = new Dictionary<string, int>();
+
         // string.GetHashCode is not guaranteed to be the same on all machines, but
         // we need one that is the same on all machines. simple and stupid:
         public static int GetStableHashCode(this string text)
         {
+            if (StableHashes.TryGetValue(text, out int cachedHash))
+                return cachedHash;
+
             unchecked
             {
                 int hash = 23;
                 foreach (char c in text)
                     hash = hash * 31 + c;
+
+                StableHashes[text] = hash;
+
+                UnityEngine.Debug.Log($"Sending Msg {(ushort)hash}: {text}");
+
                 return hash;
             }
         }
@@ -56,5 +66,11 @@ namespace Mirror
             return false;
         }
 #endif
+
+        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        public static void ResetStatics()
+        {
+            StableHashes.Clear();
+        }
     }
 }

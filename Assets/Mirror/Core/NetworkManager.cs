@@ -1273,6 +1273,12 @@ namespace Mirror
         // Called by NetworkServer.OnTransportDisconnect!
         public virtual void OnServerDisconnect(NetworkConnectionToClient conn)
         {
+            System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+            foreach (KeyValuePair<string, int> kvp in Extensions.StableHashes)
+                stringBuilder.AppendLine($"{(ushort)kvp.Value}: {kvp.Key}");
+
+            Debug.Log(stringBuilder.ToString());
+
             // by default, this function destroys the connection's player.
             // can be overwritten for cases like delayed logouts in MMOs to
             // avoid players escaping from PvP situations by logging out.

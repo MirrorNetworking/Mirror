@@ -1568,8 +1568,8 @@ MonoBehaviour:
   clientMaxMessagesPerTick: 1000
   batchSend: 0
   waitBeforeSend: 0
-  clientUseWss: 0
-  sslEnabled: 0
+  clientUseWss: 1
+  sslEnabled: 1
   sslCertJson: ./cert.json
   sslProtocols: 0
   _logLevels: 3
