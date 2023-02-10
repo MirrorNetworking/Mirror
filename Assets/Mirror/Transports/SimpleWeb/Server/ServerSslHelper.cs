@@ -29,9 +29,17 @@ namespace Mirror.SimpleWeb
 
         public ServerSslHelper(SslConfig sslConfig)
         {
+            Console.Clear();
+
             config = sslConfig;
             if (config.enabled)
+            {
                 certificate = new X509Certificate2(config.certPath, config.certPassword);
+
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"[SimpleWebTransport] SSL Certificate {certificate.Subject} loaded with expiration of {certificate.GetExpirationDateString()}");
+                Console.ResetColor();
+            }
         }
 
         internal bool TryCreateStream(Connection conn)
@@ -46,7 +54,10 @@ namespace Mirror.SimpleWeb
                 }
                 catch (Exception e)
                 {
-                    Log.Error($"[SimpleWebTransport] Create SSLStream Failed: {e}", false);
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"[SimpleWebTransport] Create SSLStream Failed: {e.Message}");
+                    Console.ResetColor();
+
                     return false;
                 }
             }
