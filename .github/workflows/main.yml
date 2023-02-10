@@ -9,6 +9,7 @@ on:
     paths-ignore:
       - 'Packages/**'
       - 'ProjectSettings/**'
+      - 'Docs/**'
       - '.github/**'
       - '.gitattributes'
       - '.gitignore'
