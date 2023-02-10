@@ -30,6 +30,7 @@ namespace Mirror
                 foreach (char c in text)
                     hash = hash * 31 + c;
 
+                //UnityEngine.Debug.Log($"Caching stable hash {(ushort)hash} for {text}");
                 StableHashes[text] = hash;
                 return hash;
             }
