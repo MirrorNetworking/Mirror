@@ -504,7 +504,7 @@ MonoBehaviour:
   physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
   moveSpeedMultiplier: 8
   maxTurnSpeed: 100
-  turnDelta: 1
+  turnDelta: 3
   initialJumpSpeed: 0.2
   maxJumpSpeed: 5
   jumpDelta: 0.2
