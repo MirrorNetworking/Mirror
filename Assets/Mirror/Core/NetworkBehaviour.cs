@@ -185,7 +185,7 @@ namespace Mirror
             // only check time if bits were dirty. this is more expensive.
             NetworkTime.localTime - lastSyncTime >= syncInterval;
 
-        /// <summary>Clears all the dirty bits that were set by SetDirtyBits()</summary>
+        /// <summary>Clears all the dirty bits that were set by SetSyncVarDirtyBit() (formally SetDirtyBits)</summary>
         // automatically invoked when an update is sent for this object, but can
         // be called manually as well.
         public void ClearAllDirtyBits()
