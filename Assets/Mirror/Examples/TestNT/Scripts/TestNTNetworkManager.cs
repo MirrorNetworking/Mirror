@@ -35,17 +35,12 @@ namespace TestNT
             if (server == 0)
             {
                 SetHostname("mirror.clevertech.net");
-                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 7778;
+                ((SimpleWebTransport)transport).port = 7777;
             }
             if (server == 1)
             {
-                SetHostname("mirrornt.idev.dl.je");
-                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 443;
-            }
-            if (server == 2)
-            {
                 SetHostname("localhost");
-                ((Mirror.SimpleWeb.SimpleWebTransport)transport).port = 7778;
+                ((SimpleWebTransport)transport).port = 27777;
             }
         }
 
@@ -69,8 +64,8 @@ namespace TestNT
             // only start server or client, never both
             else if (autoConnectClientBuild)
             {
-                ((TestNTNetworkAuthenticator)authenticator).SetPlayername("Bot", true);
                 ProcessCmdLineArgs();
+                ((TestNTNetworkAuthenticator)authenticator).SetPlayername($"Bot[{sendRate}] ", true);
                 ((SimpleWebTransport)Transport.active).sslEnabled = true;
                 ((SimpleWebTransport)Transport.active).clientUseWss = true;
                 StartClient();
@@ -82,9 +77,15 @@ namespace TestNT
         void ProcessCmdLineArgs()
         {
             foreach (string arg in Environment.GetCommandLineArgs())
+            {
                 if (arg.StartsWith("/p:", StringComparison.InvariantCultureIgnoreCase))
                     if (ushort.TryParse(arg.Remove(0, 3), out ushort port))
                         ((SimpleWebTransport)Transport.active).port = port;
+
+                if (arg.StartsWith("/r:", StringComparison.InvariantCultureIgnoreCase))
+                    if (int.TryParse(arg.Remove(0, 3), out sendRate))
+                        Application.targetFrameRate = sendRate;
+            }
         }
 #endif
 
