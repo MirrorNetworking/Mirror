@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6545184674585495222}
   - component: {fileID: 4832621091644330542}
   - component: {fileID: 350173988757799530}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Bot
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -31,7 +31,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 629047657802428152}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20, y: 1, z: 20}
+  m_LocalPosition: {x: 30, y: 1, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -204,7 +204,7 @@ GameObject:
   - component: {fileID: 3778709512122544917}
   - component: {fileID: 5016707352891189165}
   - component: {fileID: 1649625818729847816}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SnapIntText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -376,7 +376,7 @@ GameObject:
   - component: {fileID: 2277275783330066836}
   - component: {fileID: 3071198569359062463}
   - component: {fileID: 2520575634317220638}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ServerBufferText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -548,7 +548,7 @@ GameObject:
   - component: {fileID: 4058555386370436203}
   - component: {fileID: 1188370223481075245}
   - component: {fileID: 9167280228736349983}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ClientBufferText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -718,7 +718,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1314864810593093167}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -756,7 +756,7 @@ GameObject:
   - component: {fileID: 175736769680460600}
   - component: {fileID: 2284703546081296895}
   - component: {fileID: 7593576995981199935}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -840,7 +840,7 @@ GameObject:
   - component: {fileID: 7403084721490301244}
   - component: {fileID: 8583230186448186245}
   - component: {fileID: 2750128191833294502}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HeightText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1012,7 +1012,7 @@ GameObject:
   - component: {fileID: 4260234292632217477}
   - component: {fileID: 1723650872795939047}
   - component: {fileID: 4457544332397682606}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1184,7 +1184,7 @@ GameObject:
   - component: {fileID: 8057460817714075744}
   - component: {fileID: 6089483435389065891}
   - component: {fileID: 9110358062744690621}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Visor
   m_TagString: Untagged
   m_Icon: {fileID: 0}

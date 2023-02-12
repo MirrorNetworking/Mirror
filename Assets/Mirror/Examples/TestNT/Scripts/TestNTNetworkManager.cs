@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using Mirror;
+using Mirror.SimpleWeb;
+using System;
 
 namespace TestNT
 {
@@ -49,11 +51,6 @@ namespace TestNT
 
         #region Unity Callbacks
 
-        public override void OnValidate()
-        {
-            base.OnValidate();
-        }
-
         /// <summary>
         /// Runs on both Server and Client
         /// Networking is NOT initialized when this fires
@@ -63,16 +60,33 @@ namespace TestNT
 #if UNITY_SERVER
             if (autoStartServerBuild)
             {
+                ProcessCmdLineArgs();
+                ((SimpleWebTransport)Transport.active).sslEnabled = false;
+                ((SimpleWebTransport)Transport.active).clientUseWss = false;
+
                 StartServer();
             }
             // only start server or client, never both
             else if (autoConnectClientBuild)
             {
                 ((TestNTNetworkAuthenticator)authenticator).SetPlayername("Bot", true);
+                ProcessCmdLineArgs();
+                ((SimpleWebTransport)Transport.active).sslEnabled = true;
+                ((SimpleWebTransport)Transport.active).clientUseWss = true;
                 StartClient();
             }
 #endif
         }
+
+#if UNITY_SERVER
+        void ProcessCmdLineArgs()
+        {
+            foreach (string arg in Environment.GetCommandLineArgs())
+                if (arg.StartsWith("/p:", StringComparison.InvariantCultureIgnoreCase))
+                    if (ushort.TryParse(arg.Remove(0, 3), out ushort port))
+                        ((SimpleWebTransport)Transport.active).port = port;
+        }
+#endif
 
         /// <summary>
         /// Runs on both Server and Client
@@ -88,27 +102,6 @@ namespace TestNT
         public override void OnDestroy()
         {
             base.OnDestroy();
-        }
-
-        #endregion
-
-        #region Start & Stop
-
-        /// <summary>
-        /// Set the frame rate for a headless server.
-        /// <para>Override if you wish to disable the behavior or set your own tick rate.</para>
-        /// </summary>
-        public override void ConfigureHeadlessFrameRate()
-        {
-            base.ConfigureHeadlessFrameRate();
-        }
-
-        /// <summary>
-        /// called when quitting the application by closing the window / pressing stop in the editor
-        /// </summary>
-        public override void OnApplicationQuit()
-        {
-            base.OnApplicationQuit();
         }
 
         #endregion

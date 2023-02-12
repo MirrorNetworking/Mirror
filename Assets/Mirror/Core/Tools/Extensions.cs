@@ -11,6 +11,12 @@ namespace Mirror
 
         public static readonly Dictionary<string, int> StableHashes = new Dictionary<string, int>();
 
+        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        public static void ResetStatics()
+        {
+            StableHashes.Clear();
+        }
+
         // string.GetHashCode is not guaranteed to be the same on all machines, but
         // we need one that is the same on all machines. simple and stupid:
         public static int GetStableHashCode(this string text)
@@ -24,10 +30,8 @@ namespace Mirror
                 foreach (char c in text)
                     hash = hash * 31 + c;
 
+                //UnityEngine.Debug.Log($"Caching stable hash {(ushort)hash} for {text}");
                 StableHashes[text] = hash;
-
-                UnityEngine.Debug.Log($"Sending Msg {(ushort)hash}: {text}");
-
                 return hash;
             }
         }
@@ -66,11 +70,5 @@ namespace Mirror
             return false;
         }
 #endif
-
-        [UnityEngine.RuntimeInitializeOnLoadMethod]
-        public static void ResetStatics()
-        {
-            StableHashes.Clear();
-        }
     }
 }

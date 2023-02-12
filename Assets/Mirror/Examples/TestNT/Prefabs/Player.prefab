@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2376999177965059652}
   - component: {fileID: 5841886347993803516}
   - component: {fileID: 173605869538251097}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SnapIntText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 799074667234622661}
   - component: {fileID: 4473049407958366446}
   - component: {fileID: 3924467337252509263}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ServerBufferText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -364,7 +364,7 @@ GameObject:
   - component: {fileID: 222851012733586747}
   - component: {fileID: -7969791118079622209}
   - component: {fileID: 3644259943796578628}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -615,7 +615,7 @@ GameObject:
   - component: {fileID: 3233165556658938170}
   - component: {fileID: 356224190133123964}
   - component: {fileID: 7761066253652736590}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ClientBufferText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -787,7 +787,7 @@ GameObject:
   - component: {fileID: 1656260087644407401}
   - component: {fileID: 808543099381140654}
   - component: {fileID: 9074100572725774190}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -871,7 +871,7 @@ GameObject:
   - component: {fileID: 8228474799240354925}
   - component: {fileID: 7174693868864267988}
   - component: {fileID: 3649617099945823223}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HeightText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1041,7 +1041,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 482790038240004990}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1079,7 +1079,7 @@ GameObject:
   - component: {fileID: 8889465212161054001}
   - component: {fileID: 4615715199029680114}
   - component: {fileID: 7701751353335861996}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Visor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1162,7 +1162,7 @@ GameObject:
   - component: {fileID: 3428089148877269716}
   - component: {fileID: 245379355717389750}
   - component: {fileID: 2976880021398491903}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
