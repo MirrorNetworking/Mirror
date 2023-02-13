@@ -42,10 +42,18 @@ namespace Mirror
         public readonly SortedList<double, TransformSnapshot> serverSnapshots = new SortedList<double, TransformSnapshot>();
 
         // selective sync //////////////////////////////////////////////////////
-        [Header("Selective Sync & Interpolation\nDon't change these at Runtime")]
+        [Header("Selective Sync\nDon't change these at Runtime")]
         public bool syncPosition = true;  // do not change at runtime!
         public bool syncRotation = true;  // do not change at runtime!
         public bool syncScale    = false; // do not change at runtime! rare. off by default.
+
+        [Header("Interpolation")]
+        [Tooltip("Set to false to have a snap-like effect on position movement.")]
+        public bool interpolatePosition = true;
+        [Tooltip("Set to false to have a snap-like effect on rotations.")]
+        public bool interpolateRotation = true;
+        [Tooltip("Set to false to remove scale smoothing. Example use-case: Instant flipping of sprites that use -X and +X for direction.")]
+        public bool interpolateScale = true;
 
         // debugging ///////////////////////////////////////////////////////////
         [Header("Debug")]
@@ -141,7 +149,7 @@ namespace Mirror
         //
         // NOTE: stuck detection is unnecessary here.
         //       we always set transform.position anyway, we can't get stuck.
-        protected virtual void Apply(TransformSnapshot interpolated)
+        protected virtual void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
         {
             // local position/rotation for VR support
             //
@@ -153,6 +161,15 @@ namespace Mirror
             if (syncPosition) target.localPosition = interpolated.position;
             if (syncRotation) target.localRotation = interpolated.rotation;
             if (syncScale)    target.localScale = interpolated.scale;
+
+            if (syncPosition)
+                target.localPosition = interpolatePosition ? interpolated.position : endGoal.position;
+
+            if (syncRotation)
+                target.localRotation = interpolateRotation ? interpolated.rotation : endGoal.rotation;
+
+            if (syncScale)
+                target.localScale = interpolateScale ? interpolated.scale : endGoal.scale;
         }
 
         // client->server teleport to force position without interpolation.

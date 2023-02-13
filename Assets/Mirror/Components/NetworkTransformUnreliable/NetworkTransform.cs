@@ -144,7 +144,7 @@ namespace Mirror
 
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    Apply(computed);
+                    Apply(computed, to);
                 }
             }
         }
@@ -235,7 +235,7 @@ namespace Mirror
 
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    Apply(computed);
+                    Apply(computed, to);
                 }
             }
         }

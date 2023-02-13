@@ -11,7 +11,7 @@ namespace Mirror.Tests.NetworkTransform2k
     {
         public new TransformSnapshot Construct() => base.Construct();
         public new void Apply(TransformSnapshot interpolated) =>
-            base.Apply(interpolated);
+            base.Apply(interpolated, interpolated);
         public new void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             base.OnClientToServerSync(position, rotation, scale);
         public new void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
