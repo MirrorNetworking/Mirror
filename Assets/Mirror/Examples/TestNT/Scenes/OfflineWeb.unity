@@ -1557,7 +1557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0110f245bfcfc7d459681f7bd9ebc590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 27777
+  port: 7777
   maxMessageSize: 16384
   handshakeMaxSize: 3000
   noDelay: 1
@@ -1567,10 +1567,10 @@ MonoBehaviour:
   clientMaxMessagesPerTick: 1000
   batchSend: 0
   waitBeforeSend: 0
-  clientUseWss: 0
-  sslEnabled: 0
+  clientUseWss: 1
+  sslEnabled: 1
   sslCertJson: ./cert.json
-  sslProtocols: 0
+  sslProtocols: 12288
   _logLevels: 3
 --- !u!114 &821201135
 MonoBehaviour:
