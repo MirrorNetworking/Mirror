@@ -67,10 +67,10 @@ namespace TestNT
             {
                 // set default sendRate, then let CmdLineArgs override
                 Application.targetFrameRate = 60;
-                ProcessCmdLineArgs();
                 ((TestNTNetworkAuthenticator)authenticator).SetPlayername($"Bot[{sendRate}] ", true);
                 ((SimpleWebTransport)Transport.active).sslEnabled = true;
                 ((SimpleWebTransport)Transport.active).clientUseWss = true;
+                ProcessCmdLineArgs();
                 StartClient();
             }
         }
@@ -85,9 +85,21 @@ namespace TestNT
                     if (ushort.TryParse(arg.Remove(0, 3), out ushort port))
                         ((SimpleWebTransport)Transport.active).port = port;
 
+                if (arg.Equals("/ssl", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ((SimpleWebTransport)Transport.active).clientUseWss = true;
+                    ((SimpleWebTransport)Transport.active).sslEnabled = true;
+                }
+
+                if (arg.Equals("/nossl", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    ((SimpleWebTransport)Transport.active).sslEnabled = false;
+                    ((SimpleWebTransport)Transport.active).clientUseWss = false;
+                }
                 if (arg.StartsWith("/r:", StringComparison.InvariantCultureIgnoreCase))
                     if (int.TryParse(arg.Remove(0, 3), out sendRate))
                         Application.targetFrameRate = sendRate;
+
             }
         }
 #endif
