@@ -9,7 +9,11 @@ namespace Mirror
         public static string ToHexString(this ArraySegment<byte> segment) =>
             BitConverter.ToString(segment.Array, segment.Offset, segment.Count);
 
-        public static readonly Dictionary<string, int> StableHashes = new Dictionary<string, int>();
+        // GetStableHashCode is O(N).
+        // the longer the string, the more it needs to compute:
+        // https://github.com/MirrorNetworking/Mirror/pull/3377
+        // cache results for O(1) lookups.
+        static readonly Dictionary<string, int> StableHashes = new Dictionary<string, int>();
 
         [UnityEngine.RuntimeInitializeOnLoadMethod]
         public static void ResetStatics()
