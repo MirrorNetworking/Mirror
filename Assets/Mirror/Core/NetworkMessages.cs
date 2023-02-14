@@ -10,6 +10,12 @@ namespace Mirror
     // generic classes have separate static fields per type specification
     public static class NetworkMessageId<T> where T : struct, NetworkMessage
     {
+        // automated message id from type hash.
+        // platform independent via stable hashcode.
+        // => convenient so we don't need to track messageIds across projects
+        // => addons can work with each other without knowing their ids before
+        // => 2 bytes is enough to avoid collisions.
+        //    registering a messageId twice will log a warning anyway.
         public static readonly ushort Id = (ushort)(typeof(T).FullName.GetStableHashCode());
     }
 
