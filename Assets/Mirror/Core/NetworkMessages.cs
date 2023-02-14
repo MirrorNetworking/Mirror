@@ -4,6 +4,15 @@ using UnityEngine;
 
 namespace Mirror
 {
+
+    // for performance, we (ab)use c# generics to cache the message id in a static field
+    // this is significantly faster than doing a runtime Dictionary lookup
+    // generic classes have separate static fields per type specification
+    public static class NetworkMessageId<T> where T : struct, NetworkMessage
+    {
+        public static readonly ushort Id = (ushort)(typeof(T).FullName.GetStableHashCode());
+    }
+    
     // message packing all in one place, instead of constructing headers in all
     // kinds of different places
     //
@@ -34,7 +43,7 @@ namespace Mirror
         //    registering a messageId twice will log a warning anyway.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort GetId<T>() where T : struct, NetworkMessage =>
-            (ushort)(typeof(T).FullName.GetStableHashCode());
+            NetworkMessageId<T>.Id;
 
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
