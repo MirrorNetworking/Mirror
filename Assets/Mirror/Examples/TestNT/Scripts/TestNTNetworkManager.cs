@@ -79,6 +79,8 @@ namespace TestNT
         {
             foreach (string arg in Environment.GetCommandLineArgs())
             {
+                if (arg.StartsWith("/h:", StringComparison.InvariantCultureIgnoreCase))
+                    networkAddress = arg.Remove(0, 3);
                 if (arg.StartsWith("/p:", StringComparison.InvariantCultureIgnoreCase))
                     if (ushort.TryParse(arg.Remove(0, 3), out ushort port))
                         ((SimpleWebTransport)Transport.active).port = port;
