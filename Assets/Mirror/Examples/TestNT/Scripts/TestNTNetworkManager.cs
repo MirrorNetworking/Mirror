@@ -13,6 +13,9 @@ namespace TestNT
         // have to cast to this type everywhere.
         public static new TestNTNetworkManager singleton { get; private set; }
 
+        public GameObject botPrefab;
+        public GameObject npcPrefab;
+
         /// <summary>
         /// Runs on both Server and Client
         /// Networking is NOT initialized when this fires
@@ -46,15 +49,13 @@ namespace TestNT
 
         #region Unity Callbacks
 
-        /// <summary>
-        /// Runs on both Server and Client
-        /// Networking is NOT initialized when this fires
-        /// </summary>
+#if UNITY_SERVER
         public override void Start()
         {
-#if UNITY_SERVER
             if (autoStartServerBuild)
             {
+                // set default sendRate, then let CmdLineArgs override
+                Application.targetFrameRate = 30;
                 ProcessCmdLineArgs();
                 ((SimpleWebTransport)Transport.active).sslEnabled = false;
                 ((SimpleWebTransport)Transport.active).clientUseWss = false;
@@ -64,16 +65,16 @@ namespace TestNT
             // only start server or client, never both
             else if (autoConnectClientBuild)
             {
+                // set default sendRate, then let CmdLineArgs override
+                Application.targetFrameRate = 60;
                 ProcessCmdLineArgs();
                 ((TestNTNetworkAuthenticator)authenticator).SetPlayername($"Bot[{sendRate}] ", true);
                 ((SimpleWebTransport)Transport.active).sslEnabled = true;
                 ((SimpleWebTransport)Transport.active).clientUseWss = true;
                 StartClient();
             }
-#endif
         }
 
-#if UNITY_SERVER
         void ProcessCmdLineArgs()
         {
             foreach (string arg in Environment.GetCommandLineArgs())
@@ -187,7 +188,7 @@ namespace TestNT
             GameObject player;
 
             if (authData.isBot)
-                player = Instantiate(spawnPrefabs[1]);
+                player = Instantiate(botPrefab);
             else
                 player = Instantiate(playerPrefab);
 
@@ -287,7 +288,11 @@ namespace TestNT
         /// <summary>
         /// This is invoked when the client is started.
         /// </summary>
-        public override void OnStartClient() { }
+        public override void OnStartClient() 
+        {
+            NetworkClient.RegisterPrefab(botPrefab);
+            NetworkClient.RegisterPrefab(npcPrefab);
+        }
 
         /// <summary>
         /// This is called when a host is stopped.
