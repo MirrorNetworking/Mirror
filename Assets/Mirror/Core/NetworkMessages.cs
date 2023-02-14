@@ -12,7 +12,7 @@ namespace Mirror
     {
         public static readonly ushort Id = (ushort)(typeof(T).FullName.GetStableHashCode());
     }
-    
+
     // message packing all in one place, instead of constructing headers in all
     // kinds of different places
     //
@@ -42,6 +42,8 @@ namespace Mirror
         // => 2 bytes is enough to avoid collisions.
         //    registering a messageId twice will log a warning anyway.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        // Deprecated 2023-02-15
+        [Obsolete("Use NetworkMessageId<T>.Id instead")]
         public static ushort GetId<T>() where T : struct, NetworkMessage =>
             NetworkMessageId<T>.Id;
 
@@ -52,7 +54,7 @@ namespace Mirror
         public static void Pack<T>(T message, NetworkWriter writer)
             where T : struct, NetworkMessage
         {
-            writer.WriteUShort(GetId<T>());
+            writer.WriteUShort(NetworkMessageId<T>.Id);
             writer.Write(message);
         }
 
