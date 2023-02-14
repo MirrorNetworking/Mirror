@@ -67,10 +67,10 @@ namespace TestNT
             {
                 // set default sendRate, then let CmdLineArgs override
                 Application.targetFrameRate = 60;
-                ((TestNTNetworkAuthenticator)authenticator).SetPlayername($"Bot[{sendRate}] ", true);
                 ((SimpleWebTransport)Transport.active).sslEnabled = true;
                 ((SimpleWebTransport)Transport.active).clientUseWss = true;
                 ProcessCmdLineArgs();
+                ((TestNTNetworkAuthenticator)authenticator).SetPlayername($"Bot[{sendRate}] ", true);
                 StartClient();
             }
         }
