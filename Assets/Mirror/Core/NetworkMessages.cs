@@ -4,6 +4,21 @@ using UnityEngine;
 
 namespace Mirror
 {
+
+    // for performance, we (ab)use c# generics to cache the message id in a static field
+    // this is significantly faster than doing the computation at runtime or looking up cached results via Dictionary
+    // generic classes have separate static fields per type specification
+    public static class NetworkMessageId<T> where T : struct, NetworkMessage
+    {
+        // automated message id from type hash.
+        // platform independent via stable hashcode.
+        // => convenient so we don't need to track messageIds across projects
+        // => addons can work with each other without knowing their ids before
+        // => 2 bytes is enough to avoid collisions.
+        //    registering a messageId twice will log a warning anyway.
+        public static readonly ushort Id = (ushort)(typeof(T).FullName.GetStableHashCode());
+    }
+
     // message packing all in one place, instead of constructing headers in all
     // kinds of different places
     //
@@ -32,9 +47,11 @@ namespace Mirror
         // => addons can work with each other without knowing their ids before
         // => 2 bytes is enough to avoid collisions.
         //    registering a messageId twice will log a warning anyway.
+        // Deprecated 2023-02-15
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Obsolete("Use NetworkMessageId<T>.Id instead")]
         public static ushort GetId<T>() where T : struct, NetworkMessage =>
-            (ushort)(typeof(T).FullName.GetStableHashCode());
+            NetworkMessageId<T>.Id;
 
         // pack message before sending
         // -> NetworkWriter passed as arg so that we can use .ToArraySegment
@@ -43,7 +60,7 @@ namespace Mirror
         public static void Pack<T>(T message, NetworkWriter writer)
             where T : struct, NetworkMessage
         {
-            writer.WriteUShort(GetId<T>());
+            writer.WriteUShort(NetworkMessageId<T>.Id);
             writer.Write(message);
         }
 
