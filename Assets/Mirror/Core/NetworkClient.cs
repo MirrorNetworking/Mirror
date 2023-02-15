@@ -471,7 +471,7 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            ushort msgType = NetworkMessages.GetId<T>();
+            ushort msgType = NetworkMessageId<T>.Id;
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
@@ -490,7 +490,7 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            ushort msgType = NetworkMessages.GetId<T>();
+            ushort msgType = NetworkMessageId<T>.Id;
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
@@ -508,7 +508,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // use int to minimize collisions
-            ushort msgType = NetworkMessages.GetId<T>();
+            ushort msgType = NetworkMessageId<T>.Id;
             return handlers.Remove(msgType);
         }
 
