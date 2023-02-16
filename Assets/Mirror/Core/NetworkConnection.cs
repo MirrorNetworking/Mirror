@@ -44,12 +44,6 @@ namespace Mirror
         //            Works fine with NetworkIdentity pointers though.
         public readonly HashSet<NetworkIdentity> owned = new HashSet<NetworkIdentity>();
 
-        // define batchers for both channels explicitly.
-        // Mirror only ever uses reliable and unreliable.
-        // this is faster than a Dict<channel, batcher>:
-        // https://github.com/MirrorNetworking/Mirror/pull/3382
-        protected Batcher reliableBatcher;
-        protected Batcher unreliableBatcher;
         // batching from server to client & client to server.
         // fewer transport calls give us significantly better performance/scale.
         //
@@ -58,7 +52,14 @@ namespace Mirror
         //
         // depending on the transport, this can give 10x performance.
         //
-        // Dictionary<channelId, batch> because we have multiple channels.
+        // define batchers for the two default channels explicitly.
+        // Mirror only ever uses reliable and unreliable unless users specify their own channels in the few transports
+        // that support them
+        // this is faster than a Dict<channel, batcher>:
+        // https://github.com/MirrorNetworking/Mirror/pull/3382
+        protected Batcher reliableBatcher;
+        protected Batcher unreliableBatcher;
+        // Any batchers for custom channels (not Reliable or Unreliable) are in here:
         protected Dictionary<int, Batcher> batches = new Dictionary<int, Batcher>();
 
         /// <summary>last batch's remote timestamp. not interpolated. useful for NetworkTransform etc.</summary>
@@ -113,6 +114,7 @@ namespace Mirror
                 return unreliableBatcher;
             }
 
+            // handle custom (not Reliable or Unreliable) channels
             // get existing or create new writer for the channelId
             Batcher batch;
             if (!batches.TryGetValue(channelId, out batch))
@@ -194,7 +196,8 @@ namespace Mirror
         protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
 
         internal void UpdateBatcher(int channelId, Batcher batcher)
-        { // make and send as many batches as necessary from the stored
+        {
+            // make and send as many batches as necessary from the stored
             // messages.
             using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
@@ -223,6 +226,9 @@ namespace Mirror
         // flush batched messages at the end of every Update.
         internal virtual void Update()
         {
+            // go through batches for all channels
+            
+            // mirror default ones (Reliable/Unreliable)
             if (reliableBatcher != null)
             {
                 UpdateBatcher(Channels.Reliable, reliableBatcher);
@@ -233,7 +239,7 @@ namespace Mirror
                 UpdateBatcher(Channels.Unreliable, unreliableBatcher);
             }
 
-            // go through batches for all channels
+            // update custom (non-Reliable/Unreliable) channels
             // foreach ((int key, Batcher batcher) in batches) // Unity 2020 doesn't support deconstruct yet
             foreach (KeyValuePair<int, Batcher> kvp in batches)
             {
