@@ -44,6 +44,10 @@ namespace Mirror
         //            Works fine with NetworkIdentity pointers though.
         public readonly HashSet<NetworkIdentity> owned = new HashSet<NetworkIdentity>();
 
+        // define batchers for both channels explicitly.
+        // Mirror only ever uses reliable and unreliable.
+        // this is faster than a Dict<channel, batcher>:
+        // https://github.com/MirrorNetworking/Mirror/pull/3382
         protected Batcher reliableBatcher;
         protected Batcher unreliableBatcher;
         // batching from server to client & client to server.
