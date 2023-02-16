@@ -10,7 +10,7 @@ namespace Mirror.Tests.NetworkTransform2k
     public class NetworkTransformExposed : NetworkTransform
     {
         public new TransformSnapshot Construct() => base.Construct();
-        public new void Apply(TransformSnapshot interpolated) =>
+        public void Apply(TransformSnapshot interpolated) =>
             base.Apply(interpolated, interpolated);
         public new void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale) =>
             base.OnClientToServerSync(position, rotation, scale);
