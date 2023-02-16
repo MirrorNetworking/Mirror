@@ -130,6 +130,8 @@ namespace Mirror.Weaver
             }
             // pass full function name to avoid ClassA.Func <-> ClassB.Func collisions
             worker.Emit(OpCodes.Ldstr, md.FullName);
+            // pass the function hash so we don't have to compute it at runtime
+            worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode());
             // writer
             worker.Emit(OpCodes.Ldloc_0);
             worker.Emit(OpCodes.Ldc_I4, targetRpcAttr.GetField("channel", 0));
