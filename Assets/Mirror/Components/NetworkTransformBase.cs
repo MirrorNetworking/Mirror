@@ -47,6 +47,8 @@ namespace Mirror
         public bool syncRotation = true;  // do not change at runtime!
         public bool syncScale    = false; // do not change at runtime! rare. off by default.
 
+        // interpolation is on by default, but can be disabled to jump to
+        // the destination immediately. some projects need this.
         [Header("Interpolation")]
         [Tooltip("Set to false to have a snap-like effect on position movement.")]
         public bool interpolatePosition = true;
