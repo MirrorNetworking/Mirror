@@ -1480,12 +1480,6 @@ namespace Mirror
         internal static void NetworkLateUpdate()
         {
             // broadcast ClientToServer components while active
-            // note that Broadcast() runs every update.
-            // on clients with 120 Hz, this will run 120 times per second.
-            // however, Broadcast only checks .owned, which usually aren't many.
-            //
-            // we could use a .sendInterval, but it would also put a minimum
-            // limit to every component's sendInterval automatically.
             if (active)
             {
                 // broadcast every sendInterval.
