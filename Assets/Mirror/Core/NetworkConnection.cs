@@ -82,6 +82,15 @@ namespace Mirror
             connectionId = networkConnectionId;
         }
 
+        private Batcher CreateBatcher(int channelId)
+        {
+            // get max batch size for this channel
+            int threshold = Transport.active.GetBatchThreshold(channelId);
+
+            // create batcher
+            return new Batcher(threshold);
+        }
+
         protected Batcher GetBatchForChannelId(int channelId)
         {
             // having hard-coded lookups for the most common channels is unfortunately worth it, performance wise
@@ -90,11 +99,7 @@ namespace Mirror
             {
                 if (reliableBatcher == null)
                 {
-                    // get max batch size for this channel
-                    int threshold = Transport.active.GetBatchThreshold(channelId);
-
-                    // create batcher
-                    reliableBatcher = new Batcher(threshold);
+                    reliableBatcher = CreateBatcher(channelId);
                 }
                 return reliableBatcher;
             }
@@ -103,11 +108,7 @@ namespace Mirror
             {
                 if (unreliableBatcher == null)
                 {
-                    // get max batch size for this channel
-                    int threshold = Transport.active.GetBatchThreshold(channelId);
-
-                    // create batcher
-                    unreliableBatcher = new Batcher(threshold);
+                    unreliableBatcher = CreateBatcher(channelId);
                 }
                 return unreliableBatcher;
             }
@@ -116,12 +117,7 @@ namespace Mirror
             Batcher batch;
             if (!batches.TryGetValue(channelId, out batch))
             {
-                // get max batch size for this channel
-                int threshold = Transport.active.GetBatchThreshold(channelId);
-
-                // create batcher
-                batch = new Batcher(threshold);
-                batches[channelId] = batch;
+                batches[channelId] = batch = CreateBatcher(channelId);
             }
             return batch;
         }
@@ -231,7 +227,7 @@ namespace Mirror
             {
                 UpdateBatcher(Channels.Reliable, reliableBatcher);
             }
-            
+
             if (unreliableBatcher != null)
             {
                 UpdateBatcher(Channels.Unreliable, unreliableBatcher);
