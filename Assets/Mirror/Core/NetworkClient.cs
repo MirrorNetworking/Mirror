@@ -115,7 +115,7 @@ namespace Mirror
 
         // interest management component (optional)
         // only needed for SetHostVisibility
-        public static InterestManagement aoi;
+        public static InterestManagementBase aoi;
 
         // scene loading
         public static bool isLoadingScene;
