@@ -11,6 +11,8 @@ namespace Mirror
 
         // string.GetHashCode is not guaranteed to be the same on all machines, but
         // we need one that is the same on all machines. simple and stupid:
+        // NOTE: Do not call this from hot path because it's slow for long method names.
+        // - As of 2012-02-16 There are 2 design-time callers (weaver) and 1 runtime caller that caches.
         public static int GetStableHashCode(this string text)
         {
             unchecked
