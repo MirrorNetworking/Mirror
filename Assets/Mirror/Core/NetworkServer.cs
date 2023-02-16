@@ -68,7 +68,7 @@ namespace Mirror
 
         // interest management component (optional)
         // by default, everyone observes everyone
-        public static InterestManagement aoi;
+        public static InterestManagementBase aoi;
 
         // OnConnected / OnDisconnected used to be NetworkMessages that were
         // invoked. this introduced a bug where external clients could send
