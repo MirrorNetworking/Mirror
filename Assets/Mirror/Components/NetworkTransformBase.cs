@@ -160,9 +160,6 @@ namespace Mirror
             // -> we still interpolated
             // -> but simply don't apply it. if the user doesn't want to sync
             //    scale, then we should not touch scale etc.
-            if (syncPosition) target.localPosition = interpolated.position;
-            if (syncRotation) target.localRotation = interpolated.rotation;
-            if (syncScale)    target.localScale = interpolated.scale;
 
             if (syncPosition)
                 target.localPosition = interpolatePosition ? interpolated.position : endGoal.position;
