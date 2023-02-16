@@ -3,6 +3,8 @@ name: Semantic Release
 on:
   workflow_dispatch:
   workflow_call:
+    branches:
+    - master
 
 jobs:
   SemanticRelease:
