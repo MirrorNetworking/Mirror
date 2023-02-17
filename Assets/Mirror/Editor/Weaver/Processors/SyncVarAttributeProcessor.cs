@@ -203,6 +203,8 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Call, weaverTypes.getSyncVarNetworkIdentityReference);
                 worker.Emit(OpCodes.Ret);
             }
+            // handle both NetworkBehaviour and inheritors.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939
             else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>() || fd.FieldType.Is<NetworkBehaviour>())
             {
                 // return this.GetSyncVarNetworkBehaviour<T>(ref field, uint netId);
