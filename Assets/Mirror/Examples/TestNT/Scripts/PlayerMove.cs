@@ -5,15 +5,12 @@ namespace TestNT
 {
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CharacterController))]
-    //[RequireComponent(typeof(CapsuleCollider))]
-    [RequireComponent(typeof(NTReliableExt))]
     public class PlayerMove : NetworkBehaviour
     {
         public enum GroundState : byte { Jumping, Falling, Grounded }
 
         [Header("Avatar Components")]
         public CharacterController characterController;
-        public NTReliableExt NTReliableExt;
         public Animator animator;
 
         [Header("Materials")]
@@ -75,9 +72,6 @@ namespace TestNT
             characterController.sharedMaterial = physicsMaterial;
 
             GetComponent<Rigidbody>().isKinematic = true;
-
-            if (NTReliableExt == null)
-                NTReliableExt = GetComponent<NTReliableExt>();
 
             this.enabled = false;
         }

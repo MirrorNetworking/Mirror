@@ -4,7 +4,6 @@ using TMPro;
 
 namespace TestNT
 {
-    [RequireComponent(typeof(NetworkTransformReliable))]
     public class PlayerBuffers : NetworkBehaviour
     {
         Transform mainCamTransform;

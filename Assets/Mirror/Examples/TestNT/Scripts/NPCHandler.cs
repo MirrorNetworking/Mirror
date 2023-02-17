@@ -27,7 +27,10 @@ namespace TestNT
         {
             if (Input.GetKeyDown(KeyCode.N))
                 if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
                     CmdKillNPC();
+                    CmdKillNPC();
+                }
                 else
                     CmdSpawnNPC();
         }
@@ -35,13 +38,19 @@ namespace TestNT
         [Command]
         void CmdSpawnNPC()
         {
-            //Vector3 spawnPos = transform.position + Vector3.forward;
             GameObject npc = Instantiate(TestNTNetworkManager.singleton.npcPrefab);
             npc.GetComponent<PlayerName>().playerName = "NPC";
             npc.GetComponent<CharacterController>().enabled = true;
             npc.GetComponent<PlayerMove>().enabled = true;
             NetworkServer.Spawn(npc);
             NpcList.Add(npc);
+
+            GameObject npcNinja = Instantiate(TestNTNetworkManager.singleton.npcNinjaPrefab);
+            npcNinja.GetComponent<PlayerName>().playerName = "NPC-Ninja";
+            npcNinja.GetComponent<CharacterController>().enabled = true;
+            npcNinja.GetComponent<PlayerMove>().enabled = true;
+            NetworkServer.Spawn(npcNinja);
+            NpcList.Add(npcNinja);
         }
 
         [Command]

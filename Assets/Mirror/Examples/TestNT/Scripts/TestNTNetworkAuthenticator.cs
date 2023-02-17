@@ -12,6 +12,7 @@ namespace TestNT
 
         [Header("Client Username")]
         public string playerName;
+        public bool useNinja;
         public bool isBot;
 
         #region Messages
@@ -19,6 +20,7 @@ namespace TestNT
         public struct AuthRequestMessage : NetworkMessage
         {
             public string authUsername;
+            public bool useNinja;
             public bool isBot;
         }
 
@@ -153,6 +155,11 @@ namespace TestNT
             LoginUI.instance.errorText.gameObject.SetActive(false);
         }
 
+        public void SetNinja(bool useNinja)
+        {
+            this.useNinja = useNinja;
+        }
+
         /// <summary>
         /// Called on client from StartClient to initialize the Authenticator
         /// <para>Client message handlers should be registered in this method.</para>
@@ -181,6 +188,7 @@ namespace TestNT
             AuthRequestMessage authRequestMessage = new AuthRequestMessage
             {
                 authUsername = playerName,
+                useNinja = useNinja,
                 isBot = isBot
             };
 

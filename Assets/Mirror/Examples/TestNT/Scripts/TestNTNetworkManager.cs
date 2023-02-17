@@ -13,8 +13,13 @@ namespace TestNT
         // have to cast to this type everywhere.
         public static new TestNTNetworkManager singleton { get; private set; }
 
+        public GameObject playerNinjaPrefab;
+
         public GameObject botPrefab;
         public GameObject npcPrefab;
+
+        public GameObject botNinjaPrefab;
+        public GameObject npcNinjaPrefab;
 
         /// <summary>
         /// Runs on both Server and Client
@@ -81,6 +86,7 @@ namespace TestNT
             {
                 if (arg.StartsWith("/h:", StringComparison.InvariantCultureIgnoreCase))
                     networkAddress = arg.Remove(0, 3);
+
                 if (arg.StartsWith("/p:", StringComparison.InvariantCultureIgnoreCase))
                     if (ushort.TryParse(arg.Remove(0, 3), out ushort port))
                         ((SimpleWebTransport)Transport.active).port = port;
@@ -91,15 +97,18 @@ namespace TestNT
                     ((SimpleWebTransport)Transport.active).sslEnabled = true;
                 }
 
+                if (arg.Equals("/ninja", StringComparison.InvariantCultureIgnoreCase))
+                    ((TestNTNetworkAuthenticator)authenticator).SetNinja(true);
+
                 if (arg.Equals("/nossl", StringComparison.InvariantCultureIgnoreCase))
                 {
                     ((SimpleWebTransport)Transport.active).sslEnabled = false;
                     ((SimpleWebTransport)Transport.active).clientUseWss = false;
                 }
+
                 if (arg.StartsWith("/r:", StringComparison.InvariantCultureIgnoreCase))
                     if (int.TryParse(arg.Remove(0, 3), out sendRate))
                         Application.targetFrameRate = sendRate;
-
             }
         }
 #endif
@@ -198,13 +207,18 @@ namespace TestNT
         {
             TestNTNetworkAuthenticator.AuthRequestMessage authData = (TestNTNetworkAuthenticator.AuthRequestMessage)conn.authenticationData;
 
-            //Vector3 spawnPos = new Vector3(Random.Range(-20, 20), 5, Random.Range(-20, 20));
             GameObject player;
 
             if (authData.isBot)
-                player = Instantiate(botPrefab);
+                if (authData.useNinja)
+                    player = Instantiate(botNinjaPrefab);
+                else
+                    player = Instantiate(botPrefab);
             else
-                player = Instantiate(playerPrefab);
+                if (authData.useNinja)
+                    player = Instantiate(playerNinjaPrefab);
+                else
+                    player = Instantiate(playerPrefab);
 
             player.transform.LookAt(new Vector3(0f, 1f, 0f));
 
