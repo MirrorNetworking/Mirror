@@ -14,6 +14,7 @@ namespace TestNT
         public string playerName;
         public bool useNinja;
         public bool isBot;
+        public uint multiplier = 3;
 
         #region Messages
 
@@ -22,6 +23,7 @@ namespace TestNT
             public string authUsername;
             public bool useNinja;
             public bool isBot;
+            public uint multiplier;
         }
 
         public struct AuthResponseMessage : NetworkMessage
@@ -160,6 +162,11 @@ namespace TestNT
             this.useNinja = useNinja;
         }
 
+        public void SetMultiplier(string multiplier)
+        {
+            this.multiplier = uint.Parse(multiplier);
+        }
+
         /// <summary>
         /// Called on client from StartClient to initialize the Authenticator
         /// <para>Client message handlers should be registered in this method.</para>
@@ -189,6 +196,7 @@ namespace TestNT
             {
                 authUsername = playerName,
                 useNinja = useNinja,
+                multiplier = multiplier,
                 isBot = isBot
             };
 

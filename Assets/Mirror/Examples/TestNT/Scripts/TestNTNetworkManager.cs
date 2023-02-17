@@ -97,8 +97,12 @@ namespace TestNT
                     ((SimpleWebTransport)Transport.active).sslEnabled = true;
                 }
 
-                if (arg.Equals("/ninja", StringComparison.InvariantCultureIgnoreCase))
-                    ((TestNTNetworkAuthenticator)authenticator).SetNinja(true);
+                if (arg.Equals("/ninja:", StringComparison.InvariantCultureIgnoreCase))
+                    if (uint.TryParse(arg.Remove(0, 7), out uint multiplier))
+                    {
+                        ((TestNTNetworkAuthenticator)authenticator).SetNinja(true);
+                        ((TestNTNetworkAuthenticator)authenticator).SetMultiplier(multiplier.ToString());
+                    }
 
                 if (arg.Equals("/nossl", StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -210,15 +214,22 @@ namespace TestNT
             GameObject player;
 
             if (authData.isBot)
+            {
                 if (authData.useNinja)
                     player = Instantiate(botNinjaPrefab);
                 else
                     player = Instantiate(botPrefab);
+            }
             else
+            {
                 if (authData.useNinja)
                     player = Instantiate(playerNinjaPrefab);
                 else
                     player = Instantiate(playerPrefab);
+            }
+
+            if (authData.useNinja)
+                player.GetComponent<NTRCustomSendInterval>().sendIntervalMultiplier = authData.multiplier;
 
             player.transform.LookAt(new Vector3(0f, 1f, 0f));
 
@@ -316,7 +327,7 @@ namespace TestNT
         /// <summary>
         /// This is invoked when the client is started.
         /// </summary>
-        public override void OnStartClient() 
+        public override void OnStartClient()
         {
             NetworkClient.RegisterPrefab(botPrefab);
             NetworkClient.RegisterPrefab(npcPrefab);
