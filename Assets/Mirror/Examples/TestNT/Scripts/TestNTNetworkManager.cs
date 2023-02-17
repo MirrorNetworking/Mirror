@@ -61,6 +61,7 @@ namespace TestNT
             {
                 // set default sendRate, then let CmdLineArgs override
                 Application.targetFrameRate = 30;
+                ((SimpleWebTransport)Transport.active).port = 27777;
                 ProcessCmdLineArgs();
                 ((SimpleWebTransport)Transport.active).sslEnabled = false;
                 ((SimpleWebTransport)Transport.active).clientUseWss = false;
