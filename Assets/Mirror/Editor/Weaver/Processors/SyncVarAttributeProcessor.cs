@@ -369,6 +369,8 @@ namespace Mirror.Weaver
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
             // NetworkBehaviour has different field type than other NetworkIdentityFields
+            // handle both NetworkBehaviour and inheritors.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939
             if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>() || fd.FieldType.Is<NetworkBehaviour>())
             {
                 netIdField = new FieldDefinition($"___{fd.Name}NetId",
