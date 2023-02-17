@@ -115,6 +115,8 @@ namespace Mirror.Weaver
                 return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteList), ref WeavingFailed);
             }
 
+            // handle both NetworkBehaviour and inheritors.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939
             if (variableReference.IsDerivedFrom<NetworkBehaviour>() || variableReference.Is<NetworkBehaviour>())
             {
                 return GetNetworkBehaviourWriter(variableReference);
