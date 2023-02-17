@@ -113,7 +113,7 @@ namespace Mirror.Weaver
 
                 return GenerateReadCollection(variableReference, elementType, nameof(NetworkReaderExtensions.ReadList), ref WeavingFailed);
             }
-            else if (variableReference.IsDerivedFrom<NetworkBehaviour>())
+            else if (variableReference.IsDerivedFrom<NetworkBehaviour>() || variableReference.Is<NetworkBehaviour>())
             {
                 return GetNetworkBehaviourReader(variableReference);
             }

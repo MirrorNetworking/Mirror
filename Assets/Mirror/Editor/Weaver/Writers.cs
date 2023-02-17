@@ -115,7 +115,7 @@ namespace Mirror.Weaver
                 return GenerateCollectionWriter(variableReference, elementType, nameof(NetworkWriterExtensions.WriteList), ref WeavingFailed);
             }
 
-            if (variableReference.IsDerivedFrom<NetworkBehaviour>())
+            if (variableReference.IsDerivedFrom<NetworkBehaviour>() || variableReference.Is<NetworkBehaviour>())
             {
                 return GetNetworkBehaviourWriter(variableReference);
             }

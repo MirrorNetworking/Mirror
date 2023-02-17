@@ -203,7 +203,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Call, weaverTypes.getSyncVarNetworkIdentityReference);
                 worker.Emit(OpCodes.Ret);
             }
-            else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>() || fd.FieldType.Is<NetworkBehaviour>())
             {
                 // return this.GetSyncVarNetworkBehaviour<T>(ref field, uint netId);
                 // this.
@@ -331,10 +331,7 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldflda, netIdFieldReference);
                 worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarSetter_NetworkIdentity);
             }
-            // TODO this only uses the persistent netId for types DERIVED FROM NB.
-            //      not if the type is just 'NetworkBehaviour'.
-            //      this is what original implementation did too. fix it after.
-            else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            else if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>() || fd.FieldType.Is<NetworkBehaviour>())
             {
                 // NetworkIdentity setter needs one more parameter: netId field ref
                 // (actually its a NetworkBehaviourSyncVar type)
@@ -368,7 +365,7 @@ namespace Mirror.Weaver
             // GameObject/NetworkIdentity SyncVars have a new field for netId
             FieldDefinition netIdField = null;
             // NetworkBehaviour has different field type than other NetworkIdentityFields
-            if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>())
+            if (fd.FieldType.IsDerivedFrom<NetworkBehaviour>() || fd.FieldType.Is<NetworkBehaviour>())
             {
                 netIdField = new FieldDefinition($"___{fd.Name}NetId",
                    FieldAttributes.Family, // needs to be protected for generic classes, otherwise access isn't allowed
