@@ -582,6 +582,8 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldflda, netIdField);
                 worker.Emit(OpCodes.Call, weaverTypes.generatedSyncVarDeserialize_NetworkIdentity);
             }
+            // handle both NetworkBehaviour and inheritors.
+            // fixes: https://github.com/MirrorNetworking/Mirror/issues/2939
             else if (syncVar.FieldType.IsDerivedFrom<NetworkBehaviour>() || syncVar.FieldType.Is<NetworkBehaviour>())
             {
                 // reader
