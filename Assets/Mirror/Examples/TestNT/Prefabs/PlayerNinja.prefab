@@ -1183,7 +1183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d65c9604d9da1bc4a8f827172ba44b69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 0
+  syncDirection: 1
   syncMode: 0
   syncInterval: 0
   target: {fileID: 4766479682556367025}
@@ -1193,17 +1193,17 @@ MonoBehaviour:
   syncScale: 0
   interpolatePosition: 1
   interpolateRotation: 1
-  interpolateScale: 1
+  interpolateScale: 0
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
   onlySyncOnChange: 1
   onlySyncOnChangeCorrectionMultiplier: 2
   sendIntervalMultiplier: 3
-  rotationSensitivity: 0.01
+  rotationSensitivity: 0.02
   compressRotation: 0
-  positionPrecision: 0.01
-  scalePrecision: 0.01
+  positionPrecision: 0.02
+  scalePrecision: 0.02
 --- !u!114 &3312899339913779786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1220,7 +1220,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   characterController: {fileID: 8232044822362603360}
-  NTReliableExt: {fileID: 0}
   animator: {fileID: 0}
   physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
   moveSpeedMultiplier: 8

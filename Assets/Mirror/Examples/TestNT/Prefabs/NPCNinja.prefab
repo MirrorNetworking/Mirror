@@ -30,7 +30,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388172571495221481}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -20, y: 1, z: -20}
+  m_LocalPosition: {x: -10, y: 1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -119,10 +119,10 @@ MonoBehaviour:
   onlySyncOnChange: 1
   onlySyncOnChangeCorrectionMultiplier: 2
   sendIntervalMultiplier: 3
-  rotationSensitivity: 0.01
+  rotationSensitivity: 0.02
   compressRotation: 0
-  positionPrecision: 0.01
-  scalePrecision: 0.01
+  positionPrecision: 0.02
+  scalePrecision: 0.02
 --- !u!114 &6272645315499712679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +139,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   characterController: {fileID: 633662763139007885}
-  NTReliableExt: {fileID: 0}
   animator: {fileID: 0}
   physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
   moveSpeedMultiplier: 8
