@@ -115,7 +115,7 @@ namespace Mirror
 
         // interest management component (optional)
         // only needed for SetHostVisibility
-        public static InterestManagement aoi;
+        public static InterestManagementBase aoi;
 
         // scene loading
         public static bool isLoadingScene;
@@ -471,7 +471,7 @@ namespace Mirror
         public static void RegisterHandler<T>(Action<T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            ushort msgType = NetworkMessages.GetId<T>();
+            ushort msgType = NetworkMessageId<T>.Id;
             if (handlers.ContainsKey(msgType))
             {
                 Debug.LogWarning($"NetworkClient.RegisterHandler replacing handler for {typeof(T).FullName}, id={msgType}. If replacement is intentional, use ReplaceHandler instead to avoid this warning.");
@@ -490,7 +490,7 @@ namespace Mirror
         public static void ReplaceHandler<T>(Action<NetworkConnection, T> handler, bool requireAuthentication = true)
             where T : struct, NetworkMessage
         {
-            ushort msgType = NetworkMessages.GetId<T>();
+            ushort msgType = NetworkMessageId<T>.Id;
             handlers[msgType] = NetworkMessages.WrapHandler(handler, requireAuthentication);
         }
 
@@ -508,7 +508,7 @@ namespace Mirror
             where T : struct, NetworkMessage
         {
             // use int to minimize collisions
-            ushort msgType = NetworkMessages.GetId<T>();
+            ushort msgType = NetworkMessageId<T>.Id;
             return handlers.Remove(msgType);
         }
 
@@ -1480,12 +1480,6 @@ namespace Mirror
         internal static void NetworkLateUpdate()
         {
             // broadcast ClientToServer components while active
-            // note that Broadcast() runs every update.
-            // on clients with 120 Hz, this will run 120 times per second.
-            // however, Broadcast only checks .owned, which usually aren't many.
-            //
-            // we could use a .sendInterval, but it would also put a minimum
-            // limit to every component's sendInterval automatically.
             if (active)
             {
                 // broadcast every sendInterval.

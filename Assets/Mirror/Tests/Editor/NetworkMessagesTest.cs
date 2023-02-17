@@ -29,7 +29,7 @@ namespace Mirror.Tests
         {
             using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(data))
             {
-                int msgType = NetworkMessages.GetId<T>();
+                int msgType = NetworkMessageId<T>.Id;
 
                 int id = networkReader.ReadUShort();
                 if (id != msgType)
@@ -46,7 +46,7 @@ namespace Mirror.Tests
         {
             // "Mirror.Tests.MessageTests.TestMessage"
             Debug.Log(typeof(TestMessage).FullName);
-            Assert.That(NetworkMessages.GetId<TestMessage>(), Is.EqualTo(0x8706));
+            Assert.That(NetworkMessageId<TestMessage>.Id, Is.EqualTo(0x8706));
         }
 
         [Test]
