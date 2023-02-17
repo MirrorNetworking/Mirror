@@ -59,7 +59,7 @@ namespace TestNT
 
         #region NetworkTransformReliable Methods
 
-        protected override void Apply(TransformSnapshot interpolated)
+        protected override void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
         {
             if (!isOwned)
             {
@@ -69,7 +69,7 @@ namespace TestNT
                 VelRotChangedAction?.Invoke(velChange, rotChange);
             }
 
-            base.Apply(interpolated);
+            base.Apply(interpolated, endGoal);
         }
 
         protected override TransformSnapshot Construct()
