@@ -292,7 +292,7 @@ MonoBehaviour:
   onlySyncOnChangeCorrectionMultiplier: 2
   sendIntervalMultiplier: 3
   rotationSensitivity: 0.02
-  compressRotation: 0
+  compressRotation: 1
   positionPrecision: 0.02
   scalePrecision: 0.02
 --- !u!114 &8876085967545516632
