@@ -9,6 +9,9 @@ namespace Mirror.Core.Events
 {
     public static class EventManager
     {
+        // This ensures that the static constructor on the NetworkEvent is loaded and ids are generated
+        private static NetworkEvent _ = null;
+
         #region Messages
 
 		/// <summary>
@@ -345,7 +348,7 @@ namespace Mirror.Core.Events
 
 		public static NetworkEvent ReadNetworkEvent(this NetworkReader reader)
         {
-			Type type = Type.GetType(reader.ReadString());
+            Type type = NetworkEvent.GetTypeById(reader.ReadByte());
 			if (type == null)
             {
 				Debug.LogError("Type cannot be null!");
