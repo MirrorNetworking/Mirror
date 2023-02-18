@@ -1,8 +1,6 @@
-using System.Collections;
 using UnityEngine;
 using Mirror;
 using Mirror.SimpleWeb;
-using System;
 
 namespace TestNT
 {
