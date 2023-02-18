@@ -16,6 +16,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
     // uint so non negative.
     [Header("Send Interval Multiplier")]
     [Tooltip("Send every x Network Manager tick")]
+    [SyncVar]
     public uint sendIntervalMultiplier = 3;
     private uint sendIntervalCounter = 0;
     private double lastSendIntervalTime = double.MinValue;
