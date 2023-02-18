@@ -337,6 +337,9 @@ namespace TestNT
         {
             NetworkClient.RegisterPrefab(botPrefab);
             NetworkClient.RegisterPrefab(npcPrefab);
+            NetworkClient.RegisterPrefab(playerNinjaPrefab);
+            NetworkClient.RegisterPrefab(botNinjaPrefab);
+            NetworkClient.RegisterPrefab(npcNinjaPrefab);
         }
 
         /// <summary>

@@ -213,7 +213,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
     // however, OnSerialize should always delta against last.
     public override void OnSerialize(NetworkWriter writer, bool initialState)
     {
-        Debug.Log($"OnSerialize, local time: {NetworkTime.time}");
+        //Debug.Log($"OnSerialize, local time: {NetworkTime.time}");
         // get current snapshot for broadcasting.
         TransformSnapshot snapshot = Construct();
 
