@@ -57,7 +57,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
     }
 
     // update //////////////////////////////////////////////////////////////
-    void Update()
+    void LateUpdate()
     {
         // if server then always sync to others.
         if (isServer) UpdateServer();
