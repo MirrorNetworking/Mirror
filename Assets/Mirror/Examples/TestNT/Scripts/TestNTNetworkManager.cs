@@ -103,7 +103,7 @@ namespace TestNT
                     ((SimpleWebTransport)Transport.active).sslEnabled = true;
                 }
 
-                if (arg.Equals("/ninja:", StringComparison.InvariantCultureIgnoreCase))
+                if (arg.StartsWith("/ninja:", StringComparison.InvariantCultureIgnoreCase))
                     if (uint.TryParse(arg.Remove(0, 7), out uint multiplier))
                     {
                         ((TestNTNetworkAuthenticator)authenticator).SetNinja(true);
