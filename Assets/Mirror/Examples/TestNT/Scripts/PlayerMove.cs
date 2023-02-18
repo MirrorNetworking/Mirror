@@ -80,6 +80,12 @@ namespace TestNT
         {
             characterController.enabled = true;
             this.enabled = true;
+
+            TestNTNetworkAuthenticator.AuthRequestMessage authRequestMessage 
+                = (TestNTNetworkAuthenticator.AuthRequestMessage)NetworkClient.connection.authenticationData;
+            if (authRequestMessage.useNinja) 
+                if (TryGetComponent(out NTRCustomSendInterval nt))
+                    nt.sendIntervalMultiplier = authRequestMessage.multiplier;
         }
 
         public override void OnStopAuthority()

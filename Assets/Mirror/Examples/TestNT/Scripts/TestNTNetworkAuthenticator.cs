@@ -202,6 +202,8 @@ namespace TestNT
 
             Debug.Log($"Sending: U:{playerName} N:{useNinja} M:{multiplier} B:{isBot}");
 
+            NetworkClient.connection.authenticationData = authRequestMessage;
+
             NetworkClient.Send(authRequestMessage);
         }
 
