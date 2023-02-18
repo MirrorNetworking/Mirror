@@ -1013,6 +1013,8 @@ MonoBehaviour:
     m_Options:
     - m_Text: mirror.clevertech.net
       m_Image: {fileID: 0}
+    - m_Text: stresstest.idev.dl.je
+      m_Image: {fileID: 0}
     - m_Text: localhost
       m_Image: {fileID: 0}
   m_OnValueChanged:
@@ -1711,8 +1713,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 0
-  autoConnectClientBuild: 1
+  autoStartServerBuild: 1
+  autoConnectClientBuild: 0
   sendRate: 30
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineWeb.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity

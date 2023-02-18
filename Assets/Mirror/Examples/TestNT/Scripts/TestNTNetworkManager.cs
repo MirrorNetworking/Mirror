@@ -47,6 +47,11 @@ namespace TestNT
             }
             if (server == 1)
             {
+                SetHostname("stresstest.idev.dl.je");
+                ((SimpleWebTransport)transport).port = 443;
+            }
+            if (server == 2)
+            {
                 SetHostname("localhost");
                 ((SimpleWebTransport)transport).port = 27777;
             }
