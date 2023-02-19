@@ -6,7 +6,6 @@ namespace TestNT
     public class LoginUI : MonoBehaviour
     {
         [Header("UI Elements")]
-        [SerializeField] internal InputField networkAddressInput;
         [SerializeField] internal InputField usernameInput;
         [SerializeField] internal Button hostButton;
         [SerializeField] internal Button clientButton;
