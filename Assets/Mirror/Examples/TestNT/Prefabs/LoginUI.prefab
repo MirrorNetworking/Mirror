@@ -165,18 +165,6 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TestNT.TestNTNetworkAuthenticator, Mirror.Examples
-        m_MethodName: SetNinja
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 5678319891107958447}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -192,6 +180,18 @@ MonoBehaviour:
       - m_Target: {fileID: 5678319892247375077}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: TestNT.TestNTNetworkAuthenticator, Mirror.Examples
+        m_MethodName: SetNinja
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1357,18 +1357,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Mirror.NetworkManager, Mirror
-        m_MethodName: StartHost
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
 --- !u!1 &5678319891365071455
 GameObject:
   m_ObjectHideFlags: 0
@@ -1844,9 +1832,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TestNTNetworkAuthenticator, Assembly-CSharp
-        m_MethodName: SetPlayername
+      - m_Target: {fileID: 5678319892216973637}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: ToggleButtons
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1856,9 +1844,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 5678319892216973637}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: ToggleButtons
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: TestNTNetworkAuthenticator, Assembly-CSharp
+        m_MethodName: SetPlayername
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2391,17 +2379,17 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Mirror.NetworkManager, Mirror
-        m_MethodName: StartClient
-        m_Mode: 1
+      - m_Target: {fileID: 5678319892216973638}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &5678319892099773448
 GameObject:
@@ -2677,7 +2665,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1298a3cb78b81e745a5f5d21a02cbe5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkAddressInput: {fileID: 0}
   usernameInput: {fileID: 5678319891602522471}
   hostButton: {fileID: 5678319891227221139}
   clientButton: {fileID: 5678319892058295296}
