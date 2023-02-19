@@ -1,8 +1,10 @@
+#if UNITY_SERVER
+using System;
+#endif
 using UnityEngine;
 using Mirror;
 using Mirror.SimpleWeb;
 using kcp2k;
-using System;
 
 namespace TestNT
 {
@@ -72,7 +74,7 @@ namespace TestNT
             }
         }
 
-        #region Unity Callbacks
+#region Unity Callbacks
 
 #if UNITY_SERVER
         public override void Start()
@@ -177,9 +179,9 @@ namespace TestNT
             base.OnDestroy();
         }
 
-        #endregion
+#endregion
 
-        #region Scene Management
+#region Scene Management
 
         /// <summary>
         /// This causes the server to switch scenes and sets the networkSceneName.
@@ -225,9 +227,9 @@ namespace TestNT
             base.OnClientSceneChanged();
         }
 
-        #endregion
+#endregion
 
-        #region Server System Callbacks
+#region Server System Callbacks
 
         /// <summary>
         /// Called on the server when a new client connects.
@@ -314,9 +316,9 @@ namespace TestNT
         /// <param name="exception">Exception thrown from the Transport.</param>
         public override void OnServerError(NetworkConnectionToClient conn, TransportError transportError, string message) { }
 
-        #endregion
+#endregion
 
-        #region Client System Callbacks
+#region Client System Callbacks
 
         /// <summary>
         /// Called on the client when connected to a server.
@@ -358,9 +360,9 @@ namespace TestNT
             Debug.LogError($"OnClientError {transportError} {message}");
         }
 
-        #endregion
+#endregion
 
-        #region Start & Stop Callbacks
+#region Start & Stop Callbacks
 
         // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
         // their functionality, users would need override all the versions. Instead these callbacks are invoked
@@ -408,6 +410,6 @@ namespace TestNT
         /// </summary>
         public override void OnStopClient() { }
 
-        #endregion
+#endregion
     }
 }
