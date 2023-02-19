@@ -6,9 +6,16 @@ namespace TestNT
     public class LoginUI : MonoBehaviour
     {
         [Header("UI Elements")]
+        [SerializeField] internal TMPro.TMP_Dropdown networkAddressDropdown;
+
         [SerializeField] internal InputField usernameInput;
+
+        [SerializeField] internal Toggle ninjaToggle;
+        [SerializeField] internal InputField multiplierInput;
+
         [SerializeField] internal Button hostButton;
         [SerializeField] internal Button clientButton;
+
         [SerializeField] internal Text errorText;
 
         public static LoginUI instance;

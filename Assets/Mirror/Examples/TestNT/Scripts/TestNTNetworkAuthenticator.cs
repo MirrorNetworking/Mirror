@@ -229,6 +229,13 @@ namespace TestNT
                 NetworkManager.singleton.StopHost();
 
                 // Do this AFTER StopHost so it doesn't get cleared / hidden by OnClientDisconnect
+                LoginUI.instance.networkAddressDropdown.interactable = true;
+                LoginUI.instance.usernameInput.interactable = true;
+                LoginUI.instance.ninjaToggle.interactable = true;
+                LoginUI.instance.multiplierInput.interactable = true;
+
+                LoginUI.instance.ToggleButtons(playerName);
+
                 LoginUI.instance.errorText.text = msg.message;
                 LoginUI.instance.errorText.gameObject.SetActive(true);
             }
