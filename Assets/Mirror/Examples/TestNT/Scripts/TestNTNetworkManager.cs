@@ -1,6 +1,8 @@
 using UnityEngine;
 using Mirror;
 using Mirror.SimpleWeb;
+using kcp2k;
+using System;
 
 namespace TestNT
 {
@@ -41,17 +43,32 @@ namespace TestNT
             if (server == 0)
             {
                 SetHostname("mirror.clevertech.net");
-                ((SimpleWebTransport)transport).port = 7777;
+
+                if (transport is SimpleWebTransport swt)
+                    swt.port = 7777;
+
+                if (transport is KcpTransport kcp)
+                    kcp.Port = 7777;
             }
             if (server == 1)
             {
                 SetHostname("stresstest.idev.dl.je");
-                ((SimpleWebTransport)transport).port = 443;
+
+                if (transport is SimpleWebTransport swt)
+                    swt.port = 443;
+
+                if (transport is KcpTransport kcp)
+                    kcp.Port = 443;
             }
             if (server == 2)
             {
                 SetHostname("localhost");
-                ((SimpleWebTransport)transport).port = 27777;
+
+                if (transport is SimpleWebTransport swt)
+                    swt.port = 27777;
+
+                if (transport is KcpTransport kcp)
+                    kcp.Port = 27777;
             }
         }
 
@@ -64,10 +81,20 @@ namespace TestNT
             {
                 // set default sendRate, then let CmdLineArgs override
                 Application.targetFrameRate = 30;
-                ((SimpleWebTransport)Transport.active).port = 27777;
+
+                if (Transport.active is SimpleWebTransport swt)
+                    swt.port = 27777;
+
+                if (Transport.active is kcp2k.KcpTransport kcp)
+                    kcp.Port = 27777;
+
                 ProcessCmdLineArgs();
-                ((SimpleWebTransport)Transport.active).sslEnabled = false;
-                ((SimpleWebTransport)Transport.active).clientUseWss = false;
+
+                if (Transport.active is SimpleWebTransport swt2)
+                {
+                    swt2.sslEnabled = false;
+                    swt2.clientUseWss = false;
+                }
 
                 StartServer();
             }
@@ -76,10 +103,17 @@ namespace TestNT
             {
                 // set default sendRate, then let CmdLineArgs override
                 Application.targetFrameRate = 60;
-                ((SimpleWebTransport)Transport.active).sslEnabled = true;
-                ((SimpleWebTransport)Transport.active).clientUseWss = true;
+
+                if (Transport.active is SimpleWebTransport swt)
+                {
+                    swt.sslEnabled = true;
+                    swt.clientUseWss = true;
+                }
+
                 ProcessCmdLineArgs();
+
                 ((TestNTNetworkAuthenticator)authenticator).SetPlayername($"Bot[{sendRate}] ", true);
+
                 StartClient();
             }
         }
@@ -93,12 +127,18 @@ namespace TestNT
 
                 if (arg.StartsWith("/p:", StringComparison.InvariantCultureIgnoreCase))
                     if (ushort.TryParse(arg.Remove(0, 3), out ushort port))
-                        ((SimpleWebTransport)Transport.active).port = port;
+                    {
+                        if (transport is SimpleWebTransport swt)
+                            swt.port = 7777;
 
-                if (arg.Equals("/ssl", StringComparison.InvariantCultureIgnoreCase))
+                        if (transport is KcpTransport kcp)
+                            kcp.Port = 7777;
+                    }
+
+                if (arg.Equals("/ssl", StringComparison.InvariantCultureIgnoreCase) && Transport.active is SimpleWebTransport swt2)
                 {
-                    ((SimpleWebTransport)Transport.active).clientUseWss = true;
-                    ((SimpleWebTransport)Transport.active).sslEnabled = true;
+                    swt2.clientUseWss = true;
+                    swt2.sslEnabled = true;
                 }
 
                 if (arg.StartsWith("/ninja:", StringComparison.InvariantCultureIgnoreCase))
@@ -108,10 +148,10 @@ namespace TestNT
                         ((TestNTNetworkAuthenticator)authenticator).SetMultiplier(multiplier.ToString());
                     }
 
-                if (arg.Equals("/nossl", StringComparison.InvariantCultureIgnoreCase))
+                if (arg.Equals("/nossl", StringComparison.InvariantCultureIgnoreCase) && Transport.active is SimpleWebTransport swt3)
                 {
-                    ((SimpleWebTransport)Transport.active).sslEnabled = false;
-                    ((SimpleWebTransport)Transport.active).clientUseWss = false;
+                    swt3.clientUseWss = false;
+                    swt3.sslEnabled = false;
                 }
 
                 if (arg.StartsWith("/r:", StringComparison.InvariantCultureIgnoreCase))
@@ -320,16 +360,16 @@ namespace TestNT
 
         #endregion
 
-            #region Start & Stop Callbacks
+        #region Start & Stop Callbacks
 
-            // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
-            // their functionality, users would need override all the versions. Instead these callbacks are invoked
-            // from all versions, so users only need to implement this one case.
+        // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
+        // their functionality, users would need override all the versions. Instead these callbacks are invoked
+        // from all versions, so users only need to implement this one case.
 
-            /// <summary>
-            /// This is invoked when a host is started.
-            /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
-            /// </summary>
+        /// <summary>
+        /// This is invoked when a host is started.
+        /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
+        /// </summary>
         public override void OnStartHost() { }
 
         /// <summary>
