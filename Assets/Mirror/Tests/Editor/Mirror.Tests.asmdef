@@ -21,6 +21,7 @@
     "precompiledReferences": [
         "NSubstitute.dll",
         "Castle.Core.dll",
+        "System.Threading.Tasks.Extensions.dll",
         "Mono.CecilX.dll",
         "nunit.framework.dll"
     ],
