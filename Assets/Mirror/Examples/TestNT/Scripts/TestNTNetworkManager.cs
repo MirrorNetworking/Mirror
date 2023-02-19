@@ -291,7 +291,17 @@ namespace TestNT
         /// Called on clients when disconnected from a server.
         /// <para>This is called on the client when it disconnects from the server. Override this function to decide what happens when the client disconnects.</para>
         /// </summary>
-        public override void OnClientDisconnect() { }
+        public override void OnClientDisconnect()
+        {
+            Debug.Log("OnClientDisconnect");
+
+            LoginUI.instance.networkAddressDropdown.interactable = true;
+            LoginUI.instance.usernameInput.interactable = true;
+            LoginUI.instance.ninjaToggle.interactable = true;
+            LoginUI.instance.multiplierInput.interactable = true;
+
+            LoginUI.instance.ToggleButtons(LoginUI.instance.usernameInput.text);
+        }
 
         /// <summary>
         /// Called on clients when a servers tells the client it is no longer ready.
@@ -303,20 +313,23 @@ namespace TestNT
         /// Called on client when transport raises an exception.</summary>
         /// </summary>
         /// <param name="exception">Exception thrown from the Transport.</param>
-        public override void OnClientError(TransportError transportError, string message) { }
+        public override void OnClientError(TransportError transportError, string message)
+        {
+            Debug.LogError($"OnClientError {transportError} {message}");
+        }
 
         #endregion
 
-        #region Start & Stop Callbacks
+            #region Start & Stop Callbacks
 
-        // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
-        // their functionality, users would need override all the versions. Instead these callbacks are invoked
-        // from all versions, so users only need to implement this one case.
+            // Since there are multiple versions of StartServer, StartClient and StartHost, to reliably customize
+            // their functionality, users would need override all the versions. Instead these callbacks are invoked
+            // from all versions, so users only need to implement this one case.
 
-        /// <summary>
-        /// This is invoked when a host is started.
-        /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
-        /// </summary>
+            /// <summary>
+            /// This is invoked when a host is started.
+            /// <para>StartHost has multiple signatures, but they all cause this hook to be called.</para>
+            /// </summary>
         public override void OnStartHost() { }
 
         /// <summary>
