@@ -2,6 +2,7 @@
 using System;
 #endif
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Mirror;
 using Mirror.SimpleWeb;
 using kcp2k;
@@ -336,6 +337,10 @@ namespace TestNT
         public override void OnClientDisconnect()
         {
             Debug.Log("OnClientDisconnect");
+
+            if (SceneManager.GetActiveScene().path != offlineScene) return;
+
+            // If we're in offline scene, we failed to connect...
 
             LoginUI.instance.networkAddressDropdown.interactable = true;
             LoginUI.instance.usernameInput.interactable = true;
