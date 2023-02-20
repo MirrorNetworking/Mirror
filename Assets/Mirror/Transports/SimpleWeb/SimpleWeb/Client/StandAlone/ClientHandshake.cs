@@ -60,7 +60,7 @@ namespace Mirror.SimpleWeb
                 Log.Verbose($"[SimpleWebTransport] Handshake Response {responseString}");
 
                 string acceptHeader = "Sec-WebSocket-Accept: ";
-                int startIndex = responseString.IndexOf(acceptHeader, StringComparison.InvariantCultureIgnoreCase) + acceptHeader.Length;
+                int startIndex = responseString.IndexOf(acceptHeader, StringComparison.InvariantCultureIgnoreCase);
 
                 if (startIndex < 0)
                 {
