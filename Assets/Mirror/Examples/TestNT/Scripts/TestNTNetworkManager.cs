@@ -75,7 +75,7 @@ namespace TestNT
             }
         }
 
-#region Unity Callbacks
+        #region Unity Callbacks
 
 #if UNITY_SERVER
         public override void Start()
@@ -132,10 +132,10 @@ namespace TestNT
                     if (ushort.TryParse(arg.Remove(0, 3), out ushort port))
                     {
                         if (transport is SimpleWebTransport swt)
-                            swt.port = 7777;
+                            swt.port = port;
 
                         if (transport is KcpTransport kcp)
-                            kcp.Port = 7777;
+                            kcp.Port = port;
                     }
 
                 if (arg.Equals("/ssl", StringComparison.InvariantCultureIgnoreCase) && Transport.active is SimpleWebTransport swt2)
