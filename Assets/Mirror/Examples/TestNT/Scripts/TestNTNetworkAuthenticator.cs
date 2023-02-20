@@ -14,7 +14,7 @@ namespace TestNT
         public string playerName;
         public bool useNinja;
         public bool isBot;
-        public uint multiplier = 6;
+        public uint multiplier = 3;
 
         #region Messages
 
