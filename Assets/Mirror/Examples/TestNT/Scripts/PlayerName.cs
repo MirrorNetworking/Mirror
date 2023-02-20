@@ -30,11 +30,6 @@ namespace TestNT
             this.enabled = false;
         }
 
-        //public override void OnStartServer()
-        //{
-        //    playerName = (string)connectionToClient.authenticationData;
-        //}
-
         public override void OnStartClient()
         {
             mainCamTransform = Camera.main.transform;
@@ -48,7 +43,6 @@ namespace TestNT
 
         void LateUpdate()
         {
-            //nameText.text = transform.position.ToString();
             nameText.transform.forward = mainCamTransform.forward;
         }
     }
