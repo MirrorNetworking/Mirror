@@ -443,7 +443,21 @@ namespace Mirror.Weaver
                 // this
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, syncVar);
-                MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
+                MethodReference writeFunc;
+                // For NBs we always need to use the default NetworkBehaviour write func
+                // since the reader counter part uses that exact layout which is not easy to change
+                // without introducing more edge cases
+                // effectively this disallows custom NB-type writers/readers on SyncVars
+                // see: https://github.com/MirrorNetworking/Mirror/issues/2680
+                if (syncVar.FieldType.IsDerivedFrom<NetworkBehaviour>())
+                {
+                    writeFunc = writers.GetWriteFunc(weaverTypes.Import<NetworkBehaviour>(), ref WeavingFailed);
+                }
+                else
+                {
+                    writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
+                }
+
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);
@@ -503,7 +517,21 @@ namespace Mirror.Weaver
                 worker.Emit(OpCodes.Ldarg_0);
                 worker.Emit(OpCodes.Ldfld, syncVar);
 
-                MethodReference writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
+                MethodReference writeFunc;
+                // For NBs we always need to use the default NetworkBehaviour write func
+                // since the reader counter part uses that exact layout which is not easy to change
+                // without introducing more edge cases
+                // effectively this disallows custom NB-type writers/readers on SyncVars
+                // see: https://github.com/MirrorNetworking/Mirror/issues/2680
+                if (syncVar.FieldType.IsDerivedFrom<NetworkBehaviour>())
+                {
+                    writeFunc = writers.GetWriteFunc(weaverTypes.Import<NetworkBehaviour>(), ref WeavingFailed);
+                }
+                else
+                {
+                    writeFunc = writers.GetWriteFunc(syncVar.FieldType, ref WeavingFailed);
+                }
+                
                 if (writeFunc != null)
                 {
                     worker.Emit(OpCodes.Call, writeFunc);
