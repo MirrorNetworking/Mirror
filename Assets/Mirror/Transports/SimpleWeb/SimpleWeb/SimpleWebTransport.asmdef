@@ -1,9 +1,7 @@
 {
     "name": "SimpleWebTransport",
     "rootNamespace": "",
-    "references": [
-        "GUID:30817c1a0e6d646d99c048fc403f5979"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
