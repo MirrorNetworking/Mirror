@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Mirror/Examples/TestNT.meta
 guid: 12608f50052323d4dadd0dfc568e0c62
-========
-guid: 8ae237a052b29fc4b8d000f48e545bb7
->>>>>>>> master:Assets/Mirror/Transports/SimpleWeb/SimpleWeb.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
