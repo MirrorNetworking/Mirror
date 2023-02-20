@@ -341,7 +341,7 @@ MonoBehaviour:
   playerName: 
   useNinja: 0
   isBot: 0
-  multiplier: 6
+  multiplier: 3
 --- !u!114 &821201139
 MonoBehaviour:
   m_ObjectHideFlags: 0
