@@ -9,7 +9,7 @@ namespace TestNT
         Transform mainCamTransform;
 
         [Header("Components")]
-        public NTReliableExt networkTransformReliable;
+        public NTRCustomSendInterval networkTransformReliable;
         public TextMeshPro serverBufferText;
         public TextMeshPro clientBufferText;
         public TextMeshPro snapIntText;
@@ -20,7 +20,7 @@ namespace TestNT
 
         private void OnValidate()
         {
-            networkTransformReliable = GetComponent<NTReliableExt>();
+            networkTransformReliable = GetComponent<NTRCustomSendInterval>();
 
             // Force overrideColorTags true so we can change the color without tags
             serverBufferText.overrideColorTags = true;
@@ -43,18 +43,18 @@ namespace TestNT
         void Update()
         {
             /////// Server
-            serverSnapCount = networkTransformReliable.serverSnapshots.Count;
+            //serverSnapCount = networkTransformReliable.serverSnapshots.Count;
 
-            if (serverSnapCount < 2)
-                serverBufferText.color = Color.gray;
-            else if (serverSnapCount < 3)
-                serverBufferText.color = Color.green;
-            else if (serverSnapCount < 4)
-                serverBufferText.color = Color.yellow;
-            else
-                serverBufferText.color = Color.red;
+            //if (serverSnapCount < 2)
+            //    serverBufferText.color = Color.gray;
+            //else if (serverSnapCount < 3)
+            //    serverBufferText.color = Color.green;
+            //else if (serverSnapCount < 4)
+            //    serverBufferText.color = Color.yellow;
+            //else
+            //    serverBufferText.color = Color.red;
 
-            serverBufferText.text = "S: " + new string('-', serverSnapCount);
+            //serverBufferText.text = "S: " + new string('-', serverSnapCount);
 
             /////// Client
             clientSnapCount = networkTransformReliable.clientSnapshots.Count;
@@ -71,8 +71,8 @@ namespace TestNT
             clientBufferText.text = "C: " + new string('-', clientSnapCount);
 
             /////// Snap Interpolation
-            snapIntText.text = $"{networkTransformReliable.velocity.magnitude:N2}" +
-                             $"\n{transform.position}";
+            //snapIntText.text = $"{networkTransformReliable.velocity.magnitude:N2}" +
+            //                 $"\n{transform.position}";
         }
 
         void LateUpdate()

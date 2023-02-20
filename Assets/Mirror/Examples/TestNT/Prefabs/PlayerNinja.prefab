@@ -564,7 +564,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5728015998729826455
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1079,6 +1079,7 @@ GameObject:
   - component: {fileID: -609796368898801164}
   - component: {fileID: 3312899339913779786}
   - component: {fileID: 3763894291287854802}
+  - component: {fileID: 2003669493997550807}
   - component: {fileID: 6969103901093452950}
   - component: {fileID: 8270051434044166674}
   - component: {fileID: 5851163131829192937}
@@ -1254,6 +1255,27 @@ MonoBehaviour:
   syncInterval: 0.1
   nameText: {fileID: 5399959272900428626}
   playerName: 
+--- !u!114 &2003669493997550807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9193589764031967748}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  networkTransformReliable: {fileID: -609796368898801164}
+  serverBufferText: {fileID: 582189624623541219}
+  clientBufferText: {fileID: 6185131698215946210}
+  snapIntText: {fileID: 7045960077892944116}
+  serverSnapCount: 0
+  clientSnapCount: 0
 --- !u!114 &6969103901093452950
 MonoBehaviour:
   m_ObjectHideFlags: 0

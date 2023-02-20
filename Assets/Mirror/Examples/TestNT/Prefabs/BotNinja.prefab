@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1849283443842951301
 RectTransform:
   m_ObjectHideFlags: 0
@@ -187,6 +187,7 @@ GameObject:
   - component: {fileID: -8317558745108888809}
   - component: {fileID: 8876085967545516632}
   - component: {fileID: 7128055435883173568}
+  - component: {fileID: -5553017530869942022}
   m_Layer: 6
   m_Name: BotNinja
   m_TagString: Player
@@ -345,6 +346,27 @@ MonoBehaviour:
   syncInterval: 0.1
   nameText: {fileID: 2028725484753263424}
   playerName: 
+--- !u!114 &-5553017530869942022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2972877558187846166}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  networkTransformReliable: {fileID: -8317558745108888809}
+  serverBufferText: {fileID: 216728925590855664}
+  clientBufferText: {fileID: 6828480870887994353}
+  snapIntText: {fileID: 3972102377781729510}
+  serverSnapCount: 0
+  clientSnapCount: 0
 --- !u!1 &3460729687495372617
 GameObject:
   m_ObjectHideFlags: 0

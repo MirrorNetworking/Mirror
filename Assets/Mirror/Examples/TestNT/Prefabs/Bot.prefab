@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 8096906436974498748}
   - component: {fileID: 6545184674585495222}
   - component: {fileID: 4832621091644330542}
-  - component: {fileID: 350173988757799530}
   m_Layer: 6
   m_Name: Bot
   m_TagString: Player
@@ -174,27 +173,6 @@ MonoBehaviour:
   syncInterval: 0.1
   nameText: {fileID: 4457544332397682606}
   playerName: 
---- !u!114 &350173988757799530
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 629047657802428152}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  networkTransformReliable: {fileID: 8096906436974498748}
-  serverBufferText: {fileID: 2520575634317220638}
-  clientBufferText: {fileID: 9167280228736349983}
-  snapIntText: {fileID: 1649625818729847816}
-  serverSnapCount: 0
-  clientSnapCount: 0
 --- !u!1 &1296439317632248743
 GameObject:
   m_ObjectHideFlags: 0
