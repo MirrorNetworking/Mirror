@@ -125,8 +125,12 @@ public class NTRCustomSendInterval : NetworkTransformBase
         }
     }
 
+    private float lastUpdateTime;
     protected virtual void UpdateClient()
     {
+        if (!inFocus) Debug.Log($"Update Frame Time = {Time.time - lastUpdateTime}");
+        lastUpdateTime = Time.time;
+
         // client authority, and local player (= allowed to move myself)?
         if (!IsClientWithAuthority)
         {
