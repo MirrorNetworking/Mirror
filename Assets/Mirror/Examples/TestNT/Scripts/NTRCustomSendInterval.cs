@@ -55,6 +55,16 @@ public class NTRCustomSendInterval : NetworkTransformBase
         base.Awake();
     }
 
+    private static bool inFocus = true;
+    private double lastNetworkTime;
+    private void OnApplicationFocus(bool focusStatus)
+    {
+        if (!isLocalPlayer) return;
+        inFocus = focusStatus;
+        if (!focusStatus) lastNetworkTime = NetworkTime.time;
+        else Debug.Log($"On Application Focus: {focusStatus}, Time: {NetworkTime.time - lastNetworkTime}");
+    }
+
     // update //////////////////////////////////////////////////////////////
     void Update()
     {
@@ -273,6 +283,8 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     public override void OnDeserialize(NetworkReader reader, bool initialState)
     {
+        if (!inFocus) Debug.Log($"Received snapshot when application not in focus, buffer count for {gameObject.name} : {clientSnapshots.Count}");
+
         Vector3? position = null;
         Quaternion? rotation = null;
         Vector3? scale = null;
