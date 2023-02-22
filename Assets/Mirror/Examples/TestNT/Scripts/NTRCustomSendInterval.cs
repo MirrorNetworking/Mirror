@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -62,7 +63,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
         if (!isLocalPlayer) return;
         inFocus = focusStatus;
         if (!focusStatus) lastNetworkTime = NetworkTime.time;
-        else Debug.Log($"On Application Focus: {focusStatus}, Time: {NetworkTime.time - lastNetworkTime}");
+        else Console.WriteLine($"On Application Focus: {focusStatus}, Time: {NetworkTime.time - lastNetworkTime}");
     }
 
     // update //////////////////////////////////////////////////////////////
@@ -128,7 +129,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
     private float lastUpdateTime;
     protected virtual void UpdateClient()
     {
-        if (!inFocus) Debug.Log($"Update Frame Time = {Time.time - lastUpdateTime}");
+        if (!inFocus) Console.WriteLine($"Update Frame Time = {Time.time - lastUpdateTime}");
         lastUpdateTime = Time.time;
 
         // client authority, and local player (= allowed to move myself)?
@@ -274,7 +275,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
             }
 
             // int written = writer.Position - before;
-            // Debug.Log($"{name} compressed to {written} bytes");
+            // Console.WriteLine($"{name} compressed to {written} bytes");
         }
 
         // save serialized as 'last' for next delta compression
@@ -287,7 +288,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     public override void OnDeserialize(NetworkReader reader, bool initialState)
     {
-        if (!inFocus) Debug.Log($"Received snapshot when application not in focus, buffer count for {gameObject.name} : {clientSnapshots.Count}");
+        if (!inFocus) Console.WriteLine($"Received snapshot when application not in focus, buffer count for {gameObject.name} : {clientSnapshots.Count}");
 
         Vector3? position = null;
         Quaternion? rotation = null;
@@ -364,7 +365,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 target.localPosition,
                 target.localRotation,
                 target.localScale);
-            // Debug.Log($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
+            // Console.WriteLine($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
         }
 
         AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + NetworkServer.sendInterval * sendIntervalMultiplier, position, rotation, scale);
@@ -388,7 +389,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 target.localPosition,
                 target.localRotation,
                 target.localScale);
-            // Debug.Log($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
+            // Console.WriteLine($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
         }
 
         AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + NetworkClient.sendInterval * sendIntervalMultiplier, position, rotation, scale);
