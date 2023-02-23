@@ -183,9 +183,9 @@ namespace Mirror
 				TimeLineOverride(latestRemoteTime, bufferTime, ref localTimeline);
 				
 				double timeDiff         = latestRemoteTime - localTimeline;
-				// Console.WriteLine($"OnTimeSnapshot insert and adjust timeDiff = {timeDiff}, snapshot time buffer count: {buffer.Count}");
+				Console.WriteLine($"OnTimeSnapshot insert and adjust timeDiff = {timeDiff}, snapshot time buffer count: {buffer.Count}");
 				if (buffer.Count > 1)
-					// Console.WriteLine($"local: {localTimeline}, first snap: {buffer.Values[0].remoteTime}, last snap: {buffer.Values[buffer.Count - 1].remoteTime}");
+					Console.WriteLine($"local: {localTimeline}, first snap: {buffer.Values[0].remoteTime}, last snap: {buffer.Values[buffer.Count - 1].remoteTime}");
 				// next, calculate average of a few seconds worth of timediffs.
 				// this gives smoother results.
 				//
@@ -227,15 +227,22 @@ namespace Mirror
 		private static void TimeLineOverride(double latestRemoteTime, double bufferTime, ref double localTimeline)
 		{
 			// HARDCODED BEWARE
-			int multiplierCheck = 3;
+			float multiplierCheck = 1;
 			
-			double diff = latestRemoteTime - localTimeline;
-			double multiple = Math.Abs(diff / bufferTime);
+			// If we want local timeline to be around bufferTime slower,
+			// Then over her we want to clamp localTimeline to be:
+			// target +- multiplierCheck * bufferTime.
+			double targetTime = latestRemoteTime - bufferTime;
 			
-			if (multiple > multiplierCheck)
+			double before = localTimeline; // For debug only.
+	
+			localTimeline = Math.Clamp(localTimeline, targetTime - multiplierCheck * bufferTime, targetTime + multiplierCheck * bufferTime);
+			
+			// DEBUG
+			if (Math.Abs(before - localTimeline) > 0.01f)
 			{
-				// Console.WriteLine("Jumped Time");
-				localTimeline = latestRemoteTime + (diff < 0? 1 : -1) * bufferTime * multiplierCheck;
+				Console.WriteLine($"Timeline before jump {localTimeline}, remote {latestRemoteTime}");
+				Console.WriteLine($"Jumped Time to {localTimeline}");
 			}
 		}
 
