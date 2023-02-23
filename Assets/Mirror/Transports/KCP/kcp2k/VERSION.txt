@@ -1,3 +1,12 @@
+V1.30 [2023-02-20]
+- fix: set send/recv buffer sizes directly instead of iterating to find the limit.
+  fixes: https://github.com/MirrorNetworking/Mirror/issues/3390
+- fix: server & client sockets are now always non-blocking to ensure main thread never
+  blocks on socket.recv/send. Send() now also handles WouldBlock.
+- fix: socket.Receive/From directly with non-blocking sockets and handle WouldBlock,
+  instead of socket.Poll. faster, more obvious, and fixes Poll() looping forever while
+  socket is in error state. fixes: https://github.com/MirrorNetworking/Mirror/issues/2733
+
 V1.29 [2023-01-28]
 - fix: KcpServer.CreateServerSocket now handles NotSupportedException when setting DualMode
   https://github.com/MirrorNetworking/Mirror/issues/3358
