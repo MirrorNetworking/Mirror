@@ -59,10 +59,6 @@ namespace Mirror
         // NetworkClient state
         internal static ConnectState connectState = ConnectState.None;
 
-        /// <summary>IP address of the connection to server.</summary>
-        // empty if the client has not connected yet.
-        public static string serverIp => connection.address;
-
         /// <summary>active is true while a client is connecting/connected either as standalone or as host client.</summary>
         // (= while the network is active)
         public static bool active => connectState == ConnectState.Connecting ||

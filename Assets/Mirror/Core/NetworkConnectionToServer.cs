@@ -5,8 +5,6 @@ namespace Mirror
 {
     public class NetworkConnectionToServer : NetworkConnection
     {
-        public override string address => "";
-
         // Send stage three: hand off to transport
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>

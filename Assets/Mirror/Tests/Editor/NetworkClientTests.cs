@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 
 namespace Mirror.Tests
@@ -11,13 +11,6 @@ namespace Mirror.Tests
             base.SetUp();
             // we need a server to connect to
             NetworkServer.Listen(10);
-        }
-
-        [Test]
-        public void ServerIp()
-        {
-            NetworkClient.ConnectHost();
-            Assert.That(NetworkClient.serverIp, Is.EqualTo("localhost"));
         }
 
         [Test]
