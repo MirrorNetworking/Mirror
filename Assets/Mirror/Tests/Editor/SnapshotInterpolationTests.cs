@@ -7,7 +7,7 @@ namespace Mirror.Tests
     struct SimpleSnapshot : Snapshot
     {
         public double remoteTime { get; set; }
-        public double localTime  { get; set; }
+        public double localTime { get; set; }
         public double value;
 
         public SimpleSnapshot(double remoteTime, double localTime, double value)
@@ -32,10 +32,10 @@ namespace Mirror.Tests
         SortedList<double, SimpleSnapshot> buffer;
 
         // some defaults
-        const double catchupSpeed   = 0.02;
-        const double slowdownSpeed  = 0.04;
+        const double catchupSpeed = 0.02;
+        const double slowdownSpeed = 0.04;
         const double negativeThresh = -0.10;
-        const double positiveThresh =  0.10;
+        const double positiveThresh = 0.10;
 
         [SetUp]
         public void SetUp()
@@ -141,11 +141,11 @@ namespace Mirror.Tests
         public void InsertTwice()
         {
             // defaults
-            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage driftEma = default;
             ExponentialMovingAverage deliveryIntervalEma = default;
-            SimpleSnapshot           snap                = default;
+            SimpleSnapshot snap = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // insert twice
@@ -160,10 +160,10 @@ namespace Mirror.Tests
         public void Insert_Sorts()
         {
             // defaults
-            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage driftEma = default;
             ExponentialMovingAverage deliveryIntervalEma = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps
@@ -184,10 +184,10 @@ namespace Mirror.Tests
         public void Insert_InitializesLocalTimeline()
         {
             // defaults
-            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage driftEma = default;
             ExponentialMovingAverage deliveryIntervalEma = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps
@@ -207,10 +207,10 @@ namespace Mirror.Tests
         public void Insert_ComputesAverageDrift()
         {
             // defaults: drift ema with 3 values
-            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(3);
+            ExponentialMovingAverage driftEma = new ExponentialMovingAverage(3);
             ExponentialMovingAverage deliveryIntervalEma = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps
@@ -233,10 +233,10 @@ namespace Mirror.Tests
         public void Insert_ComputesAverageDrift_Scrambled()
         {
             // defaults: drift ema with 3 values
-            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(3);
+            ExponentialMovingAverage driftEma = new ExponentialMovingAverage(3);
             ExponentialMovingAverage deliveryIntervalEma = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps
@@ -264,10 +264,10 @@ namespace Mirror.Tests
             // defaults: delivery ema with 2 values
             // because delivery time ema is always between 2 snaps.
             // so for 3 values, it's only computed twice.
-            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(2);
+            ExponentialMovingAverage driftEma = new ExponentialMovingAverage(2);
             ExponentialMovingAverage deliveryIntervalEma = new ExponentialMovingAverage(2);
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps with local arrival times
@@ -295,10 +295,10 @@ namespace Mirror.Tests
             // defaults: delivery ema with 2 values
             // because delivery time ema is always between 2 snaps.
             // so for 3 values, it's only computed twice.
-            ExponentialMovingAverage driftEma            = new ExponentialMovingAverage(2);
+            ExponentialMovingAverage driftEma = new ExponentialMovingAverage(2);
             ExponentialMovingAverage deliveryIntervalEma = new ExponentialMovingAverage(2);
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps with local arrival times
@@ -324,10 +324,10 @@ namespace Mirror.Tests
         public void Sample()
         {
             // defaults
-            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage driftEma = default;
             ExponentialMovingAverage deliveryIntervalEma = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps
@@ -361,10 +361,10 @@ namespace Mirror.Tests
         public void Step()
         {
             // defaults
-            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage driftEma = default;
             ExponentialMovingAverage deliveryIntervalEma = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps
@@ -386,10 +386,10 @@ namespace Mirror.Tests
         public void Step_RemovesOld()
         {
             // defaults
-            ExponentialMovingAverage driftEma            = default;
+            ExponentialMovingAverage driftEma = default;
             ExponentialMovingAverage deliveryIntervalEma = default;
 
-            double localTimeline  = 0;
+            double localTimeline = 0;
             double localTimescale = 0;
 
             // example snaps
