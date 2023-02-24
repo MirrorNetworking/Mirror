@@ -116,6 +116,7 @@ namespace Mirror
 			ref double localTimescale,                    // timeline multiplier to apply catchup / slowdown over time
 			float sendInterval,                           // for debugging
 			double bufferTime,                            // offset for buffering
+			float clampMultiplier,						  // multiplier to check if time needs to be clamped
 			double catchupSpeed,                          // in % [0,1]
 			double slowdownSpeed,                         // in % [0,1]
 			ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
@@ -180,12 +181,10 @@ namespace Mirror
 				// we need to use the inserted snapshot's time - timeline.
 				double latestRemoteTime = snapshot.remoteTime;
 				
-				TimeLineOverride(latestRemoteTime, bufferTime, ref localTimeline);
+				TimeLineOverride(latestRemoteTime, bufferTime, clampMultiplier, ref localTimeline);
 				
-				double timeDiff         = latestRemoteTime - localTimeline;
-				Console.WriteLine($"OnTimeSnapshot insert and adjust timeDiff = {timeDiff}, snapshot time buffer count: {buffer.Count}");
+				double timeDiff = latestRemoteTime - localTimeline;
 				if (buffer.Count > 1)
-					Console.WriteLine($"local: {localTimeline}, first snap: {buffer.Values[0].remoteTime}, last snap: {buffer.Values[buffer.Count - 1].remoteTime}");
 				// next, calculate average of a few seconds worth of timediffs.
 				// this gives smoother results.
 				//
@@ -222,28 +221,15 @@ namespace Mirror
 		}
 		
 		// If the time difference is more than X times of buffer, we will override time to be
-		// latestRemoteTime +- x times of buffer. Currently this is hardcoded at 3. We will need
-		// to amend that.
-		private static void TimeLineOverride(double latestRemoteTime, double bufferTime, ref double localTimeline)
-		{
-			// HARDCODED BEWARE
-			float multiplierCheck = 1;
-			
+		// targetTime +- x times of buffer. 
+		private static void TimeLineOverride(double latestRemoteTime, double bufferTime, float clampMultiplier, ref double localTimeline)
+		{			
 			// If we want local timeline to be around bufferTime slower,
 			// Then over her we want to clamp localTimeline to be:
 			// target +- multiplierCheck * bufferTime.
 			double targetTime = latestRemoteTime - bufferTime;
-			
-			double before = localTimeline; // For debug only.
 	
-			localTimeline = Math.Clamp(localTimeline, targetTime - multiplierCheck * bufferTime, targetTime + multiplierCheck * bufferTime);
-			
-			// DEBUG
-			if (Math.Abs(before - localTimeline) > 0.01f)
-			{
-				Console.WriteLine($"Timeline before jump {localTimeline}, remote {latestRemoteTime}");
-				Console.WriteLine($"Jumped Time to {localTimeline}");
-			}
+			localTimeline = Math.Clamp(localTimeline, targetTime - clampMultiplier * bufferTime, targetTime + clampMultiplier * bufferTime);
 		}
 
 		// sample snapshot buffer to find the pair around the given time.

@@ -15,7 +15,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     // uint so non negative.
     [Header("Send Interval Multiplier")]
-    [Tooltip("Send every x Network Manager send rate.")]
+    [Tooltip("Send every multiple of Network Manager send interval (= 1 / NM Send Rate).")]
     public uint sendIntervalMultiplier = 3;
     private uint sendIntervalCounter = 0;
     private double lastSendIntervalTime = double.MinValue;
@@ -54,16 +54,6 @@ public class NTRCustomSendInterval : NetworkTransformBase
     protected override void Awake()
     {
         base.Awake();
-    }
-
-    private static bool inFocus = true;
-    private double lastNetworkTime;
-    private void OnApplicationFocus(bool focusStatus)
-    {
-        if (!isLocalPlayer) return;
-        inFocus = focusStatus;
-        if (!focusStatus) lastNetworkTime = NetworkTime.time;
-        else Console.WriteLine($"On Application Focus: {focusStatus}, Time: {NetworkTime.time - lastNetworkTime}");
     }
 
     // update //////////////////////////////////////////////////////////////
@@ -126,11 +116,10 @@ public class NTRCustomSendInterval : NetworkTransformBase
         }
     }
 
-    private float lastUpdateTime;
     protected virtual void UpdateClient()
     {
-        if (!inFocus) Console.WriteLine($"Update Frame Time = {Time.time - lastUpdateTime}");
-        lastUpdateTime = Time.time;
+        //if (!inFocus) Console.WriteLine($"Update Frame Time = {Time.time - lastUpdateTime}");
+        //lastUpdateTime = Time.time;
 
         // client authority, and local player (= allowed to move myself)?
         if (!IsClientWithAuthority)
@@ -288,8 +277,6 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     public override void OnDeserialize(NetworkReader reader, bool initialState)
     {
-        if (!inFocus) Console.WriteLine($"Received snapshot when application not in focus, buffer count for {gameObject.name} : {clientSnapshots.Count}");
-
         Vector3? position = null;
         Quaternion? rotation = null;
         Vector3? scale = null;
