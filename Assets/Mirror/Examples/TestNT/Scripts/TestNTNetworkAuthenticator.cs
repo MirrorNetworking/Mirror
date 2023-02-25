@@ -12,7 +12,7 @@ namespace TestNT
 
         [Header("Client Username")]
         public string playerName;
-        public bool useNinja;
+        public bool useNinja = true;
         public bool isBot;
         public uint multiplier = 3;
 
