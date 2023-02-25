@@ -275,7 +275,7 @@ MonoBehaviour:
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
   sendRate: 30
-  bufferTimeMultiplierForClamping: 0
+  bufferTimeMultiplierForClamping: 1
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineWeb.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
   transport: {fileID: 821201134}
@@ -593,6 +593,14 @@ PrefabInstance:
     - target: {fileID: 5678319890702232806, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
       value: SetNinja
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319891107958445, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_Text
+      value: 'Multiplier:'
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319891107958446, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 103
       objectReference: {fileID: 0}
     - target: {fileID: 5678319891107958447, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: m_IsActive
