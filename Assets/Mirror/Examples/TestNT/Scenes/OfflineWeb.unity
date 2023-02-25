@@ -254,8 +254,8 @@ MonoBehaviour:
   batchSend: 0
   waitBeforeSend: 0
   clientUseWss: 1
-  sslEnabled: 1
-  sslCertJson: ./cert.json
+  sslEnabled: 0
+  sslCertJson: 
   sslProtocols: 12288
   _logLevels: 3
 --- !u!114 &821201135
@@ -275,6 +275,7 @@ MonoBehaviour:
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
   sendRate: 30
+  bufferTimeMultiplierForClamping: 0
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineWeb.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
   transport: {fileID: 821201134}
@@ -339,7 +340,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   playerName: 
-  useNinja: 0
+  useNinja: 1
   isBot: 0
   multiplier: 3
 --- !u!114 &821201139
@@ -582,12 +583,20 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 5678319890702232806, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_IsOn
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319890702232806, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
       objectReference: {fileID: 821201138}
     - target: {fileID: 5678319890702232806, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
       value: SetNinja
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319891107958447, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5678319891227221139, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -764,6 +773,10 @@ PrefabInstance:
     - target: {fileID: 5678319892247375075, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SetMultiplier
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319892247375077, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
