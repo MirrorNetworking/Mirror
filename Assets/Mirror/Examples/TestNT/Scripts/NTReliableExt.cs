@@ -64,11 +64,9 @@ namespace TestNT
         {
             if (!isOwned)
             {
-                Vector3 velChange = (transform.position - interpolated.position) / Time.deltaTime;
-                Vector3 rotChange = (transform.rotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
-                velocity = velChange;
-                angVelocity= rotChange;
-                VelRotChangedAction?.Invoke(velChange, rotChange);
+                velocity = (transform.position - interpolated.position) / Time.deltaTime;
+                angVelocity = (transform.rotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
+                VelRotChangedAction?.Invoke(velocity, angVelocity);
             }
 
             base.Apply(interpolated, endGoal);
