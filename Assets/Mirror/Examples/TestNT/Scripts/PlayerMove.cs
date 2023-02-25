@@ -11,6 +11,7 @@ namespace TestNT
 
         [Header("Avatar Components")]
         public CharacterController characterController;
+        public NTRCustomSendInterval NTR;
         public Animator animator;
 
         [Header("Materials")]
@@ -59,11 +60,14 @@ namespace TestNT
 
         void OnValidate()
         {
-            if (animator == null)
-                animator = GetComponentInChildren<Animator>();
+            if (NTR == null)
+                NTR = GetComponentInChildren<NTRCustomSendInterval>();
 
             if (characterController == null)
                 characterController = GetComponent<CharacterController>();
+
+            if (animator == null)
+                animator = GetComponentInChildren<Animator>();
 
             // Override CharacterController default values
             characterController.enabled = false;
@@ -81,9 +85,9 @@ namespace TestNT
             characterController.enabled = true;
             this.enabled = true;
 
-            TestNTNetworkAuthenticator.AuthRequestMessage authRequestMessage 
+            TestNTNetworkAuthenticator.AuthRequestMessage authRequestMessage
                 = (TestNTNetworkAuthenticator.AuthRequestMessage)NetworkClient.connection.authenticationData;
-            if (authRequestMessage.useNinja) 
+            if (authRequestMessage.useNinja)
                 if (TryGetComponent(out NTRCustomSendInterval nt))
                     nt.sendIntervalMultiplier = authRequestMessage.multiplier;
         }
@@ -99,6 +103,7 @@ namespace TestNT
             if (!characterController.enabled)
                 return;
 
+            HandleTeleport();
             HandleTurning();
             HandleJumping();
             HandleMove();
@@ -113,6 +118,20 @@ namespace TestNT
             velocity = Vector3Int.FloorToInt(characterController.velocity);
         }
 
+        void HandleTeleport()
+        {
+            if (Input.GetKey(KeyCode.X))
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                {
+                    NTR.CmdTeleport(Vector3.up);
+                }
+            else
+                {
+                    characterController.enabled = false;
+                    transform.position = Vector3.up;
+                    characterController.enabled = true;
+                }
+        }
 
         // Alternative methods provided for headless clients to act autonomously
 #if !UNITY_SERVER
