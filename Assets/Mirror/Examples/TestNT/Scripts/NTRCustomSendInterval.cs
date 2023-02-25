@@ -83,6 +83,18 @@ public class NTRCustomSendInterval : NetworkTransformBase
         }
     }
 
+    protected override void OnTeleport(Vector3 destination)
+    {
+        if (isOwned && TryGetComponent(out CharacterController cc))
+        {
+            cc.enabled = false;
+            base.OnTeleport(destination);
+            cc.enabled = true;
+        }
+        else
+            base.OnTeleport(destination);
+    }
+
     protected virtual void UpdateServer()
     {
         // apply buffered snapshots IF client authority
