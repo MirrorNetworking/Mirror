@@ -13,6 +13,7 @@ namespace TestNT
         //public int fromIndex;
         //public int toIndex;
         public Vector3 velocity;
+        public Vector3 angVelocity;
 
         #region Unity Callbacks
 
@@ -66,6 +67,7 @@ namespace TestNT
                 Vector3 velChange = (transform.position - interpolated.position) / Time.deltaTime;
                 Vector3 rotChange = (transform.rotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
                 velocity = velChange;
+                angVelocity= rotChange;
                 VelRotChangedAction?.Invoke(velChange, rotChange);
             }
 
