@@ -23,7 +23,7 @@ namespace Mirror
 
         static double lastPingTime;
 
-        static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(10);
+        static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(PingWindowSize);
 
         /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
 #if UNITY_2020_3_OR_NEWER
