@@ -250,7 +250,7 @@ MonoBehaviour:
   sendTimeout: 5000
   receiveTimeout: 20000
   serverMaxMessagesPerTick: 10000
-  clientMaxMessagesPerTick: 1000
+  clientMaxMessagesPerTick: 2000
   batchSend: 0
   waitBeforeSend: 0
   clientUseWss: 1
