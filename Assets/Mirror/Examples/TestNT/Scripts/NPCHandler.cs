@@ -38,12 +38,12 @@ namespace TestNT
         [Command]
         void CmdSpawnNPC()
         {
-            GameObject npc = Instantiate(TestNTNetworkManager.singleton.npcPrefab);
-            npc.GetComponent<PlayerName>().playerName = "NPC";
-            npc.GetComponent<CharacterController>().enabled = true;
-            npc.GetComponent<PlayerMove>().enabled = true;
-            NetworkServer.Spawn(npc);
-            NpcList.Add(npc);
+            //GameObject npc = Instantiate(TestNTNetworkManager.singleton.npcPrefab);
+            //npc.GetComponent<PlayerName>().playerName = "NPC";
+            //npc.GetComponent<CharacterController>().enabled = true;
+            //npc.GetComponent<PlayerMove>().enabled = true;
+            //NetworkServer.Spawn(npc);
+            //NpcList.Add(npc);
 
             GameObject npcNinja = Instantiate(TestNTNetworkManager.singleton.npcNinjaPrefab);
             npcNinja.GetComponent<PlayerName>().playerName = "NPC-Ninja";
