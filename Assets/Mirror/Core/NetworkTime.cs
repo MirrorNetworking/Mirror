@@ -19,7 +19,7 @@ namespace Mirror
         public static float PingFrequency = 2;
 
         /// <summary>Average out the last few results from Ping</summary>
-        public static int PingWindowSize = 6;
+        public static int PingWindowSize = 10;
 
         static double lastPingTime;
 
@@ -74,7 +74,7 @@ namespace Mirror
         public static void ResetStatics()
         {
             PingFrequency = 2;
-            PingWindowSize = 6;
+            PingWindowSize = 10;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
 #if !UNITY_2020_3_OR_NEWER
