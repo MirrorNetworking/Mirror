@@ -6,19 +6,21 @@ using Mirror;
 
 public class NTRCustomSendInterval : NetworkTransformBase
 {
+    uint sendIntervalCounter = 0;
+    double lastSendIntervalTime = double.MinValue;
+
+    float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
+  
     [Header("Sync Only If Changed")]
     [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
     public bool onlySyncOnChange = true;
     [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
     public float onlySyncOnChangeCorrectionMultiplier = 2;
-    private float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
 
     // uint so non negative.
     [Header("Send Interval Multiplier")]
     [Tooltip("Send every multiple of Network Manager send interval (= 1 / NM Send Rate).")]
     public uint sendIntervalMultiplier = 3;
-    private uint sendIntervalCounter = 0;
-    private double lastSendIntervalTime = double.MinValue;
 
     [Header("Rotation")]
     [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -39,6 +41,12 @@ public class NTRCustomSendInterval : NetworkTransformBase
     [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
     public float scalePrecision = 0.01f; // 1 cm
 
+    public Action<Vector3, Vector3> VelRotChangedAction;
+
+    [Header("Debug Velocity")]
+    public Vector3 velocity;
+    public Vector3 angVelocity;
+
     // delta compression needs to remember 'last' to compress against
     protected Vector3Long lastSerializedPosition = Vector3Long.zero;
     protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
@@ -50,11 +58,6 @@ public class NTRCustomSendInterval : NetworkTransformBase
     protected TransformSnapshot last;
 
     protected int lastClientCount = 1;
-
-    protected override void Awake()
-    {
-        base.Awake();
-    }
 
     // update //////////////////////////////////////////////////////////////
     void Update()
@@ -75,8 +78,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
         // instead.		
         if (isServer || (IsClientWithAuthority && NetworkClient.ready)) // is NetworkClient.ready even needed?
         {
-            if (sendIntervalCounter == sendIntervalMultiplier &&
-            (!onlySyncOnChange || Changed(Construct())))
+            if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                 SetDirty();
 
             CheckLastSendTime();
@@ -105,9 +107,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
         //    then we don't need to do anything.
         // -> connectionToClient is briefly null after scene changes:
         //    https://github.com/MirrorNetworking/Mirror/issues/3329
-        if (syncDirection == SyncDirection.ClientToServer &&
-            connectionToClient != null &&
-            !isOwned)
+        if (syncDirection == SyncDirection.ClientToServer && connectionToClient != null && !isOwned)
         {
             if (serverSnapshots.Count > 0)
             {
@@ -130,9 +130,6 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     protected virtual void UpdateClient()
     {
-        //if (!inFocus) Console.WriteLine($"Update Frame Time = {Time.time - lastUpdateTime}");
-        //lastUpdateTime = Time.time;
-
         // client authority, and local player (= allowed to move myself)?
         if (!IsClientWithAuthority)
         {
@@ -170,18 +167,23 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     protected virtual void CheckLastSendTime()
     {
-        if (
+        // timeAsDouble not available in older Unity versions.
 #if !UNITY_2020_3_OR_NEWER
-		AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+        if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+        {
+            if (sendIntervalCounter == sendIntervalMultiplier)
+                sendIntervalCounter = 0;
+            sendIntervalCounter++;
+        }
 #else
-        AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
-#endif
+        if (AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
         {
             if (sendIntervalCounter == sendIntervalMultiplier)
                 sendIntervalCounter = 0;
             sendIntervalCounter++;
         }
     }
+#endif
 
     // check if position / rotation / scale changed since last sync
     protected virtual bool Changed(TransformSnapshot current) =>
@@ -236,9 +238,12 @@ public class NTRCustomSendInterval : NetworkTransformBase
             //    of the function, last = snapshot which is the initial state's snapshot
             // 2. Regular NTR gets by this bug because it sends every frame anyway so initialstate
             //    snapshot constructed would have been the same as the last anyway.
-            if (last.remoteTime > 0) snapshot = last;
+            if (last.remoteTime > 0) 
+                snapshot = last;
 
-            if (syncPosition) writer.WriteVector3(snapshot.position);
+            if (syncPosition) 
+                writer.WriteVector3(snapshot.position);
+
             if (syncRotation)
             {
                 // (optional) smallest three compression for now. no delta.
@@ -247,7 +252,9 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 else
                     writer.WriteQuaternion(snapshot.rotation);
             }
-            if (syncScale) writer.WriteVector3(snapshot.scale);
+
+            if (syncScale) 
+                writer.WriteVector3(snapshot.scale);
         }
         // delta
         else
@@ -260,6 +267,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 Compression.ScaleToLong(snapshot.position, positionPrecision, out Vector3Long quantized);
                 DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
             }
+
             if (syncRotation)
             {
                 // (optional) smallest three compression for now. no delta.
@@ -268,20 +276,20 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 else
                     writer.WriteQuaternion(snapshot.rotation);
             }
+
             if (syncScale)
             {
                 // quantize -> delta -> varint
                 Compression.ScaleToLong(snapshot.scale, scalePrecision, out Vector3Long quantized);
                 DeltaCompression.Compress(writer, lastSerializedScale, quantized);
             }
-
-            // int written = writer.Position - before;
-            // Console.WriteLine($"{name} compressed to {written} bytes");
         }
 
         // save serialized as 'last' for next delta compression
-        if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
-        if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
+        if (syncPosition) 
+            Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
+        if (syncScale)
+            Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
         // set 'last'
         last = snapshot;
@@ -296,7 +304,9 @@ public class NTRCustomSendInterval : NetworkTransformBase
         // initial
         if (initialState)
         {
-            if (syncPosition) position = reader.ReadVector3();
+            if (syncPosition) 
+                position = reader.ReadVector3();
+
             if (syncRotation)
             {
                 // (optional) smallest three compression for now. no delta.
@@ -305,7 +315,9 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 else
                     rotation = reader.ReadQuaternion();
             }
-            if (syncScale) scale = reader.ReadVector3();
+
+            if (syncScale) 
+                scale = reader.ReadVector3();
         }
         // delta
         else
@@ -316,6 +328,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
                 position = Compression.ScaleToFloat(quantized, positionPrecision);
             }
+
             if (syncRotation)
             {
                 // (optional) smallest three compression for now. no delta.
@@ -324,6 +337,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 else
                     rotation = reader.ReadQuaternion();
             }
+
             if (syncScale)
             {
                 Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
@@ -333,12 +347,29 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
         // handle depending on server / client / host.
         // server has priority for host mode.
-        if (isServer) OnClientToServerSync(position, rotation, scale);
-        else if (isClient) OnServerToClientSync(position, rotation, scale);
+        if (isServer) 
+            OnClientToServerSync(position, rotation, scale);
+        else if (isClient) 
+            OnServerToClientSync(position, rotation, scale);
 
         // save deserialized as 'last' for next delta compression
-        if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
-        if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
+        if (syncPosition) 
+            Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
+        if (syncScale) 
+            Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
+    }
+
+    protected override void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
+    {
+        if (!isOwned)
+        {
+            velocity = (transform.position - interpolated.position) / Time.deltaTime;
+            angVelocity = (transform.rotation.eulerAngles - interpolated.rotation.eulerAngles) / Time.deltaTime;
+            VelRotChangedAction?.Invoke(velocity, angVelocity);
+        }
+      
+        // must call base after, or we'll get zeros
+        base.Apply(interpolated, endGoal);
     }
 
     // sync ////////////////////////////////////////////////////////////////
@@ -353,18 +384,16 @@ public class NTRCustomSendInterval : NetworkTransformBase
         if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
 
         // 'only sync on change' needs a correction on every new move sequence.
-        if (onlySyncOnChange &&
-            NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeInterval))
+        if (onlySyncOnChange && NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeInterval))
         {
             RewriteHistory(
                 serverSnapshots,
                 connectionToClient.remoteTimeStamp,
-                NetworkTime.localTime,      // arrival remote timestamp. NOT remote timeline.
-                NetworkServer.sendInterval * sendIntervalMultiplier, // Unity 2019 doesn't have timeAsDouble yet
+                NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
+                NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
                 target.localPosition,
                 target.localRotation,
                 target.localScale);
-            // Console.WriteLine($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
         }
 
         AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + NetworkServer.sendInterval * sendIntervalMultiplier, position, rotation, scale);
@@ -382,13 +411,12 @@ public class NTRCustomSendInterval : NetworkTransformBase
         {
             RewriteHistory(
                 clientSnapshots,
-                NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote timeline.
-                NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
+                NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
+                NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
                 NetworkClient.sendInterval * sendIntervalMultiplier,
                 target.localPosition,
                 target.localRotation,
                 target.localScale);
-            // Console.WriteLine($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
         }
 
         AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + NetworkClient.sendInterval * sendIntervalMultiplier, position, rotation, scale);
