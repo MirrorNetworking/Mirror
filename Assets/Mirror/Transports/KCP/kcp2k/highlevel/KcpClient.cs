@@ -196,7 +196,8 @@ namespace kcp2k
         }
 
         // process incoming messages. should be called before updating the world.
-        public void TickIncoming()
+        // virtual because relay may need to inject their own ping or similar.
+        public virtual void TickIncoming()
         {
             // recv on socket first, then process incoming
             // (even if we didn't receive anything. need to tick ping etc.)
@@ -213,7 +214,8 @@ namespace kcp2k
         }
 
         // process outgoing messages. should be called after updating the world.
-        public void TickOutgoing()
+        // virtual because relay may need to inject their own ping or similar.
+        public virtual void TickOutgoing()
         {
             // process outgoing
             // (connection is null if not active)
@@ -223,7 +225,7 @@ namespace kcp2k
         // process incoming and outgoing for convenience
         // => ideally call ProcessIncoming() before updating the world and
         //    ProcessOutgoing() after updating the world for minimum latency
-        public void Tick()
+        public virtual void Tick()
         {
             TickIncoming();
             TickOutgoing();
