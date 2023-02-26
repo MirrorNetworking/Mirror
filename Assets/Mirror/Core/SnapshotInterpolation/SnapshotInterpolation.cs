@@ -222,7 +222,7 @@ namespace Mirror
 
         // If the time difference is more than X times of buffer, we will override time to be
         // targetTime +- x times of buffer. 
-        private static void TimeLineOverride(double latestRemoteTime, double bufferTime, float clampMultiplier, ref double localTimeline)
+        static void TimeLineOverride(double latestRemoteTime, double bufferTime, float clampMultiplier, ref double localTimeline)
         {
             // If we want local timeline to be around bufferTime slower,
             // Then over her we want to clamp localTimeline to be:
