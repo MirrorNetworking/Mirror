@@ -1,18 +1,20 @@
 using UnityEngine;
 using Mirror;
+using System;
 
 namespace TestNT
 {
-    [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CharacterController))]
+    [RequireComponent(typeof(Rigidbody))]
     public class PlayerMove : NetworkBehaviour
     {
         public enum GroundState : byte { Jumping, Falling, Grounded }
+        public enum MoveMode : byte { Walking, Sneaking, Running };
 
         [Header("Avatar Components")]
-        public CharacterController characterController;
         public NTRCustomSendInterval NTR;
         public Animator animator;
+        public CharacterController characterController;
 
         [Header("Materials")]
         public PhysicMaterial physicsMaterial;
@@ -37,6 +39,7 @@ namespace TestNT
 
         [Header("Diagnostics - Do Not Modify")]
         public GroundState groundState = GroundState.Grounded;
+        public MoveMode moveState = MoveMode.Running;
 
         [Range(-1f, 1f)]
         public float horizontal;
@@ -63,11 +66,11 @@ namespace TestNT
             if (NTR == null)
                 NTR = GetComponentInChildren<NTRCustomSendInterval>();
 
-            if (characterController == null)
-                characterController = GetComponent<CharacterController>();
-
             if (animator == null)
                 animator = GetComponentInChildren<Animator>();
+
+            if (characterController == null)
+                characterController = GetComponent<CharacterController>();
 
             // Override CharacterController default values
             characterController.enabled = false;
@@ -78,6 +81,17 @@ namespace TestNT
             GetComponent<Rigidbody>().isKinematic = true;
 
             this.enabled = false;
+        }
+
+        public override void OnStartClient()
+        {
+            if (!isLocalPlayer)
+                NTR.VelRotChangedAction = OnVelRotChanged;
+        }
+
+        public override void OnStopClient()
+        {
+            NTR.VelRotChangedAction = null;
         }
 
         public override void OnStartAuthority()
@@ -104,9 +118,20 @@ namespace TestNT
                 return;
 
             HandleTeleport();
+
+#if !UNITY_SERVER
+            // Not needed on headless clients
+            HandleMoveState();
+#endif
+
             HandleTurning();
             HandleJumping();
             HandleMove();
+
+#if !UNITY_SERVER
+            // Not needed on headless clients
+            HandleAnimation();
+#endif
 
             // Reset ground state
             if (characterController.isGrounded)
@@ -125,13 +150,30 @@ namespace TestNT
                 {
                     NTR.CmdTeleport(Vector3.up);
                 }
-            else
+                else
                 {
                     characterController.enabled = false;
                     transform.position = Vector3.up;
                     characterController.enabled = true;
                 }
         }
+
+        // Headless clients don't need to do either of these
+#if !UNITY_SERVER
+
+        void HandleMoveState()
+        {
+            if (Input.GetKeyUp(KeyCode.R) && moveState == MoveMode.Walking)
+                moveState = MoveMode.Running;
+            else if (Input.GetKeyUp(KeyCode.R) && moveState == MoveMode.Running)
+                moveState = MoveMode.Walking;
+            else if (Input.GetKeyUp(KeyCode.C) && moveState != MoveMode.Sneaking)
+                moveState = MoveMode.Sneaking;
+            else if (Input.GetKeyUp(KeyCode.C) && moveState == MoveMode.Sneaking)
+                moveState = MoveMode.Walking;
+        }
+
+#endif
 
         // Alternative methods provided for headless clients to act autonomously
 #if !UNITY_SERVER
@@ -153,6 +195,9 @@ namespace TestNT
             if (!Input.GetKey(KeyCode.Q) && !Input.GetKey(KeyCode.E))
                 turnSpeed = Mathf.MoveTowards(turnSpeed, 0, turnDelta);
 
+            if (moveState == MoveMode.Sneaking)
+                turnSpeed /= 3;
+
             transform.Rotate(0f, turnSpeed * Time.deltaTime, 0f);
         }
 
@@ -163,7 +208,7 @@ namespace TestNT
             // as player holds spacebar. Jump power is increased by a diminishing amout
             // every frame until it reaches maxJumpSpeed, or player releases the spacebar,
             // and then changes to the falling state until it gets grounded.
-            if (groundState != GroundState.Falling && Input.GetKey(KeyCode.Space))
+            if (groundState != GroundState.Falling && moveState != MoveMode.Sneaking && Input.GetKey(KeyCode.Space))
             {
                 if (groundState != GroundState.Jumping)
                 {
@@ -223,6 +268,12 @@ namespace TestNT
             // Create initial direction vector without jumpSpeed (y-axis).
             direction = new Vector3(horizontal, 0f, vertical);
 
+            // Run unless Sneaking or Walking
+            if (moveState == MoveMode.Sneaking)
+                direction *= 0.15f;
+            else if (moveState == MoveMode.Walking)
+                direction *= 0.5f;
+
             // Clamp so diagonal strafing isn't a speed advantage.
             direction = Vector3.ClampMagnitude(direction, 1f);
 
@@ -237,6 +288,45 @@ namespace TestNT
 
             // Finally move the character.
             characterController.Move(direction * Time.deltaTime);
+        }
+
+        void HandleAnimation()
+        {
+            if (!animator) return;
+
+            //if (moveState != MoveState.Sneaking)
+            //{
+            //    if (Input.GetKeyUp(KeyCode.I))
+            //        animator.SetTrigger("Saluting");
+            //    else if (Input.GetKeyUp(KeyCode.O))
+            //        animator.SetTrigger("Waving");
+            //    else if (Input.GetKeyUp(KeyCode.P))
+            //        animator.SetBool("Dancing", !animator.GetBool("Dancing"));
+            //}
+
+            animVelocity = transform.InverseTransformDirection(direction).z / moveSpeedMultiplier;
+            animRotation = turnSpeed / maxTurnSpeed;
+
+            animator.SetFloat("Forward", Mathf.MoveTowards(animator.GetFloat("Forward"), animVelocity, moveSpeedMultiplier * Time.deltaTime));
+            animator.SetFloat("Turn", Mathf.MoveTowards(animator.GetFloat("Turn"), animRotation, maxTurnSpeed * Time.deltaTime));
+
+            animator.SetBool("Crouch", moveState == MoveMode.Sneaking);
+            animator.SetBool("OnGround", groundState == GroundState.Grounded);
+        }
+
+        void OnVelRotChanged(Vector3 newVelocity, Vector3 newRotation)
+        {
+            // Only apply to other player objects
+            if (isLocalPlayer) return;
+
+            animVelocity = -MathF.Round(transform.InverseTransformDirection(newVelocity).z / moveSpeedMultiplier, 1);
+            animRotation = -MathF.Round(newRotation.y / maxTurnSpeed, 1);
+
+            if (animator)
+            {
+                animator.SetFloat("Forward", MathF.Round(Mathf.MoveTowards(animator.GetFloat("Forward"), animVelocity, moveSpeedMultiplier * Time.deltaTime), 1));
+                animator.SetFloat("Turn", MathF.Round(Mathf.MoveTowards(animator.GetFloat("Turn"), animRotation, maxTurnSpeed * Time.deltaTime), 1));
+            }
         }
     }
 }
