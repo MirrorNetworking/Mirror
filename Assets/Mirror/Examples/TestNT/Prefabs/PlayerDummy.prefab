@@ -364,7 +364,6 @@ GameObject:
   - component: {fileID: 933871666448110562}
   - component: {fileID: -2851850855264704529}
   - component: {fileID: 8740952189063260582}
-  - component: {fileID: 4756096228401043274}
   m_Layer: 6
   m_Name: PlayerDummy
   m_TagString: Player
@@ -488,6 +487,8 @@ MonoBehaviour:
   compressRotation: 0
   positionPrecision: 0.02
   scalePrecision: 0.02
+  velocity: {x: 0, y: 0, z: 0}
+  angVelocity: {x: 0, y: 0, z: 0}
 --- !u!114 &4736436755474421054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -503,9 +504,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  characterController: {fileID: 2196882924618641428}
   NTR: {fileID: 710479491816145282}
   animator: {fileID: 4751401856863927949}
+  characterController: {fileID: 2196882924618641428}
   physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
   moveSpeedMultiplier: 8
   maxTurnSpeed: 100
@@ -514,6 +515,7 @@ MonoBehaviour:
   maxJumpSpeed: 5
   jumpDelta: 0.2
   groundState: 2
+  moveState: 0
   horizontal: 0
   vertical: 0
   turnSpeed: 0
@@ -609,26 +611,6 @@ MonoBehaviour:
   showGui: 0
   hotKey: 290
   passwordFile: remote_statistics.txt
---- !u!95 &4756096228401043274
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1428992836745641328}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 317a56890b5c8e74ab1d492a2c7fb608, type: 3}
-  m_Controller: {fileID: 9100000, guid: e2cf68ff4b1ffda45a77f7307dd789b9, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
 --- !u!1 &2903792400077271230
 GameObject:
   m_ObjectHideFlags: 0
