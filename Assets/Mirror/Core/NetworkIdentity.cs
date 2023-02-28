@@ -93,10 +93,6 @@ namespace Mirror
         // for example: main player & pets are owned. monsters & npcs aren't.
         public bool isOwned { get; internal set; }
 
-        // Deprecated 2022-10-13
-        [Obsolete(".hasAuthority was renamed to .isOwned. This is easier to understand and prepares for SyncDirection, where there is a difference betwen isOwned and authority.")]
-        public bool hasAuthority => isOwned;
-
         /// <summary>The set of network connections (players) that can see this object.</summary>
         public readonly Dictionary<int, NetworkConnectionToClient> observers =
             new Dictionary<int, NetworkConnectionToClient>();

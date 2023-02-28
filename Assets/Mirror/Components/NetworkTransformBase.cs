@@ -29,12 +29,6 @@ namespace Mirror
         [Tooltip("The Transform component to sync. May be on on this GameObject, or on a child.")]
         public Transform target;
 
-        // TODO SyncDirection { ClientToServer, ServerToClient } is easier?
-        // Deprecated 2022-10-25
-        [Obsolete("NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
-        [Header("[Obsolete]")] // Unity doesn't show obsolete warning for fields. do it manually.
-        [Tooltip("Obsolete: NetworkTransform clientAuthority was replaced with syncDirection. To enable client authority, set SyncDirection to ClientToServer in the Inspector.")]
-        public bool clientAuthority;
         // Is this a client with authority over this transform?
         // This component could be on the player object or any object that has been assigned authority to this client.
         protected bool IsClientWithAuthority => isClient && authority;
@@ -78,17 +72,6 @@ namespace Mirror
             // force the setting to '0' in OnValidate to make it obvious that we
             // actually use NetworkServer.sendInterval.
             syncInterval = 0;
-
-            // obsolete clientAuthority compatibility:
-            // if it was used, then set the new SyncDirection automatically.
-            // if it wasn't used, then don't touch syncDirection.
- #pragma warning disable CS0618
-            if (clientAuthority)
-            {
-                syncDirection = SyncDirection.ClientToServer;
-                Debug.LogWarning($"{name}'s NetworkTransform component has obsolete .clientAuthority enabled. Please disable it and set SyncDirection to ClientToServer instead.");
-            }
- #pragma warning restore CS0618
         }
 
         // snapshot functions //////////////////////////////////////////////////

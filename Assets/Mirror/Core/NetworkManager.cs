@@ -41,25 +41,6 @@ namespace Mirror
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 30;
 
-        // Deprecated 2022-10-31
-        [Obsolete("NetworkManager.serverTickRate was renamed to sendRate because that's what it configures for both server & client now.")]
-        public int serverTickRate => sendRate;
-
-        // tick rate is in Hz.
-        // convert to interval in seconds for convenience where needed.
-        //
-        // send interval is 1 / sendRate.
-        // but for tests we need a way to set it to exactly 0.
-        // 1 / int.max would not be exactly 0, so handel that manually.
-        // Deprecated 2022-10-06
-        [Obsolete("NetworkManager.serverTickInterval was moved to NetworkServer.tickInterval for consistency.")]
-        public float serverTickInterval => NetworkServer.tickInterval;
-
-        // client send rate follows server send rate to avoid errors for now
-        /// <summary>Client Update frequency, per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.</summary>
-        // [Tooltip("Client broadcasts 'sendRate' times per second. Use around 60Hz for fast paced games like Counter-Strike to minimize latency. Use around 30Hz for games like WoW to minimize computations. Use around 1-10Hz for slow paced games like EVE.")]
-        // public int clientSendRate = 30; // 33 ms
-
         /// <summary>Automatically switch to this scene upon going offline (on start / on disconnect / on shutdown).</summary>
         [Header("Scene Management")]
         [Scene]
@@ -1306,16 +1287,8 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
-        // Deprecated 2022-05-12
-        [Obsolete("OnServerError(conn, Exception) was changed to OnServerError(conn, TransportError, string)")]
-        public virtual void OnServerError(NetworkConnectionToClient conn, Exception exception) {}
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
-        public virtual void OnServerError(NetworkConnectionToClient conn, TransportError error, string reason)
-        {
-#pragma warning disable CS0618
-            OnServerError(conn, new Exception(reason));
-#pragma warning restore CS0618
-        }
+        public virtual void OnServerError(NetworkConnectionToClient conn, TransportError error, string reason) { }
 
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
@@ -1344,16 +1317,8 @@ namespace Mirror
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect() {}
 
-        // Deprecated 2022-05-12
-        [Obsolete("OnClientError(Exception) was changed to OnClientError(TransportError, string)")]
-        public virtual void OnClientError(Exception exception) {}
         /// <summary>Called on client when transport raises an exception.</summary>
-        public virtual void OnClientError(TransportError error, string reason)
-        {
-#pragma warning disable CS0618
-            OnClientError(new Exception(reason));
-#pragma warning restore CS0618
-        }
+        public virtual void OnClientError(TransportError error, string reason) { }
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         public virtual void OnClientNotReady() {}
