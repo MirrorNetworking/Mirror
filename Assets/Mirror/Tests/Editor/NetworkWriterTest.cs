@@ -1451,6 +1451,25 @@ namespace Mirror.Tests
             Assert.That(reader.Position, Is.EqualTo(4), "should read 4 bytes when netid is 0");
         }
 
+        // test for https://github.com/MirrorNetworking/Mirror/issues/3399
+        [Test]
+        public void TestNetworkBehaviourNotSpawned()
+        {
+            CreateNetworked(out _, out _, out RpcNetworkIdentityBehaviour component);
+            NetworkWriter writer = new NetworkWriter();
+            writer.WriteNetworkBehaviour(component);
+
+            byte[] bytes = writer.ToArray();
+
+            Assert.That(bytes.Length, Is.EqualTo(4), "unspawned Networkbehaviour should be 4 bytes long.");
+
+            NetworkReader reader = new NetworkReader(bytes);
+            RpcNetworkIdentityBehaviour actual = reader.ReadNetworkBehaviour<RpcNetworkIdentityBehaviour>();
+            Assert.That(actual, Is.Null, "should read null");
+
+            Assert.That(reader.Position, Is.EqualTo(4), "should read 4 bytes when netid is 0");
+        }
+
         // test to prevent https://github.com/vis2k/Mirror/issues/2972
         [Test]
         public void TestNetworkBehaviourDoesntExistOnClient()
