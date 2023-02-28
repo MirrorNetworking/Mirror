@@ -33,9 +33,7 @@ namespace Mirror
                 // if we had a [ConflictComponent] attribute that would be better than this check.
                 // also there is no context about which scene this is in.
                 if (identity.GetComponent<NetworkManager>() != null)
-                {
                     Debug.LogError("NetworkManager has a NetworkIdentity component. This will cause the NetworkManager object to be disabled, so it is not recommended.");
-                }
 
                 // not spawned before?
                 //  OnPostProcessScene is called after additive scene loads too,
@@ -88,22 +86,12 @@ namespace Mirror
             identity.gameObject.SetActive(false);
 
             // safety check for prefabs with more than one NetworkIdentity
-#if UNITY_2018_2_OR_NEWER
             GameObject prefabGO = PrefabUtility.GetCorrespondingObjectFromSource(identity.gameObject);
-#else
-            GameObject prefabGO = PrefabUtility.GetPrefabParent(identity.gameObject);
-#endif
             if (prefabGO)
             {
-#if UNITY_2018_3_OR_NEWER
                 GameObject prefabRootGO = prefabGO.transform.root.gameObject;
-#else
-                GameObject prefabRootGO = PrefabUtility.FindPrefabRoot(prefabGO);
-#endif
                 if (prefabRootGO != null && prefabRootGO.GetComponentsInChildren<NetworkIdentity>().Length > 1)
-                {
                     Debug.LogWarning($"Prefab {prefabRootGO.name} has several NetworkIdentity components attached to itself or its children, this is not supported.");
-                }
             }
         }
     }
