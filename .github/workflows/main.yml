@@ -33,7 +33,7 @@ jobs:
 
   Release:
     name: Semantic Release
-    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    if: github.event_name == 'push'
     needs: RunUnityTests
     uses: ./.github/workflows/Semantic.yml
     secrets: inherit
