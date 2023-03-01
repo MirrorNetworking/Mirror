@@ -33,6 +33,7 @@ jobs:
 
   Release:
     name: Semantic Release
+    if: github.ref == 'master'
     needs: RunUnityTests
     uses: ./.github/workflows/Semantic.yml
     secrets: inherit
