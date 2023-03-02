@@ -30,7 +30,6 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        continue-on-error: true
         uses: game-ci/unity-test-runner@main
 
         # We can use the same license for all Unity versions
@@ -44,7 +43,6 @@ jobs:
           projectPath: ./
           testMode: editmode
           unityVersion: ${{ matrix.unityVersion }}
-          #githubToken: ${{ secrets.GITHUB_TOKEN }}
           customParameters: -stackTraceLogType None
         
       - name: Archive test results
@@ -59,10 +57,3 @@ jobs:
           reportTitle: Test Report ${{ matrix.unityVersion }}
           path: "artifacts/*.xml"
           access-token: ${{ secrets.GITHUB_TOKEN }}
-
-      #  uses: dorny/test-reporter@v1
-      #  if: success() || failure()                      # run this step even if previous step failed
-      #  with:
-      #    name: Test Report ${{ matrix.unityVersion }}  # Name of the check run which will be created
-      #    path: artifacts/*.xml                         # Path to test results
-      #    reporter: jest-junit                          # Format of test results
