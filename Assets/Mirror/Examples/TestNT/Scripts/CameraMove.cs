@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 
 namespace TestNT
 {
+    [RequireComponent(typeof(PhysicsRaycaster))]
     public class CameraMove : MonoBehaviour
     {
         enum CursorStates : byte { show, hide }
