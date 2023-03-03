@@ -110,7 +110,9 @@ In addition to [24/7 support](https://github.com/sponsors/vis2k) from the Mirror
 
 ### [Swarm VR](https://www.swarmvrgame.com/)
 [![swarmvr_compressed](https://user-images.githubusercontent.com/16416509/222610677-fa38f173-f76b-422f-b39d-8e0ef0cee798.jpg)](https://www.swarmvrgame.com/)
-SPIDER-MAN WITH GUNS! SWARM is a fast-paced, arcade-style grapple shooter, with quick sessions, bright colorful worlds and globally competitive leaderboards that will take you back to the glory days of Arcade Games.
+SPIDER-MAN WITH GUNS! 
+
+SWARM is a fast-paced, arcade-style grapple shooter, with quick sessions, bright colorful worlds and globally competitive leaderboards that will take you back to the glory days of Arcade Games.
 
 Available for the [Meta Quest](https://www.oculus.com/experiences/quest/2236053486488156/), made with Mirror.
 
