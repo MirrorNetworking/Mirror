@@ -14,7 +14,7 @@ jobs:
           - 2019.4.40f1
           - 2020.3.45f1
           - 2021.3.19f1
-          - 2022.2.7f1
+          - 2022.2.8f1
 
     steps:
       - name: Checkout repository
@@ -30,7 +30,6 @@ jobs:
       #    key: Library-${{ matrix.unityVersion }}
 
       - name: Run editor Tests
-        continue-on-error: true
         uses: game-ci/unity-test-runner@main
 
         # We can use the same license for all Unity versions
@@ -44,7 +43,6 @@ jobs:
           projectPath: ./
           testMode: editmode
           unityVersion: ${{ matrix.unityVersion }}
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
           customParameters: -stackTraceLogType None
         
       - name: Archive test results
