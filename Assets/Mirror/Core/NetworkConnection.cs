@@ -27,9 +27,6 @@ namespace Mirror
         // state.
         public bool isReady;
 
-        /// <summary>IP address of the connection. Can be useful for game master IP bans etc.</summary>
-        public abstract string address { get; }
-
         /// <summary>Last time a message was received for this connection. Includes system and user messages.</summary>
         public float lastMessageTime;
 

@@ -13,7 +13,9 @@ namespace Mirror
         // packet queue
         internal readonly Queue<NetworkWriterPooled> queue = new Queue<NetworkWriterPooled>();
 
-        public override string address => "localhost";
+        // Deprecated 2023-02-23
+        [Obsolete("Use LocalConnectionToClient.address instead.")]
+        public string address => "localhost";
 
         // see caller for comments on why we need this
         bool connectedEventPending;
