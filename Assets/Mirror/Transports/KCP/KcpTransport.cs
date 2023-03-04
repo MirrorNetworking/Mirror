@@ -92,7 +92,7 @@ namespace kcp2k
             }
         }
 
-        void Awake()
+        protected virtual void Awake()
         {
             // logging
             //   Log.Info should use Debug.Log if enabled, or nothing otherwise
@@ -130,7 +130,7 @@ namespace kcp2k
             Debug.Log("KcpTransport initialized!");
         }
 
-        void OnValidate()
+        protected virtual void OnValidate()
         {
             // show max message sizes in inspector for convenience
             ReliableMaxMessageSize = KcpPeer.ReliableMaxMessageSize(ReceiveWindowSize);
@@ -279,7 +279,7 @@ namespace kcp2k
 
 // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        void OnGUI()
+        protected virtual void OnGUI()
         {
             if (!statisticsGUI) return;
 
@@ -316,7 +316,7 @@ namespace kcp2k
         }
 #endif
 
-        void OnLogStatistics()
+        protected virtual void OnLogStatistics()
         {
             if (ServerActive())
             {
