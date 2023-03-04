@@ -99,6 +99,15 @@ namespace Mirror
                 //foreach (PlayerLoopSystem sys in playerLoop.subSystemList)
                 //    Debug.Log($"  ->{sys.type}");
 
+                // make sure the function wasn't added yet.
+                // with domain reload disabled, it would otherwise be added twice:
+                // fixes: https://github.com/MirrorNetworking/Mirror/issues/3392
+                if (Array.FindIndex(playerLoop.subSystemList, (s => s.updateDelegate == function)) != -1)
+                {
+                    // loop contains the function, so return true.
+                    return true;
+                }
+
                 // resize & expand subSystemList to fit one more entry
                 int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
                 Array.Resize(ref playerLoop.subSystemList, oldListLength + 1);
