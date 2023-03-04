@@ -183,6 +183,10 @@ namespace Mirror
 
         static void NetworkEarlyUpdate()
         {
+            // loop functions run in edit mode and in play mode.
+            // however, we only want to call NetworkServer/Client in play mode.
+            if (!Application.isPlaying) return;
+
             //Debug.Log($"NetworkEarlyUpdate {Time.time}");
             NetworkServer.NetworkEarlyUpdate();
             NetworkClient.NetworkEarlyUpdate();
@@ -192,6 +196,10 @@ namespace Mirror
 
         static void NetworkLateUpdate()
         {
+            // loop functions run in edit mode and in play mode.
+            // however, we only want to call NetworkServer/Client in play mode.
+            if (!Application.isPlaying) return;
+
             //Debug.Log($"NetworkLateUpdate {Time.time}");
             // invoke event before mirror does its final late updating.
             OnLateUpdate?.Invoke();
