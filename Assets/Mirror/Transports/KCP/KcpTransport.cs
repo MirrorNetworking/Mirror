@@ -277,12 +277,8 @@ namespace kcp2k
             return $"{(bytes / (1024f * 1024f * 1024f)):F2} GB";
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        protected virtual void OnGUI()
+        protected virtual void OnGUIStatistics()
         {
-            if (!statisticsGUI) return;
-
             GUILayout.BeginArea(new Rect(5, 110, 300, 300));
 
             if (ServerActive())
@@ -313,6 +309,13 @@ namespace kcp2k
             }
 
             GUILayout.EndArea();
+        }
+
+// OnGUI allocates even if it does nothing. avoid in release.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        protected virtual void OnGUI()
+        {
+            if (statisticsGUI) OnGUIStatistics();
         }
 #endif
 
