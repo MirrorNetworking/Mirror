@@ -56,11 +56,11 @@ namespace kcp2k
         // config is created from the serialized properties above.
         // we can expose the config directly in the future.
         // for now, let's not break people's old settings.
-        KcpConfig config;
+        protected KcpConfig config;
 
         // server & client
-        KcpServer server;
-        KcpClient client;
+        protected KcpServer server;
+        protected KcpClient client;
 
         // debugging
         [Header("Debug")]
