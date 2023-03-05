@@ -58,6 +58,9 @@ namespace kcp2k
         // for now, let's not break people's old settings.
         protected KcpConfig config;
 
+        // use default MTU for this transport.
+        const int MTU = Kcp.MTU_DEF;
+
         // server & client
         protected KcpServer server;
         protected KcpClient client;
@@ -105,23 +108,24 @@ namespace kcp2k
             Log.Error = Debug.LogError;
 
             // create config from serialized settings
-            config = new KcpConfig(DualMode, RecvBufferSize, SendBufferSize, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit);
+            config = new KcpConfig(DualMode, RecvBufferSize, SendBufferSize, MTU, NoDelay, Interval, FastResend, CongestionWindow, SendWindowSize, ReceiveWindowSize, Timeout, MaxRetransmit);
 
             // client (NonAlloc version is not necessary anymore)
             client = new KcpClient(
                 () => OnClientConnected.Invoke(),
                 (message, channel) => OnClientDataReceived.Invoke(message, FromKcpChannel(channel)),
                 () => OnClientDisconnected.Invoke(),
-                (error, reason) => OnClientError.Invoke(ToTransportError(error), reason)
+                (error, reason) => OnClientError.Invoke(ToTransportError(error), reason),
+                config
             );
 
             // server
             server = new KcpServer(
-                      (connectionId) => OnServerConnected.Invoke(connectionId),
-                      (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
-                      (connectionId) => OnServerDisconnected.Invoke(connectionId),
-                      (connectionId, error, reason) => OnServerError.Invoke(connectionId, ToTransportError(error), reason),
-                      config
+                (connectionId) => OnServerConnected.Invoke(connectionId),
+                (connectionId, message, channel) => OnServerDataReceived.Invoke(connectionId, message, FromKcpChannel(channel)),
+                (connectionId) => OnServerDisconnected.Invoke(connectionId),
+                (connectionId, error, reason) => OnServerError.Invoke(connectionId, ToTransportError(error), reason),
+                config
             );
 
             if (statisticsLog)
@@ -132,9 +136,10 @@ namespace kcp2k
 
         protected virtual void OnValidate()
         {
-            // show max message sizes in inspector for convenience
-            ReliableMaxMessageSize = KcpPeer.ReliableMaxMessageSize(ReceiveWindowSize);
-            UnreliableMaxMessageSize = KcpPeer.UnreliableMaxMessageSize;
+            // show max message sizes in inspector for convenience.
+            // 'config' isn't available in edit mode yet, so use MTU define.
+            ReliableMaxMessageSize = KcpPeer.ReliableMaxMessageSize(MTU, ReceiveWindowSize);
+            UnreliableMaxMessageSize = KcpPeer.UnreliableMaxMessageSize(MTU);
         }
 
         // all except WebGL
@@ -145,7 +150,7 @@ namespace kcp2k
         public override bool ClientConnected() => client.connected;
         public override void ClientConnect(string address)
         {
-            client.Connect(address, Port, config);
+            client.Connect(address, Port);
         }
         public override void ClientConnect(Uri uri)
         {
@@ -153,7 +158,7 @@ namespace kcp2k
                 throw new ArgumentException($"Invalid url {uri}, use {Scheme}://host:port instead", nameof(uri));
 
             int serverPort = uri.IsDefaultPort ? Port : uri.Port;
-            client.Connect(uri.Host, (ushort)serverPort, config);
+            client.Connect(uri.Host, (ushort)serverPort);
         }
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
         {
@@ -221,9 +226,9 @@ namespace kcp2k
             switch (channelId)
             {
                 case Channels.Unreliable:
-                    return KcpPeer.UnreliableMaxMessageSize;
+                    return KcpPeer.UnreliableMaxMessageSize(config.Mtu);
                 default:
-                    return KcpPeer.ReliableMaxMessageSize(ReceiveWindowSize);
+                    return KcpPeer.ReliableMaxMessageSize(config.Mtu, ReceiveWindowSize);
             }
         }
 
@@ -236,18 +241,18 @@ namespace kcp2k
         // => instead we always use MTU sized batches.
         // => people can still send maxed size if needed.
         public override int GetBatchThreshold(int channelId) =>
-            KcpPeer.UnreliableMaxMessageSize;
+            KcpPeer.UnreliableMaxMessageSize(config.Mtu);
 
         // server statistics
         // LONG to avoid int overflows with connections.Sum.
         // see also: https://github.com/vis2k/Mirror/pull/2777
         public long GetAverageMaxSendRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (long)conn.peer.MaxSendRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => conn.peer.MaxSendRate) / server.connections.Count
                 : 0;
         public long GetAverageMaxReceiveRate() =>
             server.connections.Count > 0
-                ? server.connections.Values.Sum(conn => (long)conn.peer.MaxReceiveRate) / server.connections.Count
+                ? server.connections.Values.Sum(conn => conn.peer.MaxReceiveRate) / server.connections.Count
                 : 0;
         long GetTotalSendQueue() =>
             server.connections.Values.Sum(conn => conn.peer.SendQueueCount);

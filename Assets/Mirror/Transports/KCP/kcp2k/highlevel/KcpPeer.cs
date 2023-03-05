@@ -71,19 +71,20 @@ namespace kcp2k
         //               for batching.
         //            => sending UNRELIABLE max message size most of the time is
         //               best for performance (use that one for batching!)
-        static int ReliableMaxMessageSize_Unconstrained(uint rcv_wnd) =>
-            (Kcp.MTU_DEF - Kcp.OVERHEAD - CHANNEL_HEADER_SIZE) * ((int)rcv_wnd - 1) - 1;
+        static int ReliableMaxMessageSize_Unconstrained(int mtu, uint rcv_wnd) =>
+            (mtu - Kcp.OVERHEAD - CHANNEL_HEADER_SIZE) * ((int)rcv_wnd - 1) - 1;
 
         // kcp encodes 'frg' as 1 byte.
         // max message size can only ever allow up to 255 fragments.
         //   WND_RCV gives 127 fragments.
         //   WND_RCV * 2 gives 255 fragments.
         // so we can limit max message size by limiting rcv_wnd parameter.
-        public static int ReliableMaxMessageSize(uint rcv_wnd) =>
-            ReliableMaxMessageSize_Unconstrained(Math.Min(rcv_wnd, Kcp.FRG_MAX));
+        public static int ReliableMaxMessageSize(int mtu, uint rcv_wnd) =>
+            ReliableMaxMessageSize_Unconstrained(mtu, Math.Min(rcv_wnd, Kcp.FRG_MAX));
 
         // unreliable max message size is simply MTU - channel header size
-        public const int UnreliableMaxMessageSize = Kcp.MTU_DEF - CHANNEL_HEADER_SIZE;
+        public static int UnreliableMaxMessageSize(int mtu) =>
+            mtu - CHANNEL_HEADER_SIZE;
 
         // buffer to receive kcp's processed messages (avoids allocations).
         // IMPORTANT: this is for KCP messages. so it needs to be of size:
@@ -97,7 +98,7 @@ namespace kcp2k
         readonly byte[] kcpSendBuffer;// = new byte[1 + ReliableMaxMessageSize];
 
         // raw send buffer is exactly MTU.
-        readonly byte[] rawSendBuffer = new byte[Kcp.MTU_DEF];
+        readonly byte[] rawSendBuffer;
 
         // send a ping occasionally so we don't time out on the other end.
         // for example, creating a character in an MMO could easily take a
@@ -138,6 +139,10 @@ namespace kcp2k
         public uint MaxSendRate    => kcp.snd_wnd * kcp.mtu * 1000 / kcp.interval;
         public uint MaxReceiveRate => kcp.rcv_wnd * kcp.mtu * 1000 / kcp.interval;
 
+        // calculate max message sizes based on mtu and wnd only once
+        public readonly int unreliableMax;
+        public readonly int reliableMax;
+
         // SetupKcp creates and configures a new KCP instance.
         // => useful to start from a fresh state every time the client connects
         // => NoDelay, interval, wnd size are the most important configurations.
@@ -169,15 +174,22 @@ namespace kcp2k
             // message. so while Kcp.MTU_DEF is perfect, we actually need to
             // tell kcp to use MTU-1 so we can still put the header into the
             // message afterwards.
-            kcp.SetMtu(Kcp.MTU_DEF - CHANNEL_HEADER_SIZE);
+            kcp.SetMtu((uint)config.Mtu - CHANNEL_HEADER_SIZE);
+
+            // create mtu sized send buffer
+            rawSendBuffer = new byte[config.Mtu];
+
+            // calculate max message sizes once
+            unreliableMax = UnreliableMaxMessageSize(config.Mtu);
+            reliableMax = ReliableMaxMessageSize(config.Mtu, config.ReceiveWindowSize);
 
             // set maximum retransmits (aka dead_link)
             kcp.dead_link = config.MaxRetransmits;
 
             // create message buffers AFTER window size is set
             // see comments on buffer definition for the "+1" part
-            kcpMessageBuffer = new byte[1 + ReliableMaxMessageSize(config.ReceiveWindowSize)];
-            kcpSendBuffer    = new byte[1 + ReliableMaxMessageSize(config.ReceiveWindowSize)];
+            kcpMessageBuffer = new byte[1 + reliableMax];
+            kcpSendBuffer    = new byte[1 + reliableMax];
 
             timeout = config.Timeout;
 
@@ -595,7 +607,7 @@ namespace kcp2k
             {
                 // otherwise content is larger than MaxMessageSize. let user know!
                 // GetType() shows Server/ClientConn instead of just Connection.
-                OnError(ErrorCode.InvalidSend, $"KcpPeer: Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={ReliableMaxMessageSize(kcp.rcv_wnd)}");
+                OnError(ErrorCode.InvalidSend, $"KcpPeer: Failed to send reliable message of size {content.Count} because it's larger than ReliableMaxMessageSize={reliableMax}");
                 return;
             }
 
@@ -616,11 +628,11 @@ namespace kcp2k
         void SendUnreliable(ArraySegment<byte> message)
         {
             // message size needs to be <= unreliable max size
-            if (message.Count > UnreliableMaxMessageSize)
+            if (message.Count > unreliableMax)
             {
                 // otherwise content is larger than MaxMessageSize. let user know!
                 // GetType() shows Server/ClientConn instead of just Connection.
-                Log.Error($"KcpPeer: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={UnreliableMaxMessageSize}");
+                Log.Error($"KcpPeer: Failed to send unreliable message of size {message.Count} because it's larger than UnreliableMaxMessageSize={unreliableMax}");
                 return;
             }
 
