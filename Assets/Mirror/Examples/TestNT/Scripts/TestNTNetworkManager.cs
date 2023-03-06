@@ -48,7 +48,10 @@ namespace TestNT
                 SetHostname("mirror.clevertech.net");
 
                 if (transport is SimpleWebTransport swt)
+                {
                     swt.port = 7777;
+                    swt.clientUseWss = true;
+                }
 
                 if (transport is KcpTransport kcp)
                     kcp.Port = 7777;
@@ -58,7 +61,10 @@ namespace TestNT
                 SetHostname("stresstest.idev.dl.je");
 
                 if (transport is SimpleWebTransport swt)
+                {
                     swt.port = 443;
+                    swt.clientUseWss = true;
+                }
 
                 if (transport is KcpTransport kcp)
                     kcp.Port = 443;
@@ -68,7 +74,10 @@ namespace TestNT
                 SetHostname("localhost");
 
                 if (transport is SimpleWebTransport swt)
+                {
                     swt.port = 27777;
+                    swt.clientUseWss = false;
+                }
 
                 if (transport is KcpTransport kcp)
                     kcp.Port = 27777;
