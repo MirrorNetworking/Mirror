@@ -34,7 +34,7 @@ namespace kcp2k
         // MaxMessageSize is larger. kcp always sends in MTU segments and having
         // a buffer smaller than MTU would silently drop excess data.
         // => we need the mtu to fit channel + message!
-        protected readonly byte[] rawReceiveBuffer = new byte[Kcp.MTU_DEF];
+        protected readonly byte[] rawReceiveBuffer;
 
         // connections <connectionId, connection> where connectionId is EndPoint.GetHashCode
         public Dictionary<int, KcpServerConnection> connections =
@@ -52,6 +52,9 @@ namespace kcp2k
             this.OnDisconnected = OnDisconnected;
             this.OnError = OnError;
             this.config = config;
+
+            // create mtu sized receive buffer
+            rawReceiveBuffer = new byte[config.Mtu];
 
             // create newClientEP either IPv4 or IPv6
             newClientEP = config.DualMode

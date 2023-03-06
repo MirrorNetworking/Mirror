@@ -14,8 +14,7 @@ namespace Mirror
         readonly NetworkWriter reliableRpcs = new NetworkWriter();
         readonly NetworkWriter unreliableRpcs = new NetworkWriter();
 
-        public override string address =>
-            Transport.active.ServerGetClientAddress(connectionId);
+        public virtual string address => Transport.active.ServerGetClientAddress(connectionId);
 
         /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
