@@ -1,3 +1,10 @@
+V1.31 [2023-03-05]
+- KcpClient: Tick/Incoming/Outgoing can now be overwritten (virtual)
+- breaking: KcpClient now takes KcpConfig in constructor instead of in Connect.
+  cleaner, and prepares for KcpConfig.MTU setting.
+- KcpConfig now includes MTU; KcpPeer now works with KcpConfig's MTU, KcpServer/Client
+  buffers are now created with config's MTU.
+
 V1.30 [2023-02-20]
 - fix: set send/recv buffer sizes directly instead of iterating to find the limit.
   fixes: https://github.com/MirrorNetworking/Mirror/issues/3390

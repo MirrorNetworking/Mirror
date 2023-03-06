@@ -1288,7 +1288,7 @@ namespace Mirror
         }
 
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
-        public virtual void OnServerError(NetworkConnectionToClient conn, TransportError error, string reason) { }
+        public virtual void OnServerError(NetworkConnectionToClient conn, TransportError error, string reason) {}
 
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
@@ -1318,7 +1318,12 @@ namespace Mirror
         public virtual void OnClientDisconnect() {}
 
         /// <summary>Called on client when transport raises an exception.</summary>
-        public virtual void OnClientError(TransportError error, string reason) { }
+        public virtual void OnClientError(TransportError error, string reason) {}
+        {
+#pragma warning disable CS0618
+            OnClientError(new Exception(reason));
+#pragma warning restore CS0618
+        }
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         public virtual void OnClientNotReady() {}

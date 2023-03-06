@@ -228,6 +228,22 @@ namespace Mirror
                 writer.WriteUInt(0);
                 return;
             }
+            
+            // users might try to use unspawned / prefab NetworkBehaviours in
+            // rpcs/cmds/syncvars/messages. they would be null on the other
+            // end, and it might not be obvious why. let's make it obvious.
+            // https://github.com/vis2k/Mirror/issues/2060
+            // and more recently https://github.com/MirrorNetworking/Mirror/issues/3399
+            //
+            // => warning (instead of exception) because we also use a warning
+            //    when writing an unspawned NetworkIdentity
+            if (value.netId == 0)
+            {
+                Debug.LogWarning($"Attempted to serialize unspawned NetworkBehaviour: of type {value.GetType()} on GameObject {value.name}. Prefabs and unspawned GameObjects would always be null on the other side. Please spawn it before using it in [SyncVar]s/Rpcs/Cmds/NetworkMessages etc.");
+                writer.WriteUInt(0);
+                return;
+            }
+
             writer.WriteUInt(value.netId);
             writer.WriteByte(value.ComponentIndex);
         }

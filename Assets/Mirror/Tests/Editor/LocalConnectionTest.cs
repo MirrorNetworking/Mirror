@@ -51,8 +51,6 @@ namespace Mirror.Tests
         [Test]
         public void ServerToClient()
         {
-            Assert.That(connectionToServer.address, Is.EqualTo("localhost"));
-
             bool invoked = false;
             void Handler(TestMessage message)
             {

@@ -16,13 +16,16 @@ namespace kcp2k
         protected Socket socket;
         public EndPoint remoteEndPoint;
 
+        // config
+        readonly KcpConfig config;
+
         // raw receive buffer always needs to be of 'MTU' size, even if
         // MaxMessageSize is larger. kcp always sends in MTU segments and having
         // a buffer smaller than MTU would silently drop excess data.
         // => we need the MTU to fit channel + message!
         // => protected because someone may overwrite RawReceive but still wants
         //    to reuse the buffer.
-        protected readonly byte[] rawReceiveBuffer = new byte[Kcp.MTU_DEF];
+        protected readonly byte[] rawReceiveBuffer;
 
         // callbacks
         // even for errors, to allow liraries to show popups etc.
@@ -43,16 +46,21 @@ namespace kcp2k
         public KcpClient(Action OnConnected,
                          Action<ArraySegment<byte>, KcpChannel> OnData,
                          Action OnDisconnected,
-                         Action<ErrorCode, string> OnError)
+                         Action<ErrorCode, string> OnError,
+                         KcpConfig config)
         {
             // initialize callbacks first to ensure they can be used safely.
             this.OnConnected = OnConnected;
             this.OnData = OnData;
             this.OnDisconnected = OnDisconnected;
             this.OnError = OnError;
+            this.config = config;
+
+            // create mtu sized receive buffer
+            rawReceiveBuffer = new byte[config.Mtu];
         }
 
-        public void Connect(string address, ushort port, KcpConfig config)
+        public void Connect(string address, ushort port)
         {
             if (connected)
             {
