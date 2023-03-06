@@ -18,10 +18,10 @@ namespace TestNT
         void LateUpdate()
         {
             // this doesn't seem to work for allowing button clicks
-            if (EventSystem.current.IsPointerOverGameObject())
-                return;
+            //if (EventSystem.current.IsPointerOverGameObject())
+            //    return;
 
-            // workaround for above so can hold shift to click buttons
+            // workaround for above - must hold LeftShift to manipulate camera
             if (!Input.GetKey(KeyCode.LeftShift))
                 return;
 
