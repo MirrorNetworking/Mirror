@@ -1319,11 +1319,6 @@ namespace Mirror
 
         /// <summary>Called on client when transport raises an exception.</summary>
         public virtual void OnClientError(TransportError error, string reason) {}
-        {
-#pragma warning disable CS0618
-            OnClientError(new Exception(reason));
-#pragma warning restore CS0618
-        }
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         public virtual void OnClientNotReady() {}
