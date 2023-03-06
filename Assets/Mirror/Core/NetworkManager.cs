@@ -1306,8 +1306,16 @@ namespace Mirror
             NetworkServer.AddPlayerForConnection(conn, player);
         }
 
+        // Deprecated 2022-05-12
+        [Obsolete("OnServerError(conn, Exception) was changed to OnServerError(conn, TransportError, string)")]
+        public virtual void OnServerError(NetworkConnectionToClient conn, Exception exception) {}
         /// <summary>Called on server when transport raises an exception. NetworkConnection may be null.</summary>
-        public virtual void OnServerError(NetworkConnectionToClient conn, TransportError error, string reason) {}
+        public virtual void OnServerError(NetworkConnectionToClient conn, TransportError error, string reason)
+        {
+#pragma warning disable CS0618
+            OnServerError(conn, new Exception(reason));
+#pragma warning restore CS0618
+        }
 
         /// <summary>Called from ServerChangeScene immediately before SceneManager.LoadSceneAsync is executed</summary>
         public virtual void OnServerChangeScene(string newSceneName) {}
@@ -1336,8 +1344,16 @@ namespace Mirror
         /// <summary>Called on clients when disconnected from a server.</summary>
         public virtual void OnClientDisconnect() {}
 
+        // Deprecated 2022-05-12
+        [Obsolete("OnClientError(Exception) was changed to OnClientError(TransportError, string)")]
+        public virtual void OnClientError(Exception exception) {}
         /// <summary>Called on client when transport raises an exception.</summary>
-        public virtual void OnClientError(TransportError error, string reason) {}
+        public virtual void OnClientError(TransportError error, string reason)
+        {
+#pragma warning disable CS0618
+            OnClientError(new Exception(reason));
+#pragma warning restore CS0618
+        }
 
         /// <summary>Called on clients when a servers tells the client it is no longer ready, e.g. when switching scenes.</summary>
         public virtual void OnClientNotReady() {}
