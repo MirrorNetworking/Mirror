@@ -21,7 +21,7 @@ namespace Mirror
         [Header("Sensitivity"), Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
         public float positionSensitivity = 0.01f;
         public float rotationSensitivity = 0.01f;
-        public float scaleSensitivity    = 0.01f;
+        public float scaleSensitivity = 0.01f;
 
         protected bool positionChanged;
         protected bool rotationChanged;
@@ -29,8 +29,8 @@ namespace Mirror
 
         // Used to store last sent snapshots
         protected TransformSnapshot lastSnapshot;
-        protected bool              cachedSnapshotComparison;
-        protected bool              hasSentUnchangedPosition;
+        protected bool cachedSnapshotComparison;
+        protected bool hasSentUnchangedPosition;
 #endif
 
         double lastClientSendTime;
@@ -40,7 +40,7 @@ namespace Mirror
         void Update()
         {
             // if server then always sync to others.
-            if      (isServer) UpdateServer();
+            if (isServer) UpdateServer();
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient) UpdateClient();
@@ -249,7 +249,7 @@ namespace Mirror
             {
                 if (syncPosition) writer.WriteVector3(target.localPosition);
                 if (syncRotation) writer.WriteQuaternion(target.localRotation);
-                if (syncScale)    writer.WriteVector3(target.localScale);
+                if (syncScale) writer.WriteVector3(target.localScale);
             }
         }
 
@@ -262,7 +262,7 @@ namespace Mirror
             {
                 if (syncPosition) target.localPosition = reader.ReadVector3();
                 if (syncRotation) target.localRotation = reader.ReadQuaternion();
-                if (syncScale)    target.localScale    = reader.ReadVector3();
+                if (syncScale) target.localScale = reader.ReadVector3();
             }
         }
 
