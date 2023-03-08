@@ -8,6 +8,7 @@
 //   fholm: netcode streams
 //   fakebyte: standard deviation for dynamic adjustment
 //   ninjakicka: math & debugging
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -88,6 +89,7 @@ namespace Mirror
         // note that negative threshold should be <0.
         //   caller should verify (i.e. Unity OnValidate).
         //   improves branch prediction.
+        [Obsolete("use TimescaleV2 instead")]
         public static double Timescale(
             double drift,                    // how far we are off from bufferTime
             double catchupSpeed,             // in % [0,1]
