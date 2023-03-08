@@ -27,6 +27,63 @@ namespace Mirror
 
     public static class SnapshotInterpolation
     {
+        // calculate timescale for catch-up / slow-down.
+        //
+        // previously, we would catchup/slowdown by 1% if outside of threshold.
+        // however, this isn't enough if clients get way far behind.
+        // for example, if a game is minimzed and updates @ 1Hz for 30s.
+        // it could take 10-20s for catchup, or even more.
+        //
+        // instead, catch up relative to how far we are behind.
+        // no matter how long the game was minimized, it will catch up rapidly.
+        public static double TimescaleV2(
+            double absoluteDrift,            // how far we are off from bufferTime,
+            double relativeDrift,            // how far we are off from bufferTime, in multiples
+            double catchupNegativeThreshold, // in % of sendInteral (careful, we may run out of snapshots)
+            double catchupPositiveThreshold) // in % of sendInterval)
+        {
+            // UnityEngine.Debug.Log($"relativeDrift={relativeDrift:F2}, drift={drift:F2}");
+            // return relativeDrift;
+
+            // if the drift time is too large, it means we are behind more time.
+            // so we need to speed up the timescale.
+            // note the threshold should be sendInterval * catchupThreshold.
+            if (absoluteDrift > catchupPositiveThreshold)
+            {
+                // too simple, this would ping pong
+                // localTimeline += 0.001; /
+
+                // works but if we get too far behind, 1% will take too long to catch up
+                // return 1 + catchupSpeed; // n% faster
+
+                // relativeDrift is always positive.
+                // if behind, it's >1. for example, 1.10.
+                UnityEngine.Debug.Log($"behind by : relativeDrift={relativeDrift:F2}, drift={absoluteDrift:F2} thresh={catchupPositiveThreshold:F2}");
+                return relativeDrift;
+            }
+
+            // if the drift time is too small, it means we are ahead of time.
+            // so we need to slow down the timescale.
+            // note the threshold should be sendInterval * catchupThreshold.
+            if (absoluteDrift < catchupNegativeThreshold)
+            {
+                // too simple, this would ping pong
+                // localTimeline -= 0.001;
+
+                // works but if we get too far ahead, 1% will take too long to slow down
+                // return 1 - slowdownSpeed; // n% slower
+
+                // relativeDrift is always positive.
+                // if behind, it's <1. for example, 0.90.
+                UnityEngine.Debug.Log($"ahead by : relativeDrift={relativeDrift:F2}, drift={absoluteDrift:F2} thresh={catchupNegativeThreshold:F2}");
+                return relativeDrift;
+            }
+
+            // keep constant timescale while within threshold.
+            // this way we have perfectly smooth speed most of the time.
+            return 1;
+        }
+
         // calculate timescale for catch-up / slow-down
         // note that negative threshold should be <0.
         //   caller should verify (i.e. Unity OnValidate).
@@ -198,6 +255,7 @@ namespace Mirror
 
                 // next up, calculate how far we are currently away from bufferTime
                 double drift = driftEma.Value - bufferTime;
+                double relativeDrift = driftEma.Value / bufferTime;
 
                 // convert relative thresholds to absolute values based on sendInterval
                 double absoluteNegativeThreshold = sendInterval * catchupNegativeThreshold;
@@ -208,7 +266,7 @@ namespace Mirror
                 // this way we have 'default' speed most of the time(!).
                 // and only catch up / slow down for a little bit occasionally.
                 // a consistent multiplier would never be exactly 1.0.
-                localTimescale = Timescale(drift, catchupSpeed, slowdownSpeed, absoluteNegativeThreshold, absolutePositiveThreshold);
+                localTimescale = TimescaleV2(drift, relativeDrift, absoluteNegativeThreshold, absolutePositiveThreshold);
 
                 // debug logging
                 // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
