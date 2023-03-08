@@ -27,6 +27,9 @@ namespace Mirror
         // behind this 2 buffer target, leaving the rest of the drift to be
         // dealt with by catch up.
         //
+        // to reproduce, use the SnapshotInterpolation demo and minimize the
+        // Editor for a while. after coming back, it'll be behind a lot.
+        //
         // Target time for sync = client/server time - buffer time.
         // Time difference = latest time snapshot time - buffer time
         // If time difference > clampingBufferMultiplier(below) * buffer time, we clamp it to within

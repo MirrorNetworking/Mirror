@@ -117,6 +117,9 @@ namespace Mirror
         // Also, we don't snap to exactly 2 buffer behind, we snap to somewhere
         // behind this 2 buffer target, leaving the rest of the drift to be
         // dealt with by catch up.
+        //
+        // to reproduce, use the SnapshotInterpolation demo and minimize the
+        // Editor for a while. after coming back, it'll be behind a lot.
         public static void TimelineOverride(double latestRemoteTime, double bufferTime, float clampMultiplier, ref double localTimeline)
         {
             // If we want local timeline to be around bufferTime slower,
