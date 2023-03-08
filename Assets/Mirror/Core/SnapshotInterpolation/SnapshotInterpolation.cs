@@ -254,7 +254,7 @@ namespace Mirror
                 driftEma.Add(timeDiff);
 
                 // next up, calculate how far we are currently away from bufferTime
-                double drift = driftEma.Value - bufferTime;
+                double absoluteDrift = driftEma.Value - bufferTime;
                 double relativeDrift = driftEma.Value / bufferTime;
 
                 // convert relative thresholds to absolute values based on sendInterval
@@ -266,7 +266,7 @@ namespace Mirror
                 // this way we have 'default' speed most of the time(!).
                 // and only catch up / slow down for a little bit occasionally.
                 // a consistent multiplier would never be exactly 1.0.
-                localTimescale = TimescaleV2(drift, relativeDrift, absoluteNegativeThreshold, absolutePositiveThreshold);
+                localTimescale = TimescaleV2(absoluteDrift, relativeDrift, absoluteNegativeThreshold, absolutePositiveThreshold);
 
                 // debug logging
                 // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
