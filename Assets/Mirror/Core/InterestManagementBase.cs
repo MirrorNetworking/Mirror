@@ -13,7 +13,7 @@ namespace Mirror
         // Do NOT check for active server or client here.
         // Awake must always set the static aoi references.
         // make sure to call base.Awake when overwriting!
-        protected virtual void Awake()
+        protected virtual void OnEnabled()
         {
             if (NetworkServer.aoi == null)
             {
