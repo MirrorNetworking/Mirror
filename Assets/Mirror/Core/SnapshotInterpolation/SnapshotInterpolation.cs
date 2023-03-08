@@ -8,6 +8,7 @@
 //   fholm: netcode streams
 //   fakebyte: standard deviation for dynamic adjustment
 //   ninjakicka: math & debugging
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -106,6 +107,25 @@ namespace Mirror
             return buffer.Count > before;
         }
 
+        // clamp timeline for cases where it gets too far behind.
+        // for example, a client app may go into the background and get updated
+        // with 1hz for a while.  by the time it's back it's at least 30 frames
+        // behind, possibly more if the transport also queues up. In this
+        // scenario, at 1% catch up it took around 20+ seconds to finally catch
+        // up. For these kinds of scenarios it will be better to snap / clamp.
+        //
+        // Also, we don't snap to exactly 2 buffer behind, we snap to somewhere
+        // behind this 2 buffer target, leaving the rest of the drift to be
+        // dealt with by catch up.
+        public static void TimelineOverride(double latestRemoteTime, double bufferTime, float clampMultiplier, ref double localTimeline)
+        {
+            // If we want local timeline to be around bufferTime slower,
+            // Then over here we want to clamp localTimeline to be:
+            // target +- multiplierCheck * bufferTime.
+            double targetTime = latestRemoteTime - bufferTime;
+            localTimeline = Math.Clamp(localTimeline, targetTime - clampMultiplier * bufferTime, targetTime + clampMultiplier * bufferTime);
+        }
+
         // call this for every received snapshot.
         // adds / inserts it to the list & initializes local time if needed.
         public static void InsertAndAdjust<T>(
@@ -115,6 +135,7 @@ namespace Mirror
             ref double localTimescale,                    // timeline multiplier to apply catchup / slowdown over time
             float sendInterval,                           // for debugging
             double bufferTime,                            // offset for buffering
+            float clampMultiplier,                        // multiplier to check if time needs to be clamped
             double catchupSpeed,                          // in % [0,1]
             double slowdownSpeed,                         // in % [0,1]
             ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
@@ -158,7 +179,7 @@ namespace Mirror
                     //
                     // in practice, scramble is rare and won't make much difference
                     double previousLocalTime = buffer.Values[buffer.Count - 2].localTime;
-                    double lastestLocalTime  = buffer.Values[buffer.Count - 1].localTime;
+                    double lastestLocalTime = buffer.Values[buffer.Count - 1].localTime;
 
                     // this is the delivery time since last snapshot
                     double localDeliveryTime = lastestLocalTime - previousLocalTime;
@@ -178,23 +199,28 @@ namespace Mirror
                 // snapshots may arrive out of order, we can not use last-timeline.
                 // we need to use the inserted snapshot's time - timeline.
                 double latestRemoteTime = snapshot.remoteTime;
-                double timeDiff         = latestRemoteTime - localTimeline;
 
-                // next, calculate average of a few seconds worth of timediffs.
-                // this gives smoother results.
-                //
-                // to calculate the average, we could simply loop through the
-                // last 'n' seconds worth of timediffs, but:
-                // - our buffer may only store a few snapshots (bufferTime)
-                // - looping through seconds worth of snapshots every time is
-                //   expensive
-                //
-                // to solve this, we use an exponential moving average.
-                // https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
-                // which is basically fancy math to do the same but faster.
-                // additionally, it allows us to look at more timeDiff values
-                // than we sould have access to in our buffer :)
-                driftEma.Add(timeDiff);
+                TimelineOverride(latestRemoteTime, bufferTime, clampMultiplier, ref localTimeline);
+
+                double timeDiff = latestRemoteTime - localTimeline;
+                if (buffer.Count > 1)
+                {
+                    // next, calculate average of a few seconds worth of timediffs.
+                    // this gives smoother results.
+                    //
+                    // to calculate the average, we could simply loop through the
+                    // last 'n' seconds worth of timediffs, but:
+                    // - our buffer may only store a few snapshots (bufferTime)
+                    // - looping through seconds worth of snapshots every time is
+                    //   expensive
+                    //
+                    // to solve this, we use an exponential moving average.
+                    // https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+                    // which is basically fancy math to do the same but faster.
+                    // additionally, it allows us to look at more timeDiff values
+                    // than we sould have access to in our buffer :)
+                    driftEma.Add(timeDiff);
+                }
 
                 // next up, calculate how far we are currently away from bufferTime
                 double drift = driftEma.Value - bufferTime;

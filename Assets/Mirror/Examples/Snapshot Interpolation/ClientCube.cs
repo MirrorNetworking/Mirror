@@ -33,6 +33,9 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         // to be adjusted in every update instead of when receiving messages.
         double localTimescale = 1;
 
+        [Tooltip("Mirror tries to maintain 2x send interval (= 1 / Send Rate) time behind server/client. If we are way out of sync by a multiple of this buffer, we simply clamp time to within this buffer.")]
+        public float bufferTimeMultiplierForClamping = 2;
+
         // catchup /////////////////////////////////////////////////////////////
         // catchup thresholds in 'frames'.
         // half a frame might be too aggressive.
@@ -139,6 +142,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 ref localTimescale,
                 server.sendInterval,
                 bufferTime,
+                bufferTimeMultiplierForClamping,
                 catchupSpeed,
                 slowdownSpeed,
                 ref driftEma,

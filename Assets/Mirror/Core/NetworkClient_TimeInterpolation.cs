@@ -16,6 +16,23 @@ namespace Mirror
         public static double bufferTimeMultiplier = 2;
         public static double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
 
+        // clamp timeline for cases where it gets too far behind.
+        // for example, a client app may go into the background and get updated
+        // with 1hz for a while.  by the time it's back it's at least 30 frames
+        // behind, possibly more if the transport also queues up. In this
+        // scenario, at 1% catch up it took around 20+ seconds to finally catch
+        // up. For these kinds of scenarios it will be better to snap / clamp.
+        //
+        // Also, we don't snap to exactly 2 buffer behind, we snap to somewhere
+        // behind this 2 buffer target, leaving the rest of the drift to be
+        // dealt with by catch up.
+        //
+        // Target time for sync = client/server time - buffer time.
+        // Time difference = latest time snapshot time - buffer time
+        // If time difference > clampingBufferMultiplier(below) * buffer time, we clamp it to within
+        // clampingBufferMultiplier(below) * buffer time.
+        public static float bufferTimeMultiplierForClamping = 1;
+
         // <servertime, snaps>
         public static SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
 
@@ -150,6 +167,7 @@ namespace Mirror
                 ref localTimescale,
                 NetworkServer.sendInterval,
                 bufferTime,
+                bufferTimeMultiplierForClamping,
                 catchupSpeed,
                 slowdownSpeed,
                 ref driftEma,
