@@ -172,9 +172,6 @@ namespace TestNT
                 if (arg.StartsWith("/r:", StringComparison.InvariantCultureIgnoreCase))
                     if (int.TryParse(arg.Remove(0, 3), out sendRate))
                         Application.targetFrameRate = sendRate;
-
-                if (arg.StartsWith("/m:", StringComparison.InvariantCultureIgnoreCase))
-                    float.TryParse(arg.Remove(0, 3), out bufferTimeMultiplierForClamping);
             }
         }
 #endif
