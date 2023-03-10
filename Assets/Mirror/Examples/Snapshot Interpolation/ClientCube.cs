@@ -94,6 +94,10 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         public Color slowdownColor = Color.red;  // red traffic light = go slow
         Color        defaultColor;
 
+        [Header("Simulation")]
+        bool lowFpsMode;
+        double accumulatedDeltaTime;
+
         void Awake()
         {
             defaultColor = render.sharedMaterial.color;
@@ -145,6 +149,15 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
 
         void Update()
         {
+            // accumulated delta allows us to simulate correct low fps + deltaTime
+            // if necessary in client low fps mode.
+            accumulatedDeltaTime += Time.unscaledDeltaTime;
+
+            // simulate low fps mode. only update once per second.
+            // to simulate webgl background tabs, etc.
+            // after a while, disable low fps mode and see how it behaves.
+            if (lowFpsMode && accumulatedDeltaTime < 1) return;
+
             // only while we have snapshots.
             // timeline starts when the first snapshot arrives.
             if (snapshots.Count > 0)
@@ -155,7 +168,9 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                     // step
                     SnapshotInterpolation.Step(
                         snapshots,
-                        Time.unscaledDeltaTime,
+                        // accumulate delta is Time.unscaledDeltaTime normally.
+                        // and sum of past 10 delta's in low fps mode.
+                        accumulatedDeltaTime,
                         ref localTimeline,
                         localTimescale,
                         out Snapshot3D fromSnapshot,
@@ -175,6 +190,9 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 }
             }
 
+            // reset simulation helpers
+            accumulatedDeltaTime = 0;
+
             // color material while catching up / slowing down
             if (localTimescale < 1)
                 render.material.color = slowdownColor;
@@ -193,6 +211,19 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             Vector2 screen = Camera.main.WorldToScreenPoint(transform.position);
             string str = $"{snapshots.Count}";
             GUI.Label(new Rect(screen.x - width / 2, screen.y - height / 2, width, height), str);
+
+            // client simulation buttons on the bottom of the screen
+            float areaHeight = 100;
+            GUILayout.BeginArea(new Rect(0, Screen.height - areaHeight, Screen.width, areaHeight));
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Client Simulation:");
+            if (GUILayout.Button((lowFpsMode ? "Disable" : "Enable") + " 1 FPS"))
+            {
+                lowFpsMode = !lowFpsMode;
+            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.EndArea();
         }
 
         void OnValidate()
