@@ -221,6 +221,10 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             {
                 lowFpsMode = !lowFpsMode;
             }
+            if (GUILayout.Button("Timeline 100ms behind"))
+            {
+                localTimeline -= 0.1;
+            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
