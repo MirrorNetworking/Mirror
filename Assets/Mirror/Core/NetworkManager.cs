@@ -41,9 +41,6 @@ namespace Mirror
         [FormerlySerializedAs("serverTickRate")]
         public int sendRate = 30;
 
-        [Tooltip("Mirror tries to maintain 2x send interval (= 1 / Send Rate) time behind server/client. If we are way out of sync by a multiple of this buffer, we simply clamp time to within this buffer.")]
-        public float bufferTimeMultiplierForClamping = 1f;
-
         // Deprecated 2022-10-31
         [Obsolete("NetworkManager.serverTickRate was renamed to sendRate because that's what it configures for both server & client now.")]
         public int serverTickRate => sendRate;
@@ -262,7 +259,6 @@ namespace Mirror
         void ApplyConfiguration()
         {
             NetworkServer.tickRate = sendRate;
-            NetworkServer.bufferTimeMultiplierForClamping = bufferTimeMultiplierForClamping;
         }
 
         // full server setup code, without spawning objects yet

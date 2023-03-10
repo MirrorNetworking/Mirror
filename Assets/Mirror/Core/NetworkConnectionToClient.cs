@@ -85,7 +85,6 @@ namespace Mirror
                 ref remoteTimescale,
                 NetworkServer.sendInterval,
                 bufferTime,
-                NetworkServer.bufferTimeMultiplierForClamping,
                 NetworkClient.catchupSpeed,
                 NetworkClient.slowdownSpeed,
                 ref driftEma,

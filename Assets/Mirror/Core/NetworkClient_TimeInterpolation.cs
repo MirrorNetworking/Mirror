@@ -150,7 +150,6 @@ namespace Mirror
                 ref localTimescale,
                 NetworkServer.sendInterval,
                 bufferTime,
-                NetworkServer.bufferTimeMultiplierForClamping,
                 catchupSpeed,
                 slowdownSpeed,
                 ref driftEma,

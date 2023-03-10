@@ -116,7 +116,6 @@ namespace Mirror
             ref double localTimescale,                    // timeline multiplier to apply catchup / slowdown over time
             float sendInterval,                           // for debugging
             double bufferTime,                            // offset for buffering
-            float clampMultiplier,                        // multiplier to check if time needs to be clamped
             double catchupSpeed,                          // in % [0,1]
             double slowdownSpeed,                         // in % [0,1]
             ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
@@ -181,7 +180,7 @@ namespace Mirror
                 // we need to use the inserted snapshot's time - timeline.
                 double latestRemoteTime = snapshot.remoteTime;
 
-                TimeLineOverride(latestRemoteTime, bufferTime, clampMultiplier, ref localTimeline);
+                TimeLineOverride(latestRemoteTime, bufferTime, ref localTimeline);
 
                 double timeDiff = latestRemoteTime - localTimeline;
                 if (buffer.Count > 1)
@@ -227,14 +226,14 @@ namespace Mirror
 
         // If the time difference is more than X times of buffer, we will override time to be
         // targetTime +- x times of buffer. 
-        static void TimeLineOverride(double latestRemoteTime, double bufferTime, float clampMultiplier, ref double localTimeline)
+        static void TimeLineOverride(double latestRemoteTime, double bufferTime, ref double localTimeline)
         {
             // If we want local timeline to be around bufferTime slower,
             // Then over her we want to clamp localTimeline to be:
             // target +- multiplierCheck * bufferTime.
             double targetTime = latestRemoteTime - bufferTime;
 
-            localTimeline = Math.Clamp(localTimeline, targetTime - clampMultiplier * bufferTime, targetTime + clampMultiplier * bufferTime);
+            localTimeline = Math.Clamp(localTimeline, targetTime - bufferTime, targetTime + bufferTime);
         }
 
         // sample snapshot buffer to find the pair around the given time.

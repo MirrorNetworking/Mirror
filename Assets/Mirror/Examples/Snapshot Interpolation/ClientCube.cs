@@ -142,7 +142,6 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 ref localTimescale,
                 server.sendInterval,
                 bufferTime,
-                bufferTimeMultiplierForClamping,
                 catchupSpeed,
                 slowdownSpeed,
                 ref driftEma,

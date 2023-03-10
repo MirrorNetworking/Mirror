@@ -32,12 +32,6 @@ namespace Mirror
         public static float sendInterval => sendRate < int.MaxValue ? 1f / sendRate : 0; // for 30 Hz, that's 33ms
         static double lastSendTime;
 
-        // Target time for sync = client/server time - buffer time. 
-        // Time difference = latest time snapshot time - buffer time
-        // If time difference > clampingBufferMultiplier(below) * buffer time, we clamp it to within
-        // clampingBufferMultiplier(below) * buffer time.
-        public static float bufferTimeMultiplierForClamping = 1;
-
         /// <summary>Connection to host mode client (if any)</summary>
         public static LocalConnectionToClient localConnection { get; private set; }
 
