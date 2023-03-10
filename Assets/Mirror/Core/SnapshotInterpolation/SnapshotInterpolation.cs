@@ -158,7 +158,7 @@ namespace Mirror
                     //
                     // in practice, scramble is rare and won't make much difference
                     double previousLocalTime = buffer.Values[buffer.Count - 2].localTime;
-                    double lastestLocalTime  = buffer.Values[buffer.Count - 1].localTime;
+                    double lastestLocalTime = buffer.Values[buffer.Count - 1].localTime;
 
                     // this is the delivery time since last snapshot
                     double localDeliveryTime = lastestLocalTime - previousLocalTime;
@@ -178,7 +178,7 @@ namespace Mirror
                 // snapshots may arrive out of order, we can not use last-timeline.
                 // we need to use the inserted snapshot's time - timeline.
                 double latestRemoteTime = snapshot.remoteTime;
-                double timeDiff         = latestRemoteTime - localTimeline;
+                double timeDiff = latestRemoteTime - localTimeline;
 
                 // next, calculate average of a few seconds worth of timediffs.
                 // this gives smoother results.
@@ -240,7 +240,7 @@ namespace Mirror
             for (int i = 0; i < buffer.Count - 1; ++i)
             {
                 // is local time between these two?
-                T first  = buffer.Values[i];
+                T first = buffer.Values[i];
                 T second = buffer.Values[i + 1];
                 if (localTimeline >= first.remoteTime &&
                     localTimeline <= second.remoteTime)
@@ -313,7 +313,7 @@ namespace Mirror
 
             // save from/to
             fromSnapshot = buffer.Values[from];
-            toSnapshot   = buffer.Values[to];
+            toSnapshot = buffer.Values[to];
 
             // remove older snapshots that we definitely don't need anymore.
             // after(!) using the indices.

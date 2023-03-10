@@ -52,7 +52,7 @@ namespace Mirror
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            driftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
+            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
             deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
 
             // buffer limit should be at least multiplier to have enough in there
@@ -119,7 +119,7 @@ namespace Mirror
         {
             if (buffer.Position > 0)
             {
-                Send(new RpcBufferMessage{ payload = buffer }, channelId);
+                Send(new RpcBufferMessage { payload = buffer }, channelId);
                 buffer.Position = 0;
             }
         }

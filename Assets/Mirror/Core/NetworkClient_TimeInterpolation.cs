@@ -40,7 +40,7 @@ namespace Mirror
         public static float catchupNegativeThreshold = -1; // careful, don't want to run out of snapshots
 
         [Tooltip("Catchup begins when the local timeline is moving too slow and getting too far away from remote time. Threshold is in frames worth of snapshots.\n\nThis needs to be positive.\n\nDon't modify unless you know what you are doing.")]
-        public static float catchupPositiveThreshold =  1;
+        public static float catchupPositiveThreshold = 1;
 
         [Tooltip("Local timeline acceleration in % while catching up.")]
         [Range(0, 1)]
@@ -103,7 +103,7 @@ namespace Mirror
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            driftEma        = new ExponentialMovingAverage(NetworkServer.sendRate * driftEmaDuration);
+            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * driftEmaDuration);
             deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * deliveryTimeEmaDuration);
         }
 
