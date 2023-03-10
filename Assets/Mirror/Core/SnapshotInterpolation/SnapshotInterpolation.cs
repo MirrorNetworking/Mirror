@@ -183,22 +183,21 @@ namespace Mirror
                 TimeLineOverride(latestRemoteTime, bufferTime, ref localTimeline);
 
                 double timeDiff = latestRemoteTime - localTimeline;
-                if (buffer.Count > 1)
-                    // next, calculate average of a few seconds worth of timediffs.
-                    // this gives smoother results.
-                    //
-                    // to calculate the average, we could simply loop through the
-                    // last 'n' seconds worth of timediffs, but:
-                    // - our buffer may only store a few snapshots (bufferTime)
-                    // - looping through seconds worth of snapshots every time is
-                    //   expensive
-                    //
-                    // to solve this, we use an exponential moving average.
-                    // https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
-                    // which is basically fancy math to do the same but faster.
-                    // additionally, it allows us to look at more timeDiff values
-                    // than we sould have access to in our buffer :)
-                    driftEma.Add(timeDiff);
+                // next, calculate average of a few seconds worth of timediffs.
+                // this gives smoother results.
+                //
+                // to calculate the average, we could simply loop through the
+                // last 'n' seconds worth of timediffs, but:
+                // - our buffer may only store a few snapshots (bufferTime)
+                // - looping through seconds worth of snapshots every time is
+                //   expensive
+                //
+                // to solve this, we use an exponential moving average.
+                // https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+                // which is basically fancy math to do the same but faster.
+                // additionally, it allows us to look at more timeDiff values
+                // than we sould have access to in our buffer :)
+                driftEma.Add(timeDiff);
 
                 // timescale depends on driftEma.
                 // driftEma only changes when inserting.
