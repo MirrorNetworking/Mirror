@@ -34,8 +34,8 @@ namespace Mirror.Tests
         // some defaults
         const double catchupSpeed   = 0.02;
         const double slowdownSpeed  = 0.04;
-        const double negativeThresh = -0.10;
-        const double positiveThresh =  0.10;
+        const double negativeThresh = -0.10; // in seconds
+        const double positiveThresh =  0.10; // in seconds
 
         [SetUp]
         public void SetUp()
