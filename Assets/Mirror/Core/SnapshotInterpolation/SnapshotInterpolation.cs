@@ -196,6 +196,11 @@ namespace Mirror
                 // than we sould have access to in our buffer :)
                 driftEma.Add(timeDiff);
 
+                // timescale depends on driftEma.
+                // driftEma only changes when inserting.
+                // therefore timescale only needs to be calculated when inserting.
+                // saves CPU cycles in Update.
+
                 // next up, calculate how far we are currently away from bufferTime
                 double drift = driftEma.Value - bufferTime;
 
