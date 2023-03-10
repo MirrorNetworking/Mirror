@@ -36,13 +36,13 @@ namespace Mirror
             double drift,                    // how far we are off from bufferTime
             double catchupSpeed,             // in % [0,1]
             double slowdownSpeed,            // in % [0,1]
-            double catchupNegativeThreshold, // in % of sendInteral (careful, we may run out of snapshots)
-            double catchupPositiveThreshold) // in % of sendInterval)
+            double absoluteCatchupNegativeThreshold, // in seconds (careful, we may run out of snapshots)
+            double absoluteCatchupPositiveThreshold) // in seconds
         {
             // if the drift time is too large, it means we are behind more time.
             // so we need to speed up the timescale.
             // note the threshold should be sendInterval * catchupThreshold.
-            if (drift > catchupPositiveThreshold)
+            if (drift > absoluteCatchupPositiveThreshold)
             {
                 // localTimeline += 0.001; // too simple, this would ping pong
                 return 1 + catchupSpeed; // n% faster
@@ -51,7 +51,7 @@ namespace Mirror
             // if the drift time is too small, it means we are ahead of time.
             // so we need to slow down the timescale.
             // note the threshold should be sendInterval * catchupThreshold.
-            if (drift < catchupNegativeThreshold)
+            if (drift < absoluteCatchupNegativeThreshold)
             {
                 // localTimeline -= 0.001; // too simple, this would ping pong
                 return 1 - slowdownSpeed; // n% slower
@@ -200,6 +200,11 @@ namespace Mirror
                     // additionally, it allows us to look at more timeDiff values
                     // than we sould have access to in our buffer :)
                     driftEma.Add(timeDiff);
+
+                // timescale depends on driftEma.
+                // driftEma only changes when inserting.
+                // therefore timescale only needs to be calculated when inserting.
+                // saves CPU cycles in Update.
 
                 // next up, calculate how far we are currently away from bufferTime
                 double drift = driftEma.Value - bufferTime;
