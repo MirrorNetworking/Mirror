@@ -31,14 +31,14 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float positionPrecision = 0.01f; // 1 cm
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
-        public float scalePrecision    = 0.01f; // 1 cm
+        public float scalePrecision = 0.01f; // 1 cm
 
         // delta compression needs to remember 'last' to compress against
-        protected Vector3Long lastSerializedPosition   = Vector3Long.zero;
+        protected Vector3Long lastSerializedPosition = Vector3Long.zero;
         protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
 
-        protected Vector3Long lastSerializedScale      = Vector3Long.zero;
-        protected Vector3Long lastDeserializedScale    = Vector3Long.zero;
+        protected Vector3Long lastSerializedScale = Vector3Long.zero;
+        protected Vector3Long lastDeserializedScale = Vector3Long.zero;
 
         // Used to store last sent snapshots
         protected TransformSnapshot last;
@@ -49,7 +49,7 @@ namespace Mirror
         void Update()
         {
             // if server then always sync to others.
-            if      (isServer) UpdateServer();
+            if (isServer) UpdateServer();
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
             else if (isClient) UpdateClient();
@@ -200,7 +200,7 @@ namespace Mirror
                     else
                         writer.WriteQuaternion(snapshot.rotation);
                 }
-                if (syncScale)    writer.WriteVector3(snapshot.scale);
+                if (syncScale) writer.WriteVector3(snapshot.scale);
             }
             // delta
             else
@@ -234,7 +234,7 @@ namespace Mirror
 
             // save serialized as 'last' for next delta compression
             if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
-            if (syncScale)    Compression.ScaleToLong(snapshot.scale, scalePrecision,    out lastSerializedScale);
+            if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
             // set 'last'
             last = snapshot;
@@ -242,9 +242,9 @@ namespace Mirror
 
         public override void OnDeserialize(NetworkReader reader, bool initialState)
         {
-            Vector3?    position = null;
+            Vector3? position = null;
             Quaternion? rotation = null;
-            Vector3?    scale = null;
+            Vector3? scale = null;
 
             // initial
             if (initialState)
@@ -258,7 +258,7 @@ namespace Mirror
                     else
                         rotation = reader.ReadQuaternion();
                 }
-                if (syncScale)    scale    = reader.ReadVector3();
+                if (syncScale) scale = reader.ReadVector3();
             }
             // delta
             else
@@ -286,12 +286,12 @@ namespace Mirror
 
             // handle depending on server / client / host.
             // server has priority for host mode.
-            if      (isServer) OnClientToServerSync(position, rotation, scale);
+            if (isServer) OnClientToServerSync(position, rotation, scale);
             else if (isClient) OnServerToClientSync(position, rotation, scale);
 
             // save deserialized as 'last' for next delta compression
             if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
-            if (syncScale)    Compression.ScaleToLong(scale.Value,    scalePrecision,    out lastDeserializedScale);
+            if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
         }
 
         // sync ////////////////////////////////////////////////////////////////
@@ -394,10 +394,10 @@ namespace Mirror
             base.Reset();
 
             // reset delta
-            lastSerializedPosition   = Vector3Long.zero;
+            lastSerializedPosition = Vector3Long.zero;
             lastDeserializedPosition = Vector3Long.zero;
 
-            lastSerializedScale   = Vector3Long.zero;
+            lastSerializedScale = Vector3Long.zero;
             lastDeserializedScale = Vector3Long.zero;
         }
     }
