@@ -176,6 +176,8 @@ MonoBehaviour:
   catchupPositiveThreshold: 1
   catchupSpeed: 0.009999999776482582
   slowdownSpeed: 0.009999999776482582
+  resetNegativeThreshold: -5
+  resetPositiveThreshold: 5
   driftEmaDuration: 1
   dynamicAdjustment: 1
   dynamicAdjustmentTolerance: 1

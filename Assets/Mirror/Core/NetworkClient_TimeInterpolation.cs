@@ -50,6 +50,13 @@ namespace Mirror
         [Range(0, 1)]
         public static double slowdownSpeed = 0.01f; // 1%
 
+        [Header("Snapshot Interpolation: Clamping")]
+        [Tooltip("If the local timeline is so far behind remote time that catchup would take too long, then we do a hard reset so it won't catch up for a minute or more.")]
+        public static float resetNegativeThreshold = catchupNegativeThreshold * 5; // needs to be larger than catchup threshold
+
+        [Tooltip("If the local timeline is so far ahead remote time that slowdown would take too long, then we do a hard reset so it won't slow down for a minute or more.")]
+        public static float resetPositiveThreshold = catchupPositiveThreshold * 5; // needs to be larger than catchup threshold
+
         [Tooltip("Catchup/Slowdown is adjusted over n-second exponential moving average.")]
         public static int driftEmaDuration = 1; // shouldn't need to modify this, but expose it anyway
 
@@ -155,6 +162,8 @@ namespace Mirror
                 ref driftEma,
                 catchupNegativeThreshold,
                 catchupPositiveThreshold,
+                resetNegativeThreshold,
+                resetPositiveThreshold,
                 ref deliveryTimeEma);
 
             // Debug.Log($"inserted TimeSnapshot remote={snap.remoteTime:F2} local={snap.localTime:F2} total={snapshots.Count}");

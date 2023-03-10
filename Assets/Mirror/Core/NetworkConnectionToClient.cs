@@ -90,6 +90,8 @@ namespace Mirror
                 ref driftEma,
                 NetworkClient.catchupNegativeThreshold,
                 NetworkClient.catchupPositiveThreshold,
+                NetworkClient.resetNegativeThreshold,
+                NetworkClient.resetPositiveThreshold,
                 ref deliveryTimeEma
             );
         }

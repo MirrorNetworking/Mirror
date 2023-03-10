@@ -61,6 +61,40 @@ namespace Mirror
             return 1;
         }
 
+        // catchup/slowdown attempts to bring timeline back in sync smoothly.
+        // however, if timeline is too far behind then we should clamp hard.
+        // otherwise catchup/slowdown may take 20s or more, minutes, or more.
+        // at some point, it'll just be way too far behind.
+        //
+        // to reproduce, try snapshot interpolation demo and press the button to
+        // simulate the client timeline at multiple seconds behind. it'll take
+        // a long time to catch up if the timeline is a long time behind.
+        //
+        // returns true if time needs to be clamped.
+        // drift EMA should also be reset so that catchup/slowdown doesn't
+        // compute based on old values before the reset.
+        public static bool TimelineReset(
+            double drift,                          // how far we are off from bufferTime
+            double absoluteResetNegativeThreshold, // in seconds. needs to be larger than catchup thresholds.
+            double absoluteResetPositiveThreshold  // in seconds. needs to be larger than catchup thresholds.
+        )
+        {
+            // if the drift time is too large, it means we are behind more time.
+            if (drift > absoluteResetPositiveThreshold)
+            {
+                return true;
+            }
+
+            // if the drift time is too small, it means we are ahead of time.
+            if (drift < absoluteResetNegativeThreshold)
+            {
+                return true;
+            }
+
+            // don't clamp, all is within acceptable ranges.
+            return false;
+        }
+
         // calculate dynamic buffer time adjustment
         public static double DynamicAdjustment(
             double sendInterval,
@@ -120,6 +154,8 @@ namespace Mirror
             ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
             float catchupNegativeThreshold,               // in % of sendInteral (careful, we may run out of snapshots)
             float catchupPositiveThreshold,               // in % of sendInterval
+            float resetNegativeThreshold,                 // in % of sendInterval (careful, we may run out of snapshots)
+            float resetPositiveThreshold,                 // in % of sendInterval
             ref ExponentialMovingAverage deliveryTimeEma) // for dynamic buffer time adjustment
             where T : Snapshot
         {
@@ -205,15 +241,37 @@ namespace Mirror
                 double drift = driftEma.Value - bufferTime;
 
                 // convert relative thresholds to absolute values based on sendInterval
-                double absoluteNegativeThreshold = sendInterval * catchupNegativeThreshold;
-                double absolutePositiveThreshold = sendInterval * catchupPositiveThreshold;
+                double absoluteCatchupNegativeThreshold = sendInterval * catchupNegativeThreshold;
+                double absoluteCatchupPositiveThreshold = sendInterval * catchupPositiveThreshold;
+                double absoluteResetNegativeThreshold = sendInterval * resetNegativeThreshold;
+                double absoluteResetPositiveThreshold = sendInterval * resetPositiveThreshold;
+
+                // catchup/slowdown smoothly keeps the timeline in sync.
+                // however, if we get way too far behind/ahead, then catchup/
+                // slowdown could take 10s, 30s, minutes, to catch up.
+                // beyond a certain point, it's better to to reset the timeline.
+                // it'll cause a noticable visual jump, but it's necessary.
+                if (TimelineReset(drift, absoluteResetNegativeThreshold, absoluteResetPositiveThreshold))
+                {
+                    // reset timeline to be behind by 'bufferTime'
+                    localTimeline = latestRemoteTime - bufferTime;
+
+                    // reset average drift. we just reset, so there is no drift.
+                    driftEma.Reset();
+
+                    // TODO reset snapshots too? old ones are of no value?
+                }
+
+                // timeline reset could have reset drift.
+                // recalculate it before adjusting timescale.
+                drift = driftEma.Value - bufferTime;
 
                 // next, set localTimescale to catchup consistently in Update().
                 // we quantize between default/catchup/slowdown,
                 // this way we have 'default' speed most of the time(!).
                 // and only catch up / slow down for a little bit occasionally.
                 // a consistent multiplier would never be exactly 1.0.
-                localTimescale = Timescale(drift, catchupSpeed, slowdownSpeed, absoluteNegativeThreshold, absolutePositiveThreshold);
+                localTimescale = Timescale(drift, catchupSpeed, slowdownSpeed, absoluteCatchupNegativeThreshold, absoluteCatchupPositiveThreshold);
 
                 // debug logging
                 // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
