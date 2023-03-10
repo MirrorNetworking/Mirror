@@ -85,13 +85,14 @@ namespace TestNT
 
         public override void OnStartClient()
         {
-            if (!isLocalPlayer)
+            if (NTR && animator && !isLocalPlayer)
                 NTR.VelRotChangedAction = OnVelRotChanged;
         }
 
         public override void OnStopClient()
         {
-            NTR.VelRotChangedAction = null;
+            if (NTR)
+                NTR.VelRotChangedAction = null;
         }
 
         public override void OnStartAuthority()
@@ -146,7 +147,7 @@ namespace TestNT
         void HandleTeleport()
         {
             if (Input.GetKey(KeyCode.X))
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                if (NTR && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
                 {
                     NTR.CmdTeleport(Vector3.up);
                 }
