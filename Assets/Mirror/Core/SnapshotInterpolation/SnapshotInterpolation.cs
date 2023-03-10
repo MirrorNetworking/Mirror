@@ -36,7 +36,7 @@ namespace Mirror
             double catchupSpeed,             // in % [0,1]
             double slowdownSpeed,            // in % [0,1]
             double catchupNegativeThreshold, // in % of sendInteral (careful, we may run out of snapshots)
-            double catchupPositiveThreshold) // in % of sendInterval)
+            double catchupPositiveThreshold) // in % of sendInterval
         {
             // if the drift time is too large, it means we are behind more time.
             // so we need to speed up the timescale.
