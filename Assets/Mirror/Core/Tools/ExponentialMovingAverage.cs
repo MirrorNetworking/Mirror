@@ -41,5 +41,13 @@ namespace Mirror
                 initialized = true;
             }
         }
+
+        public void Reset()
+        {
+            initialized = false;
+            Value = 0;
+            Variance = 0;
+            StandardDeviation = 0;
+        }
     }
 }
