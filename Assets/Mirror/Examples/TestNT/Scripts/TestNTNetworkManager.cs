@@ -132,6 +132,9 @@ namespace TestNT
 
         void ProcessCmdLineArgs()
         {
+            // Initialize false for bots, arg will set it true if present
+            ((TestNTNetworkAuthenticator)authenticator).SetNinja(false);
+
             foreach (string arg in Environment.GetCommandLineArgs())
             {
                 if (arg.StartsWith("/h:", StringComparison.InvariantCultureIgnoreCase))
