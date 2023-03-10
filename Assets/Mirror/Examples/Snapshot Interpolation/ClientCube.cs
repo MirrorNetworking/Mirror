@@ -225,6 +225,10 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             {
                 localTimeline -= 0.1;
             }
+            if (GUILayout.Button("Timeline 100ms ahead"))
+            {
+                localTimeline += 0.1;
+            }
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
