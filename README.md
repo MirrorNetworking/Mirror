@@ -56,7 +56,7 @@ public class Player : NetworkBehaviour
     
     // zero overhead remote calls
     [Command]   void CmdUseItem(int slot) {} // client to server
-    [Rpc]       void RpcRespawn() {}         // server to all clients
+    [ClientRpc] void RpcRespawn() {}         // server to all clients
     [TargetRpc] void Hello() {}              // server to one client
 }
 ```
