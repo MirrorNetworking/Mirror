@@ -117,19 +117,17 @@ namespace Mirror
         // to reproduce, try snapshot interpolation demo and press the button to
         // simulate the client timeline at multiple seconds behind. it'll take
         // a long time to catch up if the timeline is a long time behind.
-        //
-        // also, we don't snap to exactly 2 buffer behind, we snap to somewhere
-        // behind this 2 buffer target, leaving the rest of the drift to be
-        // dealt with by catch up.
         public static double TimelineClamp(
             double localTimeline,
             double bufferTime,
             double latestRemoteTime)
         {
-            // if we want local timeline to be around bufferTime slower,
-            // then over here we want to clamp localTimeline to be:
-            // target +- multiplierCheck * bufferTime.
+            // we want local timeline to always be 'bufferTime' behind remote.
             double targetTime = latestRemoteTime - bufferTime;
+
+            // we define a boundary of 'bufferTime' around the target time.
+            // this is where catchup / slowdown will happen.
+            // outside of the area, we clamp.
             double lowerBound = targetTime - bufferTime;
             double upperBound = targetTime + bufferTime;
             return Math.Clamp(localTimeline, lowerBound, upperBound);
