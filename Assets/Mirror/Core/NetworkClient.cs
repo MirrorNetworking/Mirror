@@ -1703,7 +1703,7 @@ namespace Mirror
             GUILayout.Box($"timeline: {localTimeline:F2}");
             GUILayout.Box($"buffer: {snapshots.Count}");
             GUILayout.Box($"timescale: {localTimescale:F2}");
-            GUILayout.Box($"BTM: {bufferTimeMultiplier:F2}");
+            GUILayout.Box($"BTM: {snapshotSettings.bufferTimeMultiplier:F2}");
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();

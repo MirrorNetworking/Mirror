@@ -52,11 +52,11 @@ namespace Mirror
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.driftEmaDuration);
-            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.deliveryTimeEmaDuration);
+            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.driftEmaDuration);
+            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.deliveryTimeEmaDuration);
 
             // buffer limit should be at least multiplier to have enough in there
-            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.bufferTimeMultiplier, snapshotBufferSizeLimit);
+            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.snapshotSettings.bufferTimeMultiplier, snapshotBufferSizeLimit);
         }
 
         public void OnTimeSnapshot(TimeSnapshot snapshot)
@@ -65,14 +65,14 @@ namespace Mirror
             if (snapshots.Count >= snapshotBufferSizeLimit) return;
 
             // (optional) dynamic adjustment
-            if (NetworkClient.dynamicAdjustment)
+            if (NetworkClient.snapshotSettings.dynamicAdjustment)
             {
                 // set bufferTime on the fly.
                 // shows in inspector for easier debugging :)
                 bufferTimeMultiplier = SnapshotInterpolation.DynamicAdjustment(
                     NetworkServer.sendInterval,
                     deliveryTimeEma.StandardDeviation,
-                    NetworkClient.dynamicAdjustmentTolerance
+                    NetworkClient.snapshotSettings.dynamicAdjustmentTolerance
                 );
                 // Debug.Log($"[Server]: {name} delivery std={serverDeliveryTimeEma.StandardDeviation} bufferTimeMult := {bufferTimeMultiplier} ");
             }
@@ -85,11 +85,11 @@ namespace Mirror
                 ref remoteTimescale,
                 NetworkServer.sendInterval,
                 bufferTime,
-                NetworkClient.catchupSpeed,
-                NetworkClient.slowdownSpeed,
+                NetworkClient.snapshotSettings.catchupSpeed,
+                NetworkClient.snapshotSettings.slowdownSpeed,
                 ref driftEma,
-                NetworkClient.catchupNegativeThreshold,
-                NetworkClient.catchupPositiveThreshold,
+                NetworkClient.snapshotSettings.catchupNegativeThreshold,
+                NetworkClient.snapshotSettings.catchupPositiveThreshold,
                 ref deliveryTimeEma
             );
         }
