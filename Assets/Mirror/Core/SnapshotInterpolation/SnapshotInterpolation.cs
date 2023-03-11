@@ -8,6 +8,7 @@
 //   fholm: netcode streams
 //   fakebyte: standard deviation for dynamic adjustment
 //   ninjakicka: math & debugging
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -106,6 +107,34 @@ namespace Mirror
             return buffer.Count > before;
         }
 
+        // clamp timeline for cases where it gets too far behind.
+        // for example, a client app may go into the background and get updated
+        // with 1hz for a while.  by the time it's back it's at least 30 frames
+        // behind, possibly more if the transport also queues up. In this
+        // scenario, at 1% catch up it took around 20+ seconds to finally catch
+        // up. For these kinds of scenarios it will be better to snap / clamp.
+        //
+        // to reproduce, try snapshot interpolation demo and press the button to
+        // simulate the client timeline at multiple seconds behind. it'll take
+        // a long time to catch up if the timeline is a long time behind.
+        //
+        // also, we don't snap to exactly 2 buffer behind, we snap to somewhere
+        // behind this 2 buffer target, leaving the rest of the drift to be
+        // dealt with by catch up.
+        public static double TimelineClamp(
+            double localTimeline,
+            double bufferTime,
+            double latestRemoteTime)
+        {
+            // if we want local timeline to be around bufferTime slower,
+            // then over here we want to clamp localTimeline to be:
+            // target +- multiplierCheck * bufferTime.
+            double targetTime = latestRemoteTime - bufferTime;
+            double lowerBound = targetTime - bufferTime;
+            double upperBound = targetTime + bufferTime;
+            return Math.Clamp(localTimeline, lowerBound, upperBound);
+        }
+
         // call this for every received snapshot.
         // adds / inserts it to the list & initializes local time if needed.
         public static void InsertAndAdjust<T>(
@@ -178,6 +207,11 @@ namespace Mirror
                 // snapshots may arrive out of order, we can not use last-timeline.
                 // we need to use the inserted snapshot's time - timeline.
                 double latestRemoteTime = snapshot.remoteTime;
+
+                // ensure timeline stays within a reasonable bound behind/ahead.
+                localTimeline = TimelineClamp(localTimeline, bufferTime, latestRemoteTime);
+
+                // calculate timediff after localTimeline override changes
                 double timeDiff = latestRemoteTime - localTimeline;
 
                 // next, calculate average of a few seconds worth of timediffs.
