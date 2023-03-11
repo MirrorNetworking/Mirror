@@ -88,6 +88,25 @@ namespace Mirror.Tests
         }
 
         [Test]
+        public void TimelineClamp()
+        {
+            // latest snapshot at 1, with buffer of 0.5.
+            // => target time is latest-buffer = 0.5
+            // => bounds are target +- buffer, so [0, 1]
+
+            // within bounds
+            Assert.That(SnapshotInterpolation.TimelineClamp(0, 0.5, 1), Is.EqualTo(0));
+            Assert.That(SnapshotInterpolation.TimelineClamp(0.5, 0.5, 1), Is.EqualTo(0.5));
+            Assert.That(SnapshotInterpolation.TimelineClamp(1, 0.5, 1), Is.EqualTo(1));
+
+            // behind: clamps to lower bound
+            Assert.That(SnapshotInterpolation.TimelineClamp(-1, 0.5, 1), Is.EqualTo(0));
+
+            // ahead: clamps to upper bound
+            Assert.That(SnapshotInterpolation.TimelineClamp(2, 0.5, 1), Is.EqualTo(1));
+        }
+
+        [Test]
         public void DynamicAdjustment()
         {
             // 100ms send interval, 0ms std jitter, 0.5 (50%) tolerance
