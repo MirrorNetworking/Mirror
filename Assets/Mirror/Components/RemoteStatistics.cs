@@ -121,7 +121,6 @@ namespace Mirror
                 try
                 {
                     serverPassword = File.ReadAllText(path);
-                    Debug.Log($"RemoteStatistics: Password is {serverPassword}");
                 }
                 catch (Exception exception)
                 {
