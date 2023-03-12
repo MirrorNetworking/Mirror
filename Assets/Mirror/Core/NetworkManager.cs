@@ -118,6 +118,9 @@ namespace Mirror
         public static List<Transform> startPositions = new List<Transform>();
         public static int startPositionIndex;
 
+        [Header("Snapshot Interpolation")]
+        public SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
+
         [Header("Debug")]
         public bool timeInterpolationGui = false;
 
@@ -257,6 +260,7 @@ namespace Mirror
         void ApplyConfiguration()
         {
             NetworkServer.tickRate = sendRate;
+            NetworkClient.snapshotSettings = snapshotSettings;
         }
 
         // full server setup code, without spawning objects yet
