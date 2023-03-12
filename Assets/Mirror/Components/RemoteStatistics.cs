@@ -209,6 +209,7 @@ namespace Mirror
                 ));
             }
         }
+
         void UpdateClient()
         {
             if (Input.GetKeyDown(hotKey))
