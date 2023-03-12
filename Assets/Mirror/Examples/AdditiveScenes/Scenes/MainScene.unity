@@ -1966,6 +1966,16 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 1
   spawnPrefabs: []
+  snapshotSettings:
+    bufferTimeMultiplier: 2
+    catchupNegativeThreshold: -1
+    catchupPositiveThreshold: 1
+    catchupSpeed: 0.009999999776482582
+    slowdownSpeed: 0.009999999776482582
+    driftEmaDuration: 1
+    dynamicAdjustment: 1
+    dynamicAdjustmentTolerance: 1
+    deliveryTimeEmaDuration: 2
   timeInterpolationGui: 0
   Zone: {fileID: 3460729395543957449, guid: de939020b5e2aa5489ebcc4002d75d54, type: 3}
   subScenes:
@@ -2002,9 +2012,11 @@ MonoBehaviour:
   NoDelay: 1
   Interval: 10
   Timeout: 10000
+  RecvBufferSize: 7361536
+  SendBufferSize: 7361536
   FastResend: 2
-  SendWindowSize: 4096
   ReceiveWindowSize: 4096
+  SendWindowSize: 4096
   MaxRetransmit: 40
   MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 298449
