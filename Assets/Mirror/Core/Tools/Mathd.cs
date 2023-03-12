@@ -5,6 +5,16 @@ namespace Mirror
 {
     public static class Mathd
     {
+        // Unity 2020 doesn't have Math.Clamp yet.
+        /// <summary>Clamps value between 0 and 1 and returns value.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Clamp(double value, double min, double max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
         /// <summary>Clamps value between 0 and 1 and returns value.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Clamp01(double value)

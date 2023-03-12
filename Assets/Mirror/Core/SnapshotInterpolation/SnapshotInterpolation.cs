@@ -8,7 +8,6 @@
 //   fholm: netcode streams
 //   fakebyte: standard deviation for dynamic adjustment
 //   ninjakicka: math & debugging
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -130,13 +129,7 @@ namespace Mirror
             // outside of the area, we clamp.
             double lowerBound = targetTime - bufferTime;
             double upperBound = targetTime + bufferTime;
-#if UNITY_2021_OR_NEWER
-            return Math.Clamp(localTimeline, lowerBound, upperBound);
-#else
-            if (localTimeline.CompareTo(lowerBound) < 0) return lowerBound;
-            else if (localTimeline.CompareTo(upperBound) > 0) return upperBound;
-            else return localTimeline;
-#endif
+            return Mathd.Clamp(localTimeline, lowerBound, upperBound);
         }
 
         // call this for every received snapshot.
