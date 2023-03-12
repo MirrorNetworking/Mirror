@@ -56,6 +56,7 @@ namespace Mirror.SimpleWeb
             acceptThread = null;
 
             Console.WriteLine($"[SimpleWebTransport] Server stopped...closing all connections.");
+
             // make copy so that foreach doesn't break if values are removed
             Connection[] connectionsCopy = connections.Values.ToArray();
             foreach (Connection conn in connectionsCopy)
@@ -248,6 +249,7 @@ namespace Mirror.SimpleWeb
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"[SimpleWebTransport] Cannot get address of connection {id} because connection was not found in dictionary.");
                 Console.ResetColor();
+
                 return null;
             }
         }
