@@ -43,8 +43,6 @@ namespace Mirror
         // Used to store last sent snapshots
         protected TransformSnapshot last;
 
-        protected int lastClientCount = 1;
-
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
