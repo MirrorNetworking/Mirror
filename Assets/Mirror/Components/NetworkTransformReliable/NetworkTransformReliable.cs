@@ -67,10 +67,6 @@ namespace Mirror
             }
         }
 
-        protected override void OnTeleport(Vector3 destination)
-        {
-        }
-
         protected virtual void UpdateServer()
         {
             // apply buffered snapshots IF client authority
