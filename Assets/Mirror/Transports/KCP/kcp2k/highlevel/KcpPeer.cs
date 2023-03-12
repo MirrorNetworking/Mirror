@@ -503,6 +503,61 @@ namespace kcp2k
             }
         }
 
+        void OnRawInputReliable(ArraySegment<byte> message)
+        {
+            // input into kcp, but skip channel byte
+            int input = kcp.Input(message.Array, message.Offset, message.Count);
+            if (input != 0)
+            {
+                // GetType() shows Server/ClientConn instead of just Connection.
+                Log.Warning($"KcpPeer: Input failed with error={input} for buffer with length={message.Count - 1}");
+            }
+        }
+
+        void OnRawInputUnreliable(ArraySegment<byte> message)
+        {
+            // ideally we would queue all unreliable messages and
+            // then process them in ReceiveNext() together with the
+            // reliable messages, but:
+            // -> queues/allocations/pools are slow and complex.
+            // -> DOTSNET 10k is actually slower if we use pooled
+            //    unreliable messages for transform messages.
+            //
+            //      DOTSNET 10k benchmark:
+            //        reliable-only:         170 FPS
+            //        unreliable queued: 130-150 FPS
+            //        unreliable direct:     183 FPS(!)
+            //
+            //      DOTSNET 50k benchmark:
+            //        reliable-only:         FAILS (queues keep growing)
+            //        unreliable direct:     18-22 FPS(!)
+            //
+            // -> all unreliable messages are DATA messages anyway.
+            // -> let's skip the magic and call OnData directly if
+            //    the current state allows it.
+            if (state == KcpState.Authenticated)
+            {
+                OnData?.Invoke(message, KcpChannel.Unreliable);
+
+                // set last receive time to avoid timeout.
+                // -> we do this in ANY case even if not enabled.
+                //    a message is a message.
+                // -> we set last receive time for both reliable and
+                //    unreliable messages. both count.
+                //    otherwise a connection might time out even
+                //    though unreliable were received, but no
+                //    reliable was received.
+                lastReceiveTime = (uint)watch.ElapsedMilliseconds;
+            }
+            else
+            {
+                // invalid unreliable messages may be random internet noise.
+                // show a warning, but don't disconnect.
+                // otherwise attackers could disconnect someone with random noise.
+                Log.Warning($"KcpPeer: received unreliable message while not authenticated. Disconnecting the connection.");
+            }
+        }
+
         // insert raw IO. usually from socket.Receive.
         // offset is useful for relays, where we may parse a header and then
         // feed the rest to kcp.
@@ -522,67 +577,20 @@ namespace kcp2k
             {
                 case (byte)KcpChannel.Reliable:
                 {
-                    // input into kcp, but skip channel byte
-                    int input = kcp.Input(message.Array, message.Offset, message.Count);
-                    if (input != 0)
-                    {
-                        // GetType() shows Server/ClientConn instead of just Connection.
-                        Log.Warning($"KcpPeer: Input failed with error={input} for buffer with length={message.Count - 1}");
-                    }
+                    OnRawInputReliable(message);
                     break;
                 }
                 case (byte)KcpChannel.Unreliable:
                 {
-                    // ideally we would queue all unreliable messages and
-                    // then process them in ReceiveNext() together with the
-                    // reliable messages, but:
-                    // -> queues/allocations/pools are slow and complex.
-                    // -> DOTSNET 10k is actually slower if we use pooled
-                    //    unreliable messages for transform messages.
-                    //
-                    //      DOTSNET 10k benchmark:
-                    //        reliable-only:         170 FPS
-                    //        unreliable queued: 130-150 FPS
-                    //        unreliable direct:     183 FPS(!)
-                    //
-                    //      DOTSNET 50k benchmark:
-                    //        reliable-only:         FAILS (queues keep growing)
-                    //        unreliable direct:     18-22 FPS(!)
-                    //
-                    // -> all unreliable messages are DATA messages anyway.
-                    // -> let's skip the magic and call OnData directly if
-                    //    the current state allows it.
-                    if (state == KcpState.Authenticated)
-                    {
-                        OnData?.Invoke(message, KcpChannel.Unreliable);
-
-                        // set last receive time to avoid timeout.
-                        // -> we do this in ANY case even if not enabled.
-                        //    a message is a message.
-                        // -> we set last receive time for both reliable and
-                        //    unreliable messages. both count.
-                        //    otherwise a connection might time out even
-                        //    though unreliable were received, but no
-                        //    reliable was received.
-                        lastReceiveTime = (uint)watch.ElapsedMilliseconds;
-                    }
-                    else
-                    {
-                        // should never happen
-                        // pass error to user callback. no need to log it manually.
-                        // GetType() shows Server/ClientConn instead of just Connection.
-                        OnError(ErrorCode.InvalidReceive, $"KcpPeer: received unreliable message in state {state}. Disconnecting the connection.");
-                        Disconnect();
-                    }
+                    OnRawInputUnreliable(message);
                     break;
                 }
                 default:
                 {
-                    // not a valid channel. random data or attacks.
-                    // pass error to user callback. no need to log it manually.
-                        // GetType() shows Server/ClientConn instead of just Connection.
-                    OnError(ErrorCode.InvalidReceive, $"KcpPeer: Disconnecting connection because of invalid channel header: {channel}");
-                    Disconnect();
+                    // invalid channel indicates random internet noise.
+                    // servers may receive random UDP data.
+                    // just ignore it, but log for easier debugging.
+                    Log.Warning($"KcpPeer: invalid channel header: {channel}, likely internet noise");
                     break;
                 }
             }

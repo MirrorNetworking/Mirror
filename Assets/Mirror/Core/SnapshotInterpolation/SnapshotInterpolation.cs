@@ -8,6 +8,7 @@
 //   fholm: netcode streams
 //   fakebyte: standard deviation for dynamic adjustment
 //   ninjakicka: math & debugging
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System;
@@ -107,6 +108,32 @@ namespace Mirror
             return buffer.Count > before;
         }
 
+        // clamp timeline for cases where it gets too far behind.
+        // for example, a client app may go into the background and get updated
+        // with 1hz for a while.  by the time it's back it's at least 30 frames
+        // behind, possibly more if the transport also queues up. In this
+        // scenario, at 1% catch up it took around 20+ seconds to finally catch
+        // up. For these kinds of scenarios it will be better to snap / clamp.
+        //
+        // to reproduce, try snapshot interpolation demo and press the button to
+        // simulate the client timeline at multiple seconds behind. it'll take
+        // a long time to catch up if the timeline is a long time behind.
+        public static double TimelineClamp(
+            double localTimeline,
+            double bufferTime,
+            double latestRemoteTime)
+        {
+            // we want local timeline to always be 'bufferTime' behind remote.
+            double targetTime = latestRemoteTime - bufferTime;
+
+            // we define a boundary of 'bufferTime' around the target time.
+            // this is where catchup / slowdown will happen.
+            // outside of the area, we clamp.
+            double lowerBound = targetTime - bufferTime;
+            double upperBound = targetTime + bufferTime;
+            return Math.Clamp(localTimeline, lowerBound, upperBound);
+        }
+
         // call this for every received snapshot.
         // adds / inserts it to the list & initializes local time if needed.
         public static void InsertAndAdjust<T>(
@@ -180,9 +207,12 @@ namespace Mirror
                 // we need to use the inserted snapshot's time - timeline.
                 double latestRemoteTime = snapshot.remoteTime;
 
-                TimeLineOverride(latestRemoteTime, bufferTime, ref localTimeline);
+                // ensure timeline stays within a reasonable bound behind/ahead.
+                localTimeline = TimelineClamp(localTimeline, bufferTime, latestRemoteTime);
 
+                // calculate timediff after localTimeline override changes
                 double timeDiff = latestRemoteTime - localTimeline;
+
                 // next, calculate average of a few seconds worth of timediffs.
                 // this gives smoother results.
                 //
@@ -221,18 +251,6 @@ namespace Mirror
                 // debug logging
                 // Console.WriteLine($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
             }
-        }
-
-        // If the time difference is more than X times of buffer, we will override time to be
-        // targetTime +- x times of buffer. 
-        static void TimeLineOverride(double latestRemoteTime, double bufferTime, ref double localTimeline)
-        {
-            // If we want local timeline to be around bufferTime slower,
-            // Then over her we want to clamp localTimeline to be:
-            // target +- multiplierCheck * bufferTime.
-            double targetTime = latestRemoteTime - bufferTime;
-
-            localTimeline = Math.Clamp(localTimeline, targetTime - bufferTime, targetTime + bufferTime);
         }
 
         // sample snapshot buffer to find the pair around the given time.

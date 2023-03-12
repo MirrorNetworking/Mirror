@@ -43,8 +43,6 @@ namespace Mirror
         // Used to store last sent snapshots
         protected TransformSnapshot last;
 
-        int lastClientCount = 0;
-
         // update //////////////////////////////////////////////////////////////
         void Update()
         {
@@ -132,18 +130,6 @@ namespace Mirror
                     Apply(computed, to);
 
                 }
-
-                // 'only sync if moved'
-                // explain..
-                // from 1 snap to next snap..
-                // it'll be old...
-                if (lastClientCount > 1 && clientSnapshots.Count == 1)
-                {
-                    // this is it. snapshots are down to '1'.
-                    // does this cause stuck?
-                }
-
-                lastClientCount = clientSnapshots.Count;
             }
         }
 
