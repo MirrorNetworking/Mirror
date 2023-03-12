@@ -114,6 +114,13 @@ namespace Mirror.SimpleWeb
                         break;
                 }
             }
+
+            if (server.receiveQueue.Count > 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"SimpleWebServer ProcessMessageQueue has {server.receiveQueue.Count} remaining.");
+                Console.ResetColor();
+            }
         }
     }
 }
