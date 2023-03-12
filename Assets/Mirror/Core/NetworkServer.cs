@@ -360,8 +360,8 @@ namespace Mirror
             // for now, this is only used for client authority movement.
 
 #if !UNITY_2020_3_OR_NEWER
-			// Unity 2019 doesn't have Time.timeAsDouble yet
-			connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+            // Unity 2019 doesn't have Time.timeAsDouble yet
+            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
 #else
             connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
 #endif
@@ -1778,8 +1778,8 @@ namespace Mirror
                 // snapshots _but_ not every single tick.
                 if (!Application.isPlaying ||
 #if !UNITY_2020_3_OR_NEWER
-					// Unity 2019 doesn't have Time.timeAsDouble yet
-					AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
+                    // Unity 2019 doesn't have Time.timeAsDouble yet
+                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
 #else
                     AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
 #endif
