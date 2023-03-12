@@ -120,7 +120,7 @@ namespace Mirror.SimpleWeb
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"SimpleWebServer ProcessMessageQueue has {server.receiveQueue.Count} remaining.");
                 Console.ResetColor();
-            }  
+            }
         }
     }
 }

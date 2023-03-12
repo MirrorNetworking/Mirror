@@ -114,7 +114,6 @@ namespace Mirror.SimpleWeb
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"[SimpleWebTransport] Failed to create SSL Stream {conn}");
                     Console.ResetColor();
-
                     conn.Dispose();
                     return;
                 }
@@ -130,7 +129,6 @@ namespace Mirror.SimpleWeb
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"[SimpleWebTransport] Handshake Failed {conn}");
                     Console.ResetColor();
-
                     conn.Dispose();
                     return;
                 }
@@ -227,7 +225,6 @@ namespace Mirror.SimpleWeb
                 Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.WriteLine($"[SimpleWebTransport] Kicking connection {id}");
                 Console.ResetColor();
-
                 conn.Dispose();
                 return true;
             }
