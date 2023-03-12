@@ -44,7 +44,10 @@ namespace Mirror
         protected TransformSnapshot last;
 
         // update //////////////////////////////////////////////////////////////
-        void Update()
+        // movement components may change position in Update().
+        // use LateUpdate to always sync after user script position changes.
+        // otherwise the order fighting may show jitter.
+        void LateUpdate()
         {
             // if server then always sync to others.
             if (isServer) UpdateServer();
