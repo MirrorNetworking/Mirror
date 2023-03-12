@@ -44,6 +44,7 @@ namespace Mirror
         protected TransformSnapshot last;
 
         // update //////////////////////////////////////////////////////////////
+        // Update applies interpolation.
         void Update()
         {
             // if server then always sync to others.
@@ -53,7 +54,22 @@ namespace Mirror
             else if (isClient) UpdateClient();
         }
 
-        void UpdateServer()
+        // LateUpdate sets dirty.
+        // movement scripts may change positions in Update.
+        // use LateUpdate to ensure changes are detected in the same frame.
+        // otherwise this may run before user update, delaying detection until next frame.
+        // this would cause visible jitter.
+        void LateUpdate()
+        {
+            // set dirty to trigger OnSerialize. either always, or only if changed.
+            if (isServer || (IsClientWithAuthority && NetworkClient.ready)) // is NetworkClient.ready even needed?
+            {
+                if (!onlySyncOnChange || Changed(Construct()))
+                    SetDirty();
+            }
+        }
+
+        protected virtual void UpdateServer()
         {
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
@@ -83,35 +99,13 @@ namespace Mirror
                     Apply(computed, to);
                 }
             }
-
-            // set dirty to trigger OnSerialize. either always, or only if changed.
-            // technically snapshot interpolation requires constant sending.
-            // however, with reliable it should be fine without constant sends.
-            //
-            // detect changes _after_ all changes were applied above.
-            if (!onlySyncOnChange || Changed(Construct()))
-                SetDirty();
         }
 
-        void UpdateClient()
+        protected virtual void UpdateClient()
         {
             // client authority, and local player (= allowed to move myself)?
-            if (IsClientWithAuthority)
+            if (!IsClientWithAuthority)
             {
-                // https://github.com/vis2k/Mirror/pull/2992/
-                if (!NetworkClient.ready) return;
-
-                // set dirty to trigger OnSerialize. either always, or only if changed.
-                // technically snapshot interpolation requires constant sending.
-                // however, with reliable it should be fine without constant sends.
-                if (!onlySyncOnChange || Changed(Construct()))
-                    SetDirty();
-            }
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer
-            else
-            {
-
                 // only while we have snapshots
                 if (clientSnapshots.Count > 0)
                 {
