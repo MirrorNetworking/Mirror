@@ -66,7 +66,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         {
             // set local timestamp (= when it was received on our end)
 #if !UNITY_2020_3_OR_NEWER
-			snap.localTime = NetworkTime.localTime;
+            snap.localTime = NetworkTime.localTime;
 #else
             snap.localTime = Time.timeAsDouble;
 #endif
