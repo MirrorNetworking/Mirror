@@ -161,6 +161,9 @@ MonoBehaviour:
   syncPosition: 1
   syncRotation: 1
   syncScale: 0
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
   showGizmos: 0
   showOverlay: 0
   overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
@@ -185,7 +188,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   characterController: {fileID: 143011667059871024}
-  controlsCanvas: {fileID: 0}
   moveSpeedMultiplier: 8
   maxTurnSpeed: 100
   turnDelta: 1
