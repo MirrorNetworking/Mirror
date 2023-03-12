@@ -28,11 +28,11 @@ namespace Mirror
 
         [Tooltip("Local timeline acceleration in % while catching up.")]
         [Range(0, 1)]
-        public double catchupSpeed = 0.01f; // 1%
+        public double catchupSpeed = 0.05f; // 5% (1% was a bit too slow.)
 
         [Tooltip("Local timeline slowdown in % while slowing down.")]
         [Range(0, 1)]
-        public double slowdownSpeed = 0.01f; // 1%
+        public double slowdownSpeed = 0.05f; // 5% (1% was a bit too slow.)
 
         [Tooltip("Catchup/Slowdown is adjusted over n-second exponential moving average.")]
         public int driftEmaDuration = 1; // shouldn't need to modify this, but expose it anyway
