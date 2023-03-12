@@ -57,6 +57,7 @@ namespace Mirror.SimpleWeb
                 }
 
                 string responseString = Encoding.ASCII.GetString(responseBuffer, 0, lengthOrNull.Value);
+                Log.Verbose($"[SimpleWebTransport] Handshake Response {responseString}");
 
                 string acceptHeader = "Sec-WebSocket-Accept: ";
                 int startIndex = responseString.IndexOf(acceptHeader, StringComparison.InvariantCultureIgnoreCase);
