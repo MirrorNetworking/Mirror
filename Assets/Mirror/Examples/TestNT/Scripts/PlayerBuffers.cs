@@ -9,7 +9,8 @@ namespace TestNT
         Transform mainCamTransform;
 
         [Header("Components")]
-        public NTRCustomSendInterval networkTransformReliable;
+        public NTRCustomSendInterval NTRCustomSendInterval;
+        public NetworkTransformReliable NetworkTransformReliable;
         public TextMeshPro serverBufferText;
         public TextMeshPro clientBufferText;
         public TextMeshPro snapIntText;
@@ -20,7 +21,8 @@ namespace TestNT
 
         private void OnValidate()
         {
-            networkTransformReliable = GetComponent<NTRCustomSendInterval>();
+            NTRCustomSendInterval = GetComponent<NTRCustomSendInterval>();
+            NetworkTransformReliable = GetComponent<NetworkTransformReliable>();
 
             // Force overrideColorTags true so we can change the color without tags
             serverBufferText.overrideColorTags = true;
@@ -57,7 +59,10 @@ namespace TestNT
             //serverBufferText.text = "S: " + new string('-', serverSnapCount);
 
             /////// Client
-            clientSnapCount = networkTransformReliable.clientSnapshots.Count;
+            if (NTRCustomSendInterval)
+                clientSnapCount = NTRCustomSendInterval.clientSnapshots.Count;
+            if (NetworkTransformReliable)
+                clientSnapCount = NetworkTransformReliable.clientSnapshots.Count;
 
             if (clientSnapCount < 2)
                 clientBufferText.color = Color.gray;

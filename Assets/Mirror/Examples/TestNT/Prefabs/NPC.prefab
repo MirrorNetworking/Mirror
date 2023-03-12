@@ -1078,6 +1078,7 @@ GameObject:
   - component: {fileID: 367848704157024905}
   - component: {fileID: 3427814615500822403}
   - component: {fileID: 3915821277891986203}
+  - component: {fileID: -2480596454832827664}
   m_Layer: 6
   m_Name: NPC
   m_TagString: Player
@@ -1186,6 +1187,7 @@ MonoBehaviour:
   positionPrecision: 0.02
   scalePrecision: 0.02
   velocity: {x: 0, y: 0, z: 0}
+  angVelocity: {x: 0, y: 0, z: 0}
 --- !u!114 &3427814615500822403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1201,8 +1203,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  characterController: {fileID: 8094616116228944553}
+  NTR: {fileID: 0}
   animator: {fileID: 0}
+  characterController: {fileID: 8094616116228944553}
   physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
   moveSpeedMultiplier: 8
   maxTurnSpeed: 100
@@ -1211,6 +1214,7 @@ MonoBehaviour:
   maxJumpSpeed: 5
   jumpDelta: 0.2
   groundState: 2
+  moveState: 2
   horizontal: 0
   vertical: 0
   turnSpeed: 0
@@ -1236,3 +1240,25 @@ MonoBehaviour:
   syncInterval: 0.1
   nameText: {fileID: 5231846894102171291}
   playerName: 
+--- !u!114 &-2480596454832827664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9078678990242496461}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  NTRCustomSendInterval: {fileID: 0}
+  NetworkTransformReliable: {fileID: 367848704157024905}
+  serverBufferText: {fileID: 6322424803937864235}
+  clientBufferText: {fileID: 756491762232780330}
+  snapIntText: {fileID: 7179727379187289405}
+  serverSnapCount: 0
+  clientSnapCount: 0
