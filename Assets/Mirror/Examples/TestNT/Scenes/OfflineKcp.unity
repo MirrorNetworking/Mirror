@@ -133,7 +133,6 @@ GameObject:
   m_Component:
   - component: {fileID: 399521176}
   - component: {fileID: 399521175}
-  - component: {fileID: 399521174}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -141,14 +140,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &399521174
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 399521173}
-  m_Enabled: 1
 --- !u!20 &399521175
 Camera:
   m_ObjectHideFlags: 0
@@ -451,6 +442,16 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs: []
+  snapshotSettings:
+    bufferTimeMultiplier: 2
+    catchupNegativeThreshold: -1
+    catchupPositiveThreshold: 1
+    catchupSpeed: 0.009999999776482582
+    slowdownSpeed: 0.009999999776482582
+    driftEmaDuration: 1
+    dynamicAdjustment: 1
+    dynamicAdjustmentTolerance: 1
+    deliveryTimeEmaDuration: 2
   timeInterpolationGui: 1
   playerNinjaPrefab: {fileID: 9193589764031967748, guid: 7903ea74806680c4f9f3a62da96765c2, type: 3}
   botPrefab: {fileID: 629047657802428152, guid: 45e99b6415bfdc846bbbfc2d949d53f5, type: 3}
@@ -583,9 +584,11 @@ MonoBehaviour:
   NoDelay: 1
   Interval: 10
   Timeout: 10000
+  RecvBufferSize: 7361536
+  SendBufferSize: 7361536
   FastResend: 2
-  SendWindowSize: 4096
   ReceiveWindowSize: 4096
+  SendWindowSize: 4096
   MaxRetransmit: 40
   MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 298449
