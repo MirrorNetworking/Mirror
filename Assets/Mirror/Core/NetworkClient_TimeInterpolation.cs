@@ -113,8 +113,8 @@ namespace Mirror
             // NetworkTime.time and NetworkTime.timeStamp.
 
 #if !UNITY_2020_3_OR_NEWER
-			// Unity 2019 doesn't have Time.timeAsDouble yet
-			OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
+            // Unity 2019 doesn't have Time.timeAsDouble yet
+            OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
 #else
             OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
 #endif
