@@ -130,10 +130,12 @@ namespace Mirror
             // outside of the area, we clamp.
             double lowerBound = targetTime - bufferTime;
             double upperBound = targetTime + bufferTime;
-#if !UNITY_2021_OR_NEWER
-            return Extensions.Clamp(localTimeline, lowerBound, upperBound);
-#else
+#if UNITY_2021_OR_NEWER
             return Math.Clamp(localTimeline, lowerBound, upperBound);
+#else
+            if (localTimeline.CompareTo(lowerBound) < 0) return lowerBound;
+            else if (localTimeline.CompareTo(upperBound) > 0) return upperBound;
+            else return localTimeline;
 #endif
         }
 
