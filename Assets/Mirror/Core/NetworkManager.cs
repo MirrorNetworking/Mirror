@@ -168,8 +168,6 @@ namespace Mirror
                 Debug.LogWarning("NetworkManager - Player Prefab should not be added to Registered Spawnable Prefabs list...removed it.");
                 spawnPrefabs.Remove(playerPrefab);
             }
-
-            //if (bufferTimeMultiplierForClamping < 1) bufferTimeMultiplierForClamping = 1;
         }
 
         // virtual so that inheriting classes' Reset() can call base.Reset() too
@@ -651,8 +649,8 @@ namespace Mirror
         public virtual void ConfigureHeadlessFrameRate()
         {
 #if UNITY_SERVER
-			Application.targetFrameRate = sendRate;
-			// Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
+            Application.targetFrameRate = sendRate;
+            // Debug.Log($"Server Tick Rate set to {Application.targetFrameRate} Hz.");
 #endif
         }
 
