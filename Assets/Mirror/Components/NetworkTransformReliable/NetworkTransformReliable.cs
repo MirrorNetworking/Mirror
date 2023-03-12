@@ -44,6 +44,7 @@ namespace Mirror
         protected TransformSnapshot last;
 
         // update //////////////////////////////////////////////////////////////
+        // Update applies interpolation.
         void Update()
         {
             // if server then always sync to others.
@@ -53,13 +54,14 @@ namespace Mirror
             else if (isClient) UpdateClient();
         }
 
+        // LateUpdate sets dirty.
+        // movement scripts may change positions in Update.
+        // use LateUpdate to ensure changes are detected in the same frame.
+        // otherwise this may run before user update, delaying detection until next frame.
+        // this would cause visible jitter.
         void LateUpdate()
         {
             // set dirty to trigger OnSerialize. either always, or only if changed.
-            // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
-            // the possibility of Update() running first before the object's movement
-            // script's Update(), which then causes NT to send every alternate frame
-            // instead.
             if (isServer || (IsClientWithAuthority && NetworkClient.ready)) // is NetworkClient.ready even needed?
             {
                 if (!onlySyncOnChange || Changed(Construct()))
