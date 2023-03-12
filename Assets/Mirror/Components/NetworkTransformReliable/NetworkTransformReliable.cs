@@ -385,6 +385,9 @@ namespace Mirror
 
             lastSerializedScale = Vector3Long.zero;
             lastDeserializedScale = Vector3Long.zero;
+
+            // reset 'last' for delta too
+            last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
         }
     }
 }
