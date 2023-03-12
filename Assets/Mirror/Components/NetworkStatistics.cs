@@ -147,7 +147,7 @@ namespace Mirror
             if (NetworkClient.active || NetworkServer.active)
             {
                 // create main GUI area
-                // 105 is below NetworkManager HUD in all cases.
+                // 120 is below NetworkManager HUD in all cases.
                 GUILayout.BeginArea(new Rect(10, 120, 215, 300));
 
                 // show client / server stats if active
