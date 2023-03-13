@@ -55,7 +55,7 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.02
+  m_SkinWidth: 0.05
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8566169657365362765
@@ -124,6 +124,8 @@ MonoBehaviour:
   compressRotation: 1
   positionPrecision: 0.02
   scalePrecision: 0.02
+  velocity: {x: 0, y: 0, z: 0}
+  angVelocity: {x: 0, y: 0, z: 0}
 --- !u!114 &6272645315499712679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,8 +141,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  characterController: {fileID: 633662763139007885}
+  NTR: {fileID: 1164328655264353486}
   animator: {fileID: 0}
+  characterController: {fileID: 633662763139007885}
   physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
   moveSpeedMultiplier: 8
   maxTurnSpeed: 100
@@ -149,6 +152,7 @@ MonoBehaviour:
   maxJumpSpeed: 5
   jumpDelta: 0.2
   groundState: 2
+  moveState: 2
   horizontal: 0
   vertical: 0
   turnSpeed: 0
@@ -189,7 +193,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  networkTransformReliable: {fileID: 1164328655264353486}
+  NTRCustomSendInterval: {fileID: 1164328655264353486}
+  NetworkTransformReliable: {fileID: 0}
   serverBufferText: {fileID: 8278033562638586126}
   clientBufferText: {fileID: 3396595145500835087}
   snapIntText: {fileID: 1962837813681175065}

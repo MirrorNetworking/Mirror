@@ -55,7 +55,7 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.02
+  m_SkinWidth: 0.05
   m_MinMoveDistance: 0
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &8879100155897503324
@@ -192,7 +192,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  networkTransformReliable: {fileID: 0}
+  NTRCustomSendInterval: {fileID: 0}
+  NetworkTransformReliable: {fileID: 8096906436974498748}
   serverBufferText: {fileID: 2520575634317220638}
   clientBufferText: {fileID: 9167280228736349983}
   snapIntText: {fileID: 1649625818729847816}

@@ -74,7 +74,7 @@ namespace TestNT
 
             // Override CharacterController default values
             characterController.enabled = false;
-            characterController.skinWidth = 0.02f;
+            characterController.skinWidth = 0.05f;
             characterController.minMoveDistance = 0f;
             characterController.sharedMaterial = physicsMaterial;
 
