@@ -27,13 +27,13 @@ namespace Mirror.Tests
 
         // test to prevent https://github.com/vis2k/Mirror/issues/1515
         [Test]
-        public void StopHostCallsOnServerDisconnectForHostClient()
+        public void StopClientCallsOnServerDisconnectForHostClient()
         {
             // OnServerDisconnect is always called when a client disconnects.
             // it should also be called for the host client when we stop the host
             Assert.That(manager.called, Is.EqualTo(0));
             manager.StartHost();
-            manager.StopHost();
+            manager.StopClient();
             Assert.That(manager.called, Is.EqualTo(1));
         }
     }
