@@ -277,7 +277,7 @@ MonoBehaviour:
   playerSpawnMethod: 0
   spawnPrefabs: []
   snapshotSettings:
-    bufferTimeMultiplier: 2
+    bufferTimeMultiplier: 3
     catchupNegativeThreshold: -1
     catchupPositiveThreshold: 1
     catchupSpeed: 0.009999999776482582
