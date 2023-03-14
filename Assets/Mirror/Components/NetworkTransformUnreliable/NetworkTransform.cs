@@ -46,7 +46,7 @@ namespace Mirror
             else if (isClient) UpdateClient();
         }
 
-        void UpdateServer()
+        void UpdateServerBroadcast()
         {
             // broadcast to all clients each 'sendInterval'
             // (client with authority will drop the rpc)
@@ -118,6 +118,12 @@ namespace Mirror
                 }
 #endif
             }
+        }
+
+        void UpdateServer()
+        {
+            // broadcast to all clients each 'sendInterval'
+            UpdateServerBroadcast();
 
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
