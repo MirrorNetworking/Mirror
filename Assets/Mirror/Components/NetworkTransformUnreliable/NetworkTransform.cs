@@ -227,6 +227,26 @@ namespace Mirror
             }
         }
 
+        void UpdateClientInterpolation()
+        {
+            // only while we have snapshots
+            if (clientSnapshots.Count > 0)
+            {
+                // step the interpolation without touching time.
+                // NetworkClient is responsible for time globally.
+                SnapshotInterpolation.StepInterpolation(
+                    clientSnapshots,
+                    NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                    out TransformSnapshot from,
+                    out TransformSnapshot to,
+                    out double t);
+
+                // interpolate & apply
+                TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+                Apply(computed, to);
+            }
+        }
+
         void UpdateClient()
         {
             // client authority, and local player (= allowed to move myself)?
@@ -238,22 +258,7 @@ namespace Mirror
             // we need to apply snapshots from the buffer
             else
             {
-                // only while we have snapshots
-                if (clientSnapshots.Count > 0)
-                {
-                    // step the interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
-                    SnapshotInterpolation.StepInterpolation(
-                        clientSnapshots,
-                        NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
-                        out TransformSnapshot from,
-                        out TransformSnapshot to,
-                        out double t);
-
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    Apply(computed, to);
-                }
+                UpdateClientInterpolation();
             }
         }
 
