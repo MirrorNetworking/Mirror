@@ -131,6 +131,15 @@ namespace kcp2k
 
             try
             {
+                // when using non-blocking sockets, ReceiveFrom may return WouldBlock.
+                // in C#, WouldBlock throws a SocketException, which is expected.
+                // unfortunately, creating the SocketException allocates in C#.
+                // let's poll first to avoid the WouldBlock allocation.
+                // note that this entirely to avoid allocations.
+                // non-blocking UDP doesn't need Poll in other languages.
+                // and the code still works without the Poll call.
+                if (!socket.Poll(0, SelectMode.SelectRead)) return false;
+
                 // ReceiveFrom allocates. we used bound Receive.
                 // returns amount of bytes written into buffer.
                 // throws SocketException if datagram was larger than buffer.
@@ -166,6 +175,15 @@ namespace kcp2k
         {
             try
             {
+                // when using non-blocking sockets, SendTo may return WouldBlock.
+                // in C#, WouldBlock throws a SocketException, which is expected.
+                // unfortunately, creating the SocketException allocates in C#.
+                // let's poll first to avoid the WouldBlock allocation.
+                // note that this entirely to avoid allocations.
+                // non-blocking UDP doesn't need Poll in other languages.
+                // and the code still works without the Poll call.
+                if (!socket.Poll(0, SelectMode.SelectWrite)) return;
+
                 socket.Send(data.Array, data.Offset, data.Count, SocketFlags.None);
             }
             // for non-blocking sockets, SendTo may throw WouldBlock.
