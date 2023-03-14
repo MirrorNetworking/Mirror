@@ -120,11 +120,8 @@ namespace Mirror
             }
         }
 
-        void UpdateServer()
+        void UpdateServerInterpolation()
         {
-            // broadcast to all clients each 'sendInterval'
-            UpdateServerBroadcast();
-
             // apply buffered snapshots IF client authority
             // -> in server authority, server moves the object
             //    so no need to apply any snapshots there.
@@ -153,6 +150,15 @@ namespace Mirror
                     Apply(computed, to);
                 }
             }
+        }
+
+        void UpdateServer()
+        {
+            // broadcast to all clients each 'sendInterval'
+            UpdateServerBroadcast();
+
+            // apply buffered snapshots IF client authority
+            UpdateServerInterpolation();
         }
 
         void UpdateClientBroadcast()
