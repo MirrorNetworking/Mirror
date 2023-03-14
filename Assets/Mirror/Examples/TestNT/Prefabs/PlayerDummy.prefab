@@ -358,10 +358,10 @@ GameObject:
   - component: {fileID: 6942008995422211540}
   - component: {fileID: 3747832210021373522}
   - component: {fileID: 710479491816145282}
-  - component: {fileID: 4736436755474421054}
+  - component: {fileID: 933871666448110562}
   - component: {fileID: 6376804248856986022}
   - component: {fileID: 2283905045532135906}
-  - component: {fileID: 933871666448110562}
+  - component: {fileID: 4736436755474421054}
   - component: {fileID: -2851850855264704529}
   - component: {fileID: 8740952189063260582}
   m_Layer: 6
@@ -489,6 +489,60 @@ MonoBehaviour:
   scalePrecision: 0.02
   velocity: {x: 0, y: 0, z: 0}
   angVelocity: {x: 0, y: 0, z: 0}
+--- !u!114 &933871666448110562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428992836745641328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5084c19de03654fb27bbb4297419a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+--- !u!114 &6376804248856986022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428992836745641328}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f36b822e59a38dc42aebb18802dd2c6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  nameText: {fileID: 2788429790867704870}
+  playerName: 
+--- !u!114 &2283905045532135906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1428992836745641328}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  NTRCustomSendInterval: {fileID: 710479491816145282}
+  NetworkTransformReliable: {fileID: 0}
+  clientBufferText: {fileID: 7230148937361745047}
+  serverBufferText: {fileID: 4149219082608855190}
+  snapIntText: {fileID: 975797997464145792}
+  serverSnapCount: 0
+  clientSnapCount: 0
 --- !u!114 &4736436755474421054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -524,60 +578,6 @@ MonoBehaviour:
   animRotation: 0
   velocity: {x: 0, y: 0, z: 0}
   direction: {x: 0, y: 0, z: 0}
---- !u!114 &6376804248856986022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1428992836745641328}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f36b822e59a38dc42aebb18802dd2c6c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  nameText: {fileID: 2788429790867704870}
-  playerName: 
---- !u!114 &2283905045532135906
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1428992836745641328}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  NTRCustomSendInterval: {fileID: 710479491816145282}
-  NetworkTransformReliable: {fileID: 0}
-  serverBufferText: {fileID: 4149219082608855190}
-  clientBufferText: {fileID: 7230148937361745047}
-  snapIntText: {fileID: 975797997464145792}
-  serverSnapCount: 0
-  clientSnapCount: 0
---- !u!114 &933871666448110562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1428992836745641328}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f5084c19de03654fb27bbb4297419a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
 --- !u!114 &-2851850855264704529
 MonoBehaviour:
   m_ObjectHideFlags: 0
