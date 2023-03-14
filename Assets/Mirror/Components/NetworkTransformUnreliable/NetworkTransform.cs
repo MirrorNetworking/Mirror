@@ -134,21 +134,20 @@ namespace Mirror
                 connectionToClient != null &&
                 !isOwned)
             {
-                if (serverSnapshots.Count > 0)
-                {
-                    // step the transform interpolation without touching time.
-                    // NetworkClient is responsible for time globally.
-                    SnapshotInterpolation.StepInterpolation(
-                        serverSnapshots,
-                        connectionToClient.remoteTimeline,
-                        out TransformSnapshot from,
-                        out TransformSnapshot to,
-                        out double t);
+                if (serverSnapshots.Count == 0) return;
 
-                    // interpolate & apply
-                    TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                    Apply(computed, to);
-                }
+                // step the transform interpolation without touching time.
+                // NetworkClient is responsible for time globally.
+                SnapshotInterpolation.StepInterpolation(
+                    serverSnapshots,
+                    connectionToClient.remoteTimeline,
+                    out TransformSnapshot from,
+                    out TransformSnapshot to,
+                    out double t);
+
+                // interpolate & apply
+                TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+                Apply(computed, to);
             }
         }
 
@@ -230,21 +229,20 @@ namespace Mirror
         void UpdateClientInterpolation()
         {
             // only while we have snapshots
-            if (clientSnapshots.Count > 0)
-            {
-                // step the interpolation without touching time.
-                // NetworkClient is responsible for time globally.
-                SnapshotInterpolation.StepInterpolation(
-                    clientSnapshots,
-                    NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
-                    out TransformSnapshot from,
-                    out TransformSnapshot to,
-                    out double t);
+            if (clientSnapshots.Count == 0) return;
 
-                // interpolate & apply
-                TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
-                Apply(computed, to);
-            }
+            // step the interpolation without touching time.
+            // NetworkClient is responsible for time globally.
+            SnapshotInterpolation.StepInterpolation(
+                clientSnapshots,
+                NetworkTime.time, // == NetworkClient.localTimeline from snapshot interpolation
+                out TransformSnapshot from,
+                out TransformSnapshot to,
+                out double t);
+
+            // interpolate & apply
+            TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
+            Apply(computed, to);
         }
 
         void UpdateClient()
