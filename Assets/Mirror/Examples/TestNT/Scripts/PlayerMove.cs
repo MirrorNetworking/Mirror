@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
 using Mirror;
-using System;
 
 namespace TestNT
 {

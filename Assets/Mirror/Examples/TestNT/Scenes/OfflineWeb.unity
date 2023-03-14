@@ -277,7 +277,7 @@ MonoBehaviour:
   playerSpawnMethod: 0
   spawnPrefabs: []
   snapshotSettings:
-    bufferTimeMultiplier: 3
+    bufferTimeMultiplier: 2
     catchupNegativeThreshold: -1
     catchupPositiveThreshold: 1
     catchupSpeed: 0.009999999776482582
@@ -289,8 +289,8 @@ MonoBehaviour:
   timeInterpolationGui: 1
   playerNinjaPrefab: {fileID: 1428992836745641328, guid: 4b4e4d1a8090c7a45bab0cbc52ccfd76, type: 3}
   botPrefab: {fileID: 629047657802428152, guid: 45e99b6415bfdc846bbbfc2d949d53f5, type: 3}
-  npcPrefab: {fileID: 9078678990242496461, guid: 41855c7cf63a3dc45ac8a93b4e2ecd54, type: 3}
   botNinjaPrefab: {fileID: 2972877558187846166, guid: 186c06a2be59cc84db82de14fccac374, type: 3}
+  npcPrefab: {fileID: 9078678990242496461, guid: 41855c7cf63a3dc45ac8a93b4e2ecd54, type: 3}
   npcNinjaPrefab: {fileID: 388172571495221481, guid: 4f67582aaba8f814cae98c38f4e9782d, type: 3}
 --- !u!114 &821201136
 MonoBehaviour:

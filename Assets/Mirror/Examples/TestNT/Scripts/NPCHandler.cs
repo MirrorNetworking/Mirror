@@ -1,6 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
-using System.Collections.Generic;
 
 namespace TestNT
 {
@@ -38,12 +39,19 @@ namespace TestNT
         [Command]
         void CmdSpawnNPC()
         {
-            //GameObject npc = Instantiate(TestNTNetworkManager.singleton.npcPrefab);
-            //npc.GetComponent<PlayerName>().playerName = "NPC";
-            //npc.GetComponent<CharacterController>().enabled = true;
-            //npc.GetComponent<PlayerMove>().enabled = true;
-            //NetworkServer.Spawn(npc);
-            //NpcList.Add(npc);
+            StartCoroutine(SpawnNPC());
+        }
+
+        IEnumerator SpawnNPC()
+        {
+            GameObject npc = Instantiate(TestNTNetworkManager.singleton.npcPrefab);
+            npc.GetComponent<PlayerName>().playerName = "NPC";
+            npc.GetComponent<CharacterController>().enabled = true;
+            npc.GetComponent<PlayerMove>().enabled = true;
+            NetworkServer.Spawn(npc);
+            NpcList.Add(npc);
+
+            yield return new WaitForSeconds(.3f);
 
             GameObject npcNinja = Instantiate(TestNTNetworkManager.singleton.npcNinjaPrefab);
             npcNinja.GetComponent<PlayerName>().playerName = "NPC-Ninja";
