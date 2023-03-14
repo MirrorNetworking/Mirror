@@ -10,6 +10,7 @@ namespace TestNT
 
         [Header("Components")]
         public NTRCustomSendInterval NTRCustomSendInterval;
+        public NetworkTransform NetworkTransform;
         public NetworkTransformReliable NetworkTransformReliable;
         public TextMeshPro serverBufferText;
         public TextMeshPro clientBufferText;
@@ -22,6 +23,7 @@ namespace TestNT
         private void OnValidate()
         {
             NTRCustomSendInterval = GetComponent<NTRCustomSendInterval>();
+            NetworkTransform = GetComponent<NetworkTransform>();
             NetworkTransformReliable = GetComponent<NetworkTransformReliable>();
 
             // Force overrideColorTags true so we can change the color without tags
@@ -61,6 +63,8 @@ namespace TestNT
             /////// Client
             if (NTRCustomSendInterval)
                 clientSnapCount = NTRCustomSendInterval.clientSnapshots.Count;
+            if (NetworkTransform)
+                clientSnapCount = NetworkTransform.clientSnapshots.Count;
             if (NetworkTransformReliable)
                 clientSnapCount = NetworkTransformReliable.clientSnapshots.Count;
 

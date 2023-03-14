@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncDirection: 0
+  syncDirection: 1
   syncMode: 0
   syncInterval: 0
   target: {fileID: 3821606276970024013}
@@ -191,6 +191,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   NTRCustomSendInterval: {fileID: 0}
+  NetworkTransform: {fileID: 0}
   NetworkTransformReliable: {fileID: -3326358089088084113}
   serverBufferText: {fileID: 2520575634317220638}
   clientBufferText: {fileID: 9167280228736349983}
