@@ -109,7 +109,6 @@ namespace Mirror
                 // only while we have snapshots
                 if (clientSnapshots.Count > 0)
                 {
-
                     // step the interpolation without touching time.
                     // NetworkClient is responsible for time globally.
                     SnapshotInterpolation.StepInterpolation(
@@ -122,7 +121,6 @@ namespace Mirror
                     // interpolate & apply
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     Apply(computed, to);
-
                 }
             }
         }
