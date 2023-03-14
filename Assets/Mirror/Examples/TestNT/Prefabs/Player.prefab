@@ -358,12 +358,12 @@ GameObject:
   - component: {fileID: 8049206744273277709}
   - component: {fileID: 4314596929967491211}
   - component: {fileID: 7264761320023842541}
-  - component: {fileID: 5645625692974173159}
-  - component: {fileID: 6313073782604029823}
   - component: {fileID: 222851012733586747}
+  - component: {fileID: 6313073782604029823}
+  - component: {fileID: 7156468669696336682}
+  - component: {fileID: 5645625692974173159}
   - component: {fileID: -7969791118079622209}
   - component: {fileID: 3644259943796578628}
-  - component: {fileID: 7156468669696336682}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -487,6 +487,60 @@ MonoBehaviour:
   scalePrecision: 0.02
   velocity: {x: 0, y: 0, z: 0}
   angVelocity: {x: 0, y: 0, z: 0}
+--- !u!114 &222851012733586747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033010110135952297}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5084c19de03654fb27bbb4297419a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+--- !u!114 &6313073782604029823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033010110135952297}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f36b822e59a38dc42aebb18802dd2c6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  nameText: {fileID: 2976880021398491903}
+  playerName: 
+--- !u!114 &7156468669696336682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2033010110135952297}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  NTRCustomSendInterval: {fileID: 0}
+  NetworkTransformReliable: {fileID: 7264761320023842541}
+  clientBufferText: {fileID: 7761066253652736590}
+  serverBufferText: {fileID: 3924467337252509263}
+  snapIntText: {fileID: 173605869538251097}
+  serverSnapCount: 0
+  clientSnapCount: 0
 --- !u!114 &5645625692974173159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -522,38 +576,6 @@ MonoBehaviour:
   animRotation: 0
   velocity: {x: 0, y: 0, z: 0}
   direction: {x: 0, y: 0, z: 0}
---- !u!114 &6313073782604029823
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2033010110135952297}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f36b822e59a38dc42aebb18802dd2c6c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  nameText: {fileID: 2976880021398491903}
-  playerName: 
---- !u!114 &222851012733586747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2033010110135952297}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f5084c19de03654fb27bbb4297419a6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
 --- !u!114 &-7969791118079622209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -588,28 +610,6 @@ MonoBehaviour:
   showGui: 0
   hotKey: 290
   passwordFile: remote_statistics.txt
---- !u!114 &7156468669696336682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2033010110135952297}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 995b66880233cda49846f5cda46330ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  NTRCustomSendInterval: {fileID: 0}
-  NetworkTransformReliable: {fileID: 7264761320023842541}
-  serverBufferText: {fileID: 3924467337252509263}
-  clientBufferText: {fileID: 7761066253652736590}
-  snapIntText: {fileID: 173605869538251097}
-  serverSnapCount: 0
-  clientSnapCount: 0
 --- !u!1 &2859268202770656871
 GameObject:
   m_ObjectHideFlags: 0
