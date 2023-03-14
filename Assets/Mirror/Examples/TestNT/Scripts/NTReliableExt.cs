@@ -12,8 +12,6 @@ namespace TestNT
         public Vector3 velocity;
         public Vector3 angVelocity;
 
-        #region NetworkTransformReliable Methods
-
         protected override void Apply(TransformSnapshot interpolated, TransformSnapshot endGoal)
         {
             base.Apply(interpolated, endGoal);
@@ -25,7 +23,5 @@ namespace TestNT
                 VelRotChangedAction?.Invoke(velocity, angVelocity);
             }
         }
-
-        #endregion
     }
 }
