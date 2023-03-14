@@ -37,13 +37,29 @@ namespace Mirror
         double lastServerSendTime;
 
         // update //////////////////////////////////////////////////////////////
+        // Update applies interpolation
         void Update()
         {
+            if (isServer) UpdateServerInterpolation();
+            // for all other clients (and for local player if !authority),
+            // we need to apply snapshots from the buffer.
+            // 'else if' because host mode shouldn't interpolate client
+            else if (isClient && !IsClientWithAuthority) UpdateClientInterpolation();
+        }
+
+        // LateUpdate broadcasts.
+        // movement scripts may change positions in Update.
+        // use LateUpdate to ensure changes are detected in the same frame.
+        // otherwise this may run before user update, delaying detection until next frame.
+        // this could cause visible jitter.
+        void LateUpdate()
+        {
             // if server then always sync to others.
-            if (isServer) UpdateServer();
+            if (isServer) UpdateServerBroadcast();
+            // client authority, and local player (= allowed to move myself)?
             // 'else if' because host mode shouldn't send anything to server.
             // it is the server. don't overwrite anything there.
-            else if (isClient) UpdateClient();
+            else if (isClient && IsClientWithAuthority) UpdateClientBroadcast();
         }
 
         void UpdateServerBroadcast()
@@ -151,15 +167,6 @@ namespace Mirror
             }
         }
 
-        void UpdateServer()
-        {
-            // broadcast to all clients each 'sendInterval'
-            UpdateServerBroadcast();
-
-            // apply buffered snapshots IF client authority
-            UpdateServerInterpolation();
-        }
-
         void UpdateClientBroadcast()
         {
             // https://github.com/vis2k/Mirror/pull/2992/
@@ -243,21 +250,6 @@ namespace Mirror
             // interpolate & apply
             TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
             Apply(computed, to);
-        }
-
-        void UpdateClient()
-        {
-            // client authority, and local player (= allowed to move myself)?
-            if (IsClientWithAuthority)
-            {
-                UpdateClientBroadcast();
-            }
-            // for all other clients (and for local player if !authority),
-            // we need to apply snapshots from the buffer
-            else
-            {
-                UpdateClientInterpolation();
-            }
         }
 
         public override void OnSerialize(NetworkWriter writer, bool initialState)
