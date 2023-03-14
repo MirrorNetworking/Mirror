@@ -298,7 +298,7 @@ namespace Mirror
                 // Debug.Log($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
             }
 
-            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp, position, rotation, scale);
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + NetworkServer.sendInterval, position, rotation, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -322,7 +322,7 @@ namespace Mirror
                 // Debug.Log($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
             }
 
-            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp, position, rotation, scale);
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + NetworkClient.sendInterval, position, rotation, scale);
         }
 
         // only sync on change /////////////////////////////////////////////////
