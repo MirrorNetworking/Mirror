@@ -397,11 +397,10 @@ namespace Mirror
             double remoteTimestamp,
             double bufferTime,
             double toleranceMultiplier)
-            {
-                bool value = snapshots.Count == 1 &&
-                remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
-                return value;
-            }
+        {
+            bool value = snapshots.Count == 1 && remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
+            return value;
+        }
 
         // 2. insert a fake snapshot at current position,
         //    exactly one 'sendInterval' behind the newly received one.
