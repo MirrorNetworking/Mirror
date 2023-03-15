@@ -62,7 +62,7 @@ namespace Mirror
         void LateUpdate()
         {
             // set dirty to trigger OnSerialize. either always, or only if changed.
-            if (isServer || (IsClientWithAuthority && NetworkClient.ready)) // is NetworkClient.ready even needed?
+            if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
                 if (!onlySyncOnChange || Changed(Construct()))
                     SetDirty();
@@ -79,9 +79,7 @@ namespace Mirror
             //    then we don't need to do anything.
             // -> connectionToClient is briefly null after scene changes:
             //    https://github.com/MirrorNetworking/Mirror/issues/3329
-            if (syncDirection == SyncDirection.ClientToServer &&
-                connectionToClient != null &&
-                !isOwned)
+            if (syncDirection == SyncDirection.ClientToServer && connectionToClient != null && !isOwned)
             {
                 if (serverSnapshots.Count > 0)
                 {
@@ -169,7 +167,9 @@ namespace Mirror
             // initial
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(snapshot.position);
+                if (syncPosition)
+                    writer.WriteVector3(snapshot.position);
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -178,7 +178,9 @@ namespace Mirror
                     else
                         writer.WriteQuaternion(snapshot.rotation);
                 }
-                if (syncScale) writer.WriteVector3(snapshot.scale);
+
+                if (syncScale)
+                    writer.WriteVector3(snapshot.scale);
             }
             // delta
             else
@@ -191,6 +193,7 @@ namespace Mirror
                     Compression.ScaleToLong(snapshot.position, positionPrecision, out Vector3Long quantized);
                     DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
                 }
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -199,6 +202,7 @@ namespace Mirror
                     else
                         writer.WriteQuaternion(snapshot.rotation);
                 }
+
                 if (syncScale)
                 {
                     // quantize -> delta -> varint
@@ -211,8 +215,10 @@ namespace Mirror
             }
 
             // save serialized as 'last' for next delta compression
-            if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
-            if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
+            if (syncPosition)
+                Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
+            if (syncScale)
+                Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
             // set 'last'
             last = snapshot;
@@ -227,7 +233,9 @@ namespace Mirror
             // initial
             if (initialState)
             {
-                if (syncPosition) position = reader.ReadVector3();
+                if (syncPosition)
+                    position = reader.ReadVector3();
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -236,7 +244,9 @@ namespace Mirror
                     else
                         rotation = reader.ReadQuaternion();
                 }
-                if (syncScale) scale = reader.ReadVector3();
+
+                if (syncScale)
+                    scale = reader.ReadVector3();
             }
             // delta
             else
@@ -247,6 +257,7 @@ namespace Mirror
                     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
                     position = Compression.ScaleToFloat(quantized, positionPrecision);
                 }
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -255,6 +266,7 @@ namespace Mirror
                     else
                         rotation = reader.ReadQuaternion();
                 }
+
                 if (syncScale)
                 {
                     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
@@ -264,12 +276,16 @@ namespace Mirror
 
             // handle depending on server / client / host.
             // server has priority for host mode.
-            if (isServer) OnClientToServerSync(position, rotation, scale);
-            else if (isClient) OnServerToClientSync(position, rotation, scale);
+            if (isServer)
+                OnClientToServerSync(position, rotation, scale);
+            else if (isClient)
+                OnServerToClientSync(position, rotation, scale);
 
             // save deserialized as 'last' for next delta compression
-            if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
-            if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
+            if (syncPosition)
+                Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
+            if (syncScale)
+                Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
         }
 
         // sync ////////////////////////////////////////////////////////////////
@@ -278,20 +294,21 @@ namespace Mirror
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // only apply if in client authority mode
-            if (syncDirection != SyncDirection.ClientToServer) return;
+            if (syncDirection != SyncDirection.ClientToServer)
+                return;
 
             // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
+            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit)
+                return;
 
             // 'only sync on change' needs a correction on every new move sequence.
-            if (onlySyncOnChange &&
-                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+            if (onlySyncOnChange && NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     serverSnapshots,
                     connectionToClient.remoteTimeStamp,
-                    NetworkTime.localTime,      // arrival remote timestamp. NOT remote timeline.
-                    NetworkServer.sendInterval, // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
+                    NetworkServer.sendInterval,                             // Unity 2019 doesn't have timeAsDouble yet
                     target.localPosition,
                     target.localRotation,
                     target.localScale);
@@ -305,7 +322,8 @@ namespace Mirror
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // don't apply for local player with authority
-            if (IsClientWithAuthority) return;
+            if (IsClientWithAuthority)
+                return;
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
@@ -313,8 +331,8 @@ namespace Mirror
             {
                 RewriteHistory(
                     clientSnapshots,
-                    NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote timeline.
-                    NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
+                    NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
                     NetworkClient.sendInterval,
                     target.localPosition,
                     target.localRotation,
