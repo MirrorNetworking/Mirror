@@ -368,7 +368,7 @@ namespace Mirror
                 return;
 
             // 'only sync on change' needs a correction on every new move sequence.
-            if (onlySyncOnChange && 
+            if (onlySyncOnChange &&
                 NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
             {
                 RewriteHistory(
@@ -397,11 +397,11 @@ namespace Mirror
             double remoteTimestamp,
             double bufferTime,
             double toleranceMultiplier)
-            {
-                bool value = snapshots.Count == 1 &&
-                remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
-                return value;
-            }
+        {
+            bool value = snapshots.Count == 1 &&
+            remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
+            return value;
+        }
 
         // 2. insert a fake snapshot at current position,
         //    exactly one 'sendInterval' behind the newly received one.
