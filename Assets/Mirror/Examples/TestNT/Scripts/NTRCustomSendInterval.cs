@@ -16,9 +16,8 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     [Header("Send Interval Multiplier")]
     [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
+    [Range(1, 120)]
     public uint sendIntervalMultiplier = 3;
-    uint sendIntervalCounter = 0;
-    double lastSendIntervalTime = double.MinValue;
 
     [Header("Rotation")]
     [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -44,6 +43,9 @@ public class NTRCustomSendInterval : NetworkTransformBase
     [Header("Debug Velocity")]
     public Vector3 velocity;
     public Vector3 angVelocity;
+
+    uint sendIntervalCounter = 0;
+    double lastSendIntervalTime = double.MinValue;
 
     // delta compression needs to remember 'last' to compress against
     protected Vector3Long lastSerializedPosition = Vector3Long.zero;
@@ -478,12 +480,5 @@ public class NTRCustomSendInterval : NetworkTransformBase
         lastDeserializedScale = Vector3Long.zero;
 
         last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
-    }
-
-    protected override void OnValidate() 
-    {
-        base.OnValidate();
-        
-        if (sendIntervalMultiplier == 0) sendIntervalMultiplier = 1;    
     }
 }
