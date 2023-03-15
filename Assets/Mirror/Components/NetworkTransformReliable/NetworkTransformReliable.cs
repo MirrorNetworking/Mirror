@@ -138,16 +138,16 @@ namespace Mirror
 
         protected virtual void CheckLastSendTime()
         {
-            // timeAsDouble not available in older Unity versions.
-#if !UNITY_2020_3_OR_NEWER
-            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-            {
-                if (sendIntervalCounter == sendIntervalMultiplier)
-                    sendIntervalCounter = 0;
-                sendIntervalCounter++;
-            }
+#if UNITY_2020_3_OR_NEWER
+        if (AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
+        {
+            if (sendIntervalCounter == sendIntervalMultiplier)
+                sendIntervalCounter = 0;
+            sendIntervalCounter++;
+        }
 #else
-            if (AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            // timeAsDouble not available in older Unity versions.
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
             {
                 if (sendIntervalCounter == sendIntervalMultiplier)
                     sendIntervalCounter = 0;
