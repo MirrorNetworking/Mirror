@@ -11,8 +11,17 @@ namespace Mirror
         [Header("Sync Only If Changed")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
+        float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
+        uint sendIntervalCounter = 0;
+        double lastSendIntervalTime = double.MinValue;
+
         [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
         public float onlySyncOnChangeCorrectionMultiplier = 2;
+
+        [Header("Send Interval Multiplier")]
+        [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
+        [Range(1, 120)]
+        public uint sendIntervalMultiplier = 3;
 
         [Header("Rotation")]
         [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -43,8 +52,9 @@ namespace Mirror
         // Used to store last sent snapshots
         protected TransformSnapshot last;
 
+        protected int lastClientCount = 1;
+
         // update //////////////////////////////////////////////////////////////
-        // Update applies interpolation.
         void Update()
         {
             // if server then always sync to others.
@@ -54,18 +64,19 @@ namespace Mirror
             else if (isClient) UpdateClient();
         }
 
-        // LateUpdate sets dirty.
-        // movement scripts may change positions in Update.
-        // use LateUpdate to ensure changes are detected in the same frame.
-        // otherwise this may run before user update, delaying detection until next frame.
-        // this would cause visible jitter.
         void LateUpdate()
         {
             // set dirty to trigger OnSerialize. either always, or only if changed.
-            if (isServer || (IsClientWithAuthority && NetworkClient.ready)) // is NetworkClient.ready even needed?
+            // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
+            // the possibility of Update() running first before the object's movement
+            // script's Update(), which then causes NT to send every alternate frame
+            // instead.		
+            if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
-                if (!onlySyncOnChange || Changed(Construct()))
+                if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                     SetDirty();
+
+                CheckLastSendTime();
             }
         }
 
@@ -79,9 +90,7 @@ namespace Mirror
             //    then we don't need to do anything.
             // -> connectionToClient is briefly null after scene changes:
             //    https://github.com/MirrorNetworking/Mirror/issues/3329
-            if (syncDirection == SyncDirection.ClientToServer &&
-                connectionToClient != null &&
-                !isOwned)
+            if (syncDirection == SyncDirection.ClientToServer && connectionToClient != null && !isOwned)
             {
                 if (serverSnapshots.Count > 0)
                 {
@@ -122,8 +131,30 @@ namespace Mirror
                     TransformSnapshot computed = TransformSnapshot.Interpolate(from, to, t);
                     Apply(computed, to);
                 }
+
+                lastClientCount = clientSnapshots.Count;
             }
         }
+
+        protected virtual void CheckLastSendTime()
+        {
+            // timeAsDouble not available in older Unity versions.
+#if !UNITY_2020_3_OR_NEWER
+            if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            {
+                if (sendIntervalCounter == sendIntervalMultiplier)
+                    sendIntervalCounter = 0;
+                sendIntervalCounter++;
+            }
+#else
+            if (AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
+            {
+                if (sendIntervalCounter == sendIntervalMultiplier)
+                    sendIntervalCounter = 0;
+                sendIntervalCounter++;
+            }
+        }
+#endif
 
         // check if position / rotation / scale changed since last sync
         protected virtual bool Changed(TransformSnapshot current) =>
@@ -169,7 +200,21 @@ namespace Mirror
             // initial
             if (initialState)
             {
-                if (syncPosition) writer.WriteVector3(snapshot.position);
+                // If there is a last serialized snapshot, we use it.
+                // This prevents the new client getting a snapshot that is different
+                // from what the older clients last got. If this happens, and on the next
+                // regular serialisation the delta compression will get wrong values.
+                // Notes:
+                // 1. Interestingly only the older clients have it wrong, because at the end
+                //    of this function, last = snapshot which is the initial state's snapshot
+                // 2. Regular NTR gets by this bug because it sends every frame anyway so initialstate
+                //    snapshot constructed would have been the same as the last anyway.
+                if (last.remoteTime > 0)
+                    snapshot = last;
+
+                if (syncPosition)
+                    writer.WriteVector3(snapshot.position);
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -178,7 +223,9 @@ namespace Mirror
                     else
                         writer.WriteQuaternion(snapshot.rotation);
                 }
-                if (syncScale) writer.WriteVector3(snapshot.scale);
+
+                if (syncScale)
+                    writer.WriteVector3(snapshot.scale);
             }
             // delta
             else
@@ -191,6 +238,7 @@ namespace Mirror
                     Compression.ScaleToLong(snapshot.position, positionPrecision, out Vector3Long quantized);
                     DeltaCompression.Compress(writer, lastSerializedPosition, quantized);
                 }
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -199,20 +247,20 @@ namespace Mirror
                     else
                         writer.WriteQuaternion(snapshot.rotation);
                 }
+
                 if (syncScale)
                 {
                     // quantize -> delta -> varint
                     Compression.ScaleToLong(snapshot.scale, scalePrecision, out Vector3Long quantized);
                     DeltaCompression.Compress(writer, lastSerializedScale, quantized);
                 }
-
-                // int written = writer.Position - before;
-                // Debug.Log($"{name} compressed to {written} bytes");
             }
 
             // save serialized as 'last' for next delta compression
-            if (syncPosition) Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
-            if (syncScale) Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
+            if (syncPosition)
+                Compression.ScaleToLong(snapshot.position, positionPrecision, out lastSerializedPosition);
+            if (syncScale)
+                Compression.ScaleToLong(snapshot.scale, scalePrecision, out lastSerializedScale);
 
             // set 'last'
             last = snapshot;
@@ -227,7 +275,9 @@ namespace Mirror
             // initial
             if (initialState)
             {
-                if (syncPosition) position = reader.ReadVector3();
+                if (syncPosition)
+                    position = reader.ReadVector3();
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -236,7 +286,9 @@ namespace Mirror
                     else
                         rotation = reader.ReadQuaternion();
                 }
-                if (syncScale) scale = reader.ReadVector3();
+
+                if (syncScale)
+                    scale = reader.ReadVector3();
             }
             // delta
             else
@@ -247,6 +299,7 @@ namespace Mirror
                     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedPosition);
                     position = Compression.ScaleToFloat(quantized, positionPrecision);
                 }
+
                 if (syncRotation)
                 {
                     // (optional) smallest three compression for now. no delta.
@@ -255,6 +308,7 @@ namespace Mirror
                     else
                         rotation = reader.ReadQuaternion();
                 }
+
                 if (syncScale)
                 {
                     Vector3Long quantized = DeltaCompression.Decompress(reader, lastDeserializedScale);
@@ -264,12 +318,16 @@ namespace Mirror
 
             // handle depending on server / client / host.
             // server has priority for host mode.
-            if (isServer) OnClientToServerSync(position, rotation, scale);
-            else if (isClient) OnServerToClientSync(position, rotation, scale);
+            if (isServer)
+                OnClientToServerSync(position, rotation, scale);
+            else if (isClient)
+                OnServerToClientSync(position, rotation, scale);
 
             // save deserialized as 'last' for next delta compression
-            if (syncPosition) Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
-            if (syncScale) Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
+            if (syncPosition)
+                Compression.ScaleToLong(position.Value, positionPrecision, out lastDeserializedPosition);
+            if (syncScale)
+                Compression.ScaleToLong(scale.Value, scalePrecision, out lastDeserializedScale);
         }
 
         // sync ////////////////////////////////////////////////////////////////
@@ -278,51 +336,51 @@ namespace Mirror
         protected virtual void OnClientToServerSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // only apply if in client authority mode
-            if (syncDirection != SyncDirection.ClientToServer) return;
+            if (syncDirection != SyncDirection.ClientToServer)
+                return;
 
             // protect against ever growing buffer size attacks
-            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit) return;
+            if (serverSnapshots.Count >= connectionToClient.snapshotBufferSizeLimit)
+                return;
 
             // 'only sync on change' needs a correction on every new move sequence.
-            if (onlySyncOnChange &&
-                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+            if (onlySyncOnChange && NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeInterval))
             {
                 RewriteHistory(
                     serverSnapshots,
                     connectionToClient.remoteTimeStamp,
-                    NetworkTime.localTime,      // arrival remote timestamp. NOT remote timeline.
-                    NetworkServer.sendInterval, // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
+                    NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
                     target.localPosition,
                     target.localRotation,
                     target.localScale);
-                // Debug.Log($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
             }
 
-            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp, position, rotation, scale);
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + NetworkServer.sendInterval * sendIntervalMultiplier, position, rotation, scale);
         }
 
         // server broadcasts sync message to all clients
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // don't apply for local player with authority
-            if (IsClientWithAuthority) return;
+            if (IsClientWithAuthority)
+                return;
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
             {
                 RewriteHistory(
                     clientSnapshots,
-                    NetworkClient.connection.remoteTimeStamp, // arrival remote timestamp. NOT remote timeline.
-                    NetworkTime.localTime,                    // Unity 2019 doesn't have timeAsDouble yet
-                    NetworkClient.sendInterval,
+                    NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
+                    NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkClient.sendInterval * sendIntervalMultiplier,
                     target.localPosition,
                     target.localRotation,
                     target.localScale);
-                // Debug.Log($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
             }
 
-            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp, position, rotation, scale);
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + NetworkClient.sendInterval * sendIntervalMultiplier, position, rotation, scale);
         }
 
         // only sync on change /////////////////////////////////////////////////
@@ -337,9 +395,12 @@ namespace Mirror
             SortedList<double, TransformSnapshot> snapshots,
             double remoteTimestamp,
             double bufferTime,
-            double toleranceMultiplier) =>
-                snapshots.Count == 1 &&
+            double toleranceMultiplier)
+            {
+                bool value = snapshots.Count == 1 &&
                 remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
+                return value;
+            }
 
         // 2. insert a fake snapshot at current position,
         //    exactly one 'sendInterval' behind the newly received one.
