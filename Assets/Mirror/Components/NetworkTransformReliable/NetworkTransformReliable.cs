@@ -153,8 +153,8 @@ namespace Mirror
                     sendIntervalCounter = 0;
                 sendIntervalCounter++;
             }
-        }
 #endif
+        }
 
         // check if position / rotation / scale changed since last sync
         protected virtual bool Changed(TransformSnapshot current) =>
