@@ -6,21 +6,19 @@ using Mirror;
 
 public class NTRCustomSendInterval : NetworkTransformBase
 {
-    uint sendIntervalCounter = 0;
-    double lastSendIntervalTime = double.MinValue;
-
-    float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
-  
     [Header("Sync Only If Changed")]
     [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
     public bool onlySyncOnChange = true;
+    float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
+
     [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
     public float onlySyncOnChangeCorrectionMultiplier = 2;
 
-    // uint so non negative.
     [Header("Send Interval Multiplier")]
-    [Tooltip("Send every multiple of Network Manager send interval (= 1 / NM Send Rate).")]
+    [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
     public uint sendIntervalMultiplier = 3;
+    uint sendIntervalCounter = 0;
+    double lastSendIntervalTime = double.MinValue;
 
     [Header("Rotation")]
     [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
@@ -76,7 +74,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
         // the possibility of Update() running first before the object's movement
         // script's Update(), which then causes NT to send every alternate frame
         // instead.		
-        if (isServer || (IsClientWithAuthority && NetworkClient.ready)) // is NetworkClient.ready even needed?
+        if (isServer || (IsClientWithAuthority && NetworkClient.ready)) 
         {
             if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                 SetDirty();
@@ -235,7 +233,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
             // regular serialisation the delta compression will get wrong values.
             // Notes:
             // 1. Interestingly only the older clients have it wrong, because at the end
-            //    of the function, last = snapshot which is the initial state's snapshot
+            //    of this function, last = snapshot which is the initial state's snapshot
             // 2. Regular NTR gets by this bug because it sends every frame anyway so initialstate
             //    snapshot constructed would have been the same as the last anyway.
             if (last.remoteTime > 0) 
@@ -480,5 +478,12 @@ public class NTRCustomSendInterval : NetworkTransformBase
         lastDeserializedScale = Vector3Long.zero;
 
         last = new TransformSnapshot(0, 0, Vector3.zero, Quaternion.identity, Vector3.zero);
+    }
+
+    protected override void OnValidate() 
+    {
+        base.OnValidate();
+        
+        if (sendIntervalMultiplier == 0) sendIntervalMultiplier = 1;    
     }
 }
