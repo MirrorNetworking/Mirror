@@ -344,13 +344,14 @@ namespace Mirror
                 return;
 
             // 'only sync on change' needs a correction on every new move sequence.
-            if (onlySyncOnChange && NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeInterval))
+            if (onlySyncOnChange && NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     serverSnapshots,
-                    connectionToClient.remoteTimeStamp,
                     NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
                     NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkServer.sendInterval, // Unity 2019 doesn't have timeAsDouble yet
                     target.localPosition,
                     target.localRotation,
                     target.localScale);
@@ -371,10 +372,10 @@ namespace Mirror
                 NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
             {
                 RewriteHistory(
-                    clientSnapshots,
                     NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
                     NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
                     NetworkClient.sendInterval * sendIntervalMultiplier,
+                    NetworkClient.sendInterval,
                     target.localPosition,
                     target.localRotation,
                     target.localScale);
