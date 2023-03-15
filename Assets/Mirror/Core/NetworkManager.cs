@@ -540,14 +540,6 @@ namespace Mirror
         public void StopHost()
         {
             OnStopHost();
-
-            // calling OnTransportDisconnected was needed to fix
-            // https://github.com/vis2k/Mirror/issues/1515
-            // so that the host client receives a DisconnectMessage
-            // TODO reevaluate if this is still needed after all the disconnect
-            //      fixes, and try to put this into LocalConnection.Disconnect!
-            NetworkServer.OnTransportDisconnected(NetworkConnection.LocalConnectionId);
-
             StopClient();
             StopServer();
         }
@@ -1287,7 +1279,7 @@ namespace Mirror
             // can be overwritten for cases like delayed logouts in MMOs to
             // avoid players escaping from PvP situations by logging out.
             NetworkServer.DestroyPlayerForConnection(conn);
-            //Debug.Log("OnServerDisconnect: Client disconnected.");
+            Debug.Log("OnServerDisconnect: Client disconnected.");
         }
 
         /// <summary>Called on the server when a client is ready (= loaded the scene)</summary>
