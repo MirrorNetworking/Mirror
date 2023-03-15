@@ -154,53 +154,31 @@ namespace kcp2k
 
             try
             {
-                // when using non-blocking sockets, ReceiveFrom may return WouldBlock.
-                // in C#, WouldBlock throws a SocketException, which is expected.
-                // unfortunately, creating the SocketException allocates in C#.
-                // let's poll first to avoid the WouldBlock allocation.
-                // note that this entirely to avoid allocations.
-                // non-blocking UDP doesn't need Poll in other languages.
-                // and the code still works without the Poll call.
-                if (!socket.Poll(0, SelectMode.SelectRead)) return false;
-
-                // NOTE: ReceiveFrom allocates.
-                //   we pass our IPEndPoint to ReceiveFrom.
-                //   receive from calls newClientEP.Create(socketAddr).
-                //   IPEndPoint.Create always returns a new IPEndPoint.
-                //   https://github.com/mono/mono/blob/f74eed4b09790a0929889ad7fc2cf96c9b6e3757/mcs/class/System/System.Net.Sockets/Socket.cs#L1761
-                //
-                // throws SocketException if datagram was larger than buffer.
-                // https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.receive?view=net-6.0
-                int size = socket.ReceiveFrom(rawReceiveBuffer, 0, rawReceiveBuffer.Length, SocketFlags.None, ref newClientEP);
-                segment = new ArraySegment<byte>(rawReceiveBuffer, 0, size);
-
-                // set connectionId to hash from endpoint
-                // NOTE: IPEndPoint.GetHashCode() allocates.
-                //  it calls m_Address.GetHashCode().
-                //  m_Address is an IPAddress.
-                //  GetHashCode() allocates for IPv6:
-                //  https://github.com/mono/mono/blob/bdd772531d379b4e78593587d15113c37edd4a64/mcs/class/referencesource/System/net/System/Net/IPAddress.cs#L699
-                //
-                // => using only newClientEP.Port wouldn't work, because
-                //    different connections can have the same port.
-                connectionId = newClientEP.GetHashCode();
-                return true;
+                if (socket.ReceiveFromNonBlocking(rawReceiveBuffer, out segment, ref newClientEP))
+                {
+                    // set connectionId to hash from endpoint
+                    // NOTE: IPEndPoint.GetHashCode() allocates.
+                    //  it calls m_Address.GetHashCode().
+                    //  m_Address is an IPAddress.
+                    //  GetHashCode() allocates for IPv6:
+                    //  https://github.com/mono/mono/blob/bdd772531d379b4e78593587d15113c37edd4a64/mcs/class/referencesource/System/net/System/Net/IPAddress.cs#L699
+                    //
+                    // => using only newClientEP.Port wouldn't work, because
+                    //    different connections can have the same port.
+                    connectionId = newClientEP.GetHashCode();
+                    return true;
+                }
             }
-            // for non-blocking sockets, Receive throws WouldBlock if there is
-            // no message to read. that's okay. only log for other errors.
             catch (SocketException e)
             {
-                if (e.SocketErrorCode != SocketError.WouldBlock)
-                {
-                    // NOTE: SocketException is not a subclass of IOException.
-                    // the other end closing the connection is not an 'error'.
-                    // but connections should never just end silently.
-                    // at least log a message for easier debugging.
-                    Log.Info($"KcpServer: ReceiveFrom failed: {e}");
-                }
-                // WouldBlock indicates there's no data yet, so return false.
-                return false;
+                // NOTE: SocketException is not a subclass of IOException.
+                // the other end closing the connection is not an 'error'.
+                // but connections should never just end silently.
+                // at least log a message for easier debugging.
+                Log.Info($"KcpServer: ReceiveFrom failed: {e}");
             }
+
+            return false;
         }
 
         // io - out.
@@ -217,28 +195,11 @@ namespace kcp2k
 
             try
             {
-                // when using non-blocking sockets, SendTo may return WouldBlock.
-                // in C#, WouldBlock throws a SocketException, which is expected.
-                // unfortunately, creating the SocketException allocates in C#.
-                // let's poll first to avoid the WouldBlock allocation.
-                // note that this entirely to avoid allocations.
-                // non-blocking UDP doesn't need Poll in other languages.
-                // and the code still works without the Poll call.
-                if (!socket.Poll(0, SelectMode.SelectWrite)) return;
-
-                // send to the the endpoint.
-                // do not send to 'newClientEP', as that's always reused.
-                // fixes https://github.com/MirrorNetworking/Mirror/issues/3296
-                socket.SendTo(data.Array, data.Offset, data.Count, SocketFlags.None, connection.remoteEndPoint);
+                socket.SendToNonBlocking(data, connection.remoteEndPoint);
             }
-            // for non-blocking sockets, SendTo may throw WouldBlock.
-            // in that case, simply drop the message. it's UDP, it's fine.
             catch (SocketException e)
             {
-                if (e.SocketErrorCode != SocketError.WouldBlock)
-                {
-                    Log.Error($"KcpServer: SendTo failed: {e}");
-                }
+                Log.Error($"KcpServer: SendTo failed: {e}");
             }
         }
 
