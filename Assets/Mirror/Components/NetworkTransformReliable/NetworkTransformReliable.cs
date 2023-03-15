@@ -368,7 +368,8 @@ namespace Mirror
                 return;
 
             // 'only sync on change' needs a correction on every new move sequence.
-            if (onlySyncOnChange && NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
+            if (onlySyncOnChange && 
+                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
             {
                 RewriteHistory(
                     clientSnapshots,
