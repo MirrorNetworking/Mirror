@@ -347,13 +347,13 @@ namespace Mirror
             if (onlySyncOnChange && NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
-                serverSnapshots,
-                connectionToClient.remoteTimeStamp,
-                NetworkTime.localTime,                                      // arrival remote timestamp. NOT remote timeline.
-                NetworkServer.sendInterval * sendIntervalMultiplier,        // Unity 2019 doesn't have timeAsDouble yet
-                target.localPosition,
-                target.localRotation,
-                target.localScale);
+                    serverSnapshots,
+                    connectionToClient.remoteTimeStamp,
+                    NetworkTime.localTime,                                  // arrival remote timestamp. NOT remote timeline.
+                    NetworkServer.sendInterval * sendIntervalMultiplier,    // Unity 2019 doesn't have timeAsDouble yet
+                    target.localPosition,
+                    target.localRotation,
+                    target.localScale);
             }
 
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + NetworkServer.sendInterval * sendIntervalMultiplier, position, rotation, scale);
@@ -370,13 +370,13 @@ namespace Mirror
             if (onlySyncOnChange && NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
             {
                 RewriteHistory(
-                clientSnapshots,
-                NetworkClient.connection.remoteTimeStamp,                   // arrival remote timestamp. NOT remote timeline.
-                NetworkTime.localTime,                                      // Unity 2019 doesn't have timeAsDouble yet
-                NetworkClient.sendInterval * sendIntervalMultiplier,
-                target.localPosition,
-                target.localRotation,
-                target.localScale);
+                    clientSnapshots,
+                    NetworkClient.connection.remoteTimeStamp,               // arrival remote timestamp. NOT remote timeline.
+                    NetworkTime.localTime,                                  // Unity 2019 doesn't have timeAsDouble yet
+                    NetworkClient.sendInterval * sendIntervalMultiplier,
+                    target.localPosition,
+                    target.localRotation,
+                    target.localScale);
             }
 
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + NetworkClient.sendInterval * sendIntervalMultiplier, position, rotation, scale);
