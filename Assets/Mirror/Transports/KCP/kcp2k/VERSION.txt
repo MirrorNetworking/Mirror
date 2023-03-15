@@ -1,3 +1,8 @@
+V1.34 [2023-03-15]
+- Send/SendTo/Receive/ReceiveFrom NonBlocking extensions.
+  to encapsulate WouldBlock allocations, exceptions, etc.
+  allows for reuse when overwriting KcpServer/Client (i.e. for relays).
+
 V1.33 [2023-03-14]
 - perf: KcpServer/Client RawReceive now call socket.Poll to avoid non-blocking
   socket's allocating a new SocketException in case they WouldBlock.
