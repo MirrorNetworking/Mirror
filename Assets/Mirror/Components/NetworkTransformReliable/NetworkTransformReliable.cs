@@ -396,11 +396,8 @@ namespace Mirror
             SortedList<double, TransformSnapshot> snapshots,
             double remoteTimestamp,
             double bufferTime,
-            double toleranceMultiplier)
-        {
-            bool value = snapshots.Count == 1 && remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
-            return value;
-        }
+            double toleranceMultiplier) =>
+                snapshots.Count == 1 && remoteTimestamp - snapshots.Keys[0] >= bufferTime * toleranceMultiplier;
 
         // 2. insert a fake snapshot at current position,
         //    exactly one 'sendInterval' behind the newly received one.
