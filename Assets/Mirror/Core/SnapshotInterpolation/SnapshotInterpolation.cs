@@ -272,19 +272,28 @@ namespace Mirror
             // we don't want to be too nervous for catchup/slowdown.
             double drift = driftEma - bufferTime;
 
-            // way too far behind: move by delta time, but clamp to at a minimum.
+            // calculate catchup / slowdown multpliers only once.
+            double catchupMultiplier  = 1 + catchupSpeed;  // 100% + n%
+            double slowdownMultiplier = 1 - slowdownSpeed; // 100% - n%
+
+            // way too far behind
             if (drift > bufferTime)
             {
-                localTimeline += deltaTime * (1 + catchupSpeed);
+                // keep moving by delta, with catch up.
+                localTimeline += deltaTime * catchupMultiplier;
+                // but clamp so it never gets too far behind.
                 localTimeline = Math.Max(localTimeline, targetTime - bufferTime);
                 Debug.LogWarning($"clamp behind: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.ClampBehind;
             }
 
-            // way too far ahead. clamp hard.
+            // way too far ahead.
             if (drift < -bufferTime)
             {
-                localTimeline = targetTime + bufferTime;
+                // keep moving by delta, with slowdown.
+                localTimeline += deltaTime * slowdownMultiplier;
+                // but clamp so it never gets too far ahead.
+                localTimeline = Math.Min(localTimeline, targetTime + bufferTime);
                 Debug.LogWarning($"clamp ahead: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.ClampAhead;
             }
@@ -292,7 +301,7 @@ namespace Mirror
             // just a little behind: move by delta time and accelerate n%.
             if (drift > bufferTime / 2)
             {
-                localTimeline += deltaTime * (1 + catchupSpeed);
+                localTimeline += deltaTime * catchupMultiplier;
                 Debug.LogWarning($"catchup: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.Catchup;
             }
@@ -300,7 +309,7 @@ namespace Mirror
             // just a little ahead: move by delta time and slow down n%.
             if (drift < -bufferTime / 2)
             {
-                localTimeline += deltaTime * (1 - slowdownSpeed);
+                localTimeline += deltaTime * slowdownMultiplier;
                 Debug.LogWarning($"slowdown: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.Slowdown;
             }
