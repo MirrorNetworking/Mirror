@@ -36,7 +36,6 @@ namespace Mirror
         ExponentialMovingAverage driftEma;
         ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
         public double remoteTimeline;
-        public double remoteTimescale;
         double bufferTimeMultiplier = 2;
         double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
 
@@ -81,15 +80,9 @@ namespace Mirror
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
                 snapshot,
-                ref remoteTimeline,
-                ref remoteTimescale,
-                NetworkServer.sendInterval,
+                remoteTimeline,
                 bufferTime,
-                NetworkClient.snapshotSettings.catchupSpeed,
-                NetworkClient.snapshotSettings.slowdownSpeed,
                 ref driftEma,
-                NetworkClient.snapshotSettings.catchupNegativeThreshold,
-                NetworkClient.snapshotSettings.catchupPositiveThreshold,
                 ref deliveryTimeEma
             );
         }
@@ -100,7 +93,15 @@ namespace Mirror
             if (snapshots.Count > 0)
             {
                 // progress local timeline.
-                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref remoteTimeline, remoteTimescale);
+                SnapshotInterpolation.StepTime(
+                    snapshots,
+                    ref remoteTimeline,
+                    Time.unscaledDeltaTime,
+                    bufferTime,
+                    driftEma.Value,
+                    NetworkClient.snapshotSettings.catchupSpeed,
+                    NetworkClient.snapshotSettings.slowdownSpeed
+                );
 
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.

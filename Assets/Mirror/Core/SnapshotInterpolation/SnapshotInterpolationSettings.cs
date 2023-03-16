@@ -19,11 +19,10 @@ namespace Mirror
         // catchup /////////////////////////////////////////////////////////////
         // catchup thresholds in 'frames'.
         // half a frame might be too aggressive.
-        [Header("Catchup / Slowdown")]
-        [Tooltip("Slowdown begins when the local timeline is moving too fast towards remote time. Threshold is in frames worth of snapshots.\n\nThis needs to be negative.\n\nDon't modify unless you know what you are doing.")]
+        [Obsolete("catchup thresholds are now automated")]
         public float catchupNegativeThreshold = -1; // careful, don't want to run out of snapshots
 
-        [Tooltip("Catchup begins when the local timeline is moving too slow and getting too far away from remote time. Threshold is in frames worth of snapshots.\n\nThis needs to be positive.\n\nDon't modify unless you know what you are doing.")]
+        [Obsolete("catchup thresholds are now automated")]
         public float catchupPositiveThreshold = 1;
 
         [Tooltip("Local timeline acceleration in % while catching up.")]

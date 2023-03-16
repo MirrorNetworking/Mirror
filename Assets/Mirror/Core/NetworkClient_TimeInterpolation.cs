@@ -41,13 +41,7 @@ namespace Mirror
         // double for long running servers, see NetworkTime comments.
         internal static double localTimeline;
 
-        // catchup / slowdown adjustments are applied to timescale,
-        // to be adjusted in every update instead of when receiving messages.
-        internal static double localTimescale = 1;
-
         // catchup /////////////////////////////////////////////////////////////
-
-
         // we use EMA to average the last second worth of snapshot time diffs.
         // manually averaging the last second worth of values with a for loop
         // would be the same, but a moving average is faster because we only
@@ -92,7 +86,6 @@ namespace Mirror
             // Don't reset bufferTimeMultiplier here - whatever their network condition
             // was when they disconnected, it won't have changed on immediate reconnect.
             localTimeline = 0;
-            localTimescale = 1;
             snapshots.Clear();
 
             // initialize EMA with 'emaDuration' seconds worth of history.
@@ -141,15 +134,9 @@ namespace Mirror
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
                 snap,
-                ref localTimeline,
-                ref localTimescale,
-                NetworkServer.sendInterval,
+                localTimeline,
                 bufferTime,
-                snapshotSettings.catchupSpeed,
-                snapshotSettings.slowdownSpeed,
                 ref driftEma,
-                snapshotSettings.catchupNegativeThreshold,
-                snapshotSettings.catchupPositiveThreshold,
                 ref deliveryTimeEma);
 
             // Debug.Log($"inserted TimeSnapshot remote={snap.remoteTime:F2} local={snap.localTime:F2} total={snapshots.Count}");
@@ -163,7 +150,7 @@ namespace Mirror
             if (snapshots.Count > 0)
             {
                 // progress local timeline.
-                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref localTimeline, localTimescale);
+                SnapshotInterpolation.StepTime(snapshots, ref localTimeline, Time.unscaledDeltaTime, bufferTime, driftEma.Value, snapshotSettings.catchupSpeed, snapshotSettings.slowdownSpeed);
 
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
