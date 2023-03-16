@@ -335,11 +335,7 @@ namespace Mirror
             return Sprite.Create(texture, reader.ReadRect(), reader.ReadVector2());
         }
 
-        public static DateTime ReadDateTime(this NetworkReader reader)
-        {
-            return DateTime.FromOADate(reader.ReadDouble());
-        }
-
+        public static DateTime ReadDateTime(this NetworkReader reader) => DateTime.FromOADate(reader.ReadDouble());
         public static DateTime? ReadDateTimeNullable(this NetworkReader reader) => reader.ReadBool() ? ReadDateTime(reader) : default(DateTime?);
     }
 }
