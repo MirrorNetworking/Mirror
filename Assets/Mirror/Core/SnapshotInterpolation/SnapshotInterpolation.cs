@@ -8,6 +8,7 @@
 //   fholm: netcode streams
 //   fakebyte: standard deviation for dynamic adjustment
 //   ninjakicka: math & debugging
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -271,10 +272,11 @@ namespace Mirror
             // we don't want to be too nervous for catchup/slowdown.
             double drift = driftEma - bufferTime;
 
-            // way too far behind: clamp hard.
+            // way too far behind: move by delta time, but clamp to at a minimum.
             if (drift > bufferTime)
             {
-                localTimeline = targetTime - bufferTime;
+                localTimeline += deltaTime * (1 + catchupSpeed);
+                localTimeline = Math.Max(localTimeline, targetTime - bufferTime);
                 Debug.LogWarning($"clamp behind: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.ClampBehind;
             }
