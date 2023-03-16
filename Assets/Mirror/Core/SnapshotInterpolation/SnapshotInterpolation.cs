@@ -151,15 +151,9 @@ namespace Mirror
         public static void InsertAndAdjust<T>(
             SortedList<double, T> buffer,                 // snapshot buffer
             T snapshot,                                   // the newly received snapshot
-            ref double localTimeline,                     // local interpolation time based on server time
-            ref double localTimescale,                    // timeline multiplier to apply catchup / slowdown over time
-            float sendInterval,                           // for debugging
+            double localTimeline,                         // local interpolation time based on server time
             double bufferTime,                            // offset for buffering
-            double catchupSpeed,                          // in % [0,1]
-            double slowdownSpeed,                         // in % [0,1]
             ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
-            float catchupNegativeThreshold,               // in % of sendInteral (careful, we may run out of snapshots)
-            float catchupPositiveThreshold,               // in % of sendInterval
             ref ExponentialMovingAverage deliveryTimeEma) // for dynamic buffer time adjustment
             where T : Snapshot
         {
@@ -219,9 +213,6 @@ namespace Mirror
                 // we need to use the inserted snapshot's time - timeline.
                 double latestRemoteTime = snapshot.remoteTime;
 
-                // ensure timeline stays within a reasonable bound behind/ahead.
-                localTimeline = TimelineClamp(localTimeline, bufferTime, latestRemoteTime);
-
                 // calculate timediff after localTimeline override changes
                 double timeDiff = latestRemoteTime - localTimeline;
 
@@ -245,20 +236,6 @@ namespace Mirror
                 // driftEma only changes when inserting.
                 // therefore timescale only needs to be calculated when inserting.
                 // saves CPU cycles in Update.
-
-                // next up, calculate how far we are currently away from bufferTime
-                double drift = driftEma.Value - bufferTime;
-
-                // convert relative thresholds to absolute values based on sendInterval
-                double absoluteNegativeThreshold = sendInterval * catchupNegativeThreshold;
-                double absolutePositiveThreshold = sendInterval * catchupPositiveThreshold;
-
-                // next, set localTimescale to catchup consistently in Update().
-                // we quantize between default/catchup/slowdown,
-                // this way we have 'default' speed most of the time(!).
-                // and only catch up / slow down for a little bit occasionally.
-                // a consistent multiplier would never be exactly 1.0.
-                localTimescale = Timescale(drift, catchupSpeed, slowdownSpeed, absoluteNegativeThreshold, absolutePositiveThreshold);
 
                 // debug logging
                 // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
