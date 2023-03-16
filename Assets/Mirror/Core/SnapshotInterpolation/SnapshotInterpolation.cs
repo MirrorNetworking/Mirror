@@ -27,80 +27,6 @@ namespace Mirror
 
     public static class SnapshotInterpolation
     {
-        // adjust timeline and timescale based on 5 ranges:
-        //
-        //   clamp | slowdown | normal | catchup | clamp
-        //
-        // normal: within this range, timescale is 1 and timeline steps freely.
-        // slowdown/catchup: timescale becomes +-1%, timeline steps with it.
-        // clamp: don't allow timeline to go too far ahead/behind. clamp hard.
-        //
-        // and only catch up / slow down for a little bit occasionally.
-        // a consistent multiplier would never be exactly 1.0.
-        //
-        // note that slowdown/catchup is not enough, we also need to clamp:
-        // clamp timeline for cases where it gets too far behind.
-        // for example, a client app may go into the background and get updated
-        // with 1hz for a while.  by the time it's back it's at least 30 frames
-        // behind, possibly more if the transport also queues up. In this
-        // scenario, at 1% catch up it took around 20+ seconds to finally catch
-        // up. For these kinds of scenarios it will be better to snap / clamp.
-        //
-        // to reproduce, try snapshot interpolation demo and press the button to
-        // simulate the client timeline at multiple seconds behind. it'll take
-        // a long time to catch up if the timeline is a long time behind.
-        public static void TimeBalance(
-            ref double localTimeline,
-            out double localTimescale,
-            double bufferTime,
-            double driftEma,
-            double latestRemoteTime,
-            double catchupSpeed,  // in percent %
-            double slowdownSpeed) // in percent %
-        {
-            // first, calculate how far we are currently away from bufferTime.
-            // use driftEma for averaged, smoother results.
-            // we don't want to be too nervous for catchup/slowdown.
-            double drift = driftEma - bufferTime;
-
-            // we want local timeline to always be 'bufferTime' behind remote.
-            double targetTime = latestRemoteTime - bufferTime;
-
-            // way too far behind: clamp hard & apply catchup.
-            if (drift > bufferTime)
-            {
-                localTimeline = targetTime - bufferTime;
-                localTimescale = 1 + catchupSpeed; // n% faster
-                return;
-            }
-
-            // just a little behind: only apply catchup.
-            if (drift > bufferTime / 2)
-            {
-                localTimescale = 1 + catchupSpeed; // n% faster
-                return;
-            }
-
-            // way too far ahead. clamp hard & apply slowdown.
-            if (drift < bufferTime)
-            {
-                localTimeline = targetTime + bufferTime;
-                localTimescale = 1 - slowdownSpeed; // n% slower
-                return;
-            }
-
-            // just a little ahead. only apply slowdown.
-            if (drift < bufferTime / 2)
-            {
-                localTimescale = 1 - slowdownSpeed; // n% slower
-                return;
-            }
-
-            // otherwise we are within normal range.
-            // reset any catchup / slowdown.
-            localTimescale = 1;
-        }
-
         // calculate dynamic buffer time adjustment
         public static double DynamicAdjustment(
             double sendInterval,
@@ -298,14 +224,81 @@ namespace Mirror
         //
         // decoupled from Step<T> for easier testing and so we can progress
         // time only once in NetworkClient, while stepping for each component.
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void StepTime(
-            double deltaTime,         // engine delta time (unscaled)
-            ref double localTimeline, // local interpolation time based on server time
-            double localTimescale)    // catchup / slowdown is applied to time every update)
+        //
+        // adjust timeline based on 5 ranges:
+        //
+        //   clamp | slowdown | normal | catchup | clamp
+        //
+        // => normal: move forward by delta time as usual.
+        // => slowdown/catchup: accelerate/slow down delta time by 1%.
+        // => clamp: limit timeline if it gets too far off.
+        //
+        // only catch up / slow down for a little bit occasionally.
+        // a consistent multiplier would never be exactly 1.0.
+        //
+        // note that slowdown/catchup is not enough, we also need to clamp:
+        // clamp timeline for cases where it gets too far behind.
+        // for example, a client app may go into the background and get updated
+        // with 1hz for a while.  by the time it's back it's at least 30 frames
+        // behind, possibly more if the transport also queues up. In this
+        // scenario, at 1% catch up it took around 20+ seconds to finally catch
+        // up. For these kinds of scenarios it will be better to snap / clamp.
+        //
+        // to reproduce, try snapshot interpolation demo and press the button to
+        // simulate the client timeline at multiple seconds behind. it'll take
+        // a long time to catch up if the timeline is a long time behind.
+        public static void StepTime<T>(
+            SortedList<double, T> buffer, // snapshot buffer
+            ref double localTimeline,// local interpolation time based on server time
+            double deltaTime, // engine delta time (unscaled)
+            double bufferTime,
+            double driftEma,
+            double catchupSpeed,  // in percent %
+            double slowdownSpeed) // in percent %
+                where T: Snapshot
         {
-            // move local forward in time, scaled with catchup / slowdown applied
-            localTimeline += deltaTime * localTimescale;
+            // get the latest snapshot. it's closest to remote time.
+            T latest = buffer.Values[buffer.Count - 1];
+
+            // we want local timeline to always be 'bufferTime' behind remote.
+            double targetTime = latest.remoteTime - bufferTime;
+
+            // first, calculate how far we are currently away from bufferTime.
+            // use driftEma for averaged, smoother results.
+            // we don't want to be too nervous for catchup/slowdown.
+            double drift = driftEma - bufferTime;
+
+            // way too far behind: clamp hard.
+            if (drift > bufferTime)
+            {
+                localTimeline = targetTime - bufferTime;
+                return;
+            }
+
+            // way too far ahead. clamp hard.
+            if (drift < bufferTime)
+            {
+                localTimeline = targetTime + bufferTime;
+                return;
+            }
+
+            // just a little behind: move by delta time and accelerate n%.
+            if (drift > bufferTime / 2)
+            {
+                localTimeline += deltaTime * (1 + catchupSpeed);
+                return;
+            }
+
+            // just a little ahead: move by delta time and slow down n%.
+            if (drift < bufferTime / 2)
+            {
+                localTimeline += deltaTime * (1 - slowdownSpeed);
+                return;
+            }
+
+            // otherwise we are within normal range.
+            // move linearly.
+            localTimeline += deltaTime;
         }
 
         // sample, clear old.
@@ -359,15 +352,18 @@ namespace Mirror
         //   besides, passing "Func Interpolate" would allocate anyway.
         public static void Step<T>(
             SortedList<double, T> buffer, // snapshot buffer
-            double deltaTime,             // engine delta time (unscaled)
             ref double localTimeline,     // local interpolation time based on server time
-            double localTimescale,        // catchup / slowdown is applied to time every update
+            double deltaTime,             // engine delta time (unscaled)
+            double bufferTime,
+            double driftEma,
+            double catchupSpeed,
+            double slowdownSpeed,
             out T fromSnapshot,           // we interpolate 'from' this snapshot
             out T toSnapshot,             // 'to' this snapshot
             out double t)                 // at ratio 't' [0,1]
             where T : Snapshot
         {
-            StepTime(deltaTime, ref localTimeline, localTimescale);
+            StepTime(buffer, ref localTimeline, deltaTime, bufferTime, driftEma, catchupSpeed, slowdownSpeed);
             StepInterpolation(buffer, localTimeline, out fromSnapshot, out toSnapshot, out t);
         }
     }
