@@ -53,15 +53,21 @@ namespace Mirror
             ref double localTimeline,
             out double localTimescale,
             double bufferTime,
+            double driftEma,
             double latestRemoteTime,
             double catchupSpeed,  // in percent %
             double slowdownSpeed) // in percent %
         {
+            // first, calculate how far we are currently away from bufferTime.
+            // use driftEma for averaged, smoother results.
+            // we don't want to be too nervous for catchup/slowdown.
+            double drift = driftEma - bufferTime;
+
             // we want local timeline to always be 'bufferTime' behind remote.
             double targetTime = latestRemoteTime - bufferTime;
 
             // way too far behind: clamp hard & apply catchup.
-            if (localTimeline < targetTime - bufferTime)
+            if (drift > bufferTime)
             {
                 localTimeline = targetTime - bufferTime;
                 localTimescale = 1 + catchupSpeed; // n% faster
@@ -69,14 +75,14 @@ namespace Mirror
             }
 
             // just a little behind: only apply catchup.
-            if (localTimeline < targetTime - bufferTime / 2)
+            if (drift > bufferTime / 2)
             {
                 localTimescale = 1 + catchupSpeed; // n% faster
                 return;
             }
 
             // way too far ahead. clamp hard & apply slowdown.
-            if (localTimeline > targetTime + bufferTime)
+            if (drift < bufferTime)
             {
                 localTimeline = targetTime + bufferTime;
                 localTimescale = 1 - slowdownSpeed; // n% slower
@@ -84,7 +90,7 @@ namespace Mirror
             }
 
             // just a little ahead. only apply slowdown.
-            if (localTimeline > targetTime + bufferTime / 2)
+            if (drift < bufferTime / 2)
             {
                 localTimescale = 1 - slowdownSpeed; // n% slower
                 return;
