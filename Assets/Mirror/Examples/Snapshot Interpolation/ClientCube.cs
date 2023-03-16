@@ -52,6 +52,10 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
 
         void Awake()
         {
+            // show vsync reminder. too easy to forget.
+            Debug.Log("Reminder: Snapshot interpolation is smoothest & easiest to debug with Vsync off.");
+
+
             defaultColor = render.sharedMaterial.color;
 
             // initialize EMA with 'emaDuration' seconds worth of history.
