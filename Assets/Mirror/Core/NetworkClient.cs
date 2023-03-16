@@ -1696,13 +1696,19 @@ namespace Mirror
 
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
-            // color while catching up / slowing down
-            if (localTimescale > 1) GUI.color = Color.green; // green traffic light = go fast
-            else if (localTimescale < 1) GUI.color = Color.red;   // red traffic light = go slow
-            else GUI.color = Color.white;
+            // color code the current snapshot interpolation mode.
+            // colors comparable to temperature. red=hot/fast, blue=cold/slow.
+            switch (snapshotMode)
+            {
+                case SnapshotMode.Normal:      GUI.color = Color.white; break;
+                case SnapshotMode.Catchup:     GUI.color = Color.yellow; break;
+                case SnapshotMode.ClampBehind: GUI.color = Color.red; break;
+                case SnapshotMode.Slowdown:    GUI.color = Color.cyan; break;
+                case SnapshotMode.ClampAhead:  GUI.color = Color.blue; break;
+            }
             GUILayout.Box($"timeline: {localTimeline:F2}");
             GUILayout.Box($"buffer: {snapshots.Count}");
-            GUILayout.Box($"timescale: {localTimescale:F2}");
+            GUILayout.Box($"mode: {snapshotMode}");
             GUILayout.Box($"BTM: {snapshotSettings.bufferTimeMultiplier:F2}");
             GUILayout.EndHorizontal();
 

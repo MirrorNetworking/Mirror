@@ -11,6 +11,11 @@ namespace Mirror
         // via NetMan or NetworkClientConfig or NetworkClient as component etc.
         public static SnapshotInterpolationSettings snapshotSettings = new SnapshotInterpolationSettings();
 
+        // current snapshot interpolation mode for debugging.
+        // this is returned by the StepTime() function.
+        // no need to set or reset this anywhere. only for debugging.
+        static SnapshotMode snapshotMode = SnapshotMode.Normal;
+
         // obsolete snapshot settings access
         // DEPRECATED 2023-03-11
         [Obsolete("NetworkClient snapshot interpolation settings were moved to NetworkClient.snapshotSettings.*")]
@@ -150,7 +155,8 @@ namespace Mirror
             if (snapshots.Count > 0)
             {
                 // progress local timeline.
-                SnapshotInterpolation.StepTime(snapshots, ref localTimeline, Time.unscaledDeltaTime, bufferTime, driftEma.Value, snapshotSettings.catchupSpeed, snapshotSettings.slowdownSpeed);
+                // returns snapshot mode for debugging.
+                snapshotMode = SnapshotInterpolation.StepTime(snapshots, ref localTimeline, Time.unscaledDeltaTime, bufferTime, driftEma.Value, snapshotSettings.catchupSpeed, snapshotSettings.slowdownSpeed);
 
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
