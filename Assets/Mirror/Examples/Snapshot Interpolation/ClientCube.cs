@@ -40,20 +40,15 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         ExponentialMovingAverage driftEma;
         ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
 
-        // debugging ///////////////////////////////////////////////////////////
-        [Header("Debug")]
-        public Color catchupColor = Color.green; // green traffic light = go fast
-        public Color slowdownColor = Color.red;  // red traffic light = go slow
-        Color defaultColor;
-
         [Header("Simulation")]
         bool lowFpsMode;
         double accumulatedDeltaTime;
 
+        // debugging
+        SnapshotMode mode = SnapshotMode.Normal;
+
         void Awake()
         {
-            defaultColor = render.sharedMaterial.color;
-
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
@@ -87,16 +82,11 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
                 snap,
-                ref localTimeline,
-                ref localTimescale,
-                server.sendInterval,
+                localTimeline,
                 bufferTime,
-                snapshotSettings.catchupSpeed,
-                snapshotSettings.slowdownSpeed,
                 ref driftEma,
-                snapshotSettings.catchupNegativeThreshold,
-                snapshotSettings.catchupPositiveThreshold,
-                ref deliveryTimeEma);
+                ref deliveryTimeEma
+            );
         }
 
         void Update()
@@ -118,16 +108,20 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
                 if (interpolate)
                 {
                     // step
-                    SnapshotInterpolation.Step(
+                    mode = SnapshotInterpolation.Step(
                         snapshots,
+                        ref localTimeline,
                         // accumulate delta is Time.unscaledDeltaTime normally.
                         // and sum of past 10 delta's in low fps mode.
                         accumulatedDeltaTime,
-                        ref localTimeline,
-                        localTimescale,
+                        bufferTime,
+                        driftEma.Value,
+                        snapshotSettings.catchupSpeed,
+                        snapshotSettings.slowdownSpeed,
                         out Snapshot3D fromSnapshot,
                         out Snapshot3D toSnapshot,
-                        out double t);
+                        out double t
+                    );
 
                     // interpolate & apply
                     Snapshot3D computed = Snapshot3D.Interpolate(fromSnapshot, toSnapshot, t);
@@ -146,12 +140,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             accumulatedDeltaTime = 0;
 
             // color material while catching up / slowing down
-            if (localTimescale < 1)
-                render.material.color = slowdownColor;
-            else if (localTimescale > 1)
-                render.material.color = catchupColor;
-            else
-                render.material.color = defaultColor;
+            render.material.color = SnapshotModeUtils.ColorCode(mode);
         }
 
         void OnGUI()

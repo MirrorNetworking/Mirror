@@ -1697,15 +1697,7 @@ namespace Mirror
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
             // color code the current snapshot interpolation mode.
-            // colors comparable to temperature. red=hot/fast, blue=cold/slow.
-            switch (snapshotMode)
-            {
-                case SnapshotMode.Normal:      GUI.color = Color.white; break;
-                case SnapshotMode.Catchup:     GUI.color = Color.yellow; break;
-                case SnapshotMode.ClampBehind: GUI.color = Color.red; break;
-                case SnapshotMode.Slowdown:    GUI.color = Color.cyan; break;
-                case SnapshotMode.ClampAhead:  GUI.color = Color.blue; break;
-            }
+            GUI.color = SnapshotModeUtils.ColorCode(snapshotMode);
             GUILayout.Box($"timeline: {localTimeline:F2}");
             GUILayout.Box($"buffer: {snapshots.Count}");
             GUILayout.Box($"mode: {snapshotMode}");

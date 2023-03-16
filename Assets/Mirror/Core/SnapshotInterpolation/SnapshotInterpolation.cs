@@ -13,16 +13,6 @@ using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
-    // current interpolation mode is returned for debugging.
-    public enum SnapshotMode
-    {
-        Normal,      // regular speed
-        Catchup,     // little behind, catching up
-        Slowdown,    // little ahead, slowing down
-        ClampBehind, // so far behind that we clamp
-        ClampAhead,  // so far ahead that we clamp
-    }
-
     public static class SortedListExtensions
     {
         // removes the first 'amount' elements from the sorted list
