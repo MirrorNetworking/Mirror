@@ -77,7 +77,7 @@ namespace Mirror
         public static void InsertAndAdjust<T>(
             SortedList<double, T> buffer,                 // snapshot buffer
             T snapshot,                                   // the newly received snapshot
-            double localTimeline,                         // local interpolation time based on server time
+            ref double localTimeline,                     // local interpolation time based on server time
             double bufferTime,                            // offset for buffering
             ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
             ref ExponentialMovingAverage deliveryTimeEma) // for dynamic buffer time adjustment

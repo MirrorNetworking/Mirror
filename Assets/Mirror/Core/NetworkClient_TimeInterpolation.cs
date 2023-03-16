@@ -139,7 +139,7 @@ namespace Mirror
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
                 snap,
-                localTimeline,
+                ref localTimeline,
                 bufferTime,
                 ref driftEma,
                 ref deliveryTimeEma);

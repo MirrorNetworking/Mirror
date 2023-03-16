@@ -80,7 +80,7 @@ namespace Mirror
             SnapshotInterpolation.InsertAndAdjust(
                 snapshots,
                 snapshot,
-                remoteTimeline,
+                ref remoteTimeline,
                 bufferTime,
                 ref driftEma,
                 ref deliveryTimeEma
