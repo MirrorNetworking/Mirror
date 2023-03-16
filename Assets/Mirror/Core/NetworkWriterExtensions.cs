@@ -185,7 +185,6 @@ namespace Mirror
             writer.WriteVector3(value.normal);
             writer.WriteFloat(value.distance);
         }
-
         public static void WritePlaneNullable(this NetworkWriter writer, Plane? value)
         {
             writer.WriteBool(value.HasValue);
@@ -199,7 +198,6 @@ namespace Mirror
             writer.WriteVector3(value.origin);
             writer.WriteVector3(value.direction);
         }
-
         public static void WriteRayNullable(this NetworkWriter writer, Ray? value)
         {
             writer.WriteBool(value.HasValue);
