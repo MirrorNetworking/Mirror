@@ -35,6 +35,9 @@ namespace Mirror
         // slowdown/catchup: timescale becomes +-1%, timeline steps with it.
         // clamp: don't allow timeline to go too far ahead/behind. clamp hard.
         //
+        // and only catch up / slow down for a little bit occasionally.
+        // a consistent multiplier would never be exactly 1.0.
+        //
         // note that slowdown/catchup is not enough, we also need to clamp:
         // clamp timeline for cases where it gets too far behind.
         // for example, a client app may go into the background and get updated
