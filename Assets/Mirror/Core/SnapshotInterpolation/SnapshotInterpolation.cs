@@ -34,6 +34,18 @@ namespace Mirror
         // normal: within this range, timescale is 1 and timeline steps freely.
         // slowdown/catchup: timescale becomes +-1%, timeline steps with it.
         // clamp: don't allow timeline to go too far ahead/behind. clamp hard.
+        //
+        // note that slowdown/catchup is not enough, we also need to clamp:
+        // clamp timeline for cases where it gets too far behind.
+        // for example, a client app may go into the background and get updated
+        // with 1hz for a while.  by the time it's back it's at least 30 frames
+        // behind, possibly more if the transport also queues up. In this
+        // scenario, at 1% catch up it took around 20+ seconds to finally catch
+        // up. For these kinds of scenarios it will be better to snap / clamp.
+        //
+        // to reproduce, try snapshot interpolation demo and press the button to
+        // simulate the client timeline at multiple seconds behind. it'll take
+        // a long time to catch up if the timeline is a long time behind.
         public static void TimeBalance(
             ref double localTimeline,
             out double localTimescale,
@@ -54,7 +66,6 @@ namespace Mirror
             }
 
             // just a little behind: only apply catchup.
-            // TODO customizable range
             if (localTimeline < targetTime - bufferTime / 2)
             {
                 localTimescale = 1 + catchupSpeed; // n% faster
@@ -70,7 +81,6 @@ namespace Mirror
             }
 
             // just a little ahead. only apply slowdown.
-            // TODO customizable range
             if (localTimeline > targetTime + bufferTime / 2)
             {
                 localTimescale = 1 - slowdownSpeed; // n% slower
