@@ -92,40 +92,6 @@ namespace Mirror
             localTimescale = 1;
         }
 
-        // calculate timescale for catch-up / slow-down
-        // note that negative threshold should be <0.
-        //   caller should verify (i.e. Unity OnValidate).
-        //   improves branch prediction.
-        public static double Timescale(
-            double drift,                    // how far we are off from bufferTime
-            double catchupSpeed,             // in % [0,1]
-            double slowdownSpeed,            // in % [0,1]
-            double absoluteCatchupNegativeThreshold, // in seconds (careful, we may run out of snapshots)
-            double absoluteCatchupPositiveThreshold) // in seconds
-        {
-            // if the drift time is too large, it means we are behind more time.
-            // so we need to speed up the timescale.
-            // note the threshold should be sendInterval * catchupThreshold.
-            if (drift > absoluteCatchupPositiveThreshold)
-            {
-                // localTimeline += 0.001; // too simple, this would ping pong
-                return 1 + catchupSpeed; // n% faster
-            }
-
-            // if the drift time is too small, it means we are ahead of time.
-            // so we need to slow down the timescale.
-            // note the threshold should be sendInterval * catchupThreshold.
-            if (drift < absoluteCatchupNegativeThreshold)
-            {
-                // localTimeline -= 0.001; // too simple, this would ping pong
-                return 1 - slowdownSpeed; // n% slower
-            }
-
-            // keep constant timescale while within threshold.
-            // this way we have perfectly smooth speed most of the time.
-            return 1;
-        }
-
         // calculate dynamic buffer time adjustment
         public static double DynamicAdjustment(
             double sendInterval,
@@ -169,32 +135,6 @@ namespace Mirror
             int before = buffer.Count;
             buffer[snapshot.remoteTime] = snapshot; // overwrites if key exists
             return buffer.Count > before;
-        }
-
-        // clamp timeline for cases where it gets too far behind.
-        // for example, a client app may go into the background and get updated
-        // with 1hz for a while.  by the time it's back it's at least 30 frames
-        // behind, possibly more if the transport also queues up. In this
-        // scenario, at 1% catch up it took around 20+ seconds to finally catch
-        // up. For these kinds of scenarios it will be better to snap / clamp.
-        //
-        // to reproduce, try snapshot interpolation demo and press the button to
-        // simulate the client timeline at multiple seconds behind. it'll take
-        // a long time to catch up if the timeline is a long time behind.
-        public static double TimelineClamp(
-            double localTimeline,
-            double bufferTime,
-            double latestRemoteTime)
-        {
-            // we want local timeline to always be 'bufferTime' behind remote.
-            double targetTime = latestRemoteTime - bufferTime;
-
-            // we define a boundary of 'bufferTime' around the target time.
-            // this is where catchup / slowdown will happen.
-            // outside of the area, we clamp.
-            double lowerBound = targetTime - bufferTime; // how far behind we can get
-            double upperBound = targetTime + bufferTime; // how far ahead we can get
-            return Mathd.Clamp(localTimeline, lowerBound, upperBound);
         }
 
         // call this for every received snapshot.
