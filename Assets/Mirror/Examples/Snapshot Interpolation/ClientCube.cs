@@ -135,7 +135,7 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             accumulatedDeltaTime = 0;
 
             // color material while catching up / slowing down
-            render.material.color = SnapshotModeUtils.ColorCode(mode);
+            render.material.color = SnapshotModeUtils.ColorCode(mode, Color.black);
         }
 
         void OnGUI()

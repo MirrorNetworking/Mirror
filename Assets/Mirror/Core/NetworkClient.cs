@@ -1697,7 +1697,7 @@ namespace Mirror
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
             // color code the current snapshot interpolation mode.
-            GUI.color = SnapshotModeUtils.ColorCode(snapshotMode);
+            GUI.color = SnapshotModeUtils.ColorCode(snapshotMode, Color.white);
             GUILayout.Box($"timeline: {localTimeline:F2}");
             GUILayout.Box($"buffer: {snapshots.Count}");
             GUILayout.Box($"mode: {snapshotMode}");

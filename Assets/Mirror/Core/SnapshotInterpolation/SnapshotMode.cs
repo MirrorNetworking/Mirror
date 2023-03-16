@@ -16,18 +16,18 @@ namespace Mirror
 
     public static class SnapshotModeUtils
     {
-        public static Color ColorCode(SnapshotMode mode)
+        public static Color ColorCode(SnapshotMode mode, Color defaultColor)
         {
             // color code the current snapshot interpolation mode.
             // colors comparable to temperature. red=hot/fast, blue=cold/slow.
             switch (mode)
             {
-                case SnapshotMode.Normal:      return Color.white;
+                case SnapshotMode.Normal:      return defaultColor;
                 case SnapshotMode.Catchup:     return Color.yellow;
                 case SnapshotMode.ClampBehind: return Color.red;
                 case SnapshotMode.Slowdown:    return Color.cyan;
                 case SnapshotMode.ClampAhead:  return Color.blue;
-                default:                       return Color.white;
+                default:                       return defaultColor;
             }
         }
     }
