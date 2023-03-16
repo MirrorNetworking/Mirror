@@ -344,8 +344,7 @@ namespace Mirror
         protected virtual void OnServerToClientSync(Vector3? position, Quaternion? rotation, Vector3? scale)
         {
             // don't apply for local player with authority
-            if (IsClientWithAuthority)
-                return;
+            if (IsClientWithAuthority) return;
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
