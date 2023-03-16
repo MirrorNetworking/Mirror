@@ -283,7 +283,7 @@ namespace Mirror
                 localTimeline += deltaTime * catchupMultiplier;
                 // but clamp so it never gets too far behind.
                 localTimeline = Math.Max(localTimeline, targetTime - bufferTime);
-                Debug.LogWarning($"clamp behind: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
+                Debug.LogWarning($"clamp behind: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} snaps={buffer.Count} drift={drift:F3}");
                 return SnapshotMode.ClampBehind;
             }
 
@@ -294,15 +294,15 @@ namespace Mirror
                 localTimeline += deltaTime * slowdownMultiplier;
                 // but clamp so it never gets too far ahead.
                 localTimeline = Math.Min(localTimeline, targetTime + bufferTime);
-                Debug.LogWarning($"clamp ahead: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
+                Debug.LogWarning($"clamp ahead: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} snaps={buffer.Count} drift={drift:F3}");
                 return SnapshotMode.ClampAhead;
             }
-
+/*
             // just a little behind: move by delta time and accelerate n%.
             if (drift > bufferTime / 2)
             {
                 localTimeline += deltaTime * catchupMultiplier;
-                Debug.LogWarning($"catchup: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
+                Debug.LogWarning($"catchup: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} snaps={buffer.Count} drift={drift:F3}");
                 return SnapshotMode.Catchup;
             }
 
@@ -310,10 +310,10 @@ namespace Mirror
             if (drift < -bufferTime / 2)
             {
                 localTimeline += deltaTime * slowdownMultiplier;
-                Debug.LogWarning($"slowdown: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
+                Debug.LogWarning($"slowdown: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} snaps={buffer.Count} drift={drift:F3}");
                 return SnapshotMode.Slowdown;
             }
-
+*/
             // otherwise we are within normal range.
             // move linearly.
             localTimeline += deltaTime;
