@@ -13,6 +13,16 @@ using System.Runtime.CompilerServices;
 
 namespace Mirror
 {
+    // current interpolation mode is returned for debugging.
+    public enum InterpolationMode
+    {
+        Normal,      // regular speed
+        Catchup,     // little behind, catching up
+        Slowdown,    // little ahead, slowing down
+        ClampBehind, // so far behind that we clamp
+        ClampAhead,  // so far ahead that we clamp
+    }
+
     public static class SortedListExtensions
     {
         // removes the first 'amount' elements from the sorted list
@@ -247,7 +257,9 @@ namespace Mirror
         // to reproduce, try snapshot interpolation demo and press the button to
         // simulate the client timeline at multiple seconds behind. it'll take
         // a long time to catch up if the timeline is a long time behind.
-        public static void StepTime<T>(
+        //
+        // returns InterpolationMode for debugging
+        public static InterpolationMode StepTime<T>(
             SortedList<double, T> buffer, // snapshot buffer
             ref double localTimeline,// local interpolation time based on server time
             double deltaTime, // engine delta time (unscaled)
@@ -272,33 +284,34 @@ namespace Mirror
             if (drift > bufferTime)
             {
                 localTimeline = targetTime - bufferTime;
-                return;
+                return InterpolationMode.ClampBehind;
             }
 
             // way too far ahead. clamp hard.
             if (drift < bufferTime)
             {
                 localTimeline = targetTime + bufferTime;
-                return;
+                return InterpolationMode.ClampAhead;
             }
 
             // just a little behind: move by delta time and accelerate n%.
             if (drift > bufferTime / 2)
             {
                 localTimeline += deltaTime * (1 + catchupSpeed);
-                return;
+                return InterpolationMode.Catchup;
             }
 
             // just a little ahead: move by delta time and slow down n%.
             if (drift < bufferTime / 2)
             {
                 localTimeline += deltaTime * (1 - slowdownSpeed);
-                return;
+                return InterpolationMode.Slowdown;
             }
 
             // otherwise we are within normal range.
             // move linearly.
             localTimeline += deltaTime;
+            return InterpolationMode.Normal;
         }
 
         // sample, clear old.
@@ -345,12 +358,12 @@ namespace Mirror
         //
         // ONLY CALL IF SNAPSHOTS.COUNT > 0!
         //
-        // returns true if there is anything to apply (requires at least 1 snap)
+        // returns InterpolationMode for debugging.
         //   from/to/t are out parameters instead of an interpolated 'computed'.
         //   this allows us to store from/to/t globally (i.e. in NetworkClient)
         //   and have each component apply the interpolation manually.
         //   besides, passing "Func Interpolate" would allocate anyway.
-        public static void Step<T>(
+        public static InterpolationMode Step<T>(
             SortedList<double, T> buffer, // snapshot buffer
             ref double localTimeline,     // local interpolation time based on server time
             double deltaTime,             // engine delta time (unscaled)
@@ -363,8 +376,9 @@ namespace Mirror
             out double t)                 // at ratio 't' [0,1]
             where T : Snapshot
         {
-            StepTime(buffer, ref localTimeline, deltaTime, bufferTime, driftEma, catchupSpeed, slowdownSpeed);
+            InterpolationMode mode = StepTime(buffer, ref localTimeline, deltaTime, bufferTime, driftEma, catchupSpeed, slowdownSpeed);
             StepInterpolation(buffer, localTimeline, out fromSnapshot, out toSnapshot, out t);
+            return mode;
         }
     }
 }
