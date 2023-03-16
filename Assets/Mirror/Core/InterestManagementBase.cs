@@ -11,10 +11,10 @@ namespace Mirror
     {
         // Configures InterestManagementBase in NetworkServer/Client
         // Do NOT check for active server or client here.
-        // OnEnabled must always set the static aoi references.
-        // make sure to call base.OnEnabled when overwriting!
+        // OnEnable must always set the static aoi references.
+        // make sure to call base.OnEnable when overwriting!
         // Previously used Awake()
-        protected virtual void OnEnabled()
+        protected virtual void OnEnable()
         {
             if (NetworkServer.aoi == null)
             {
