@@ -27,6 +27,61 @@ namespace Mirror
 
     public static class SnapshotInterpolation
     {
+        // adjust timeline and timescale based on 5 ranges:
+        //
+        //   clamp | slowdown | normal | catchup | clamp
+        //
+        // normal: within this range, timescale is 1 and timeline steps freely.
+        // slowdown/catchup: timescale becomes +-1%, timeline steps with it.
+        // clamp: don't allow timeline to go too far ahead/behind. clamp hard.
+        public static void TimeBalance(
+            ref double localTimeline,
+            out double localTimescale,
+            double bufferTime,
+            double latestRemoteTime,
+            double catchupSpeed,  // in percent %
+            double slowdownSpeed) // in percent %
+        {
+            // we want local timeline to always be 'bufferTime' behind remote.
+            double targetTime = latestRemoteTime - bufferTime;
+
+            // way too far behind: clamp hard & apply catchup.
+            if (localTimeline < targetTime - bufferTime)
+            {
+                localTimeline = targetTime - bufferTime;
+                localTimescale = 1 + catchupSpeed; // n% faster
+                return;
+            }
+
+            // just a little behind: only apply catchup.
+            // TODO customizable range
+            if (localTimeline < targetTime - bufferTime / 2)
+            {
+                localTimescale = 1 + catchupSpeed; // n% faster
+                return;
+            }
+
+            // way too far ahead. clamp hard & apply slowdown.
+            if (localTimeline > targetTime + bufferTime)
+            {
+                localTimeline = targetTime + bufferTime;
+                localTimescale = 1 - slowdownSpeed; // n% slower
+                return;
+            }
+
+            // just a little ahead. only apply slowdown.
+            // TODO customizable range
+            if (localTimeline > targetTime + bufferTime / 2)
+            {
+                localTimescale = 1 - slowdownSpeed; // n% slower
+                return;
+            }
+
+            // otherwise we are within normal range.
+            // reset any catchup / slowdown.
+            localTimescale = 1;
+        }
+
         // calculate timescale for catch-up / slow-down
         // note that negative threshold should be <0.
         //   caller should verify (i.e. Unity OnValidate).
