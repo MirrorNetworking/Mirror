@@ -10,6 +10,7 @@
 //   ninjakicka: math & debugging
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 
 namespace Mirror
 {
@@ -274,13 +275,15 @@ namespace Mirror
             if (drift > bufferTime)
             {
                 localTimeline = targetTime - bufferTime;
+                Debug.LogWarning($"clamp behind: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.ClampBehind;
             }
 
             // way too far ahead. clamp hard.
-            if (drift < bufferTime)
+            if (drift < -bufferTime)
             {
                 localTimeline = targetTime + bufferTime;
+                Debug.LogWarning($"clamp ahead: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.ClampAhead;
             }
 
@@ -288,19 +291,22 @@ namespace Mirror
             if (drift > bufferTime / 2)
             {
                 localTimeline += deltaTime * (1 + catchupSpeed);
+                Debug.LogWarning($"catchup: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.Catchup;
             }
 
             // just a little ahead: move by delta time and slow down n%.
-            if (drift < bufferTime / 2)
+            if (drift < -bufferTime / 2)
             {
                 localTimeline += deltaTime * (1 - slowdownSpeed);
+                Debug.LogWarning($"slowdown: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
                 return SnapshotMode.Slowdown;
             }
 
             // otherwise we are within normal range.
             // move linearly.
             localTimeline += deltaTime;
+            Debug.Log($"normal: time={localTimeline:F3} target={targetTime:F3} bufferTime={bufferTime:F3} drift={drift:F3}");
             return SnapshotMode.Normal;
         }
 
