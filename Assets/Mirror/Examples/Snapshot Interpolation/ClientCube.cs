@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,10 +27,6 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         // any other time (arrival on client, client local time, etc.) is not
         // going to give smooth results.
         double localTimeline;
-
-        // catchup / slowdown adjustments are applied to timescale,
-        // to be adjusted in every update instead of when receiving messages.
-        double localTimescale = 1;
 
         // we use EMA to average the last second worth of snapshot time diffs.
         // manually averaging the last second worth of values with a for loop
@@ -173,13 +168,6 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
-        }
-
-        void OnValidate()
-        {
-            // thresholds need to be <0 and >0
-            snapshotSettings.catchupNegativeThreshold = Math.Min(snapshotSettings.catchupNegativeThreshold, 0);
-            snapshotSettings.catchupPositiveThreshold = Math.Max(snapshotSettings.catchupPositiveThreshold, 0);
         }
     }
 }
