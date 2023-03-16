@@ -9,10 +9,11 @@ namespace Mirror
     [HelpURL("https://mirror-networking.gitbook.io/docs/guides/interest-management")]
     public abstract class InterestManagementBase : MonoBehaviour
     {
-        // Awake configures InterestManagementBase in NetworkServer/Client
+        // Configures InterestManagementBase in NetworkServer/Client
         // Do NOT check for active server or client here.
-        // Awake must always set the static aoi references.
-        // make sure to call base.Awake when overwriting!
+        // OnEnabled must always set the static aoi references.
+        // make sure to call base.OnEnabled when overwriting!
+        // Previously used Awake()
         protected virtual void OnEnabled()
         {
             if (NetworkServer.aoi == null)
