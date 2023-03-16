@@ -540,14 +540,6 @@ namespace Mirror
         public void StopHost()
         {
             OnStopHost();
-
-            // calling OnTransportDisconnected was needed to fix
-            // https://github.com/vis2k/Mirror/issues/1515
-            // so that the host client receives a DisconnectMessage
-            // TODO reevaluate if this is still needed after all the disconnect
-            //      fixes, and try to put this into LocalConnection.Disconnect!
-            NetworkServer.OnTransportDisconnected(NetworkConnection.LocalConnectionId);
-
             StopClient();
             StopServer();
         }
@@ -599,6 +591,12 @@ namespace Mirror
         {
             if (mode == NetworkManagerMode.Offline)
                 return;
+
+            // For Host client, call OnServerDisconnect before NetworkClient.Disconnect
+            // because we need NetworkServer.localConnection to not be null
+            // NetworkClient.Disconnect will set it null.
+            if (mode == NetworkManagerMode.Host)
+                OnServerDisconnect(NetworkServer.localConnection);
 
             // ask client -> transport to disconnect.
             // handle voluntary and involuntary disconnects in OnClientDisconnect.

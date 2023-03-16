@@ -52,6 +52,10 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
 
         void Awake()
         {
+            // show vsync reminder. too easy to forget.
+            Debug.Log("Reminder: Snapshot interpolation is smoothest & easiest to debug with Vsync off.");
+
+
             defaultColor = render.sharedMaterial.color;
 
             // initialize EMA with 'emaDuration' seconds worth of history.
@@ -173,14 +177,37 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
             {
                 lowFpsMode = !lowFpsMode;
             }
-            if (GUILayout.Button("Timeline 100ms behind"))
+
+            GUILayout.Label("|");
+
+            if (GUILayout.Button("Timeline 10s behind"))
+            {
+                localTimeline -= 10.0;
+            }
+            if (GUILayout.Button("Timeline 1s behind"))
+            {
+                localTimeline -= 1.0;
+            }
+            if (GUILayout.Button("Timeline 0.1s behind"))
             {
                 localTimeline -= 0.1;
             }
-            if (GUILayout.Button("Timeline 100ms ahead"))
+
+            GUILayout.Label("|");
+
+            if (GUILayout.Button("Timeline 0.1s ahead"))
             {
                 localTimeline += 0.1;
             }
+            if (GUILayout.Button("Timeline 1s ahead"))
+            {
+                localTimeline += 1.0;
+            }
+            if (GUILayout.Button("Timeline 10s ahead"))
+            {
+                localTimeline += 10.0;
+            }
+
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.EndArea();

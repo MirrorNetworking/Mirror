@@ -127,8 +127,8 @@ namespace Mirror
             // we define a boundary of 'bufferTime' around the target time.
             // this is where catchup / slowdown will happen.
             // outside of the area, we clamp.
-            double lowerBound = targetTime - bufferTime;
-            double upperBound = targetTime + bufferTime;
+            double lowerBound = targetTime - bufferTime; // how far behind we can get
+            double upperBound = targetTime + bufferTime; // how far ahead we can get
             return Mathd.Clamp(localTimeline, lowerBound, upperBound);
         }
 
