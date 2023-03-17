@@ -1692,7 +1692,7 @@ namespace Mirror
             // only if in world
             if (!ready) return;
 
-            GUILayout.BeginArea(new Rect(10, 5, 500, 50));
+            GUILayout.BeginArea(new Rect(10, 5, 800, 50));
 
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Snapshot Interp.:");
@@ -1702,8 +1702,11 @@ namespace Mirror
             else GUI.color = Color.white;
             GUILayout.Box($"timeline: {localTimeline:F2}");
             GUILayout.Box($"buffer: {snapshots.Count}");
+            GUILayout.Box($"DriftEMA: {NetworkClient.driftEma.Value:F2}");
+            GUILayout.Box($"DelTimeEMA: {NetworkClient.deliveryTimeEma.Value:F2}");
             GUILayout.Box($"timescale: {localTimescale:F2}");
             GUILayout.Box($"BTM: {snapshotSettings.bufferTimeMultiplier:F2}");
+            GUILayout.Box($"RTT: {NetworkTime.rtt * 1000:000}");
             GUILayout.EndHorizontal();
 
             GUILayout.EndArea();
