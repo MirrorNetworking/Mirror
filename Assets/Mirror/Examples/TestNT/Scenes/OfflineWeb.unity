@@ -239,7 +239,7 @@ MonoBehaviour:
   handshakeMaxSize: 3000
   noDelay: 1
   sendTimeout: 5000
-  receiveTimeout: 20000
+  receiveTimeout: 60000
   serverMaxMessagesPerTick: 10000
   clientMaxMessagesPerTick: 2000
   batchSend: 0
