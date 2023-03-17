@@ -43,7 +43,7 @@ namespace Mirror
 
         // catchup / slowdown adjustments are applied to timescale,
         // to be adjusted in every update instead of when receiving messages.
-        internal static double localTimescale = 1;
+        public static double localTimescale = 1;
 
         // catchup /////////////////////////////////////////////////////////////
 

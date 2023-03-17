@@ -49,12 +49,12 @@ namespace TestNT
 
                 if (transport is SimpleWebTransport swt)
                 {
-                    swt.port = 7777;
+                    swt.port = 7778;
                     swt.clientUseWss = true;
                 }
 
                 if (transport is KcpTransport kcp)
-                    kcp.Port = 7777;
+                    kcp.Port = 7778;
             }
             if (server == 1)
             {
@@ -75,12 +75,12 @@ namespace TestNT
 
                 if (transport is SimpleWebTransport swt)
                 {
-                    swt.port = 27777;
+                    swt.port = 27778;
                     swt.clientUseWss = false;
                 }
 
                 if (transport is KcpTransport kcp)
-                    kcp.Port = 27777;
+                    kcp.Port = 27778;
             }
         }
 
@@ -95,10 +95,10 @@ namespace TestNT
                 Application.targetFrameRate = 30;
 
                 if (Transport.active is SimpleWebTransport swt)
-                    swt.port = 27777;
+                    swt.port = 27778;
 
                 if (Transport.active is kcp2k.KcpTransport kcp)
-                    kcp.Port = 27777;
+                    kcp.Port = 27778;
 
                 ProcessCmdLineArgs();
 

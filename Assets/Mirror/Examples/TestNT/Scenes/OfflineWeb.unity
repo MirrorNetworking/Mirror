@@ -234,7 +234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0110f245bfcfc7d459681f7bd9ebc590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 7777
+  port: 7778
   maxMessageSize: 16384
   handshakeMaxSize: 3000
   noDelay: 1
@@ -280,8 +280,8 @@ MonoBehaviour:
     bufferTimeMultiplier: 2
     catchupNegativeThreshold: -1
     catchupPositiveThreshold: 1
-    catchupSpeed: 0.009999999776482582
-    slowdownSpeed: 0.009999999776482582
+    catchupSpeed: 0.05000000074505806
+    slowdownSpeed: 0.10000000149011612
     driftEmaDuration: 1
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
