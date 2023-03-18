@@ -33,10 +33,6 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
-        [Header("Snapshot Interpolation")]
-        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
-        public float timelineOffset = 0;
-
         // delta compression needs to remember 'last' to compress against
         protected Vector3Long lastSerializedPosition = Vector3Long.zero;
         protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
@@ -302,11 +298,7 @@ namespace Mirror
                 // Debug.Log($"{name}: corrected history on server to fix initial stutter after not sending for a while.");
             }
 
-            // add a small timeline offset to account for decoupled arrival of
-            // NetworkTime and NetworkTransform snapshots.
-            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3427
-            // remove this after LocalWorldState.
-            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timelineOffset, position, rotation, scale);
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp, position, rotation, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -330,11 +322,7 @@ namespace Mirror
                 // Debug.Log($"{name}: corrected history on client to fix initial stutter after not sending for a while.");
             }
 
-            // add a small timeline offset to account for decoupled arrival of
-            // NetworkTime and NetworkTransform snapshots.
-            // fixes: https://github.com/MirrorNetworking/Mirror/issues/3427
-            // remove this after LocalWorldState.
-            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timelineOffset, position, rotation, scale);
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp, position, rotation, scale);
         }
 
         // only sync on change /////////////////////////////////////////////////
