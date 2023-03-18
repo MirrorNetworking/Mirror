@@ -123,7 +123,6 @@ MonoBehaviour:
   compressRotation: 1
   positionPrecision: 0.01
   scalePrecision: 0.01
-  timelineOffset: 15
 --- !u!114 &4832621091644330542
 MonoBehaviour:
   m_ObjectHideFlags: 0
