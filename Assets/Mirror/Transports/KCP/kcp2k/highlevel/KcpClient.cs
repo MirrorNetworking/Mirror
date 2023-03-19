@@ -35,10 +35,10 @@ namespace kcp2k
         // events are readonly, set in constructor.
         // this ensures they are always initialized when used.
         // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
-        readonly Action OnConnected;
-        readonly Action<ArraySegment<byte>, KcpChannel> OnData;
-        readonly Action OnDisconnected;
-        readonly Action<ErrorCode, string> OnError;
+        protected readonly Action OnConnected;
+        protected readonly Action<ArraySegment<byte>, KcpChannel> OnData;
+        protected readonly Action OnDisconnected;
+        protected readonly Action<ErrorCode, string> OnError;
 
         // state
         public bool connected;
