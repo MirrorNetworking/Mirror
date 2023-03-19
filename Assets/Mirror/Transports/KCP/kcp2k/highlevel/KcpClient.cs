@@ -17,7 +17,7 @@ namespace kcp2k
         public EndPoint remoteEndPoint;
 
         // config
-        readonly KcpConfig config;
+        protected readonly KcpConfig config;
 
         // raw receive buffer always needs to be of 'MTU' size, even if
         // MaxMessageSize is larger. kcp always sends in MTU segments and having

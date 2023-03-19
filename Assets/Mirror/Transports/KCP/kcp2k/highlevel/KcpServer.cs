@@ -24,7 +24,7 @@ namespace kcp2k
         protected readonly Action<int, ErrorCode, string> OnError;
 
         // configuration
-        readonly KcpConfig config;
+        protected readonly KcpConfig config;
 
         // state
         protected Socket socket;
