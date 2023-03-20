@@ -17,7 +17,7 @@ namespace kcp2k
         public EndPoint remoteEndPoint;
 
         // config
-        readonly KcpConfig config;
+        protected readonly KcpConfig config;
 
         // raw receive buffer always needs to be of 'MTU' size, even if
         // MaxMessageSize is larger. kcp always sends in MTU segments and having
@@ -35,10 +35,10 @@ namespace kcp2k
         // events are readonly, set in constructor.
         // this ensures they are always initialized when used.
         // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
-        readonly Action OnConnected;
-        readonly Action<ArraySegment<byte>, KcpChannel> OnData;
-        readonly Action OnDisconnected;
-        readonly Action<ErrorCode, string> OnError;
+        protected readonly Action OnConnected;
+        protected readonly Action<ArraySegment<byte>, KcpChannel> OnData;
+        protected readonly Action OnDisconnected;
+        protected readonly Action<ErrorCode, string> OnError;
 
         // state
         public bool connected;

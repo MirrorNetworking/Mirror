@@ -554,7 +554,7 @@ namespace kcp2k
                 // invalid unreliable messages may be random internet noise.
                 // show a warning, but don't disconnect.
                 // otherwise attackers could disconnect someone with random noise.
-                Log.Warning($"KcpPeer: received unreliable message while not authenticated. Disconnecting the connection.");
+                Log.Warning($"KcpPeer: received unreliable message while not authenticated.");
             }
         }
 
