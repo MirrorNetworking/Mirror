@@ -42,6 +42,10 @@ namespace Mirror
         [Range(0.00_01f, 1f)]                   // disallow 0 division. 1mm to 1m precision is enough range.
         public float scalePrecision = 0.01f; // 1 cm
 
+        [Header("Snapshot Interpolation")]
+        [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
+        public bool timelineOffset = false;
+
         // delta compression needs to remember 'last' to compress against
         protected Vector3Long lastSerializedPosition = Vector3Long.zero;
         protected Vector3Long lastDeserializedPosition = Vector3Long.zero;
@@ -337,7 +341,13 @@ namespace Mirror
                     target.localScale);
             }
 
-            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + NetworkServer.sendInterval * sendIntervalMultiplier, position, rotation, scale);
+            // add a small timeline offset to account for decoupled arrival of
+            // NetworkTime and NetworkTransform snapshots.
+            // needs to be sendInterval. half sendInterval doesn't solve it.
+            // https://github.com/MirrorNetworking/Mirror/issues/3427
+            // remove this after LocalWorldState.
+            double offset = timelineOffset ? NetworkServer.sendInterval : 0;
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + offset, position, rotation, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -360,7 +370,13 @@ namespace Mirror
                     target.localScale);
             }
 
-            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + NetworkClient.sendInterval * sendIntervalMultiplier, position, rotation, scale);
+            // add a small timeline offset to account for decoupled arrival of
+            // NetworkTime and NetworkTransform snapshots.
+            // needs to be sendInterval. half sendInterval doesn't solve it.
+            // https://github.com/MirrorNetworking/Mirror/issues/3427
+            // remove this after LocalWorldState.
+            double offset = timelineOffset ? NetworkServer.sendInterval : 0;
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + offset, position, rotation, scale);
         }
 
         // only sync on change /////////////////////////////////////////////////
