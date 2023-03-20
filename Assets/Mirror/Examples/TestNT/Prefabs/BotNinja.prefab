@@ -162,7 +162,6 @@ MonoBehaviour:
   NetworkTransformReliable: {fileID: 0}
   clientBufferText: {fileID: 6828480870887994353}
   serverBufferText: {fileID: 216728925590855664}
-  localTimescaleText: {fileID: 3515709072373782259}
   snapIntText: {fileID: 3972102377781729510}
   catchupColor: {r: 1, g: 0, b: 0, a: 1}
   slowdownColor: {r: 0, g: 0, b: 1, a: 1}
@@ -441,17 +440,6 @@ MonoBehaviour:
 --- !u!114 &2028725484753263424 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7544400784984079118, guid: 046d8acb77037cb439b4a45198e2bdb5, type: 3}
-  m_PrefabInstance: {fileID: 8400448738055118926}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9541d86e2fd84c1d9990edf0852d74ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &3515709072373782259 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4926424900816762557, guid: 046d8acb77037cb439b4a45198e2bdb5, type: 3}
   m_PrefabInstance: {fileID: 8400448738055118926}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}

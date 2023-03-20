@@ -13,7 +13,6 @@ namespace TestNT
         public NetworkTransformReliable NetworkTransformReliable;
         public TextMeshPro clientBufferText;
         public TextMeshPro serverBufferText;
-        public TextMeshPro localTimescaleText;
         public TextMeshPro snapIntText;
 
         [Header("Local Timescale Colors")]
@@ -66,15 +65,6 @@ namespace TestNT
 
             clientBufferText.text = $"C: {new string('-', clientSnapCount)}";
 
-            //if (NetworkClient.localTimescale < 0)
-            //    localTimescaleText.color = slowdownColor;
-            //else if (NetworkClient.localTimescale > 0)
-            //    localTimescaleText.color = catchupColor;
-            //else
-            //    localTimescaleText.color = Color.black;
-
-            //localTimescaleText.text = $"LT: {NetworkClient.localTimescale:0.0000}";
-
             /////// Server
             //serverSnapCount = networkTransformReliable.serverSnapshots.Count;
 
@@ -98,7 +88,6 @@ namespace TestNT
         {
             clientBufferText.transform.forward = mainCamTransform.forward;
             serverBufferText.transform.forward = mainCamTransform.forward;
-            localTimescaleText.transform.forward = mainCamTransform.forward;
             snapIntText.transform.forward = mainCamTransform.forward;
         }
     }
