@@ -65,7 +65,7 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to unload previous subscene. No custom handling for this.
                 conn.Send(new SceneMessage { sceneName = gameObject.scene.path, sceneOperation = SceneOperation.UnloadAdditive, customHandling = true });
 
-                yield return AdditiveLevelsNetworkManager.singleton.fadeInOut.FadeIn();
+                yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetDuration());
 
                 NetworkServer.RemovePlayerForConnection(conn, false);
 

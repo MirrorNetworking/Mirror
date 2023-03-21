@@ -16,6 +16,19 @@ namespace Mirror.Examples.AdditiveLevels
         [Tooltip("Color to use during scene transition")]
         public Color fadeColor = Color.black;
 
+        /// <summary>
+        /// Calculates FadeIn / FadeOut time.
+        /// </summary>
+        /// <returns>Duration in seconds</returns>
+        public float GetDuration()
+        {
+            float frames = 1 / (stepRate * 0.1f);
+            float frameRate = Time.deltaTime;
+            float duration = frames * frameRate * 0.1f;
+            Debug.Log($"GetDuration {stepRate} : {frames} * {frameRate} = {duration}");
+            return duration;
+        }
+
         public IEnumerator FadeIn()
         {
             float alpha = fadeImage.color.a;
@@ -31,6 +44,7 @@ namespace Mirror.Examples.AdditiveLevels
 
         public IEnumerator FadeOut()
         {
+            Debug.Log("FadeOut");
             float alpha = fadeImage.color.a;
 
             while (alpha > 0)
