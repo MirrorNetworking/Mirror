@@ -23,10 +23,12 @@ public class #SCRIPTNAME# : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResp
 {
     #region Unity Callbacks
 
+#if UNITY_EDITOR
     public override void OnValidate()
     {
         base.OnValidate();
     }
+#endif
 
     public override void Start()
     {
