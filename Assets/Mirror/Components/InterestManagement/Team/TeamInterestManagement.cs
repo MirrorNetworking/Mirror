@@ -35,7 +35,8 @@ namespace Mirror
 
             // Team ID could have been set in NetworkBehaviour::OnStartServer on this object.
             // Since that's after OnCheckObserver is called it would be missed, so force Rebuild here.
-            RebuildTeamObservers(networkTeamId);
+            // Add the current team to dirtyTeams for Update to rebuild it.
+            dirtyTeams.Add(networkTeamId);
         }
 
         [ServerCallback]
@@ -44,7 +45,13 @@ namespace Mirror
             // Don't RebuildSceneObservers here - that will happen in Update.
             // Multiple objects could be destroyed in same frame and we don't
             // want to rebuild for each one...let Update do it once.
-            lastObjectTeam.Remove(identity);
+            // We must add the current team to dirtyTeams for Update to rebuild it.
+            if (lastObjectTeam.TryGetValue(identity, out string currentTeam))
+            {
+                lastObjectTeam.Remove(identity);
+                if (!string.IsNullOrWhiteSpace(currentTeam) && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
+                    dirtyTeams.Add(currentTeam);
+            }
         }
 
         // internal so we can update from tests
