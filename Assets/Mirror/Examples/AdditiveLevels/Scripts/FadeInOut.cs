@@ -25,7 +25,6 @@ namespace Mirror.Examples.AdditiveLevels
             float frames = 1 / (stepRate * 0.1f);
             float frameRate = Time.deltaTime;
             float duration = frames * frameRate * 0.1f;
-            Debug.Log($"GetDuration {stepRate} : {frames} * {frameRate} = {duration}");
             return duration;
         }
 
@@ -44,7 +43,6 @@ namespace Mirror.Examples.AdditiveLevels
 
         public IEnumerator FadeOut()
         {
-            Debug.Log("FadeOut");
             float alpha = fadeImage.color.a;
 
             while (alpha > 0)
