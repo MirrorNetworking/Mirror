@@ -39,7 +39,8 @@ namespace Mirror
 
             // Match ID could have been set in NetworkBehaviour::OnStartServer on this object.
             // Since that's after OnCheckObserver is called it would be missed, so force Rebuild here.
-            RebuildMatchObservers(networkMatchId);
+            // Add the current match to dirtyMatches for Update to rebuild it.
+            dirtyMatches.Add(networkMatchId);
         }
 
         [ServerCallback]
@@ -48,7 +49,13 @@ namespace Mirror
             // Don't RebuildSceneObservers here - that will happen in Update.
             // Multiple objects could be destroyed in same frame and we don't
             // want to rebuild for each one...let Update do it once.
-            lastObjectMatch.Remove(identity);
+            // We must add the current match to dirtyMatches for Update to rebuild it.
+            if (lastObjectMatch.TryGetValue(identity, out Guid currentMatch))
+            {
+                lastObjectMatch.Remove(identity);
+                if (currentMatch != Guid.Empty && matchObjects.TryGetValue(currentMatch, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
+                    dirtyMatches.Add(currentMatch);
+            }
         }
 
         // internal so we can update from tests
