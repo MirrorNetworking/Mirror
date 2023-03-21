@@ -501,12 +501,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c761308e733c51245b2e8bb4201f46dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  secretHandshake: 1558261479176021378
-  serverBroadcastListenPort: 47777
   enableActiveDiscovery: 1
-  ActiveDiscoveryInterval: 3
   BroadcastAddress: 
-  transport: {fileID: 0}
+  serverBroadcastListenPort: 47777
+  ActiveDiscoveryInterval: 3
+  transport: {fileID: 1556883244}
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
@@ -522,6 +521,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  secretHandshake: 1558261479176021378
 --- !u!1 &1611696151
 GameObject:
   m_ObjectHideFlags: 0
