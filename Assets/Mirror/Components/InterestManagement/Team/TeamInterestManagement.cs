@@ -41,12 +41,10 @@ namespace Mirror
         [ServerCallback]
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            if (lastObjectTeam.TryGetValue(identity, out string currentTeam))
-            {
-                lastObjectTeam.Remove(identity);
-                if (!string.IsNullOrWhiteSpace(currentTeam) && teamObjects.TryGetValue(currentTeam, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
-                    RebuildTeamObservers(currentTeam);
-            }
+            // Don't RebuildSceneObservers here - that will happen in Update.
+            // Multiple objects could be destroyed in same frame and we don't
+            // want to rebuild for each one...let Update do it once.
+            lastObjectTeam.Remove(identity);
         }
 
         // internal so we can update from tests
