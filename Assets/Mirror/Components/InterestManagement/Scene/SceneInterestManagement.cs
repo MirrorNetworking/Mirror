@@ -35,12 +35,10 @@ namespace Mirror
         [ServerCallback]
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            if (lastObjectScene.TryGetValue(identity, out Scene currentScene))
-            {
-                lastObjectScene.Remove(identity);
-                if (sceneObjects.TryGetValue(currentScene, out HashSet<NetworkIdentity> objects) && objects.Remove(identity))
-                    RebuildSceneObservers(currentScene);
-            }
+            // Don't RebuildSceneObservers here - that will happen in Update
+            // multiple objects could be destroyed in same frame and we don't
+            // want to rebuild for each one...let Update do it once.
+            lastObjectScene.Remove(identity);
         }
 
         // internal so we can update from tests
