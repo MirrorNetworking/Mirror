@@ -18,6 +18,12 @@ namespace Mirror.Examples.AdditiveLevels
 
         float step;
 
+        void OnValidate()
+        {
+            if (fadeImage == null)
+                fadeImage = GetComponentInChildren<Image>();
+        }
+
         void Start()
         {
             // Convert user-friendly setting value to working value
