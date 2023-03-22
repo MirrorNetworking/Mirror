@@ -20,6 +20,7 @@ namespace Mirror.Examples.AdditiveLevels
 
         void Start()
         {
+            // Convert user-friendly setting value to working value
             step = stepRate * 0.001f;
         }
 
