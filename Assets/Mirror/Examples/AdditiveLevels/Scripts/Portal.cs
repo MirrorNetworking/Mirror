@@ -25,9 +25,6 @@ namespace Mirror.Examples.AdditiveLevels
             label.text = labelText;
         }
 
-        // This is approximately the fade time
-        WaitForSeconds waitForFade = new WaitForSeconds(2f);
-
         public override void OnStartServer()
         {
             labelText = Path.GetFileNameWithoutExtension(destinationScene);
@@ -68,7 +65,7 @@ namespace Mirror.Examples.AdditiveLevels
                 // Tell client to unload previous subscene. No custom handling for this.
                 conn.Send(new SceneMessage { sceneName = gameObject.scene.path, sceneOperation = SceneOperation.UnloadAdditive, customHandling = true });
 
-                yield return waitForFade;
+                yield return new WaitForSeconds(AdditiveLevelsNetworkManager.singleton.fadeInOut.GetDuration());
 
                 NetworkServer.RemovePlayerForConnection(conn, false);
 

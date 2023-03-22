@@ -9,18 +9,34 @@ using Mirror.Discovery;
 
 public struct DiscoveryRequest : NetworkMessage
 {
-    // Add properties for whatever information you want sent by clients
-    // in their broadcast messages that servers will consume.
+    // Add public fields (not properties) for whatever information you want
+    // sent by clients in their broadcast messages that servers will use.
 }
 
 public struct DiscoveryResponse : NetworkMessage
 {
-    // Add properties for whatever information you want the server to return to
-    // clients for them to display or consume for establishing a connection.
+    // Add public fields (not properties) for whatever information you want the server
+    // to return to clients for them to display or use for establishing a connection.
 }
 
 public class #SCRIPTNAME# : NetworkDiscoveryBase<DiscoveryRequest, DiscoveryResponse>
 {
+    #region Unity Callbacks
+
+#if UNITY_EDITOR
+    public override void OnValidate()
+    {
+        base.OnValidate();
+    }
+#endif
+
+    public override void Start()
+    {
+        base.Start();
+    }
+
+    #endregion
+
     #region Server
 
     /// <summary>
