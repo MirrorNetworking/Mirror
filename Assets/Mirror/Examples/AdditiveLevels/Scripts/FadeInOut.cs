@@ -7,14 +7,21 @@ namespace Mirror.Examples.AdditiveLevels
     public class FadeInOut : MonoBehaviour
     {
         // set these in the inspector
-        [Range(0.01f, 10f), Tooltip("Rate of fade in / out: higher is faster")]
-        public float stepRate = 0.02f;
-
         [Tooltip("Reference to Image component on child panel")]
         public Image fadeImage;
 
         [Tooltip("Color to use during scene transition")]
         public Color fadeColor = Color.black;
+
+        [Range(1, 100), Tooltip("Rate of fade in / out: higher is faster")]
+        public byte stepRate = 2;
+
+        float step;
+
+        void Start()
+        {
+            step = stepRate * 0.001f;
+        }
 
         /// <summary>
         /// Calculates FadeIn / FadeOut time.
@@ -22,7 +29,7 @@ namespace Mirror.Examples.AdditiveLevels
         /// <returns>Duration in seconds</returns>
         public float GetDuration()
         {
-            float frames = 1 / (stepRate * 0.1f);
+            float frames = 1 / step;
             float frameRate = Time.deltaTime;
             float duration = frames * frameRate * 0.1f;
             return duration;
@@ -35,7 +42,7 @@ namespace Mirror.Examples.AdditiveLevels
             while (alpha < 1)
             {
                 yield return null;
-                alpha += stepRate * 0.1f;
+                alpha += step;
                 fadeColor.a = alpha;
                 fadeImage.color = fadeColor;
             }
@@ -48,7 +55,7 @@ namespace Mirror.Examples.AdditiveLevels
             while (alpha > 0)
             {
                 yield return null;
-                alpha -= stepRate * 0.1f;
+                alpha -= step;
                 fadeColor.a = alpha;
                 fadeImage.color = fadeColor;
             }
