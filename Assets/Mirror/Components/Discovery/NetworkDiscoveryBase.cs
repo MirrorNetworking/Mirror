@@ -29,8 +29,11 @@ namespace Mirror.Discovery
 
         // broadcast address needs to be configurable on iOS:
         // https://github.com/vis2k/Mirror/pull/3255
+        [SerializeField]
         [Tooltip("iOS may require LAN IP address here (e.g. 192.168.x.x), otherwise leave blank.")]
-        public string BroadcastAddress = "";
+        string broadcastAddress = "";
+        // get/set broadcast address
+        public string BroadcastAddress { get => broadcastAddress; set => broadcastAddress = value; }
 
         [SerializeField]
         [Tooltip("The UDP port the server will listen for multi-cast messages")]
