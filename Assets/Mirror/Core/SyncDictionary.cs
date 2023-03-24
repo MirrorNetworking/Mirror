@@ -177,10 +177,10 @@ namespace Mirror
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            if (ContainsKey(key))
+                            if (objects.TryGetValue(key, out TValue oldValue))
                             {
-                                objects[key] = item; // assign after ContainsKey check
-                                AddOperation(Operation.OP_SET, key, item, false);
+                                objects[key] = item; // assign after TryGetValue
+                                AddOperation(Operation.OP_SET, key, oldValue, false);
                             }
                             else
                             {
@@ -193,12 +193,13 @@ namespace Mirror
                     case Operation.OP_CLEAR:
                         if (apply)
                         {
-                            objects.Clear();
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
                             AddOperation(Operation.OP_CLEAR, default, default, false);
+                            // clear after invoking the callback so users can iterate the dictionary
+                            objects.Clear();
                         }
                         break;
 
@@ -230,6 +231,7 @@ namespace Mirror
         public void Clear()
         {
             AddOperation(Operation.OP_CLEAR, default, default, true);
+            // clear after invoking the callback so users can iterate the dictionary
             objects.Clear();
         }
 
@@ -250,10 +252,10 @@ namespace Mirror
             get => objects[i];
             set
             {
-                if (objects.TryGetValue(i, out TValue item))
+                if (objects.TryGetValue(i, out TValue oldValue))
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, item, true);
+                    AddOperation(Operation.OP_SET, i, oldValue, true);
                 }
                 else
                 {
