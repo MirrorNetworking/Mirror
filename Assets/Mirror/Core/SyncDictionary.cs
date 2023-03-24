@@ -229,8 +229,8 @@ namespace Mirror
 
         public void Clear()
         {
-            objects.Clear();
             AddOperation(Operation.OP_CLEAR, default, default, true);
+            objects.Clear();
         }
 
         public bool ContainsKey(TKey key) => objects.ContainsKey(key);
@@ -250,10 +250,10 @@ namespace Mirror
             get => objects[i];
             set
             {
-                if (ContainsKey(i))
+                if (objects.TryGetValue(i, out TValue item))
                 {
                     objects[i] = value;
-                    AddOperation(Operation.OP_SET, i, value, true);
+                    AddOperation(Operation.OP_SET, i, item, true);
                 }
                 else
                 {
