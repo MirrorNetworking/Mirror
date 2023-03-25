@@ -144,14 +144,6 @@ namespace Mirror
 
         protected virtual void CheckLastSendTime()
         {
-#if UNITY_2020_3_OR_NEWER
-            if (AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
-            {
-                if (sendIntervalCounter == sendIntervalMultiplier)
-                    sendIntervalCounter = 0;
-                sendIntervalCounter++;
-            }
-#else
             // timeAsDouble not available in older Unity versions.
             if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
             {
@@ -159,7 +151,6 @@ namespace Mirror
                     sendIntervalCounter = 0;
                 sendIntervalCounter++;
             }
-#endif
         }
 
         // check if position / rotation / scale changed since last sync
