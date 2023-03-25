@@ -359,12 +359,8 @@ namespace Mirror
             // maybe we shouldn't allow timeline to deviate more than a certain %.
             // for now, this is only used for client authority movement.
 
-#if !UNITY_2020_3_OR_NEWER
             // Unity 2019 doesn't have Time.timeAsDouble yet
             connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, NetworkTime.localTime));
-#else
-            connection.OnTimeSnapshot(new TimeSnapshot(connection.remoteTimeStamp, Time.timeAsDouble));
-#endif
         }
 
         // connections /////////////////////////////////////////////////////////
@@ -1776,16 +1772,9 @@ namespace Mirror
                 // also important for syncInterval=0 components like
                 // NetworkTransform, so they can sync on same interval as time
                 // snapshots _but_ not every single tick.
-                if (!Application.isPlaying ||
-#if !UNITY_2020_3_OR_NEWER
-                    // Unity 2019 doesn't have Time.timeAsDouble yet
-                    AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
-#else
-                    AccurateInterval.Elapsed(Time.timeAsDouble, sendInterval, ref lastSendTime))
-#endif
-                {
+                // Unity 2019 doesn't have Time.timeAsDouble yet
+                if (!Application.isPlaying || AccurateInterval.Elapsed(NetworkTime.localTime, sendInterval, ref lastSendTime))
                     Broadcast();
-                }
             }
 
             // process all outgoing messages after updating the world
