@@ -100,7 +100,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2972877558187846166}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d65c9604d9da1bc4a8f827172ba44b69, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 1
@@ -124,8 +124,7 @@ MonoBehaviour:
   compressRotation: 1
   positionPrecision: 0.01
   scalePrecision: 0.01
-  velocity: {x: 0, y: 0, z: 0}
-  angVelocity: {x: 0, y: 0, z: 0}
+  timelineOffset: 0
 --- !u!114 &7128055435883173568
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,13 +157,12 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  NTRCustomSendInterval: {fileID: -8317558745108888809}
-  NetworkTransformReliable: {fileID: 0}
+  NTRCustomSendInterval: {fileID: 0}
+  NetworkTransform: {fileID: 0}
+  NetworkTransformReliable: {fileID: -8317558745108888809}
   clientBufferText: {fileID: 6828480870887994353}
   serverBufferText: {fileID: 216728925590855664}
   snapIntText: {fileID: 3972102377781729510}
-  catchupColor: {r: 1, g: 0, b: 0, a: 1}
-  slowdownColor: {r: 0, g: 0, b: 1, a: 1}
   serverSnapCount: 0
   clientSnapCount: 0
 --- !u!114 &8876085967545516632
@@ -182,7 +180,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
-  NTR: {fileID: -8317558745108888809}
+  NTR: {fileID: 0}
   animator: {fileID: 0}
   characterController: {fileID: 2659903808515778418}
   physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}

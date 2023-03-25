@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 8619269275606152199}
   - component: {fileID: 2578814715724771201}
   - component: {fileID: 8740492955933991868}
-  - component: {fileID: 6228487052886568173}
   - component: {fileID: 5743715111283390581}
   - component: {fileID: 7122827572183314382}
+  - component: {fileID: 6228487052886568173}
   m_Layer: 6
   m_Name: Bot-U
   m_TagString: Player
@@ -122,41 +122,6 @@ MonoBehaviour:
   positionSensitivity: 0.02
   rotationSensitivity: 0.02
   scaleSensitivity: 0.02
---- !u!114 &6228487052886568173
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 297236141164807331}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10b6173e718990b4b9d1f815187ba090, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0.1
-  NTR: {fileID: 0}
-  animator: {fileID: 0}
-  characterController: {fileID: 700264364573690311}
-  physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
-  moveSpeedMultiplier: 8
-  maxTurnSpeed: 100
-  turnDelta: 3
-  initialJumpSpeed: 0.2
-  maxJumpSpeed: 5
-  jumpDelta: 0.2
-  groundState: 2
-  moveState: 2
-  horizontal: 0
-  vertical: 0
-  turnSpeed: 0
-  jumpSpeed: 0
-  animVelocity: 0
-  animRotation: 0
-  velocity: {x: 0, y: 0, z: 0}
-  direction: {x: 0, y: 0, z: 0}
 --- !u!114 &5743715111283390581
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,11 +157,46 @@ MonoBehaviour:
   NTRCustomSendInterval: {fileID: 0}
   NetworkTransform: {fileID: 8740492955933991868}
   NetworkTransformReliable: {fileID: 0}
-  serverBufferText: {fileID: 3341617177603617093}
   clientBufferText: {fileID: 8330979800249867588}
+  serverBufferText: {fileID: 3341617177603617093}
   snapIntText: {fileID: 1891943677612734035}
   serverSnapCount: 0
   clientSnapCount: 0
+--- !u!114 &6228487052886568173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 297236141164807331}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10b6173e718990b4b9d1f815187ba090, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0.1
+  NTR: {fileID: 0}
+  animator: {fileID: 0}
+  characterController: {fileID: 700264364573690311}
+  physicsMaterial: {fileID: 13400000, guid: c3ac683db06890b49a15dd5009dbd6e8, type: 2}
+  moveSpeedMultiplier: 8
+  maxTurnSpeed: 100
+  turnDelta: 3
+  initialJumpSpeed: 0.2
+  maxJumpSpeed: 5
+  jumpDelta: 0.2
+  groundState: 2
+  moveState: 2
+  horizontal: 0
+  vertical: 0
+  turnSpeed: 0
+  jumpSpeed: 0
+  animVelocity: 0
+  animRotation: 0
+  velocity: {x: 0, y: 0, z: 0}
+  direction: {x: 0, y: 0, z: 0}
 --- !u!1 &2114665982587978236
 GameObject:
   m_ObjectHideFlags: 0
