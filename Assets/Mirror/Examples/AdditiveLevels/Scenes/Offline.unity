@@ -368,8 +368,8 @@ MonoBehaviour:
     bufferTimeMultiplier: 2
     catchupNegativeThreshold: -1
     catchupPositiveThreshold: 1
-    catchupSpeed: 0.009999999776482582
-    slowdownSpeed: 0.009999999776482582
+    catchupSpeed: 0.019999999552965164
+    slowdownSpeed: 0.03999999910593033
     driftEmaDuration: 1
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
@@ -438,9 +438,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 363a8867bb9c7b845a73233566df8c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
   fadeImage: {fileID: 1040404845}
   fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  stepRate: 2
 --- !u!114 &1300359892
 MonoBehaviour:
   m_ObjectHideFlags: 0

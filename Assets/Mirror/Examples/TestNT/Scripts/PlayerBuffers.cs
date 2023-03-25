@@ -12,8 +12,8 @@ namespace TestNT
         public NTRCustomSendInterval NTRCustomSendInterval;
         public NetworkTransform NetworkTransform;
         public NetworkTransformReliable NetworkTransformReliable;
-        public TextMeshPro serverBufferText;
         public TextMeshPro clientBufferText;
+        public TextMeshPro serverBufferText;
         public TextMeshPro snapIntText;
 
         [Header("Diagnostics - Do Not Modify")]
@@ -27,8 +27,8 @@ namespace TestNT
             NetworkTransformReliable = GetComponent<NetworkTransformReliable>();
 
             // Force overrideColorTags true so we can change the color without tags
-            serverBufferText.overrideColorTags = true;
             clientBufferText.overrideColorTags = true;
+            serverBufferText.overrideColorTags = true;
 
             this.enabled = false;
         }
@@ -46,6 +46,25 @@ namespace TestNT
 
         void Update()
         {
+            /////// Client
+            if (NTRCustomSendInterval)
+                clientSnapCount = NTRCustomSendInterval.clientSnapshots.Count;
+            if (NetworkTransform)
+                clientSnapCount = NetworkTransform.clientSnapshots.Count;
+            if (NetworkTransformReliable)
+                clientSnapCount = NetworkTransformReliable.clientSnapshots.Count;
+
+            if (clientSnapCount < 2)
+                clientBufferText.color = Color.black;
+            else if (clientSnapCount < 3)
+                clientBufferText.color = Color.green;
+            else if (clientSnapCount < 4)
+                clientBufferText.color = Color.yellow;
+            else
+                clientBufferText.color = Color.red;
+
+            clientBufferText.text = $"C: {new string('-', clientSnapCount)}";
+
             /////// Server
             //serverSnapCount = networkTransformReliable.serverSnapshots.Count;
 
@@ -60,25 +79,6 @@ namespace TestNT
 
             //serverBufferText.text = "S: " + new string('-', serverSnapCount);
 
-            /////// Client
-            if (NTRCustomSendInterval)
-                clientSnapCount = NTRCustomSendInterval.clientSnapshots.Count;
-            if (NetworkTransform)
-                clientSnapCount = NetworkTransform.clientSnapshots.Count;
-            if (NetworkTransformReliable)
-                clientSnapCount = NetworkTransformReliable.clientSnapshots.Count;
-
-            if (clientSnapCount < 2)
-                clientBufferText.color = Color.gray;
-            else if (clientSnapCount < 3)
-                clientBufferText.color = Color.green;
-            else if (clientSnapCount < 4)
-                clientBufferText.color = Color.yellow;
-            else
-                clientBufferText.color = Color.red;
-
-            clientBufferText.text = "C: " + new string('-', clientSnapCount);
-
             /////// Snap Interpolation
             //snapIntText.text = $"{networkTransformReliable.velocity.magnitude:N2}" +
             //                 $"\n{transform.position}";
@@ -86,8 +86,8 @@ namespace TestNT
 
         void LateUpdate()
         {
-            serverBufferText.transform.forward = mainCamTransform.forward;
             clientBufferText.transform.forward = mainCamTransform.forward;
+            serverBufferText.transform.forward = mainCamTransform.forward;
             snapIntText.transform.forward = mainCamTransform.forward;
         }
     }

@@ -19,9 +19,9 @@ namespace TestNT
         public GameObject playerNinjaPrefab;
 
         public GameObject botPrefab;
-        public GameObject npcPrefab;
-
         public GameObject botNinjaPrefab;
+
+        public GameObject npcPrefab;
         public GameObject npcNinjaPrefab;
 
         /// <summary>

@@ -1,7 +1,6 @@
-using Mirror;
 using System;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 namespace TestNT
 {

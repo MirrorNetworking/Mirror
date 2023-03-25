@@ -17,7 +17,7 @@ namespace kcp2k
         public EndPoint remoteEndPoint;
 
         // config
-        readonly KcpConfig config;
+        protected readonly KcpConfig config;
 
         // raw receive buffer always needs to be of 'MTU' size, even if
         // MaxMessageSize is larger. kcp always sends in MTU segments and having
@@ -35,10 +35,10 @@ namespace kcp2k
         // events are readonly, set in constructor.
         // this ensures they are always initialized when used.
         // fixes https://github.com/MirrorNetworking/Mirror/issues/3337 and more
-        readonly Action OnConnected;
-        readonly Action<ArraySegment<byte>, KcpChannel> OnData;
-        readonly Action OnDisconnected;
-        readonly Action<ErrorCode, string> OnError;
+        protected readonly Action OnConnected;
+        protected readonly Action<ArraySegment<byte>, KcpChannel> OnData;
+        protected readonly Action OnDisconnected;
+        protected readonly Action<ErrorCode, string> OnError;
 
         // state
         public bool connected;
@@ -131,40 +131,19 @@ namespace kcp2k
 
             try
             {
-                // when using non-blocking sockets, ReceiveFrom may return WouldBlock.
-                // in C#, WouldBlock throws a SocketException, which is expected.
-                // unfortunately, creating the SocketException allocates in C#.
-                // let's poll first to avoid the WouldBlock allocation.
-                // note that this entirely to avoid allocations.
-                // non-blocking UDP doesn't need Poll in other languages.
-                // and the code still works without the Poll call.
-                if (!socket.Poll(0, SelectMode.SelectRead)) return false;
-
-                // ReceiveFrom allocates. we used bound Receive.
-                // returns amount of bytes written into buffer.
-                // throws SocketException if datagram was larger than buffer.
-                // https://learn.microsoft.com/en-us/dotnet/api/system.net.sockets.socket.receive?view=net-6.0
-                int msgLength = socket.Receive(rawReceiveBuffer);
-
-                //Log.Debug($"KCP: client raw recv {msgLength} bytes = {BitConverter.ToString(buffer, 0, msgLength)}");
-                segment = new ArraySegment<byte>(rawReceiveBuffer, 0, msgLength);
-                return true;
+                return socket.ReceiveNonBlocking(rawReceiveBuffer, out segment);
             }
             // for non-blocking sockets, Receive throws WouldBlock if there is
             // no message to read. that's okay. only log for other errors.
             catch (SocketException e)
             {
-                if (e.SocketErrorCode != SocketError.WouldBlock)
-                {
-                    // the other end closing the connection is not an 'error'.
-                    // but connections should never just end silently.
-                    // at least log a message for easier debugging.
-                    // for example, his can happen when connecting without a server.
-                    // see test: ConnectWithoutServer().
-                    Log.Info($"KcpClient: looks like the other end has closed the connection. This is fine: {e}");
-                    peer.Disconnect();
-                }
-                // WouldBlock indicates there's no data yet, so return false.
+                // the other end closing the connection is not an 'error'.
+                // but connections should never just end silently.
+                // at least log a message for easier debugging.
+                // for example, his can happen when connecting without a server.
+                // see test: ConnectWithoutServer().
+                Log.Info($"KcpClient: looks like the other end has closed the connection. This is fine: {e}");
+                peer.Disconnect();
                 return false;
             }
         }
@@ -175,25 +154,11 @@ namespace kcp2k
         {
             try
             {
-                // when using non-blocking sockets, SendTo may return WouldBlock.
-                // in C#, WouldBlock throws a SocketException, which is expected.
-                // unfortunately, creating the SocketException allocates in C#.
-                // let's poll first to avoid the WouldBlock allocation.
-                // note that this entirely to avoid allocations.
-                // non-blocking UDP doesn't need Poll in other languages.
-                // and the code still works without the Poll call.
-                if (!socket.Poll(0, SelectMode.SelectWrite)) return;
-
-                socket.Send(data.Array, data.Offset, data.Count, SocketFlags.None);
+                socket.SendNonBlocking(data);
             }
-            // for non-blocking sockets, SendTo may throw WouldBlock.
-            // in that case, simply drop the message. it's UDP, it's fine.
             catch (SocketException e)
             {
-                if (e.SocketErrorCode != SocketError.WouldBlock)
-                {
-                    Log.Error($"KcpClient: Send failed: {e}");
-                }
+                Log.Error($"KcpClient: Send failed: {e}");
             }
         }
 

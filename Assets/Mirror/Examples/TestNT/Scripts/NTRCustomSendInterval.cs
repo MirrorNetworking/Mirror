@@ -6,20 +6,17 @@ using Mirror;
 
 public class NTRCustomSendInterval : NetworkTransformBase
 {
-    uint sendIntervalCounter = 0;
-    double lastSendIntervalTime = double.MinValue;
-
-    float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
-  
     [Header("Sync Only If Changed")]
     [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
     public bool onlySyncOnChange = true;
+    float onlySyncOnChangeInterval => onlySyncOnChangeCorrectionMultiplier * sendIntervalMultiplier;
+
     [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
     public float onlySyncOnChangeCorrectionMultiplier = 2;
 
-    // uint so non negative.
     [Header("Send Interval Multiplier")]
-    [Tooltip("Send every multiple of Network Manager send interval (= 1 / NM Send Rate).")]
+    [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
+    [Range(1, 120)]
     public uint sendIntervalMultiplier = 3;
 
     [Header("Rotation")]
@@ -46,6 +43,9 @@ public class NTRCustomSendInterval : NetworkTransformBase
     [Header("Debug Velocity")]
     public Vector3 velocity;
     public Vector3 angVelocity;
+
+    uint sendIntervalCounter = 0;
+    double lastSendIntervalTime = double.MinValue;
 
     // delta compression needs to remember 'last' to compress against
     protected Vector3Long lastSerializedPosition = Vector3Long.zero;
@@ -76,7 +76,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
         // the possibility of Update() running first before the object's movement
         // script's Update(), which then causes NT to send every alternate frame
         // instead.		
-        if (isServer || (IsClientWithAuthority && NetworkClient.ready)) // is NetworkClient.ready even needed?
+        if (isServer || (IsClientWithAuthority && NetworkClient.ready)) 
         {
             if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
                 SetDirty();
@@ -167,23 +167,23 @@ public class NTRCustomSendInterval : NetworkTransformBase
 
     protected virtual void CheckLastSendTime()
     {
-        // timeAsDouble not available in older Unity versions.
-#if !UNITY_2020_3_OR_NEWER
-        if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
-        {
-            if (sendIntervalCounter == sendIntervalMultiplier)
-                sendIntervalCounter = 0;
-            sendIntervalCounter++;
-        }
-#else
+#if UNITY_2020_3_OR_NEWER
         if (AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
         {
             if (sendIntervalCounter == sendIntervalMultiplier)
                 sendIntervalCounter = 0;
             sendIntervalCounter++;
         }
-    }
+#else
+        // timeAsDouble not available in older Unity versions.
+        if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
+        {
+            if (sendIntervalCounter == sendIntervalMultiplier)
+                sendIntervalCounter = 0;
+            sendIntervalCounter++;
+        }
 #endif
+    }
 
     // check if position / rotation / scale changed since last sync
     protected virtual bool Changed(TransformSnapshot current) =>
@@ -235,7 +235,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
             // regular serialisation the delta compression will get wrong values.
             // Notes:
             // 1. Interestingly only the older clients have it wrong, because at the end
-            //    of the function, last = snapshot which is the initial state's snapshot
+            //    of this function, last = snapshot which is the initial state's snapshot
             // 2. Regular NTR gets by this bug because it sends every frame anyway so initialstate
             //    snapshot constructed would have been the same as the last anyway.
             if (last.remoteTime > 0) 

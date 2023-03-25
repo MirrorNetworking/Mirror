@@ -166,14 +166,44 @@ namespace Mirror
         public static void WriteQuaternion(this NetworkWriter writer, Quaternion value) => writer.WriteBlittable(value);
         public static void WriteQuaternionNullable(this NetworkWriter writer, Quaternion? value) => writer.WriteBlittableNullable(value);
 
-        public static void WriteRect(this NetworkWriter writer, Rect value) => writer.WriteBlittable(value);
-        public static void WriteRectNullable(this NetworkWriter writer, Rect? value) => writer.WriteBlittableNullable(value);
+        // Rect is a struct with properties instead of fields
+        public static void WriteRect(this NetworkWriter writer, Rect value)
+        {
+            writer.WriteVector2(value.position);
+            writer.WriteVector2(value.size);
+        }
+        public static void WriteRectNullable(this NetworkWriter writer, Rect? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteRect(value.Value);
+        }
 
-        public static void WritePlane(this NetworkWriter writer, Plane value) => writer.WriteBlittable(value);
-        public static void WritePlaneNullable(this NetworkWriter writer, Plane? value) => writer.WriteBlittableNullable(value);
+        // Plane is a struct with properties instead of fields
+        public static void WritePlane(this NetworkWriter writer, Plane value)
+        {
+            writer.WriteVector3(value.normal);
+            writer.WriteFloat(value.distance);
+        }
+        public static void WritePlaneNullable(this NetworkWriter writer, Plane? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WritePlane(value.Value);
+        }
 
-        public static void WriteRay(this NetworkWriter writer, Ray value) => writer.WriteBlittable(value);
-        public static void WriteRayNullable(this NetworkWriter writer, Ray? value) => writer.WriteBlittableNullable(value);
+        // Ray is a struct with properties instead of fields
+        public static void WriteRay(this NetworkWriter writer, Ray value)
+        {
+            writer.WriteVector3(value.origin);
+            writer.WriteVector3(value.direction);
+        }
+        public static void WriteRayNullable(this NetworkWriter writer, Ray? value)
+        {
+            writer.WriteBool(value.HasValue);
+            if (value.HasValue)
+                writer.WriteRay(value.Value);
+        }
 
         public static void WriteMatrix4x4(this NetworkWriter writer, Matrix4x4 value) => writer.WriteBlittable(value);
         public static void WriteMatrix4x4Nullable(this NetworkWriter writer, Matrix4x4? value) => writer.WriteBlittableNullable(value);

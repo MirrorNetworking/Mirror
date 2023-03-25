@@ -1,6 +1,6 @@
+using System;
 using UnityEngine;
 using Mirror;
-using System;
 
 namespace TestNT
 {
@@ -249,7 +249,15 @@ namespace TestNT
         // Headless client forced to ground
         void HandleJumping()
         {
-            jumpSpeed = Physics.gravity.y * Time.deltaTime;
+            if (groundState != GroundState.Grounded)
+            {
+                // handles running off a cliff and/or player released Spacebar.
+                groundState = GroundState.Falling;
+                jumpSpeed = Mathf.Min(jumpSpeed, maxJumpSpeed);
+                jumpSpeed += Physics.gravity.y * Time.deltaTime;
+            }
+            else
+                jumpSpeed = Physics.gravity.y * Time.deltaTime;
         }
 
 #endif

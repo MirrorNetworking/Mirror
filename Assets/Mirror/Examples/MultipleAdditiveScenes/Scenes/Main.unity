@@ -276,8 +276,8 @@ MonoBehaviour:
     bufferTimeMultiplier: 2
     catchupNegativeThreshold: -1
     catchupPositiveThreshold: 1
-    catchupSpeed: 0.009999999776482582
-    slowdownSpeed: 0.009999999776482582
+    catchupSpeed: 0.019999999552965164
+    slowdownSpeed: 0.03999999910593033
     driftEmaDuration: 1
     dynamicAdjustment: 1
     dynamicAdjustmentTolerance: 1
