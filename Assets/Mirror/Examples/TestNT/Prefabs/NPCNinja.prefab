@@ -124,7 +124,7 @@ MonoBehaviour:
   compressRotation: 1
   positionPrecision: 0.01
   scalePrecision: 0.01
-  timelineOffset: 0
+  timelineOffset: 1
 --- !u!114 &5677112931370300479
 MonoBehaviour:
   m_ObjectHideFlags: 0

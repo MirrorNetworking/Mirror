@@ -49,12 +49,12 @@ namespace TestNT
 
                 if (transport is SimpleWebTransport swt)
                 {
-                    swt.port = 7778;
+                    swt.port = 7777;
                     swt.clientUseWss = true;
                 }
 
                 if (transport is KcpTransport kcp)
-                    kcp.Port = 7778;
+                    kcp.Port = 27777;
             }
             if (server == 1)
             {
@@ -75,12 +75,12 @@ namespace TestNT
 
                 if (transport is SimpleWebTransport swt)
                 {
-                    swt.port = 27778;
+                    swt.port = 7777;
                     swt.clientUseWss = false;
                 }
 
                 if (transport is KcpTransport kcp)
-                    kcp.Port = 27778;
+                    kcp.Port = 27777;
             }
         }
 
@@ -95,10 +95,10 @@ namespace TestNT
                 Application.targetFrameRate = 30;
 
                 if (Transport.active is SimpleWebTransport swt)
-                    swt.port = 27778;
+                    swt.port = 27777;
 
-                if (Transport.active is kcp2k.KcpTransport kcp)
-                    kcp.Port = 27778;
+                if (Transport.active is KcpTransport kcp)
+                    kcp.Port = 27777;
 
                 ProcessCmdLineArgs();
 
@@ -121,6 +121,9 @@ namespace TestNT
                     swt.sslEnabled = true;
                     swt.clientUseWss = true;
                 }
+
+                if (Transport.active is KcpTransport kcp)
+                    kcp.Port = 27777;
 
                 ProcessCmdLineArgs();
 
@@ -211,7 +214,7 @@ namespace TestNT
             }
 
             if (authData.useNinja)
-                player.GetComponent<NTRCustomSendInterval>().sendIntervalMultiplier = authData.multiplier;
+                player.GetComponent<NetworkTransformReliable>().sendIntervalMultiplier = authData.multiplier;
 
             player.transform.LookAt(new Vector3(0f, 1f, 0f));
 

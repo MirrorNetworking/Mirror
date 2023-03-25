@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0fecffa3f624585964b0d0eb21b18e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Port: 7777
+  Port: 27777
   DualMode: 1
   NoDelay: 1
   Interval: 10
@@ -182,7 +182,7 @@ MonoBehaviour:
   MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 298449
   UnreliableMaxMessageSize: 1199
-  debugLog: 0
+  debugLog: 1
   statisticsGUI: 0
   statisticsLog: 0
 --- !u!114 &249891956
@@ -205,7 +205,7 @@ MonoBehaviour:
   offlineScene: 
   onlineScene: 
   transport: {fileID: 249891955}
-  networkAddress: localhost
+  networkAddress: mirror.clevertech.net
   maxConnections: 100
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 897184729387425976, guid: dc2c4328591bef748abb8df795c17202, type: 3}

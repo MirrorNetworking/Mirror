@@ -1150,7 +1150,7 @@ namespace Mirror
 
         void OnClientConnectInternal()
         {
-            //Debug.Log("NetworkManager.OnClientConnectInternal");
+            Debug.Log("NetworkManager.OnClientConnectInternal");
 
             if (authenticator != null)
             {
