@@ -69,11 +69,8 @@ namespace Mirror.Examples.SnapshotInterpolationDemo
         public void OnMessage(Snapshot3D snap)
         {
             // set local timestamp (= when it was received on our end)
-#if !UNITY_2020_3_OR_NEWER
+            // Unity 2019 doesn't have Time.timeAsDouble yet
             snap.localTime = NetworkTime.localTime;
-#else
-            snap.localTime = Time.timeAsDouble;
-#endif
 
             // (optional) dynamic adjustment
             if (snapshotSettings.dynamicAdjustment)
