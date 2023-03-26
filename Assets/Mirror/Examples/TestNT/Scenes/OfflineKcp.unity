@@ -445,7 +445,7 @@ MonoBehaviour:
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineKcp.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
   transport: {fileID: 821201142}
-  networkAddress: mirror.clevertech.net
+  networkAddress: mirror2.clevertech.net
   maxConnections: 1000
   authenticator: {fileID: 821201138}
   playerPrefab: {fileID: 2033010110135952297, guid: 10f39bef276942448bfdfba062b6b6e0, type: 3}

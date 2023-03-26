@@ -45,7 +45,7 @@ namespace TestNT
         {
             if (server == 0)
             {
-                SetHostname("mirror.clevertech.net");
+                SetHostname("mirror2.clevertech.net");
 
                 if (transport is SimpleWebTransport swt)
                 {
