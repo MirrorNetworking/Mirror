@@ -75,7 +75,7 @@ public class NTRCustomSendInterval : NetworkTransformBase
         // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
         // the possibility of Update() running first before the object's movement
         // script's Update(), which then causes NT to send every alternate frame
-        // instead.		
+        // instead.
         if (isServer || (IsClientWithAuthority && NetworkClient.ready)) 
         {
             if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
