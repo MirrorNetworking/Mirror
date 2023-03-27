@@ -6,7 +6,9 @@
 // some users may still be using that.
 using System.Runtime.CompilerServices;
 using UnityEngine;
+#if !UNITY_2020_3_OR_NEWER
 using Stopwatch = System.Diagnostics.Stopwatch;
+#endif
 
 namespace Mirror
 {
@@ -23,15 +25,21 @@ namespace Mirror
 
         static ExponentialMovingAverage _rtt = new ExponentialMovingAverage(PingWindowSize);
 
+        /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
+#if UNITY_2020_3_OR_NEWER
+        public static double localTime
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Time.timeAsDouble;
+        }
+#else
         // need stopwatch for older Unity versions, but it's quite slow.
         // CAREFUL: unlike Time.time, this is not a FRAME time.
         //          it changes during the frame too.
         static readonly Stopwatch stopwatch = new Stopwatch();
-
         static NetworkTime() => stopwatch.Start();
-
-        /// <summary>Returns double precision clock time _in this system_, unaffected by the network.</summary>
         public static double localTime => stopwatch.Elapsed.TotalSeconds;
+#endif
 
         /// <summary>The time in seconds since the server started.</summary>
         // via global NetworkClient snapshot interpolated timeline (if client).
@@ -69,7 +77,9 @@ namespace Mirror
             PingWindowSize = 6;
             lastPingTime = 0;
             _rtt = new ExponentialMovingAverage(PingWindowSize);
+#if !UNITY_2020_3_OR_NEWER
             stopwatch.Restart();
+#endif
         }
 
         internal static void UpdateClient()
