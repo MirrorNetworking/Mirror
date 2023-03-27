@@ -1,4 +1,5 @@
 // NetworkTransform V3 (reliable) by mischa (2022-10)
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -45,6 +46,7 @@ namespace Mirror
         [Header("Snapshot Interpolation")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
         public bool timelineOffset = false;
+        double offset => NetworkServer.sendInterval * (timelineOffset ? sendIntervalMultiplier : sendIntervalMultiplier - 1);
 
         // delta compression needs to remember 'last' to compress against
         protected Vector3Long lastSerializedPosition = Vector3Long.zero;
@@ -320,7 +322,7 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     serverSnapshots,
@@ -337,7 +339,6 @@ namespace Mirror
             // needs to be sendInterval. half sendInterval doesn't solve it.
             // https://github.com/MirrorNetworking/Mirror/issues/3427
             // remove this after LocalWorldState.
-            double offset = timelineOffset ? NetworkServer.sendInterval : 0;
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + offset, position, rotation, scale);
         }
 
@@ -349,7 +350,7 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
+                NeedsCorrection(clientSnapshots, NetworkClient.connection.remoteTimeStamp, NetworkClient.sendInterval * sendIntervalMultiplier, onlySyncOnChangeCorrectionMultiplier))
             {
                 RewriteHistory(
                     clientSnapshots,
@@ -366,7 +367,6 @@ namespace Mirror
             // needs to be sendInterval. half sendInterval doesn't solve it.
             // https://github.com/MirrorNetworking/Mirror/issues/3427
             // remove this after LocalWorldState.
-            double offset = timelineOffset ? NetworkServer.sendInterval : 0;
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + offset, position, rotation, scale);
         }
 
