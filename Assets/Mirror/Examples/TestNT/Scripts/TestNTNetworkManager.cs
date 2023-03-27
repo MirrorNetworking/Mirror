@@ -45,8 +45,11 @@ namespace TestNT
         {
             if (server == 0)
             {
+#if UNITY_WEBGL
                 SetHostname("mirror.clevertech.net");
-
+#else
+                SetHostname("mirror2.clevertech.net");
+#endif
                 if (transport is SimpleWebTransport swt)
                 {
                     swt.port = 7777;
@@ -84,7 +87,7 @@ namespace TestNT
             }
         }
 
-        #region Unity Callbacks
+#region Unity Callbacks
 
 #if UNITY_SERVER
         public override void Start()

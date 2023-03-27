@@ -250,6 +250,10 @@ PrefabInstance:
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5678319891599719911, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
+      propertyPath: m_Options.m_Options.Array.data[0].m_Text
+      value: mirror2.clevertech.net
+      objectReference: {fileID: 0}
+    - target: {fileID: 5678319891599719911, guid: 7cf6fcfd5a32c1545bc85a85bfa9c80b, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 821201135}
