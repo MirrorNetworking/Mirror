@@ -151,30 +151,12 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 Apply(computed, to);
             }
 
-            // 'only sync if moved'
-            // explain..
-            // from 1 snap to next snap..
-            // it'll be old...
-            if (lastClientCount > 1 && clientSnapshots.Count == 1)
-            {
-                // this is it. snapshots are down to '1'.
-                // does this cause stuck?
-            }
-
             lastClientCount = clientSnapshots.Count;
         }
     }
 
     protected virtual void CheckLastSendTime()
     {
-#if UNITY_2020_3_OR_NEWER
-        if (AccurateInterval.Elapsed(Time.timeAsDouble, NetworkServer.sendInterval, ref lastSendIntervalTime))
-        {
-            if (sendIntervalCounter == sendIntervalMultiplier)
-                sendIntervalCounter = 0;
-            sendIntervalCounter++;
-        }
-#else
         // timeAsDouble not available in older Unity versions.
         if (AccurateInterval.Elapsed(NetworkTime.localTime, NetworkServer.sendInterval, ref lastSendIntervalTime))
         {
@@ -182,7 +164,6 @@ public class NTRCustomSendInterval : NetworkTransformBase
                 sendIntervalCounter = 0;
             sendIntervalCounter++;
         }
-#endif
     }
 
     // check if position / rotation / scale changed since last sync
