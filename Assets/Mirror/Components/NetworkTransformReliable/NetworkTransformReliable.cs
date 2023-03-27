@@ -1,4 +1,4 @@
-// NetworkTransform V3 (reliable) by mischa (2022-10)
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -74,7 +74,7 @@ namespace Mirror
             // It has to be checked in LateUpdate() for onlySyncOnChange to avoid
             // the possibility of Update() running first before the object's movement
             // script's Update(), which then causes NT to send every alternate frame
-            // instead.
+            // instead.		
             if (isServer || (IsClientWithAuthority && NetworkClient.ready))
             {
                 if (sendIntervalCounter == sendIntervalMultiplier && (!onlySyncOnChange || Changed(Construct())))
@@ -320,7 +320,7 @@ namespace Mirror
 
             // 'only sync on change' needs a correction on every new move sequence.
             if (onlySyncOnChange &&
-                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval, onlySyncOnChangeCorrectionMultiplier))
+                NeedsCorrection(serverSnapshots, connectionToClient.remoteTimeStamp, NetworkServer.sendInterval * sendIntervalMultiplier, onlySyncOnChangeInterval))
             {
                 RewriteHistory(
                     serverSnapshots,
@@ -337,7 +337,7 @@ namespace Mirror
             // needs to be sendInterval. half sendInterval doesn't solve it.
             // https://github.com/MirrorNetworking/Mirror/issues/3427
             // remove this after LocalWorldState.
-            double offset = timelineOffset ? NetworkServer.sendInterval : 0;
+            double offset = NetworkServer.sendInterval * (timelineOffset ? sendIntervalMultiplier : sendIntervalMultiplier - 1);
             AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + offset, position, rotation, scale);
         }
 
@@ -366,7 +366,7 @@ namespace Mirror
             // needs to be sendInterval. half sendInterval doesn't solve it.
             // https://github.com/MirrorNetworking/Mirror/issues/3427
             // remove this after LocalWorldState.
-            double offset = timelineOffset ? NetworkServer.sendInterval : 0;
+            double offset = NetworkServer.sendInterval * (timelineOffset ? sendIntervalMultiplier : sendIntervalMultiplier - 1);
             AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + offset, position, rotation, scale);
         }
 
