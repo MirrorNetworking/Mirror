@@ -233,7 +233,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0110f245bfcfc7d459681f7bd9ebc590, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  port: 7778
+  port: 7777
   maxMessageSize: 16384
   handshakeMaxSize: 3000
   noDelay: 1
@@ -262,8 +262,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 1
-  autoConnectClientBuild: 0
+  autoStartServerBuild: 0
+  autoConnectClientBuild: 1
   sendRate: 30
   offlineScene: Assets/Mirror/Examples/TestNT/Scenes/OfflineWeb.unity
   onlineScene: Assets/Mirror/Examples/TestNT/Scenes/Online.unity
@@ -286,11 +286,10 @@ MonoBehaviour:
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
   timeInterpolationGui: 1
-  playerNinjaPrefab: {fileID: 1428992836745641328, guid: 4b4e4d1a8090c7a45bab0cbc52ccfd76, type: 3}
-  botPrefab: {fileID: 629047657802428152, guid: 45e99b6415bfdc846bbbfc2d949d53f5, type: 3}
-  npcPrefab: {fileID: 9078678990242496461, guid: 41855c7cf63a3dc45ac8a93b4e2ecd54, type: 3}
+  playerNinjaPrefab: {fileID: 9193589764031967748, guid: 7903ea74806680c4f9f3a62da96765c2, type: 3}
+  botPrefab: {fileID: 297236141164807331, guid: daa43d6577eba4240807391d6c63ea8d, type: 3}
   botNinjaPrefab: {fileID: 2972877558187846166, guid: 186c06a2be59cc84db82de14fccac374, type: 3}
-  npcPrefab: {fileID: 9078678990242496461, guid: 41855c7cf63a3dc45ac8a93b4e2ecd54, type: 3}
+  npcPrefab: {fileID: 1533749746917158910, guid: e1733989db98a774887fad893ec443dc, type: 3}
   npcNinjaPrefab: {fileID: 388172571495221481, guid: 4f67582aaba8f814cae98c38f4e9782d, type: 3}
 --- !u!114 &821201136
 MonoBehaviour:
