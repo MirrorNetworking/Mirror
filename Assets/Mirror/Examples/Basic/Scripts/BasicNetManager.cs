@@ -1,4 +1,3 @@
-using Mirror.Examples.AdditiveScenes;
 using UnityEngine;
 
 namespace Mirror.Examples.Basic
@@ -17,6 +16,14 @@ namespace Mirror.Examples.Basic
             base.Awake();
             singleton = this;
         }
+
+#if UNITY_SERVER
+        public override void Start()
+        {
+            ((SimpleWeb.SimpleWebTransport)Transport.active).port = 27778;
+            base.Start();
+        }
+#endif
 
         /// <summary>
         /// Called on the server when a client adds a new player with NetworkClient.AddPlayer.

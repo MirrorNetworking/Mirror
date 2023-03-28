@@ -78,29 +78,25 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        void OnValidate()
-        {
-            Log.level = _logLevels;
-        }
-
         SimpleWebClient client;
         SimpleWebServer server;
 
         TcpConfig TcpConfig => new TcpConfig(noDelay, sendTimeout, receiveTimeout);
 
-        public override bool Available()
-        {
-            return true;
-        }
-        public override int GetMaxPacketSize(int channelId = 0)
-        {
-            return maxMessageSize;
-        }
-
         void Awake()
         {
             Log.level = _logLevels;
         }
+
+        void OnValidate()
+        {
+            Log.level = _logLevels;
+        }
+
+        public override bool Available() => true;
+
+        public override int GetMaxPacketSize(int channelId = 0) => maxMessageSize;
+
         public override void Shutdown()
         {
             client?.Disconnect();
@@ -112,7 +108,7 @@ namespace Mirror.SimpleWeb
         #region Client
 
         string GetClientScheme() => (sslEnabled || clientUseWss) ? SecureScheme : NormalScheme;
-        string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
+
         public override bool ClientConnected()
         {
             // not null and not NotConnected (we want to return true if connecting or disconnecting)
@@ -141,7 +137,8 @@ namespace Mirror.SimpleWeb
             }
 
             client = SimpleWebClient.Create(maxMessageSize, clientMaxMessagesPerTick, TcpConfig);
-            if (client == null) { return; }
+            if (client == null)
+                return;
 
             client.onConnect += OnClientConnected.Invoke;
 
@@ -206,6 +203,19 @@ namespace Mirror.SimpleWeb
 
         #region Server
 
+        string GetServerScheme() => sslEnabled ? SecureScheme : NormalScheme;
+
+        public override Uri ServerUri()
+        {
+            UriBuilder builder = new UriBuilder
+            {
+                Scheme = GetServerScheme(),
+                Host = Dns.GetHostName(),
+                Port = port
+            };
+            return builder.Uri;
+        }
+
         public override bool ServerActive()
         {
             return server != null && server.Active;
@@ -214,9 +224,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStart()
         {
             if (ServerActive())
-            {
                 Debug.LogError("[SimpleWebTransport] Server Already Started");
-            }
 
             SslConfig config = SslConfigLoader.Load(sslEnabled, sslCertJson, sslProtocols);
             server = new SimpleWebServer(serverMaxMessagesPerTick, TcpConfig, maxMessageSize, handshakeMaxSize, config);
@@ -235,9 +243,7 @@ namespace Mirror.SimpleWeb
         public override void ServerStop()
         {
             if (!ServerActive())
-            {
                 Debug.LogError("[SimpleWebTransport] Server Not Active");
-            }
 
             server.Stop();
             server = null;
@@ -246,9 +252,7 @@ namespace Mirror.SimpleWeb
         public override void ServerDisconnect(int connectionId)
         {
             if (!ServerActive())
-            {
                 Debug.LogError("[SimpleWebTransport] Server Not Active");
-            }
 
             server.KickClient(connectionId);
         }
@@ -279,21 +283,7 @@ namespace Mirror.SimpleWeb
             OnServerDataSent?.Invoke(connectionId, segment, Channels.Reliable);
         }
 
-        public override string ServerGetClientAddress(int connectionId)
-        {
-            return server.GetClientAddress(connectionId);
-        }
-
-        public override Uri ServerUri()
-        {
-            UriBuilder builder = new UriBuilder
-            {
-                Scheme = GetServerScheme(),
-                Host = Dns.GetHostName(),
-                Port = port
-            };
-            return builder.Uri;
-        }
+        public override string ServerGetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
 
         // messages should always be processed in early update
         public override void ServerEarlyUpdate()

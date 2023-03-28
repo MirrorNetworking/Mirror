@@ -5,6 +5,7 @@ using AOT;
 namespace Mirror.SimpleWeb
 {
 #if !UNITY_2021_3_OR_NEWER
+
     // Unity 2019 doesn't have ArraySegment.ToArray() yet.
     public static class Extensions
     {
@@ -75,6 +76,7 @@ namespace Mirror.SimpleWeb
             {
                 if (ConnectingSendQueue == null)
                     ConnectingSendQueue = new Queue<byte[]>();
+
                 ConnectingSendQueue.Enqueue(segment.ToArray());
             }
         }
@@ -91,6 +93,7 @@ namespace Mirror.SimpleWeb
                     byte[] next = ConnectingSendQueue.Dequeue();
                     SimpleWebJSLib.Send(index, next, 0, next.Length);
                 }
+
                 ConnectingSendQueue = null;
             }
         }

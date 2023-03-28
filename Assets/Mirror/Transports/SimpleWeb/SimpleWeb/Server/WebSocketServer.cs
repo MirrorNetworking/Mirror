@@ -121,9 +121,7 @@ namespace Mirror.SimpleWeb
                 success = handShake.TryHandshake(conn);
 
                 if (success)
-                {
                     Console.WriteLine($"[SimpleWebTransport] Sent Handshake {conn}, false");
-                }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -241,9 +239,7 @@ namespace Mirror.SimpleWeb
         public string GetClientAddress(int id)
         {
             if (connections.TryGetValue(id, out Connection conn))
-            {
                 return conn.client.Client.RemoteEndPoint.ToString();
-            }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
