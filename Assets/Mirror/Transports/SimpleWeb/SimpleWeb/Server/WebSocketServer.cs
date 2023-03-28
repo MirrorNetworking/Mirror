@@ -76,7 +76,6 @@ namespace Mirror.SimpleWeb
                         TcpClient client = listener.AcceptTcpClient();
                         tcpConfig.ApplyTo(client);
 
-
                         // TODO keep track of connections before they are in connections dictionary
                         //      this might not be a problem as HandshakeAndReceiveLoop checks for stop
                         //      and returns/disposes before sending message to queue
