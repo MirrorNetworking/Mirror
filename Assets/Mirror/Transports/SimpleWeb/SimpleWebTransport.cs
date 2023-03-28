@@ -41,24 +41,28 @@ namespace Mirror.SimpleWeb
         [Tooltip("Groups messages in queue before calling Stream.Send")]
         public bool batchSend = true;
 
-        [Tooltip("Waits for 1ms before grouping and sending messages. " +
-            "This gives time for mirror to finish adding message to queue so that less groups need to be made. " +
+        [Tooltip("Waits for 1ms before grouping and sending messages.\n" +
+            "This gives time for mirror to finish adding message to queue so that less groups need to be made.\n" +
             "If WaitBeforeSend is true then BatchSend Will also be set to true")]
-        public bool waitBeforeSend = false;
+        public bool waitBeforeSend = true;
 
         [Header("Ssl Settings")]
-        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport, NOTE: if sslEnabled is true clientUseWss is also true")]
+        [Tooltip("Sets connect scheme to wss. Useful when client needs to connect using wss when TLS is outside of transport.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool clientUseWss;
 
+        [Tooltip("Requires wss connections on server, only to be used with SSL cert.json, never with reverse proxy.\nNOTE: if sslEnabled is true clientUseWss is also true")]
         public bool sslEnabled;
-        [Tooltip("Path to json file that contains path to cert and its password\n\nUse Json file so that cert password is not included in client builds\n\nSee cert.example.Json")]
+
+        [Tooltip("Path to json file that contains path to cert and its password\nUse Json file so that cert password is not included in client builds\nSee Assets/Mirror/Transports/.cert.example.Json")]
         public string sslCertJson = "./cert.json";
-        public SslProtocols sslProtocols = SslProtocols.Tls12;
+
+        [Tooltip("Protocols that SSL certificate is created to support.")]
+        public SslProtocols sslProtocols = SslProtocols.Tls13;
 
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
         [FormerlySerializedAs("logLevels")]
-        [SerializeField] Log.Levels _logLevels = Log.Levels.none;
+        [SerializeField] Log.Levels _logLevels = Log.Levels.info;
 
         /// <summary>
         /// <para>Gets _logLevels field</para>
