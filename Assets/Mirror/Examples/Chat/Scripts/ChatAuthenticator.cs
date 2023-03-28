@@ -13,6 +13,7 @@ namespace Mirror.Examples.Chat
     public class ChatAuthenticator : NetworkAuthenticator
     {
         readonly HashSet<NetworkConnection> connectionsPendingDisconnect = new HashSet<NetworkConnection>();
+        internal static readonly HashSet<string> playerNames = new HashSet<string>();
 
         [Header("Client Username")]
         public string playerName;
@@ -35,6 +36,13 @@ namespace Mirror.Examples.Chat
         #endregion
 
         #region Server
+
+        // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
+        [UnityEngine.RuntimeInitializeOnLoadMethod]
+        static void ResetStatics()
+        {
+            playerNames.Clear();
+        }
 
         /// <summary>
         /// Called on server from StartServer to initialize the Authenticator
@@ -77,10 +85,10 @@ namespace Mirror.Examples.Chat
             if (connectionsPendingDisconnect.Contains(conn)) return;
 
             // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
-            if (!Player.playerNames.Contains(msg.authUsername))
+            if (!playerNames.Contains(msg.authUsername))
             {
                 // Add the name to the HashSet
-                Player.playerNames.Add(msg.authUsername);
+                playerNames.Add(msg.authUsername);
 
                 // Store username in authenticationData
                 // This will be read in Player.OnStartServer
@@ -170,12 +178,7 @@ namespace Mirror.Examples.Chat
         /// </summary>
         public override void OnClientAuthenticate()
         {
-            AuthRequestMessage authRequestMessage = new AuthRequestMessage
-            {
-                authUsername = playerName,
-            };
-
-            NetworkClient.Send(authRequestMessage);
+            NetworkClient.Send(new AuthRequestMessage { authUsername = playerName });
         }
 
         /// <summary>
