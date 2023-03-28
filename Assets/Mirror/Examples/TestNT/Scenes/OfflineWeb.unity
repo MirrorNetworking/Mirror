@@ -213,7 +213,6 @@ GameObject:
   - component: {fileID: 821201136}
   - component: {fileID: 821201140}
   - component: {fileID: 821201141}
-  - component: {fileID: 821201142}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -241,8 +240,8 @@ MonoBehaviour:
   receiveTimeout: 60000
   serverMaxMessagesPerTick: 10000
   clientMaxMessagesPerTick: 2000
-  batchSend: 0
-  waitBeforeSend: 0
+  batchSend: 1
+  waitBeforeSend: 1
   clientUseWss: 1
   sslEnabled: 0
   sslCertJson: 
@@ -384,18 +383,6 @@ MonoBehaviour:
   serverReceivedBytesPerSecond: 0
   serverSentPacketsPerSecond: 0
   serverSentBytesPerSecond: 0
---- !u!114 &821201142
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 821201133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc5b42cbfc38b1c4d86fd25905b19e29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1511259233
 GameObject:
   m_ObjectHideFlags: 0

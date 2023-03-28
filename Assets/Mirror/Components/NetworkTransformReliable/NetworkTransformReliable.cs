@@ -45,7 +45,8 @@ namespace Mirror
         [Header("Snapshot Interpolation")]
         [Tooltip("Add a small timeline offset to account for decoupled arrival of NetworkTime and NetworkTransform snapshots.\nfixes: https://github.com/MirrorNetworking/Mirror/issues/3427")]
         public bool timelineOffset = false;
-        double offset => NetworkServer.sendInterval * (timelineOffset ? sendIntervalMultiplier : sendIntervalMultiplier - 1);
+        double timeStampAdjustment => NetworkServer.sendInterval * (sendIntervalMultiplier - 1);
+        double offset => timelineOffset ? NetworkServer.sendInterval * sendIntervalMultiplier : 0;
 
         // delta compression needs to remember 'last' to compress against
         protected Vector3Long lastSerializedPosition = Vector3Long.zero;
@@ -338,7 +339,7 @@ namespace Mirror
             // needs to be sendInterval. half sendInterval doesn't solve it.
             // https://github.com/MirrorNetworking/Mirror/issues/3427
             // remove this after LocalWorldState.
-            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + offset, position, rotation, scale);
+            AddSnapshot(serverSnapshots, connectionToClient.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
         }
 
         // server broadcasts sync message to all clients
@@ -366,7 +367,7 @@ namespace Mirror
             // needs to be sendInterval. half sendInterval doesn't solve it.
             // https://github.com/MirrorNetworking/Mirror/issues/3427
             // remove this after LocalWorldState.
-            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + offset, position, rotation, scale);
+            AddSnapshot(clientSnapshots, NetworkClient.connection.remoteTimeStamp + timeStampAdjustment + offset, position, rotation, scale);
         }
 
         // only sync on change /////////////////////////////////////////////////
