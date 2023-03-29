@@ -57,7 +57,7 @@ namespace Mirror.SimpleWeb
         public string sslCertJson = "./cert.json";
 
         [Tooltip("Protocols that SSL certificate is created to support.")]
-        public SslProtocols sslProtocols = SslProtocols.Tls13;
+        public SslProtocols sslProtocols = SslProtocols.Tls12;
 
         [Header("Debug")]
         [Tooltip("Log functions uses ConditionalAttribute which will effect which log methods are allowed. DEBUG allows warn/error, SIMPLEWEB_LOG_ENABLED allows all")]
