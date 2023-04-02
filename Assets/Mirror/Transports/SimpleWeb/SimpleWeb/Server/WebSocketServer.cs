@@ -76,7 +76,6 @@ namespace Mirror.SimpleWeb
                         TcpClient client = listener.AcceptTcpClient();
                         tcpConfig.ApplyTo(client);
 
-
                         // TODO keep track of connections before they are in connections dictionary
                         //      this might not be a problem as HandshakeAndReceiveLoop checks for stop
                         //      and returns/disposes before sending message to queue
@@ -121,9 +120,7 @@ namespace Mirror.SimpleWeb
                 success = handShake.TryHandshake(conn);
 
                 if (success)
-                {
                     Console.WriteLine($"[SimpleWebTransport] Sent Handshake {conn}, false");
-                }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -241,9 +238,7 @@ namespace Mirror.SimpleWeb
         public string GetClientAddress(int id)
         {
             if (connections.TryGetValue(id, out Connection conn))
-            {
                 return conn.client.Client.RemoteEndPoint.ToString();
-            }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;

@@ -59,9 +59,8 @@ namespace Mirror.SimpleWeb
                     conn.sendPending.Wait();
                     // wait for 1ms for mirror to send other messages
                     if (SendLoopConfig.sleepBeforeSend)
-                    {
                         Thread.Sleep(1);
-                    }
+
                     conn.sendPending.Reset();
 
                     if (SendLoopConfig.batchSend)
@@ -194,9 +193,7 @@ namespace Mirror.SimpleWeb
             }
 
             if (setMask)
-            {
                 buffer[startOffset + 1] |= 0b1000_0000;
-            }
 
             return sendLength + startOffset;
         }

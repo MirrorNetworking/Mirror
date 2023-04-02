@@ -19,9 +19,7 @@ namespace Mirror.SimpleWeb
 
                 byte[] keyBuffer = new byte[16];
                 using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-                {
                     rng.GetBytes(keyBuffer);
-                }
 
                 string key = Convert.ToBase64String(keyBuffer);
                 string keySum = key + Constants.HandshakeGUID;
@@ -52,7 +50,7 @@ namespace Mirror.SimpleWeb
 
                 if (!lengthOrNull.HasValue)
                 {
-                    Log.Error("[SimpleWebTransport] Connected closed before handshake");
+                    Log.Error("[SimpleWebTransport] Connection closed before handshake");
                     return false;
                 }
 
@@ -74,7 +72,7 @@ namespace Mirror.SimpleWeb
 
                 if (responseKey != expectedResponse)
                 {
-                    Log.Error($"[SimpleWebTransport] Response key incorrect, Response:{responseKey} Expected:{expectedResponse}");
+                    Log.Error($"[SimpleWebTransport] Response key incorrect\nResponse:{responseKey}\nExpected:{expectedResponse}");
                     return false;
                 }
 

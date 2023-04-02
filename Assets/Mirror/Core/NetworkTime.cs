@@ -102,7 +102,6 @@ namespace Mirror
             NetworkPongMessage pongMessage = new NetworkPongMessage
             {
                 clientTime = message.clientTime,
-                serverTime = localTime
             };
             conn.Send(pongMessage, Channels.Unreliable);
         }
