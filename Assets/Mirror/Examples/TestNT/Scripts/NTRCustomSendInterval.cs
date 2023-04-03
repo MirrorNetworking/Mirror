@@ -14,11 +14,6 @@ public class NTRCustomSendInterval : NetworkTransformBase
     [Tooltip("If we only sync on change, then we need to correct old snapshots if more time than sendInterval * multiplier has elapsed.\n\nOtherwise the first move will always start interpolating from the last move sequence's time, which will make it stutter when starting every time.")]
     public float onlySyncOnChangeCorrectionMultiplier = 2;
 
-    [Header("Send Interval Multiplier")]
-    [Tooltip("Check/Sync every multiple of Network Manager send interval (= 1 / NM Send Rate), instead of every send interval.")]
-    [Range(1, 120)]
-    public uint sendIntervalMultiplier = 3;
-
     [Header("Rotation")]
     [Tooltip("Sensitivity of changes needed before an updated state is sent over the network")]
     public float rotationSensitivity = 0.01f;
