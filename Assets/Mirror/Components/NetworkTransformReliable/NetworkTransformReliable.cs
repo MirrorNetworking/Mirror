@@ -11,6 +11,7 @@ namespace Mirror
         [Header("Sync Only If Changed")]
         [Tooltip("When true, changes are not sent unless greater than sensitivity values below.")]
         public bool onlySyncOnChange = true;
+
         uint sendIntervalCounter = 0;
         double lastSendIntervalTime = double.MinValue;
 
